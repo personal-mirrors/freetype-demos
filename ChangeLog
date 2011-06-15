@@ -1,5 +1,18 @@
 2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
 
+	[ftbench] Add option `-l' to specify last used glyph index.
+
+	* src/ftbench.c (last_index): New global variable, initialized
+	by UINT_MAX.
+	(test_load, test_load_advances, test_render, test_embolden,
+	test_get_cbox, test_get_glyph, test_image_cache, test_sbit_cache,
+	get_charset): Use it.
+	(usage): Updated.
+	(main): Handle `-l'. If larger than face->num_glyphs, it
+	is decresed to face->num_glyphs - 1.
+
+2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
 	[ftvalid] Validate each table if invalid layout table is found.
 
 	The validator clears all data[] array when any layout tables

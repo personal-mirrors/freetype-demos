@@ -101,7 +101,7 @@ const char* bench_desc[] = {
 int             preload;
 char*           filename;
 
-unsigned int    first_index;
+unsigned int    first_index, last_index = UINT_MAX;
 
 FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
 FT_Int32        load_flags  = FT_LOAD_DEFAULT;
@@ -216,7 +216,7 @@ test_load( btimer_t*  timer,
 
   TIMER_START( timer );
 
-  for ( i = first_index; i < face->num_glyphs; i++ )
+  for ( i = first_index; i <= last_index; i++ )
   {
     if ( !FT_Load_Glyph( face, i, load_flags ) )
       done++;
@@ -238,14 +238,14 @@ test_load_advances( btimer_t*  timer,
   FT_ULong   flags = *((FT_ULong*)user_data);
 
 
-  advances = (FT_Fixed *)calloc( sizeof ( FT_Fixed ), face->num_glyphs );
+  advances = (FT_Fixed *)calloc( sizeof ( FT_Fixed ), last_index - 1 );
 
   TIMER_START( timer );
 
   FT_Get_Advances( face,
-                   first_index, face->num_glyphs - first_index,
+                   first_index, last_index - first_index + 1,
                    flags, advances );
-  done += face->num_glyphs - first_index;
+  done += last_index - first_index + 1;
 
   TIMER_STOP( timer );
 
@@ -265,7 +265,7 @@ test_render( btimer_t*  timer,
 
   FT_UNUSED( user_data );
 
-  for ( i = first_index; i < face->num_glyphs; i++ )
+  for ( i = first_index; i <= last_index; i++ )
   {
     if ( FT_Load_Glyph( face, i, load_flags ) )
       continue;
@@ -289,7 +289,7 @@ test_embolden( btimer_t*  timer,
 
   FT_UNUSED( user_data );
 
-  for ( i = first_index; i < face->num_glyphs; i++ )
+  for ( i = first_index; i <= last_index; i++ )
   {
     if ( FT_Load_Glyph( face, i, load_flags ) )
       continue;
@@ -315,7 +315,7 @@ test_get_glyph( btimer_t*  timer,
 
   FT_UNUSED( user_data );
 
-  for ( i = first_index; i < face->num_glyphs; i++ )
+  for ( i = first_index; i <= last_index; i++ )
   {
     if ( FT_Load_Glyph( face, i, load_flags ) )
       continue;
@@ -345,7 +345,7 @@ test_get_cbox( btimer_t*  timer,
 
   FT_UNUSED( user_data );
 
-  for ( i = first_index; i < face->num_glyphs; i++ )
+  for ( i = first_index; i <= last_index; i++ )
   {
     if ( FT_Load_Glyph( face, i, load_flags ) )
       continue;
@@ -438,7 +438,7 @@ test_image_cache( btimer_t*  timer,
 
   TIMER_START( timer );
 
-  for ( i = first_index; i < face->num_glyphs; i++ )
+  for ( i = first_index; i <= last_index; i++ )
   {
     if ( !FTC_ImageCache_Lookup(image_cache, &font_type, i, &glyph, NULL) )
       done++;
@@ -469,7 +469,7 @@ test_sbit_cache( btimer_t*  timer,
 
   TIMER_START( timer );
 
-  for ( i = first_index; i < face->num_glyphs; i++ )
+  for ( i = first_index; i <= last_index; i++ )
   {
     if ( !FTC_SBitCache_Lookup(sbit_cache, &font_type, i, &glyph, NULL) )
       done++;
@@ -539,7 +539,7 @@ get_charset( FT_Face      face,
   int i;
 
 
-  charset->code = (FT_ULong*)calloc( face->num_glyphs, sizeof( FT_ULong ) );
+  charset->code = (FT_ULong*)calloc( last_index + 1, sizeof( FT_ULong ) );
   if ( !charset->code )
     return;
 
@@ -551,7 +551,7 @@ get_charset( FT_Face      face,
     /* certain fonts contain a broken charmap that will map character codes */
     /* to out-of-bounds glyph indices.  Take care of that here.             */
     /*                                                                      */
-    while ( gindex && i < face->num_glyphs )
+    while ( gindex && i < last_index + 1 )
     {
       if ( gindex >= first_index )
         charset->code[i++] = charcode;
@@ -565,7 +565,7 @@ get_charset( FT_Face      face,
 
 
     /* no charmap, do an identity mapping */
-    for ( i = 0, j = first_index; j < face->num_glyphs; i++, j++ )
+    for ( i = 0, j = first_index; j <= last_index; i++, j++ )
       charset->code[i] = j;
   }
 
@@ -644,6 +644,7 @@ void usage(void)
     "   -c : max iteration count for each test (0 means time limited)\n"
     "   -f : load flags (hexadecimal)\n"
     "   -i : first index to start with (default is 0)\n"
+    "   -l : last index to end with (default is max GID)\n"
     "   -m : max cache size in KByte (default is %d)\n"
     "   -p : preload font file in memory\n"
     "   -r : render mode (default is FT_RENDER_MODE_NORMAL)\n"
@@ -679,12 +680,13 @@ main(int argc,
   int         compare_cached = 0;
   int         i;
 
+
   while ( 1 )
   {
     int  opt;
 
 
-    opt = getopt( argc, argv, "Cc:f:i:m:pr:s:t:b:" );
+    opt = getopt( argc, argv, "Cc:f:i:l:m:pr:s:t:b:" );
 
     if ( opt == -1 )
       break;
@@ -702,6 +704,9 @@ main(int argc,
       break;
     case 'i':
       first_index = atoi( optarg );
+      break;
+    case 'l':
+      last_index = atoi( optarg );
       break;
     case 'm':
       max_bytes = atoi( optarg );
@@ -751,6 +756,9 @@ main(int argc,
 
   if ( get_face( &face ) )
     goto Exit;
+
+  if ( ( last_index + 1 ) > face->num_glyphs )
+    last_index = face->num_glyphs - 1;
 
   if ( FT_IS_SCALABLE( face ) )
   {
