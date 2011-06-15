@@ -281,8 +281,8 @@ test_render( btimer_t*  timer,
 
 int
 test_embolden( btimer_t*  timer,
-             FT_Face    face,
-             void*      user_data )
+               FT_Face    face,
+               void*      user_data )
 {
   int  i, done = 0;
 
