@@ -1,5 +1,21 @@
 2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
 
+	[ftvalid] Validate each table if invalid layout table is found.
+
+	The validator clears all data[] array when any layout tables
+	are found to be invalid, so the integrated validation cannot
+	report the validity for each tables.  From this revision,
+	ftvalid executes per-table validation and reports results,
+	when the integrated validation returns an error.
+
+	* src/ftvalid.c (report_result): New argument `is_single_table'
+	to enable failure report and disable guidance message.
+	(run_ot_validator): When the integrated validation returns an
+	error, the per-table validation is executed.
+	(run_gx_validator): Ditto.
+
+2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
 	[ftvalid] Replace TAB by spaces.
 
 2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>

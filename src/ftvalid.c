@@ -471,7 +471,8 @@
   report_result( FT_Bytes            data[],
                  FT_UInt             validation_flags,
                  const TableSpecRec  spec[],
-                 int                 spec_count )
+                 int                 spec_count,
+                 FT_Bool             is_single_table )
   {
     int  i;
     int  n_passes;
@@ -491,10 +492,16 @@
           printf( "%s", "...pass\n" );
           n_passes++;
         }
+        else if ( is_single_table )
+        {
+          printf( "[%s:%s] ", execname, validators[validator].symbol );
+          print_tag( stdout, spec[i].tag );
+          printf( "%s", "...failed\n" );
+        }
       }
     }
 
-    if ( n_passes == 0 && n_targets != 0 )
+    if ( !is_single_table && n_passes == 0 && n_targets != 0 )
     {
       printf( "[%s:%s] layout tables are invalid.\n",
               execname, validators[validator].symbol );
@@ -523,15 +530,15 @@
                     const char*  tables,
                     int          validation_level )
   {
-    FT_UInt       validation_flags;
+    FT_UInt       table_specs, validation_flags;
     FT_Error      error;
     FT_Bytes      data[N_OT_TABLE_SPEC];
-    unsigned int  i;
+    unsigned int  i, j;
 
 
-    validation_flags  = validation_level;
-    validation_flags |= make_table_specs( face, tables, ot_table_spec,
-                                          N_OT_TABLE_SPEC );
+    table_specs = make_table_specs( face, tables, ot_table_spec,
+                                    N_OT_TABLE_SPEC );
+    validation_flags  = ( table_specs | validation_level );
 
     for ( i = 0; i < N_OT_TABLE_SPEC; i++ )
       data[i] = NULL;
@@ -543,7 +550,35 @@
               validation_flags,
               &data[0], &data[1], &data[2], &data[3], &data[4] );
 
-    report_result( data, validation_flags, ot_table_spec, N_OT_TABLE_SPEC );
+    /* if integrated validation failed, exec per-table validation */
+    if ( error )
+    {
+      FT_UInt   validation_flags;
+      FT_Bytes  data[N_OT_TABLE_SPEC];
+
+
+      for ( i = 0; i < N_OT_TABLE_SPEC; i++ )
+      {
+        validation_flags  = ( table_specs | validation_level );
+        validation_flags &= ot_table_spec[i].validation_flag;
+        if ( validation_flags & ot_table_spec[i].validation_flag )
+        {
+          for ( j = 0; j < N_OT_TABLE_SPEC; j++ )
+            data[j] = NULL;
+          error = FT_OpenType_Validate( face, validation_flags,
+                                        &data[0],
+                                        &data[1],
+                                        &data[2],
+                                        &data[3],
+                                        &data[4] );
+          report_result( data, validation_flags, gx_table_spec,
+                         N_OT_TABLE_SPEC, TRUE );
+        }
+      }
+    }
+
+    report_result( data, validation_flags, ot_table_spec, N_OT_TABLE_SPEC,
+                   FALSE );
 
     for ( i = 0; i < N_OT_TABLE_SPEC; i++ )
       FT_OpenType_Free( face, data[i] );
@@ -582,14 +617,14 @@
                     const char*  tables,
                     int          validation_level )
   {
-    FT_UInt       validation_flags;
+    FT_UInt       table_specs, validation_flags;
     FT_Error      error;
     FT_Bytes      data[N_GX_TABLE_SPEC];
-    unsigned int  i;
+    unsigned int  i, j;
 
-    validation_flags  = validation_level;
-    validation_flags |= make_table_specs( face, tables, gx_table_spec,
-                                          N_GX_TABLE_SPEC );
+    table_specs = make_table_specs( face, tables, gx_table_spec,
+                                    N_GX_TABLE_SPEC );
+    validation_flags  = ( table_specs | validation_level );
 
     for ( i = 0; i < N_GX_TABLE_SPEC; i++ )
       data[i] = NULL;
@@ -602,7 +637,31 @@
               data,
               N_GX_TABLE_SPEC );
 
-    report_result( data, validation_flags, gx_table_spec, N_GX_TABLE_SPEC );
+    /* if integrated validation failed, exec per-table validation */
+    if ( error )
+    {
+      FT_UInt   validation_flags;
+      FT_Bytes  data[N_GX_TABLE_SPEC];
+
+
+      for ( i = 0; i < N_GX_TABLE_SPEC; i++ )
+      {
+        validation_flags  = ( table_specs | validation_level );
+        validation_flags &= gx_table_spec[i].validation_flag;
+        if ( validation_flags & gx_table_spec[i].validation_flag )
+        {
+          for ( j = 0; j < N_GX_TABLE_SPEC; j++ )
+            data[j] = NULL;
+          error = FT_TrueTypeGX_Validate( face, validation_flags, data,
+                                          N_GX_TABLE_SPEC );
+          report_result( data, validation_flags, gx_table_spec,
+                         N_GX_TABLE_SPEC, TRUE );
+        }
+      }
+    }
+
+    report_result( data, validation_flags, gx_table_spec, N_GX_TABLE_SPEC,
+                   FALSE );
 
     for ( i = 0; i < N_GX_TABLE_SPEC; i++ )
       FT_TrueTypeGX_Free( face, data[i] );
