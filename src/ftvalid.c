@@ -96,8 +96,8 @@
     int         (* is_implemented)( FT_Library library );
 
     FT_Error    (* run)           ( FT_Face     face,
-				    const char* tables,
-				    int         validation_level );
+                                    const char* tables,
+                                    int         validation_level );
     int         (* list_tables)   ( FT_Face     face );
 
     TableSpec       table_spec;
@@ -110,14 +110,14 @@
   static int is_ckern_validator_implemented ( FT_Library library );
 
   static FT_Error run_ot_validator          ( FT_Face      face,
-					      const char*  tables,
-					      int          validation_level );
+                                              const char*  tables,
+                                              int          validation_level );
   static FT_Error run_gx_validator          ( FT_Face      face,
-					      const char*  tables,
-					      int          validation_level );
+                                              const char*  tables,
+                                              int          validation_level );
   static FT_Error run_ckern_validator       ( FT_Face      face,
-					      const char*  dialect_request,
-					      int          validation_level );
+                                              const char*  dialect_request,
+                                              int          validation_level );
 
   static int list_ot_tables                 ( FT_Face  face );
   static int list_gx_tables                 ( FT_Face  face );
@@ -129,9 +129,9 @@
       OT_VALIDATE,
       "ot",
       ( "FT_OpenType_Validate "
-	"is disabled. replace FreeType2 with "
-	"otvalid"
-	"-enabled version\n" ),
+        "is disabled. replace FreeType2 with "
+        "otvalid"
+        "-enabled version\n" ),
       is_ot_validator_implemented,
       run_ot_validator,
       list_ot_tables,
@@ -142,9 +142,9 @@
       GX_VALIDATE,
       "gx",
       ( "FT_TrueTypeGX_Validate "
-	"is disabled. replace FreeType2 with "
-	"gxvalid"
-	"-enabled version\n" ),
+        "is disabled. replace FreeType2 with "
+        "gxvalid"
+        "-enabled version\n" ),
       is_gx_validator_implemented,
       run_gx_validator,
       list_gx_tables,
@@ -155,9 +155,9 @@
       CKERN_VALIDATE,
       "ckern",
       ( "FT_ClassicKern_Validate "
-	"is disabled. replace FreeType2 with "
-	"gxvalid"		/* NOTE: classic kern validator is in gxvalid. */
-	"-enabled version\n" ),
+        "is disabled. replace FreeType2 with "
+        "gxvalid"                /* NOTE: classic kern validator is in gxvalid. */
+        "-enabled version\n" ),
       is_ckern_validator_implemented,
       run_ckern_validator,
       list_ckern_tables,
@@ -246,14 +246,14 @@
       v = &validators[i];
 
       if ( v->n_table_spec == 0 )
-	continue;
+        continue;
 
       fprintf( stderr, "                            Supported tables in %s validator are:\n", v->symbol );
       fprintf( stderr, "                            " );
       for ( j = 0; j < v->n_table_spec; j++ )
       {
-	print_tag( stderr, v->table_spec[j].tag );
-	fprintf( stderr, " " );
+        print_tag( stderr, v->table_spec[j].tag );
+        fprintf( stderr, " " );
       }
 
       fprintf( stderr, "\n" );
@@ -482,15 +482,15 @@
     {
       if ( spec[i].validation_flag & validation_flags )
       {
-	n_targets++;
+        n_targets++;
 
-	if ( data[i] != NULL )
-	{
-	  printf( "[%s:%s] ", execname, validators[validator].symbol );
-	  print_tag( stdout, spec[i].tag );
-	  printf( "%s", "...pass\n" );
-	  n_passes++;
-	}
+        if ( data[i] != NULL )
+        {
+          printf( "[%s:%s] ", execname, validators[validator].symbol );
+          print_tag( stdout, spec[i].tag );
+          printf( "%s", "...pass\n" );
+          n_passes++;
+        }
       }
     }
 
@@ -756,7 +756,7 @@
         {
           int i;
 
-	  validator = LAST_VALIDATE;
+          validator = LAST_VALIDATE;
           for ( i = 0; i < LAST_VALIDATE; i++ )
           {
             if ( strcmp( optarg, validators[i].symbol ) == 0 )
@@ -765,11 +765,11 @@
               break;
             }
           }
-	  if ( validator == LAST_VALIDATE )
-	  {
-	    fprintf( stderr, "*** Unknown validator name: %s\n", optarg );
-	    print_usage( NULL );
-	  }
+          if ( validator == LAST_VALIDATE )
+          {
+            fprintf( stderr, "*** Unknown validator name: %s\n", optarg );
+            print_usage( NULL );
+          }
         }
         break;
 
@@ -844,8 +844,8 @@
       status = 0;
 
       if ( !validators[validator].is_implemented( library ) )
-	panic( FT_Err_Unimplemented_Feature,
-	       validators[validator].unimplemented_message );
+        panic( FT_Err_Unimplemented_Feature,
+               validators[validator].unimplemented_message );
 
 
       /* TODO: Multiple faces in a font file? */
@@ -857,9 +857,9 @@
         panic( FT_Err_Table_Missing, "This is not sfnt-housed font." );
 
       if ( dump_table_list )
-	validators[validator].list_tables( face );
+        validators[validator].list_tables( face );
       else
-	status = validators[validator].run( face, tables, validation_level );
+        status = validators[validator].run( face, tables, validation_level );
 
       FT_Done_Face( face );
       FT_Done_FreeType( library );

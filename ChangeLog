@@ -1,5 +1,9 @@
 2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
 
+	[ftvalid] Replace TAB by spaces.
+
+2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
 	[ftvalid] Abort if non-sfnt-housed font is given.
 
 	* src/ftvalid.c (main): If the opened face is not
