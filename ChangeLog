@@ -1,5 +1,13 @@
 2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
 
+	[ftvalid] Abort if non-sfnt-housed font is given.
+
+	* src/ftvalid.c (main): If the opened face is not
+	sfnt-housed, abort the validation because no OpenType,
+	TrueType GX or kerning tables can be loaded.
+
+2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
 	Fix error message of ftvalid.
 
 	* src/ftvalid.c (validators): Insert a space before

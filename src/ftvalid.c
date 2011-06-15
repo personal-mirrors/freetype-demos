@@ -853,6 +853,9 @@
       if ( error )
         panic( error, "Could not open face." );
 
+      if ( !FT_IS_SFNT( face ) )
+        panic( FT_Err_Table_Missing, "This is not sfnt-housed font." );
+
       if ( dump_table_list )
 	validators[validator].list_tables( face );
       else
