@@ -1,3 +1,10 @@
+2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	Fix error message of ftvalid.
+
+	* src/ftvalid.c (validators): Insert a space before
+	`is disabled'.
+
 2011-06-01  Werner Lemberg  <wl@gnu.org>
 
 	Fix gcc 2.6 warnings.

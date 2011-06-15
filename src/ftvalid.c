@@ -128,7 +128,7 @@
     {
       OT_VALIDATE,
       "ot",
-      ( "FT_OpenType_Validate"
+      ( "FT_OpenType_Validate "
 	"is disabled. replace FreeType2 with "
 	"otvalid"
 	"-enabled version\n" ),
@@ -141,7 +141,7 @@
     {
       GX_VALIDATE,
       "gx",
-      ( "FT_TrueTypeGX_Validate"
+      ( "FT_TrueTypeGX_Validate "
 	"is disabled. replace FreeType2 with "
 	"gxvalid"
 	"-enabled version\n" ),
@@ -154,7 +154,7 @@
     {
       CKERN_VALIDATE,
       "ckern",
-      ( "FT_ClassicKern_Validate"
+      ( "FT_ClassicKern_Validate "
 	"is disabled. replace FreeType2 with "
 	"gxvalid"		/* NOTE: classic kern validator is in gxvalid. */
 	"-enabled version\n" ),
