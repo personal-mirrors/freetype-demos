@@ -910,11 +910,19 @@
       /* TODO: Multiple faces in a font file? */
       error = FT_New_Face( library, fontfile, font_index, &face );
       if ( error )
-        panic( error, "Could not open face." );
+      {
+        fprintf( stderr, "Could not open a face from"
+                 " %s, error=%d\n", fontfile, error );
+        exit( 1 );
+      }
 
       if ( !FT_IS_SFNT( face ) )
-        panic( FT_Err_Table_Missing, "This is not sfnt-housed font." );
+      {
+        fprintf( stderr, "%s is not sfnt-housed font.\n", fontfile );
+        exit( 1 );
+      }
 
+      fprintf( stderr, "%s validates a font file %s\n", execname, fontfile );
       if ( dump_table_list )
         validators[validator].list_tables( face );
       else

@@ -1,3 +1,10 @@
+2011-06-19  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	[ftvalid] Prints the filename to be validated.
+
+	For easy testing with `find' to scan a font directory,
+	ftvalid prints each filename to be validated.
+
 2011-06-15  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
 
 	[ftbench] Add option `-l' to specify last used glyph index.
