@@ -26,36 +26,6 @@
   {
     grKeyNone = 0,
 
-    grKeyF1,
-    grKeyF2,
-    grKeyF3,
-    grKeyF4,
-    grKeyF5,
-    grKeyF6,
-    grKeyF7,
-    grKeyF8,
-    grKeyF9,
-    grKeyF10,
-    grKeyF11,
-    grKeyF12,
-
-    grKeyLeft,
-    grKeyRight,
-    grKeyUp,
-    grKeyDown,
-
-    grKeyIns,
-    grKeyDel,
-    grKeyHome,
-    grKeyEnd,
-    grKeyPageUp,
-    grKeyPageDown,
-
-    grKeyEsc,
-    grKeyTab,
-    grKeyBackSpace,
-    grKeyReturn,
-
     grKeySpace = ' ',
     grKey0     = '0',
     grKey1     = '1',
@@ -147,6 +117,36 @@
     grKey_x = 'x',
     grKey_y = 'y',
     grKey_z = 'z',
+
+    grKeyBackSpace = 0x100,
+    grKeyTab,
+    grKeyReturn,
+    grKeyEsc,
+
+    grKeyIns,
+    grKeyDel,
+    grKeyHome,
+    grKeyEnd,
+    grKeyPageUp,
+    grKeyPageDown,
+
+    grKeyF1,
+    grKeyF2,
+    grKeyF3,
+    grKeyF4,
+    grKeyF5,
+    grKeyF6,
+    grKeyF7,
+    grKeyF8,
+    grKeyF9,
+    grKeyF10,
+    grKeyF11,
+    grKeyF12,
+
+    grKeyLeft,
+    grKeyRight,
+    grKeyUp,
+    grKeyDown,
 
     grKeyForceShort = 0x7FFF, /* this forces the grKey to be stored */
                               /* on at least one short              */

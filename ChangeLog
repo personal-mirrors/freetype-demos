@@ -1,3 +1,12 @@
+2012-02-13  Werner Lemberg  <wl@gnu.org>
+
+	Fix X11 keyboard handling.
+
+	* graph/grevents.h (grKey): Shift special keys to a higher range,
+	otherwise it can happen that they are processed twice.  For example,
+	`grKeyBackSpace' also returns key code 8 under X11, and this was
+	previously mapped to `grKeyF8'.
+
 2011-12-07  Antoine Leca  <Antoine-Freetype@Leca-Marti.org>
 
 	Fix printf specifications and parameters.
