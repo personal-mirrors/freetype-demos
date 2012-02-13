@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2007, 2009-2011 by                            */
+/*  Copyright 1996-2000, 2003-2007, 2009-2012 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -656,8 +656,10 @@
     grWriteln( "  h           toggle outline hinting" );
     grWriteln( "  l           toggle low precision rendering" );
     grLn();
-    grWriteln( "  L           cycle through LCD modes" );
-    grWriteln( "  space       cycle through rendering modes" );
+    grWriteln( "  K           cycle backwards through LCD modes" );
+    grWriteln( "  L           cycle forwards through LCD modes" );
+    grWriteln( "  backspace   cycle backwards through rendering modes" );
+    grWriteln( "  space       cycle forwards through rendering modes" );
     grWriteln( "  1-6         select rendering mode" );
     grLn();
     grWriteln( "  e, E        adjust emboldening" );
@@ -975,7 +977,14 @@
       break;
 
     case grKEY( 'L' ):
-      handle->lcd_mode = ( handle->lcd_mode + 1 ) % N_LCD_MODES;
+    case grKEY( 'K' ):
+      handle->lcd_mode = ( event->key == grKEY( 'L' ) )
+                         ? ( ( handle->lcd_mode == ( N_LCD_MODES - 1 ) )
+                             ? 0
+                             : handle->lcd_mode + 1 )
+                         : ( ( handle->lcd_mode == 0 )
+                             ? ( N_LCD_MODES - 1 )
+                             : handle->lcd_mode - 1 );
 
       switch ( handle->lcd_mode )
       {
@@ -1002,8 +1011,12 @@
       FTDemo_Update_Current_Flags( handle );
       break;
 
-    case grKEY( ' ' ):
+    case grKeySpace:
       event_render_mode_change( 1 );
+      break;
+
+    case grKeyBackSpace:
+      event_render_mode_change( -1 );
       break;
 
     case grKEY( 'G' ):
