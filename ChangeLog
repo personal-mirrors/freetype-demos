@@ -1,5 +1,9 @@
 2012-03-02  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftdiff.c: Formatting.
+
+2012-03-02  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftgrid.c: Remove redundant code; formatting.
 
 2012-03-02  Werner Lemberg  <wl@gnu.org>

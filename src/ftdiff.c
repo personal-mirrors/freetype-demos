@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2007-2011 by                                                  */
+/*  Copyright 2007-2012 by                                                  */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -14,10 +14,12 @@
 
 
 #include <ft2build.h>
+
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
 #include FT_CACHE_H
 #include FT_LCD_FILTER_H
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +40,6 @@
       "\n" );
     exit( 1 );
   }
-
 
 
   static void
@@ -209,7 +210,7 @@
     state->columns[0].use_custom_lcd_filter = 0;
     state->columns[0].fw_index              = 2;
     /* freetype default filter weights */
-    memcpy( state->columns[0].filter_weights, "\x10\x40\x70\x40\x10", 5);
+    memcpy( state->columns[0].filter_weights, "\x10\x40\x70\x40\x10", 5 );
 
     state->columns[1]                       = state->columns[0];
     state->columns[1].hint_mode             = HINT_MODE_AUTOHINT;
@@ -314,7 +315,7 @@
           faces = (FontFace)realloc( faces,
                                      max_faces * sizeof ( faces[0] ) );
           if ( faces == NULL )
-            panic("ftdiff: not enough memory\n");
+            panic( "ftdiff: not enough memory\n" );
         }
 
         faces[num_faces].filepath = files[0];
@@ -354,7 +355,7 @@
       return -2;
 
     state->face_index = idx;
-    filepath = state->faces[idx].filepath;
+    filepath          = state->faces[idx].filepath;
 
     if ( state->face )
     {
@@ -516,7 +517,7 @@
       prev_rsb_delta = face->glyph->rsb_delta;
 
       /* implement sub-pixel positining for un-hinted mode */
-      if ( rmode == HINT_MODE_UNHINTED           &&
+      if ( rmode == HINT_MODE_UNHINTED             &&
            slot->format == FT_GLYPH_FORMAT_OUTLINE )
       {
         FT_Pos  shift = x_origin & 63;
@@ -625,11 +626,11 @@
       }
       state->display.disp_text( disp, left, bottom + 15, msg );
 
-      sprintf(temp, "%s %s",
-              column->use_kerning ? "+kern"
-                                  : "-kern",
-              column->use_deltas ? "+delta"
-                                 : "-delta" );
+      sprintf( temp, "%s %s",
+               column->use_kerning ? "+kern"
+                                   : "-kern",
+               column->use_deltas ? "+delta"
+                                  : "-delta" );
       state->display.disp_text( disp, left, bottom + 25, temp );
 
       if ( state->col == idx )
@@ -660,8 +661,8 @@
 
   } ADisplayRec, *ADisplay;
 
-#define  DIM_X   640
-#define  DIM_Y   480
+#define DIM_X  640
+#define DIM_Y  480
 
 
   static int
@@ -917,7 +918,7 @@
       break;
 
     case grKeyUp:
-      event_change_size( state, +0.5 );
+      event_change_size( state, 0.5 );
       break;
 
     case grKeyDown:
@@ -925,7 +926,7 @@
       break;
 
     case grKeyPageUp:
-      event_change_size( state, +5. );
+      event_change_size( state, 5. );
       break;
 
     case grKeyPageDown:
@@ -955,7 +956,7 @@
       break;
 
     case grKEY( 'g' ):
-      event_change_gamma( state, +0.1 );
+      event_change_gamma( state, 0.1 );
       break;
 
     case grKEY( 'h' ):
@@ -985,7 +986,7 @@
         if ( !column->use_custom_lcd_filter )
         {
           column->use_custom_lcd_filter = 1;
-          state->message                = (char*)"using custom LCD filter";
+          state->message                = (char *)"using custom LCD filter";
         }
         else
         {
@@ -1132,7 +1133,7 @@
 
 
   int
-  main( int  argc,
+  main( int     argc,
         char**  argv )
   {
     char**          argend = argv + argc;
@@ -1152,7 +1153,7 @@
       char*  arg = argv[0];
 
 
-      switch (arg[1])
+      switch ( arg[1] )
       {
       case 'r':
         arg = get_option_arg( arg, &argv, argend );
@@ -1188,7 +1189,7 @@
         fprintf( stderr, "could not read textfile '%s'\n", textfile );
       else
       {
-        long   tsize;
+        long  tsize;
 
 
         fseek( tfile, 0, SEEK_END );
@@ -1204,7 +1205,7 @@
         }
         else
         {
-          fprintf( stderr, "not enough memory to read '%s'\n", textfile );
+          fprintf( stderr, "not enough memory to read `%s'\n", textfile );
           text = (unsigned char *)default_text;
         }
 
@@ -1227,7 +1228,7 @@
     if ( resolution > 0 )
       render_state_set_resolution( state, resolution );
 
-    if (size > 0.0)
+    if ( size > 0.0 )
       render_state_set_size( state, size );
 
     render_state_set_files( state, argv );
@@ -1238,6 +1239,7 @@
     for (;;)
     {
       grEvent  event;
+
 
       adisplay_clear( adisplay );
 
