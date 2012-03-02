@@ -1,3 +1,7 @@
+2012-03-02  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftcommon.c: Remove dead code; formatting.
+
 2012-02-13  Peter Grandi  <pg_mh@mh.to.sabi.co.UK>
 
 	[ftview] Implement cycling backwards for rendering and LCD modes.

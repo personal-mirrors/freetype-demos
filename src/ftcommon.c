@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2005-2009, 2011 by                                            */
+/*  Copyright 2005-2009, 2011-2012 by                                       */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -33,7 +33,7 @@
 #endif
 
 
-  FT_Error   error;
+  FT_Error  error;
 
 
 #undef  NODEBUG
@@ -41,7 +41,8 @@
 #ifndef NODEBUG
 
   void
-  LogMessage( const char*  fmt, ... )
+  LogMessage( const char*  fmt,
+              ... )
   {
     va_list  ap;
 
@@ -72,8 +73,8 @@
   /*************************************************************************/
 
 
-#define DIM_X      500
-#define DIM_Y      400
+#define DIM_X  500
+#define DIM_Y  400
 
 
   FTDemo_Display*
@@ -84,7 +85,7 @@
     grBitmap         bit;
 
 
-    display = (FTDemo_Display *)malloc( sizeof( FTDemo_Display ) );
+    display = (FTDemo_Display *)malloc( sizeof ( FTDemo_Display ) );
     if ( !display )
       return NULL;
 
@@ -112,8 +113,8 @@
 
     grSetGlyphGamma( 1.0 );
 
-    memset( &display->fore_color, 0, sizeof( grColor ) );
-    memset( &display->back_color, 0xff, sizeof( grColor ) );
+    memset( &display->fore_color, 0,    sizeof ( grColor ) );
+    memset( &display->back_color, 0xff, sizeof ( grColor ) );
 
     return display;
   }
@@ -178,7 +179,6 @@
 #define TRUNC( x )  (   (x) >> 6 )
 
 
-
   static
   const char*  file_suffixes[] =
   {
@@ -208,6 +208,7 @@
     PFont  font = (PFont)face_id;
 
     FT_UNUSED( request_data );
+
 
     if ( font->file_address != NULL )
       error = FT_New_Memory_Face( lib,
@@ -255,11 +256,11 @@
     FTDemo_Handle*  handle;
 
 
-    handle = (FTDemo_Handle *)malloc( sizeof( FTDemo_Handle ) );
+    handle = (FTDemo_Handle *)malloc( sizeof ( FTDemo_Handle ) );
     if ( !handle )
       return NULL;
 
-    memset( handle, 0, sizeof( FTDemo_Handle ) );
+    memset( handle, 0, sizeof ( FTDemo_Handle ) );
 
     error = FT_Init_FreeType( &handle->library );
     if ( error )
@@ -282,22 +283,21 @@
     if ( error )
       PanicZ( "could not initialize charmap cache" );
 
-
     FT_Bitmap_New( &handle->bitmap );
 
-    handle->encoding        = encoding;
+    handle->encoding = encoding;
 
-    handle->hinted          = 1;
-    handle->antialias       = 1;
-    handle->use_sbits       = 1;
-    handle->low_prec        = 0;
-    handle->autohint        = 0;
-    handle->lcd_mode        = 0;
+    handle->hinted    = 1;
+    handle->antialias = 1;
+    handle->use_sbits = 1;
+    handle->low_prec  = 0;
+    handle->autohint  = 0;
+    handle->lcd_mode  = 0;
 
     handle->use_sbits_cache = 1;
 
     /* string_init */
-    memset( handle->string, 0, sizeof( TGlyph ) * MAX_GLYPHS );
+    memset( handle->string, 0, sizeof ( TGlyph ) * MAX_GLYPHS );
     handle->string_length = 0;
     handle->string_reload = 1;
 
@@ -369,6 +369,7 @@
       const char**  suffix;
       char*         p;
       int           found = 0;
+
 
       suffix = file_suffixes;
       p      = filename + len - 1;
@@ -443,6 +444,7 @@
         FILE*   file = fopen( filename, "rb" );
         size_t  file_size;
 
+
         if ( file == NULL )  /* shouldn't happen */
         {
           free( font );
@@ -456,7 +458,7 @@
         font->file_address = malloc( file_size );
         fread( font->file_address, 1, file_size, file );
 
-        font->file_size    = file_size;
+        font->file_size = file_size;
 
         fclose( file );
       }
@@ -524,7 +526,7 @@
   FTDemo_Set_Current_Font( FTDemo_Handle*  handle,
                            PFont           font )
   {
-    handle->current_font = font;
+    handle->current_font   = font;
     handle->scaler.face_id = (FTC_FaceID)font;
 
     handle->string_reload = 1;
@@ -538,8 +540,8 @@
     if ( pixel_size > 0xFFFF )
       pixel_size = 0xFFFF;
 
-    handle->scaler.width  = (FT_UInt) pixel_size;
-    handle->scaler.height = (FT_UInt) pixel_size;
+    handle->scaler.width  = (FT_UInt)pixel_size;
+    handle->scaler.height = (FT_UInt)pixel_size;
     handle->scaler.pixel  = 1;
     handle->scaler.x_res  = 0;
     handle->scaler.y_res  = 0;
@@ -547,22 +549,24 @@
     handle->string_reload = 1;
   }
 
+
   void
   FTDemo_Set_Current_Charsize( FTDemo_Handle*  handle,
                                int             char_size,
                                int             resolution )
   {
-      if ( char_size > 0xFFFFF )
-          char_size = 0xFFFFF;
+    if ( char_size > 0xFFFFF )
+      char_size = 0xFFFFF;
 
-      handle->scaler.width  = (FT_UInt) char_size;
-      handle->scaler.height = (FT_UInt) char_size;
-      handle->scaler.pixel  = 0;
-      handle->scaler.x_res  = (FT_UInt) resolution;
-      handle->scaler.y_res  = (FT_UInt) resolution;
+    handle->scaler.width  = (FT_UInt)char_size;
+    handle->scaler.height = (FT_UInt)char_size;
+    handle->scaler.pixel  = 0;
+    handle->scaler.x_res  = (FT_UInt)resolution;
+    handle->scaler.y_res  = (FT_UInt)resolution;
 
-      handle->string_reload = 1;
+    handle->string_reload = 1;
   }
+
 
   void
   FTDemo_Set_Preload( FTDemo_Handle*  handle,
@@ -570,6 +574,7 @@
   {
     handle->preload = !!preload;
   }
+
 
   void
   FTDemo_Set_Current_Pointsize( FTDemo_Handle*  handle,
@@ -602,22 +607,22 @@
       {
         switch ( handle->lcd_mode )
         {
-          case LCD_MODE_LIGHT:
-            target = FT_LOAD_TARGET_LIGHT;
-            break;
+        case LCD_MODE_LIGHT:
+          target = FT_LOAD_TARGET_LIGHT;
+          break;
 
-          case LCD_MODE_RGB:
-          case LCD_MODE_BGR:
-            target = FT_LOAD_TARGET_LCD;
-            break;
+        case LCD_MODE_RGB:
+        case LCD_MODE_BGR:
+          target = FT_LOAD_TARGET_LCD;
+          break;
 
-          case LCD_MODE_VRGB:
-          case LCD_MODE_VBGR:
-            target = FT_LOAD_TARGET_LCD_V;
-            break;
+        case LCD_MODE_VRGB:
+        case LCD_MODE_VBGR:
+          target = FT_LOAD_TARGET_LCD_V;
+          break;
 
-          default:
-            target = FT_LOAD_TARGET_NORMAL;
+        default:
+          target = FT_LOAD_TARGET_NORMAL;
         }
       }
       else
@@ -650,10 +655,12 @@
   FTDemo_Get_Size( FTDemo_Handle*  handle,
                    FT_Size*        asize )
   {
-    FT_Size        size;
+    FT_Size  size;
 
 
-    error = FTC_Manager_LookupSize( handle->cache_manager, &handle->scaler, &size );
+    error = FTC_Manager_LookupSize( handle->cache_manager,
+                                    &handle->scaler,
+                                    &size );
 
     if ( !error )
       *asize = size;
@@ -785,9 +792,10 @@
 
     width  = handle->scaler.width;
     height = handle->scaler.height;
-    if ( handle->use_sbits_cache && !handle->scaler.pixel ) {
-        width  = (( width * handle->scaler.x_res + 36 ) / 72)  >> 6;
-        height = (( height * handle->scaler.y_res + 36 ) / 72) >> 6;
+    if ( handle->use_sbits_cache && !handle->scaler.pixel )
+    {
+      width  = ( ( width * handle->scaler.x_res + 36 ) / 72 )  >> 6;
+      height = ( ( height * handle->scaler.y_res + 36 ) / 72 ) >> 6;
     }
 
     if ( handle->use_sbits_cache && width < 48 && height < 48 )
@@ -857,7 +865,6 @@
           return FT_Err_Invalid_Glyph_Format;
         }
 
-
         *left      = sbit->left;
         *top       = sbit->top;
         *x_advance = sbit->xadvance;
@@ -870,7 +877,8 @@
     /* otherwise, use an image cache to store glyph outlines, and render */
     /* them on demand. we can thus support very large sizes easily..     */
     {
-      FT_Glyph   glyf;
+      FT_Glyph  glyf;
+
 
       error = FTC_ImageCache_LookupScaler( handle->image_cache,
                                            &handle->scaler,
@@ -885,27 +893,6 @@
     }
 
   Exit:
-
-#ifdef FT_RGB_FILTER_H
-   /* note that we apply the RGB filter to each cached glyph, which is
-    * a performance killer, but that's better than modifying the cache
-    * at the moment
-    */
-    if ( !error )
-    {
-      if ( target->mode == gr_pixel_mode_lcd  ||
-           target->mode == gr_pixel_mode_lcdv )
-      {
-       /* copy the bitmap before filtering it, we don't want to touch
-        * the content of cache nodes at all
-        */
-        {
-        }
-      }
-    }
-
-#endif /* FT_RGB_FILTER_H */
-
     /* don't accept a `missing' character with zero or negative width */
     if ( Index == 0 && *x_advance <= 0 )
       *x_advance = 1;
@@ -924,6 +911,7 @@
     int       left, top, x_advance, y_advance;
     grBitmap  bit3;
     FT_Glyph  glyf;
+
 
     error = FTDemo_Index_To_Bitmap( handle, gindex, &bit3, &left, &top,
                                     &x_advance, &y_advance, &glyf );
@@ -991,7 +979,6 @@
   }
 
 
-
   FT_Error
   FTDemo_Draw_Slot( FTDemo_Handle*   handle,
                     FTDemo_Display*  display,
@@ -999,7 +986,7 @@
                     int*             pen_x,
                     int*             pen_y )
   {
-    FT_Glyph   glyph;
+    FT_Glyph  glyph;
 
 
     error = FT_Get_Glyph( slot, &glyph );
@@ -1018,12 +1005,12 @@
   FTDemo_String_Set( FTDemo_Handle*  handle,
                      const char*     string )
   {
-    const char*     p = string;
-    const char*     end = p + strlen( string );
-    unsigned long   codepoint;
-    int             ch;
-    int             expect;
-    PGlyph          glyph = handle->string;
+    const char*    p = string;
+    const char*    end = p + strlen( string );
+    unsigned long  codepoint;
+    int            ch;
+    int            expect;
+    PGlyph         glyph = handle->string;
 
 
     handle->string_length = 0;
@@ -1056,10 +1043,10 @@
   static FT_Error
   string_load( FTDemo_Handle*  handle )
   {
-    int        n;
-    FT_Size    size;
-    FT_Face    face;
-    FT_Pos     prev_rsb_delta = 0;
+    int      n;
+    FT_Size  size;
+    FT_Face  face;
+    FT_Pos   prev_rsb_delta = 0;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -1082,7 +1069,7 @@
 
       /* load the glyph and get the image */
       if ( !FT_Load_Glyph( face, glyph->glyph_index,
-                           handle->load_flags )  &&
+                           handle->load_flags )        &&
            !FT_Get_Glyph( face->glyph, &glyph->image ) )
       {
         FT_Glyph_Metrics*  metrics = &face->glyph->metrics;
@@ -1090,7 +1077,7 @@
 
         /* note that in vertical layout, y-positive goes downwards */
 
-        glyph->vvector.x  = metrics->vertBearingX - metrics->horiBearingX;
+        glyph->vvector.x  =  metrics->vertBearingX - metrics->horiBearingX;
         glyph->vvector.y  = -metrics->vertBearingY - metrics->horiBearingY;
 
         glyph->vadvance.x = 0;
@@ -1120,7 +1107,7 @@
     FT_Pos      track_kern   = 0;
     FT_UInt     prev_index   = 0;
     FT_Vector*  prev_advance = NULL;
-    FT_Vector   extent       = {0, 0};
+    FT_Vector   extent       = { 0, 0 };
     FT_Int      i;
 
 
@@ -1156,7 +1143,7 @@
         advances[i] = glyph->vadvance;
       else
       {
-        advances[i] = glyph->image->advance;
+        advances[i]     = glyph->image->advance;
         advances[i].x >>= 10;
         advances[i].y >>= 10;
 
@@ -1224,6 +1211,7 @@
     int       i, j;
     FT_Byte*  p = (FT_Byte*)bitmap->buffer;
 
+
     if ( bitmap->pitch < 0 )
       p += -bitmap->pitch * ( bitmap->rows - 1 );
 
@@ -1290,6 +1278,7 @@
     if ( sc->matrix && FT_IS_SCALABLE( face ) )
     {
       FT_Vector_Transform( &pen, sc->matrix );
+
       pen.x = ( x << 6 ) - pen.x;
       pen.y = ( y << 6 ) - pen.y;
     }
