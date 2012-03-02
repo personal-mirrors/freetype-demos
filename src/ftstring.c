@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2007, 2009-2011 by                                       */
+/*  Copyright 1996-2007, 2009-2012 by                                       */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -10,11 +10,9 @@
 /*                                                                          */
 /****************************************************************************/
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
 
-#include "common.h"
 #include "ftcommon.h"
+#include "common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,18 +21,20 @@
 #include <math.h>
 
 #define CELLSTRING_HEIGHT  8
-#define MAXPTSIZE  500                 /* dtp */
+#define MAXPTSIZE          500   /* dtp */
 
 
   static char*  Text = (char *)"The quick brown fox jumps over the lazy dog";
 
-  enum {
+  enum
+  {
     RENDER_MODE_STRING,
     RENDER_MODE_KERNCMP,
     N_RENDER_MODES
   };
 
-  static struct {
+  static struct
+  {
     int          render_mode;
     FT_Encoding  encoding;
     int          res;
@@ -56,15 +56,15 @@
   static FTDemo_Handle*   handle;
 
 
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
-/****                                                                    ****/
-/****                     E V E N T   H A N D L I N G                    ****/
-/****                                                                    ****/
-/****************************************************************************/
-/****************************************************************************/
-/****************************************************************************/
+  /*************************************************************************/
+  /*************************************************************************/
+  /*************************************************************************/
+  /****                                                                 ****/
+  /****                   E V E N T   H A N D L I N G                   ****/
+  /****                                                                 ****/
+  /*************************************************************************/
+  /*************************************************************************/
+  /*************************************************************************/
 
   static void
   event_help( void )
@@ -126,7 +126,7 @@
   event_font_change( int  delta )
   {
     if ( status.font_index + delta >= handle->num_fonts ||
-         status.font_index + delta < 0 )
+         status.font_index + delta < 0                  )
       return;
 
     status.font_index += delta;
@@ -173,10 +173,11 @@
 
 
   static void
-  event_gamma_change( double delta )
+  event_gamma_change( double  delta )
   {
-    int i;
-    double gamma_inv;
+    int     i;
+    double  gamma_inv;
+
 
     status.gamma += delta;
 
@@ -197,21 +198,21 @@
 
 
   static void
-  event_size_change( int delta )
+  event_size_change( int  delta )
   {
     status.ptsize += delta;
 
-    if ( status.ptsize < 1*64 )
-      status.ptsize = 1*64;
-    else if ( status.ptsize > MAXPTSIZE*64 )
-      status.ptsize = MAXPTSIZE*64;
+    if ( status.ptsize < 1 * 64 )
+      status.ptsize = 1 * 64;
+    else if ( status.ptsize > MAXPTSIZE * 64 )
+      status.ptsize = MAXPTSIZE * 64;
 
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
   }
 
 
   static void
-  event_render_mode_change( int delta )
+  event_render_mode_change( int  delta )
   {
     if ( delta )
     {
@@ -237,7 +238,7 @@
   static int
   Process_Event( grEvent*  event )
   {
-    FTDemo_String_Context*  sc = &status.sc;
+    FTDemo_String_Context*  sc  = &status.sc;
     int                     ret = 0;
 
 
@@ -360,7 +361,7 @@
 
     case grKeyUp:       event_size_change(   64 ); break;
     case grKeyDown:     event_size_change(  -64 ); break;
-    case grKeyPageUp:   event_size_change(  640); break;
+    case grKeyPageUp:   event_size_change(  640 ); break;
     case grKeyPageDown: event_size_change( -640 ); break;
 
     case grKeyLeft:  event_angle_change(    -3 ); break;
@@ -382,6 +383,7 @@
   {
     int       i, x, y;
     FT_Byte*  p = (FT_Byte*)bitmap->buffer;
+
 
     if ( bitmap->pitch < 0 )
       p += -bitmap->pitch * ( bitmap->rows - 1 );
@@ -417,14 +419,17 @@
                  "%.50s %.50s (file `%.100s')", face->family_name,
                  face->style_name, basename );
         break;
+
       case FT_Err_Invalid_Pixel_Size:
         sprintf( status.header_buffer, "Invalid pixel size (file `%.100s')",
                  basename );
         break;
+
       case FT_Err_Invalid_PPem:
         sprintf( status.header_buffer, "Invalid ppem value (file `%.100s')",
                  basename );
         break;
+
       default:
         sprintf( status.header_buffer, "File `%.100s': error 0x%04x", basename,
             (FT_UShort)error_code );
@@ -438,7 +443,7 @@
                        status.header, display->fore_color );
 
     sprintf( status.header_buffer, "at %g points, angle = %d",
-             status.ptsize/64.0, status.angle );
+             status.ptsize / 64.0, status.angle );
     grWriteCellString( display->bitmap, 0, CELLSTRING_HEIGHT,
                        status.header_buffer, display->fore_color );
 
@@ -528,7 +533,7 @@
     if ( *argc <= 1 )
       usage( execname );
 
-    status.ptsize = (int)(atof( *argv[0] ) * 64.0);
+    status.ptsize = (int)( atof( *argv[0] ) * 64.0 );
     if ( status.ptsize == 0 )
       status.ptsize = 64;
 
@@ -624,7 +629,6 @@
                              "none", display->fore_color );
           error = FTDemo_String_Draw( handle, display, &sc, x, y );
 
-
           /* Second line: track kern only */
           sc.kerning_degree = status.sc.kerning_degree;
 
@@ -634,9 +638,8 @@
                              "track", display->fore_color );
           error = FTDemo_String_Draw( handle, display, &sc, x, y );
 
-
           /* Third line: track kern + pair kern */
-          sc.kerning_mode      = status.sc.kerning_mode;
+          sc.kerning_mode = status.sc.kerning_mode;
 
           y += height;
           grWriteCellString( display->bitmap, 5,
