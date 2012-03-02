@@ -18,6 +18,7 @@
 #include FT_CACHE_MANAGER_H
 
 #include FT_BITMAP_H
+#include FT_XFREE86_H
 
 #include "common.h"
 #include "ftcommon.h"
@@ -179,18 +180,6 @@
 #define TRUNC( x )  (   (x) >> 6 )
 
 
-  static
-  const char*  file_suffixes[] =
-  {
-    ".ttf",
-    ".ttc",
-    ".otf",
-    ".pfa",
-    ".pfb",
-    0
-  };
-
-
   /*************************************************************************/
   /*                                                                       */
   /* The face requester is a function provided by the client application   */
@@ -223,23 +212,35 @@
                            aface );
     if ( !error )
     {
-      char*  suffix;
-      char   orig[4];
+      const char*  format = FT_Get_X11_Font_Format( *aface );
 
 
-      suffix = (char*)strrchr( font->filepathname, '.' );
-      if ( suffix && ( strcasecmp( suffix, ".pfa" ) == 0 ||
-                       strcasecmp( suffix, ".pfb" ) == 0 ) )
+      if ( !strcmp( format, "Type 1" ) )
       {
-        suffix++;
+        char   orig[5];
+        char*  suffix        = (char*)strrchr( font->filepathname, '.' );
+        int    has_extension = suffix                                &&
+                               ( strcasecmp( suffix, ".pfa" ) == 0 ||
+                                 strcasecmp( suffix, ".pfb" ) == 0 );
 
-        memcpy( orig, suffix, 4 );
-        memcpy( suffix, "afm", 4 );
-        FT_Attach_File( *aface, font->filepathname );
 
-        memcpy( suffix, "pfm", 4 );
-        FT_Attach_File( *aface, font->filepathname );
-        memcpy( suffix, orig, 4 );
+        if ( has_extension )
+          memcpy( orig, suffix, 5 );
+        else
+          /* we have already allocate four more bytes */
+          suffix = (char*)font->filepathname + strlen( font->filepathname );
+
+        memcpy( suffix, ".afm", 5 );
+        if ( FT_Attach_File( *aface, font->filepathname ) )
+        {
+          memcpy( suffix, ".pfm", 5 );
+          FT_Attach_File( *aface, font->filepathname );
+        }
+
+        if ( has_extension )
+          memcpy( suffix, orig, 5 );
+        else
+          suffix = '\0';
       }
 
       if ( (*aface)->charmaps )
@@ -360,51 +361,8 @@
     filename[len] = 0;
 
     error = FT_New_Face( handle->library, filename, 0, &face );
-
-#ifndef macintosh
-    /* could not open the file directly; we will now try various */
-    /* suffixes like `.ttf' or `.pfb'                            */
     if ( error )
-    {
-      const char**  suffix;
-      char*         p;
-      int           found = 0;
-
-
-      suffix = file_suffixes;
-      p      = filename + len - 1;
-
-      while ( p >= filename && *p != '\\' && *p != '/' )
-      {
-        if ( *p == '.' )
-          break;
-
-        p--;
-      }
-
-      /* no suffix found */
-      if ( p < filename || *p != '.' )
-        p = filename + len;
-
-      for ( suffix = file_suffixes; suffix[0]; suffix++ )
-      {
-        /* try with current suffix */
-        strcpy( p, suffix[0] );
-
-        error = FT_New_Face( handle->library, filename, 0, &face );
-        if ( !error )
-        {
-          found = 1;
-
-          break;
-        }
-      }
-
-      /* really couldn't open this file */
-      if ( !found )
-        return error;
-    }
-#endif /* !macintosh */
+      return error;
 
     /* allocate new font object */
     num_faces = face->num_faces;
@@ -432,7 +390,10 @@
 
       font = (PFont)malloc( sizeof ( *font ) );
 
-      font->filepathname = (char*)malloc( strlen( filename ) + 1 );
+      /* We allocate four more bytes since we want to attach an AFM */
+      /* or PFM file for Type 1 fonts (if available).  Such fonts   */
+      /* always have the extension `.afm' or `.pfm'.                */
+      font->filepathname = (char*)malloc( strlen( filename ) + 4 + 1 );
       strcpy( (char*)font->filepathname, filename );
 
       font->face_index = i;

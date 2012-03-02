@@ -1,5 +1,31 @@
 2012-03-02  Werner Lemberg  <wl@gnu.org>
 
+	Fix Savannah bug #33660.
+
+	* src/ftcommon.c: Include `FT_XFREE86_H'.
+	(file_suffixes): Remove.
+	(my_face_requester): Check whether font driver is `Type 1' instead
+	of relying on the file suffix.
+	Additionally, prefer `.afm' over `.pfm'.
+	(FTDemo_Install_Font): Don't try various suffixes.
+	Allocate more memory for `font->filepathname' as needed by
+	`my_face_requester'.
+
+	* src/ftdiff.c: Include `ftcommon.h' and `common.h'.
+	Remove declaration of `error' everywhere.
+	(usage): Updated.
+	Add argument for binary name.
+	Update all callers.
+	(event_help): Updated.
+
+	* src/ftgrid.c (usage): Updated.
+
+	* src/ftstring.c (event_help, usage): Updated.
+
+	* src/ftview.c (usage): Updated.
+
+2012-03-02  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftstring.c: Remove redundant code; formatting.
 
 2012-03-02  Werner Lemberg  <wl@gnu.org>

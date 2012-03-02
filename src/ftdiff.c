@@ -13,11 +13,10 @@
 /****************************************************************************/
 
 
-#include <ft2build.h>
+#include "ftcommon.h"
+#include "common.h"
 
-#include FT_FREETYPE_H
 #include FT_OUTLINE_H
-#include FT_CACHE_H
 #include FT_LCD_FILTER_H
 
 #include <stdarg.h>
@@ -26,18 +25,28 @@
 
 
   static void
-  usage( void )
+  usage( char*  execname )
   {
     fprintf( stderr,
-      "ftdiff: a simple program to proof several text hinting modes\n"
-      "-----------------------------------------------------------\n"
       "\n"
-      "Usage: ftdiff [options] fontfile [fontfile2 ...]\n"
-      "\n"
-      "  -r R         use resolution R dpi (default: 72 dpi)\n"
-      "  -s S         set character size to S points (default: 16 pt)\n"
+      "ftdiff: compare font hinting modes -- part of the FreeType project\n"
+      "------------------------------------------------------------------\n"
+      "\n" );
+    fprintf( stderr,
+      "Usage: %s [options] font ...\n"
+      "\n", execname );
+    fprintf( stderr,
+      "  font      The font file(s) to display.\n"
+      "            For Type 1 font files, ftdiff also tries to attach\n"
+      "            the corresponding metrics file (with extension\n"
+      "            `.afm' or `.pfm').\n"
+      "\n" );
+    fprintf( stderr,
+      "  -r R         use resolution R dpi (default: 72dpi)\n"
+      "  -s S         set character size to S points (default: 16pt)\n"
       "  -f TEXTFILE  change displayed text, using text in TEXTFILE\n"
       "\n" );
+
     exit( 1 );
   }
 
@@ -285,7 +294,8 @@
 
   static void
   render_state_set_files( RenderState  state,
-                          char**       files )
+                          char**       files,
+                          char*        execname )
   {
     FontFace  faces     = NULL;
     int       num_faces = 0;
@@ -296,10 +306,10 @@
     for ( ; files[0] != NULL; files++ )
     {
       FT_Face   face;
-      FT_Error  error = FT_New_Face( state->library, files[0], -1, &face );
       int       count;
 
 
+      error = FT_New_Face( state->library, files[0], -1, &face );
       if ( error )
       {
         fprintf( stderr,
@@ -332,7 +342,7 @@
     if ( num_faces == 0 )
     {
       fprintf( stderr, "ftdiff: no input font files!\n" );
-      usage();
+      usage( execname );
     }
 
     state->face_index = 0;
@@ -367,9 +377,6 @@
 
     if ( filepath != NULL && filepath[0] != 0 )
     {
-      FT_Error  error;
-
-
       error = FT_New_Face( state->library, filepath,
                            state->faces[idx].index, &state->face );
       if ( error )
@@ -457,7 +464,6 @@
     for ( ; *p; p++ )
     {
       FT_UInt       gindex;
-      FT_Error      error;
       FT_GlyphSlot  slot = face->glyph;
       FT_Bitmap*    map  = &slot->bitmap;
       int           xmax;
@@ -815,18 +821,15 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    grWriteln( "Text Viewer - Simple text/font proofer for the FreeType project" );
+    grWriteln( "FreeType hinting mode comparator - part of the FreeType test suite" );
     grLn();
-    grWriteln( "This program is used to display text using two distinct algorithms." );
-    grWriteln( "On the left, text is rendered by the TrueType bytecode interpreter." );
-    grWriteln( "In the middle, text is rendered through the FreeType auto-hinter." );
-    grWriteln( "On the right, text is rendered unhinted." );
+    grWriteln( "This program displays text using various hinting algorithms." );
     grLn();
     grWriteln( "Use the following keys:" );
     grLn();
     grWriteln( "  F1, ?       display this help screen" );
     grLn();
-    grWriteln( "  n, p        select previous/next font" );
+    grWriteln( "  p, n        select previous/next font" );
     grLn();
     grWriteln( "  1, 2, 3     select left, middle, or right column" );
     grWriteln( "  d           toggle lsb/rsb deltas" );
@@ -1075,7 +1078,8 @@
   static char*
   get_option_arg( char*   option,
                   char** *pargv,
-                  char**  argend )
+                  char**  argend,
+                  char*   execname )
   {
     if ( option[2] == 0 )
     {
@@ -1083,7 +1087,7 @@
 
 
       if ( ++argv >= argend )
-        usage();
+        usage( execname );
       option = argv[0];
       *pargv = argv;
     }
@@ -1144,6 +1148,7 @@
     double          size       = -1;
     const char*     textfile   = NULL;
     unsigned char*  text       = (unsigned char*)default_text;
+    char*           execname   = ft_basename( argv[0] );
 
 
     /* Read Options */
@@ -1156,28 +1161,28 @@
       switch ( arg[1] )
       {
       case 'r':
-        arg = get_option_arg( arg, &argv, argend );
+        arg        = get_option_arg( arg, &argv, argend, execname );
         resolution = atoi( arg );
         break;
 
       case 's':
-        arg = get_option_arg( arg, &argv, argend );
+        arg  = get_option_arg( arg, &argv, argend, execname );
         size = atof( arg );
         break;
 
       case 'f':
-        arg      = get_option_arg( arg, &argv, argend );
+        arg      = get_option_arg( arg, &argv, argend, execname );
         textfile = arg;
         break;
 
       default:
-        usage();
+        usage( execname );
       }
       argv++;
     }
 
     if ( argv >= argend )
-      usage();
+      usage( execname );
 
     /* Read Text File, if any */
     if ( textfile != NULL )
@@ -1231,7 +1236,7 @@
     if ( size > 0.0 )
       render_state_set_size( state, size );
 
-    render_state_set_files( state, argv );
+    render_state_set_files( state, argv, execname );
     render_state_set_file( state, 0 );
 
     grSetTitle( adisplay->surface, "FreeType Text Proofer, press F1 for help" );

@@ -1253,10 +1253,8 @@
       "            If resolution is 72dpi, this directly gives the\n"
       "            ppem value (pixels per EM).\n" );
     fprintf( stderr,
-      "  font      The font file(s) to display; if the extension is omitted,\n"
-      "            ftview tries to append one of the following suffixes:\n"
-      "            `.ttf', `.ttc', `.otf', `.pfa', `.pfb'.\n"
-      "            For `.pfa' or `.pfb' files, ftview also tries to attach\n"
+      "  font      The font file(s) to display.\n"
+      "            For Type 1 font files, ftview also tries to attach\n"
       "            the corresponding metrics file (with extension\n"
       "            `.afm' or `.pfm').\n"
       "\n" );
