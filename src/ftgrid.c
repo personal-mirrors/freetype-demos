@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2007, 2009-2011 by                            */
+/*  Copyright 1996-2000, 2003-2007, 2009-2012 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -25,22 +25,20 @@
 #define MAXPTSIZE      500                 /* dtp */
 #define HEADER_HEIGHT  8
 
-#ifdef CEIL
-#undef CEIL
-#endif
-#define CEIL( x )   ( ( (x) + 63 ) >> 6 )
+#undef  CEIL
+#define CEIL( x )  ( ( (x) + 63 ) >> 6 )
 
-#define X_TOO_LONG( x, size, display) \
-          ( ( x ) + ( ( size )->metrics.max_advance >> 6 ) > ( display )->bitmap->width )
-#define Y_TOO_LONG( y, size, display) \
-          ( ( y ) >= ( display )->bitmap->rows )
+#define X_TOO_LONG( x, size, display ) \
+          ( (x) + ( (size)->metrics.max_advance >> 6 ) > (display)->bitmap->width )
+#define Y_TOO_LONG( y, size, display ) \
+          ( (y) >= (display)->bitmap->rows )
 
 #ifdef _WIN32
 #define snprintf  _snprintf
 #endif
 
 
-  /* these variables, structures and declarations  are for  */
+  /* these variables, structures and declarations are for   */
   /* communication with the debugger in the autofit module; */
   /* normal programs don't need this                        */
   struct  AF_GlyphHintsRec_;
@@ -73,226 +71,232 @@
   }
 #endif
 
-typedef struct  status_
-{
-  int          ptsize;
-  int          res;
-  int          Num;  /* glyph index */
-  int          font_index;
-
-  double       scale;
-  double       x_origin;
-  double       y_origin;
-  double       margin;
-
-  double       scale_0;
-  double       x_origin_0;
-  double       y_origin_0;
-
-  int          disp_width;
-  int          disp_height;
-  grBitmap*    disp_bitmap;
-
-  grColor      axis_color;
-  grColor      grid_color;
-  grColor      outline_color;
-  grColor      on_color;
-  grColor      conic_color;
-  grColor      cubic_color;
-  grColor      segment_color;
-
-  int          do_horz_hints;
-  int          do_vert_hints;
-  int          do_blue_hints;
-  int          do_outline;
-  int          do_dots;
-  int          do_segment;
-
-  double       gamma;
-  const char*  header;
-  char         header_buffer[256];
-
-} GridStatusRec, *GridStatus;
-
-static GridStatusRec  status;
-
-static void
-grid_status_init( GridStatus       st,
-                  FTDemo_Display*  display )
-{
-  st->scale         = 1.0;
-  st->x_origin      = display->bitmap->width / 4;
-  st->y_origin      = display->bitmap->rows / 4;
-  st->margin        = 0.05;
-  st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 );
-  st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 );
-  st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 );
-  st->on_color      = grFindColor( display->bitmap,  64,  64, 255, 255 );
-  st->conic_color   = grFindColor( display->bitmap,   0, 128,   0, 255 );
-  st->cubic_color   = grFindColor( display->bitmap, 255,  64, 255, 255 );
-  st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 );
-  st->disp_width    = display->bitmap->width;
-  st->disp_height   = display->bitmap->rows;
-  st->disp_bitmap   = display->bitmap;
-
-  st->do_horz_hints = 1;
-  st->do_vert_hints = 1;
-  st->do_blue_hints = 1;
-  st->do_dots       = 1;
-  st->do_outline    = 1;
-  st->do_segment    = 0;
-
-  st->Num    = 0;
-  st->gamma  = 1.0;
-  st->header = "";
-}
-
-
-static void
-grid_status_rescale_initial( GridStatus      st,
-                             FTDemo_Handle*  handle )
-{
-  FT_Size   size;
-  FT_Error  err = FTDemo_Get_Size( handle, &size );
-
-
-  if ( !err )
+  typedef struct  status_
   {
-    FT_Face  face = size->face;
+    int          ptsize;
+    int          res;
+    int          Num;  /* glyph index */
+    int          font_index;
 
-    int  xmin = FT_MulFix( face->bbox.xMin, size->metrics.x_scale );
-    int  ymin = FT_MulFix( face->bbox.yMin, size->metrics.y_scale );
-    int  xmax = FT_MulFix( face->bbox.xMax, size->metrics.x_scale );
-    int  ymax = FT_MulFix( face->bbox.yMax, size->metrics.y_scale );
+    double       scale;
+    double       x_origin;
+    double       y_origin;
+    double       margin;
 
-    double  x_scale, y_scale;
+    double       scale_0;
+    double       x_origin_0;
+    double       y_origin_0;
 
+    int          disp_width;
+    int          disp_height;
+    grBitmap*    disp_bitmap;
 
-    xmin &= ~63;
-    ymin &= ~63;
-    xmax  = ( xmax + 63 ) & ~63;
-    ymax  = ( ymax + 63 ) & ~63;
+    grColor      axis_color;
+    grColor      grid_color;
+    grColor      outline_color;
+    grColor      on_color;
+    grColor      conic_color;
+    grColor      cubic_color;
+    grColor      segment_color;
 
-    printf( "XXX x_ppem=%d y_ppem=%d width=%d height=%d\n",
-            size->metrics.x_ppem, size->metrics.y_ppem,
-            xmax - xmin, ymax - ymin );
+    int          do_horz_hints;
+    int          do_vert_hints;
+    int          do_blue_hints;
+    int          do_outline;
+    int          do_dots;
+    int          do_segment;
 
-    x_scale = st->disp_width  * ( 1.0 - 2 * st->margin ) / ( xmax - xmin );
-    y_scale = st->disp_height * ( 1.0 - 2 * st->margin ) / ( ymax - ymin );
+    double       gamma;
+    const char*  header;
+    char         header_buffer[256];
 
-    if ( x_scale <= y_scale )
-      st->scale = x_scale;
-    else
-      st->scale = y_scale;
+  } GridStatusRec, *GridStatus;
 
-    st->x_origin = st->disp_width  * st->margin         - xmin * st->scale;
-    st->y_origin = st->disp_height * ( 1 - st->margin ) + ymin * st->scale;
-  }
-  else
+  static GridStatusRec  status;
+
+  static void
+  grid_status_init( GridStatus       st,
+                    FTDemo_Display*  display )
   {
-    st->scale    = 1.;
-    st->x_origin = st->disp_width  * st->margin;
-    st->y_origin = st->disp_height * st->margin;
+    st->scale         = 1.0;
+    st->x_origin      = display->bitmap->width / 4;
+    st->y_origin      = display->bitmap->rows / 4;
+    st->margin        = 0.05;
+    st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 );
+    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 );
+    st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 );
+    st->on_color      = grFindColor( display->bitmap,  64,  64, 255, 255 );
+    st->conic_color   = grFindColor( display->bitmap,   0, 128,   0, 255 );
+    st->cubic_color   = grFindColor( display->bitmap, 255,  64, 255, 255 );
+    st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 );
+    st->disp_width    = display->bitmap->width;
+    st->disp_height   = display->bitmap->rows;
+    st->disp_bitmap   = display->bitmap;
+
+    st->do_horz_hints = 1;
+    st->do_vert_hints = 1;
+    st->do_blue_hints = 1;
+    st->do_dots       = 1;
+    st->do_outline    = 1;
+    st->do_segment    = 0;
+
+    st->Num    = 0;
+    st->gamma  = 1.0;
+    st->header = "";
   }
 
-  st->scale_0    = st->scale;
-  st->x_origin_0 = st->x_origin;
-  st->y_origin_0 = st->y_origin;
-}
 
-
-static void
-grid_status_draw_grid( GridStatus  st )
-{
-  int     x_org   = (int)st->x_origin;
-  int     y_org   = (int)st->y_origin;
-  double  xy_incr = 64.0 * st->scale;
-
-  if ( xy_incr >= 2. )
+  static void
+  grid_status_rescale_initial( GridStatus      st,
+                               FTDemo_Handle*  handle )
   {
-    double  x2 = x_org;
-    double  y2 = y_org;
-
-    for ( ; x2 < st->disp_width; x2 += xy_incr )
-      grFillVLine( st->disp_bitmap, (int)x2, 0,
-                   st->disp_height, st->grid_color );
-
-    for ( x2 = x_org - xy_incr; (int)x2 >= 0; x2 -= xy_incr )
-      grFillVLine( st->disp_bitmap, (int)x2, 0,
-                   st->disp_height, st->grid_color );
-
-    for ( ; y2 < st->disp_height; y2 += xy_incr )
-      grFillHLine( st->disp_bitmap, 0, (int)y2,
-                   st->disp_width, st->grid_color );
-
-    for ( y2 = y_org - xy_incr; (int)y2 >= 0; y2 -= xy_incr )
-      grFillHLine( st->disp_bitmap, 0, (int)y2,
-                   st->disp_width, st->grid_color );
-  }
-
-  grFillVLine( st->disp_bitmap, x_org, 0, st->disp_height, st->axis_color );
-  grFillHLine( st->disp_bitmap, 0, y_org, st->disp_width,  st->axis_color );
-}
+    FT_Size   size;
+    FT_Error  err = FTDemo_Get_Size( handle, &size );
 
 
-static void
-grid_hint_draw_segment( GridStatus     st,
-                        AF_GlyphHints  hints )
-{
-  FT_Int  dimension;
-  int     x_org = (int)st->x_origin;
-  int     y_org = (int)st->y_origin;
-
-
-  for ( dimension = 1; dimension >= 0; dimension-- )
-  {
-    FT_Int  num_seg;
-    FT_Int  count;
-
-
-    af_glyph_hints_get_num_segments( hints, dimension, &num_seg );
-
-    for ( count = 0; count < num_seg; count++ )
+    if ( !err )
     {
-      int     pos;
-      FT_Pos  offset;
+      FT_Face  face = size->face;
+
+      int  xmin = FT_MulFix( face->bbox.xMin, size->metrics.x_scale );
+      int  ymin = FT_MulFix( face->bbox.yMin, size->metrics.y_scale );
+      int  xmax = FT_MulFix( face->bbox.xMax, size->metrics.x_scale );
+      int  ymax = FT_MulFix( face->bbox.yMax, size->metrics.y_scale );
+
+      double  x_scale, y_scale;
 
 
-      af_glyph_hints_get_segment_offset( hints, dimension, count, &offset );
+      xmin &= ~63;
+      ymin &= ~63;
+      xmax  = ( xmax + 63 ) & ~63;
+      ymax  = ( ymax + 63 ) & ~63;
 
-      if ( dimension == 0 ) /* AF_DIMENSION_HORZ is 0 */
-      {
-        pos = x_org + (int)offset * st->scale;
-        grFillVLine( st->disp_bitmap, pos, 0,
-                     st->disp_height, st->segment_color );
-      }
+      printf( "XXX x_ppem=%d y_ppem=%d width=%d height=%d\n",
+              size->metrics.x_ppem, size->metrics.y_ppem,
+              xmax - xmin, ymax - ymin );
+
+      x_scale = st->disp_width  * ( 1.0 - 2 * st->margin ) / ( xmax - xmin );
+      y_scale = st->disp_height * ( 1.0 - 2 * st->margin ) / ( ymax - ymin );
+
+      if ( x_scale <= y_scale )
+        st->scale = x_scale;
       else
+        st->scale = y_scale;
+
+      st->x_origin = st->disp_width  * st->margin         - xmin * st->scale;
+      st->y_origin = st->disp_height * ( 1 - st->margin ) + ymin * st->scale;
+    }
+    else
+    {
+      st->scale    = 1.;
+      st->x_origin = st->disp_width  * st->margin;
+      st->y_origin = st->disp_height * st->margin;
+    }
+
+    st->scale_0    = st->scale;
+    st->x_origin_0 = st->x_origin;
+    st->y_origin_0 = st->y_origin;
+  }
+
+
+  static void
+  grid_status_draw_grid( GridStatus  st )
+  {
+    int     x_org   = (int)st->x_origin;
+    int     y_org   = (int)st->y_origin;
+    double  xy_incr = 64.0 * st->scale;
+
+
+    if ( xy_incr >= 2. )
+    {
+      double  x2 = x_org;
+      double  y2 = y_org;
+
+
+      for ( ; x2 < st->disp_width; x2 += xy_incr )
+        grFillVLine( st->disp_bitmap, (int)x2, 0,
+                     st->disp_height, st->grid_color );
+
+      for ( x2 = x_org - xy_incr; (int)x2 >= 0; x2 -= xy_incr )
+        grFillVLine( st->disp_bitmap, (int)x2, 0,
+                     st->disp_height, st->grid_color );
+
+      for ( ; y2 < st->disp_height; y2 += xy_incr )
+        grFillHLine( st->disp_bitmap, 0, (int)y2,
+                     st->disp_width, st->grid_color );
+
+      for ( y2 = y_org - xy_incr; (int)y2 >= 0; y2 -= xy_incr )
+        grFillHLine( st->disp_bitmap, 0, (int)y2,
+                     st->disp_width, st->grid_color );
+    }
+
+    grFillVLine( st->disp_bitmap, x_org, 0,
+                 st->disp_height, st->axis_color );
+    grFillHLine( st->disp_bitmap, 0, y_org,
+                 st->disp_width,  st->axis_color );
+  }
+
+
+  static void
+  grid_hint_draw_segment( GridStatus     st,
+                          AF_GlyphHints  hints )
+  {
+    FT_Int  dimension;
+    int     x_org = (int)st->x_origin;
+    int     y_org = (int)st->y_origin;
+
+
+    for ( dimension = 1; dimension >= 0; dimension-- )
+    {
+      FT_Int  num_seg;
+      FT_Int  count;
+
+
+      af_glyph_hints_get_num_segments( hints, dimension, &num_seg );
+
+      for ( count = 0; count < num_seg; count++ )
       {
-        pos = y_org - (int)offset * st->scale;
-        grFillHLine( st->disp_bitmap, 0, pos,
-                     st->disp_width, st->segment_color );
+        int     pos;
+        FT_Pos  offset;
+
+
+        af_glyph_hints_get_segment_offset( hints, dimension,
+                                           count, &offset );
+
+        if ( dimension == 0 ) /* AF_DIMENSION_HORZ is 0 */
+        {
+          pos = x_org + (int)offset * st->scale;
+          grFillVLine( st->disp_bitmap, pos, 0,
+                       st->disp_height, st->segment_color );
+        }
+        else
+        {
+          pos = y_org - (int)offset * st->scale;
+          grFillHLine( st->disp_bitmap, 0, pos,
+                       st->disp_width, st->segment_color );
+        }
       }
     }
   }
-}
 
 
-static void
-ft_bitmap_draw( FT_Bitmap*       bitmap,
-                int              x,
-                int              y,
-                FTDemo_Display*  display,
-                grColor          color)
-{
-  grBitmap  gbit;
-
-  gbit.width  = bitmap->width;
-  gbit.rows   = bitmap->rows;
-  gbit.pitch  = bitmap->pitch;
-  gbit.buffer = bitmap->buffer;
-
-  switch ( bitmap->pixel_mode)
+  static void
+  ft_bitmap_draw( FT_Bitmap*       bitmap,
+                  int              x,
+                  int              y,
+                  FTDemo_Display*  display,
+                  grColor          color )
   {
+    grBitmap  gbit;
+
+
+    gbit.width  = bitmap->width;
+    gbit.rows   = bitmap->rows;
+    gbit.pitch  = bitmap->pitch;
+    gbit.buffer = bitmap->buffer;
+
+    switch ( bitmap->pixel_mode )
+    {
     case FT_PIXEL_MODE_GRAY:
       gbit.mode  = gr_pixel_mode_gray;
       gbit.grays = 256;
@@ -315,211 +319,218 @@ ft_bitmap_draw( FT_Bitmap*       bitmap,
 
     default:
       return;
-  }
-  grBlitGlyphToBitmap( display->bitmap, &gbit, x, y, color );
-}
-
-
-static void
-ft_outline_draw( FT_Outline*      outline,
-                 double           scale,
-                 int              pen_x,
-                 int              pen_y,
-                 FTDemo_Handle*   handle,
-                 FTDemo_Display*  display,
-                 grColor          color )
-{
-  FT_Outline  transformed;
-  FT_BBox     cbox;
-  FT_Bitmap   bitm;
-
-  FT_Outline_New( handle->library,
-                  outline->n_points,
-                  outline->n_contours,
-                  &transformed );
-
-  FT_Outline_Copy( outline, &transformed );
-
-  if ( scale != 1. )
-  {
-    int  nn;
-
-    for ( nn = 0; nn < transformed.n_points; nn++ )
-    {
-      FT_Vector*  vec = &transformed.points[nn];
-
-      vec->x = (FT_F26Dot6)(vec->x*scale);
-      vec->y = (FT_F26Dot6)(vec->y*scale);
-    }
-  }
-
-  FT_Outline_Get_CBox( &transformed, &cbox );
-  cbox.xMin &= ~63;
-  cbox.yMin &= ~63;
-  cbox.xMax  = (cbox.xMax + 63) & ~63;
-  cbox.yMax  = (cbox.yMax + 63) & ~63;
-
-  bitm.width      = (cbox.xMax - cbox.xMin) >> 6;
-  bitm.rows       = (cbox.yMax - cbox.yMin) >> 6;
-  bitm.pitch      = bitm.width;
-  bitm.num_grays  = 256;
-  bitm.pixel_mode = FT_PIXEL_MODE_GRAY;
-  bitm.buffer     = (unsigned char*)calloc( bitm.pitch, bitm.rows );
-
-  FT_Outline_Translate( &transformed, -cbox.xMin, -cbox.yMin );
-  FT_Outline_Get_Bitmap( handle->library, &transformed, &bitm );
-
-  ft_bitmap_draw( &bitm,
-                  pen_x + (cbox.xMin >> 6),
-                  pen_y - (cbox.yMax >> 6),
-                  display,
-                  color );
-
-  free( bitm.buffer );
-  FT_Outline_Done( handle->library, &transformed );
-}
-
-
-static void
-ft_outline_new_circle( FT_Outline*     outline,
-                       FT_F26Dot6      radius,
-                       FTDemo_Handle*  handle )
-{
-  char*       tag;
-  FT_Vector*  vec;
-  FT_F26Dot6  disp = (FT_F26Dot6)( radius * 0.6781 );
-
-  FT_Outline_New( handle->library, 12, 1, outline );
-  outline->n_points   = 12;
-  outline->n_contours = 1;
-  outline->contours[0] = outline->n_points-1;
-
-  vec = outline->points;
-  tag = outline->tags;
-
-  vec->x =  radius; vec->y =       0; vec++; *tag++ = FT_CURVE_TAG_ON;
-  vec->x =  radius; vec->y =    disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-  vec->x =    disp; vec->y =  radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-  vec->x =       0; vec->y =  radius; vec++; *tag++ = FT_CURVE_TAG_ON;
-  vec->x =   -disp; vec->y =  radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-  vec->x = -radius; vec->y =    disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-  vec->x = -radius; vec->y =       0; vec++; *tag++ = FT_CURVE_TAG_ON;
-  vec->x = -radius; vec->y =   -disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-  vec->x =   -disp; vec->y = -radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-  vec->x =       0; vec->y = -radius; vec++; *tag++ = FT_CURVE_TAG_ON;
-  vec->x =    disp; vec->y = -radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-  vec->x =  radius; vec->y =   -disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
-}
-
-
-static void
-circle_draw( FT_F26Dot6       center_x,
-             FT_F26Dot6       center_y,
-             FT_F26Dot6       radius,
-             FTDemo_Handle*   handle,
-             FTDemo_Display*  display,
-             grColor          color )
-{
-  FT_Outline  outline;
-
-  ft_outline_new_circle( &outline, radius, handle );
-  FT_Outline_Translate( &outline, center_x & 63, center_y & 63 );
-
-  ft_outline_draw( &outline, 1., (center_x >> 6), (center_y >> 6), handle, display, color );
-
-  FT_Outline_Done( handle->library, &outline );
-}
-
-
-static void
-grid_status_draw_outline( GridStatus       st,
-                          FTDemo_Handle*   handle,
-                          FTDemo_Display*  display )
-{
-  static FT_Stroker  stroker;
-  FT_Size            size;
-  FT_GlyphSlot       slot;
-  double             scale = 64.0 * st->scale;
-  int                ox    = (int)st->x_origin;
-  int                oy    = (int)st->y_origin;
-
-
-  if ( stroker == NULL )
-  {
-    FT_Stroker_New( handle->library, &stroker );
-
-    FT_Stroker_Set( stroker, 32, FT_STROKER_LINECAP_BUTT,
-                    FT_STROKER_LINEJOIN_ROUND, 0x20000 );
-  }
-
-  FTDemo_Get_Size( handle, &size );
-
-  /* Draw segment before drawing glyph. */
-  if ( status.do_segment )
-  {
-    /* Force hinting first in order to collect segment info. */
-    _af_debug_disable_horz_hints = 0;
-    _af_debug_disable_vert_hints = 0;
-
-    if ( !FT_Load_Glyph( size->face, st->Num,
-                         FT_LOAD_DEFAULT        |
-                         FT_LOAD_NO_BITMAP      |
-                         FT_LOAD_FORCE_AUTOHINT |
-                         FT_LOAD_TARGET_NORMAL ) )
-      grid_hint_draw_segment( &status, _af_debug_hints );
-  }
-
-  _af_debug_disable_horz_hints = !st->do_horz_hints;
-  _af_debug_disable_vert_hints = !st->do_vert_hints;
-
-  if ( FT_Load_Glyph( size->face, st->Num,
-                      handle->load_flags | FT_LOAD_NO_BITMAP ) )
-    return;
-
-  slot = size->face->glyph;
-  if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
-  {
-    FT_Glyph     glyph;
-    FT_Outline*  gimage = &slot->outline;
-    int          nn;
-
-
-    /* scale the outline */
-    for (nn = 0; nn < gimage->n_points; nn++)
-    {
-      FT_Vector*  vec = &gimage->points[nn];
-
-
-      vec->x = (FT_F26Dot6)( vec->x * scale );
-      vec->y = (FT_F26Dot6)( vec->y * scale );
     }
 
-    /* stroke then draw it */
-    if ( st->do_outline )
-    {
-      FT_Get_Glyph( slot, &glyph );
-      FT_Glyph_Stroke( &glyph, stroker, 1 );
+    grBlitGlyphToBitmap( display->bitmap, &gbit, x, y, color );
+  }
 
-      FTDemo_Draw_Glyph_Color( handle, display, glyph, &ox, &oy,
-                               st->outline_color );
-      FT_Done_Glyph( glyph );
+
+  static void
+  ft_outline_draw( FT_Outline*      outline,
+                   double           scale,
+                   int              pen_x,
+                   int              pen_y,
+                   FTDemo_Handle*   handle,
+                   FTDemo_Display*  display,
+                   grColor          color )
+  {
+    FT_Outline  transformed;
+    FT_BBox     cbox;
+    FT_Bitmap   bitm;
+
+
+    FT_Outline_New( handle->library,
+                    outline->n_points,
+                    outline->n_contours,
+                    &transformed );
+
+    FT_Outline_Copy( outline, &transformed );
+
+    if ( scale != 1. )
+    {
+      int  nn;
+
+
+      for ( nn = 0; nn < transformed.n_points; nn++ )
+      {
+        FT_Vector*  vec = &transformed.points[nn];
+
+
+        vec->x = (FT_F26Dot6)( vec->x * scale );
+        vec->y = (FT_F26Dot6)( vec->y * scale );
+      }
     }
 
-    /* now draw the points */
-    if ( st->do_dots )
+    FT_Outline_Get_CBox( &transformed, &cbox );
+    cbox.xMin &= ~63;
+    cbox.yMin &= ~63;
+    cbox.xMax  = ( cbox.xMax + 63 ) & ~63;
+    cbox.yMax  = ( cbox.yMax + 63 ) & ~63;
+
+    bitm.width      = ( cbox.xMax - cbox.xMin ) >> 6;
+    bitm.rows       = ( cbox.yMax - cbox.yMin ) >> 6;
+    bitm.pitch      = bitm.width;
+    bitm.num_grays  = 256;
+    bitm.pixel_mode = FT_PIXEL_MODE_GRAY;
+    bitm.buffer     = (unsigned char*)calloc( bitm.pitch, bitm.rows );
+
+    FT_Outline_Translate( &transformed, -cbox.xMin, -cbox.yMin );
+    FT_Outline_Get_Bitmap( handle->library, &transformed, &bitm );
+
+    ft_bitmap_draw( &bitm,
+                    pen_x + ( cbox.xMin >> 6 ),
+                    pen_y - ( cbox.yMax >> 6 ),
+                    display,
+                    color );
+
+    free( bitm.buffer );
+    FT_Outline_Done( handle->library, &transformed );
+  }
+
+
+  static void
+  ft_outline_new_circle( FT_Outline*     outline,
+                         FT_F26Dot6      radius,
+                         FTDemo_Handle*  handle )
+  {
+    char*       tag;
+    FT_Vector*  vec;
+    FT_F26Dot6  disp = (FT_F26Dot6)( radius * 0.6781 );
+
+
+    FT_Outline_New( handle->library, 12, 1, outline );
+    outline->n_points    = 12;
+    outline->n_contours  = 1;
+    outline->contours[0] = outline->n_points - 1;
+
+    vec = outline->points;
+    tag = outline->tags;
+
+    vec->x =  radius; vec->y =       0; vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x =  radius; vec->y =    disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x =    disp; vec->y =  radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x =       0; vec->y =  radius; vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x =   -disp; vec->y =  radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x = -radius; vec->y =    disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x = -radius; vec->y =       0; vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x = -radius; vec->y =   -disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x =   -disp; vec->y = -radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x =       0; vec->y = -radius; vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x =    disp; vec->y = -radius; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x =  radius; vec->y =   -disp; vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+  }
+
+
+  static void
+  circle_draw( FT_F26Dot6       center_x,
+               FT_F26Dot6       center_y,
+               FT_F26Dot6       radius,
+               FTDemo_Handle*   handle,
+               FTDemo_Display*  display,
+               grColor          color )
+  {
+    FT_Outline  outline;
+
+
+    ft_outline_new_circle( &outline, radius, handle );
+    FT_Outline_Translate( &outline, center_x & 63, center_y & 63 );
+
+    ft_outline_draw( &outline, 1., ( center_x >> 6 ), ( center_y >> 6 ),
+                     handle, display, color );
+
+    FT_Outline_Done( handle->library, &outline );
+  }
+
+
+  static void
+  grid_status_draw_outline( GridStatus       st,
+                            FTDemo_Handle*   handle,
+                            FTDemo_Display*  display )
+  {
+    static FT_Stroker  stroker;
+    FT_Size            size;
+    FT_GlyphSlot       slot;
+    double             scale = 64.0 * st->scale;
+    int                ox    = (int)st->x_origin;
+    int                oy    = (int)st->y_origin;
+
+
+    if ( stroker == NULL )
     {
-      for (nn = 0; nn < gimage->n_points; nn++)
-        circle_draw( (FT_F26Dot6)( st->x_origin * 64 + gimage->points[nn].x ),
-                     (FT_F26Dot6)( st->y_origin * 64 - gimage->points[nn].y ),
-                     128,
-                     handle,
-                     display,
-                     ( gimage->tags[nn] & FT_CURVE_TAG_ON )
-                       ? st->on_color
-                       : st->conic_color );
+      FT_Stroker_New( handle->library, &stroker );
+
+      FT_Stroker_Set( stroker, 32, FT_STROKER_LINECAP_BUTT,
+                      FT_STROKER_LINEJOIN_ROUND, 0x20000 );
+    }
+
+    FTDemo_Get_Size( handle, &size );
+
+    /* Draw segment before drawing glyph. */
+    if ( status.do_segment )
+    {
+      /* Force hinting first in order to collect segment info. */
+      _af_debug_disable_horz_hints = 0;
+      _af_debug_disable_vert_hints = 0;
+
+      if ( !FT_Load_Glyph( size->face, st->Num,
+                           FT_LOAD_DEFAULT        |
+                           FT_LOAD_NO_BITMAP      |
+                           FT_LOAD_FORCE_AUTOHINT |
+                           FT_LOAD_TARGET_NORMAL ) )
+        grid_hint_draw_segment( &status, _af_debug_hints );
+    }
+
+    _af_debug_disable_horz_hints = !st->do_horz_hints;
+    _af_debug_disable_vert_hints = !st->do_vert_hints;
+
+    if ( FT_Load_Glyph( size->face, st->Num,
+                        handle->load_flags | FT_LOAD_NO_BITMAP ) )
+      return;
+
+    slot = size->face->glyph;
+    if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
+    {
+      FT_Glyph     glyph;
+      FT_Outline*  gimage = &slot->outline;
+      int          nn;
+
+
+      /* scale the outline */
+      for ( nn = 0; nn < gimage->n_points; nn++ )
+      {
+        FT_Vector*  vec = &gimage->points[nn];
+
+
+        vec->x = (FT_F26Dot6)( vec->x * scale );
+        vec->y = (FT_F26Dot6)( vec->y * scale );
+      }
+
+      /* stroke then draw it */
+      if ( st->do_outline )
+      {
+        FT_Get_Glyph( slot, &glyph );
+        FT_Glyph_Stroke( &glyph, stroker, 1 );
+
+        FTDemo_Draw_Glyph_Color( handle, display, glyph, &ox, &oy,
+                                 st->outline_color );
+        FT_Done_Glyph( glyph );
+      }
+
+      /* now draw the points */
+      if ( st->do_dots )
+      {
+        for ( nn = 0; nn < gimage->n_points; nn++ )
+          circle_draw(
+            (FT_F26Dot6)( st->x_origin * 64 + gimage->points[nn].x ),
+            (FT_F26Dot6)( st->y_origin * 64 - gimage->points[nn].y ),
+            128,
+            handle,
+            display,
+            ( gimage->tags[nn] & FT_CURVE_TAG_ON ) ? st->on_color
+                                                   : st->conic_color );
+      }
     }
   }
-}
 
 
   static FTDemo_Display*  display;
@@ -535,13 +546,12 @@ grid_status_draw_outline( GridStatus       st,
 
 
   static void
-  Fatal( const char* message )
+  Fatal( const char*  message )
   {
     FTDemo_Display_Done( display );
     FTDemo_Done( handle );
     PanicZ( message );
   }
-
 
 
   /*************************************************************************/
@@ -621,7 +631,7 @@ grid_status_draw_outline( GridStatus       st,
 
 
   static void
-  event_gamma_change( double delta )
+  event_gamma_change( double  delta )
   {
     status.gamma += delta;
 
@@ -649,11 +659,13 @@ grid_status_draw_outline( GridStatus       st,
 
 
   static void
-  event_grid_translate( int  dx, int  dy )
+  event_grid_translate( int  dx,
+                        int  dy )
   {
-    status.x_origin += 32*dx;
-    status.y_origin += 32*dy;
+    status.x_origin += 32 * dx;
+    status.y_origin += 32 * dy;
   }
+
 
   static void
   event_grid_zoom( double  zoom )
@@ -668,23 +680,23 @@ grid_status_draw_outline( GridStatus       st,
 
 
   static void
-  event_size_change( int delta )
+  event_size_change( int  delta )
   {
     status.ptsize += delta;
 
-    if ( status.ptsize < 1*64 )
-      status.ptsize = 1*64;
-    else if ( status.ptsize > MAXPTSIZE*64 )
-      status.ptsize = MAXPTSIZE*64;
+    if ( status.ptsize < 1 * 64 )
+      status.ptsize = 1 * 64;
+    else if ( status.ptsize > MAXPTSIZE * 64 )
+      status.ptsize = MAXPTSIZE * 64;
 
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
   }
 
 
   static void
-  event_index_change( int delta )
+  event_index_change( int  delta )
   {
-    int num_indices = handle->current_font->num_indices;
+    int  num_indices = handle->current_font->num_indices;
 
 
     status.Num += delta;
@@ -696,15 +708,14 @@ grid_status_draw_outline( GridStatus       st,
   }
 
 
-
   static void
   event_font_change( int  delta )
   {
-    int      num_indices;
+    int  num_indices;
 
 
     if ( status.font_index + delta >= handle->num_fonts ||
-         status.font_index + delta < 0 )
+         status.font_index + delta < 0                  )
       return;
 
     status.font_index += delta;
@@ -724,6 +735,7 @@ grid_status_draw_outline( GridStatus       st,
   Process_Event( grEvent*  event )
   {
     int  ret = 0;
+
 
     status.header = NULL;
 
@@ -755,10 +767,9 @@ grid_status_draw_outline( GridStatus       st,
       FTDemo_Update_Current_Flags( handle );
       break;
 
-
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( '1' ):
-      if (handle->hinted && handle->autohint)
+      if ( handle->hinted && handle->autohint )
       {
         status.header = "dumping glyph edges to stdout";
         af_glyph_hints_dump_edges( _af_debug_hints );
@@ -768,7 +779,7 @@ grid_status_draw_outline( GridStatus       st,
       break;
 
     case grKEY( '2' ):
-      if (handle->hinted && handle->autohint)
+      if ( handle->hinted && handle->autohint )
       {
         status.header = "dumping glyph segments to stdout";
         af_glyph_hints_dump_segments( _af_debug_hints );
@@ -778,7 +789,7 @@ grid_status_draw_outline( GridStatus       st,
       break;
 
     case grKEY( '3' ):
-      if (handle->hinted && handle->autohint)
+      if ( handle->hinted && handle->autohint )
       {
         status.header = "dumping glyph points to stdout";
         af_glyph_hints_dump_points( _af_debug_hints );
@@ -787,7 +798,6 @@ grid_status_draw_outline( GridStatus       st,
         status.header = "need autofit mode for point dumping";
       break;
 #endif /* FT_DEBUG_AUTOFIT */
-
 
     case grKEY( 'g' ):
       event_gamma_change( 0.1 );
@@ -821,10 +831,9 @@ grid_status_draw_outline( GridStatus       st,
       event_font_change( -1 );
       break;
 
-
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'H' ):
-      if (handle->autohint)
+      if ( handle->autohint )
       {
         status.do_horz_hints = !status.do_horz_hints;
         status.header = status.do_horz_hints ? "horizontal hinting enabled"
@@ -835,7 +844,7 @@ grid_status_draw_outline( GridStatus       st,
       break;
 
     case grKEY( 'V' ):
-      if (handle->autohint)
+      if ( handle->autohint )
       {
         status.do_vert_hints = !status.do_vert_hints;
         status.header = status.do_vert_hints ? "vertical hinting enabled"
@@ -846,7 +855,7 @@ grid_status_draw_outline( GridStatus       st,
       break;
 
     case grKEY( 'B' ):
-      if (handle->autohint)
+      if ( handle->autohint )
       {
         status.do_blue_hints = !status.do_blue_hints;
         status.header = status.do_blue_hints ? "blue zone hinting enabled"
@@ -863,9 +872,8 @@ grid_status_draw_outline( GridStatus       st,
       break;
 #endif /* FT_DEBUG_AUTOFIT */
 
-
-    case grKeyLeft:     event_index_change( -1 ); break;
-    case grKeyRight:    event_index_change( +1 ); break;
+    case grKeyLeft:     event_index_change(    -1 ); break;
+    case grKeyRight:    event_index_change(     1 ); break;
     case grKeyF7:       event_index_change(   -10 ); break;
     case grKeyF8:       event_index_change(    10 ); break;
     case grKeyF9:       event_index_change(  -100 ); break;
@@ -873,7 +881,7 @@ grid_status_draw_outline( GridStatus       st,
     case grKeyF11:      event_index_change( -1000 ); break;
     case grKeyF12:      event_index_change(  1000 ); break;
 
-    case grKeyUp:       event_size_change( +32 ); break;
+    case grKeyUp:       event_size_change(  32 ); break;
     case grKeyDown:     event_size_change( -32 ); break;
 
     case grKEY( ' ' ):  event_grid_reset( &status );
@@ -881,13 +889,13 @@ grid_status_draw_outline( GridStatus       st,
                         status.do_vert_hints = 1;
                         break;
 
-    case grKEY( 'i' ):  event_grid_translate( 0, +1 ); break;
-    case grKEY( 'k' ):  event_grid_translate( 0, -1 ); break;
-    case grKEY( 'l' ):  event_grid_translate( +1, 0 ); break;
-    case grKEY( 'j' ):  event_grid_translate( -1, 0 ); break;
+    case grKEY( 'i' ):  event_grid_translate(  0,  1 ); break;
+    case grKEY( 'k' ):  event_grid_translate(  0, -1 ); break;
+    case grKEY( 'l' ):  event_grid_translate(  1,  0 ); break;
+    case grKEY( 'j' ):  event_grid_translate( -1,  0 ); break;
 
-    case grKeyPageUp:   event_grid_zoom( 1.25 ); break;
-    case grKeyPageDown: event_grid_zoom( 1/1.25 ); break;
+    case grKeyPageUp:   event_grid_zoom( 1.25     ); break;
+    case grKeyPageDown: event_grid_zoom( 1 / 1.25 ); break;
 
     default:
       ;
@@ -898,7 +906,7 @@ grid_status_draw_outline( GridStatus       st,
 
 
   static void
-  write_header( FT_Error error_code )
+  write_header( FT_Error  error_code )
   {
     FT_Face      face;
     const char*  basename;
@@ -945,7 +953,8 @@ grid_status_draw_outline( GridStatus       st,
 
     format = "at %g points, first glyph index = %d";
 
-    snprintf( status.header_buffer, 256, format, status.ptsize/64., status.Num );
+    snprintf( status.header_buffer, 256, format,
+              status.ptsize / 64., status.Num );
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
@@ -965,7 +974,8 @@ grid_status_draw_outline( GridStatus       st,
         gindex = status.Num;
 
         strcpy( p, format );
-        if ( FT_Get_Glyph_Name( face, gindex, p + format_len, size - format_len ) )
+        if ( FT_Get_Glyph_Name( face, gindex,
+                                p + format_len, size - format_len ) )
           *p = '\0';
       }
     }
@@ -1030,7 +1040,7 @@ grid_status_draw_outline( GridStatus       st,
       switch ( option )
       {
       case 'f':
-        status.Num  = atoi( optarg );
+        status.Num = atoi( optarg );
         break;
 
       case 'r':
@@ -1051,9 +1061,9 @@ grid_status_draw_outline( GridStatus       st,
     if ( *argc <= 1 )
       usage( execname );
 
-    status.ptsize = (int)(atof( *argv[0] ) * 64.0);
+    status.ptsize = (int)( atof( *argv[0] ) * 64.0 );
     if ( status.ptsize == 0 )
-      status.ptsize = 64*10;
+      status.ptsize = 64 * 10;
 
     if ( status.res <= 0 )
       status.res = 72;
@@ -1067,7 +1077,8 @@ grid_status_draw_outline( GridStatus       st,
   main( int    argc,
         char*  argv[] )
   {
-    grEvent      event;
+    grEvent  event;
+
 
     display = FTDemo_Display_New( gr_pixel_mode_rgb24 );
     if ( !display )
@@ -1075,13 +1086,14 @@ grid_status_draw_outline( GridStatus       st,
 
     memset( display->fore_color.chroma, 0, 4 );
     memset( display->back_color.chroma, 0xff, 4 );
-    grSetTitle( display->surface, "FreeType Glyph Grid Viewer - press F1 for help" );
+    grSetTitle( display->surface,
+                "FreeType Glyph Grid Viewer - press F1 for help" );
 
     grid_status_init( &status, display );
 
     parse_cmdline( &argc, &argv );
 
-    /* Initialize engine */
+    /* initialize engine */
     handle = FTDemo_New( FT_ENCODING_NONE );
 
     for ( ; argc > 0; argc--, argv++ )
