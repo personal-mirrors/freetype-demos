@@ -608,8 +608,7 @@
 
           x = 55;
 
-          /* whatever.. */
-          height = status.ptsize * status.res / 72;
+          height = ( status.ptsize * status.res / 72 + 32 ) >> 6;
           if ( height < CELLSTRING_HEIGHT )
             height = CELLSTRING_HEIGHT;
 

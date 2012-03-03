@@ -1,5 +1,12 @@
 2012-03-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftstring] Fix display of kern compare mode.
+
+	* src/ftstring.c (main) <RENDER_MODE_KERNCMP>: Fix scaling of
+	`height'.
+
+2012-03-03  Werner Lemberg  <wl@gnu.org>
+
 	Fix handling of track kerning.
 
 	* src/ftcommon.c (string_render_prepare): Fix scaling for
