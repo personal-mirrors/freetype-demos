@@ -223,11 +223,6 @@
                            int             pixel_size );
 
   void
-  FTDemo_Set_Current_Pointsize( FTDemo_Handle*  handle,
-                                int             point_size,
-                                int             res );
-
-  void
   FTDemo_Set_Current_Charsize( FTDemo_Handle*  handle,
                                int             point_size,
                                int             res );

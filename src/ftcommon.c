@@ -538,15 +538,6 @@
 
 
   void
-  FTDemo_Set_Current_Pointsize( FTDemo_Handle*  handle,
-                                int             point_size,
-                                int             res )
-  {
-    FTDemo_Set_Current_Size( handle, ( point_size * res + 36 ) / 72 );
-  }
-
-
-  void
   FTDemo_Update_Current_Flags( FTDemo_Handle*  handle )
   {
     FT_UInt32  flags, target;
