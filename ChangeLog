@@ -1,5 +1,12 @@
 2012-03-03  Werner Lemberg  <wl@gnu.org>
 
+	Fix handling of track kerning.
+
+	* src/ftcommon.c (string_render_prepare): Fix scaling for
+	`FT_Get_Track_Kerning'.
+
+2012-03-03  Werner Lemberg  <wl@gnu.org>
+
 	Remove unused function.
 
 	* src/ftcommon.[ch] (FTDemo_Set_Current_Pointsize): Remove.

@@ -1071,17 +1071,13 @@
 
     if ( !sc->vertical && sc->kerning_degree )
     {
-      FT_Fixed  ptsize;
-
-
-      ptsize = FT_MulFix( face->units_per_EM, face->size->metrics.x_scale );
-
-      if ( FT_Get_Track_Kerning( face, ptsize << 10,
+      /* this function needs and returns points, not pixels */
+      if ( FT_Get_Track_Kerning( face, handle->scaler.width << 10,
                                  -sc->kerning_degree,
                                  &track_kern ) )
         track_kern = 0;
       else
-        track_kern >>= 10;
+        track_kern = ( track_kern / 1024.0 * handle->scaler.x_res ) / 72;
     }
 
     for ( i = 0; i < handle->string_length; i++ )
