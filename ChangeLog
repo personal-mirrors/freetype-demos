@@ -1,3 +1,9 @@
+2012-03-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Improve spacing for bold rendering mode.
+
+	* src/ftview.c (Render_Embolden): Fix algorithm to reduce spacing.
+
 2012-03-08  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.4.9 released.

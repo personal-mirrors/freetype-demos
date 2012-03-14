@@ -353,9 +353,6 @@
         {
           error = FT_Outline_Embolden( &slot->outline, xstr );
           /* ignore error */
-
-          xstr = xstr * 2;
-          ystr = xstr;
         }
         else if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
         {
@@ -380,10 +377,7 @@
 
         slot->metrics.width        += xstr;
         slot->metrics.height       += ystr;
-        slot->metrics.horiBearingY += ystr;
         slot->metrics.horiAdvance  += xstr;
-        slot->metrics.vertBearingX -= xstr / 2;
-        slot->metrics.vertBearingY += ystr;
         slot->metrics.vertAdvance  += ystr;
 
         if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
