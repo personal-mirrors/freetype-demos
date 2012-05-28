@@ -75,7 +75,8 @@
     int            ptsize;            /* current point size, 26.6 format */
     int            lcd_mode;
     double         gamma;
-    double         bold_factor;
+    double         xbold_factor;
+    double         ybold_factor;
     double         slant;
 
     int            debug;
@@ -93,7 +94,7 @@
     int            fw_index;
 
   } status = { RENDER_MODE_ALL, FT_ENCODING_NONE, 72, 48, -1,
-               1.0, 0.04, 0.22,
+               1.0, 0.04, 0.04, 0.22,
                0, 0, 0, 0, 0, NULL, { 0 }, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
@@ -344,14 +345,14 @@
              slot->format != FT_GLYPH_FORMAT_BITMAP )
           goto Next;
 
-        xstr = FT_MulFix( face->units_per_EM,
+        ystr = FT_MulFix( face->units_per_EM,
                           face->size->metrics.y_scale );
-        xstr = (FT_Fixed)( xstr * status.bold_factor );
-        ystr = xstr;
+        xstr = (FT_Fixed)( ystr * status.xbold_factor );
+        ystr = (FT_Fixed)( ystr * status.ybold_factor );
 
         if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
         {
-          error = FT_Outline_Embolden( &slot->outline, xstr );
+          error = FT_Outline_EmboldenXY( &slot->outline, xstr, ystr );
           /* ignore error */
         }
         else if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
@@ -656,7 +657,8 @@
     grWriteln( "  space       cycle forwards through rendering modes" );
     grWriteln( "  1-6         select rendering mode" );
     grLn();
-    grWriteln( "  e, E        adjust emboldening" );
+    grWriteln( "  x, X        adjust horizontal emboldening" );
+    grWriteln( "  y, Y        adjust vertical emboldening" );
     grWriteln( "  s, S        adjust slanting" );
     grLn();
     grWriteln( "  F           toggle custom LCD filter mode" );
@@ -771,17 +773,24 @@
 
 
   static void
-  event_bold_change( double  delta )
+  event_bold_change( double  xdelta,
+                     double  ydelta )
   {
-    status.bold_factor += delta;
+    status.xbold_factor += xdelta;
+    status.ybold_factor += ydelta;
 
-    if ( status.bold_factor > 0.1 )
-      status.bold_factor = 0.1;
-    else if ( status.bold_factor < -0.1 )
-      status.bold_factor = -0.1;
+    if ( status.xbold_factor > 0.1 )
+      status.xbold_factor = 0.1;
+    else if ( status.xbold_factor < -0.1 )
+      status.xbold_factor = -0.1;
 
-    sprintf( status.header_buffer, "embolding factor changed to %.3f",
-             status.bold_factor );
+    if ( status.ybold_factor > 0.1 )
+      status.ybold_factor = 0.1;
+    else if ( status.ybold_factor < -0.1 )
+      status.ybold_factor = -0.1;
+
+    sprintf( status.header_buffer, "embolding factors changed to %.3f,%.3f",
+             status.xbold_factor, status.ybold_factor );
 
     status.header = status.header_buffer;
   }
@@ -1025,12 +1034,20 @@
       event_slant_change( -0.02 );
       break;
 
-    case grKEY( 'e' ):
-      event_bold_change( 0.002 );
+    case grKEY( 'x' ):
+      event_bold_change( 0.005, 0.0 );
       break;
 
-    case grKEY( 'E' ):
-      event_bold_change( -0.002 );
+    case grKEY( 'X' ):
+      event_bold_change( -0.005, 0.0 );
+      break;
+
+    case grKEY( 'y' ):
+      event_bold_change( 0.0, 0.005 );
+      break;
+
+    case grKEY( 'Y' ):
+      event_bold_change( 0.0, -0.005 );
       break;
 
     case grKEY( 'g' ):

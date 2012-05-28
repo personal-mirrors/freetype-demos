@@ -1,3 +1,15 @@
+2012-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Implement handling of FT_Outline_EmboldenXY.
+
+	* src/ftview.c (status): Replace `bold_factor' with `xbold_factor'
+	and `ybold_factor'.
+	(Render_Embolden): Updated.
+	(Process_Event): Replacing handling of `e', `E' keys with `x', `X',
+	`y', and `Y'.
+	(event_bold_change): Implement it.
+	(event_help): Updated.
+
 2012-03-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Improve spacing for bold rendering mode.
