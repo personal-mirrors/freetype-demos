@@ -1,3 +1,16 @@
+2012-07-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+        [ftview] Clean up and homogenize the code.
+
+        * src/ftview.c (Render_Stroke): Replace while-loop with for-loop.
+	(Render_Slanted): Ditto.
+	(Render_Enbolden): Ditto.
+	(Render_All): Ditto.
+	(Render_Waterfall): Ditto.
+	(Render_Stroke): Homogenize with other similar functions.
+	(Render_Text): Code cleanup.
+	(event_gamma_grid): Ditto.
+
 2012-06-15  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.4.10 released.

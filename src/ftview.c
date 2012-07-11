@@ -140,8 +140,6 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    i = first_index;
-
     error = FT_Stroker_New( handle->library, &stroker );
     if ( error )
       goto Exit;
@@ -151,10 +149,10 @@
                     FT_STROKER_LINEJOIN_ROUND,
                     0 );
 
-    while ( i < num_indices )
+    for ( i = first_index; i < num_indices; i++ )
     {
-      int           gindex;
-      FT_GlyphSlot  slot;
+      int      gindex;
+      FT_Face  face = size->face;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
@@ -162,13 +160,13 @@
       else
         gindex = FTDemo_Get_Index( handle, i );
 
-      error = FT_Load_Glyph( size->face, gindex,
+      error = FT_Load_Glyph( face, gindex,
                              handle->load_flags | FT_LOAD_NO_BITMAP );
-      slot = size->face->glyph;
 
-      if ( !error && slot->format == FT_GLYPH_FORMAT_OUTLINE )
+      if ( !error && face->glyph->format == FT_GLYPH_FORMAT_OUTLINE )
       {
-        FT_Glyph  glyph;
+        FT_GlyphSlot  slot = face->glyph;
+        FT_Glyph      glyph;
 
 
         error = FT_Get_Glyph( slot, &glyph );
@@ -186,7 +184,7 @@
         FT_Done_Glyph( glyph );
 
         if ( error )
-          status.Fail++;
+          goto Next;
         else if ( X_TOO_LONG( x, size, display ) )
         {
           x  = start_x;
@@ -197,12 +195,8 @@
         }
       }
       else
-      {
     Next:
         status.Fail++;
-      }
-
-      i++;
     }
 
   Exit:
@@ -232,9 +226,7 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    i = first_index;
-
-    while ( i < num_indices )
+    for ( i = first_index; i < num_indices; i++ )
     {
       int      gindex;
       FT_Face  face = size->face;
@@ -278,7 +270,7 @@
         error = FTDemo_Draw_Slot( handle, display, face->glyph, &x, &y );
 
         if ( error )
-          status.Fail++;
+          goto Next;
         else if ( X_TOO_LONG( x, size, display ) )
         {
           x  = start_x;
@@ -289,9 +281,8 @@
         }
       }
       else
+    Next:
         status.Fail++;
-
-      i++;
     }
 
     return error;
@@ -317,9 +308,7 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    i = first_index;
-
-    while ( i < num_indices )
+    for ( i = first_index; i < num_indices; i++ )
     {
       int      gindex;
       FT_Face  face = size->face;
@@ -400,8 +389,6 @@
       else
     Next:
         status.Fail++;
-
-      i++;
     }
 
     return error;
@@ -427,9 +414,7 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    i = first_index;
-
-    while ( i < num_indices )
+    for ( i = first_index; i < num_indices; i++ )
     {
       int  gindex;
 
@@ -450,8 +435,6 @@
         if ( Y_TOO_LONG( y, size, display ) )
           break;
       }
-
-      i++;
     }
 
     return FT_Err_Ok;
@@ -463,14 +446,11 @@
                int  first_index )
   {
     int      start_x, start_y, step_y, x, y;
-    int      i;
     FT_Size  size;
 
     const char*  p;
     const char*  pEnd;
 
-
-    num_indices = num_indices;  /* pacify compiler */
 
     error = FTDemo_Get_Size( handle, &size );
     if ( error )
@@ -481,18 +461,13 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    i = first_index;
-
     p    = (const char*)Text;
     pEnd = p + strlen( (const char*)Text );
 
-    while ( i > 0 )
-    {
+    while ( first_index-- )
       utf8_next( &p, pEnd );
-      i--;
-    }
 
-    while ( num_indices != 0 )
+    while ( num_indices-- )
     {
       FT_UInt  gindex;
       int      ch;
@@ -521,9 +496,6 @@
             break;
         }
       }
-
-      if ( num_indices > 0 )
-        num_indices -= 1;
     }
 
     return FT_Err_Ok;
@@ -568,12 +540,6 @@
 
     for ( pt_size = first_size; pt_size < max_size; pt_size += 64 )
     {
-      sprintf( (char*)text,
-               "%g: the quick brown fox jumps over the lazy dog"
-               " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", pt_size / 64.0 );
-
-      p = text;
-
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
 
       error = FTDemo_Get_Size( handle, &size );
@@ -593,7 +559,11 @@
       if ( y >= display->bitmap->rows )
         break;
 
-      while ( *p )
+      sprintf( (char*)text,
+               "%g: the quick brown fox jumps over the lazy dog"
+               " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", pt_size / 64.0 );
+
+      for ( p = text; *p; p++ )
       {
         FT_UInt  gindex;
 
@@ -605,8 +575,6 @@
           status.Fail++;
         else if ( X_TOO_LONG( x, size, display ) )
           break;
-
-        p++;
       }
     }
 
@@ -710,9 +678,9 @@
     grWriteCellString( display->bitmap, 0, 0, "Gamma grid",
                        display->fore_color );
 
-    for ( g = 1; g <= gammas; g += 1 )
+    for ( g = 1; g <= gammas; g++ )
     {
-      double  ggamma = g / 10.0;
+      double  ggamma = 0.1 * g;
       char    temp[6];
       int     y = y_0 + ( yside + 1 ) * ( g - 1 );
       int     nx, ny;
