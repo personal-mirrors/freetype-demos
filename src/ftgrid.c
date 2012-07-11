@@ -511,9 +511,10 @@
         FT_Get_Glyph( slot, &glyph );
         FT_Glyph_Stroke( &glyph, stroker, 1 );
 
-        FTDemo_Draw_Glyph_Color( handle, display, glyph, &ox, &oy,
-                                 st->outline_color );
-        FT_Done_Glyph( glyph );
+        error = FTDemo_Draw_Glyph_Color( handle, display, glyph, &ox, &oy,
+                                         st->outline_color );
+        if ( !error )
+          FT_Done_Glyph( glyph );
       }
 
       /* now draw the points */

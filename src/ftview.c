@@ -181,7 +181,8 @@
         }
 
         error = FTDemo_Draw_Glyph( handle, display, glyph, &x, &y );
-        FT_Done_Glyph( glyph );
+        if ( !error )
+          FT_Done_Glyph( glyph );
 
         if ( error )
           goto Next;

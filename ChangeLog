@@ -1,3 +1,11 @@
+2012-07-11  Werner Lemberg  <wl@gnu.org>
+
+	Avoid crashes in case of failure.
+
+	src/ftcommon.c (FTDemo_Draw_Slot), src/ftgrid.c
+	(grid_status_draw_outline), src/ftview.c (Render_Stroke): Only call
+	`FT_Done_Glyph' in case of success.
+
 2012-07-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
         [ftview] Clean up and homogenize the code.

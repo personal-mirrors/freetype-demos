@@ -946,8 +946,8 @@
       return error;
 
     error = FTDemo_Draw_Glyph( handle, display, glyph, pen_x, pen_y );
-
-    FT_Done_Glyph( glyph );
+    if ( !error )
+      FT_Done_Glyph( glyph );
 
     return error;
   }
