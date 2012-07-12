@@ -1,8 +1,17 @@
+2012-07-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+        [ftview] Further code homogenization.
+
+	* src/ftview.c (Render_Stroke): Stroker contructor and destructor
+	are moved to...
+	* src/ftcommon.c (FTDemo_New, FTDemo_Done): Here.
+	* src/ftcommon.h (FTDemo_Handle): New field `stroker'.
+
 2012-07-11  Werner Lemberg  <wl@gnu.org>
 
 	Avoid crashes in case of failure.
 
-	src/ftcommon.c (FTDemo_Draw_Slot), src/ftgrid.c
+	* src/ftcommon.c (FTDemo_Draw_Slot), src/ftgrid.c
 	(grid_status_draw_outline), src/ftview.c (Render_Stroke): Only call
 	`FT_Done_Glyph' in case of success.
 

@@ -286,6 +286,8 @@
 
     FT_Bitmap_New( &handle->bitmap );
 
+    FT_Stroker_New( handle->library, &handle->stroker );
+
     handle->encoding = encoding;
 
     handle->hinted    = 1;
@@ -336,6 +338,7 @@
         FT_Done_Glyph( glyph->image );
     }
 
+    FT_Stroker_Done( handle->stroker );
     FT_Bitmap_Done( handle->library, &handle->bitmap );
     FTC_Manager_Done( handle->cache_manager );
     FT_Done_FreeType( handle->library );

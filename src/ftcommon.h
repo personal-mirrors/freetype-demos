@@ -21,6 +21,7 @@
 #include FT_CACHE_MANAGER_H
 
 #include FT_GLYPH_H
+#include FT_STROKER_H
 #include FT_BITMAP_H
 
 #include <stdlib.h>
@@ -191,6 +192,7 @@
     int             string_reload;
 
     FT_Encoding     encoding;
+    FT_Stroker      stroker;
     FT_Bitmap       bitmap;            /* used as bitmap conversion buffer */
 
   } FTDemo_Handle;

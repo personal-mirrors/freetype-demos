@@ -124,10 +124,9 @@
   Render_Stroke( int  num_indices,
                  int  first_index )
   {
-    int         start_x, start_y, step_y, x, y;
-    int         i;
-    FT_Size     size;
-    FT_Stroker  stroker = NULL;
+    int      start_x, start_y, step_y, x, y;
+    int      i;
+    FT_Size  size;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -140,11 +139,7 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    error = FT_Stroker_New( handle->library, &stroker );
-    if ( error )
-      goto Exit;
-
-    FT_Stroker_Set( stroker, 64,
+    FT_Stroker_Set( handle->stroker, 64,
                     FT_STROKER_LINECAP_ROUND,
                     FT_STROKER_LINEJOIN_ROUND,
                     0 );
@@ -173,7 +168,7 @@
         if ( error )
           goto Next;
 
-        error = FT_Glyph_Stroke( &glyph, stroker, 1 );
+        error = FT_Glyph_Stroke( &glyph, handle->stroker, 1 );
         if ( error )
         {
           FT_Done_Glyph( glyph );
@@ -199,10 +194,6 @@
     Next:
         status.Fail++;
     }
-
-  Exit:
-    if ( stroker )
-      FT_Stroker_Done( stroker );
 
     return error;
   }
