@@ -124,9 +124,11 @@
   Render_Stroke( int  num_indices,
                  int  first_index )
   {
-    int      start_x, start_y, step_y, x, y;
-    int      i;
-    FT_Size  size;
+    int           start_x, start_y, step_y, x, y;
+    int           i;
+    FT_Size       size;
+    FT_Face       face;
+    FT_GlyphSlot  slot;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -138,6 +140,8 @@
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
+    face = size->face;
+    slot = face->glyph;
 
     FT_Stroker_Set( handle->stroker, 64,
                     FT_STROKER_LINECAP_ROUND,
@@ -146,8 +150,7 @@
 
     for ( i = first_index; i < num_indices; i++ )
     {
-      int      gindex;
-      FT_Face  face = size->face;
+      int  gindex;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
@@ -158,10 +161,9 @@
       error = FT_Load_Glyph( face, gindex,
                              handle->load_flags | FT_LOAD_NO_BITMAP );
 
-      if ( !error && face->glyph->format == FT_GLYPH_FORMAT_OUTLINE )
+      if ( !error && slot->format == FT_GLYPH_FORMAT_OUTLINE )
       {
-        FT_GlyphSlot  slot = face->glyph;
-        FT_Glyph      glyph;
+        FT_Glyph  glyph;
 
 
         error = FT_Get_Glyph( slot, &glyph );
@@ -203,9 +205,13 @@
   Render_Slanted( int  num_indices,
                   int  first_index )
   {
-    int      start_x, start_y, step_y, x, y;
-    int      i;
-    FT_Size  size;
+    int           start_x, start_y, step_y, x, y;
+    int           i;
+    FT_Size       size;
+    FT_Face       face;
+    FT_GlyphSlot  slot;
+
+    FT_Matrix  shear;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -217,11 +223,31 @@
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
+    face = size->face;
+    slot = face->glyph;
+
+    /***************************************************************/
+    /*                                                             */
+    /*  2*2 affine transformation matrix, 16.16 fixed float format */
+    /*                                                             */
+    /*  Shear matrix:                                              */
+    /*                                                             */
+    /*         | x' |     | 1  k |   | x |          x' = x + ky    */
+    /*         |    |  =  |      | * |   |   <==>                  */
+    /*         | y' |     | 0  1 |   | y |          y' = y         */
+    /*                                                             */
+    /*        outline'     shear    outline                        */
+    /*                                                             */
+    /***************************************************************/
+
+    shear.xx = 1 << 16;
+    shear.xy = (FT_Fixed)( status.slant * ( 1 << 16 ) );
+    shear.yx = 0;
+    shear.yy = 1 << 16;
 
     for ( i = first_index; i < num_indices; i++ )
     {
-      int      gindex;
-      FT_Face  face = size->face;
+      int  gindex;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
@@ -232,34 +258,9 @@
       error = FT_Load_Glyph( face, gindex, handle->load_flags );
       if ( !error )
       {
-        FT_Matrix    shear;
-        FT_Outline*  outline;
+        FT_Outline_Transform( &slot->outline, &shear );
 
-
-        /***************************************************************/
-        /*                                                             */
-        /*  2*2 affine transformation matrix, 16.16 fixed float format */
-        /*                                                             */
-        /*  Shear matrix:                                              */
-        /*                                                             */
-        /*         | x' |     | 1  k |   | x |          x' = x + ky    */
-        /*         |    |  =  |      | * |   |   <==>                  */
-        /*         | y' |     | 0  1 |   | y |          y' = y         */
-        /*                                                             */
-        /*        outline'     shear    outline                        */
-        /*                                                             */
-        /***************************************************************/
-
-        shear.xx = 1 << 16;
-        shear.xy = (FT_Fixed)( status.slant * ( 1 << 16 ) );
-        shear.yx = 0;
-        shear.yy = 1 << 16;
-
-        outline = &(face->glyph)->outline;
-
-        FT_Outline_Transform( outline, &shear );
-
-        error = FTDemo_Draw_Slot( handle, display, face->glyph, &x, &y );
+        error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
 
         if ( error )
           goto Next;
@@ -285,9 +286,13 @@
   Render_Embolden( int  num_indices,
                    int  first_index )
   {
-    int      start_x, start_y, step_y, x, y;
-    int      i;
-    FT_Size  size;
+    int           start_x, start_y, step_y, x, y;
+    int           i;
+    FT_Size       size;
+    FT_Face       face;
+    FT_GlyphSlot  slot;
+
+    FT_Pos  xstr, ystr;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -299,11 +304,16 @@
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
+    face = size->face;
+    slot = face->glyph;
+
+    ystr = FT_MulFix( face->units_per_EM, face->size->metrics.y_scale );
+    xstr = (FT_Fixed)( ystr * status.xbold_factor );
+    ystr = (FT_Fixed)( ystr * status.ybold_factor );
 
     for ( i = first_index; i < num_indices; i++ )
     {
-      int      gindex;
-      FT_Face  face = size->face;
+      int  gindex;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
@@ -316,20 +326,6 @@
       {
         /* this is essentially the code of function */
         /* `FT_GlyphSlot_Embolden'                  */
-
-        FT_GlyphSlot  slot    = face->glyph;
-        FT_Library    library = slot->library;
-        FT_Pos        xstr, ystr;
-
-
-        if ( slot->format != FT_GLYPH_FORMAT_OUTLINE &&
-             slot->format != FT_GLYPH_FORMAT_BITMAP )
-          goto Next;
-
-        ystr = FT_MulFix( face->units_per_EM,
-                          face->size->metrics.y_scale );
-        xstr = (FT_Fixed)( ystr * status.xbold_factor );
-        ystr = (FT_Fixed)( ystr * status.ybold_factor );
 
         if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
         {
@@ -346,10 +342,12 @@
           if ( error )
             goto Next;
 
-          error = FT_Bitmap_Embolden( library, &slot->bitmap, xstr, ystr );
+          error = FT_Bitmap_Embolden( slot->library, &slot->bitmap,
+                                      xstr, ystr );
           if ( error )
             goto Next;
-        }
+        } else
+          goto Next;
 
         if ( slot->advance.x )
           slot->advance.x += xstr;

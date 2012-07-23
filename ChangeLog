@@ -1,3 +1,12 @@
+2012-07-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+        [ftview] Clean up the code.
+
+	* src/ftview.c (Render_Slanted): Move the shear matrix setup out of
+	the loop.
+	* src/ftview.c (Render_Embolden): Move the emboldening strength
+	calculation out of the loop.
+
 2012-07-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
         [ftview] Further code homogenization.
@@ -21,7 +30,7 @@
 
         * src/ftview.c (Render_Stroke): Replace while-loop with for-loop.
 	(Render_Slanted): Ditto.
-	(Render_Enbolden): Ditto.
+	(Render_Embolden): Ditto.
 	(Render_All): Ditto.
 	(Render_Waterfall): Ditto.
 	(Render_Stroke): Homogenize with other similar functions.
