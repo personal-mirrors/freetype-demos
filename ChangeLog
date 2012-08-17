@@ -1,3 +1,9 @@
+2012-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+        [ftview] Use more readable loop.
+
+	* src/ftview.c (main): use do-while instead of for-break.
+
 2012-07-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
         [ftview] Clean up the code.

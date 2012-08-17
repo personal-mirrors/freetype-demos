@@ -1394,7 +1394,7 @@
 
     FTDemo_Update_Current_Flags( handle );
 
-    for ( ;; )
+    do
     {
       FTDemo_Display_Clear( display );
 
@@ -1448,9 +1448,7 @@
 
       status.header = 0;
       grListenSurface( display->surface, 0, &event );
-      if ( Process_Event( &event ) )
-        break;
-    }
+    } while ( Process_Event( &event ) == 0 );
 
     printf( "Execution completed successfully.\n" );
     printf( "Fails = %d\n", status.Fail );
