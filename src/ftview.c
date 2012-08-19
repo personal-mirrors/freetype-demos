@@ -77,6 +77,7 @@
     double         gamma;
     double         xbold_factor;
     double         ybold_factor;
+    double         radius;
     double         slant;
 
     int            debug;
@@ -94,7 +95,7 @@
     int            fw_index;
 
   } status = { RENDER_MODE_ALL, FT_ENCODING_NONE, 72, 48, -1,
-               1.0, 0.04, 0.04, 0.22,
+               1.0, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, 0, 0, NULL, { 0 }, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
@@ -130,6 +131,8 @@
     FT_Face       face;
     FT_GlyphSlot  slot;
 
+    FT_Fixed  radius;
+
 
     error = FTDemo_Get_Size( handle, &size );
 
@@ -143,7 +146,10 @@
     face = size->face;
     slot = face->glyph;
 
-    FT_Stroker_Set( handle->stroker, 64,
+    radius = status.radius * 
+             FT_MulFix( face->units_per_EM, face->size->metrics.y_scale );
+
+    FT_Stroker_Set( handle->stroker, radius,
                     FT_STROKER_LINECAP_ROUND,
                     FT_STROKER_LINEJOIN_ROUND,
                     0 );
@@ -617,6 +623,7 @@
     grLn();
     grWriteln( "  x, X        adjust horizontal emboldening" );
     grWriteln( "  y, Y        adjust vertical emboldening" );
+    grWriteln( "  r, R        adjust stroking radius" );
     grWriteln( "  s, S        adjust slanting" );
     grLn();
     grWriteln( "  F           toggle custom LCD filter mode" );
@@ -749,6 +756,23 @@
 
     sprintf( status.header_buffer, "embolding factors changed to %.3f,%.3f",
              status.xbold_factor, status.ybold_factor );
+
+    status.header = status.header_buffer;
+  }
+
+
+  static void
+  event_radius_change( double  delta )
+  {
+    status.radius += delta;
+
+    if ( status.radius > 0.05 )
+      status.radius = 0.05;
+    else if ( status.radius < 0.0 )
+      status.radius = 0.0;
+
+    sprintf( status.header_buffer, "stroking radius changed to %.3f",
+             status.radius );
 
     status.header = status.header_buffer;
   }
@@ -990,6 +1014,14 @@
 
     case grKEY( 'S' ):
       event_slant_change( -0.02 );
+      break;
+
+    case grKEY( 'r' ):
+      event_radius_change( 0.005 );
+      break;
+
+    case grKEY( 'R' ):
+      event_radius_change( -0.005 );
       break;
 
     case grKEY( 'x' ):
