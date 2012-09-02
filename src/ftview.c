@@ -146,8 +146,7 @@
     face = size->face;
     slot = face->glyph;
 
-    radius = status.radius * 
-             FT_MulFix( face->units_per_EM, face->size->metrics.y_scale );
+    radius = status.radius * ( status.ptsize * status.res / 72 );
 
     FT_Stroker_Set( handle->stroker, radius,
                     FT_STROKER_LINECAP_ROUND,
@@ -313,9 +312,9 @@
     face = size->face;
     slot = face->glyph;
 
-    ystr = FT_MulFix( face->units_per_EM, face->size->metrics.y_scale );
-    xstr = (FT_Fixed)( ystr * status.xbold_factor );
-    ystr = (FT_Fixed)( ystr * status.ybold_factor );
+    ystr = status.ptsize * status.res / 72;
+    xstr = status.xbold_factor * ystr;
+    ystr = status.ybold_factor * ystr;
 
     for ( i = first_index; i < num_indices; i++ )
     {

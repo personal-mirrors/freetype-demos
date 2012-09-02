@@ -1,10 +1,17 @@
+2012-09-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+        [ftview] Use pixel size calculation that works for bitmap fonts too.
+
+	* src/ftview.c (Render_Stroke, Render_Embolden): Rely on the status
+	point size and resolution to get the pixel size.
+
 2012-08-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
         [ftview] Implement adjustable stroker radius.
 
 	* src/ftview.c (status): New field 'radius'.
 	(Render_Stroke): Updated.
-	(Process_Event): Add the keys 'r' and 'R' to handle the change.
+	(Process_Event): Add the keys `r' and `R' to handle the change.
 	(event_radius_change): Implement it.
 	(event_help): Updated.
 
