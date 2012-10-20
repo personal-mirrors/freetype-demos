@@ -1,3 +1,7 @@
+2012-10-20  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftdump.c: (main): Minor output formatting.
+
 2012-09-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
         [ftview] Use pixel size calculation that works for bitmap fonts too.

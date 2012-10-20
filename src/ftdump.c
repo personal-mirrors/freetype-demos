@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003, 2004, 2005, 2006 by                          */
+/*  Copyright 1996-2000, 2003-2007, 2010, 2012 by                           */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /****************************************************************************/
@@ -675,7 +675,7 @@
       printf( "\n" );
       Print_Type( face );
 
-      printf( "   glyph count: %ld\n", face->num_glyphs );
+      printf( "   glyph count:     %ld\n", face->num_glyphs );
 
       if ( name_tables && FT_IS_SFNT( face ) )
       {
