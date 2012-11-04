@@ -402,7 +402,7 @@
 
         case TT_PLATFORM_MACINTOSH:
           if ( name.language_id != TT_MAC_LANGID_ENGLISH )
-            printf( " (language=%d)", name.language_id );
+            printf( " (language=%u)", name.language_id );
           fputs( ":\n", stdout );
 
           switch ( name.encoding_id )
@@ -509,13 +509,23 @@
 
     for( i = 0; i < face->num_charmaps; i++ )
     {
-      printf( "   %d: platform %d, encoding %d, language %d",
+      FT_ULong  lang_id = FT_Get_CMap_Language_ID( face->charmaps[i] );
+
+
+      printf( "   %d: platform %u, encoding %2u",
               i,
               face->charmaps[i]->platform_id,
-              face->charmaps[i]->encoding_id,
-              (FT_UInt)FT_Get_CMap_Language_ID( face->charmaps[i] ) );
+              face->charmaps[i]->encoding_id );
+
+      if ( lang_id == 0xFFFFFFFFUL )
+        printf( "   (Unicode Variation Sequences)" );
+      else
+        printf( "   language %lu",
+                lang_id );
+
       if ( i == active )
         printf( " (active)" );
+
       printf ( "\n" );
 
       if ( verbose )
