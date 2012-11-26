@@ -101,15 +101,15 @@
   } DisplayRec, *Display;
 
 
-  static const unsigned char*  default_text = (unsigned char*)
+  static const char*  default_text =
     "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras sit amet"
     " dui.  Nam sapien. Fusce vestibulum ornare metus. Maecenas ligula orci,"
     " consequat vitae, dictum nec, lacinia non, elit. Aliquam iaculis"
     " molestie neque. Maecenas suscipit felis ut pede convallis malesuada."
     " Aliquam erat volutpat. Nunc pulvinar condimentum nunc. Donec ac sem vel"
     " leo bibendum aliquam. Pellentesque habitant morbi tristique senectus et"
-    " netus et malesuada fames ac turpis egestas.\n\n"
-
+    " netus et malesuada fames ac turpis egestas.\n"
+    "\n"
     "Sed commodo. Nulla ut libero sit amet justo varius blandit. Mauris vitae"
     " nulla eget lorem pretium ornare. Proin vulputate erat porta risus."
     " Vestibulum malesuada, odio at vehicula lobortis, nisi metus hendrerit"
@@ -119,7 +119,8 @@
     " sit amet augue. Morbi ullamcorper mattis enim. Aliquam erat volutpat."
     " Morbi nec felis non enim pulvinar lobortis.  Ut libero. Nullam id orci"
     " quis nisl dapibus rutrum. Suspendisse consequat vulputate leo. Aenean"
-    " non orci non tellus iaculis vestibulum. Sed neque.\n\n";
+    " non orci non tellus iaculis vestibulum. Sed neque.\n"
+    "\n";
 
 
   /***********************************************************************/
@@ -174,25 +175,25 @@
 
   typedef struct  _RenderStateRec
   {
-    FT_Library            library;
-    const unsigned char*  text;
-    int                   resolution;
-    float                 char_size;
-    int                   need_rescale;
-    int                   col;
-    ColumnStateRec        columns[3];
-    FontFace              faces;
-    int                   num_faces;
-    int                   face_index;
-    const char*           filepath;
-    const char*           filename;
-    FT_Face               face;
-    FT_Size               size;
-    char**                files;
-    char*                 message;
-    DisplayRec            display;
-    char                  filepath0[1024];
-    char                  message0[1024];
+    FT_Library      library;
+    const char*     text;
+    int             resolution;
+    float           char_size;
+    int             need_rescale;
+    int             col;
+    ColumnStateRec  columns[3];
+    FontFace        faces;
+    int             num_faces;
+    int             face_index;
+    const char*     filepath;
+    const char*     filename;
+    FT_Face         face;
+    FT_Size         size;
+    char**          files;
+    char*           message;
+    DisplayRec      display;
+    char            filepath0[1024];
+    char            message0[1024];
 
   } RenderStateRec, *RenderState;
 
@@ -415,26 +416,29 @@
   /** RENDERING **/
 
   static void
-  render_state_draw( RenderState           state,
-                     const unsigned char*  text,
-                     int                   idx,
-                     int                   x,
-                     int                   y,
-                     int                   width,
-                     int                   height )
+  render_state_draw( RenderState  state,
+                     const char*  text,
+                     int          idx,
+                     int          x,
+                     int          y,
+                     int          width,
+                     int          height )
   {
-    ColumnState           column         = &state->columns[idx];
-    const unsigned char*  p              = text;
-    long                  load_flags     = FT_LOAD_DEFAULT;
-    FT_Face               face           = state->face;
-    int                   left           = x;
-    int                   right          = x + width;
-    int                   bottom         = y + height;
-    int                   line_height;
-    FT_UInt               prev_glyph     = 0;
-    FT_Pos                prev_rsb_delta = 0;
-    FT_Pos                x_origin       = x << 6;
-    HintMode              rmode          = column->hint_mode;
+    ColumnState  column         = &state->columns[idx];
+    const char*  p              = text;
+    const char*  p_end          = p + strlen( text );
+    long         load_flags     = FT_LOAD_DEFAULT;
+    FT_Face      face           = state->face;
+    int          left           = x;
+    int          right          = x + width;
+    int          bottom         = y + height;
+    int          line_height;
+    FT_UInt      prev_glyph     = 0;
+    FT_Pos       prev_rsb_delta = 0;
+    FT_Pos       x_origin       = x << 6;
+    HintMode     rmode          = column->hint_mode;
+    FT_Bool      have_0x0A      = 0;
+    FT_Bool      have_0x0D      = 0;
 
 
     if ( !face )
@@ -461,39 +465,65 @@
     if ( rmode == HINT_MODE_UNHINTED )
       load_flags |= FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
 
-    for ( ; *p; p++ )
+    while ( 1 )
     {
+      int           ch;
       FT_UInt       gindex;
       FT_GlyphSlot  slot = face->glyph;
       FT_Bitmap*    map  = &slot->bitmap;
       int           xmax;
 
 
+      ch = utf8_next( &p, p_end );
+
       /* handle newlines */
-      if ( *p == 0x0A )
+      if ( ch == 0x0A )
       {
-        if ( p[1] == 0x0D )
-          p++;
-        x_origin = left << 6;
-        y       += line_height;
-        prev_rsb_delta = 0;
-        if ( y >= bottom )
-          break;
+        if ( have_0x0D )
+        {
+          have_0x0A = 0;
+          have_0x0D = 0;
+        }
+        else
+        {
+          have_0x0A = 1;
+
+          x_origin = left << 6;
+          y       += line_height;
+          prev_rsb_delta = 0;
+          if ( y >= bottom )
+            break;
+        }
+
         continue;
       }
-      else if ( *p == 0x0D )
+      else if ( ch == 0x0D )
       {
-        if ( p[1] == 0x0A )
-          p++;
-        x_origin = left << 6;
-        y       += line_height;
-        prev_rsb_delta = 0;
-        if ( y >= bottom )
-          break;
+        if ( have_0x0A )
+        {
+          have_0x0A = 0;
+          have_0x0D = 0;
+        }
+        else
+        {
+          have_0x0D = 1;
+
+          x_origin = left << 6;
+          y       += line_height;
+          prev_rsb_delta = 0;
+          if ( y >= bottom )
+            break;
+        }
+
         continue;
+      }
+      else
+      {
+        have_0x0A = 0;
+        have_0x0D = 0;
       }
 
-      gindex = FT_Get_Char_Index( state->face, p[0] );
+      gindex = FT_Get_Char_Index( state->face, ch );
       error  = FT_Load_Glyph( face, gindex, load_flags );
 
       if ( error )
@@ -1147,7 +1177,7 @@
     int             resolution = -1;
     double          size       = -1;
     const char*     textfile   = NULL;
-    unsigned char*  text       = (unsigned char*)default_text;
+    char*           text       = (char*)default_text;
     char*           execname   = ft_basename( argv[0] );
 
 
@@ -1201,7 +1231,7 @@
         tsize = ftell( tfile );
 
         fseek( tfile, 0, SEEK_SET );
-        text = (unsigned char*)malloc( tsize + 1 );
+        text = (char*)malloc( tsize + 1 );
 
         if ( text != NULL )
         {
@@ -1211,7 +1241,7 @@
         else
         {
           fprintf( stderr, "not enough memory to read `%s'\n", textfile );
-          text = (unsigned char *)default_text;
+          text = (char *)default_text;
         }
 
         fclose( tfile );
