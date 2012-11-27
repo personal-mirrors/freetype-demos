@@ -1,3 +1,7 @@
+2012-11-27  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftdiff.c (usage): Updated.
+
 2012-11-26  Werner Lemberg  <wl@gnu.org>
 
 	[ftdiff] Accept UTF-8 encoded input files.

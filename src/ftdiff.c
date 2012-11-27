@@ -45,6 +45,7 @@
       "  -r R         use resolution R dpi (default: 72dpi)\n"
       "  -s S         set character size to S points (default: 16pt)\n"
       "  -f TEXTFILE  change displayed text, using text in TEXTFILE\n"
+      "               (in UTF-8 encoding)\n"
       "\n" );
 
     exit( 1 );
