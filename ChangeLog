@@ -1,3 +1,13 @@
+2012-12-19  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.4.11 released.
+	==========================
+
+
+	Tag sources with `VER-2-4-11'.
+
+	* README: Updated.
+
 2012-11-27  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftdiff.c (usage): Updated.
