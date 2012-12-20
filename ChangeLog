@@ -1,3 +1,10 @@
+2012-12-20  Werner Lemberg  <wl@gnu.org>
+
+	* bin/.cvsignore: Renamed to...
+	* bin/.gitignore: ... this.
+
+	* Makefile (dist): Don't include `.mailmap' and `.gitignore'
+
 2012-12-19  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.4.11 released.
