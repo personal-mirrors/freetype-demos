@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2005, 2010-2011 by                            */
+/*  Copyright 1996-2000, 2003-2005, 2010-2012 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -26,8 +26,8 @@
 #include "graph.h"
 #include "grfont.h"
 
-#define  DIM_X   500
-#define  DIM_Y   400
+#define  DIM_X   640
+#define  DIM_Y   480
 
 #define  CENTER_X   ( bit.width / 2 )
 #define  CENTER_Y   ( bit.rows / 2 )
@@ -55,8 +55,11 @@
   grSurface*    surface;      /* current display surface     */
   grBitmap      bit;          /* current display bitmap      */
 
-  int  num_glyphs;            /* number of glyphs */
-  int  ptsize;                /* current point size */
+  int  width     = DIM_X;     /* window width                */
+  int  height    = DIM_Y;     /* window height               */
+
+  int  num_glyphs;            /* number of glyphs            */
+  int  ptsize;                /* current point size          */
 
   int  hinted    = 1;         /* is glyph hinting active?    */
   int  antialias = 1;         /* is anti-aliasing active?    */
@@ -168,8 +171,8 @@
     grInitDevices();
 
     bit.mode  = gr_pixel_mode_gray;
-    bit.width = DIM_X;
-    bit.rows  = DIM_Y;
+    bit.width = width;
+    bit.rows  = height;
     bit.grays = 256;
 
     surface = grNewSurface( 0, &bit );
@@ -622,6 +625,11 @@
     fprintf( stderr,  "Usage: %s [options below] ppem fontname[.pfb|.ttf] ...\n",
              execname );
     fprintf( stderr,  "\n" );
+    fprintf( stderr,  "  -w W         set window width to W pixels (default: %dpx)\n",
+             DIM_X );
+    fprintf( stderr,  "  -h H         set window height to H pixels (default: %dpx)\n",
+             DIM_Y );
+    fprintf( stderr,  "\n" );
     fprintf( stderr,  "  -e encoding  select encoding (default: no encoding)\n" );
     fprintf( stderr,  "  -r R         use resolution R dpi (default: 72 dpi)\n" );
     fprintf( stderr,  "  -f index     specify first glyph index to display\n" );
@@ -651,7 +659,7 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "d:e:f:r:" );
+      option = getopt( argc, argv, "d:e:f:h:r:w:" );
 
       if ( option == -1 )
         break;
@@ -670,9 +678,21 @@
         first_glyph = atoi( optarg );
         break;
 
+      case 'h':
+        height = atoi( optarg );
+        if ( height < 1 )
+          usage( execname );
+        break;
+
       case 'r':
         res = atoi( optarg );
         if ( res < 1 )
+          usage( execname );
+        break;
+
+      case 'w':
+        width = atoi( optarg );
+        if ( width < 1 )
           usage( execname );
         break;
 

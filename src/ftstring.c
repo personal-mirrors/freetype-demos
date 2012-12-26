@@ -33,8 +33,11 @@
     N_RENDER_MODES
   };
 
-  static struct
+  static struct  status_
   {
+    int          width;
+    int          height;
+
     int          render_mode;
     FT_Encoding  encoding;
     int          res;
@@ -50,7 +53,8 @@
     char*        header;
     char         header_buffer[256];
 
-  } status = { RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 2.0, 0 };
+  } status = { DIM_X, DIM_Y,
+               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 2.0, 0 };
 
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;
@@ -472,6 +476,11 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
+      "  -w W      Set the window width to W pixels (default: %dpx)\n"
+      "  -h H      Set the window height to H pixels (default: %dpx)\n"
+      "\n",
+                   DIM_X, DIM_Y );
+    fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
@@ -495,7 +504,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "e:m:r:" );
+      option = getopt( *argc, *argv, "e:h:m:r:w:" );
 
       if ( option == -1 )
         break;
@@ -506,9 +515,9 @@
         status.encoding = FTDemo_Make_Encoding_Tag( optarg );
         break;
 
-      case 'r':
-        status.res = atoi( optarg );
-        if ( status.res < 1 )
+      case 'h':
+        status.height = atoi( optarg );
+        if ( status.height < 1 )
           usage( execname );
         break;
 
@@ -516,6 +525,18 @@
         if ( *argc < 3 )
           usage( execname );
         Text = optarg;
+        break;
+
+      case 'r':
+        status.res = atoi( optarg );
+        if ( status.res < 1 )
+          usage( execname );
+        break;
+
+      case 'w':
+        status.width = atoi( optarg );
+        if ( status.width < 1 )
+          usage( execname );
         break;
 
       default:
@@ -571,7 +592,8 @@
     if ( handle->num_fonts == 0 )
       PanicZ( "could not open any font file" );
 
-    display = FTDemo_Display_New( gr_pixel_mode_gray );
+    display = FTDemo_Display_New( gr_pixel_mode_gray,
+                                  status.width, status.height );
     display->back_color.value = 0;
     display->fore_color.value = 0xff;
 

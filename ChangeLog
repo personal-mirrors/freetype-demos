@@ -1,3 +1,43 @@
+2012-12-26  Werner Lemberg  <wl@gnu.org>
+
+	Implement -w and -h options to specify window width and height.
+
+	* src/ftcommon.c (FTDemo_Display_New): Two new parameters to pass
+	width and height.
+	(DIM_X, DIM_Y): Moved to ...
+	* src/ftcommon.h: ... this.
+
+	* src/ftdiff.c (usage): Updated.
+	(ADisplayRec): Add `width' and `height' elements.
+	(adisplay_init): Two new parameters to pass width and height.
+	(write_message): Updated.
+	(main): Handle `-w' and `-h' options.
+
+	* src/ftgamma.c (DIM_X, DIM_Y): Removed.
+
+	* src/ftgrid.c (GridStatusRec): Add `width' and `height' elements.
+	(grid_status_init): Updated.
+	(usage): Updated.
+	(parse_cmdline): Handle `-w' and `-h' options.
+	(main): Updatd.
+
+	* src/ftmulti.c (DIM_X, DIM_Y): Use the same (new) values as in
+	other demo programs.
+	(width, height): New global variables.
+	(Init_Display): Updated.
+	(usage): Updated.
+	(main): Handle `-w' and `-h' options.
+
+	* src/ftstring.c (status): Add `width' and `height' elements.
+	(usage): Updated.
+	(parse_cmdline): Handle `-w' and `-h' options.
+	(main): Updated.
+
+	* src/ftview.c (status): Add `width' and `height' elements.
+	(usage): Updated.
+	(parse_cmdline): Handle `-w' and `-h' options.
+	(main): Updated.
+
 2012-12-20  Werner Lemberg  <wl@gnu.org>
 
 	* bin/.cvsignore: Renamed to...

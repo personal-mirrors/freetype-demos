@@ -69,6 +69,9 @@
 
   static struct  status_
   {
+    int            width;
+    int            height;
+
     int            render_mode;
     FT_Encoding    encoding;
     int            res;
@@ -94,7 +97,7 @@
     unsigned char  filter_weights[5];
     int            fw_index;
 
-  } status = { RENDER_MODE_ALL, FT_ENCODING_NONE, 72, 48, -1,
+  } status = { DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE, 72, 48, -1,
                1.0, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, 0, 0, NULL, { 0 }, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
@@ -1259,6 +1262,11 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
+      "  -w W      Set the window width to W pixels (default: %dpx)\n"
+      "  -h H      Set the window height to H pixels (default: %dpx)\n"
+      "\n",
+                   DIM_X, DIM_Y );
+    fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
@@ -1267,7 +1275,8 @@
       "  -D        Dump cache usage statistics.\n"
       "  -m text   Use `text' for rendering.\n" );
     fprintf( stderr,
-      "  -l mode   Change rendering mode (0 <= mode <= %d).\n", N_LCD_MODES );
+      "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
+                   N_LCD_MODES );
     fprintf( stderr,
       "  -p        Preload file in memory to simulate memory-mapping.\n"
       "\n" );
@@ -1288,7 +1297,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "Dde:f:L:l:r:m:p" );
+      option = getopt( *argc, *argv, "Dde:f:h:L:l:m:pr:w:" );
 
       if ( option == -1 )
         break;
@@ -1309,6 +1318,12 @@
 
       case 'f':
         status.Num  = atoi( optarg );
+        break;
+
+      case 'h':
+        status.height = atoi( optarg );
+        if ( status.height < 1 )
+          usage( execname );
         break;
 
       case 'L':
@@ -1332,14 +1347,20 @@
         status.render_mode = RENDER_MODE_TEXT;
         break;
 
+      case 'p':
+        status.preload = 1;
+        break;
+
       case 'r':
         status.res = atoi( optarg );
         if ( status.res < 1 )
           usage( execname );
         break;
 
-      case 'p':
-        status.preload = 1;
+      case 'w':
+        status.width = atoi( optarg );
+        if ( status.width < 1 )
+          usage( execname );
         break;
 
       default:
@@ -1407,7 +1428,8 @@
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );
 
-    display = FTDemo_Display_New( gr_pixel_mode_rgb24 );
+    display = FTDemo_Display_New( gr_pixel_mode_rgb24,
+                                  status.width, status.height );
     if ( !display )
       Fatal( "could not allocate display surface" );
 

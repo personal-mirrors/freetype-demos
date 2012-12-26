@@ -71,8 +71,11 @@
   }
 #endif
 
-  typedef struct  status_
+  typedef struct  GridStatusRec_
   {
+    int          width;
+    int          height;
+
     int          ptsize;
     int          res;
     int          Num;  /* glyph index */
@@ -114,14 +117,19 @@
 
   static GridStatusRec  status;
 
+
   static void
   grid_status_init( GridStatus       st,
                     FTDemo_Display*  display )
   {
+    st->width         = DIM_X;
+    st->height        = DIM_Y;
+
     st->scale         = 1.0;
     st->x_origin      = display->bitmap->width / 4;
     st->y_origin      = display->bitmap->rows / 4;
     st->margin        = 0.05;
+
     st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 );
     st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 );
     st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 );
@@ -1011,6 +1019,11 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
+      "  -w W      Set the window width to W pixels (default: %dpx)\n"
+      "  -h H      Set the window height to H pixels (default: %dpx)\n"
+      "\n",
+                   DIM_X, DIM_Y );
+    fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "\n" );
@@ -1031,7 +1044,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "f:r:" );
+      option = getopt( *argc, *argv, "f:h:r:w:" );
 
       if ( option == -1 )
         break;
@@ -1042,9 +1055,21 @@
         status.Num = atoi( optarg );
         break;
 
+      case 'h':
+        status.height = atoi( optarg );
+        if ( status.height < 1 )
+          usage( execname );
+        break;
+
       case 'r':
         status.res = atoi( optarg );
         if ( status.res < 1 )
+          usage( execname );
+        break;
+
+      case 'w':
+        status.width = atoi( optarg );
+        if ( status.width < 1 )
           usage( execname );
         break;
 
@@ -1079,7 +1104,8 @@
     grEvent  event;
 
 
-    display = FTDemo_Display_New( gr_pixel_mode_rgb24 );
+    display = FTDemo_Display_New( gr_pixel_mode_rgb24,
+                                  status.width, status.height );
     if ( !display )
       Fatal( "could not allocate display surface" );
 

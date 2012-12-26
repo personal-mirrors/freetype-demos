@@ -74,12 +74,10 @@
   /*************************************************************************/
 
 
-#define DIM_X  500
-#define DIM_Y  400
-
-
   FTDemo_Display*
-  FTDemo_Display_New( grPixelMode  mode )
+  FTDemo_Display_New( grPixelMode  mode,
+                      int          width,
+                      int          height )
   {
     FTDemo_Display*  display;
     grSurface*       surface;
@@ -97,8 +95,8 @@
     grInitDevices();
 
     bit.mode  = mode;
-    bit.width = DIM_X;
-    bit.rows  = DIM_Y;
+    bit.width = width;
+    bit.rows  = height;
     bit.grays = 256;
 
     surface = grNewSurface( 0, &bit );

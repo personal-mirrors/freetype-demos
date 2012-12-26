@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2004, 2005 by                                                 */
+/*  Copyright 2004, 2005, 2012 by                                           */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -134,7 +134,7 @@ main( void )
   FTDemo_Display*  display;
   grEvent          dummy;
 
-  display = FTDemo_Display_New( gr_pixel_mode_rgb24 );
+  display = FTDemo_Display_New( gr_pixel_mode_rgb24, DIM_X, DIM_Y );
   if ( !display )
   {
     PanicZ( "could not allocate display surface" );

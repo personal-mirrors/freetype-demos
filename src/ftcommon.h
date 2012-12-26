@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2005, 2006, 2009, 2011 by                                     */
+/*  Copyright 2005, 2006, 2009, 2011-2012 by                                */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -58,6 +58,10 @@
   /*************************************************************************/
 
 
+  /* default window dimensions */
+#define DIM_X  640
+#define DIM_Y  480
+
 #include "graph.h"
 #include "grobjs.h"
 #include "grfont.h"
@@ -73,7 +77,9 @@
 
 
   FTDemo_Display*
-  FTDemo_Display_New( grPixelMode  mode );
+  FTDemo_Display_New( grPixelMode  mode,
+                      int          width,
+                      int          height );
 
 
   void

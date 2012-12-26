@@ -42,6 +42,11 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
+      "  -w W         set the window width to W pixels (default: %dpx)\n"
+      "  -h H         set the window height to H pixels (default: %dpx)\n"
+      "\n",
+                      DIM_X, DIM_Y );
+    fprintf( stderr,
       "  -r R         use resolution R dpi (default: 72dpi)\n"
       "  -s S         set character size to S points (default: 16pt)\n"
       "  -f TEXTFILE  change displayed text, using text in TEXTFILE\n"
@@ -690,6 +695,8 @@
 
   typedef struct  _ADisplayRec
   {
+    int         width;
+    int         height;
     grSurface*  surface;
     grBitmap*   bitmap;
     grColor     fore_color;
@@ -698,13 +705,12 @@
 
   } ADisplayRec, *ADisplay;
 
-#define DIM_X  640
-#define DIM_Y  480
-
 
   static int
   adisplay_init( ADisplay     display,
-                 grPixelMode  mode )
+                 grPixelMode  mode,
+                 int          width,
+                 int          height )
   {
     grSurface*  surface;
     grBitmap    bit;
@@ -717,8 +723,8 @@
     grInitDevices();
 
     bit.mode  = mode;
-    bit.width = DIM_X;
-    bit.rows  = DIM_Y;
+    bit.width = width;
+    bit.rows  = height;
     bit.grays = 256;
 
     surface = grNewSurface( 0, &bit );
@@ -726,6 +732,8 @@
     if ( !surface )
       return -1;
 
+    display->width   = width;
+    display->height  = height;
     display->surface = surface;
     display->bitmap  = &surface->bitmap;
     display->gamma   = 1.0;
@@ -1160,8 +1168,8 @@
                  state->char_size );
     }
 
-    grWriteCellString( adisplay->bitmap, 0, DIM_Y - 10, state->message,
-                       adisplay->fore_color );
+    grWriteCellString( adisplay->bitmap, 0, adisplay->height - 10,
+                       state->message, adisplay->fore_color );
 
     state->message = NULL;
   }
@@ -1175,6 +1183,8 @@
     ADisplayRec     adisplay[1];
     RenderStateRec  state[1];
     DisplayRec      display[1];
+    int             width      = DIM_X;
+    int             height     = DIM_Y;
     int             resolution = -1;
     double          size       = -1;
     const char*     textfile   = NULL;
@@ -1191,6 +1201,18 @@
 
       switch ( arg[1] )
       {
+      case 'f':
+        arg      = get_option_arg( arg, &argv, argend, execname );
+        textfile = arg;
+        break;
+
+      case 'h':
+        arg    = get_option_arg( arg, &argv, argend, execname );
+        height = atoi( arg );
+        if ( height < 1 )
+          usage( execname );
+        break;
+
       case 'r':
         arg        = get_option_arg( arg, &argv, argend, execname );
         resolution = atoi( arg );
@@ -1201,9 +1223,11 @@
         size = atof( arg );
         break;
 
-      case 'f':
-        arg      = get_option_arg( arg, &argv, argend, execname );
-        textfile = arg;
+      case 'w':
+        arg   = get_option_arg( arg, &argv, argend, execname );
+        width = atoi( arg );
+        if ( width < 1 )
+          usage( execname );
         break;
 
       default:
@@ -1250,7 +1274,8 @@
     }
 
     /* Initialize display */
-    if ( adisplay_init( adisplay, gr_pixel_mode_rgb24 ) < 0 )
+    if ( adisplay_init( adisplay, gr_pixel_mode_rgb24,
+                        width, height ) < 0 )
     {
       fprintf( stderr, "could not initialize display!  Aborting.\n" );
       exit( 1 );
@@ -1280,11 +1305,11 @@
       adisplay_clear( adisplay );
 
       render_state_draw( state, text, 0,
-                         10,                10, DIM_X / 3 - 15, DIM_Y - 70 );
+                         10,                10, width / 3 - 15, height - 70 );
       render_state_draw( state, text, 1,
-                         DIM_X     / 3 + 5, 10, DIM_X / 3 - 15, DIM_Y - 70 );
+                         width     / 3 + 5, 10, width / 3 - 15, height - 70 );
       render_state_draw( state, text, 2,
-                         DIM_X * 2 / 3 + 5, 10, DIM_X / 3 - 15, DIM_Y - 70 );
+                         width * 2 / 3 + 5, 10, width / 3 - 15, height - 70 );
 
       write_message( state );
       grRefreshSurface( adisplay->surface );
