@@ -363,11 +363,13 @@ else
   # $(GRAPH_LIB) directly.
 
   $(OBJ_DIR_2)/ftgamma.$(SO): $(SRC_DIR)/ftgamma.c \
+                              $(SRC_DIR)/ftcommon.h \
                               $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   $(OBJ_DIR_2)/ftdiff.$(SO): $(SRC_DIR)/ftdiff.c \
+                             $(SRC_DIR)/ftcommon.h \
                              $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
@@ -378,6 +380,7 @@ else
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   $(OBJ_DIR_2)/ftstring.$(SO): $(SRC_DIR)/ftstring.c \
+                               $(SRC_DIR)/ftcommon.h \
                                $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
@@ -416,9 +419,11 @@ else
   # internal header files.
   #
   $(OBJ_DIR_2)/ftview.$(SO): $(SRC_DIR)/ftview.c \
+                             $(SRC_DIR)/ftcommon.h \
                              $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
+
 
   ####################################################################
   #
@@ -426,6 +431,7 @@ else
   # internal header files.
   #
   $(OBJ_DIR_2)/ftgrid.$(SO): $(SRC_DIR)/ftgrid.c \
+                             $(SRC_DIR)/ftcommon.h \
                              $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
