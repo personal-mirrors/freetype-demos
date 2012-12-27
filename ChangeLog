@@ -1,5 +1,12 @@
 2012-12-27  Werner Lemberg  <wl@gnu.org>
 
+	Increase header line distances.
+
+	* src/ftgrid.c, src/ftview.c (HEADER_HEIGHT): Move to...
+	* src/ftcommon.h: ... this file.  Set it to value 12.
+
+2012-12-27  Werner Lemberg  <wl@gnu.org>
+
 	* Makefile: Add dependencies on `ftcommon.h'.
 
 2012-12-26  Werner Lemberg  <wl@gnu.org>

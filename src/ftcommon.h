@@ -62,6 +62,9 @@
 #define DIM_X  640
 #define DIM_Y  480
 
+  /* baseline distance between header lines */
+#define HEADER_HEIGHT  12
+
 #include "graph.h"
 #include "grobjs.h"
 #include "grfont.h"

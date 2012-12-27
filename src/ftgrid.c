@@ -23,7 +23,6 @@
 #include FT_SYNTHESIS_H
 
 #define MAXPTSIZE      500                 /* dtp */
-#define HEADER_HEIGHT  8
 
 #undef  CEIL
 #define CEIL( x )  ( ( (x) + 63 ) >> 6 )

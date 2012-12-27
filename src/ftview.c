@@ -28,7 +28,6 @@
 #include FT_LCD_FILTER_H
 
 #define MAXPTSIZE      500                 /* dtp */
-#define HEADER_HEIGHT  8
 
 #ifdef CEIL
 #undef CEIL
