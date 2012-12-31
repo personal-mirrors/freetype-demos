@@ -625,7 +625,8 @@
 
 
       msg = render_mode_names[column->hint_mode];
-      state->display.disp_text( disp, left, bottom + 5, msg );
+      state->display.disp_text( disp, left,
+                                bottom + 5, msg );
 
       if ( !column->use_lcd_filter )
         msg = "gray rendering";
@@ -650,7 +651,8 @@
                  fwi == 3 ? "]" : ( fwi == 4 ? "[" : " " ),
                    fw[4],
                  fwi == 4 ? "]" : " " );
-        state->display.disp_text( disp, left, bottom + 15, temp );
+        state->display.disp_text( disp, left,
+                                  bottom + HEADER_HEIGHT + 5, temp );
       }
       else switch ( column->lcd_filter )
       {
@@ -666,17 +668,21 @@
       default:
         msg = "legacy LCD filter";
       }
-      state->display.disp_text( disp, left, bottom + 15, msg );
+      state->display.disp_text( disp, left,
+                                bottom + HEADER_HEIGHT + 5, msg );
 
       sprintf( temp, "%s %s",
                column->use_kerning ? "+kern"
                                    : "-kern",
                column->use_deltas ? "+delta"
                                   : "-delta" );
-      state->display.disp_text( disp, left, bottom + 25, temp );
+      state->display.disp_text( disp, left,
+                                bottom + 2 * HEADER_HEIGHT + 5, temp );
 
       if ( state->col == idx )
-        state->display.disp_text( disp, left, bottom + 35, "**************" );
+        state->display.disp_text( disp, left,
+                                  bottom + 3 * HEADER_HEIGHT + 5,
+                                  "**************" );
     }
   }
 
@@ -1305,11 +1311,14 @@
       adisplay_clear( adisplay );
 
       render_state_draw( state, text, 0,
-                         10,                10, width / 3 - 15, height - 70 );
+                         10,                10,
+                         width / 3 - 15, height - 6 * HEADER_HEIGHT );
       render_state_draw( state, text, 1,
-                         width     / 3 + 5, 10, width / 3 - 15, height - 70 );
+                         width     / 3 + 5, 10,
+                         width / 3 - 15, height - 6 * HEADER_HEIGHT );
       render_state_draw( state, text, 2,
-                         width * 2 / 3 + 5, 10, width / 3 - 15, height - 70 );
+                         width * 2 / 3 + 5, 10,
+                         width / 3 - 15, height - 6 * HEADER_HEIGHT );
 
       write_message( state );
       grRefreshSurface( adisplay->surface );
