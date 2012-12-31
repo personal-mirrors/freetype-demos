@@ -112,8 +112,12 @@
 
     grSetGlyphGamma( 1.0 );
 
-    memset( &display->fore_color, 0,    sizeof ( grColor ) );
-    memset( &display->back_color, 0xff, sizeof ( grColor ) );
+    display->fore_color = grFindColor( display->bitmap,
+                                       0x00, 0x00, 0x00, 0xff );
+    display->back_color = grFindColor( display->bitmap,
+                                       0xff, 0xff, 0xff, 0xff );
+    display->warn_color = grFindColor( display->bitmap,
+                                       0xff, 0x00, 0x00, 0xff );
 
     return display;
   }

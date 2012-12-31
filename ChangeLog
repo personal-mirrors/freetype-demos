@@ -1,5 +1,13 @@
 2012-12-31  Werner Lemberg  <wl@gnu.org>
 
+	Introduce a warn color.
+
+	* src/ftcommon.h (FTDemo_Display): Add `warn_color' member.
+
+	* src/ftcommon.c (FTDemo_Display_New): Initialize it.
+
+2012-12-31  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftdiff.c (render_state_draw, main): Use HEADER_HEIGHT.
 
 2012-12-27  Werner Lemberg  <wl@gnu.org>

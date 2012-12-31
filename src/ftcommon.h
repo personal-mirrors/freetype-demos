@@ -75,6 +75,7 @@
     grBitmap*   bitmap;
     grColor     fore_color;
     grColor     back_color;
+    grColor     warn_color;
 
   } FTDemo_Display;
 
