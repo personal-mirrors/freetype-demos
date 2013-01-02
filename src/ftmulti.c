@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2005, 2010-2012 by                            */
+/*  Copyright 1996-2000, 2003-2005, 2010-2013 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -397,7 +397,7 @@
 
 
     Clear_Display();
-
+    grSetLineHeight( 10 );
     grGotoxy( 0, 0 );
     grSetMargin( 2, 1 );
     grGotobitmap( &bit );

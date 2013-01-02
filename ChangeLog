@@ -1,6 +1,12 @@
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 
-	* src/ftview.c (event_help): Increase line height.  Improve text.
+	Increase line height in help texts.
+
+	* src/ftview.c (event_help): Increase line height.
+	Improve text.
+	* src/ftdiff.c (event_help), src/ftgrid.c (event_help),
+	src/ftmulti.c (Help), src/ftstring.c (event_help): Increase line
+	height.
 
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 

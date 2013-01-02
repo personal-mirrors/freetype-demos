@@ -871,6 +871,7 @@
 
 
     adisplay_clear( display );
+    grSetLineHeight( 10 );
     grGotoxy( 0, 0 );
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
