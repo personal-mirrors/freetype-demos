@@ -1284,7 +1284,7 @@
     line++;
 
     /* anti-aliasing */
-    sprintf( buf, "AA: %s",
+    sprintf( buf, "anti-alias: %s",
                   handle->antialias ? "on" : "off" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
@@ -1328,7 +1328,7 @@
     if ( handle->hinted )
     {
       /* auto-hinting */
-      sprintf( buf, " auto: %s",
+      sprintf( buf, " forced auto: %s",
                     handle->autohint ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );

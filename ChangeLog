@@ -1,5 +1,9 @@
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftview.c (write_header): Improve displayed strings.
+
+2013-01-02  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Better input key handling.
 
 	* src/ftview.c (Process_Event): Don't handle key events if not
