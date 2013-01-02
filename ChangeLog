@@ -1,12 +1,16 @@
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftview.c (event_help): Increase line height.  Improve text.
+
+2013-01-02  Werner Lemberg  <wl@gnu.org>
+
 	[graph] Implement adjustable line height.
 
-	* src/graph/grfont.c (gr_line_height): New global variable.
+	* graph/grfont.c (gr_line_height): New global variable.
 	(grSetLineHeight): New function.
 	(grWrite): Use gr_line_height.
 
-	* src/graph/grfont.h: Updated.
+	* graph/grfont.h: Updated.
 
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 

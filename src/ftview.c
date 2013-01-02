@@ -597,6 +597,7 @@
 
 
     FTDemo_Display_Clear( display );
+    grSetLineHeight( 10 );
     grGotoxy( 0, 0 );
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
@@ -610,30 +611,13 @@
     grLn();
     grWriteln( "  F1, ?       display this help screen" );
     grLn();
-    grWriteln( "  a           toggle anti-aliasing" );
+    grWriteln( "  1-6         select rendering mode" );
+    grWriteln( "  space       cycle forwards through rendering modes" );
+    grWriteln( "  backspace   cycle backwards through rendering modes" );
+    grLn();
     grWriteln( "  b           toggle embedded bitmaps" );
     grWriteln( "  c           toggle between cache modes" );
-    grWriteln( "  f           toggle forced auto-hinting" );
-    grWriteln( "  h           toggle outline hinting" );
     grWriteln( "  l           toggle low precision rendering" );
-    grLn();
-    grWriteln( "  K           cycle backwards through LCD modes" );
-    grWriteln( "  L           cycle forwards through LCD modes" );
-    grWriteln( "  backspace   cycle backwards through rendering modes" );
-    grWriteln( "  space       cycle forwards through rendering modes" );
-    grWriteln( "  1-6         select rendering mode" );
-    grLn();
-    grWriteln( "  x, X        adjust horizontal emboldening" );
-    grWriteln( "  y, Y        adjust vertical emboldening" );
-    grWriteln( "  r, R        adjust stroking radius" );
-    grWriteln( "  s, S        adjust slanting" );
-    grLn();
-    grWriteln( "  F           toggle custom LCD filter mode" );
-    grWriteln( "  [, ]        select custom LCD filter weight" );
-    grWriteln( "  -, +(=)     adjust selected custom LCD filter weight" );
-    grLn();
-    grWriteln( "  G           show gamma ramp" );
-    grWriteln( "  g, v        adjust gamma value" );
     grLn();
     grWriteln( "  p, n        select previous/next font" );
     grLn();
@@ -644,6 +628,24 @@
     grWriteln( "  F7, F8      adjust index by 10" );
     grWriteln( "  F9, F10     adjust index by 100" );
     grWriteln( "  F11, F12    adjust index by 1000" );
+    grWriteln( "  h           toggle outline hinting" );
+    grWriteln( "  f           toggle forced auto-hinting (if outline hinting)" );
+    grLn();
+    grWriteln( "  a           toggle anti-aliasing" );
+    grWriteln( "  K, L        cycle through LCD modes (if anti-aliasing)" );
+    grLn();
+    grWriteln( "  x, X        adjust horizontal emboldening (in emboldening mode)" );
+    grWriteln( "  y, Y        adjust vertical emboldening (in emboldening mode)" );
+    grWriteln( "  r, R        adjust stroking radius (in stroking mode)" );
+    grWriteln( "  s, S        adjust slanting (in slanting mode)" );
+    grLn();
+    grWriteln( "  F           toggle custom LCD filtering" );
+    grWriteln( "  [, ]        select custom LCD filter weight (if custom filtering)" );
+    grWriteln( "  -, +(=)     adjust selected custom LCD filter weight" );
+    grLn();
+    grWriteln( "  G           show gamma ramp" );
+    grWriteln( "  g, v        adjust gamma value" );
+    grLn();
     grLn();
     grWriteln( "press any key to exit this help screen" );
 
