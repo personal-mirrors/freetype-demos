@@ -1,5 +1,9 @@
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftdiff.c (render_state_set_files): Skip non-scalable fonts.
+
+2013-01-02  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftview.c (main) Remove redundant code.
 
 2013-01-02  Werner Lemberg  <wl@gnu.org>

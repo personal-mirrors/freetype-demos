@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2007-2012 by                                                  */
+/*  Copyright 2007-2013 by                                                  */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -312,15 +312,24 @@
     state->files = files;
     for ( ; files[0] != NULL; files++ )
     {
-      FT_Face   face;
-      int       count;
+      FT_Face  face;
+      int      count;
 
 
-      error = FT_New_Face( state->library, files[0], -1, &face );
+      error = FT_New_Face( state->library, files[0], 0, &face );
       if ( error )
       {
         fprintf( stderr,
-                 "ftdiff: could not open font file `%s'\n", files[0] );
+                 "ftdiff: could not open font file `%s'\n",
+                 files[0] );
+        continue;
+      }
+
+      if ( !FT_IS_SCALABLE( face ) )
+      {
+        fprintf( stderr,
+                 "ftdiff: font `%s' is not scalable, skipping\n",
+                 files[0] );
         continue;
       }
 
