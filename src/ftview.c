@@ -1572,8 +1572,6 @@
     if ( !display )
       Fatal( "could not allocate display surface" );
 
-    memset( display->fore_color.chroma, 0, 4 );
-    memset( display->back_color.chroma, 0xff, 4 );
     grSetTitle( display->surface,
                 "FreeType Glyph Viewer - press F1 for help" );
 

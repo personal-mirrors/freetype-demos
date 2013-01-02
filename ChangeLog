@@ -1,5 +1,9 @@
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftview.c (main) Remove redundant code.
+
+2013-01-02  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Redesign layout.
 
 	It now displays all options, not only the changes, in a structured
