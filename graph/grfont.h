@@ -20,6 +20,9 @@
                     int  top );
 
   void
+  grSetLineHeight( int  height );
+
+  void
   grGotoxy ( int  x,
              int  y );
 

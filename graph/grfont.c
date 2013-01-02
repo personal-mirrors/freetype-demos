@@ -312,6 +312,7 @@
 
   static int        gr_cursor_x     = 0;
   static int        gr_cursor_y     = 0;
+  static int        gr_line_height  = 8;
   static grBitmap*  gr_text_bitmap  = 0;
   static int        gr_margin_right = 0;
   static int        gr_margin_top   = 0;
@@ -343,6 +344,13 @@
 
 
   void
+  grSetLineHeight( int  height )
+  {
+    gr_line_height = height;
+  }
+
+
+  void
   grGotoxy( int  x,
             int  y )
   {
@@ -362,7 +370,7 @@
       color.value = 127;
       grWriteCellString( gr_text_bitmap,
                          gr_margin_right + ( gr_cursor_x << 3 ),
-                         gr_margin_top   + ( gr_cursor_y << 3 ),
+                         gr_margin_top   + gr_cursor_y * gr_line_height,
                          string,
                          color );
 
