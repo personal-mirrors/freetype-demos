@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2007, 2009-2012 by                            */
+/*  Copyright 1996-2000, 2003-2007, 2009-2013 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -34,14 +34,17 @@
 #endif
 #define CEIL( x )  ( ( (x) + 63 ) >> 6 )
 
-#define INIT_SIZE( size, start_x, start_y, step_y, x, y )               \
-          do {                                                          \
-            start_x = 4;                                                \
-            start_y = CEIL( size->metrics.height ) + 3 * HEADER_HEIGHT; \
-            step_y  = CEIL( size->metrics.height ) + 4;                 \
-                                                                        \
-            x = start_x;                                                \
-            y = start_y;                                                \
+#define START_X  19 * 8
+#define START_Y  4 * HEADER_HEIGHT
+
+#define INIT_SIZE( size, start_x, start_y, step_y, x, y )     \
+          do {                                                \
+            start_x = START_X;                                \
+            start_y = CEIL( size->metrics.height ) + START_Y; \
+            step_y  = CEIL( size->metrics.height ) + 4;       \
+                                                              \
+            x = start_x;                                      \
+            y = start_y;                                      \
           } while ( 0 )
 
 #define X_TOO_LONG( x, size, display )                   \
@@ -87,8 +90,6 @@
     int            font_index;
     int            dump_cache_stats;  /* do we need to dump cache statistics? */
     int            Num;               /* current first index */
-    char*          header;
-    char           header_buffer[256];
     int            Fail;
     int            preload;
 
@@ -98,7 +99,7 @@
 
   } status = { DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE, 72, 48, -1,
                1.0, 0.04, 0.04, 0.02, 0.22,
-               0, 0, 0, 0, 0, NULL, { 0 }, 0, 0,
+               0, 0, 0, 0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
 
@@ -532,8 +533,8 @@
           max_size = face->available_sizes[i].height * 64;
     }
 
-    start_x = 4;
-    start_y = 3 * HEADER_HEIGHT;
+    start_x = START_X;
+    start_y = START_Y;
 
     for ( pt_size = first_size; pt_size < max_size; pt_size += 64 )
     {
@@ -730,11 +731,6 @@
       status.gamma = 0.0;
 
     grSetGlyphGamma( status.gamma );
-
-    sprintf( status.header_buffer, "gamma changed to %.1f%s",
-             status.gamma, status.gamma == 0.0 ? " (sRGB mode)" : "" );
-
-    status.header = status.header_buffer;
   }
 
 
@@ -754,11 +750,6 @@
       status.ybold_factor = 0.1;
     else if ( status.ybold_factor < -0.1 )
       status.ybold_factor = -0.1;
-
-    sprintf( status.header_buffer, "embolding factors changed to %.3f,%.3f",
-             status.xbold_factor, status.ybold_factor );
-
-    status.header = status.header_buffer;
   }
 
 
@@ -771,11 +762,6 @@
       status.radius = 0.05;
     else if ( status.radius < 0.0 )
       status.radius = 0.0;
-
-    sprintf( status.header_buffer, "stroking radius changed to %.3f",
-             status.radius );
-
-    status.header = status.header_buffer;
   }
 
 
@@ -788,11 +774,6 @@
       status.slant = 1.0;
     else if ( status.slant < -1.0 )
       status.slant = -1.0;
-
-    sprintf( status.header_buffer, "slanting changed to %.3f",
-             status.slant );
-
-    status.header = status.header_buffer;
   }
 
 
@@ -835,28 +816,6 @@
 
       if ( status.render_mode < 0 )
         status.render_mode += N_RENDER_MODES;
-    }
-
-    switch ( status.render_mode )
-    {
-    case RENDER_MODE_ALL:
-      status.header = (char *)"rendering all glyphs in font";
-      break;
-    case RENDER_MODE_EMBOLDEN:
-      status.header = (char *)"rendering emboldened text";
-      break;
-    case RENDER_MODE_SLANTED:
-      status.header = (char *)"rendering slanted text";
-      break;
-    case RENDER_MODE_STROKE:
-      status.header = (char *)"rendering stroked text";
-      break;
-    case RENDER_MODE_TEXT:
-      status.header = (char *)"rendering test text string";
-      break;
-    case RENDER_MODE_WATERFALL:
-      status.header = (char *)"rendering glyph waterfall";
-      break;
     }
   }
 
@@ -912,53 +871,30 @@
 
     case grKEY( 'a' ):
       handle->antialias = !handle->antialias;
-      status.header     = handle->antialias
-                           ? (char *)"anti-aliasing is now on"
-                           : (char *)"anti-aliasing is now off";
-
       FTDemo_Update_Current_Flags( handle );
       break;
 
     case grKEY( 'b' ):
       handle->use_sbits = !handle->use_sbits;
-      status.header     = handle->use_sbits
-                           ? (char *)"now using embedded bitmaps (if available)"
-                           : (char *)"now ignoring embedded bitmaps";
-
       FTDemo_Update_Current_Flags( handle );
       break;
 
     case grKEY( 'c' ):
       handle->use_sbits_cache = !handle->use_sbits_cache;
-      status.header           = handle->use_sbits_cache
-                                 ? (char *)"now using sbits cache"
-                                 : (char *)"now using normal cache";
       break;
 
     case grKEY( 'f' ):
       handle->autohint = !handle->autohint;
-      status.header    = handle->autohint
-                          ? (char *)"forced auto-hinting is now on"
-                          : (char *)"forced auto-hinting is now off";
-
       FTDemo_Update_Current_Flags( handle );
       break;
 
     case grKEY( 'h' ):
       handle->hinted = !handle->hinted;
-      status.header  = handle->hinted
-                        ? (char *)"glyph hinting is now active"
-                        : (char *)"glyph hinting is now ignored";
-
       FTDemo_Update_Current_Flags( handle );
       break;
 
     case grKEY( 'l' ):
       handle->low_prec = !handle->low_prec;
-      status.header    = handle->low_prec
-                          ? (char *)"rendering precision is now forced to low"
-                          : (char *)"rendering precision is now normal";
-
       FTDemo_Update_Current_Flags( handle );
       break;
 
@@ -971,29 +907,6 @@
                          : ( ( handle->lcd_mode == 0 )
                              ? ( N_LCD_MODES - 1 )
                              : handle->lcd_mode - 1 );
-
-      switch ( handle->lcd_mode )
-      {
-      case LCD_MODE_AA:
-        status.header = (char *)"use normal anti-aliased rendering";
-        break;
-      case LCD_MODE_LIGHT:
-        status.header = (char *)"use light anti-aliased rendering";
-        break;
-      case LCD_MODE_RGB:
-        status.header = (char *)"use horizontal LCD-optimized rendering (RGB)";
-        break;
-      case LCD_MODE_BGR:
-        status.header = (char *)"use horizontal LCD-optimized rendering (BGR)";
-        break;
-      case LCD_MODE_VRGB:
-        status.header = (char *)"use vertical LCD-optimized rendering (RGB)";
-        break;
-      case LCD_MODE_VBGR:
-        status.header = (char *)"use vertical LCD-optimized rendering (BGR)";
-        break;
-      }
-
       FTDemo_Update_Current_Flags( handle );
       break;
 
@@ -1082,9 +995,6 @@
       else
         FT_Library_SetLcdFilterWeights( handle->library,
                                         (unsigned char*)"\x10\x40\x70\x40\x10" );
-      status.header = status.use_custom_lcd_filter
-                      ? (char *)"using custom LCD filter weights"
-                      : (char *)"using default LCD filter";
       break;
 
     case grKEY( '[' ):
@@ -1142,8 +1052,11 @@
   write_header( FT_Error  error_code )
   {
     FT_Face      face;
+    char         buf[256];
     const char*  basename;
     const char*  format;
+
+    int          line = 0;
 
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
@@ -1151,42 +1064,46 @@
     if ( error )
       Fatal( "can't access font file" );
 
-    if ( !status.header )
+    /* errors */
+    switch ( error_code )
     {
-      basename = ft_basename( handle->current_font->filepathname );
-
-      switch ( error_code )
-      {
-      case FT_Err_Ok:
-        sprintf( status.header_buffer, "%.50s %.50s (file `%.100s')",
-                 face->family_name, face->style_name, basename );
-        break;
-      case FT_Err_Invalid_Pixel_Size:
-        sprintf( status.header_buffer, "Invalid pixel size (file `%.100s')",
-                 basename );
-        break;
-      case FT_Err_Invalid_PPem:
-        sprintf( status.header_buffer, "Invalid ppem value (file `%.100s')",
-                 basename );
-        break;
-      default:
-        sprintf( status.header_buffer, "File `%.100s': error 0x%04x",
-                 basename, (FT_UShort)error_code );
-        break;
-      }
-
-      status.header = status.header_buffer;
+    case FT_Err_Ok:
+      sprintf( buf, " " );
+      break;
+    case FT_Err_Invalid_Pixel_Size:
+      sprintf( buf, "Invalid pixel size" );
+      break;
+    case FT_Err_Invalid_PPem:
+      sprintf( buf, "Invalid ppem value" );
+      break;
+    default:
+      sprintf( buf, "error 0x%04x",
+                    (FT_UShort)error_code );
+      break;
     }
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, error_code ? display->warn_color
+                                       : display->fore_color );
 
-    grWriteCellString( display->bitmap, 0, 0,
-                       status.header, display->fore_color );
+    /* font and file name */
+    basename = ft_basename( handle->current_font->filepathname );
+    sprintf( buf, "%.50s %.50s (file `%.100s')",
+             face->family_name, face->style_name, basename );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
 
-    format = status.encoding != FT_ENCODING_NONE
-             ? "at %g points, first char code = 0x%x"
-             : "at %g points, first glyph index = %d";
+    line++;
 
-    snprintf( status.header_buffer, 256, format,
-              status.ptsize / 64.0, status.Num );
+    /* char code, glyph index, glyph name */
+    if ( status.encoding == FT_ENCODING_NONE )
+      sprintf( buf, "top-left glyph idx: %d",
+                    status.Num );
+    else if ( status.encoding == FT_ENCODING_UNICODE )
+      sprintf( buf, "top-left charcode: U+%04X (glyph idx %d)",
+                    status.Num, FTDemo_Get_Index( handle, status.Num ) );
+    else
+      sprintf( buf, "top-left charcode: 0x%X (glyph idx %d)",
+                    status.Num, FTDemo_Get_Index( handle, status.Num ) );
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
@@ -1194,11 +1111,11 @@
       int    format_len, gindex, size;
 
 
-      size = strlen( status.header_buffer );
-      p    = status.header_buffer + size;
+      size = strlen( buf );
+      p    = buf + size;
       size = 256 - size;
 
-      format = ", name = ";
+      format = ", name: ";
       format_len = strlen( format );
 
       if ( size >= format_len + 2 )
@@ -1213,26 +1130,249 @@
           *p = '\0';
       }
     }
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
 
-    status.header = status.header_buffer;
-    grWriteCellString( display->bitmap, 0, HEADER_HEIGHT,
-                       status.header_buffer, display->fore_color );
+    line++;
 
+    /* encoding */
+    {
+      const char*  encoding;
+
+
+      switch ( status.encoding )
+      {
+      case FT_ENCODING_NONE:
+        encoding = "glyph order";
+        break;
+      case FT_ENCODING_MS_SYMBOL:
+        encoding = "MS Symbol";
+        break;
+      case FT_ENCODING_UNICODE:
+        encoding = "Unicode";
+        break;
+      case FT_ENCODING_SJIS:
+        encoding = "SJIS";
+        break;
+      case FT_ENCODING_GB2312:
+        encoding = "GB 2312";
+        break;
+      case FT_ENCODING_BIG5:
+        encoding = "Big 5";
+        break;
+      case FT_ENCODING_WANSUNG:
+        encoding = "Wansung";
+        break;
+      case FT_ENCODING_JOHAB:
+        encoding = "Johab";
+        break;
+      case FT_ENCODING_ADOBE_STANDARD:
+        encoding = "Adobe Standard";
+        break;
+      case FT_ENCODING_ADOBE_EXPERT:
+        encoding = "Adobe Expert";
+        break;
+      case FT_ENCODING_ADOBE_CUSTOM:
+        encoding = "Adobe Custom";
+        break;
+      case FT_ENCODING_ADOBE_LATIN_1:
+        encoding = "Latin 1";
+        break;
+      case FT_ENCODING_OLD_LATIN_2:
+        encoding = "Latin 2";
+        break;
+      case FT_ENCODING_APPLE_ROMAN:
+        encoding = "Apple Roman";
+        break;
+      }
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         encoding, display->fore_color );
+    }
+
+    /* dpi */
+    sprintf( buf, "%ddpi",
+                  status.res );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* pt and ppem */
+    sprintf( buf, "%gpt (%dppem)",
+                  status.ptsize / 64.0,
+                  ( status.ptsize * status.res / 72 + 32 ) >> 6 );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    line++;
+
+    /* render mode */
+    {
+      const char*  render_mode;
+
+
+      switch ( status.render_mode )
+      {
+      case RENDER_MODE_ALL:
+        render_mode = "all glyphs";
+        break;
+      case RENDER_MODE_EMBOLDEN:
+        render_mode = "emboldened";
+        break;
+      case RENDER_MODE_SLANTED:
+        render_mode = "slanted";
+        break;
+      case RENDER_MODE_STROKE:
+        render_mode = "stroked";
+        break;
+      case RENDER_MODE_TEXT:
+        render_mode = "text string";
+        break;
+      case RENDER_MODE_WATERFALL:
+        render_mode = "waterfall";
+        break;
+      }
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         render_mode, display->fore_color );
+    }
+
+    if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+    {
+      /* x emboldening */
+      sprintf( buf, " x: %.3f",
+                    status.xbold_factor );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+
+      /* y emboldening */
+      sprintf( buf, " y: %.3f",
+                    status.ybold_factor );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+    }
+
+    if ( status.render_mode == RENDER_MODE_STROKE )
+    {
+      /* stroking radius */
+      sprintf( buf, " radius: %.3f",
+                    status.radius );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+    }
+
+    if ( status.render_mode == RENDER_MODE_SLANTED )
+    {
+      /* slanting */
+      sprintf( buf, " value: %.3f",
+                    status.slant );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+    }
+
+    line++;
+
+    /* anti-aliasing */
+    sprintf( buf, "AA: %s",
+                  handle->antialias ? "on" : "off" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    if ( handle->antialias )
+    {
+      const char*  lcd_mode;
+
+
+      switch ( handle->lcd_mode )
+      {
+      case LCD_MODE_AA:
+        lcd_mode = " normal AA";
+        break;
+      case LCD_MODE_LIGHT:
+        lcd_mode = " light AA";
+        break;
+      case LCD_MODE_RGB:
+        lcd_mode = " LCD (horiz. RGB)";
+        break;
+      case LCD_MODE_BGR:
+        lcd_mode = " LCD (horiz. BGR)";
+        break;
+      case LCD_MODE_VRGB:
+        lcd_mode = " LCD (vert. RGB)";
+        break;
+      case LCD_MODE_VBGR:
+        lcd_mode = " LCD (vert. BGR)";
+        break;
+      }
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         lcd_mode, display->fore_color );
+    }
+
+    /* hinting */
+    sprintf( buf, "hinting: %s",
+                  handle->hinted ? "on" : "off" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    if ( handle->hinted )
+    {
+      /* auto-hinting */
+      sprintf( buf, " auto: %s",
+                    handle->autohint ? "on" : "off" );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+    }
+
+    line++;
+
+    /* embedded bitmaps */
+    sprintf( buf, "bitmaps: %s",
+                  handle->use_sbits ? "on" : "off" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* cache */
+    sprintf( buf, "cache: %s",
+                  handle->use_sbits_cache ? "on" : "off" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* low precision */
+    sprintf( buf, "precision: %s",
+                  handle->low_prec ? "low" : "normal" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* gamma */
+    sprintf( buf, "gamma: %.1f%s",
+                  status.gamma, status.gamma == 0.0 ? " (sRGB mode)"
+                                                    : "" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    line++;
+
+    /* custom LCD filtering */
+    sprintf( buf, "custom LCD: %s",
+                  status.use_custom_lcd_filter ? "on" : "off" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* LCD filter settings */
     if ( status.use_custom_lcd_filter )
     {
       int             fwi = status.fw_index;
-      unsigned char  *fw  = status.filter_weights;
+      unsigned char*  fw  = status.filter_weights;
+      int             i;
 
 
-      sprintf( status.header_buffer,
-               "%s0x%02X%s%s0x%02X%s%s0x%02X%s%s0x%02X%s%s0x%02X%s",
-               fwi == 0 ? "[" : " ", fw[0], fwi == 0 ? "]" : " ",
-               fwi == 1 ? "[" : " ", fw[1], fwi == 1 ? "]" : " ",
-               fwi == 2 ? "[" : " ", fw[2], fwi == 2 ? "]" : " ",
-               fwi == 3 ? "[" : " ", fw[3], fwi == 3 ? "]" : " ",
-               fwi == 4 ? "[" : " ", fw[4], fwi == 4 ? "]" : " " );
-      grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT,
-                         status.header_buffer, display->fore_color );
+      for ( i = 0; i < 5; i++ )
+      {
+        sprintf( buf,
+                 " %s0x%02X%s",
+                 fwi == i ? "[" : " ",
+                 fw[i],
+                 fwi == i ? "]" : " " );
+        grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                           buf, display->fore_color );
+      }
     }
 
     grRefreshSurface( display->surface );
@@ -1498,7 +1638,6 @@
       }
 #endif
 
-      status.header = 0;
       grListenSurface( display->surface, 0, &event );
     } while ( Process_Event( &event ) == 0 );
 

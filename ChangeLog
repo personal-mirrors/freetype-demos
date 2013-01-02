@@ -1,3 +1,21 @@
+2013-01-02  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Redesign layout.
+
+	It now displays all options, not only the changes, in a structured
+	way.
+
+	* src/ftview.c (START_X, START_Y): New macros.
+	(INIT_SIZE): Use them.
+	(status): Remove `header' and `header_buffer' members.
+	(Render_Waterfall): Use START_X and START_Y.
+	(event_gamma_change, event_bold_change, event_radius_change,
+	event_slant_change, event_render_mode_change, Process_Event): Don't
+	set `status.header'.
+	(write_header): Display all options.
+
+	(main): Updated.
+
 2012-12-31  Werner Lemberg  <wl@gnu.org>
 
 	Introduce a warn color.
