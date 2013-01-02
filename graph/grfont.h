@@ -1,3 +1,5 @@
+/* grfont.h */
+
 #ifndef GRFONT_H
 #define GRFONT_H
 
@@ -5,13 +7,33 @@
 
   extern const unsigned char  font_8x8[];
 
-  extern void grGotobitmap( grBitmap*  bitmap );
-  extern void grSetMargin( int right, int top );
-  extern void grSetPixelMargin( int  right, int  top );
-  extern void grGotoxy ( int x, int y );
 
-  extern void grWrite  ( const char*  string );
-  extern void grWriteln( const char* string );
-  extern void grLn( void );
+  void
+  grGotobitmap( grBitmap*  bitmap );
+
+  void
+  grSetMargin( int  right,
+               int  top );
+
+  void
+  grSetPixelMargin( int  right,
+                    int  top );
+
+  void
+  grGotoxy ( int  x,
+             int  y );
+
+
+  void
+  grWrite( const char*  string );
+
+  void
+  grWriteln( const char*  string );
+
+  void
+  grLn( void );
 
 #endif /* GRFONT_H */
+
+
+/* eof */

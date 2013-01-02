@@ -1,6 +1,8 @@
+/* grfont.c */
 
 #include "grfont.h"
 #include <string.h>
+
 
   /* font characters */
 
@@ -265,9 +267,7 @@
   };
 
 
-  static
-  grBitmap  gr_charcell =
-  {
+  static grBitmap  gr_charcell = {
     8,                    /* rows  */
     8,                    /* width */
     1,                    /* pitch */
@@ -276,13 +276,16 @@
     0                     /* buffer */
   };
 
-  void  grWriteCellChar( grBitmap*  target,
-                         int        x,
-                         int        y,
-                         int        charcode,
-                         grColor    color )
+
+  void
+  grWriteCellChar( grBitmap*  target,
+                   int        x,
+                   int        y,
+                   int        charcode,
+                   grColor    color )
   {
-    if (charcode < 0 || charcode > 255)
+    if ( charcode < 0   ||
+         charcode > 255 )
       return;
 
     gr_charcell.buffer = (unsigned char*)font_8x8 + 8 * charcode;
@@ -290,20 +293,22 @@
   }
 
 
-  void  grWriteCellString( grBitmap*   target,
-                           int         x,
-                           int         y,
-                           const char* string,
-                           grColor     color )
+  void
+  grWriteCellString( grBitmap*    target,
+                     int          x,
+                     int          y,
+                     const char*  string,
+                     grColor      color )
   {
-    while (*string)
+    while ( *string )
     {
       gr_charcell.buffer = (unsigned char *)font_8x8 +
-                             8 * (int)(unsigned char)*string++;
+                             8 * (int)(unsigned char) * string++;
       grBlitGlyphToBitmap( target, &gr_charcell, x, y, color );
       x += 8;
     }
   }
+
 
   static int        gr_cursor_x     = 0;
   static int        gr_cursor_y     = 0;
@@ -312,62 +317,74 @@
   static int        gr_margin_top   = 0;
 
 
-  extern void grGotobitmap( grBitmap*  bitmap )
+  void
+  grGotobitmap( grBitmap*  bitmap )
   {
     gr_text_bitmap = bitmap;
   }
 
 
-  extern void grSetMargin( int right, int top )
+  void
+  grSetMargin( int  right,
+               int  top )
   {
     gr_margin_top   = top << 3;
     gr_margin_right = right << 3;
   }
 
 
-  extern void grSetPixelMargin( int  right, int  top )
+  void
+  grSetPixelMargin( int  right,
+                    int  top )
   {
     gr_margin_top   = top;
     gr_margin_right = right;
   }
 
 
-  extern void grGotoxy ( int x, int y )
+  void
+  grGotoxy( int  x,
+            int  y )
   {
     gr_cursor_x = x;
     gr_cursor_y = y;
   }
 
 
-  extern void grWrite  ( const char*  string )
+  void
+  grWrite( const char*  string )
   {
-    if (string)
+    if ( string )
     {
-	  grColor color;
+      grColor color;
 
-	  color.value = 127;
+
+      color.value = 127;
       grWriteCellString( gr_text_bitmap,
-                         gr_margin_right + (gr_cursor_x << 3),
-                         gr_margin_top   + (gr_cursor_y << 3),
+                         gr_margin_right + ( gr_cursor_x << 3 ),
+                         gr_margin_top   + ( gr_cursor_y << 3 ),
                          string,
                          color );
 
-      gr_cursor_x += strlen(string);
+      gr_cursor_x += strlen( string );
     }
   }
 
 
-  extern void grLn( void )
+  void
+  grLn( void )
   {
-    gr_cursor_y ++;
+    gr_cursor_y++;
     gr_cursor_x = 0;
   }
 
 
-  extern void grWriteln( const char* string )
+  void
+  grWriteln( const char*  string )
   {
     grWrite( string );
     grLn();
   }
 
 
+/* eof */
