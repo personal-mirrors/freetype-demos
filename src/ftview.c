@@ -884,8 +884,11 @@
       break;
 
     case grKEY( 'f' ):
-      handle->autohint = !handle->autohint;
-      FTDemo_Update_Current_Flags( handle );
+      if ( handle->hinted )
+      {
+        handle->autohint = !handle->autohint;
+        FTDemo_Update_Current_Flags( handle );
+      }
       break;
 
     case grKEY( 'h' ):
@@ -900,14 +903,17 @@
 
     case grKEY( 'L' ):
     case grKEY( 'K' ):
-      handle->lcd_mode = ( event->key == grKEY( 'L' ) )
-                         ? ( ( handle->lcd_mode == ( N_LCD_MODES - 1 ) )
-                             ? 0
-                             : handle->lcd_mode + 1 )
-                         : ( ( handle->lcd_mode == 0 )
-                             ? ( N_LCD_MODES - 1 )
-                             : handle->lcd_mode - 1 );
-      FTDemo_Update_Current_Flags( handle );
+      if ( handle->antialias )
+      {
+        handle->lcd_mode = ( event->key == grKEY( 'L' ) )
+                           ? ( ( handle->lcd_mode == ( N_LCD_MODES - 1 ) )
+                               ? 0
+                               : handle->lcd_mode + 1 )
+                           : ( ( handle->lcd_mode == 0 )
+                               ? ( N_LCD_MODES - 1 )
+                               : handle->lcd_mode - 1 );
+        FTDemo_Update_Current_Flags( handle );
+      }
       break;
 
     case grKeySpace:
@@ -923,35 +929,43 @@
       break;
 
     case grKEY( 's' ):
-      event_slant_change( 0.02 );
+      if ( status.render_mode == RENDER_MODE_SLANTED )
+        event_slant_change( 0.02 );
       break;
 
     case grKEY( 'S' ):
-      event_slant_change( -0.02 );
+      if ( status.render_mode == RENDER_MODE_SLANTED )
+        event_slant_change( -0.02 );
       break;
 
     case grKEY( 'r' ):
-      event_radius_change( 0.005 );
+      if ( status.render_mode == RENDER_MODE_STROKE )
+        event_radius_change( 0.005 );
       break;
 
     case grKEY( 'R' ):
-      event_radius_change( -0.005 );
+      if ( status.render_mode == RENDER_MODE_STROKE )
+        event_radius_change( -0.005 );
       break;
 
     case grKEY( 'x' ):
-      event_bold_change( 0.005, 0.0 );
+      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+        event_bold_change( 0.005, 0.0 );
       break;
 
     case grKEY( 'X' ):
-      event_bold_change( -0.005, 0.0 );
+      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+        event_bold_change( -0.005, 0.0 );
       break;
 
     case grKEY( 'y' ):
-      event_bold_change( 0.0, 0.005 );
+      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+        event_bold_change( 0.0, 0.005 );
       break;
 
     case grKEY( 'Y' ):
-      event_bold_change( 0.0, -0.005 );
+      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+        event_bold_change( 0.0, -0.005 );
       break;
 
     case grKEY( 'g' ):
@@ -998,46 +1012,46 @@
       break;
 
     case grKEY( '[' ):
-      if ( !status.use_custom_lcd_filter )
-        break;
-
-      status.fw_index--;
-      if ( status.fw_index < 0 )
-        status.fw_index = 4;
+      if ( status.use_custom_lcd_filter )
+      {
+        status.fw_index--;
+        if ( status.fw_index < 0 )
+          status.fw_index = 4;
+      }
       break;
 
     case grKEY( ']' ):
-      if ( !status.use_custom_lcd_filter )
-        break;
-
-      status.fw_index++;
-      if ( status.fw_index > 4 )
-        status.fw_index = 0;
+      if ( status.use_custom_lcd_filter )
+      {
+        status.fw_index++;
+        if ( status.fw_index > 4 )
+          status.fw_index = 0;
+      }
       break;
 
     case grKEY( '-' ):
-      if ( !status.use_custom_lcd_filter )
-        break;
-
-      FTC_Manager_RemoveFaceID( handle->cache_manager,
+      if ( status.use_custom_lcd_filter )
+      {
+        FTC_Manager_RemoveFaceID( handle->cache_manager,
                                 handle->scaler.face_id );
 
-      status.filter_weights[status.fw_index]--;
-      FT_Library_SetLcdFilterWeights( handle->library,
-                                      status.filter_weights );
+        status.filter_weights[status.fw_index]--;
+        FT_Library_SetLcdFilterWeights( handle->library,
+                                        status.filter_weights );
+      }
       break;
 
     case grKEY( '+' ):
     case grKEY( '=' ):
-      if ( !status.use_custom_lcd_filter )
-        break;
+      if ( status.use_custom_lcd_filter )
+      {
+        FTC_Manager_RemoveFaceID( handle->cache_manager,
+                                  handle->scaler.face_id );
 
-      FTC_Manager_RemoveFaceID( handle->cache_manager,
-                                handle->scaler.face_id );
-
-      status.filter_weights[status.fw_index]++;
-      FT_Library_SetLcdFilterWeights( handle->library,
-                                      status.filter_weights );
+        status.filter_weights[status.fw_index]++;
+        FT_Library_SetLcdFilterWeights( handle->library,
+                                        status.filter_weights );
+      }
       break;
 
     default:

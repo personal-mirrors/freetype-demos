@@ -1,5 +1,12 @@
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Better input key handling.
+
+	* src/ftview.c (Process_Event): Don't handle key events if not
+	in a mode where they change something visible.
+
+2013-01-02  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftdiff.c (render_state_set_files): Skip non-scalable fonts.
 
 2013-01-02  Werner Lemberg  <wl@gnu.org>
