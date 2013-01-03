@@ -1,3 +1,13 @@
+2013-01-03  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Make it work again.
+
+	* src/ftgrid.c (grid_status_init): Don't initialize variables
+	related to `display'.  Do this...
+	(grid_status_display): ... in this new function instead.
+	(main): Use new function to handle command line arguments before
+	initializing the display.
+
 2013-01-02  Werner Lemberg  <wl@gnu.org>
 
 	Increase line height in help texts.

@@ -118,27 +118,15 @@
 
 
   static void
-  grid_status_init( GridStatus       st,
-                    FTDemo_Display*  display )
+  grid_status_init( GridStatus  st )
   {
     st->width         = DIM_X;
     st->height        = DIM_Y;
 
     st->scale         = 1.0;
-    st->x_origin      = display->bitmap->width / 4;
-    st->y_origin      = display->bitmap->rows / 4;
+    st->x_origin      = 0;
+    st->y_origin      = 0;
     st->margin        = 0.05;
-
-    st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 );
-    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 );
-    st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 );
-    st->on_color      = grFindColor( display->bitmap,  64,  64, 255, 255 );
-    st->conic_color   = grFindColor( display->bitmap,   0, 128,   0, 255 );
-    st->cubic_color   = grFindColor( display->bitmap, 255,  64, 255, 255 );
-    st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 );
-    st->disp_width    = display->bitmap->width;
-    st->disp_height   = display->bitmap->rows;
-    st->disp_bitmap   = display->bitmap;
 
     st->do_horz_hints = 1;
     st->do_vert_hints = 1;
@@ -147,9 +135,27 @@
     st->do_outline    = 1;
     st->do_segment    = 0;
 
-    st->Num    = 0;
-    st->gamma  = 1.0;
-    st->header = "";
+    st->Num           = 0;
+    st->gamma         = 1.0;
+    st->header        = "";
+  }
+
+
+  static void
+  grid_status_display( GridStatus       st,
+                       FTDemo_Display*  display )
+  {
+    st->disp_width    = display->bitmap->width;
+    st->disp_height   = display->bitmap->rows;
+    st->disp_bitmap   = display->bitmap;
+
+    st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 );
+    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 );
+    st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 );
+    st->on_color      = grFindColor( display->bitmap,  64,  64, 255, 255 );
+    st->conic_color   = grFindColor( display->bitmap,   0, 128,   0, 255 );
+    st->cubic_color   = grFindColor( display->bitmap, 255,  64, 255, 255 );
+    st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 );
   }
 
 
@@ -1104,19 +1110,18 @@
     grEvent  event;
 
 
+    grid_status_init( &status );
+    parse_cmdline( &argc, &argv );
+
     display = FTDemo_Display_New( gr_pixel_mode_rgb24,
                                   status.width, status.height );
     if ( !display )
       Fatal( "could not allocate display surface" );
 
-    memset( display->fore_color.chroma, 0, 4 );
-    memset( display->back_color.chroma, 0xff, 4 );
+    grid_status_display( &status, display );
+
     grSetTitle( display->surface,
                 "FreeType Glyph Grid Viewer - press F1 for help" );
-
-    grid_status_init( &status, display );
-
-    parse_cmdline( &argc, &argv );
 
     /* initialize engine */
     handle = FTDemo_New( FT_ENCODING_NONE );
