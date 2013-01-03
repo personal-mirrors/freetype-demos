@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
   static void
@@ -202,10 +203,8 @@
     FT_Face         face;
     FT_Size         size;
     char**          files;
-    char*           message;
     DisplayRec      display;
     char            filepath0[1024];
-    char            message0[1024];
 
   } RenderStateRec, *RenderState;
 
@@ -339,11 +338,20 @@
 
       for ( count = 0; count < num_subfonts; count++ )
       {
+        char*  fn;
         char*  family_name;
+        char*  sn;
         char*  style_name;
 
 
         error = FT_New_Face( state->library, files[0], count, &face );
+        if ( error )
+        {
+          fprintf( stderr,
+                   "ftdiff: Opening `%s' failed with code 0x%X, skipping\n",
+                   files[0], error );
+          break;
+        }
 
         if ( !FT_IS_SCALABLE( face ) )
         {
@@ -362,15 +370,23 @@
             panic( "ftdiff: not enough memory\n" );
         }
 
-        family_name = (char*)malloc( strlen( face->family_name ) + 1 );
+        if ( face->family_name )
+          fn = face->family_name;
+        else
+          fn = (char*)"(unknown family)";
+        family_name = (char*)malloc( strlen( fn ) + 1 );
         if ( family_name == NULL )
           panic( "ftdiff: not enough memory\n" );
-        strcpy( family_name, face->family_name );
+        strcpy( family_name, fn );
 
-        style_name = (char*)malloc( strlen( face->style_name ) + 1 );
+        if ( face->style_name )
+          sn = face->style_name;
+        else
+          sn = (char*)"(unknown style)";
+        style_name = (char*)malloc( strlen( sn ) + 1 );
         if ( style_name == NULL )
           panic( "ftdiff: not enough memory\n" );
-        strcpy( style_name, face->style_name );
+        strcpy( style_name, sn );
 
         faces[num_faces].filepath    = files[0];
         faces[num_faces].index       = count;
@@ -403,13 +419,9 @@
     const char*  filepath;
 
 
-    if ( idx < 0 )
-      idx = state->num_faces - 1;
-    else if ( idx >= state->num_faces )
-      idx = 0;
-
-    if ( idx >= state->num_faces )
-      return -2;
+    if ( idx < 0                 ||
+         idx >= state->num_faces )
+      return -1;
 
     state->face_index = idx;
     filepath          = state->faces[idx].filepath;
@@ -668,48 +680,63 @@
       state->display.disp_text( disp, left,
                                 bottom + 5, msg );
 
-      if ( !column->use_lcd_filter )
+      if ( column->use_lcd_filter )
+        msg = "LCD rendering";
+      else
         msg = "gray rendering";
-      else if ( column->use_custom_lcd_filter )
-      {
-        int             fwi = column->fw_index;
-        unsigned char  *fw  = column->filter_weights;
-
-
-        msg = "";
-
-        sprintf( temp,
-                 "%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s",
-                 fwi == 0 ? "[" : " ",
-                   fw[0],
-                 fwi == 0 ? "]" : ( fwi == 1 ? "[" : " " ),
-                   fw[1],
-                 fwi == 1 ? "]" : ( fwi == 2 ? "[" : " " ),
-                   fw[2],
-                 fwi == 2 ? "]" : ( fwi == 3 ? "[" : " " ),
-                   fw[3],
-                 fwi == 3 ? "]" : ( fwi == 4 ? "[" : " " ),
-                   fw[4],
-                 fwi == 4 ? "]" : " " );
-        state->display.disp_text( disp, left,
-                                  bottom + HEADER_HEIGHT + 5, temp );
-      }
-      else switch ( column->lcd_filter )
-      {
-      case FT_LCD_FILTER_NONE:
-        msg = "LCD without filtering";
-        break;
-      case FT_LCD_FILTER_DEFAULT:
-        msg = "default LCD filter";
-        break;
-      case FT_LCD_FILTER_LIGHT:
-        msg = "light LCD filter";
-        break;
-      default:
-        msg = "legacy LCD filter";
-      }
       state->display.disp_text( disp, left,
                                 bottom + HEADER_HEIGHT + 5, msg );
+
+      if ( column->use_lcd_filter )
+      {
+        if ( column->use_custom_lcd_filter )
+        {
+          int             fwi = column->fw_index;
+          unsigned char*  fw  = column->filter_weights;
+
+
+          sprintf( temp,
+                   "%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s",
+                   fwi == 0 ? "[" : " ",
+                     fw[0],
+                   fwi == 0 ? "]" : ( fwi == 1 ? "[" : " " ),
+                     fw[1],
+                   fwi == 1 ? "]" : ( fwi == 2 ? "[" : " " ),
+                     fw[2],
+                   fwi == 2 ? "]" : ( fwi == 3 ? "[" : " " ),
+                     fw[3],
+                   fwi == 3 ? "]" : ( fwi == 4 ? "[" : " " ),
+                     fw[4],
+                   fwi == 4 ? "]" : " " );
+          state->display.disp_text( disp, left,
+                                    bottom + 2 * HEADER_HEIGHT + 5, temp );
+        }
+        else
+        {
+          switch ( column->lcd_filter )
+          {
+          case FT_LCD_FILTER_NONE:
+            msg = "LCD without filtering";
+            break;
+          case FT_LCD_FILTER_DEFAULT:
+            msg = "default LCD filter";
+            break;
+          case FT_LCD_FILTER_LIGHT:
+            msg = "light LCD filter";
+            break;
+          default:
+            msg = "legacy LCD filter";
+          }
+          state->display.disp_text( disp, left,
+                                    bottom + 2 * HEADER_HEIGHT + 5, msg );
+        }
+      }
+      else
+      {
+        msg = "";
+        state->display.disp_text( disp, left,
+                                  bottom + 2 * HEADER_HEIGHT + 5, msg );
+      }
 
       sprintf( temp, "%s %s",
                column->use_kerning ? "+kern"
@@ -717,11 +744,11 @@
                column->use_deltas ? "+delta"
                                   : "-delta" );
       state->display.disp_text( disp, left,
-                                bottom + 2 * HEADER_HEIGHT + 5, temp );
+                                bottom + 3 * HEADER_HEIGHT + 5, temp );
 
       if ( state->col == idx )
         state->display.disp_text( disp, left,
-                                  bottom + 3 * HEADER_HEIGHT + 5,
+                                  bottom + 4 * HEADER_HEIGHT + 5,
                                   "************************" );
     }
   }
@@ -884,10 +911,11 @@
   adisplay_change_gamma( ADisplay  display,
                          double    delta )
   {
+    /* use epsilons */
     display->gamma += delta;
-    if ( display->gamma > 3.0 )
+    if ( display->gamma > 2.9999 )
       display->gamma = 3.0;
-    else if ( display->gamma < 0.0 )
+    else if ( display->gamma < 0.0001 )
       display->gamma = 0.0;
 
     grSetGlyphGamma( display->gamma );
@@ -930,7 +958,7 @@
     grLn();
     grWriteln( "  d            toggle lsb/rsb deltas" );
     grWriteln( "  h            toggle hinting mode" );
-    grWriteln( "  k            toggle kerning" );
+    grWriteln( "  k            toggle kerning (only from `kern' table)" );
     grWriteln( "  r            toggle rendering mode" );
     grLn();
     grWriteln( "  l            change LCD filter type" );
@@ -952,12 +980,6 @@
 
 
     adisplay_change_gamma( display, delta );
-    if ( display->gamma == 0.0 )
-      sprintf( state->message0, "gamma set to sRGB" );
-    else
-      sprintf( state->message0, "gamma set to %.1f", display->gamma );
-
-    state->message = state->message0;
   }
 
 
@@ -1001,15 +1023,11 @@
     case grKeyLeft:
       if ( --state->col < 0 )
         state->col = 2;
-      state->message = state->message0;
-      sprintf( state->message0, "column %d selected", state->col + 1 );
       break;
 
     case grKeyRight:
       if ( ++state->col > 2 )
         state->col = 0;
-      state->message = state->message0;
-      sprintf( state->message0, "column %d selected", state->col + 1 );
       break;
 
     case grKeyUp:
@@ -1030,24 +1048,18 @@
 
     case grKEY( '1' ):
       state->col     = 0;
-      state->message = (char *)"column 1 selected";
       break;
 
     case grKEY( '2' ):
       state->col     = 1;
-      state->message = (char *)"column 2 selected";
       break;
 
     case grKEY( '3' ):
       state->col     = 2;
-      state->message = (char *)"column 3 selected";
       break;
 
     case grKEY( 'd' ):
       column->use_deltas = !column->use_deltas;
-      state->message     = column->use_deltas
-                             ? (char *)"using rsb/lsb deltas"
-                             : (char *)"ignoring rsb/lsb deltas";
       break;
 
     case grKEY( 'g' ):
@@ -1057,16 +1069,10 @@
     case grKEY( 'h' ):
       column->hint_mode =
         (HintMode)( ( column->hint_mode + 1 ) % HINT_MODE_MAX );
-      state->message = state->message0;
-      sprintf( state->message0, "column %d is %s",
-               state->col + 1, render_mode_names[column->hint_mode] );
       break;
 
     case grKEY( 'k' ):
       column->use_kerning = !column->use_kerning;
-      state->message      = column->use_kerning
-                              ? (char *)"using kerning"
-                              : (char *)"ignoring kerning";
       break;
 
     case grKEY( 'l' ):
@@ -1074,31 +1080,24 @@
       {
       case FT_LCD_FILTER_NONE:
         column->lcd_filter = FT_LCD_FILTER_DEFAULT;
-        state->message     = (char *)"using default LCD filter";
         break;
 
       case FT_LCD_FILTER_DEFAULT:
         if ( !column->use_custom_lcd_filter )
-        {
           column->use_custom_lcd_filter = 1;
-          state->message                = (char *)"using custom LCD filter";
-        }
         else
         {
           column->use_custom_lcd_filter = 0;
           column->lcd_filter            = FT_LCD_FILTER_LIGHT;
-          state->message                = (char *)"using light LCD filter";
         }
         break;
 
       case FT_LCD_FILTER_LIGHT:
         column->lcd_filter = FT_LCD_FILTER_LEGACY;
-        state->message     = (char *)"using legacy LCD filter";
         break;
 
       case FT_LCD_FILTER_LEGACY:
         column->lcd_filter = FT_LCD_FILTER_NONE;
-        state->message     = (char *)"using no LCD filter";
         break;
 
       default:  /* to satisfy picky compilers */
@@ -1116,10 +1115,6 @@
 
     case grKEY( 'r' ):
       column->use_lcd_filter = !column->use_lcd_filter;
-      state->message         = state->message0;
-      sprintf( state->message0, "column %d is using %s",
-               state->col + 1, column->use_lcd_filter ? "LCD filtering"
-                                                      : "gray rendering" );
       break;
 
     case grKEY( 'v' ):
@@ -1191,40 +1186,33 @@
 
 
   static void
-  write_message( RenderState  state )
+  write_global_info( RenderState  state )
   {
     ADisplay  adisplay = (ADisplay)state->display.disp;
+    double    gamma    = adisplay->gamma;
+    char      buf[256];
+
+    FontFace  face = &state->faces[state->face_index];
+    const char*  basename;
 
 
-    if ( state->message == NULL )
-    {
-      FontFace  face = &state->faces[state->face_index];
-      int       idx, total;
+    basename = ft_basename( state->filename );
+    sprintf( buf, "%.50s %.50s (file `%.100s')",
+                  face->family_name,
+                  face->style_name,
+                  basename );
+    grWriteCellString( adisplay->bitmap, 0, 5,
+                       buf, adisplay->fore_color );
 
+    sprintf( buf, "%.1fpt (%dppem) at %ddpi, gamma: %.1f%s",
+                  state->char_size,
+                  (int)(state->char_size * state->resolution / 72 + 0.5),
+                  state->resolution,
+                  gamma,
+                  gamma == 0.0 ? " (sRGB)" : "" );
+    grWriteCellString( adisplay->bitmap, 0, 5 + HEADER_HEIGHT,
+                       buf, adisplay->fore_color );
 
-      idx   = face->index;
-      total = 1;
-      while ( total + state->face_index < state->num_faces &&
-              face[total].filepath == face[0].filepath     )
-        total++;
-
-      total += idx;
-
-      state->message = state->message0;
-      if ( total > 1 )
-        sprintf( state->message0, "%.100s %d/%d @ %5.1fpt",
-                 state->filename, idx + 1, total,
-                 state->char_size );
-      else
-        sprintf( state->message0, "%.100s @ %5.1fpt",
-                 state->filename,
-                 state->char_size );
-    }
-
-    grWriteCellString( adisplay->bitmap, 0, adisplay->height - 10,
-                       state->message, adisplay->fore_color );
-
-    state->message = NULL;
   }
 
 
@@ -1354,20 +1342,44 @@
     {
       grEvent  event;
 
+      int  border_width;
+
+      int  column_x_start[3];
+      int  column_y_start;
+
+      int  column_height;
+      int  column_width;
+
 
       adisplay_clear( adisplay );
 
-      render_state_draw( state, text, 0,
-                         10,                10,
-                         width / 3 - 15, height - 6 * HEADER_HEIGHT );
-      render_state_draw( state, text, 1,
-                         width     / 3 + 5, 10,
-                         width / 3 - 15, height - 6 * HEADER_HEIGHT );
-      render_state_draw( state, text, 2,
-                         width * 2 / 3 + 5, 10,
-                         width / 3 - 15, height - 6 * HEADER_HEIGHT );
+      /* We have this layout:                                */
+      /*                                                     */
+      /*  | n ----x---- n  n ----x---- n  n ----x---- n |    */
+      /*                                                     */
+      /* w = 6 * n + 3 * x                                   */
 
-      write_message( state );
+      border_width = 10;                                /* n */
+      column_width = ( width - 6 * border_width ) / 3;  /* x */
+
+      column_x_start[0] =     border_width;
+      column_x_start[1] = 3 * border_width +     column_width;
+      column_x_start[2] = 5 * border_width + 2 * column_width;
+
+      column_y_start = 10 + 2 * HEADER_HEIGHT;
+      column_height  = height - 8 * HEADER_HEIGHT - 5;
+
+      render_state_draw( state, text, 0,
+                         column_x_start[0], column_y_start,
+                         column_width, column_height );
+      render_state_draw( state, text, 1,
+                         column_x_start[1], column_y_start,
+                         column_width, column_height );
+      render_state_draw( state, text, 2,
+                         column_x_start[2], column_y_start,
+                         column_width, column_height );
+
+      write_global_info( state );
       grRefreshSurface( adisplay->surface );
       grListenSurface( adisplay->surface, 0, &event );
       if ( process_event( state, &event ) )

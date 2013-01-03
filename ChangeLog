@@ -1,5 +1,27 @@
 2013-01-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftdiff] Slightly redesign layout to display all options.
+
+	Also some other, minor changes.
+
+	* src/ftdiff.c: Include <string.h>.
+	(RenderStateRec): Remove `message' and `message0'.
+	Update all users.
+	(render_state_draw): Display one more line for status information.
+	(write_message): Renamed to...
+	(write_global_info): This.
+	Also display family and style name; we thus no longer need to
+	display the number of subfonts.
+	Also display dpi, ppem, and gamma.
+	(main): Slightly improve column layout.
+
+	(event_help): Minor improvement.
+	(adisplay_change_gamma): Use epsilons.
+	(render_state_set_file): Don't loop around the start or end of the
+	face list.  Other FreeType demo programs don't do this either.
+
+2013-01-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftdiff] Store family and style name of loaded fonts.
 
 	To be used in a following commit.
