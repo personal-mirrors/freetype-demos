@@ -81,6 +81,7 @@
 
   } DisplayMode;
 
+
   typedef void
   (*Display_drawFunc)( void*        disp,
                        DisplayMode  mode,
@@ -155,6 +156,7 @@
     "native hinter"
   };
 
+
   /** RENDER STATE **/
 
   typedef struct  _ColumnStateRec
@@ -172,12 +174,16 @@
 
   } ColumnStateRec, *ColumnState;
 
+
   typedef struct  _FontFaceRec
   {
     const char*  filepath;
+    char*        family_name;
+    char*        style_name;
     int          index;
 
   } FontFaceRec, *FontFace;
+
 
   typedef struct  _RenderStateRec
   {
@@ -232,8 +238,8 @@
     state->columns[1].hint_mode             = HINT_MODE_AUTOHINT;
     state->columns[1].use_custom_lcd_filter = 1;
 
-    state->columns[2]           = state->columns[0];
-    state->columns[2].hint_mode = HINT_MODE_UNHINTED;
+    state->columns[2]                       = state->columns[0];
+    state->columns[2].hint_mode             = HINT_MODE_UNHINTED;
 
     state->col = 1;
 
@@ -313,10 +319,12 @@
     for ( ; files[0] != NULL; files++ )
     {
       FT_Face  face;
-      int      count;
+
+      int  num_subfonts;
+      int  count;
 
 
-      error = FT_New_Face( state->library, files[0], 0, &face );
+      error = FT_New_Face( state->library, files[0], -1, &face );
       if ( error )
       {
         fprintf( stderr,
@@ -325,16 +333,26 @@
         continue;
       }
 
-      if ( !FT_IS_SCALABLE( face ) )
-      {
-        fprintf( stderr,
-                 "ftdiff: font `%s' is not scalable, skipping\n",
-                 files[0] );
-        continue;
-      }
+      num_subfonts = (int)face->num_faces;
 
-      for ( count = 0; count < (int)face->num_faces; count++ )
+      FT_Done_Face( face );
+
+      for ( count = 0; count < num_subfonts; count++ )
       {
+        char*  family_name;
+        char*  style_name;
+
+
+        error = FT_New_Face( state->library, files[0], count, &face );
+
+        if ( !FT_IS_SCALABLE( face ) )
+        {
+          fprintf( stderr,
+                   "ftdiff: font `%s' is not scalable, skipping\n",
+                   files[0] );
+          goto Done;
+        }
+
         if ( num_faces >= max_faces )
         {
           max_faces += ( max_faces >> 1 ) + 8;
@@ -344,12 +362,25 @@
             panic( "ftdiff: not enough memory\n" );
         }
 
-        faces[num_faces].filepath = files[0];
-        faces[num_faces].index    = count;
-        num_faces++;
-      }
+        family_name = (char*)malloc( strlen( face->family_name ) + 1 );
+        if ( family_name == NULL )
+          panic( "ftdiff: not enough memory\n" );
+        strcpy( family_name, face->family_name );
 
-      FT_Done_Face( face );
+        style_name = (char*)malloc( strlen( face->style_name ) + 1 );
+        if ( style_name == NULL )
+          panic( "ftdiff: not enough memory\n" );
+        strcpy( style_name, face->style_name );
+
+        faces[num_faces].filepath    = files[0];
+        faces[num_faces].index       = count;
+        faces[num_faces].family_name = family_name;
+        faces[num_faces].style_name  = style_name;
+        num_faces++;
+
+      Done:
+        FT_Done_Face( face );
+      }
     }
 
     state->faces     = faces;
@@ -691,7 +722,7 @@
       if ( state->col == idx )
         state->display.disp_text( disp, left,
                                   bottom + 3 * HEADER_HEIGHT + 5,
-                                  "**************" );
+                                  "************************" );
     }
   }
 

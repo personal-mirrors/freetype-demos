@@ -1,5 +1,15 @@
 2013-01-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftdiff] Store family and style name of loaded fonts.
+
+	To be used in a following commit.
+
+	* src/ftdiff.c (FontFaceRec): New members `family_name' and
+	`style_name'.
+	(render_state_set_files): Fill new FontFaceRec members.
+
+2013-01-03  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftdiff (event_help): Improve text.
 
 2013-01-03  Werner Lemberg  <wl@gnu.org>
