@@ -1,5 +1,9 @@
 2013-01-03  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftdiff (event_help): Improve text.
+
+2013-01-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Make it work again.
 
 	* src/ftgrid.c (grid_status_init): Don't initialize variables
