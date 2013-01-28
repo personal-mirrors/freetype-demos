@@ -604,14 +604,14 @@
 
     grWriteln( "FreeType Glyph Viewer - part of the FreeType test suite" );
     grLn();
-    grWriteln( "This program is used to display all glyphs from one or" );
-    grWriteln( "several font files, with the FreeType library." );
-    grLn();
     grWriteln( "Use the following keys:" );
     grLn();
     grWriteln( "  F1, ?       display this help screen" );
     grLn();
     grWriteln( "  1-6         select rendering mode" );
+    grWriteln( "                1: all glyphs, 2: all glyphs emboldened," );
+    grWriteln( "                3: all glyphs slanted, 4: all glyphs stroked," );
+    grWriteln( "                5: text string, 6: waterfall" );
     grWriteln( "  space       cycle forwards through rendering modes" );
     grWriteln( "  backspace   cycle backwards through rendering modes" );
     grLn();
@@ -991,14 +991,30 @@
     case grKeyPageUp:   event_size_change(  640 ); break;
     case grKeyPageDown: event_size_change( -640 ); break;
 
-    case grKeyLeft:  event_index_change(    -1 ); break;
-    case grKeyRight: event_index_change(     1 ); break;
-    case grKeyF7:    event_index_change(   -10 ); break;
-    case grKeyF8:    event_index_change(    10 ); break;
-    case grKeyF9:    event_index_change(  -100 ); break;
-    case grKeyF10:   event_index_change(   100 ); break;
-    case grKeyF11:   event_index_change( -1000 ); break;
-    case grKeyF12:   event_index_change(  1000 ); break;
+    case grKeyLeft:
+      event_index_change( -1 );
+      break;
+    case grKeyRight:
+      event_index_change( 1 );
+      break;
+    case grKeyF7:
+      event_index_change( -10 );
+      break;
+    case grKeyF8:
+      event_index_change( 10 );
+      break;
+    case grKeyF9:
+      event_index_change( -100 );
+      break;
+    case grKeyF10:
+      event_index_change( 100 );
+      break;
+    case grKeyF11:
+      event_index_change( -1000 );
+      break;
+    case grKeyF12:
+      event_index_change( 1000 );
+      break;
 
     case grKEY( 'F' ):
       FTC_Manager_RemoveFaceID( handle->cache_manager,
@@ -1112,13 +1128,13 @@
 
     /* char code, glyph index, glyph name */
     if ( status.encoding == FT_ENCODING_NONE )
-      sprintf( buf, "top-left glyph idx: %d",
+      sprintf( buf, "top left glyph idx: %d",
                     status.Num );
     else if ( status.encoding == FT_ENCODING_UNICODE )
-      sprintf( buf, "top-left charcode: U+%04X (glyph idx %d)",
+      sprintf( buf, "top left charcode: U+%04X (glyph idx %d)",
                     status.Num, FTDemo_Get_Index( handle, status.Num ) );
     else
-      sprintf( buf, "top-left charcode: 0x%X (glyph idx %d)",
+      sprintf( buf, "top left charcode: 0x%X (glyph idx %d)",
                     status.Num, FTDemo_Get_Index( handle, status.Num ) );
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
