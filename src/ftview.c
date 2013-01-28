@@ -1246,8 +1246,11 @@
         render_mode = "waterfall";
         break;
       }
+      sprintf( buf, "%d: %s",
+                    status.render_mode + 1,
+                    render_mode );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                         render_mode, display->fore_color );
+                         buf, display->fore_color );
     }
 
     if ( status.render_mode == RENDER_MODE_EMBOLDEN )

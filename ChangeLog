@@ -1,3 +1,7 @@
+2013-01-28  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftview.c (write_header): Show rendering mode number.
+
 2013-01-03  Werner Lemberg  <wl@gnu.org>
 
 	[ftdiff] Slightly redesign layout to display all options.
