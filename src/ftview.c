@@ -107,7 +107,7 @@
   static FTDemo_Handle*   handle;
 
 
-  static const unsigned char*  Text = (unsigned char*)
+  static const char*  Text =
     "The quick brown fox jumps over the lazy dog 0123456789"
     " \342\352\356\373\364\344\353\357\366\374\377\340\371\351\350\347"
     " &#~\"\'(-`_^@)=+\260 ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -459,8 +459,8 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    p    = (const char*)Text;
-    pEnd = p + strlen( (const char*)Text );
+    p    = Text;
+    pEnd = p + strlen( Text );
 
     while ( first_index-- )
       utf8_next( &p, pEnd );
@@ -501,15 +501,17 @@
 
 
   static FT_Error
-  Render_Waterfall( int  first_size )
+  Render_Waterfall( int  first_size,
+                    int  first_index )
   {
     int      start_x, start_y, step_y, x, y;
     int      pt_size, max_size = 100000;
     FT_Size  size;
     FT_Face  face;
 
-    unsigned char         text[256];
-    const unsigned char*  p;
+    char         text[256];
+    const char*  p;
+    const char*  pEnd;
 
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
@@ -538,6 +540,9 @@
 
     for ( pt_size = first_size; pt_size < max_size; pt_size += 64 )
     {
+      int first = first_index;
+
+
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
 
       error = FTDemo_Get_Size( handle, &size );
@@ -557,22 +562,40 @@
       if ( y >= display->bitmap->rows )
         break;
 
-      sprintf( (char*)text,
-               "%g: the quick brown fox jumps over the lazy dog"
-               " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", pt_size / 64.0 );
+      p    = Text;
+      pEnd = p + strlen( Text );
 
-      for ( p = text; *p; p++ )
+      while ( first-- )
+        utf8_next( &p, pEnd );
+
+      snprintf( text, 256, "%g: %s", pt_size / 64.0, p );
+
+      p    = text;
+      pEnd = p + strlen( text );
+
+      while ( 1 )
       {
         FT_UInt  gindex;
+        int      ch;
 
 
-        gindex = FTDemo_Get_Index( handle, *p );
+        ch = utf8_next( &p, pEnd );
+        if ( ch < 0 )
+          break;
+
+        gindex = FTDemo_Get_Index( handle, ch );
 
         error = FTDemo_Draw_Index( handle, display, gindex, &x, &y );
         if ( error )
           status.Fail++;
-        else if ( X_TOO_LONG( x, size, display ) )
-          break;
+        else
+        {
+          /* Draw_Index adds one pixel space */
+          x--;
+
+          if ( X_TOO_LONG( x, size, display ) )
+            break;
+        }
       }
     }
 
@@ -1517,7 +1540,7 @@
         break;
 
       case 'm':
-        Text               = (unsigned char*)optarg;
+        Text               = optarg;
         status.render_mode = RENDER_MODE_TEXT;
         break;
 
@@ -1650,7 +1673,7 @@
         break;
 
       case RENDER_MODE_WATERFALL:
-        error = Render_Waterfall( status.ptsize );
+        error = Render_Waterfall( status.ptsize, status.Num );
         break;
       }
 

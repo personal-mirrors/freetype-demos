@@ -1,5 +1,16 @@
 2013-01-28  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Make waterfall display -m string.
+
+	Also make leftArrow key and friends functional.
+
+	* src/ftview.c (Text): Make it `const char*'.
+	(Render_Waterfall): Add argument to pass first index.
+	Use -m option if given, and handle it as UTF-8.
+	(Render_Text, parse_cmdline, main): Updated.
+
+2013-01-28  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftview.c (write_header): Show rendering mode number.
 
 2013-01-03  Werner Lemberg  <wl@gnu.org>
