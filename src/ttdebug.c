@@ -492,7 +492,7 @@
     "JROT",          /*                                     */
     "JROF",          /*                                     */
     "ROFF",          /*                                     */
-    "INS_$7B"
+    "INS_$7B",
     "RUTG",          /*                                     */
     "RDTG",          /*                                     */
     "SANGW",         /*                                     */
@@ -501,8 +501,8 @@
     "FlipPT",        /*                                     */
     "FlipRgON",      /*                                     */
     "FlipRgOFF",     /*                                     */
-    "INS_$83"
-    "INS_$84"
+    "INS_$83",
+    "INS_$84",
     "ScanCTRL",      /*                                     */
     "SDPVTL[0]",     /*                                     */
     "SDPVTL[1]",     /*                                     */
@@ -513,41 +513,41 @@
     "MIN",           /*                                     */
     "ScanTYPE",      /*                                     */
     "InstCTRL",      /*                                     */
-    "INS_$8F"
+    "INS_$8F",
 
-    "INS_$90"
-    "INS_$91"
-    "INS_$92"
-    "INS_$93"
-    "INS_$94"
-    "INS_$95"
-    "INS_$96"
-    "INS_$97"
-    "INS_$98"
-    "INS_$99"
-    "INS_$9A"
-    "INS_$9B"
-    "INS_$9C"
-    "INS_$9D"
-    "INS_$9E"
-    "INS_$9F"
+    "INS_$90",
+    "INS_$91",
+    "INS_$92",
+    "INS_$93",
+    "INS_$94",
+    "INS_$95",
+    "INS_$96",
+    "INS_$97",
+    "INS_$98",
+    "INS_$99",
+    "INS_$9A",
+    "INS_$9B",
+    "INS_$9C",
+    "INS_$9D",
+    "INS_$9E",
+    "INS_$9F",
 
-    "INS_$A0"
-    "INS_$A1"
-    "INS_$A2"
-    "INS_$A3"
-    "INS_$A4"
-    "INS_$A5"
-    "INS_$A6"
-    "INS_$A7"
-    "INS_$A8"
-    "INS_$A9"
-    "INS_$AA"
-    "INS_$AB"
-    "INS_$AC"
-    "INS_$AD"
-    "INS_$AE"
-    "INS_$AF"
+    "INS_$A0",
+    "INS_$A1",
+    "INS_$A2",
+    "INS_$A3",
+    "INS_$A4",
+    "INS_$A5",
+    "INS_$A6",
+    "INS_$A7",
+    "INS_$A8",
+    "INS_$A9",
+    "INS_$AA",
+    "INS_$AB",
+    "INS_$AC",
+    "INS_$AD",
+    "INS_$AE",
+    "INS_$AF",
 
     "PushB[0]",      /*                                     */
     "PushB[1]",      /*                                     */
