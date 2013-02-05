@@ -1,5 +1,9 @@
 2013-02-05  Werner Lemberg  <wl@gnu.org>
 
+	* src/ttdebug.c (OpStr): Oops!  Add commas back.
+
+2013-02-05  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Fix compilation warnings.
 
 	* src/ttdebug.c (Cur_U_Line): Use `CUR' macro.
