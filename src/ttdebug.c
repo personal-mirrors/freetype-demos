@@ -1,24 +1,46 @@
+/****************************************************************************/
+/*                                                                          */
+/*  The FreeType project -- a free and portable quality TrueType renderer.  */
+/*                                                                          */
+/*  Copyright 1996-2002, 2007, 2011, 2013 by                                */
+/*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
+/*                                                                          */
+/*                                                                          */
+/*  ttdebug - a simple TrueType debugger for the console.                   */
+/*                                                                          */
+/****************************************************************************/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #ifdef UNIX
+
 #ifndef HAVE_POSIX_TERMIOS
+
 #include <sys/ioctl.h>
 #include <termio.h>
-#else
+
+#else /* HAVE_POSIX_TERMIOS */
+
 #ifndef HAVE_TCGETATTR
 #define HAVE_TCGETATTR
-#endif /* HAVE_TCGETATTR */
-#ifndef HAVE_TCSETATTR
-#define HAVE_TCSETATTR
-#endif /* HAVE_TCSETATTR */
-#include <termios.h>
-#endif /* HAVE_POSIX_TERMIOS */
 #endif
 
-/* Define the `getch()' function.  On Unix systems, it is an alias  */
-/* for `getchar()', and the debugger front end must ensure that the */
-/* `stdin' file descriptor is not in line-by-line input mode.       */
+#ifndef HAVE_TCSETATTR
+#define HAVE_TCSETATTR
+#endif
+
+#include <termios.h>
+
+#endif /* HAVE_POSIX_TERMIOS */
+
+#endif /* UNIX */
+
+
+  /* Define the `getch()' function.  On Unix systems, it is an alias  */
+  /* for `getchar()', and the debugger front end must ensure that the */
+  /* `stdin' file descriptor is not in line-by-line input mode.       */
 #ifndef UNIX
 #include <conio.h>
 #else
@@ -29,37 +51,41 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-/* "freetype2/src/truetype" must be in the current include path */
+  /* The following header shouldn't be used in normal programs.    */
+  /* `freetype2/src/truetype' must be in the current include path. */
 #include "ttobjs.h"
 #include "ttdriver.h"
 #include "ttinterp.h"
 #include "tterrors.h"
 
-FT_Library      library;    /* root library object */
-FT_Memory       memory;     /* system object */
-FT_Driver       driver;     /* truetype driver */
-TT_Face         face;       /* truetype face */
-TT_Size         size;       /* truetype size */
-TT_GlyphSlot    glyph;      /* truetype glyph slot */
-TT_ExecContext  exec;       /* truetype execution context */
-FT_Error        error;
 
-TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
+  FT_Library      library;    /* root library object */
+  FT_Memory       memory;     /* system object */
+  FT_Driver       driver;     /* truetype driver */
+  TT_Face         face;       /* truetype face */
+  TT_Size         size;       /* truetype size */
+  TT_GlyphSlot    glyph;      /* truetype glyph slot */
+  TT_ExecContext  exec;       /* truetype execution context */
 
-  typedef char    ByteStr[2];
-  typedef char    WordStr[4];
-  typedef char    LongStr[8];
-  typedef char    DebugStr[128];
+  FT_Error  error;
 
-  static  DebugStr tempStr;
+  TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
+
+  typedef char  ByteStr[2];
+  typedef char  WordStr[4];
+  typedef char  LongStr[8];
+  typedef char  DebugStr[128];
+
+  static DebugStr  tempStr;
+
 
 #undef  PACK
-#define PACK( x, y )  ((x << 4) | y)
+#define PACK( x, y )  ( ( x << 4 ) | y )
 
   static const FT_Byte  Pop_Push_Count[256] =
   {
-    /* opcodes are gathered in groups of 16 */
-    /* please keep the spaces as they are   */
+    /* Opcodes are gathered in groups of 16. */
+    /* Please keep the spaces as they are.   */
 
     /*  SVTCA  y  */  PACK( 0, 0 ),
     /*  SVTCA  x  */  PACK( 0, 0 ),
@@ -336,360 +362,367 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
 
 
   static const FT_String*  OpStr[256] = {
-            "SVTCA y",       /* Set vectors to coordinate axis y    */
-            "SVTCA x",       /* Set vectors to coordinate axis x    */
-            "SPvTCA y",      /* Set Proj. vec. to coord. axis y     */
-            "SPvTCA x",      /* Set Proj. vec. to coord. axis x     */
-            "SFvTCA y",      /* Set Free. vec. to coord. axis y     */
-            "SFvTCA x",      /* Set Free. vec. to coord. axis x     */
-            "SPvTL //",      /* Set Proj. vec. parallel to segment  */
-            "SPvTL +",       /* Set Proj. vec. normal to segment    */
-            "SFvTL //",      /* Set Free. vec. parallel to segment  */
-            "SFvTL +",       /* Set Free. vec. normal to segment    */
-            "SPvFS",         /* Set Proj. vec. from stack           */
-            "SFvFS",         /* Set Free. vec. from stack           */
-            "GPV",           /* Get projection vector               */
-            "GFV",           /* Get freedom vector                  */
-            "SFvTPv",        /* Set free. vec. to proj. vec.        */
-            "ISECT",         /* compute intersection                */
+    "SVTCA y",       /* set vectors to coordinate axis y    */
+    "SVTCA x",       /* set vectors to coordinate axis x    */
+    "SPVTCA y",      /* set proj. vec. to coord. axis y     */
+    "SPVTCA x",      /* set proj. vec. to coord. axis x     */
+    "SFVTCA y",      /* set free. vec. to coord. axis y     */
+    "SFVTCA x",      /* set free. vec. to coord. axis x     */
+    "SPVTL ||",      /* set proj. vec. parallel to segment  */
+    "SPVTL +",       /* set proj. vec. normal to segment    */
+    "SFVTL ||",      /* set free. vec. parallel to segment  */
+    "SFVTL +",       /* set free. vec. normal to segment    */
+    "SPVFS",         /* set proj. vec. from stack           */
+    "SFVFS",         /* set free. vec. from stack           */
+    "GPV",           /* get projection vector               */
+    "GFV",           /* get freedom vector                  */
+    "SFVTPV"         /* set free. vec. to proj. vec.        */
+    "ISECT",         /* compute intersection                */
 
-            "SRP0",          /* Set reference point 0               */
-            "SRP1",          /* Set reference point 1               */
-            "SRP2",          /* Set reference point 2               */
-            "SZP0",          /* Set Zone Pointer 0                  */
-            "SZP1",          /* Set Zone Pointer 1                  */
-            "SZP2",          /* Set Zone Pointer 2                  */
-            "SZPS",          /* Set all zone pointers               */
-            "SLOOP",         /* Set loop counter                    */
-            "RTG",           /* Round to Grid                       */
-            "RTHG",          /* Round to Half-Grid                  */
-            "SMD",           /* Set Minimum Distance                */
-            "ELSE",          /* Else                                */
-            "JMPR",          /* Jump Relative                       */
-            "SCvTCi",        /* Set CVT                             */
-            "SSwCi",         /*                                     */
-            "SSW",           /*                                     */
+    "SRP0",          /* set reference point 0               */
+    "SRP1",          /* set reference point 1               */
+    "SRP2",          /* set reference point 2               */
+    "SZP0",          /* set zone pointer 0                  */
+    "SZP1",          /* set zone pointer 1                  */
+    "SZP2",          /* set zone pointer 2                  */
+    "SZPS",          /* set all zone pointers               */
+    "SLOOP",         /* set loop counter                    */
+    "RTG",           /* round to grid                       */
+    "RTHG",          /* round to half-grid                  */
+    "SMD",           /* set minimum distance                */
+    "ELSE",          /* else                                */
+    "JMPR",          /* jump relative                       */
+    "SCVTCI",        /* set CVT cut-in                      */
+    "SSWCI",         /* set single width cut-in             */
+    "SSW",           /* set single width                    */
 
-            "DUP",
-            "POP",
-            "CLEAR",
-            "SWAP",
-            "DEPTH",
-            "CINDEX",
-            "MINDEX",
-            "AlignPTS",
-            "INS_$28",
-            "UTP",
-            "LOOPCALL",
-            "CALL",
-            "FDEF",
-            "ENDF",
-            "MDAP[-]",
-            "MDAP[r]",
+    "DUP",           /*                                     */
+    "POP",           /*                                     */
+    "CLEAR",         /*                                     */
+    "SWAP",          /*                                     */
+    "DEPTH",         /*                                     */
+    "CINDEX",        /*                                     */
+    "MINDEX",        /*                                     */
+    "AlignPTS",      /*                                     */
+    "INS_$28",
+    "UTP",           /*                                     */
+    "LOOPCALL",      /*                                     */
+    "CALL",          /*                                     */
+    "FDEF",          /*                                     */
+    "ENDF",          /*                                     */
+    "MDAP[0]",       /*                                     */
+    "MDAP[1]",       /*                                     */
 
-            "IUP[y]",
-            "IUP[x]",
-            "SHP[0]",
-            "SHP[1]",
-            "SHC[0]",
-            "SHC[1]",
-            "SHZ[0]",
-            "SHZ[1]",
-            "SHPIX",
-            "IP",
-            "MSIRP[0]",
-            "MSIRP[1]",
-            "AlignRP",
-            "RTDG",
-            "MIAP[-]",
-            "MIAP[r]",
+    "IUP[0]",        /*                                     */
+    "IUP[1]",        /*                                     */
+    "SHP[0]",        /*                                     */
+    "SHP[1]",        /*                                     */
+    "SHC[0]",        /*                                     */
+    "SHC[1]",        /*                                     */
+    "SHZ[0]"         /*                                     */
+    "SHZ[1]"         /*                                     */
+    "SHPIX"          /*                                     */
+    "IP"             /*                                     */
+    "MSIRP[0]"       /*                                     */
+    "MSIRP[1]"       /*                                     */
+    "AlignRP"        /*                                     */
+    "RTDG"           /*                                     */
+    "MIAP[0]"        /*                                     */
+    "MIAP[1]"        /*                                     */
 
-            "NPushB",
-            "NPushW",
-            "WS",
-            "RS",
-            "WCvtP",
-            "RCvt",
-            "GC[0]",
-            "GC[1]",
-            "SCFS",
-            "MD[0]",
-            "MD[1]",
-            "MPPEM",
-            "MPS",
-            "FlipON",
-            "FlipOFF",
-            "DEBUG",
+    "NPushB"         /*                                     */
+    "NPushW"         /*                                     */
+    "WS"             /*                                     */
+    "RS"             /*                                     */
+    "WCvtP"          /*                                     */
+    "RCvt"           /*                                     */
+    "GC[0]"          /*                                     */
+    "GC[1]"          /*                                     */
+    "SCFS"           /*                                     */
+    "MD[0]"          /*                                     */
+    "MD[1]"          /*                                     */
+    "MPPEM"          /*                                     */
+    "MPS"            /*                                     */
+    "FlipON"         /*                                     */
+    "FlipOFF"        /*                                     */
+    "DEBUG"          /*                                     */
 
-            "LT",
-            "LTEQ",
-            "GT",
-            "GTEQ",
-            "EQ",
-            "NEQ",
-            "ODD",
-            "EVEN",
-            "IF",
-            "EIF",
-            "AND",
-            "OR",
-            "NOT",
-            "DeltaP1",
-            "SDB",
-            "SDS",
+    "LT"             /*                                     */
+    "LTEQ"           /*                                     */
+    "GT"             /*                                     */
+    "GTEQ"           /*                                     */
+    "EQ"             /*                                     */
+    "NEQ"            /*                                     */
+    "ODD"            /*                                     */
+    "EVEN"           /*                                     */
+    "IF"             /*                                     */
+    "EIF"            /*                                     */
+    "AND"            /*                                     */
+    "OR"             /*                                     */
+    "NOT"            /*                                     */
+    "DeltaP1"        /*                                     */
+    "SDB"            /*                                     */
+    "SDS"            /*                                     */
 
-            "ADD",
-            "SUB",
-            "DIV",
-            "MUL",
-            "ABS",
-            "NEG",
-            "FLOOR",
-            "CEILING",
-            "ROUND[G]",
-            "ROUND[B]",
-            "ROUND[W]",
-            "ROUND[?]",
-            "NROUND[G]",
-            "NROUND[B]",
-            "NROUND[W]",
-            "NROUND[?]",
+    "ADD"            /*                                     */
+    "SUB"            /*                                     */
+    "DIV"            /*                                     */
+    "MUL"            /*                                     */
+    "ABS"            /*                                     */
+    "NEG"            /*                                     */
+    "FLOOR"          /*                                     */
+    "CEILING"        /*                                     */
+    "ROUND[0]"       /*                                     */
+    "ROUND[1]"       /*                                     */
+    "ROUND[2]"       /*                                     */
+    "ROUND[3]"       /*                                     */
+    "NROUND[0]"      /*                                     */
+    "NROUND[1]"      /*                                     */
+    "NROUND[2]"      /*                                     */
+    "NROUND[3]"      /*                                     */
 
-            "WCvtF",
-            "DeltaP2",
-            "DeltaP3",
-            "DeltaC1",
-            "DeltaC2",
-            "DeltaC3",
-            "SROUND",
-            "S45Round",
-            "JROT",
-            "JROF",
-            "ROFF",
-            "INS_$7B",
-            "RUTG",
-            "RDTG",
-            "SANGW",
-            "AA",
+    "WCvtF"          /*                                     */
+    "DeltaP2"        /*                                     */
+    "DeltaP3"        /*                                     */
+    "DeltaC1"        /*                                     */
+    "DeltaC2"        /*                                     */
+    "DeltaC3"        /*                                     */
+    "SROUND"         /*                                     */
+    "S45Round"       /*                                     */
+    "JROT"           /*                                     */
+    "JROF"           /*                                     */
+    "ROFF"           /*                                     */
+    "INS_$7B"
+    "RUTG"           /*                                     */
+    "RDTG"           /*                                     */
+    "SANGW"          /*                                     */
+    "AA"             /*                                     */
 
-            "FlipPT",
-            "FlipRgON",
-            "FlipRgOFF",
-            "INS_$83",
-            "INS_$84",
-            "ScanCTRL",
-            "SDPVTL[0]",
-            "SDPVTL[1]",
-            "GetINFO",
-            "IDEF",
-            "ROLL",
-            "MAX",
-            "MIN",
-            "ScanTYPE",
-            "IntCTRL",
-            "INS_$8F",
+    "FlipPT"         /*                                     */
+    "FlipRgON"       /*                                     */
+    "FlipRgOFF"      /*                                     */
+    "INS_$83"
+    "INS_$84"
+    "ScanCTRL"       /*                                     */
+    "SDPVTL[0]"      /*                                     */
+    "SDPVTL[1]"      /*                                     */
+    "GetINFO"        /*                                     */
+    "IDEF"           /*                                     */
+    "ROLL"           /*                                     */
+    "MAX"            /*                                     */
+    "MIN"            /*                                     */
+    "ScanTYPE"       /*                                     */
+    "InstCTRL"       /*                                     */
+    "INS_$8F"
 
-            "INS_$90",
-            "INS_$91",
-            "INS_$92",
-            "INS_$93",
-            "INS_$94",
-            "INS_$95",
-            "INS_$96",
-            "INS_$97",
-            "INS_$98",
-            "INS_$99",
-            "INS_$9A",
-            "INS_$9B",
-            "INS_$9C",
-            "INS_$9D",
-            "INS_$9E",
-            "INS_$9F",
+    "INS_$90"
+    "INS_$91"
+    "INS_$92"
+    "INS_$93"
+    "INS_$94"
+    "INS_$95"
+    "INS_$96"
+    "INS_$97"
+    "INS_$98"
+    "INS_$99"
+    "INS_$9A"
+    "INS_$9B"
+    "INS_$9C"
+    "INS_$9D"
+    "INS_$9E"
+    "INS_$9F"
 
-            "INS_$A0",
-            "INS_$A1",
-            "INS_$A2",
-            "INS_$A3",
-            "INS_$A4",
-            "INS_$A5",
-            "INS_$A6",
-            "INS_$A7",
-            "INS_$A8",
-            "INS_$A9",
-            "INS_$AA",
-            "INS_$AB",
-            "INS_$AC",
-            "INS_$AD",
-            "INS_$AE",
-            "INS_$AF",
+    "INS_$A0"
+    "INS_$A1"
+    "INS_$A2"
+    "INS_$A3"
+    "INS_$A4"
+    "INS_$A5"
+    "INS_$A6"
+    "INS_$A7"
+    "INS_$A8"
+    "INS_$A9"
+    "INS_$AA"
+    "INS_$AB"
+    "INS_$AC"
+    "INS_$AD"
+    "INS_$AE"
+    "INS_$AF"
 
-            "PushB[0]",
-            "PushB[1]",
-            "PushB[2]",
-            "PushB[3]",
-            "PushB[4]",
-            "PushB[5]",
-            "PushB[6]",
-            "PushB[7]",
-            "PushW[0]",
-            "PushW[1]",
-            "PushW[2]",
-            "PushW[3]",
-            "PushW[4]",
-            "PushW[5]",
-            "PushW[6]",
-            "PushW[7]",
+    "PushB[0]"       /*                                     */
+    "PushB[1]"       /*                                     */
+    "PushB[2]"       /*                                     */
+    "PushB[3]"       /*                                     */
+    "PushB[4]"       /*                                     */
+    "PushB[5]"       /*                                     */
+    "PushB[6]"       /*                                     */
+    "PushB[7]"       /*                                     */
+    "PushW[0]"       /*                                     */
+    "PushW[1]"       /*                                     */
+    "PushW[2]"       /*                                     */
+    "PushW[3]"       /*                                     */
+    "PushW[4]"       /*                                     */
+    "PushW[5]"       /*                                     */
+    "PushW[6]"       /*                                     */
+    "PushW[7]"       /*                                     */
 
-            "MDRP[G]",
-            "MDRP[B]",
-            "MDRP[W]",
-            "MDRP[?]",
-            "MDRP[rG]",
-            "MDRP[rB]",
-            "MDRP[rW]",
-            "MDRP[r?]",
-            "MDRP[mG]",
-            "MDRP[mB]",
-            "MDRP[mW]",
-            "MDRP[m?]",
-            "MDRP[mrG]",
-            "MDRP[mrB]",
-            "MDRP[mrW]",
-            "MDRP[mr?]",
-            "MDRP[pG]",
-            "MDRP[pB]",
+    "MDRP[G]"        /*                                     */
+    "MDRP[B]"        /*                                     */
+    "MDRP[W]"        /*                                     */
+    "MDRP[?]"        /*                                     */
+    "MDRP[rG]"       /*                                     */
+    "MDRP[rB]"       /*                                     */
+    "MDRP[rW]"       /*                                     */
+    "MDRP[r?]"       /*                                     */
+    "MDRP[mG]"       /*                                     */
+    "MDRP[mB]"       /*                                     */
+    "MDRP[mW]"       /*                                     */
+    "MDRP[m?]"       /*                                     */
+    "MDRP[mrG]"      /*                                     */
+    "MDRP[mrB]"      /*                                     */
+    "MDRP[mrW]"      /*                                     */
+    "MDRP[mr?]"      /*                                     */
+    "MDRP[pG]"       /*                                     */
+    "MDRP[pB]"       /*                                     */
 
-            "MDRP[pW]",
-            "MDRP[p?]",
-            "MDRP[prG]",
-            "MDRP[prB]",
-            "MDRP[prW]",
-            "MDRP[pr?]",
-            "MDRP[pmG]",
-            "MDRP[pmB]",
-            "MDRP[pmW]",
-            "MDRP[pm?]",
-            "MDRP[pmrG]",
-            "MDRP[pmrB]",
-            "MDRP[pmrW]",
-            "MDRP[pmr?]",
+    "MDRP[pW]"       /*                                     */
+    "MDRP[p?]"       /*                                     */
+    "MDRP[prG]"      /*                                     */
+    "MDRP[prB]"      /*                                     */
+    "MDRP[prW]"      /*                                     */
+    "MDRP[pr?]"      /*                                     */
+    "MDRP[pmG]"      /*                                     */
+    "MDRP[pmB]"      /*                                     */
+    "MDRP[pmW]"      /*                                     */
+    "MDRP[pm?]"      /*                                     */
+    "MDRP[pmrG]"     /*                                     */
+    "MDRP[pmrB]"     /*                                     */
+    "MDRP[pmrW]"     /*                                     */
+    "MDRP[pmr?]"     /*                                     */
 
-            "MIRP[G]",
-            "MIRP[B]",
-            "MIRP[W]",
-            "MIRP[?]",
-            "MIRP[rG]",
-            "MIRP[rB]",
-            "MIRP[rW]",
-            "MIRP[r?]",
-            "MIRP[mG]",
-            "MIRP[mB]",
-            "MIRP[mW]",
-            "MIRP[m?]",
-            "MIRP[mrG]",
-            "MIRP[mrB]",
-            "MIRP[mrW]",
-            "MIRP[mr?]",
-            "MIRP[pG]",
-            "MIRP[pB]",
+    "MIRP[G]"        /*                                     */
+    "MIRP[B]"        /*                                     */
+    "MIRP[W]"        /*                                     */
+    "MIRP[?]"        /*                                     */
+    "MIRP[rG]"       /*                                     */
+    "MIRP[rB]"       /*                                     */
+    "MIRP[rW]"       /*                                     */
+    "MIRP[r?]"       /*                                     */
+    "MIRP[mG]"       /*                                     */
+    "MIRP[mB]"       /*                                     */
+    "MIRP[mW]"       /*                                     */
+    "MIRP[m?]"       /*                                     */
+    "MIRP[mrG]"      /*                                     */
+    "MIRP[mrB]"      /*                                     */
+    "MIRP[mrW]"      /*                                     */
+    "MIRP[mr?]"      /*                                     */
+    "MIRP[pG]"       /*                                     */
+    "MIRP[pB]"       /*                                     */
 
-            "MIRP[pW]",
-            "MIRP[p?]",
-            "MIRP[prG]",
-            "MIRP[prB]",
-            "MIRP[prW]",
-            "MIRP[pr?]",
-            "MIRP[pmG]",
-            "MIRP[pmB]",
-            "MIRP[pmW]",
-            "MIRP[pm?]",
-            "MIRP[pmrG]",
-            "MIRP[pmrB]",
-            "MIRP[pmrW]",
-            "MIRP[pmr?]"
-          };
+    "MIRP[pW]"       /*                                     */
+    "MIRP[p?]"       /*                                     */
+    "MIRP[prG]"      /*                                     */
+    "MIRP[prB]"      /*                                     */
+    "MIRP[prW]"      /*                                     */
+    "MIRP[pr?]"      /*                                     */
+    "MIRP[pmG]"      /*                                     */
+    "MIRP[pmB]"      /*                                     */
+    "MIRP[pmW]"      /*                                     */
+    "MIRP[pm?]"      /*                                     */
+    "MIRP[pmrG]"     /*                                     */
+    "MIRP[pmrB]"     /*                                     */
+    "MIRP[pmrW]"     /*                                     */
+    "MIRP[pmr?]"     /*                                     */
+  };
 
 
-/*********************************************************************
- *
- * Init_Keyboard : set the input file descriptor to char-by-char
- *                 mode on Unix..
- *
- *********************************************************************/
+  /*********************************************************************
+   *
+   * Init_Keyboard: Set the input file descriptor to char-by-char
+   *                mode on Unix.
+   *
+   *********************************************************************/
 
 #ifdef UNIX
 
- struct termios  old_termio;
+  struct termios  old_termio;
 
- static
- void Init_Keyboard( void )
- {
-   struct termios  termio;
+
+  static
+  void Init_Keyboard( void )
+  {
+    struct termios  termio;
+
 
 #ifndef HAVE_TCGETATTR
-   ioctl( 0, TCGETS, &old_termio );
+    ioctl( 0, TCGETS, &old_termio );
 #else
-   tcgetattr( 0, &old_termio );
+    tcgetattr( 0, &old_termio );
 #endif
 
-   termio = old_termio;
+    termio = old_termio;
 
-/*   termio.c_lflag &= ~(ICANON+ECHO+ECHOE+ECHOK+ECHONL+ECHOKE); */
-   termio.c_lflag &= ~(ICANON+ECHO+ECHOE+ECHOK+ECHONL);
+#if 0
+    termio.c_lflag &= ~( ICANON + ECHO + ECHOE + ECHOK + ECHONL + ECHOKE );
+#else
+    termio.c_lflag &= ~( ICANON + ECHO + ECHOE + ECHOK + ECHONL );
+#endif
 
 #ifndef HAVE_TCSETATTR
-   ioctl( 0, TCSETS, &termio );
+    ioctl( 0, TCSETS, &termio );
 #else
-   tcsetattr( 0, TCSANOW, &termio );
+    tcsetattr( 0, TCSANOW, &termio );
 #endif
- }
-
- static
- void Reset_Keyboard( void )
- {
-#ifndef HAVE_TCSETATTR
-   ioctl( 0, TCSETS, &old_termio );
-#else
-   tcsetattr( 0, TCSANOW, &old_termio );
-#endif
-
- }
-
-#else
-
- static
- void Init_Keyboard( void )
- {
- }
-
- static
- void Reset_Keyboard( void )
- {
- }
-
-#endif
-
-
-  void Panic( const char* message )
-  {
-    fprintf( stderr, "%s\n  error code = 0x%04x\n", message, error );
-    Reset_Keyboard();
-    exit(1);
   }
 
 
-/******************************************************************
- *
- *  Function    :  Calc_Length
- *
- *  Description :  Computes the length in bytes of current opcode.
- *
- *****************************************************************/
+  static
+  void Reset_Keyboard( void )
+  {
+#ifndef HAVE_TCSETATTR
+    ioctl( 0, TCSETS, &old_termio );
+#else
+    tcsetattr( 0, TCSANOW, &old_termio );
+#endif
+  }
+
+#else /* !UNIX */
+
+  static
+  void Init_Keyboard( void )
+  {
+  }
+
+  static
+  void Reset_Keyboard( void )
+  {
+  }
+
+#endif /* !UNIX */
+
+
+  void
+  Panic( const char*  message )
+  {
+    fprintf( stderr, "%s\n  error code = 0x%04x\n", message, error );
+    Reset_Keyboard();
+    exit( 1 );
+  }
+
+
+  /******************************************************************
+   *
+   *  Function:    Calc_Length
+   *
+   *  Description: Compute the length in bytes of current opcode.
+   *
+   *****************************************************************/
 
 #define CUR  (*exc)
 
 
-  static void  Calc_Length( TT_ExecContext  exc )
+  static void
+  Calc_Length( TT_ExecContext  exc )
   {
     CUR.opcode = CUR.code[CUR.IP];
 
@@ -697,14 +730,14 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
     {
     case 0x40:
       if ( CUR.IP + 1 >= CUR.codeSize )
-        Panic( "code range overflow !!" );
+        Panic( "code range overflow!" );
 
       CUR.length = CUR.code[CUR.IP + 1] + 2;
       break;
 
     case 0x41:
       if ( CUR.IP + 1 >= CUR.codeSize )
-        Panic( "code range overflow !!" );
+        Panic( "code range overflow!" );
 
       CUR.length = CUR.code[CUR.IP + 1] * 2 + 2;
       break;
@@ -728,7 +761,7 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
     case 0xBD:
     case 0xBE:
     case 0xBF:
-      CUR.length = (CUR.opcode - 0xB8) * 2 + 3;
+      CUR.length = ( CUR.opcode - 0xB8 ) * 2 + 3;
       break;
 
     default:
@@ -739,99 +772,111 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
     /* make sure result is in range */
 
     if ( CUR.IP + CUR.length > CUR.codeSize )
-      Panic( "code range overflow !!" );
+      Panic( "code range overflow!" );
   }
 
 
-  /* Disassemble the current line */
-  /*                              */
-  const FT_String* Cur_U_Line( TT_ExecContext  exec )
+  /* Disassemble the current line. */
+  /*                               */
+  const FT_String*
+  Cur_U_Line( TT_ExecContext  exec )
   {
     FT_String  s[32];
-    FT_Int op, i, n;
+    FT_Int     op, i, n;
 
-    op = exec->code[ exec->IP ];
+
+    op = exec->code[exec->IP];
 
     sprintf( tempStr, "%s", OpStr[op] );
 
     if ( op == 0x40 )
     {
-      n = exec->code[ exec->IP+1 ];
+      n = exec->code[exec->IP + 1];
       sprintf( s, "(%d)", n );
       strncat( tempStr, s, 8 );
 
-      if ( n > 20 ) n = 20; /* limit output */
+      /* limit output */
+      if ( n > 20 )
+        n = 20;
 
       for ( i = 0; i < n; i++ )
       {
-        sprintf( s, " $%02x", (unsigned) exec->code[ exec->IP+i+2 ] );
+        sprintf( s, " $%02x", (unsigned)exec->code[exec->IP + i + 2] );
         strncat( tempStr, s, 8 );
       }
     }
     else if ( op == 0x41 )
     {
-      n = exec->code[ exec->IP+1 ];
+      n = exec->code[exec->IP + 1];
       sprintf( s, "(%d)", n );
       strncat( tempStr, s, 8 );
 
-      if (n > 20) n = 20; /* limit output */
+      /* limit output */
+      if ( n > 20 )
+        n = 20;
 
       for ( i = 0; i < n; i++ )
       {
-        sprintf( s, " $%02x%02x", (unsigned) exec->code[ exec->IP+i*2+2 ],
-                                  (unsigned) exec->code[ exec->IP+i*2+3 ] );
+        sprintf( s, " $%02x%02x",
+                    (unsigned)exec->code[exec->IP + i * 2 + 2],
+                    (unsigned)exec->code[exec->IP + i * 2 + 3] );
         strncat( tempStr, s, 8 );
       }
     }
-    else if ( (op & 0xF8) == 0xB0 )
+    else if ( ( op & 0xF8 ) == 0xB0 )
     {
-      n = op-0xB0;
-
-      for ( i=0; i <= n; i++ )
-      {
-        sprintf( s, " $%02x", (unsigned) exec->code[ exec->IP+i+1 ] );
-        strncat( tempStr, s, 8 );
-      }
-    }
-    else if ( (op & 0xF8) == 0xB8 )
-    {
-      n = op-0xB8;
+      n = op - 0xB0;
 
       for ( i = 0; i <= n; i++ )
       {
-        sprintf( s, " $%02x%02x", (unsigned) exec->code[ exec->IP+i*2+1 ],
-                                  (unsigned) exec->code[ exec->IP+i*2+2 ] );
+        sprintf( s, " $%02x", (unsigned) exec->code[exec->IP + i + 1] );
+        strncat( tempStr, s, 8 );
+      }
+    }
+    else if ( ( op & 0xF8 ) == 0xB8 )
+    {
+      n = op - 0xB8;
+
+      for ( i = 0; i <= n; i++ )
+      {
+        sprintf( s, " $%02x%02x",
+                    (unsigned)exec->code[exec->IP + i * 2 + 1],
+                    (unsigned)exec->code[exec->IP + i * 2 + 2] );
         strncat( tempStr, s, 8 );
       }
     }
     else if ( op == 0x39 )  /* IP */
     {
-        sprintf( s, " rp1=%d, rp2=%d", exec->GS.rp1, exec->GS.rp2 );
-        strncat( tempStr, s, 31 );
+      sprintf( s, " rp1=%d, rp2=%d", exec->GS.rp1, exec->GS.rp2 );
+      strncat( tempStr, s, 31 );
     }
 
     return (FT_String*)tempStr;
   }
 
 
-  static
-  int  old_tag_to_new( int  tag )
+  static int
+  old_tag_to_new( int  tag )
   {
     int  result = tag & 1;
-    if (tag & FT_Curve_Tag_Touch_X)
+
+
+    if ( tag & FT_Curve_Tag_Touch_X )
       result |= 2;
-    if (tag & FT_Curve_Tag_Touch_Y)
+    if ( tag & FT_Curve_Tag_Touch_Y )
       result |= 4;
 
     return result;
   }
 
-  static
-  FT_Error  RunIns( TT_ExecContext  exc )
+
+  static FT_Error
+  RunIns( TT_ExecContext  exc )
   {
-    FT_Int    A, diff, key;
-    FT_Long   next_IP;
-    FT_String ch, oldch = '\0', *temp;
+    FT_Int   A, diff, key;
+    FT_Long  next_IP;
+
+    FT_String  ch, oldch = '\0', *temp;
 
     FT_Error  error = 0;
 
@@ -851,22 +896,21 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
     };
 
     /* only debug the requested code range */
-    if (exc->curRange != (FT_Int)debug_coderange)
-      return TT_RunIns(exc);
+    if ( exc->curRange != (FT_Int)debug_coderange )
+      return TT_RunIns( exc );
 
     exc->pts.n_points   = exc->zp0.n_points;
     exc->pts.n_contours = exc->zp0.n_contours;
 
     pts = exc->pts;
 
-
     save.n_points   = pts.n_points;
     save.n_contours = pts.n_contours;
 
-    save.org   = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
-                                       save.n_points );
-    save.cur   = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
-                                       save.n_points );
+    save.org  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+                                    save.n_points );
+    save.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+                                    save.n_points );
     save.tags = (FT_Byte*)malloc( save.n_points );
 
     exc->instruction_trap = 1;
@@ -877,21 +921,21 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
       {
         Calc_Length( exc );
 
-        CUR.args = CUR.top - (Pop_Push_Count[CUR.opcode] >> 4);
+        CUR.args = CUR.top - ( Pop_Push_Count[CUR.opcode] >> 4 );
 
         /* `args' is the top of the stack once arguments have been popped. */
         /* One can also interpret it as the index of the last argument.    */
 
-        /* Print the current line.  We use a 80-columns console with the   */
+        /* Print the current line.  We use an 80-columns console with the  */
         /* following formatting:                                           */
         /*                                                                 */
         /* [loc]:[addr] [opcode]  [disassemby]          [a][b]|[c][d]      */
-        /*                                                                 */
 
         {
-          char      temp[80];
-          int       n, col, pop;
-          int       args = CUR.args;
+          char  temp[80];
+          int   n, col, pop;
+          int   args = CUR.args;
+
 
           sprintf( temp, "%78c\n", ' ' );
 
@@ -901,44 +945,48 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
           case tt_coderange_glyph:
             temp[0] = 'g';
             break;
+
           case tt_coderange_cvt:
             temp[0] = 'c';
             break;
+
           default:
             temp[0] = 'f';
           }
 
           /* current IP */
-          sprintf( temp+1, "%04lx: %02x  %-36.36s",
-                   CUR.IP,
-                   CUR.opcode,
-                   Cur_U_Line(&CUR) );
+          sprintf( temp + 1, "%04lx: %02x  %-36.36s",
+                             CUR.IP,
+                             CUR.opcode,
+                             Cur_U_Line( &CUR ) );
 
-          strncpy( temp+46, " (", 2 );
+          strncpy( temp + 46, " (", 2 );
 
           args = CUR.top - 1;
           pop  = Pop_Push_Count[CUR.opcode] >> 4;
           col  = 48;
 
           /* special case for IP */
-          if (CUR.opcode == 0x39)
-              pop = exc->GS.loop;
+          if ( CUR.opcode == 0x39 )
+            pop = exc->GS.loop;
 
           for ( n = 6; n > 0; n-- )
           {
             if ( pop == 0 )
-              temp[col-1] = (temp[col-1] == '(' ? ' ' : ')' );
+              temp[col - 1] = temp[col - 1] == '(' ? ' ' : ')';
 
             if ( args < CUR.top && args >= 0 )
-              sprintf( temp+col, "%04lx", CUR.stack[args] );
+              sprintf( temp + col, "%04lx", CUR.stack[args] );
             else
-              sprintf( temp+col, "    " );
+              sprintf( temp + col, "    " );
 
-            temp[col+4] = ' ';
-            col += 5;
+            temp[col + 4] = ' ';
+            col          += 5;
+
             pop--;
             args--;
           }
+
           temp[78] = '\n';
           temp[79] = '\0';
           printf( "%s", temp );
@@ -947,19 +995,19 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
         /* First, check for empty stack and overflow */
         if ( CUR.args < 0 )
         {
-          printf( "ERROR : Too Few Arguments\n" );
+          printf( "ERROR: Too Few Arguments\n" );
           CUR.error = TT_Err_Too_Few_Arguments;
           goto LErrorLabel_;
         }
 
-        CUR.new_top = CUR.args + (Pop_Push_Count[CUR.opcode] & 15);
+        CUR.new_top = CUR.args + ( Pop_Push_Count[CUR.opcode] & 15 );
 
-      /* new_top  is the new top of the stack, after the instruction's */
-      /* execution. top will be set to new_top after the 'case'        */
+        /* `new_top' is the new top of the stack, after the instruction's */
+        /* execution.  `top' will be set to `new_top' after the 'case'.   */
 
         if ( CUR.new_top > CUR.stackSize )
         {
-          printf( "ERROR : Stack overflow\n" );
+          printf( "ERROR: Stack overflow\n" );
           CUR.error = TT_Err_Stack_Overflow;
           goto LErrorLabel_;
         }
@@ -970,8 +1018,7 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
       key = 0;
       do
       {
-       /* read keyboard */
-
+        /* read keyboard */
         ch = getch();
 
         switch ( ch )
@@ -990,32 +1037,44 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
 
         /* Show vectors */
         case 'v':
-          printf( "freedom    (%04hx,%04hx)\n", exc->GS.freeVector.x,
-                                                exc->GS.freeVector.y );
-          printf( "projection (%04hx,%04hx)\n", exc->GS.projVector.x,
-                                                exc->GS.projVector.y );
-          printf( "dual       (%04hx,%04hx)\n\n", exc->GS.dualVector.x,
-                                                  exc->GS.dualVector.y );
+          printf( "freedom    (%04hx,%04hx)\n",
+                  exc->GS.freeVector.x,
+                  exc->GS.freeVector.y );
+          printf( "projection (%04hx,%04hx)\n",
+                  exc->GS.projVector.x,
+                  exc->GS.projVector.y );
+          printf( "dual       (%04hx,%04hx)\n\n",
+                  exc->GS.dualVector.x,
+                  exc->GS.dualVector.y );
           break;
 
         /* Show graphics state */
         case 'g':
-          printf( "rounding   %s\n", round_str[exc->GS.round_state] );
-          printf( "min dist   %04lx\n", exc->GS.minimum_distance );
-          printf( "cvt_cutin  %04lx\n", exc->GS.control_value_cutin );
-          printf( "RP 0,1,2   %4x %4x %4x\n", exc->GS.rp0, exc->GS.rp1, exc->GS.rp2 );
+          printf( "rounding   %s\n",
+                  round_str[exc->GS.round_state] );
+          printf( "min dist   %04lx\n",
+                  exc->GS.minimum_distance );
+          printf( "cvt_cutin  %04lx\n",
+                  exc->GS.control_value_cutin );
+          printf( "RP 0,1,2   %4x %4x %4x\n",
+                  exc->GS.rp0, exc->GS.rp1, exc->GS.rp2 );
           break;
 
         /* Show points table */
         case 'p':
           for ( A = 0; A < exc->pts.n_points; A++ )
           {
-            printf( "%3d  ", A );
-            printf( "(%6ld,%6ld) - ", pts.orus[A].x, pts.orus[A].y );
-            printf( "(%8ld,%8ld) - ", pts.org[A].x, pts.org[A].y );
-            printf( "(%8ld,%8ld)\n",  pts.cur[A].x, pts.cur[A].y );
+            printf( "%3d  ",
+                    A );
+            printf( "(%6ld,%6ld) - ",
+                    pts.orus[A].x, pts.orus[A].y );
+            printf( "(%8ld,%8ld) - ",
+                    pts.org[A].x, pts.org[A].y );
+            printf( "(%8ld,%8ld)\n",
+                    pts.cur[A].x, pts.cur[A].y );
           }
-          printf(( "\n" ));
+
+          printf( "\n" );
           break;
 
         default:
@@ -1023,12 +1082,12 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
         }
       } while ( !key );
 
-      FT_MEM_COPY( save.org,   pts.org, pts.n_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( save.cur,   pts.cur, pts.n_points * sizeof ( FT_Vector ) );
+      FT_MEM_COPY( save.org, pts.org, pts.n_points * sizeof ( FT_Vector ) );
+      FT_MEM_COPY( save.cur, pts.cur, pts.n_points * sizeof ( FT_Vector ) );
       FT_MEM_COPY( save.tags, pts.tags, pts.n_points );
 
-      /* a return indicate the last command */
-      if (ch == '\r')
+      /* a return indicates the last command */
+      if ( ch == '\r' )
         ch = oldch;
 
       switch ( ch )
@@ -1054,6 +1113,7 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
               goto LErrorLabel_;
           }
         }
+
         oldch = ch;
         break;
 
@@ -1064,60 +1124,95 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
       Step_into:
           if ( ( error = TT_RunIns( exc ) ) != 0 )
             goto LErrorLabel_;
+
         oldch = ch;
         break;
 
       default:
-        printf( "unknown command. Press ? for help\n" );
+        printf( "Unknown command.  Press ? for help\n" );
         oldch = '\0';
       }
 
       for ( A = 0; A < pts.n_points; A++ )
       {
         diff = 0;
-        if ( save.org[A].x != pts.org[A].x ) diff |= 1;
-        if ( save.org[A].y != pts.org[A].y ) diff |= 2;
-        if ( save.cur[A].x != pts.cur[A].x ) diff |= 4;
-        if ( save.cur[A].y != pts.cur[A].y ) diff |= 8;
-        if ( save.tags[A] != pts.tags[A] ) diff |= 16;
+        if ( save.org[A].x != pts.org[A].x )
+          diff |= 1;
+        if ( save.org[A].y != pts.org[A].y )
+          diff |= 2;
+        if ( save.cur[A].x != pts.cur[A].x )
+          diff |= 4;
+        if ( save.cur[A].y != pts.cur[A].y )
+          diff |= 8;
+        if ( save.tags[A] != pts.tags[A] )
+          diff |= 16;
 
         if ( diff )
         {
           printf( "%3d  ", A );
           printf( "%6ld,%6ld  ", pts.orus[A].x, pts.orus[A].y );
 
-          if ( diff & 16 ) temp = "(%01hx)"; else temp = " %01hx ";
-          printf( temp, old_tag_to_new(save.tags[A]) );
+          if ( diff & 16 )
+            temp = "(%01hx)";
+          else
+            temp = " %01hx ";
+          printf( temp, old_tag_to_new( save.tags[A] ) );
 
-          if ( diff & 1 ) temp = "(%8ld)"; else temp = " %8ld ";
+          if ( diff & 1 )
+            temp = "(%8ld)";
+          else
+            temp = " %8ld ";
           printf( temp, save.org[A].x );
 
-          if ( diff & 2 ) temp = "(%8ld)"; else temp = " %8ld ";
+          if ( diff & 2 )
+            temp = "(%8ld)";
+          else
+            temp = " %8ld ";
           printf( temp, save.org[A].y );
 
-          if ( diff & 4 ) temp = "(%8ld)"; else temp = " %8ld ";
+          if ( diff & 4 )
+            temp = "(%8ld)";
+          else temp = " %8ld ";
           printf( temp, save.cur[A].x );
 
-          if ( diff & 8 ) temp = "(%8ld)"; else temp = " %8ld ";
+          if ( diff & 8 )
+            temp = "(%8ld)";
+          else
+            temp = " %8ld ";
           printf( temp, save.cur[A].y );
 
           printf( "\n" );
 
           printf( "                    " );
 
-          if ( diff & 16 ) temp = "[%01hx]"; else temp = "  ";
-          printf( temp, old_tag_to_new(pts.tags[A]) );
+          if ( diff & 16 )
+            temp = "[%01hx]";
+          else
+            temp = "  ";
+          printf( temp, old_tag_to_new( pts.tags[A] ) );
 
-          if ( diff & 1 ) temp = "[%8ld]"; else temp = "          ";
+          if ( diff & 1 )
+            temp = "[%8ld]";
+          else
+            temp = "          ";
           printf( temp, pts.org[A].x );
 
-          if ( diff & 2 ) temp = "[%8ld]"; else temp = "          ";
+          if ( diff & 2 )
+            temp = "[%8ld]";
+          else
+            temp = "          ";
           printf( temp, pts.org[A].y );
 
-          if ( diff & 4 ) temp = "[%8ld]"; else temp = "          ";
+          if ( diff & 4 )
+            temp = "[%8ld]";
+          else
+            temp = "          ";
           printf( temp, pts.cur[A].x );
 
-          if ( diff & 8 ) temp = "[%8ld]"; else temp = "          ";
+          if ( diff & 8 )
+            temp = "[%8ld]";
+          else
+            temp = "          ";
           printf( temp, pts.cur[A].y );
 
           printf( "\n" );
@@ -1126,120 +1221,134 @@ TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
     } while ( TRUE );
 
   LErrorLabel_:
-
-    if (error)
+    if ( error )
       Panic( "error during execution" );
     return error;
   }
 
 
-
-
-
-  static
-  void Usage()
+  static void
+  Usage()
   {
-    fprintf( stderr, "ttdebug  -  a simply TrueType font debugger\n" );
-    fprintf( stderr, "(c) The FreeType project - www.freetype.org\n" );
-    fprintf( stderr, "-------------------------------------------\n\n" );
+    fprintf( stderr,
+             "ttdebug  -  a simple TrueType font debugger\n"
+             "(c) The FreeType project - www.freetype.org\n"
+             "-------------------------------------------\n"
+             "\n" );
+    fprintf( stderr,
+             "usage: ttdebug [options] glyph size fontfile[.ttf]\n"
+             "\n" );
+    fprintf( stderr,
+             "    glyph    - Glyph index within the font file.\n"
+             "               Can be negative to query the debugging of the\n"
+             "               font's `cvt' program\n"
+             "\n" );
+    fprintf( stderr,
+             "    size     - Size of glyph in pixels\n"
+             "\n" );
+    fprintf( stderr,
+             "    fontfile - a valid TrueType file.\n"
+             "\n" );
+    fprintf( stderr,
+             "  options:\n"
+             "\n"
+             "    -d  Dump mode.  Show the glyph program and exit immediately\n"
+             "    -n  Non-interactive mode.  Dump the execution trace and exit\n" );
 
-    fprintf( stderr, "usage :   ttdebug  [options]  glyph  size  fontfile[.ttf]\n\n" );
-
-    fprintf( stderr, "    glyph - glyph index within the font file. Can be negative to query \n" );
-    fprintf( stderr, "            the debugging of the font 'cvt' program\n\n" );
-
-    fprintf( stderr, "    size - size of glyph in pixels\n\n" );
-
-    fprintf( stderr, "    fontfile - a valid TrueType file.\n\n" );
-
-    fprintf( stderr, "  valid options are:\n\n" );
-    fprintf( stderr, "    -d    : Dump mode. Shows the glyph program and exit immediately\n" );
-    fprintf( stderr, "    -n    : Non-interactive mode. Dumps the execution trace and exit\n" );
-
-    exit(1);
+    exit( 1 );
   }
 
 
-int    dump_mode;
-int    non_interactive_mode;
-char*  file_name;
-int    glyph_index;
-int    glyph_size;
+  int    dump_mode;
+  int    non_interactive_mode;
 
-  int  main( int argc, char**  argv )
+  char*  file_name;
+  int    glyph_index;
+  int    glyph_size;
+
+
+  int
+  main( int     argc,
+        char**  argv )
   {
     char  valid;
 
-    /* Check number of arguments */
-    if ( argc < 4 ) Usage();
 
-    /* Check options */
+    /* check number of arguments */
+    if ( argc < 4 )
+      Usage();
+
+    /* check options */
     dump_mode            = 0;
     non_interactive_mode = 0;
 
     argv++;
-    while (argv[0][0] == '-')
+    while ( argv[0][0] == '-' )
     {
       valid = 0;
-      switch (argv[0][1])
+      switch ( argv[0][1] )
       {
-        case 'd':
-          dump_mode = 1;
-          valid     = 1;
-          break;
+      case 'd':
+        dump_mode = 1;
+        valid     = 1;
+        break;
 
-        case 'n':
-          non_interactive_mode = 1;
-          valid                = 1;
-          break;
+      case 'n':
+        non_interactive_mode = 1;
+        valid                = 1;
+        break;
 
-        default:
-          ;
+      default:
+        break;
       }
 
-      if (valid)
+      if ( valid )
       {
         argv++;
         argc--;
-        if (argc < 4) Usage();
+        if ( argc < 4 )
+          Usage();
       }
       else
         break;
     }
 
-    /* Get Glyph index */
+    /* get glyph index */
     if ( sscanf( argv[0], "%d", &glyph_index ) != 1 )
     {
       printf( "invalid glyph index = %s\n", argv[1] );
       Usage();
     }
 
-    /* Get Glyph size */
+    /* get glyph size */
     if ( sscanf( argv[1], "%d", &glyph_size ) != 1 )
     {
       printf( "invalid glyph size = %s\n", argv[1] );
       Usage();
     }
 
-    /* Get file name */
+    /* get file name */
     file_name = argv[2];
 
     Init_Keyboard();
 
-    /* Init library, read face object, get driver, create size */
+    /* init library, read face object, get driver, create size */
     error = FT_Init_FreeType( &library );
-    if (error) Panic( "could not initialise FreeType library" );
+    if ( error )
+      Panic( "could not initialize FreeType library" );
 
     memory = library->memory;
     driver = (FT_Driver)FT_Get_Module( library, "truetype" );
-    if (!driver) Panic( "could not find the TrueType driver in FreeType 2\n" );
+    if ( !driver )
+      Panic( "could not find the TrueType driver in FreeType 2\n" );
 
     FT_Set_Debug_Hook( library,
                        FT_DEBUG_HOOK_TRUETYPE,
                        (FT_DebugHook_Func)RunIns );
 
     error = FT_New_Face( library, file_name, 0, (FT_Face*)&face );
-    if (error) Panic( "could not open font resource" );
+    if ( error )
+      Panic( "could not open input font file" );
 
     /* find driver and check format */
     if ( face->root.driver != driver )
@@ -1250,27 +1359,39 @@ int    glyph_size;
 
     size = (TT_Size)face->root.size;
 
-    if (glyph_index < 0)
+    if ( glyph_index < 0 )
     {
       exec = TT_New_Context( (TT_Driver)face->root.driver );
+
       size->debug   = 1;
       size->context = exec;
 
-      error = FT_Set_Char_Size( (FT_Face)face, glyph_size << 6, glyph_size << 6, 72, 72 );
-      if (error) Panic( "could not set character sizes" );
+      error = FT_Set_Char_Size( (FT_Face)face,
+                                glyph_size << 6, glyph_size << 6,
+                                72, 72 );
+      if ( error )
+        Panic( "could not set character size" );
     }
     else
     {
-      error = FT_Set_Char_Size( (FT_Face)face, glyph_size << 6, glyph_size << 6, 72, 72 );
-      if (error) Panic( "could not set character sizes" );
+      error = FT_Set_Char_Size( (FT_Face)face,
+                                glyph_size << 6, glyph_size << 6,
+                                72, 72 );
+      if ( error )
+        Panic( "could not set character size" );
 
       glyph = (TT_GlyphSlot)face->root.glyph;
 
-      /* Now load glyph */
+      /* now load glyph */
       error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
-      if (error) Panic( "could not load glyph" );
+      if ( error )
+        Panic( "could not load glyph" );
     }
 
     Reset_Keyboard();
+
     return 0;
   }
+
+
+/* End */
