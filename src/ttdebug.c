@@ -376,7 +376,7 @@
     "SFVFS",         /* set free. vec. from stack           */
     "GPV",           /* get projection vector               */
     "GFV",           /* get freedom vector                  */
-    "SFVTPV"         /* set free. vec. to proj. vec.        */
+    "SFVTPV",        /* set free. vec. to proj. vec.        */
     "ISECT",         /* compute intersection                */
 
     "SRP0",          /* set reference point 0               */
