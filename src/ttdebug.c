@@ -779,19 +779,19 @@
   /* Disassemble the current line. */
   /*                               */
   const FT_String*
-  Cur_U_Line( TT_ExecContext  exec )
+  Cur_U_Line( TT_ExecContext  exc )
   {
     FT_String  s[32];
     FT_Int     op, i, n;
 
 
-    op = exec->code[exec->IP];
+    op = CUR.code[CUR.IP];
 
     sprintf( tempStr, "%s", OpStr[op] );
 
     if ( op == 0x40 )
     {
-      n = exec->code[exec->IP + 1];
+      n = CUR.code[CUR.IP + 1];
       sprintf( s, "(%d)", n );
       strncat( tempStr, s, 8 );
 
@@ -801,13 +801,13 @@
 
       for ( i = 0; i < n; i++ )
       {
-        sprintf( s, " $%02x", (unsigned)exec->code[exec->IP + i + 2] );
+        sprintf( s, " $%02x", (unsigned)CUR.code[CUR.IP + i + 2] );
         strncat( tempStr, s, 8 );
       }
     }
     else if ( op == 0x41 )
     {
-      n = exec->code[exec->IP + 1];
+      n = CUR.code[CUR.IP + 1];
       sprintf( s, "(%d)", n );
       strncat( tempStr, s, 8 );
 
@@ -818,8 +818,8 @@
       for ( i = 0; i < n; i++ )
       {
         sprintf( s, " $%02x%02x",
-                    (unsigned)exec->code[exec->IP + i * 2 + 2],
-                    (unsigned)exec->code[exec->IP + i * 2 + 3] );
+                    (unsigned)CUR.code[CUR.IP + i * 2 + 2],
+                    (unsigned)CUR.code[CUR.IP + i * 2 + 3] );
         strncat( tempStr, s, 8 );
       }
     }
@@ -829,7 +829,7 @@
 
       for ( i = 0; i <= n; i++ )
       {
-        sprintf( s, " $%02x", (unsigned) exec->code[exec->IP + i + 1] );
+        sprintf( s, " $%02x", (unsigned)CUR.code[CUR.IP + i + 1] );
         strncat( tempStr, s, 8 );
       }
     }
@@ -840,14 +840,14 @@
       for ( i = 0; i <= n; i++ )
       {
         sprintf( s, " $%02x%02x",
-                    (unsigned)exec->code[exec->IP + i * 2 + 1],
-                    (unsigned)exec->code[exec->IP + i * 2 + 2] );
+                    (unsigned)CUR.code[CUR.IP + i * 2 + 1],
+                    (unsigned)CUR.code[CUR.IP + i * 2 + 2] );
         strncat( tempStr, s, 8 );
       }
     }
     else if ( op == 0x39 )  /* IP */
     {
-      sprintf( s, " rp1=%d, rp2=%d", exec->GS.rp1, exec->GS.rp2 );
+      sprintf( s, " rp1=%d, rp2=%d", CUR.GS.rp1, CUR.GS.rp2 );
       strncat( tempStr, s, 31 );
     }
 
@@ -876,9 +876,7 @@
     FT_Int   A, diff, key;
     FT_Long  next_IP;
 
-    FT_String  ch, oldch = '\0', *temp;
-
-    FT_Error  error = 0;
+    FT_String  ch, oldch = '\0';
 
     TT_GlyphZoneRec  save;
     TT_GlyphZoneRec  pts;
@@ -894,6 +892,9 @@
       "super",
       "super 45"
     };
+
+
+    error = FT_Err_Ok;
 
     /* only debug the requested code range */
     if ( exc->curRange != (FT_Int)debug_coderange )
@@ -1149,6 +1150,9 @@
 
         if ( diff )
         {
+          const FT_String*  temp;
+
+
           printf( "%3d  ", A );
           printf( "%6ld,%6ld  ", pts.orus[A].x, pts.orus[A].y );
 
@@ -1228,7 +1232,7 @@
 
 
   static void
-  Usage()
+  Usage( void )
   {
     fprintf( stderr,
              "ttdebug  -  a simple TrueType font debugger\n"

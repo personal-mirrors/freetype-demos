@@ -1,5 +1,14 @@
 2013-02-05  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Fix compilation warnings.
+
+	* src/ttdebug.c (Cur_U_Line): Use `CUR' macro.
+	(RunIns): Use global `error' variable.
+	Use a const `temp' pointer locally.
+	(Usage): Fix declaration.
+
+2013-02-05  Werner Lemberg  <wl@gnu.org>
+
 	* src/ttdebug.c: Formatting, improving messages.
 
 2013-01-28  Werner Lemberg  <wl@gnu.org>
