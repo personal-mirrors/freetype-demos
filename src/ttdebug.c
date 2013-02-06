@@ -897,13 +897,13 @@
     error = FT_Err_Ok;
 
     /* only debug the requested code range */
-    if ( exc->curRange != (FT_Int)debug_coderange )
+    if ( CUR.curRange != (FT_Int)debug_coderange )
       return TT_RunIns( exc );
 
-    exc->pts.n_points   = exc->zp0.n_points;
-    exc->pts.n_contours = exc->zp0.n_contours;
+    CUR.pts.n_points   = CUR.zp0.n_points;
+    CUR.pts.n_contours = CUR.zp0.n_contours;
 
-    pts = exc->pts;
+    pts = CUR.pts;
 
     save.n_points   = pts.n_points;
     save.n_contours = pts.n_contours;
@@ -914,7 +914,7 @@
                                     save.n_points );
     save.tags = (FT_Byte*)malloc( save.n_points );
 
-    exc->instruction_trap = 1;
+    CUR.instruction_trap = 1;
 
     do
     {
@@ -969,7 +969,7 @@
 
           /* special case for IP */
           if ( CUR.opcode == 0x39 )
-            pop = exc->GS.loop;
+            pop = CUR.GS.loop;
 
           for ( n = 6; n > 0; n-- )
           {
@@ -1039,31 +1039,31 @@
         /* Show vectors */
         case 'v':
           printf( "freedom    (%04hx,%04hx)\n",
-                  exc->GS.freeVector.x,
-                  exc->GS.freeVector.y );
+                  CUR.GS.freeVector.x,
+                  CUR.GS.freeVector.y );
           printf( "projection (%04hx,%04hx)\n",
-                  exc->GS.projVector.x,
-                  exc->GS.projVector.y );
+                  CUR.GS.projVector.x,
+                  CUR.GS.projVector.y );
           printf( "dual       (%04hx,%04hx)\n\n",
-                  exc->GS.dualVector.x,
-                  exc->GS.dualVector.y );
+                  CUR.GS.dualVector.x,
+                  CUR.GS.dualVector.y );
           break;
 
         /* Show graphics state */
         case 'g':
           printf( "rounding   %s\n",
-                  round_str[exc->GS.round_state] );
+                  round_str[CUR.GS.round_state] );
           printf( "min dist   %04lx\n",
-                  exc->GS.minimum_distance );
+                  CUR.GS.minimum_distance );
           printf( "cvt_cutin  %04lx\n",
-                  exc->GS.control_value_cutin );
+                  CUR.GS.control_value_cutin );
           printf( "RP 0,1,2   %4x %4x %4x\n",
-                  exc->GS.rp0, exc->GS.rp1, exc->GS.rp2 );
+                  CUR.GS.rp0, CUR.GS.rp1, CUR.GS.rp2 );
           break;
 
         /* Show points table */
         case 'p':
-          for ( A = 0; A < exc->pts.n_points; A++ )
+          for ( A = 0; A < CUR.pts.n_points; A++ )
           {
             printf( "%3d  ",
                     A );
@@ -1099,7 +1099,7 @@
 
       /* Step over */
       case 'n':
-        if ( exc->IP < exc->codeSize )
+        if ( CUR.IP < CUR.codeSize )
         {
           /* `step over' is equivalent to `step into' except if  */
           /* the current opcode is a CALL or LOOPCALL            */
@@ -1108,7 +1108,7 @@
 
           /* otherwise, loop execution until we reach the next opcode */
           next_IP = CUR.IP + CUR.length;
-          while ( exc->IP != next_IP )
+          while ( CUR.IP != next_IP )
           {
             if ( ( error = TT_RunIns( exc ) ) != 0 )
               goto LErrorLabel_;
@@ -1120,7 +1120,7 @@
 
       /* Step into */
       case 's':
-        if ( exc->IP < exc->codeSize )
+        if ( CUR.IP < CUR.codeSize )
 
       Step_into:
           if ( ( error = TT_RunIns( exc ) ) != 0 )
