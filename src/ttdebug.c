@@ -59,6 +59,9 @@
 #include "tterrors.h"
 
 
+#define Quit  -1
+
+
   FT_Library      library;    /* root library object */
   FT_Memory       memory;     /* system object */
   FT_Driver       driver;     /* truetype driver */
@@ -1101,6 +1104,7 @@
       {
       /* quit debugger */
       case 'q':
+        error = Quit;
         goto LErrorLabel_;
 
       /* continue */
@@ -1244,7 +1248,7 @@
     } while ( TRUE );
 
   LErrorLabel_:
-    if ( error )
+    if ( error && error != Quit )
       Panic( "error during execution" );
     return error;
   }
@@ -1389,7 +1393,7 @@
 
     /* now load glyph */
     error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
-    if ( error )
+    if ( error && error != Quit )
       Panic( "could not load glyph" );
 
     Reset_Keyboard();

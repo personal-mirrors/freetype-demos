@@ -1,5 +1,12 @@
 2013-02-06  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Make `q' work correctly.
+
+	* src/ttdebug.c (Quit): New macro.
+	(RunIns, main): Handle `Quit'.
+
+2013-02-06  Werner Lemberg  <wl@gnu.org>
+
 	* src/ttdebug.c (RunIns): Slightly beautify output.
 	(Usage): Mention help key.
 
