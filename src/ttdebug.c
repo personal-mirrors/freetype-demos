@@ -50,6 +50,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include "common.h"
 
   /* The following header shouldn't be used in normal programs.    */
   /* `freetype2/src/truetype' must be in the current include path. */
@@ -703,7 +704,7 @@
 
 
   void
-  Panic( const char*  message )
+  Abort( const char*  message )
   {
     fprintf( stderr, "%s\n  error code = 0x%04x\n", message, error );
     Reset_Keyboard();
@@ -731,14 +732,14 @@
     {
     case 0x40:
       if ( CUR.IP + 1 >= CUR.codeSize )
-        Panic( "code range overflow!" );
+        Abort( "code range overflow!" );
 
       CUR.length = CUR.code[CUR.IP + 1] + 2;
       break;
 
     case 0x41:
       if ( CUR.IP + 1 >= CUR.codeSize )
-        Panic( "code range overflow!" );
+        Abort( "code range overflow!" );
 
       CUR.length = CUR.code[CUR.IP + 1] * 2 + 2;
       break;
@@ -773,7 +774,7 @@
     /* make sure result is in range */
 
     if ( CUR.IP + CUR.length > CUR.codeSize )
-      Panic( "code range overflow!" );
+      Abort( "code range overflow!" );
   }
 
 
@@ -1249,42 +1250,35 @@
 
   LErrorLabel_:
     if ( error && error != Quit )
-      Panic( "error during execution" );
+      Abort( "error during execution" );
     return error;
   }
 
 
   static void
-  Usage( void )
+  Usage( char* execname )
   {
     fprintf( stderr,
-             "ttdebug - a simple TrueType font debugger\n"
-             "(c) The FreeType project - www.freetype.org\n"
-             "-------------------------------------------\n"
-             "\n" );
+      "\n"
+      "ttdebug: simple TTF debugger -- part of the FreeType project\n"
+      "------------------------------------------------------------\n"
+      "\n" );
     fprintf( stderr,
-             "usage: ttdebug [options] idx size font\n"
-             "\n" );
+      "Usage: %s [options] idx size font\n"
+      "\n", execname );
     fprintf( stderr,
-             "    idx   index of a glyph in the font file\n"
-             "    size  the size of the glyph in pixels (ppem)\n"
-             "    font  a TrueType font file\n"
-             "\n" );
-    fprintf( stderr,
-             "  options:\n"
-             "\n"
-             "    -d  dump mode; show the glyph program and exit immediately\n"
-             "    -n  non-interactive mode; dump the execution trace and exit\n"
-             "\n" );
-    fprintf( stderr,
-             "While running, press the `?' key for help.\n" );
+      "  idx       The index of the glyph to debug.\n"
+      "  size      The size of the glyph in pixels (ppem).\n"
+      "  font      The TrueType font file to debug.\n"
+      "\n"
+      "  -v        Show version.\n"
+      "\n"
+      "While running, press the `?' key for help.\n"
+      "\n" );
 
     exit( 1 );
   }
 
-
-  int  dump_mode;
-  int  non_interactive_mode;
 
   char*  file_name;
   int    glyph_index;
@@ -1295,60 +1289,65 @@
   main( int     argc,
         char**  argv )
   {
-    char  valid;
+    char*  execname;
+    int    option;
 
 
-    /* check number of arguments */
-    if ( argc < 4 )
-      Usage();
+    /* init library, read face object, get driver, create size */
+    error = FT_Init_FreeType( &library );
+    if ( error )
+      Abort( "could not initialize FreeType library" );
 
-    /* check options */
-    dump_mode            = 0;
-    non_interactive_mode = 0;
+    execname = ft_basename( argv[0] );
 
-    argv++;
-    while ( argv[0][0] == '-' )
+    while ( 1 )
     {
-      valid = 0;
-      switch ( argv[0][1] )
-      {
-      case 'd':
-        dump_mode = 1;
-        valid     = 1;
+      option = getopt( argc, argv, "v" );
+
+      if ( option == -1 )
         break;
 
-      case 'n':
-        non_interactive_mode = 1;
-        valid                = 1;
+      switch ( option )
+      {
+      case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( library, &major, &minor, &patch );
+
+          printf( "ttdebug (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
         break;
 
       default:
+        Usage( execname );
         break;
       }
-
-      if ( valid )
-      {
-        argv++;
-        argc--;
-        if ( argc < 4 )
-          Usage();
-      }
-      else
-        break;
     }
+
+    argc -= optind;
+    argv += optind;
+
+    if ( argc < 3 )
+      Usage( execname );
 
     /* get glyph index */
     if ( sscanf( argv[0], "%d", &glyph_index ) != 1 )
     {
       printf( "invalid glyph index = %s\n", argv[1] );
-      Usage();
+      Usage( execname );
     }
 
     /* get glyph size */
     if ( sscanf( argv[1], "%d", &glyph_size ) != 1 )
     {
       printf( "invalid glyph size = %s\n", argv[1] );
-      Usage();
+      Usage( execname );
     }
 
     /* get file name */
@@ -1356,15 +1355,10 @@
 
     Init_Keyboard();
 
-    /* init library, read face object, get driver, create size */
-    error = FT_Init_FreeType( &library );
-    if ( error )
-      Panic( "could not initialize FreeType library" );
-
     memory = library->memory;
     driver = (FT_Driver)FT_Get_Module( library, "truetype" );
     if ( !driver )
-      Panic( "could not find the TrueType driver in FreeType 2\n" );
+      Abort( "could not find the TrueType driver in FreeType 2\n" );
 
     FT_Set_Debug_Hook( library,
                        FT_DEBUG_HOOK_TRUETYPE,
@@ -1372,13 +1366,13 @@
 
     error = FT_New_Face( library, file_name, 0, (FT_Face*)&face );
     if ( error )
-      Panic( "could not open input font file" );
+      Abort( "could not open input font file" );
 
     /* find driver and check format */
     if ( face->root.driver != driver )
     {
       error = FT_Err_Invalid_File_Format;
-      Panic( "This is not a TrueType font" );
+      Abort( "This is not a TrueType font" );
     }
 
     size = (TT_Size)face->root.size;
@@ -1387,14 +1381,14 @@
                               glyph_size << 6, glyph_size << 6,
                               72, 72 );
     if ( error )
-      Panic( "could not set character size" );
+      Abort( "could not set character size" );
 
     glyph = (TT_GlyphSlot)face->root.glyph;
 
     /* now load glyph */
     error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
     if ( error && error != Quit )
-      Panic( "could not load glyph" );
+      Abort( "could not load glyph" );
 
     Reset_Keyboard();
 

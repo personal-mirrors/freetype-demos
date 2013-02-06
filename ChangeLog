@@ -1,5 +1,20 @@
 2013-02-06  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Remove options `-n' and `d'; add `-v' to show version.
+
+	* src/ttdebug.c: Include `common.h'.
+	(Panic): Renamed to...
+	(Abort): This to avoid name clash.
+	(dump_mode, non_interactive_mode): Removed.  Unused.
+	(main): Use `getopt'.
+	Implement `-v' to show FreeType version.
+	(Usage): Updated and synchronized with other usage messages from
+	FreeType demo programs.
+
+	* Makefile (ttdebug$E): Updated to use `common.c'.
+
+2013-02-06  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Make `q' work correctly.
 
 	* src/ttdebug.c (Quit): New macro.

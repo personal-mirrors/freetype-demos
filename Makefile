@@ -490,8 +490,8 @@ else
   $(BIN_DIR_2)/t1dump$E: $(OBJ_DIR_2)/t1dump.$(SO) $(FTLIB)
 	  $(LINK)
 
-  $(BIN_DIR_2)/ttdebug$E: $(OBJ_DIR_2)/ttdebug.$(SO) $(FTLIB)
-	  $(LINK)
+  $(BIN_DIR_2)/ttdebug$E: $(OBJ_DIR_2)/ttdebug.$(SO) $(FTLIB) $(COMMON_OBJ)
+	  $(LINK_COMMON)
 
   $(BIN_DIR_2)/testname$E: $(OBJ_DIR_2)/testname.$(SO) $(FTLIB)
 	  $(LINK)
