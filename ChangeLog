@@ -1,5 +1,24 @@
 2013-02-06  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Make it work again (partially).
+
+	Since we now have lazy execution of the `prep' bytecode, the old
+	ttdebug code no longer could debug it.
+
+	The new code debugs `fpgm', `prep', and the glyph's bytecode in one
+	run.  To facilitate it,  it also adds a new `c' key to continue to
+	the next code range.
+
+	* src/ttdebug.c (debug_coderange): Removed.
+	(RunIns): Always run debugger.
+	Report `end of program' only after glyph program.
+	Update output of `?' key.
+	Handle `c' key to loop until end of code range is reached.
+	(Usage): Updated.
+	(main): Don't handle negative glyph indices.
+
+2013-02-06  Werner Lemberg  <wl@gnu.org>
+
 	* src/ttdebug.c: s/exc->/CUR./.
 
 2013-02-05  Werner Lemberg  <wl@gnu.org>

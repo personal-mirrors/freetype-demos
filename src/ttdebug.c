@@ -69,8 +69,6 @@
 
   FT_Error  error;
 
-  TT_CodeRange_Tag  debug_coderange = tt_coderange_glyph;
-
   typedef char  ByteStr[2];
   typedef char  WordStr[4];
   typedef char  LongStr[8];
@@ -896,10 +894,6 @@
 
     error = FT_Err_Ok;
 
-    /* only debug the requested code range */
-    if ( CUR.curRange != (FT_Int)debug_coderange )
-      return TT_RunIns( exc );
-
     CUR.pts.n_points   = CUR.zp0.n_points;
     CUR.pts.n_contours = CUR.zp0.n_contours;
 
@@ -1014,7 +1008,15 @@
         }
       }
       else
-        printf( "End of program reached.\n" );
+      {
+        if ( CUR.curRange == tt_coderange_glyph )
+          printf( "End of program reached.\n" );
+        else
+        {
+          printf( "\n" );
+          goto LErrorLabel_;
+        }
+      }
 
       key = 0;
       do
@@ -1026,14 +1028,18 @@
         {
         /* Help - show keybindings */
         case '?':
-          printf( "TTDebug Help\n\n" );
-          printf( "?   Show this page\n" );
-          printf( "q   Quit debugger\n" );
-          printf( "n   Skip to next instruction\n" );
-          printf( "s   Step into\n" );
-          printf( "v   Show vector info\n" );
-          printf( "g   Show graphics state\n" );
-          printf( "p   Show points zone\n\n" );
+          printf( "\n"
+                  "ttdebug Help\n"
+                  "\n"
+                  "?   show this page\n"
+                  "q   quit debugger\n"
+                  "c   continue to next code range\n"
+                  "n   skip to next instruction\n"
+                  "s   step into\n"
+                  "v   show vector info\n"
+                  "g   show graphics state\n"
+                  "p   show points zone\n"
+                  "\n" );
           break;
 
         /* Show vectors */
@@ -1093,16 +1099,28 @@
 
       switch ( ch )
       {
-      /* Quit debugger */
+      /* quit debugger */
       case 'q':
         goto LErrorLabel_;
 
-      /* Step over */
+      /* continue */
+      case 'c':
+        if ( CUR.IP < CUR.codeSize )
+        {
+          /* loop execution until we reach end of current code range */
+          while ( CUR.IP < CUR.codeSize )
+          {
+            if ( ( error = TT_RunIns( exc ) ) != 0 )
+              goto LErrorLabel_;
+          }
+        }
+
+      /* step over */
       case 'n':
         if ( CUR.IP < CUR.codeSize )
         {
-          /* `step over' is equivalent to `step into' except if  */
-          /* the current opcode is a CALL or LOOPCALL            */
+          /* `step over' is equivalent to `step into' except if */
+          /* the current opcode is a CALL or LOOPCALL           */
           if ( CUR.opcode != 0x2a && CUR.opcode != 0x2b )
             goto Step_into;
 
@@ -1118,7 +1136,7 @@
         oldch = ch;
         break;
 
-      /* Step into */
+      /* step into */
       case 's':
         if ( CUR.IP < CUR.codeSize )
 
@@ -1235,36 +1253,30 @@
   Usage( void )
   {
     fprintf( stderr,
-             "ttdebug  -  a simple TrueType font debugger\n"
+             "ttdebug - a simple TrueType font debugger\n"
              "(c) The FreeType project - www.freetype.org\n"
              "-------------------------------------------\n"
              "\n" );
     fprintf( stderr,
-             "usage: ttdebug [options] glyph size fontfile[.ttf]\n"
+             "usage: ttdebug [options] idx size font\n"
              "\n" );
     fprintf( stderr,
-             "    glyph    - Glyph index within the font file.\n"
-             "               Can be negative to query the debugging of the\n"
-             "               font's `cvt' program\n"
-             "\n" );
-    fprintf( stderr,
-             "    size     - Size of glyph in pixels\n"
-             "\n" );
-    fprintf( stderr,
-             "    fontfile - a valid TrueType file.\n"
+             "    idx   index of a glyph in the font file\n"
+             "    size  the size of the glyph in pixels (ppem)\n"
+             "    font  a TrueType font file\n"
              "\n" );
     fprintf( stderr,
              "  options:\n"
              "\n"
-             "    -d  Dump mode.  Show the glyph program and exit immediately\n"
-             "    -n  Non-interactive mode.  Dump the execution trace and exit\n" );
+             "    -d  dump mode; show the glyph program and exit immediately\n"
+             "    -n  non-interactive mode; dump the execution trace and exit\n" );
 
     exit( 1 );
   }
 
 
-  int    dump_mode;
-  int    non_interactive_mode;
+  int  dump_mode;
+  int  non_interactive_mode;
 
   char*  file_name;
   int    glyph_index;
@@ -1363,34 +1375,18 @@
 
     size = (TT_Size)face->root.size;
 
-    if ( glyph_index < 0 )
-    {
-      exec = TT_New_Context( (TT_Driver)face->root.driver );
+    error = FT_Set_Char_Size( (FT_Face)face,
+                              glyph_size << 6, glyph_size << 6,
+                              72, 72 );
+    if ( error )
+      Panic( "could not set character size" );
 
-      size->debug   = 1;
-      size->context = exec;
+    glyph = (TT_GlyphSlot)face->root.glyph;
 
-      error = FT_Set_Char_Size( (FT_Face)face,
-                                glyph_size << 6, glyph_size << 6,
-                                72, 72 );
-      if ( error )
-        Panic( "could not set character size" );
-    }
-    else
-    {
-      error = FT_Set_Char_Size( (FT_Face)face,
-                                glyph_size << 6, glyph_size << 6,
-                                72, 72 );
-      if ( error )
-        Panic( "could not set character size" );
-
-      glyph = (TT_GlyphSlot)face->root.glyph;
-
-      /* now load glyph */
-      error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
-      if ( error )
-        Panic( "could not load glyph" );
-    }
+    /* now load glyph */
+    error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
+    if ( error )
+      Panic( "could not load glyph" );
 
     Reset_Keyboard();
 
