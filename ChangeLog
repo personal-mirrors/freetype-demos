@@ -1,5 +1,10 @@
 2013-02-06  Werner Lemberg  <wl@gnu.org>
 
+	* src/ttdebug.c (RunIns): Slightly beautify output.
+	(Usage): Mention help key.
+
+2013-02-06  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Make it work again (partially).
 
 	Since we now have lazy execution of the `prep' bytecode, the old

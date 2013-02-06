@@ -1194,7 +1194,8 @@
 
           if ( diff & 4 )
             temp = "(%8ld)";
-          else temp = " %8ld ";
+          else
+            temp = " %8ld ";
           printf( temp, save.cur[A].x );
 
           if ( diff & 8 )
@@ -1210,7 +1211,7 @@
           if ( diff & 16 )
             temp = "[%01hx]";
           else
-            temp = "  ";
+            temp = "   ";
           printf( temp, old_tag_to_new( pts.tags[A] ) );
 
           if ( diff & 1 )
@@ -1269,7 +1270,10 @@
              "  options:\n"
              "\n"
              "    -d  dump mode; show the glyph program and exit immediately\n"
-             "    -n  non-interactive mode; dump the execution trace and exit\n" );
+             "    -n  non-interactive mode; dump the execution trace and exit\n"
+             "\n" );
+    fprintf( stderr,
+             "While running, press the `?' key for help.\n" );
 
     exit( 1 );
   }
