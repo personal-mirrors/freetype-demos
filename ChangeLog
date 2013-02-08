@@ -1,5 +1,12 @@
 2013-02-08  Werner Lemberg  <wl@gnu.org>
 
+	[ftdiff] Simplify option handling.
+
+	* src/ftdiff.c (get_option_arg): Removed.
+	(main): Use `getopt'.
+
+2013-02-08  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftcommon.c, src/ftcommon.h (FTDemo_New): Take no parameter.
 
 	* src/ftgrid.c, src/ftstring.c, src/ftview.c: Updated.

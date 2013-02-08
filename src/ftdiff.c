@@ -1162,29 +1162,6 @@
   }
 
 
-  static char*
-  get_option_arg( char*   option,
-                  char** *pargv,
-                  char**  argend,
-                  char*   execname )
-  {
-    if ( option[2] == 0 )
-    {
-      char**  argv = *pargv;
-
-
-      if ( ++argv >= argend )
-        usage( execname );
-      option = argv[0];
-      *pargv = argv;
-    }
-    else
-      option += 2;
-
-    return option;
-  }
-
-
   static void
   write_global_info( RenderState  state )
   {
@@ -1220,7 +1197,6 @@
   main( int     argc,
         char**  argv )
   {
-    char**          argend = argv + argc;
     ADisplayRec     adisplay[1];
     RenderStateRec  state[1];
     DisplayRec      display[1];
@@ -1230,54 +1206,56 @@
     double          size       = -1;
     const char*     textfile   = NULL;
     char*           text       = (char*)default_text;
-    char*           execname   = ft_basename( argv[0] );
+
+    char*  execname;
+    int    option;
 
 
-    /* Read Options */
-    ++argv;
-    while ( argv < argend && argv[0][0] == '-' )
+    execname  = ft_basename( argv[0] );
+
+    while ( 1 )
     {
-      char*  arg = argv[0];
+      option = getopt( argc, argv, "f:h:r:s:w:" );
 
+      if ( option == -1 )
+        break;
 
-      switch ( arg[1] )
+      switch ( option )
       {
       case 'f':
-        arg      = get_option_arg( arg, &argv, argend, execname );
-        textfile = arg;
+        textfile = optarg;
         break;
 
       case 'h':
-        arg    = get_option_arg( arg, &argv, argend, execname );
-        height = atoi( arg );
+        height = atoi( optarg );
         if ( height < 1 )
           usage( execname );
         break;
 
       case 'r':
-        arg        = get_option_arg( arg, &argv, argend, execname );
-        resolution = atoi( arg );
+        resolution = atoi( optarg );
         break;
 
       case 's':
-        arg  = get_option_arg( arg, &argv, argend, execname );
-        size = atof( arg );
+        size = atof( optarg );
         break;
 
       case 'w':
-        arg   = get_option_arg( arg, &argv, argend, execname );
-        width = atoi( arg );
+        width = atoi( optarg );
         if ( width < 1 )
           usage( execname );
         break;
 
       default:
         usage( execname );
+        break;
       }
-      argv++;
     }
 
-    if ( argv >= argend )
+    argc -= optind;
+    argv += optind;
+
+    if ( argc < 1 )
       usage( execname );
 
     /* Read Text File, if any */
