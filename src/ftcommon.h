@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2005, 2006, 2009, 2011-2012 by                                */
+/*  Copyright 2005, 2006, 2009, 2011-2013 by                                */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -209,7 +209,7 @@
 
 
   FTDemo_Handle*
-  FTDemo_New( FT_Encoding  encoding );
+  FTDemo_New( void );
 
 
   void

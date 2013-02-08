@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2007, 2009-2012 by                                       */
+/*  Copyright 1996-2007, 2009-2013 by                                       */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -571,8 +571,9 @@
     parse_cmdline( &argc, &argv );
 
     /* Initialize engine */
-    handle = FTDemo_New( status.encoding );
+    handle = FTDemo_New();
 
+    handle->encoding  = status.encoding;
     handle->use_sbits = 0;
     FTDemo_Update_Current_Flags( handle );
 

@@ -1612,9 +1612,11 @@
 #endif
 
     /* Initialize engine */
-    handle = FTDemo_New( status.encoding );
+    handle = FTDemo_New();
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
+
+    handle->encoding = status.encoding;
 
     if ( status.preload )
       FTDemo_Set_Preload( handle, 1 );

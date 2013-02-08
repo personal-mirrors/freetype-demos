@@ -1124,7 +1124,7 @@
                 "FreeType Glyph Grid Viewer - press F1 for help" );
 
     /* initialize engine */
-    handle = FTDemo_New( FT_ENCODING_NONE );
+    handle = FTDemo_New();
 
     for ( ; argc > 0; argc--, argv++ )
       FTDemo_Install_Font( handle, argv[0] );

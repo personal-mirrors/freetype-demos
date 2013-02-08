@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2005-2009, 2011-2012 by                                       */
+/*  Copyright 2005-2009, 2011-2013 by                                       */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -254,7 +254,7 @@
 
 
   FTDemo_Handle*
-  FTDemo_New( FT_Encoding encoding )
+  FTDemo_New( void )
   {
     FTDemo_Handle*  handle;
 
@@ -290,7 +290,7 @@
 
     FT_Stroker_New( handle->library, &handle->stroker );
 
-    handle->encoding = encoding;
+    handle->encoding = FT_ENCODING_NONE;
 
     handle->hinted    = 1;
     handle->antialias = 1;

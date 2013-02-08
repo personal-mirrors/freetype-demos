@@ -1,3 +1,9 @@
+2013-02-08  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftcommon.c, src/ftcommon.h (FTDemo_New): Take no parameter.
+
+	* src/ftgrid.c, src/ftstring.c, src/ftview.c: Updated.
+
 2013-02-06  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Remove options `-n' and `d'; add `-v' to show version.
