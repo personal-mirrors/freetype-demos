@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2002, 2003, 2004, 2005, 2006, 2009, 2010 by                   */
+/*  Copyright 2002-2006, 2009, 2010, 2013 by                                */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  ftbench: bench some common FreeType call paths                          */
@@ -86,15 +86,15 @@ enum {
 };
 
 const char* bench_desc[] = {
-  "Load a glyph",
-  "Load advance widths",
-  "Render a glyph",
-  "Get FT_Glyph",
-  "Get glyph cbox",
-  "Get glyph index",
-  "Iterate CMap",
-  "Open a new face",
-  "Embolden",
+  "load a glyph        (FT_Load_Glyph)",
+  "load advance widths (FT_Get_Advances)",
+  "render a glyph      (FT_Render_Glyph)",
+  "load a glyph        (FT_Get_Glyph)",
+  "get glyph cbox      (FT_Glyph_Get_CBox)",
+  "get glyph indices   (FT_Get_Char_Index",
+  "iterate CMap        (FT_Get_{First,Next}_Char)",
+  "open a new face     (FT_New_Face)",
+  "embolden            (FT_GlyphSlot_Embolden)",
   NULL
 };
 
@@ -636,29 +636,45 @@ void usage(void)
 
 
   fprintf( stderr,
+    "\n"
     "ftbench: bench some common FreeType paths\n"
-    "-----------------------------------------\n\n"
-    "Usage: ftbench [options] fontname\n\n"
-    "options:\n"
-    "   -C : compare with cached version if available\n"
-    "   -c : max iteration count for each test (0 means time limited)\n"
-    "   -f : load flags (hexadecimal)\n"
-    "   -i : first index to start with (default is 0)\n"
-    "   -m : max cache size in KByte (default is %d)\n"
-    "   -p : preload font file in memory\n"
-    "   -r : render mode (default is FT_RENDER_MODE_NORMAL)\n"
-    "   -s : face size (default is %d)\n"
-    "   -t : max time per bench in seconds (default is %.0f)\n"
-    "   -b tests : perform chosen tests (default is all)\n",
-    CACHE_SIZE, FACE_SIZE, BENCH_TIME );
+    "-----------------------------------------\n"
+    "\n"
+    "Usage: ftbench [options] fontname\n"
+    "\n"
+    "  -C        Compare with cached version (if available).\n"
+    "  -c N      Use at most N iterations for each test\n"
+    "            (0 means time limited).\n"
+    "  -f L      Use hex number L as load flags.\n"
+    "  -i IDX    Start with index IDX (default is 0).\n"
+    "  -m M      Set maximum cache size to M KByte (default is %d).\n",
+           CACHE_SIZE );
+  fprintf( stderr,
+    "  -p        Preload font file in memory.\n"
+    "  -r N      Set render mode to N\n"
+    "              0: normal, 1: light, 2: mono, 3: LCD, 4: LCD vertical\n"
+    "            (default is 0).\n"
+    "  -s S      Use S ppem as face size (default is %dppem).\n",
+           FACE_SIZE );
+  fprintf( stderr,
+    "  -t T      Use at most T seconds per bench (default is %.0f).\n"
+    "\n"
+    "  -b tests  Perform chosen tests (default is all):\n",
+           BENCH_TIME );
 
   for ( i = 0; i < N_FT_BENCH; i++ )
   {
     if ( !bench_desc[i] )
       break;
 
-    fprintf( stderr, "      %c : %s\n", 'a' + i, bench_desc[i] );
+    fprintf( stderr,
+      "              %c  %s\n", 'a' + i, bench_desc[i] );
   }
+
+  fprintf( stderr,
+    "\n"
+    "  -v        Show version.\n"
+    "\n" );
 
   exit( 1 );
 }
@@ -679,42 +695,61 @@ main(int argc,
   int         compare_cached = 0;
   int         i;
 
+
+  if ( FT_Init_FreeType( &lib ) )
+  {
+    fprintf( stderr, "could not initialize font library\n" );
+
+    return 1;
+  }
+
   while ( 1 )
   {
     int  opt;
 
 
-    opt = getopt( argc, argv, "Cc:f:i:m:pr:s:t:b:" );
+    opt = getopt( argc, argv, "b:Cc:f:i:m:pr:s:t:v" );
 
     if ( opt == -1 )
       break;
 
     switch ( opt )
     {
+    case 'b':
+      test_string = optarg;
+      break;
+
     case 'C':
       compare_cached = 1;
       break;
+
     case 'c':
       max_iter = atoi( optarg );
       break;
+
     case 'f':
       load_flags = strtol( optarg, NULL, 16 );
       break;
+
     case 'i':
       first_index = atoi( optarg );
       break;
+
     case 'm':
-      max_bytes = atoi( optarg );
+      max_bytes  = atoi( optarg );
       max_bytes *= 1024;
       break;
+
     case 'p':
       preload = 1;
       break;
+
     case 'r':
       render_mode = (FT_Render_Mode)atoi( optarg );
       if ( render_mode >= FT_RENDER_MODE_MAX )
         render_mode = FT_RENDER_MODE_NORMAL;
       break;
+
     case 's':
       size = atoi( optarg );
       if ( size <= 0 )
@@ -722,12 +757,26 @@ main(int argc,
       else if ( size > 500 )
         size = 500;
       break;
+
     case 't':
       max_time = atof( optarg );
       break;
-    case 'b':
-      test_string = optarg;
+
+    case 'v':
+      {
+        FT_Int  major, minor, patch;
+
+
+        FT_Library_Version( lib, &major, &minor, &patch );
+
+        printf( "ftbench (FreeType) %d.%d", major, minor );
+        if ( patch )
+          printf( ".%d", patch );
+        printf( "\n" );
+        exit( 0 );
+      }
       break;
+
     default:
       usage();
       break;
@@ -739,13 +788,6 @@ main(int argc,
 
   if ( argc != 1 )
     usage();
-
-  if ( FT_Init_FreeType( &lib ) )
-  {
-    fprintf( stderr, "could not initialize font library\n" );
-
-    return 1;
-  }
 
   filename = *argv;
 

@@ -1013,7 +1013,8 @@
       "\n" );
     fprintf( stderr,
       "Usage: %s [options] pt font ...\n"
-      "\n", execname );
+      "\n",
+             execname );
     fprintf( stderr,
       "  pt        The point size for the given resolution.\n"
       "            If resolution is 72dpi, this directly gives the\n"
@@ -1025,13 +1026,15 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W      Set the window width to W pixels (default: %dpx)\n"
-      "  -h H      Set the window height to H pixels (default: %dpx)\n"
+      "  -w W      Set the window width to W pixels (default: %dpx).\n"
+      "  -h H      Set the window height to H pixels (default: %dpx).\n"
       "\n",
-                   DIM_X, DIM_Y );
+             DIM_X, DIM_Y );
     fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
+      "\n"
+      "  -v        Show version."
       "\n" );
 
     exit( 1 );
@@ -1050,7 +1053,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "f:h:r:w:" );
+      option = getopt( *argc, *argv, "f:h:r:vw:" );
 
       if ( option == -1 )
         break;
@@ -1071,6 +1074,21 @@
         status.res = atoi( optarg );
         if ( status.res < 1 )
           usage( execname );
+        break;
+
+      case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( handle->library, &major, &minor, &patch );
+
+          printf( "ftgrid (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
         break;
 
       case 'w':
@@ -1110,6 +1128,9 @@
     grEvent  event;
 
 
+    /* initialize engine */
+    handle = FTDemo_New();
+
     grid_status_init( &status );
     parse_cmdline( &argc, &argv );
 
@@ -1122,9 +1143,6 @@
 
     grSetTitle( display->surface,
                 "FreeType Glyph Grid Viewer - press F1 for help" );
-
-    /* initialize engine */
-    handle = FTDemo_New();
 
     for ( ; argc > 0; argc--, argv++ )
       FTDemo_Install_Font( handle, argv[0] );

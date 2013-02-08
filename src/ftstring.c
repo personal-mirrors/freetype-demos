@@ -465,7 +465,8 @@
       "\n" );
     fprintf( stderr,
       "Usage: %s [options] pt font ...\n"
-      "\n", execname );
+      "\n",
+             execname );
     fprintf( stderr,
       "  pt        The point size for the given resolution.\n"
       "            If resolution is 72dpi, this directly gives the\n"
@@ -477,16 +478,18 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W      Set the window width to W pixels (default: %dpx)\n"
-      "  -h H      Set the window height to H pixels (default: %dpx)\n"
+      "  -w W      Set the window width to W pixels (default: %dpx).\n"
+      "  -h H      Set the window height to H pixels (default: %dpx).\n"
       "\n",
-                   DIM_X, DIM_Y );
+             DIM_X, DIM_Y );
     fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
       "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -m text   Use `text' for rendering.\n"
+      "\n"
+      "  -v        Show version.\n"
       "\n" );
 
     exit( 1 );
@@ -505,7 +508,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "e:h:m:r:w:" );
+      option = getopt( *argc, *argv, "e:h:m:r:vw:" );
 
       if ( option == -1 )
         break;
@@ -532,6 +535,21 @@
         status.res = atoi( optarg );
         if ( status.res < 1 )
           usage( execname );
+        break;
+
+      case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( handle->library, &major, &minor, &patch );
+
+          printf( "ftstring (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
         break;
 
       case 'w':
@@ -568,10 +586,10 @@
     grEvent  event;
 
 
-    parse_cmdline( &argc, &argv );
-
     /* Initialize engine */
     handle = FTDemo_New();
+
+    parse_cmdline( &argc, &argv );
 
     handle->encoding  = status.encoding;
     handle->use_sbits = 0;

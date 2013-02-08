@@ -35,7 +35,8 @@
       "\n" );
     fprintf( stderr,
       "Usage: %s [options] font ...\n"
-      "\n", execname );
+      "\n",
+             execname );
     fprintf( stderr,
       "  font      The font file(s) to display.\n"
       "            For Type 1 font files, ftdiff also tries to attach\n"
@@ -43,15 +44,17 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W         set the window width to W pixels (default: %dpx)\n"
-      "  -h H         set the window height to H pixels (default: %dpx)\n"
+      "  -w W         Set the window width to W pixels (default: %dpx).\n"
+      "  -h H         Set the window height to H pixels (default: %dpx).\n"
       "\n",
-                      DIM_X, DIM_Y );
+             DIM_X, DIM_Y );
     fprintf( stderr,
-      "  -r R         use resolution R dpi (default: 72dpi)\n"
-      "  -s S         set character size to S points (default: 16pt)\n"
-      "  -f TEXTFILE  change displayed text, using text in TEXTFILE\n"
-      "               (in UTF-8 encoding)\n"
+      "  -r R         Use resolution R dpi (default: 72dpi).\n"
+      "  -s S         Set character size to S points (default: 16pt).\n"
+      "  -f TEXTFILE  Change displayed text, using text in TEXTFILE\n"
+      "               (in UTF-8 encoding).\n"
+      "\n"
+      "  -v           Show version."
       "\n" );
 
     exit( 1 );
@@ -211,9 +214,12 @@
 
   static void
   render_state_init( RenderState  state,
-                     Display      display )
+                     Display      display,
+                     FT_Library   library )
   {
     memset( state, 0, sizeof ( *state ) );
+
+    state->library = library;
 
     state->text         = default_text;
     state->filepath     = state->filepath0;
@@ -242,8 +248,6 @@
 
     state->col = 1;
 
-    if ( FT_Init_FreeType( &state->library ) != 0 )
-      panic( "could not initialize FreeType library. Check your code\n" );
   }
 
 
@@ -1197,6 +1201,8 @@
   main( int     argc,
         char**  argv )
   {
+    FT_Library  library;
+
     ADisplayRec     adisplay[1];
     RenderStateRec  state[1];
     DisplayRec      display[1];
@@ -1213,9 +1219,12 @@
 
     execname  = ft_basename( argv[0] );
 
+    if ( FT_Init_FreeType( &library ) != 0 )
+      panic( "could not initialize FreeType\n" );
+
     while ( 1 )
     {
-      option = getopt( argc, argv, "f:h:r:s:w:" );
+      option = getopt( argc, argv, "f:h:r:s:vw:" );
 
       if ( option == -1 )
         break;
@@ -1238,6 +1247,21 @@
 
       case 's':
         size = atof( optarg );
+        break;
+
+      case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( library, &major, &minor, &patch );
+
+          printf( "ftdiff (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
         break;
 
       case 'w':
@@ -1303,7 +1327,7 @@
     display->disp_draw = adisplay_draw_glyph;
     display->disp_text = adisplay_draw_text;
 
-    render_state_init( state, display );
+    render_state_init( state, display, library );
 
     if ( resolution > 0 )
       render_state_set_resolution( state, resolution );

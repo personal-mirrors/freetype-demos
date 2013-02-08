@@ -1447,7 +1447,8 @@
       "\n" );
     fprintf( stderr,
       "Usage: %s [options] pt font ...\n"
-      "\n", execname );
+      "\n",
+             execname );
     fprintf( stderr,
       "  pt        The point size for the given resolution.\n"
       "            If resolution is 72dpi, this directly gives the\n"
@@ -1459,10 +1460,10 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W      Set the window width to W pixels (default: %dpx)\n"
-      "  -h H      Set the window height to H pixels (default: %dpx)\n"
+      "  -w W      Set the window width to W pixels (default: %dpx).\n"
+      "  -h H      Set the window height to H pixels (default: %dpx).\n"
       "\n",
-                   DIM_X, DIM_Y );
+             DIM_X, DIM_Y );
     fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
@@ -1473,9 +1474,11 @@
       "  -m text   Use `text' for rendering.\n" );
     fprintf( stderr,
       "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
-                   N_LCD_MODES );
+             N_LCD_MODES );
     fprintf( stderr,
       "  -p        Preload file in memory to simulate memory-mapping.\n"
+      "\n"
+      "  -v        Show version.\n"
       "\n" );
 
     exit( 1 );
@@ -1494,7 +1497,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "Dde:f:h:L:l:m:pr:w:" );
+      option = getopt( *argc, *argv, "Dde:f:h:L:l:m:pr:vw:" );
 
       if ( option == -1 )
         break;
@@ -1554,6 +1557,21 @@
           usage( execname );
         break;
 
+      case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( handle->library, &major, &minor, &patch );
+
+          printf( "ftview (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
+        break;
+
       case 'w':
         status.width = atoi( optarg );
         if ( status.width < 1 )
@@ -1585,8 +1603,11 @@
   main( int    argc,
         char*  argv[] )
   {
-    grEvent      event;
+    grEvent  event;
 
+
+    /* Initialize engine */
+    handle = FTDemo_New();
 
     parse_cmdline( &argc, &argv );
 
@@ -1610,9 +1631,6 @@
       setenv( "FT2_DEBUG", temp );
     }
 #endif
-
-    /* Initialize engine */
-    handle = FTDemo_New();
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
 

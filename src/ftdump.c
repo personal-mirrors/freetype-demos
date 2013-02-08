@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2007, 2010, 2012 by                           */
+/*  Copyright 1996-2000, 2003-2007, 2010, 2012-2013                         */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /****************************************************************************/
@@ -61,21 +61,28 @@
   static void
   usage( char*  execname )
   {
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "ftdump: simple font dumper -- part of the FreeType project\n" );
-    fprintf( stderr, "-----------------------------------------------------------\n" );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "Usage: %s [options] fontname\n", execname );
-    fprintf( stderr, "\n" );
+    fprintf( stderr,
+      "\n"
+      "ftdump: simple font dumper -- part of the FreeType project\n"
+      "-----------------------------------------------------------\n"
+      "\n"
+      "Usage: %s [options] fontname\n"
+      "\n",
+             execname );
 #if FREETYPE_MAJOR == 2 && FREETYPE_MINOR == 0 && FREETYPE_PATCH <= 8
-    fprintf( stderr, "  -d        enable debug information\n" );
+    fprintf( stderr,
+      "  -d        Enable debug information.\n" );
 #  ifdef FT_DEBUG_LEVEL_TRACE
-    fprintf( stderr, "  -l level  trace level for debug information\n" );
+    fprintf( stderr,
+      "  -l level  Trace level for debug information.\n" );
 #  endif
 #endif
-    fprintf( stderr, "  -n        print SFNT name tables\n" );
-    fprintf( stderr, "  -v        be verbose\n" );
-    fprintf( stderr, "\n" );
+    fprintf( stderr,
+      "  -n        Print SFNT name tables.\n"
+      "  -V        Be verbose.\n"
+      "\n"
+      "  -v        Show version.\n"
+      "\n" );
 
     exit( 1 );
   }
@@ -565,9 +572,14 @@
 
     execname = ft_basename( argv[0] );
 
+    /* Initialize engine */
+    error = FT_Init_FreeType( &library );
+    if ( error )
+      PanicZ( "Could not initialize FreeType library" );
+
     while ( 1 )
     {
-      option = getopt( argc, argv, "dl:nv" );
+      option = getopt( argc, argv, "dl:nvV" );
 
       if ( option == -1 )
         break;
@@ -589,6 +601,21 @@
         break;
 
       case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( library, &major, &minor, &patch );
+
+          printf( "ftdump (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
+        break;
+
+      case 'V':
         verbose = 1;
         break;
 
@@ -627,11 +654,6 @@
 #endif
 
     file = 0;
-
-    /* Initialize engine */
-    error = FT_Init_FreeType( &library );
-    if ( error )
-      PanicZ( "Could not initialize FreeType library" );
 
     filename[128]     = '\0';
     alt_filename[128] = '\0';

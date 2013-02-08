@@ -618,24 +618,27 @@
   static void
   usage( char*  execname )
   {
-    fprintf( stderr,  "\n" );
-    fprintf( stderr,  "ftmulti: multiple masters font viewer - part of FreeType\n" );
-    fprintf( stderr,  "--------------------------------------------------------\n" );
-    fprintf( stderr,  "\n" );
-    fprintf( stderr,  "Usage: %s [options below] ppem fontname[.pfb|.ttf] ...\n",
-             execname );
-    fprintf( stderr,  "\n" );
-    fprintf( stderr,  "  -w W         set window width to W pixels (default: %dpx)\n",
-             DIM_X );
-    fprintf( stderr,  "  -h H         set window height to H pixels (default: %dpx)\n",
-             DIM_Y );
-    fprintf( stderr,  "\n" );
-    fprintf( stderr,  "  -e encoding  select encoding (default: no encoding)\n" );
-    fprintf( stderr,  "  -r R         use resolution R dpi (default: 72 dpi)\n" );
-    fprintf( stderr,  "  -f index     specify first glyph index to display\n" );
-    fprintf( stderr,  "  -d \"axis1 axis2 ...\"\n"
-                      "               specify the design coordinates for each axis\n" );
-    fprintf( stderr,  "\n" );
+    fprintf( stderr,
+      "\n"
+      "ftmulti: multiple masters font viewer - part of FreeType\n"
+      "--------------------------------------------------------\n"
+      "\n" );
+    fprintf( stderr,
+      "Usage: %s [options below] ppem fontname ...\n"
+      "\n", execname );
+    fprintf( stderr,
+      "  -w W         Set window width to W pixels (default: %dpx).\n"
+      "  -h H         Set window height to H pixels (default: %dpx).\n"
+      "\n", DIM_X, DIM_Y );
+    fprintf( stderr,
+      "  -e encoding  Select encoding (default: no encoding).\n"
+      "  -r R         Use resolution R dpi (default: 72dpi).\n"
+      "  -f index     Specify first glyph index to display.\n"
+      "  -d \"axis1 axis2 ...\"\n"
+      "               Specify the design coordinates for each axis.\n"
+      "\n"
+      "  -v           Show version."
+      "\n" );
 
     exit( 1 );
   }
@@ -657,9 +660,14 @@
 
     execname = ft_basename( argv[0] );
 
+    /* Initialize engine */
+    error = FT_Init_FreeType( &library );
+    if ( error )
+      PanicZ( "Could not initialize FreeType library" );
+
     while ( 1 )
     {
-      option = getopt( argc, argv, "d:e:f:h:r:w:" );
+      option = getopt( argc, argv, "d:e:f:h:r:vw:" );
 
       if ( option == -1 )
         break;
@@ -690,6 +698,21 @@
           usage( execname );
         break;
 
+      case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( library, &major, &minor, &patch );
+
+          printf( "ftmulti (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
+        break;
+
       case 'w':
         width = atoi( optarg );
         if ( width < 1 )
@@ -712,11 +735,6 @@
       orig_ptsize = 64;
 
     file = 1;
-
-    /* Initialize engine */
-    error = FT_Init_FreeType( &library );
-    if ( error )
-      PanicZ( "Could not initialize FreeType library" );
 
   NewFile:
     ptsize      = orig_ptsize;

@@ -1,5 +1,32 @@
 2013-02-08  Werner Lemberg  <wl@gnu.org>
 
+	Implement `-v' to show version.
+
+	Rename ftdump's `verbose' option to `-V'.
+	Beautify and harmonize usage strings.
+
+	* src/ftbench.c (bench_desc): Improve.
+	(usage): Updated.
+	(main): Handle `-v'.
+
+	* src/ftdiff.c (usage): Updated.
+	(render_state_init): Pass `library' argument.
+	Move FreeType initialization to...
+	(main): Here.
+	Handle `-v'.
+
+	* src/ftdump.c (usage): Updated.
+	(main): Handle `-v', rename old `-v' to `-V'.
+
+	* src/ftmulti.c (usage): Updated.
+	(main): Handle `-v'.
+
+	* src/ftgrid.c, src/ftstring.c, src/ftview (usage): Updated.
+	(parse_cmdline): Handle `-v'.
+	(main): Updated.
+
+2013-02-08  Werner Lemberg  <wl@gnu.org>
+
 	[ftdiff] Simplify option handling.
 
 	* src/ftdiff.c (get_option_arg): Removed.
