@@ -22,6 +22,7 @@
 #include FT_CACHE_SMALL_BITMAPS_H
 #include FT_SYNTHESIS_H
 #include FT_ADVANCES_H
+#include FT_BBOX_H
 
 #ifdef UNIX
 #include <sys/time.h>
@@ -82,6 +83,7 @@ enum {
   FT_BENCH_CMAP_ITER,
   FT_BENCH_NEW_FACE,
   FT_BENCH_EMBOLDEN,
+  FT_BENCH_GET_BBOX,
   N_FT_BENCH
 };
 
@@ -95,6 +97,7 @@ const char* bench_desc[] = {
   "iterate CMap        (FT_Get_{First,Next}_Char)",
   "open a new face     (FT_New_Face)",
   "embolden            (FT_GlyphSlot_Embolden)",
+  "get glyph bbox      (FT_Outline_Get_BBox)",
   NULL
 };
 
@@ -358,6 +361,38 @@ test_get_cbox( btimer_t*  timer,
     TIMER_STOP( timer );
 
     FT_Done_Glyph( glyph );
+    done++;
+  }
+
+  return done;
+}
+
+
+int
+test_get_bbox( btimer_t*  timer,
+               FT_Face    face,
+               void*      user_data )
+{
+  FT_BBox  bbox;
+  int      i, done = 0;
+
+
+  FT_UNUSED( user_data );
+
+  for ( i = first_index; i < face->num_glyphs; i++ )
+  {
+    FT_Outline*  outline;
+
+
+    if ( FT_Load_Glyph( face, i, load_flags ) )
+      continue;
+
+    outline = &face->glyph->outline;
+
+    TIMER_START( timer );
+    FT_Outline_Get_BBox( outline, &bbox );
+    TIMER_STOP( timer );
+
     done++;
   }
 
@@ -848,6 +883,7 @@ main(int argc,
         benchmark( face, &test, max_iter, max_time );
       }
       break;
+
     case FT_BENCH_LOAD_ADVANCES:
       test.user_data = &flags;
 
@@ -861,21 +897,31 @@ main(int argc,
       flags       = FT_LOAD_TARGET_LIGHT;
       benchmark( face, &test, max_iter, max_time );
       break;
+
     case FT_BENCH_RENDER:
       test.title = "Render";
       test.bench = test_render;
       benchmark( face, &test, max_iter, max_time );
       break;
+
     case FT_BENCH_GET_GLYPH:
       test.title = "Get_Glyph";
       test.bench = test_get_glyph;
       benchmark( face, &test, max_iter, max_time );
       break;
+
     case FT_BENCH_GET_CBOX:
       test.title = "Get_CBox";
       test.bench = test_get_cbox;
       benchmark( face, &test, max_iter, max_time );
       break;
+
+    case FT_BENCH_GET_BBOX:
+      test.title = "Get_BBox";
+      test.bench = test_get_bbox;
+      benchmark( face, &test, max_iter, max_time );
+      break;
+
     case FT_BENCH_CMAP:
       {
         bcharset_t  charset;
@@ -905,16 +951,19 @@ main(int argc,
         }
       }
       break;
+
     case FT_BENCH_CMAP_ITER:
       test.title = "Iterate CMap";
       test.bench = test_cmap_iter;
       benchmark( face, &test, max_iter, max_time );
       break;
+
     case FT_BENCH_NEW_FACE:
       test.title = "New_Face";
       test.bench = test_new_face;
       benchmark( face, &test, max_iter, max_time );
       break;
+
     case FT_BENCH_EMBOLDEN:
       test.title = "Embolden";
       test.bench = test_embolden;
@@ -929,7 +978,7 @@ Exit:
    * by calling the face requester.
    *
    * However, this little benchmark uses a tricky face requester that
-   * doesn't create a new FT_Face through FT_New_Face but simply pass a
+   * doesn't create a new FT_Face through FT_New_Face but simply passes a
    * pointer to the one that was previously created.
    *
    * If the cache manager has been used before, the call to FTC_Manager_Done

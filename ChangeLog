@@ -1,3 +1,13 @@
+2013-02-12  Werner Lemberg  <wl@gnu.org>
+
+	[ftbench] Add test for `FT_Outline_Get_BBox'.
+
+	* src/ftbench.c: Include FT_BBOX_H.
+	(FT_BENCH_GET_BBOX): New enumeration value.
+	(bench_desc): Updated.
+	(test_get_bbox): New function.
+	(main): Handle FT_BENCH_GET_BBOX.
+
 2013-02-08  Werner Lemberg  <wl@gnu.org>
 
 	Implement `-v' to show version.
