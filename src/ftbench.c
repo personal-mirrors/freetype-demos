@@ -22,6 +22,7 @@
 #include FT_CACHE_SMALL_BITMAPS_H
 #include FT_SYNTHESIS_H
 #include FT_ADVANCES_H
+#include FT_OUTLINE_H
 #include FT_BBOX_H
 
 #ifdef UNIX
@@ -373,8 +374,9 @@ test_get_bbox( btimer_t*  timer,
                FT_Face    face,
                void*      user_data )
 {
-  FT_BBox  bbox;
-  int      i, done = 0;
+  FT_BBox    bbox;
+  int        i, done = 0;
+  FT_Matrix  rot30 = { 0xDDB4, -0x8000, 0x8000, 0xDDB4 };
 
 
   FT_UNUSED( user_data );
@@ -388,6 +390,9 @@ test_get_bbox( btimer_t*  timer,
       continue;
 
     outline = &face->glyph->outline;
+
+    /* rotate outline by 30 degrees */
+    FT_Outline_Transform( outline, &rot30 );
 
     TIMER_START( timer );
     FT_Outline_Get_BBox( outline, &bbox );

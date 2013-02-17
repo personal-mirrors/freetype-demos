@@ -1,3 +1,12 @@
+2013-02-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+        [ftbench] Make BBox test harder.
+
+	Rotating an outline puts more off-points outside of its bounding box.
+
+	* src/ftbench.c: Include FT_OUTLINE_H.
+	(test_get_bbox): Rotate outline by 30 degrees.
+
 2013-02-12  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] Add test for `FT_Outline_Get_BBox'.
