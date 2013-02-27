@@ -508,7 +508,7 @@
 
     handle->scaler.width  = (FT_UInt)pixel_size;
     handle->scaler.height = (FT_UInt)pixel_size;
-    handle->scaler.pixel  = 1;
+    handle->scaler.pixel  = 1;                  /* activate integer format */
     handle->scaler.x_res  = 0;
     handle->scaler.y_res  = 0;
 
@@ -521,12 +521,13 @@
                                int             char_size,
                                int             resolution )
   {
+    /* in 26.6 format, corresponding to (almost) 0x4000ppem */
     if ( char_size > 0xFFFFF )
       char_size = 0xFFFFF;
 
     handle->scaler.width  = (FT_UInt)char_size;
     handle->scaler.height = (FT_UInt)char_size;
-    handle->scaler.pixel  = 0;
+    handle->scaler.pixel  = 0;                     /* activate 26.6 format */
     handle->scaler.x_res  = (FT_UInt)resolution;
     handle->scaler.y_res  = (FT_UInt)resolution;
 
