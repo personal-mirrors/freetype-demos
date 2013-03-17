@@ -1,5 +1,15 @@
 2013-03-17  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Remove options -d and -L.
+
+	Not documented and no longer working.  This functionality is now
+	available via FreeType's FT2_DEBUG environment variable.
+
+	* src/ftview.c (status): Remove `debug' and `trace_level'.
+	(parse_cmdline, main): Updated.
+
+2013-03-17  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Remove option -D.
 
 	This no longer works because the used cache values are now internal.

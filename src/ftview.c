@@ -86,8 +86,6 @@
     double         radius;
     double         slant;
 
-    int            debug;
-    int            trace_level;
     int            font_index;
     int            Num;               /* current first index */
     int            Fail;
@@ -99,7 +97,7 @@
 
   } status = { DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
-               0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
 
@@ -1496,17 +1494,13 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "de:f:h:L:l:m:pr:vw:" );
+      option = getopt( *argc, *argv, "e:f:h:l:m:pr:vw:" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
-      case 'd':
-        status.debug = 1;
-        break;
-
       case 'e':
         status.encoding = FTDemo_Make_Encoding_Tag( optarg );
         break;
@@ -1518,12 +1512,6 @@
       case 'h':
         status.height = atoi( optarg );
         if ( status.height < 1 )
-          usage( execname );
-        break;
-
-      case 'L':
-        status.trace_level = atoi( optarg );
-        if ( status.trace_level < 1 || status.trace_level > 7 )
           usage( execname );
         break;
 
@@ -1605,27 +1593,6 @@
     handle = FTDemo_New();
 
     parse_cmdline( &argc, &argv );
-
-#if FREETYPE_MAJOR == 2 && FREETYPE_MINOR == 0 && FREETYPE_PATCH <= 8
-    if ( status.debug )
-    {
-#ifdef FT_DEBUG_LEVEL_TRACE
-      FT_SetTraceLevel( trace_any, (FT_Byte)status.trace_level );
-#else
-      status.trace_level = 0;
-#endif
-    }
-#elif 0
-       /* `setenv' and `putenv' is not ANSI and I don't want to mess */
-       /* with this portability issue right now...                   */
-    if ( status.debug )
-    {
-      char  temp[32];
-
-      sprintf( temp, "any=%d", status.trace_level );
-      setenv( "FT2_DEBUG", temp );
-    }
-#endif
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
 
