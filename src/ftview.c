@@ -23,11 +23,12 @@
 
   /* the following header shouldn't be used in normal programs */
 #include FT_INTERNAL_DEBUG_H
+
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 #include FT_LCD_FILTER_H
 
-#define MAXPTSIZE      500                 /* dtp */
+#define MAXPTSIZE  500                 /* dtp */
 
 #ifdef CEIL
 #undef CEIL
@@ -73,9 +74,9 @@
   {
     int            width;
     int            height;
-
     int            render_mode;
     FT_Encoding    encoding;
+
     int            res;
     int            ptsize;            /* current point size, 26.6 format */
     int            lcd_mode;
@@ -88,7 +89,6 @@
     int            debug;
     int            trace_level;
     int            font_index;
-    int            dump_cache_stats;  /* do we need to dump cache statistics? */
     int            Num;               /* current first index */
     int            Fail;
     int            preload;
@@ -97,9 +97,9 @@
     unsigned char  filter_weights[5];
     int            fw_index;
 
-  } status = { DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE, 72, 48, -1,
-               1.0, 0.04, 0.04, 0.02, 0.22,
-               0, 0, 0, 0, 0, 0, 0,
+  } status = { DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
+               72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
+               0, 0, 0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
 
@@ -1470,7 +1470,6 @@
       "  -e enc    Specify encoding tag (default: no encoding).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
       "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
-      "  -D        Dump cache usage statistics.\n"
       "  -m text   Use `text' for rendering.\n" );
     fprintf( stderr,
       "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
@@ -1497,7 +1496,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "Dde:f:h:L:l:m:pr:vw:" );
+      option = getopt( *argc, *argv, "de:f:h:L:l:m:pr:vw:" );
 
       if ( option == -1 )
         break;
@@ -1506,10 +1505,6 @@
       {
       case 'd':
         status.debug = 1;
-        break;
-
-      case 'D':
-        status.dump_cache_stats = 1;
         break;
 
       case 'e':
@@ -1698,21 +1693,6 @@
       }
 
       write_header( error );
-
-#if FREETYPE_MAJOR == 2 && FREETYPE_MINOR < 2
-      if ( status.dump_cache_stats )
-      {
-        /* dump simple cache manager statistics */
-        fprintf( stderr, "cache manager [ nodes, bytes, average ] = "
-                         " [ %d, %ld, %f ]\n",
-                         handle->cache_manager->num_nodes,
-                         handle->cache_manager->cur_weight,
-                         handle->cache_manager->num_nodes > 0
-                           ? handle->cache_manager->cur_weight * 1.0 /
-                               handle->cache_manager->num_nodes
-                           : 0.0 );
-      }
-#endif
 
       grListenSurface( display->surface, 0, &event );
     } while ( Process_Event( &event ) == 0 );
