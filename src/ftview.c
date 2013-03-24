@@ -652,7 +652,7 @@
     grWriteln( "  f           toggle forced auto-hinting (if outline hinting)" );
     grLn();
     grWriteln( "  a           toggle anti-aliasing" );
-    grWriteln( "  K, L        cycle through LCD modes (if anti-aliasing)" );
+    grWriteln( "  k, l        cycle through LCD modes (if anti-aliasing)" );
     grLn();
     grWriteln( "  x, X        adjust horizontal emboldening (in emboldening mode)" );
     grWriteln( "  y, Y        adjust vertical emboldening (in emboldening mode)" );
@@ -918,11 +918,11 @@
       FTDemo_Update_Current_Flags( handle );
       break;
 
-    case grKEY( 'L' ):
-    case grKEY( 'K' ):
+    case grKEY( 'l' ):
+    case grKEY( 'k' ):
       if ( handle->antialias )
       {
-        handle->lcd_mode = ( event->key == grKEY( 'L' ) )
+        handle->lcd_mode = ( event->key == grKEY( 'l' ) )
                            ? ( ( handle->lcd_mode == ( N_LCD_MODES - 1 ) )
                                ? 0
                                : handle->lcd_mode + 1 )

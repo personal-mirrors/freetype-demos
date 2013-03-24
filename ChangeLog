@@ -1,5 +1,11 @@
 2013-03-24  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Use `l' and `k' keys instead of `L' and `K'.
+
+	* src/ftview.c (event_help, Process_Event): Implement it.
+
+2013-03-24  Werner Lemberg  <wl@gnu.org>
+
 	Don't try to handle rendering precision.
 
 	This is a non-functional remnant of FreeType 1.  All font drivers
