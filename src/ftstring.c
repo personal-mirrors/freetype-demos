@@ -95,7 +95,6 @@
     grWriteln( "  b         : toggle embedded bitmaps (and disable rotation)" );
     grWriteln( "  f         : toggle forced auto-hinting" );
     grWriteln( "  h         : toggle outline hinting" );
-    grWriteln( "  l         : toggle low precision rendering" );
     grLn();
     grWriteln( "  1-2       : select rendering mode" );
     grWriteln( "  k         : cycle through kerning modes" );
@@ -298,15 +297,6 @@
       status.header   = handle->hinted
                         ? (char *)"glyph hinting is now active"
                         : (char *)"glyph hinting is now ignored";
-
-      FTDemo_Update_Current_Flags( handle );
-      break;
-
-    case grKEY( 'l' ):
-      handle->low_prec = !handle->low_prec;
-      status.header    = handle->low_prec
-                         ? (char *)"rendering precision is now forced to low"
-                         : (char *)"rendering precision is now normal";
 
       FTDemo_Update_Current_Flags( handle );
       break;

@@ -189,7 +189,6 @@
     int             hinted;            /* is glyph hinting active?    */
     int             antialias;         /* is anti-aliasing active?    */
     int             use_sbits;         /* do we use embedded bitmaps? */
-    int             low_prec;          /* force low precision         */
     int             autohint;          /* force auto-hinting          */
     int             lcd_mode;
     int             preload;           /* force font file preloading  */

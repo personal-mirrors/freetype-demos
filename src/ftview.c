@@ -638,7 +638,6 @@
     grLn();
     grWriteln( "  b           toggle embedded bitmaps" );
     grWriteln( "  c           toggle between cache modes" );
-    grWriteln( "  l           toggle low precision rendering" );
     grLn();
     grWriteln( "  p, n        select previous/next font" );
     grLn();
@@ -916,11 +915,6 @@
 
     case grKEY( 'h' ):
       handle->hinted = !handle->hinted;
-      FTDemo_Update_Current_Flags( handle );
-      break;
-
-    case grKEY( 'l' ):
-      handle->low_prec = !handle->low_prec;
       FTDemo_Update_Current_Flags( handle );
       break;
 
@@ -1387,12 +1381,6 @@
     /* cache */
     sprintf( buf, "cache: %s",
                   handle->use_sbits_cache ? "on" : "off" );
-    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                       buf, display->fore_color );
-
-    /* low precision */
-    sprintf( buf, "precision: %s",
-                  handle->low_prec ? "low" : "normal" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 

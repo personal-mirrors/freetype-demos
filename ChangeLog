@@ -1,3 +1,17 @@
+2013-03-24  Werner Lemberg  <wl@gnu.org>
+
+	Don't try to handle rendering precision.
+
+	This is a non-functional remnant of FreeType 1.  All font drivers
+	using B/W rendering activate this at ppem < 24.
+
+	* src/ftcommon.h (FTDemo_Handle): Remove `low_prec' field.
+	* src/ftcommon.c (FTDemo_New): Updated.
+	* src/ftmulti.c (low_prec): Removed.
+	(Help, Process_Event): Updated.
+	* src/ftstring.c (event_help, Process_Event): Updated.
+	* src/ftview.c (event_help, Process_Event, write_header): Updated.
+
 2013-03-17  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Remove options -d and -L.

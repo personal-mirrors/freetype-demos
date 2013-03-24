@@ -64,7 +64,6 @@
   int  hinted    = 1;         /* is glyph hinting active?    */
   int  antialias = 1;         /* is anti-aliasing active?    */
   int  use_sbits = 1;         /* do we use embedded bitmaps? */
-  int  low_prec  = 0;         /* force low precision         */
   int  Num;                   /* current first glyph index   */
 
   int  res       = 72;
@@ -413,7 +412,6 @@
     grWriteln( "  a         : toggle anti-aliasing" );
     grWriteln( "  h         : toggle outline hinting" );
     grWriteln( "  b         : toggle embedded bitmaps" );
-    grWriteln( "  l         : toggle low precision rendering" );
     grWriteln( "  space     : toggle rendering mode" );
     grLn();
     grWriteln( "  n         : next font" );
@@ -480,13 +478,6 @@
     case grKEY( 'n' ):
     case grKEY( 'p' ):
       return (int)event->key;
-
-    case grKEY( 'l' ):
-      low_prec = !low_prec;
-      new_header = low_prec
-                     ? (char *)"rendering precision is now forced to low"
-                     : (char *)"rendering precision is now normal";
-      break;
 
     case grKEY( 'h' ):
       hinted = !hinted;

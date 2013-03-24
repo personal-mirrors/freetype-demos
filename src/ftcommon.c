@@ -295,7 +295,6 @@
     handle->hinted    = 1;
     handle->antialias = 1;
     handle->use_sbits = 1;
-    handle->low_prec  = 0;
     handle->autohint  = 0;
     handle->lcd_mode  = 0;
 
