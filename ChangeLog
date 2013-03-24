@@ -1,5 +1,14 @@
 2013-03-24  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Improve rendering mode switching.
+
+	* src/ftview.c (status): Add `update' field.
+	(Process_Event): Set `update' to 1 only if we really have to do an
+	update.
+	(main): Updated.
+
+2013-03-24  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Use `l' and `k' keys instead of `L' and `K'.
 
 	* src/ftview.c (event_help, Process_Event): Implement it.

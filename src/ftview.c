@@ -72,6 +72,8 @@
 
   static struct  status_
   {
+    int            update;
+
     int            width;
     int            height;
     int            render_mode;
@@ -95,7 +97,8 @@
     unsigned char  filter_weights[5];
     int            fw_index;
 
-  } status = { DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
+  } status = { 1,
+               DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
@@ -871,11 +874,18 @@
     int  ret = 0;
 
 
+    if ( status.render_mode == (int)( event->key - '1' ) )
+    {
+      status.update = 0;
+      return ret;
+    }
+
     if ( event->key >= '1' && event->key < '1' + N_RENDER_MODES )
     {
       status.render_mode = event->key - '1';
       event_render_mode_change( 0 );
 
+      status.update = 1;
       return ret;
     }
 
@@ -1091,6 +1101,7 @@
       break;
     }
 
+    status.update = 1;
     return ret;
   }
 
@@ -1614,6 +1625,9 @@
 
     do
     {
+      if ( !status.update )
+        goto Listen;
+
       FTDemo_Display_Clear( display );
 
       switch ( status.render_mode )
@@ -1649,6 +1663,7 @@
 
       write_header( error );
 
+    Listen:
       grListenSurface( display->surface, 0, &event );
     } while ( Process_Event( &event ) == 0 );
 
