@@ -127,7 +127,8 @@ else
                  $(TOP_DIR)/include \
                  $(SRC_DIR)
 
-  COMPILE = $(CC) $(CFLAGS) \
+  COMPILE = $(CC) $(CPPFLAGS) \
+                  $(CFLAGS) \
                   $(INCLUDES:%=$I%) \
                   $DFT_CONFIG_MODULES_H="<ftmodule.h>"
 

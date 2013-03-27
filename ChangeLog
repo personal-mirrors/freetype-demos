@@ -1,3 +1,12 @@
+2013-03-27  Werner Lemberg  <wl@gnu.org>
+
+	Makefile (COMPILE): Add `CPPFLAGS'.
+
+	Two reasons:
+
+	  (a) for orthogonality with freetype.mk
+	  (b) users can pass additional stuff to the compiler
+
 2013-03-24  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Improve rendering mode switching.
