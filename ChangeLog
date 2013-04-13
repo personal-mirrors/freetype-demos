@@ -1,5 +1,14 @@
 2013-04-13  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Add keys `A'-`F' to select LCD mode.
+
+	* src/ftview.c (event_help): Updated and rewritten to provide a
+	two-column layout.
+	(Process_Event): Handle `A'-`F'; former key `F' is now mapped to
+	`L'.
+
+2013-04-13  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Key `H' switches CFF hinting engines.
 
 	* src/ftview.c: Include FT_MODULE_H, FT_INTERNAL_OBJECTS_H,

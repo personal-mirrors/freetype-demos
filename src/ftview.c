@@ -643,45 +643,40 @@
     grLn();
     grWriteln( "Use the following keys:" );
     grLn();
-    grWriteln( "  F1, ?       display this help screen" );
-    grLn();
-    grWriteln( "  1-6         select rendering mode" );
-    grWriteln( "                1: all glyphs, 2: all glyphs emboldened," );
-    grWriteln( "                3: all glyphs slanted, 4: all glyphs stroked," );
-    grWriteln( "                5: text string, 6: waterfall" );
-    grWriteln( "  space       cycle forwards through rendering modes" );
-    grWriteln( "  backspace   cycle backwards through rendering modes" );
-    grLn();
-    grWriteln( "  b           toggle embedded bitmaps" );
-    grWriteln( "  c           toggle between cache modes" );
-    grLn();
-    grWriteln( "  p, n        select previous/next font" );
-    grLn();
-    grWriteln( "  Up, Down    adjust pointsize by 1 unit" );
-    grWriteln( "  PgUp, PgDn  adjust pointsize by 10 units" );
-    grLn();
-    grWriteln( "  Left, Right adjust index by 1" );
-    grWriteln( "  F7, F8      adjust index by 10" );
-    grWriteln( "  F9, F10     adjust index by 100" );
-    grWriteln( "  F11, F12    adjust index by 1000" );
-    grWriteln( "  h           toggle outline hinting" );
-    grWriteln( "  H           cycle through hinting engines (if available)" );
-    grWriteln( "  f           toggle forced auto-hinting (if outline hinting)" );
-    grLn();
-    grWriteln( "  a           toggle anti-aliasing" );
-    grWriteln( "  k, l        cycle through LCD modes (if anti-aliasing)" );
-    grLn();
-    grWriteln( "  x, X        adjust horizontal emboldening (in emboldening mode)" );
-    grWriteln( "  y, Y        adjust vertical emboldening (in emboldening mode)" );
-    grWriteln( "  r, R        adjust stroking radius (in stroking mode)" );
-    grWriteln( "  s, S        adjust slanting (in slanting mode)" );
-    grLn();
-    grWriteln( "  F           toggle custom LCD filtering" );
-    grWriteln( "  [, ]        select custom LCD filter weight (if custom filtering)" );
-    grWriteln( "  -, +(=)     adjust selected custom LCD filter weight" );
-    grLn();
-    grWriteln( "  G           show gamma ramp" );
-    grWriteln( "  g, v        adjust gamma value" );
+    /*          |----------------------------------|    |----------------------------------| */
+    grWriteln( "F1, ?       display this help screen                                        " );
+    grWriteln( "                                                                            " );
+    grWriteln( "render modes:                           anti-aliasing modes:                " );
+    grWriteln( "  1         all glyphs                    A         normal                  " );
+    grWriteln( "  2         all glyphs emboldened         B         light                   " );
+    grWriteln( "  3         all glyphs slanted            C         horizontal RGB (LCD)    " );
+    grWriteln( "  4         all glyphs stroked            D         horizontal BGR (LCD)    " );
+    grWriteln( "  5         text string                   E         vertical RGB (LCD)      " );
+    grWriteln( "  6         waterfall                     F         vertical BGR (LCD)      " );
+    grWriteln( "  space     cycle forwards                k         cycle forwards          " );
+    grWriteln( "  backspace cycle backwards               l         cycle backwards         " );
+    grWriteln( "                                                                            " );
+    grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
+    grWriteln( "c           toggle cache modes                       emboldening (in mode 2)" );
+    grWriteln( "                                        y, Y        adjust vertical         " );
+    grWriteln( "p, n        previous/next font                       emboldening (in mode 2)" );
+    grWriteln( "                                        s, S        adjust slanting         " );
+    grWriteln( "Up, Down    adjust size by 1 unit                    (in mode 3)            " );
+    grWriteln( "PgUp, PgDn  adjust size by 10 units     r, R        adjust stroking radius  " );
+    grWriteln( "                                                     (in mode 4)            " );
+    grWriteln( "Left, Right adjust index by 1                                               " );
+    grWriteln( "F7, F8      adjust index by 10          L           toggle custom           " );
+    grWriteln( "F9, F10     adjust index by 100                      LCD filtering          " );
+    grWriteln( "F11, F12    adjust index by 1000        [, ]        select custom LCD       " );
+    grWriteln( "                                                      filter weight         " );
+    grWriteln( "h           toggle hinting                            (if custom filtering) " );
+    grWriteln( "H           cycle through hinting       -, +(=)     adjust selected custom  " );
+    grWriteln( "             engines (if available)                  LCD filter weight      " );
+    grWriteln( "f           toggle forced auto-                                             " );
+    grWriteln( "             hinting (if hinting)       G           show gamma ramp         " );
+    grWriteln( "                                        g, v        adjust gamma value      " );
+    grWriteln( "a           toggle anti-aliasing                                            " );
+    /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
     grWriteln( "press any key to exit this help screen" );
@@ -923,6 +918,15 @@
       return ret;
     }
 
+    if ( event->key >= 'A' && event->key < 'A' + N_LCD_MODES )
+    {
+      handle->lcd_mode = event->key - 'A';
+      FTDemo_Update_Current_Flags( handle );
+
+      status.update = 1;
+      return ret;
+    }
+
     switch ( event->key )
     {
     case grKeyEsc:
@@ -1079,7 +1083,7 @@
       event_index_change( 1000 );
       break;
 
-    case grKEY( 'F' ):
+    case grKEY( 'L' ):
       FTC_Manager_RemoveFaceID( handle->cache_manager,
                                 handle->scaler.face_id );
 
