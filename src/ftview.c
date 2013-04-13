@@ -24,9 +24,16 @@
   /* the following header shouldn't be used in normal programs */
 #include FT_INTERNAL_DEBUG_H
 
+  /* showing driver name */
+#include FT_MODULE_H
+#include FT_INTERNAL_OBJECTS_H
+#include FT_INTERNAL_DRIVER_H
+
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 #include FT_LCD_FILTER_H
+#include FT_CFF_DRIVER_H
+
 
 #define MAXPTSIZE  500                 /* dtp */
 
@@ -59,6 +66,9 @@
 #endif
 
 
+#define N_HINTING_ENGINES  2
+
+
   enum
   {
     RENDER_MODE_ALL = 0,
@@ -88,6 +98,8 @@
     double         radius;
     double         slant;
 
+    int            hinting_engine;    /* for CFF */
+
     int            font_index;
     int            Num;               /* current first index */
     int            Fail;
@@ -100,6 +112,7 @@
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
+               FT_CFF_HINTING_FREETYPE,
                0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
@@ -652,6 +665,7 @@
     grWriteln( "  F9, F10     adjust index by 100" );
     grWriteln( "  F11, F12    adjust index by 1000" );
     grWriteln( "  h           toggle outline hinting" );
+    grWriteln( "  H           cycle through hinting engines (if available)" );
     grWriteln( "  f           toggle forced auto-hinting (if outline hinting)" );
     grLn();
     grWriteln( "  a           toggle anti-aliasing" );
@@ -746,6 +760,27 @@
 
 
   static void
+  event_hinting_engine_change( int  delta )
+  {
+    if ( delta )
+    {
+      status.hinting_engine =
+        ( status.hinting_engine + delta ) % N_HINTING_ENGINES;
+
+      if ( status.hinting_engine < 0 )
+        status.hinting_engine += N_HINTING_ENGINES;
+    }
+
+    FT_Property_Set( handle->library,
+                     "cff",
+                     "hinting-engine", &status.hinting_engine );
+
+    FTC_Manager_RemoveFaceID( handle->cache_manager,
+                              handle->scaler.face_id );
+  }
+
+
+  static void
   event_gamma_change( double  delta )
   {
     status.gamma += delta;
@@ -834,7 +869,6 @@
   static void
   event_render_mode_change( int  delta )
   {
-
     if ( delta )
     {
       status.render_mode = ( status.render_mode + delta ) % N_RENDER_MODES;
@@ -926,6 +960,10 @@
     case grKEY( 'h' ):
       handle->hinted = !handle->hinted;
       FTDemo_Update_Current_Flags( handle );
+      break;
+
+    case grKEY( 'H' ):
+      event_hinting_engine_change( 1 );
       break;
 
     case grKEY( 'l' ):
@@ -1381,6 +1419,33 @@
                          buf, display->fore_color );
     }
 
+    if ( handle->hinted && !handle->autohint )
+    {
+      /* hinting engine */
+
+      FT_Module    module = &face->driver->root;
+      const char*  hinting_engine;
+
+
+      if ( !strcmp( module->clazz->module_name, "cff" ) )
+      {
+        switch ( status.hinting_engine )
+        {
+        case FT_CFF_HINTING_FREETYPE:
+          hinting_engine = "FreeType";
+          break;
+        case FT_CFF_HINTING_ADOBE:
+          hinting_engine = "Adobe";
+          break;
+        }
+
+        sprintf( buf, " engine: %s",
+                      hinting_engine );
+        grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                           buf, display->fore_color );
+      }
+    }
+
     line++;
 
     /* embedded bitmaps */
@@ -1594,6 +1659,9 @@
     parse_cmdline( &argc, &argv );
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
+    FT_Property_Set( handle->library,
+                     "cff",
+                     "hinting-engine", &status.hinting_engine );
 
     handle->encoding = status.encoding;
 

@@ -1,3 +1,16 @@
+2013-04-13  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Key `H' switches CFF hinting engines.
+
+	* src/ftview.c: Include FT_MODULE_H, FT_INTERNAL_OBJECTS_H,
+	FT_INTERNAL_DRIVER_H, and FT_CFF_DRIVER_H.
+	(N_HINTING_ENGINES): New macro.
+	(status): New member `hinting_engine'.
+	(event_help): Updated.
+	(event_hinting_engine_change): New function.
+	(Process_Event): Handle `H' key.
+	(main): Set default CFF engine.
+
 2013-04-21  Werner Lemberg  <wl@gnu.org>
 
 	[graph/x11] Set _NET_WM_PID property.
