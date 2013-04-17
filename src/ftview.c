@@ -967,7 +967,21 @@
       break;
 
     case grKEY( 'H' ):
-      event_hinting_engine_change( 1 );
+      if ( handle->hinted && !handle->autohint )
+      {
+        FT_Face    face;
+        FT_Module  module;
+
+
+        error = FTC_Manager_LookupFace( handle->cache_manager,
+                                        handle->scaler.face_id, &face );
+        if ( !error )
+        {
+          module = &face->driver->root;
+          if ( !strcmp( module->clazz->module_name, "cff" ) )
+            event_hinting_engine_change( 1 );
+        }
+      }
       break;
 
     case grKEY( 'l' ):
