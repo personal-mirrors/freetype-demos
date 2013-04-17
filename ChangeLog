@@ -1,5 +1,12 @@
 2013-04-17  Werner Lemberg  <wl@gnu.org>
 
+	Support display of no anti-aliasing, no hinting.
+
+	* src/ftcommon.c (FTDemo_Update_Current_Flags): Handle this by
+	setting FT_LOAD_MONOCHROME for this combination.
+
+2013-04-17  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Be more intelligent in updating the display.
 
 	This improves readability of tracing messages.

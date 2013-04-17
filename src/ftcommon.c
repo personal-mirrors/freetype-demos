@@ -588,7 +588,12 @@
       flags |= target;
     }
     else
+    {
       flags |= FT_LOAD_NO_HINTING;
+
+      if ( !handle->antialias )
+        flags |= FT_LOAD_MONOCHROME;
+    }
 
     handle->load_flags    = flags;
     handle->string_reload = 1;
