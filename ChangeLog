@@ -1,4 +1,14 @@
-2013-04-13  Werner Lemberg  <wl@gnu.org>
+2013-04-17  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Minor GUI improvements.
+
+	* src/ftview.c (event_hinting_engine_change,
+	event_render_mode_change): Simplify.
+	(Process_Event): Make keys `A'-`F' work only if AA is active.
+	Disable keys `f' and `H' if in light hinting mode.
+	(write_header): Ditto for header messages.
+
+2013-04-17  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Key `H' should be active only if we have a CFF.
 

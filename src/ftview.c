@@ -758,13 +758,9 @@
   event_hinting_engine_change( int  delta )
   {
     if ( delta )
-    {
-      status.hinting_engine =
-        ( status.hinting_engine + delta ) % N_HINTING_ENGINES;
-
-      if ( status.hinting_engine < 0 )
-        status.hinting_engine += N_HINTING_ENGINES;
-    }
+      status.hinting_engine = ( status.hinting_engine +
+                                delta                 +
+                                N_HINTING_ENGINES     ) % N_HINTING_ENGINES;
 
     FT_Property_Set( handle->library,
                      "cff",
@@ -865,12 +861,9 @@
   event_render_mode_change( int  delta )
   {
     if ( delta )
-    {
-      status.render_mode = ( status.render_mode + delta ) % N_RENDER_MODES;
-
-      if ( status.render_mode < 0 )
-        status.render_mode += N_RENDER_MODES;
-    }
+      status.render_mode = ( status.render_mode +
+                             delta              +
+                             N_RENDER_MODES     ) % N_RENDER_MODES;
   }
 
 
@@ -918,7 +911,8 @@
       return ret;
     }
 
-    if ( event->key >= 'A' && event->key < 'A' + N_LCD_MODES )
+    if ( handle->antialias                                   &&
+         event->key >= 'A' && event->key < 'A' + N_LCD_MODES )
     {
       handle->lcd_mode = event->key - 'A';
       FTDemo_Update_Current_Flags( handle );
@@ -954,7 +948,7 @@
       break;
 
     case grKEY( 'f' ):
-      if ( handle->hinted )
+      if ( handle->hinted && handle->lcd_mode != LCD_MODE_LIGHT )
       {
         handle->autohint = !handle->autohint;
         FTDemo_Update_Current_Flags( handle );
@@ -967,7 +961,9 @@
       break;
 
     case grKEY( 'H' ):
-      if ( handle->hinted && !handle->autohint )
+      if ( handle->hinted                     &&
+           !handle->autohint                  &&
+           handle->lcd_mode != LCD_MODE_LIGHT )
       {
         FT_Face    face;
         FT_Module  module;
@@ -1432,12 +1428,15 @@
     {
       /* auto-hinting */
       sprintf( buf, " forced auto: %s",
-                    handle->autohint ? "on" : "off" );
+                    ( handle->autohint                   ||
+                      handle->lcd_mode == LCD_MODE_LIGHT ) ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
 
-    if ( handle->hinted && !handle->autohint )
+    if ( handle->hinted                     &&
+         !handle->autohint                  &&
+         handle->lcd_mode != LCD_MODE_LIGHT )
     {
       /* hinting engine */
 
