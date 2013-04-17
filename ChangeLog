@@ -1,5 +1,16 @@
 2013-04-17  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Be more intelligent in updating the display.
+
+	This improves readability of tracing messages.
+
+	* src/ftview.c (event_bold_change, event_change_radius,
+	event_slant_change, event_size_change, event_index_change,
+	event_font_change): Return update status.
+	(Process_Event): Update display only if an event causes a change.
+
+2013-04-17  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Minor GUI improvements.
 
 	* src/ftview.c (event_hinting_engine_change,
