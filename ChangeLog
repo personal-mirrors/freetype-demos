@@ -1,3 +1,21 @@
+2013-04-18  Werner Lemberg  <wl@gnu.org>
+
+	[ftdiff] Implement key `H' to select CFF hinting engine.
+
+	* src/ftdiff.c: Include FT_CFF_DRIVER_H.
+	Include FT_MODULE_H, FT_INTERNAL_OBJECTS_H, and
+	FT_INTERNAL_DRIVER_H.
+	(HINTING_ENGINE_MAX): New macro.
+	(ColumnStateRec): New member `hinting_engine'.
+	(render_state_init): Updated.
+	(render_state_draw): Select hinting engine.
+	Display hinting engine if we have CFF font.
+	(event_help): Updated.
+	(process_event): Handle `H' key.
+
+	* Makefile (ftdiff.$(SO)): Enable inclusion of internal header
+	files.
+
 2013-04-17  Werner Lemberg  <wl@gnu.org>
 
 	Support display of no anti-aliasing, no hinting.

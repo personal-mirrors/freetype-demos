@@ -18,6 +18,13 @@
 
 #include FT_OUTLINE_H
 #include FT_LCD_FILTER_H
+#include FT_CFF_DRIVER_H
+
+  /* showing driver name -- the two internal header files */
+  /* shouldn't be used in normal programs                 */
+#include FT_MODULE_H
+#include FT_INTERNAL_OBJECTS_H
+#include FT_INTERNAL_DRIVER_H
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -160,6 +167,7 @@
     "native hinter"
   };
 
+#define HINTING_ENGINE_MAX  2
 
   /** RENDER STATE **/
 
@@ -175,6 +183,8 @@
     int            use_custom_lcd_filter;
     unsigned char  filter_weights[5];
     int            fw_index;
+
+    int            hinting_engine;
 
   } ColumnStateRec, *ColumnState;
 
@@ -234,6 +244,7 @@
     state->columns[0].use_lcd_filter        = 1;
     state->columns[0].lcd_filter            = FT_LCD_FILTER_DEFAULT;
     state->columns[0].hint_mode             = HINT_MODE_BYTECODE;
+    state->columns[0].hinting_engine        = FT_CFF_HINTING_FREETYPE;
     state->columns[0].use_custom_lcd_filter = 0;
     state->columns[0].fw_index              = 2;
     /* freetype default filter weights */
@@ -247,7 +258,6 @@
     state->columns[2].hint_mode             = HINT_MODE_UNHINTED;
 
     state->col = 1;
-
   }
 
 
@@ -508,6 +518,10 @@
 
     _render_state_rescale( state );
 
+    FT_Property_Set( state->library,
+                     "cff",
+                     "hinting-engine", &column->hinting_engine );
+
     if ( column->use_lcd_filter )
       FT_Library_SetLcdFilter( face->glyph->library, column->lcd_filter );
 
@@ -675,14 +689,33 @@
 
     /* display footer on this column */
     {
-      void*        disp = state->display.disp;
-      const char  *msg;
+      FT_Module    module = &state->face->driver->root;
+      void*        disp   = state->display.disp;
+
+      const char*  hinting_engine;
+      const char*  msg;
       char         temp[64];
 
 
-      msg = render_mode_names[column->hint_mode];
+      hinting_engine = "";
+      if ( !strcmp( module->clazz->module_name, "cff" ) &&
+           rmode == HINT_MODE_BYTECODE                  )
+      {
+        switch ( column->hinting_engine )
+        {
+        case FT_CFF_HINTING_FREETYPE:
+          hinting_engine = " (CFF FT)";
+          break;
+        case FT_CFF_HINTING_ADOBE:
+          hinting_engine = " (CFF Adobe)";
+          break;
+        }
+      }
+
+      sprintf( temp, "%s%s",
+               render_mode_names[column->hint_mode], hinting_engine );
       state->display.disp_text( disp, left,
-                                bottom + 5, msg );
+                                bottom + 5, temp );
 
       if ( column->use_lcd_filter )
         msg = "LCD rendering";
@@ -962,6 +995,7 @@
     grLn();
     grWriteln( "  d            toggle lsb/rsb deltas" );
     grWriteln( "  h            toggle hinting mode" );
+    grWriteln( "  H            cycle hinting engine (if CFF)" );
     grWriteln( "  k            toggle kerning (only from `kern' table)" );
     grWriteln( "  r            toggle rendering mode" );
     grLn();
@@ -1073,6 +1107,20 @@
     case grKEY( 'h' ):
       column->hint_mode =
         (HintMode)( ( column->hint_mode + 1 ) % HINT_MODE_MAX );
+      break;
+
+    case grKEY( 'H' ):
+      {
+        FT_Module  module = &state->face->driver->root;
+
+
+        if ( strcmp( module->clazz->module_name, "cff" ) ||
+             column->hint_mode != HINT_MODE_BYTECODE     )
+          break;
+
+        column->hinting_engine =
+          ( column->hinting_engine + 1 ) % HINTING_ENGINE_MAX;
+      }
       break;
 
     case grKEY( 'k' ):

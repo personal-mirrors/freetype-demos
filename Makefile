@@ -369,12 +369,6 @@ else
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  $(OBJ_DIR_2)/ftdiff.$(SO): $(SRC_DIR)/ftdiff.c \
-                             $(SRC_DIR)/ftcommon.h \
-                             $(GRAPH_LIB)
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<)
-
   $(OBJ_DIR_2)/ftmulti.$(SO): $(SRC_DIR)/ftmulti.c \
                               $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
@@ -420,6 +414,18 @@ else
   # internal header files.
   #
   $(OBJ_DIR_2)/ftview.$(SO): $(SRC_DIR)/ftview.c \
+                             $(SRC_DIR)/ftcommon.h \
+                             $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
+
+
+  ####################################################################
+  #
+  # Special rule to compile the `ftdiff' program as it includes
+  # internal header files.
+  #
+  $(OBJ_DIR_2)/ftdiff.$(SO): $(SRC_DIR)/ftdiff.c \
                              $(SRC_DIR)/ftcommon.h \
                              $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
