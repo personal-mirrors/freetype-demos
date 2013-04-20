@@ -173,6 +173,7 @@
 
   typedef struct  _ColumnStateRec
   {
+    int            use_cboxes;
     int            use_kerning;
     int            use_deltas;
     int            use_lcd_filter;
@@ -239,6 +240,7 @@
     state->char_size    = 16;
     state->display      = display[0];
 
+    state->columns[0].use_cboxes            = 0;
     state->columns[0].use_kerning           = 1;
     state->columns[0].use_deltas            = 1;
     state->columns[0].use_lcd_filter        = 1;
@@ -628,7 +630,7 @@
       }
       prev_rsb_delta = face->glyph->rsb_delta;
 
-      /* implement sub-pixel positining for un-hinted mode */
+      /* implement sub-pixel positioning for un-hinted mode */
       if ( rmode == HINT_MODE_UNHINTED             &&
            slot->format == FT_GLYPH_FORMAT_OUTLINE )
       {
@@ -638,20 +640,35 @@
         FT_Outline_Translate( &slot->outline, shift, 0 );
       }
 
-      if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
+      if ( column->use_cboxes )
       {
-        FT_BBox  cbox;
+        if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
+        {
+          FT_BBox  cbox;
 
 
-        FT_Outline_Get_CBox( &slot->outline, &cbox );
-        xmax = ( x_origin + cbox.xMax + 63 ) >> 6;
+          FT_Outline_Get_CBox( &slot->outline, &cbox );
+          xmax = ( x_origin + cbox.xMax + 63 ) >> 6;
+        }
+        else
+          xmax = ( x_origin >> 6 ) + slot->bitmap_left + slot->bitmap.width;
+      }
+      else
+      {
+        if ( rmode == HINT_MODE_UNHINTED )
+          xmax = slot->linearHoriAdvance >> 10;
+        else
+          xmax = slot->advance.x;
 
+        xmax  += x_origin;
+        xmax >>= 6;
+        xmax  -= 1;
+      }
+
+      if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
         FT_Render_Glyph( slot,
                          column->use_lcd_filter ? FT_RENDER_MODE_LCD
                                                 : FT_RENDER_MODE_NORMAL );
-      }
-      else
-        xmax = ( x_origin >> 6 ) + slot->bitmap_left + slot->bitmap.width;
 
       if ( xmax >= right )
       {
@@ -775,11 +792,13 @@
                                   bottom + 2 * HEADER_HEIGHT + 5, msg );
       }
 
-      sprintf( temp, "%s %s",
+      sprintf( temp, "%s %s %s",
                column->use_kerning ? "+kern"
                                    : "-kern",
                column->use_deltas ? "+delta"
-                                  : "-delta" );
+                                  : "-delta",
+               column->use_cboxes ? "glyph boxes"
+                                  : "adv. widths" );
       state->display.disp_text( disp, left,
                                 bottom + 3 * HEADER_HEIGHT + 5, temp );
 
@@ -998,6 +1017,7 @@
     grWriteln( "  H            cycle hinting engine (if CFF)" );
     grWriteln( "  k            toggle kerning (only from `kern' table)" );
     grWriteln( "  r            toggle rendering mode" );
+    grWriteln( "  x            toggle layout mode" );
     grLn();
     grWriteln( "  l            change LCD filter type" );
     grWriteln( "  [, ]         select custom LCD filter weight" );
@@ -1085,15 +1105,15 @@
       break;
 
     case grKEY( '1' ):
-      state->col     = 0;
+      state->col = 0;
       break;
 
     case grKEY( '2' ):
-      state->col     = 1;
+      state->col = 1;
       break;
 
     case grKEY( '3' ):
-      state->col     = 2;
+      state->col = 2;
       break;
 
     case grKEY( 'd' ):
@@ -1171,6 +1191,10 @@
 
     case grKEY( 'v' ):
       event_change_gamma( state, -0.1 );
+      break;
+
+    case grKEY( 'x' ):
+      column->use_cboxes = !column->use_cboxes;
       break;
 
     case grKEY( '[' ):

@@ -1,3 +1,16 @@
+2013-04-20  Werner Lemberg  <wl@gnu.org>
+
+	[ftdiff] New `x' key to toggle layout modes. (cbox vs. adv. width).
+
+	Using the advance width is the new default.
+
+	* src/ftdiff.c (ColumnStateRec): New member `use_cboxes'.
+	(render_state_init): Updated.
+	(render_state_draw): Use advance width instead of the maximum x
+	value of the cbox if `use_cboxes' is set to 0.
+	(event_help): Updated.
+	(process_event): Handle `x' key.
+
 2013-04-18  Werner Lemberg  <wl@gnu.org>
 
 	[ftdiff] Implement key `H' to select CFF hinting engine.
