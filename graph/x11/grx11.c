@@ -5,7 +5,7 @@
  *  This is the driver for displaying inside a window under X11,
  *  used by the graphics utility of the FreeType test suite.
  *
- *  Copyright 1999-2000, 2001, 2002, 2005, 2006 by Antoine Leca,
+ *  Copyright 1999-2002, 2005, 2006, 2013 by Antoine Leca,
  *  David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  *  This file is part of the FreeType project, and may only be used
@@ -32,8 +32,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xatom.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 
@@ -1349,6 +1352,10 @@ typedef  unsigned long   uint32;
       XSetWindowAttributes  xswa;
       long                  xswa_mask = CWBackPixel | CWEventMask | CWCursor;
 
+      pid_t                 pid;
+      Atom                  _NET_WM_PID;
+
+
       xswa.border_pixel = BlackPixel( display, screen );
 
       if (surface->visual == DefaultVisual( display, screen ) )
@@ -1408,6 +1415,12 @@ typedef  unsigned long   uint32;
 
       XSetWMProperties( display, surface->win, &xtp, &xtp,
                         NULL, 0, &xsh, NULL, NULL );
+
+      pid = getpid();
+      _NET_WM_PID = XInternAtom( display, "_NET_WM_PID", False );
+      XChangeProperty( display, surface->win, _NET_WM_PID,
+                       XA_CARDINAL, 32, PropModeReplace,
+                       (unsigned char *)&pid, 1 );
     }
 
     surface->root.done         = (grDoneSurfaceFunc)gr_x11_surface_done;

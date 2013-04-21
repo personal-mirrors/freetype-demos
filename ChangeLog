@@ -1,3 +1,11 @@
+2013-04-21  Werner Lemberg  <wl@gnu.org>
+
+	[graph/x11] Set _NET_WM_PID property.
+
+	* graph/X11/x11/grx11.c: Include `sys/types.h', `unistd.h', and
+	`XAtom.h'.
+	(gr_x11_surface_init): Get process ID and set _NET_WM_PID property.
+
 2013-03-27  Werner Lemberg  <wl@gnu.org>
 
 	Makefile (COMPILE): Add `CPPFLAGS'.
