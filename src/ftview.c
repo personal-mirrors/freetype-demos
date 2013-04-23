@@ -102,6 +102,7 @@
 
     int            font_idx;
     int            offset;            /* as selected by the user */
+    int            topleft;           /* as displayed by ftview  */
     int            num_fails;
     int            preload;
 
@@ -113,7 +114,7 @@
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
                FT_CFF_HINTING_FREETYPE,
-               0, 0, 0, 0,
+               0, 0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
 
@@ -121,12 +122,28 @@
   static FTDemo_Handle*   handle;
 
 
-  static const char*  Text =
-    "The quick brown fox jumps over the lazy dog 0123456789"
-    " \342\352\356\373\364\344\353\357\366\374\377\340\371\351\350\347"
-    " &#~\"\'(-`_^@)=+\260 ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    " $\243^\250*\265\371%!\247:/;.,?<>";
+  /*
+     In UTF-8 encoding:
 
+       The quick brown fox jumps over the lazy dog
+       0123456789
+       âêîûôäëïöüÿàùéèç
+       &#~"'(-`_^@)=+°
+       ABCDEFGHIJKLMNOPQRSTUVWXYZ
+       $£^¨*µù%!§:/;.,?<>
+
+     The trailing space is for `looping' in case `Text' gets displayed more
+     than once.
+   */
+  static const char*  Text =
+    "The quick brown fox jumps over the lazy dog"
+    " 0123456789"
+    " \303\242\303\252\303\256\303\273\303\264"
+     "\303\244\303\253\303\257\303\266\303\274\303\277"
+     "\303\240\303\271\303\251\303\250\303\247"
+    " &#~\"\'(-`_^@)=+\302\260"
+    " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    " $\302\243^\302\250*\302\265\303\271%!\302\247:/;.,?<> ";
 
 
   static void
@@ -143,7 +160,7 @@
                  int  offset )
   {
     int           start_x, start_y, step_y, x, y;
-    int           i;
+    int           i, have_topleft;
     FT_Size       size;
     FT_Face       face;
     FT_GlyphSlot  slot;
@@ -169,6 +186,8 @@
                     FT_STROKER_LINECAP_ROUND,
                     FT_STROKER_LINEJOIN_ROUND,
                     0 );
+
+    have_topleft = 0;
 
     for ( i = offset; i < num_indices; i++ )
     {
@@ -200,8 +219,17 @@
         }
 
         error = FTDemo_Draw_Glyph( handle, display, glyph, &x, &y );
+
         if ( !error )
+        {
           FT_Done_Glyph( glyph );
+
+          if ( !have_topleft )
+          {
+            have_topleft   = 1;
+            status.topleft = i;
+          }
+        }
 
         if ( error )
           goto Next;
@@ -228,7 +256,7 @@
                   int  offset )
   {
     int           start_x, start_y, step_y, x, y;
-    int           i;
+    int           i, have_topleft;
     FT_Size       size;
     FT_Face       face;
     FT_GlyphSlot  slot;
@@ -267,6 +295,8 @@
     shear.yx = 0;
     shear.yy = 1 << 16;
 
+    have_topleft = 0;
+
     for ( i = offset; i < num_indices; i++ )
     {
       int  glyph_idx;
@@ -283,6 +313,15 @@
         FT_Outline_Transform( &slot->outline, &shear );
 
         error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
+
+        if ( !error )
+        {
+          if ( !have_topleft )
+          {
+            have_topleft   = 1;
+            status.topleft = i;
+          }
+        }
 
         if ( error )
           goto Next;
@@ -309,7 +348,7 @@
                    int  offset )
   {
     int           start_x, start_y, step_y, x, y;
-    int           i;
+    int           i, have_topleft;
     FT_Size       size;
     FT_Face       face;
     FT_GlyphSlot  slot;
@@ -332,6 +371,8 @@
     ystr = status.ptsize * status.res / 72;
     xstr = status.xbold_factor * ystr;
     ystr = status.ybold_factor * ystr;
+
+    have_topleft = 0;
 
     for ( i = offset; i < num_indices; i++ )
     {
@@ -387,6 +428,15 @@
 
         error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
 
+        if ( !error )
+        {
+          if ( !have_topleft )
+          {
+            have_topleft   = 1;
+            status.topleft = i;
+          }
+        }
+
         if ( error )
           goto Next;
         else if ( X_TOO_LONG( x, size, display ) )
@@ -412,7 +462,7 @@
               int  offset )
   {
     int      start_x, start_y, step_y, x, y;
-    int      i;
+    int      i, have_topleft;
     FT_Size  size;
 
 
@@ -426,6 +476,8 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
+    have_topleft = 0;
+
     for ( i = offset; i < num_indices; i++ )
     {
       int  glyph_idx;
@@ -437,6 +489,16 @@
         glyph_idx = FTDemo_Get_Index( handle, i );
 
       error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
+
+      if ( !error )
+      {
+        if ( !have_topleft )
+        {
+          have_topleft   = 1;
+          status.topleft = i;
+        }
+      }
+
       if ( error )
         status.num_fails++;
       else if ( X_TOO_LONG( x, size, display ) )
@@ -459,9 +521,11 @@
   {
     int      start_x, start_y, step_y, x, y;
     FT_Size  size;
+    int      have_topleft;
 
     const char*  p;
     const char*  pEnd;
+    int          ch;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -477,21 +541,42 @@
     pEnd = p + strlen( Text );
 
     while ( offset-- )
-      utf8_next( &p, pEnd );
+    {
+      ch = utf8_next( &p, pEnd );
+      if ( ch < 0 )
+      {
+        p  = Text;
+        ch = utf8_next( &p, pEnd );
+      }
+    }
+
+    have_topleft = 0;
 
     while ( num_indices-- )
     {
       FT_UInt  glyph_idx;
-      int      ch;
 
 
       ch = utf8_next( &p, pEnd );
       if ( ch < 0 )
-        break;
+      {
+        p  = Text;
+        ch = utf8_next( &p, pEnd );
+      }
 
       glyph_idx = FTDemo_Get_Index( handle, ch );
 
       error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
+
+      if ( !error )
+      {
+        if ( !have_topleft )
+        {
+          have_topleft   = 1;
+          status.topleft = ch;
+        }
+      }
+
       if ( error )
         status.num_fails++;
       else
@@ -522,6 +607,7 @@
     int      pt_size, max_size = 100000;
     FT_Size  size;
     FT_Face  face;
+    int      have_topleft, start;
 
     char         text[256];
     const char*  p;
@@ -552,9 +638,12 @@
     start_x = START_X;
     start_y = START_Y;
 
+    have_topleft = 0;
+
     for ( pt_size = first_size; pt_size < max_size; pt_size += 64 )
     {
       int first = offset;
+      int ch;
 
 
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
@@ -580,26 +669,49 @@
       pEnd = p + strlen( Text );
 
       while ( first-- )
-        utf8_next( &p, pEnd );
+      {
+        ch = utf8_next( &p, pEnd );
+        if ( ch < 0 )
+        {
+          p  = Text;
+          ch = utf8_next( &p, pEnd );
+        }
+      }
 
-      snprintf( text, 256, "%g: %s", pt_size / 64.0, p );
+      snprintf( text, 256, "%g: %n%s", pt_size / 64.0, &start, p );
 
       p    = text;
       pEnd = p + strlen( text );
 
       while ( 1 )
       {
-        FT_UInt  glyph_idx;
-        int      ch;
+        FT_UInt      glyph_idx;
+        const char*  oldp;
 
 
-        ch = utf8_next( &p, pEnd );
+        oldp = p;
+        ch   = utf8_next( &p, pEnd );
         if ( ch < 0 )
-          break;
+        {
+          p    = Text;
+          oldp = p;
+          ch   = utf8_next( &p, pEnd );
+        }
 
         glyph_idx = FTDemo_Get_Index( handle, ch );
 
         error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
+
+        if ( !error )
+        {
+          /* `topleft' should be the first character after the size string */
+          if ( oldp - text == start && !have_topleft )
+          {
+            have_topleft   = 1;
+            status.topleft = ch;
+          }
+        }
+
         if ( error )
           status.num_fails++;
         else
@@ -1259,17 +1371,19 @@
     line++;
 
     /* char code, glyph index, glyph name */
-    if ( status.encoding == FT_ENCODING_NONE )
-      sprintf( buf, "top left glyph idx: %d",
-                    status.offset );
-    else if ( status.encoding == FT_ENCODING_UNICODE )
+    if ( status.encoding == FT_ENCODING_UNICODE      ||
+         status.render_mode == RENDER_MODE_TEXT      ||
+         status.render_mode == RENDER_MODE_WATERFALL )
       sprintf( buf, "top left charcode: U+%04X (glyph idx %d)",
-                    status.offset,
-                    FTDemo_Get_Index( handle, status.offset ) );
+                    status.topleft,
+                    FTDemo_Get_Index( handle, status.topleft ) );
+    else if ( status.encoding == FT_ENCODING_NONE )
+      sprintf( buf, "top left glyph idx: %d",
+                    status.topleft );
     else
       sprintf( buf, "top left charcode: 0x%X (glyph idx %d)",
-                    status.offset,
-                    FTDemo_Get_Index( handle, status.offset ) );
+                    status.topleft,
+                    FTDemo_Get_Index( handle, status.topleft ) );
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
@@ -1286,9 +1400,11 @@
 
       if ( size >= format_len + 2 )
       {
-        glyph_idx = status.offset;
-        if ( status.encoding != FT_ENCODING_NONE )
-          glyph_idx = FTDemo_Get_Index( handle, status.offset );
+        glyph_idx = status.topleft;
+        if ( status.encoding != FT_ENCODING_NONE         ||
+             status.render_mode == RENDER_MODE_TEXT      ||
+             status.render_mode == RENDER_MODE_WATERFALL )
+          glyph_idx = FTDemo_Get_Index( handle, status.topleft );
 
         strcpy( p, format );
         if ( FT_Get_Glyph_Name( face, glyph_idx,

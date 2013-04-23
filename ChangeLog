@@ -1,5 +1,21 @@
 2013-04-23  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Improve waterfall and text mode.
+
+	* src/ftview.c (status): New member `topleft'.
+	(Text): Convert string to UTF-8 encoding.  Now the whole string is
+	displayed again.
+	(Render_Stroke, Render_Slanted, Render_Embolden, Render_All): Set
+	`status.topleft' to the first offset which gets really displayed.
+	(Render_Text, Render_Waterfall): Set `status.topleft' to the first
+	offset which gets really displayed.
+	If characters from the `Text' string have been exhausted, start
+	again from the beginning.
+	(write_header): Always assume UTF-8 encoding for displaying header
+	in `text' and `waterfall' modes.
+
+2013-04-23  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Rename some variables.
 
 	* src/ftview.c (status): s/font_index/font_idx/.
