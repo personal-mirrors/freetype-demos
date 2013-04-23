@@ -1,3 +1,17 @@
+2013-04-23  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Rename some variables.
+
+	* src/ftview.c (status): s/font_index/font_idx/.
+	s/Num/offset/.
+	s/Fail/num_fails/.
+	s/fw_index/fw_idx/.
+	Update all callers.
+	(Render_Stroke, Render_Slanted, Render_Embolden, Render_All,
+	Render_Text, Render_Waterfall): s/first_index/offset/.
+	(event_index_change): s/old_Num/old_offset/.
+	(write_header): s/gindex/glyph_idx/.
+
 2013-04-20  Werner Lemberg  <wl@gnu.org>
 
 	[ftdiff] New `x' key to toggle layout modes. (cbox vs. adv. width).

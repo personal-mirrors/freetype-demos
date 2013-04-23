@@ -100,14 +100,14 @@
 
     int            hinting_engine;    /* for CFF */
 
-    int            font_index;
-    int            Num;               /* current first index */
-    int            Fail;
+    int            font_idx;
+    int            offset;            /* as selected by the user */
+    int            num_fails;
     int            preload;
 
     int            use_custom_lcd_filter;
     unsigned char  filter_weights[5];
-    int            fw_index;
+    int            fw_idx;
 
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
@@ -140,7 +140,7 @@
 
   static FT_Error
   Render_Stroke( int  num_indices,
-                 int  first_index )
+                 int  offset )
   {
     int           start_x, start_y, step_y, x, y;
     int           i;
@@ -170,17 +170,17 @@
                     FT_STROKER_LINEJOIN_ROUND,
                     0 );
 
-    for ( i = first_index; i < num_indices; i++ )
+    for ( i = offset; i < num_indices; i++ )
     {
-      int  gindex;
+      int  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        gindex = i;
+        glyph_idx = i;
       else
-        gindex = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, i );
 
-      error = FT_Load_Glyph( face, gindex,
+      error = FT_Load_Glyph( face, glyph_idx,
                              handle->load_flags | FT_LOAD_NO_BITMAP );
 
       if ( !error && slot->format == FT_GLYPH_FORMAT_OUTLINE )
@@ -216,7 +216,7 @@
       }
       else
     Next:
-        status.Fail++;
+        status.num_fails++;
     }
 
     return error;
@@ -225,7 +225,7 @@
 
   static FT_Error
   Render_Slanted( int  num_indices,
-                  int  first_index )
+                  int  offset )
   {
     int           start_x, start_y, step_y, x, y;
     int           i;
@@ -267,17 +267,17 @@
     shear.yx = 0;
     shear.yy = 1 << 16;
 
-    for ( i = first_index; i < num_indices; i++ )
+    for ( i = offset; i < num_indices; i++ )
     {
-      int  gindex;
+      int  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        gindex = i;
+        glyph_idx = i;
       else
-        gindex = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, i );
 
-      error = FT_Load_Glyph( face, gindex, handle->load_flags );
+      error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
       if ( !error )
       {
         FT_Outline_Transform( &slot->outline, &shear );
@@ -297,7 +297,7 @@
       }
       else
     Next:
-        status.Fail++;
+        status.num_fails++;
     }
 
     return error;
@@ -306,7 +306,7 @@
 
   static FT_Error
   Render_Embolden( int  num_indices,
-                   int  first_index )
+                   int  offset )
   {
     int           start_x, start_y, step_y, x, y;
     int           i;
@@ -333,17 +333,17 @@
     xstr = status.xbold_factor * ystr;
     ystr = status.ybold_factor * ystr;
 
-    for ( i = first_index; i < num_indices; i++ )
+    for ( i = offset; i < num_indices; i++ )
     {
-      int  gindex;
+      int  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        gindex = i;
+        glyph_idx = i;
       else
-        gindex = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, i );
 
-      error = FT_Load_Glyph( face, gindex, handle->load_flags );
+      error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
       if ( !error )
       {
         /* this is essentially the code of function */
@@ -400,7 +400,7 @@
       }
       else
     Next:
-        status.Fail++;
+        status.num_fails++;
     }
 
     return error;
@@ -409,7 +409,7 @@
 
   static FT_Error
   Render_All( int  num_indices,
-              int  first_index )
+              int  offset )
   {
     int      start_x, start_y, step_y, x, y;
     int      i;
@@ -426,19 +426,19 @@
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
-    for ( i = first_index; i < num_indices; i++ )
+    for ( i = offset; i < num_indices; i++ )
     {
-      int  gindex;
+      int  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        gindex = i;
+        glyph_idx = i;
       else
-        gindex = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, i );
 
-      error = FTDemo_Draw_Index( handle, display, gindex, &x, &y );
+      error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
       if ( error )
-        status.Fail++;
+        status.num_fails++;
       else if ( X_TOO_LONG( x, size, display ) )
       {
         x = start_x;
@@ -455,7 +455,7 @@
 
   static FT_Error
   Render_Text( int  num_indices,
-               int  first_index )
+               int  offset )
   {
     int      start_x, start_y, step_y, x, y;
     FT_Size  size;
@@ -476,12 +476,12 @@
     p    = Text;
     pEnd = p + strlen( Text );
 
-    while ( first_index-- )
+    while ( offset-- )
       utf8_next( &p, pEnd );
 
     while ( num_indices-- )
     {
-      FT_UInt  gindex;
+      FT_UInt  glyph_idx;
       int      ch;
 
 
@@ -489,11 +489,11 @@
       if ( ch < 0 )
         break;
 
-      gindex = FTDemo_Get_Index( handle, ch );
+      glyph_idx = FTDemo_Get_Index( handle, ch );
 
-      error = FTDemo_Draw_Index( handle, display, gindex, &x, &y );
+      error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
       if ( error )
-        status.Fail++;
+        status.num_fails++;
       else
       {
         /* Draw_Index adds one pixel space */
@@ -516,7 +516,7 @@
 
   static FT_Error
   Render_Waterfall( int  first_size,
-                    int  first_index )
+                    int  offset )
   {
     int      start_x, start_y, step_y, x, y;
     int      pt_size, max_size = 100000;
@@ -554,7 +554,7 @@
 
     for ( pt_size = first_size; pt_size < max_size; pt_size += 64 )
     {
-      int first = first_index;
+      int first = offset;
 
 
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
@@ -589,7 +589,7 @@
 
       while ( 1 )
       {
-        FT_UInt  gindex;
+        FT_UInt  glyph_idx;
         int      ch;
 
 
@@ -597,11 +597,11 @@
         if ( ch < 0 )
           break;
 
-        gindex = FTDemo_Get_Index( handle, ch );
+        glyph_idx = FTDemo_Get_Index( handle, ch );
 
-        error = FTDemo_Draw_Index( handle, display, gindex, &x, &y );
+        error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
         if ( error )
-          status.Fail++;
+          status.num_fails++;
         else
         {
           /* Draw_Index adds one pixel space */
@@ -867,18 +867,18 @@
   static int
   event_index_change( int  delta )
   {
-    int  old_Num     = status.Num;
+    int  old_offset  = status.offset;
     int  num_indices = handle->current_font->num_indices;
 
 
-    status.Num += delta;
+    status.offset += delta;
 
-    if ( status.Num < 0 )
-      status.Num = 0;
-    else if ( status.Num >= num_indices )
-      status.Num = num_indices - 1;
+    if ( status.offset < 0 )
+      status.offset = 0;
+    else if ( status.offset >= num_indices )
+      status.offset = num_indices - 1;
 
-    return old_Num == status.Num ? 0 : 1;
+    return old_offset == status.offset ? 0 : 1;
   }
 
 
@@ -898,20 +898,20 @@
     int  num_indices;
 
 
-    if ( status.font_index + delta >= handle->num_fonts ||
-         status.font_index + delta < 0                  )
+    if ( status.font_idx + delta >= handle->num_fonts ||
+         status.font_idx + delta < 0                  )
       return 0;
 
-    status.font_index += delta;
+    status.font_idx += delta;
 
-    FTDemo_Set_Current_Font( handle, handle->fonts[status.font_index] );
+    FTDemo_Set_Current_Font( handle, handle->fonts[status.font_idx] );
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
     FTDemo_Update_Current_Flags( handle );
 
     num_indices = handle->current_font->num_indices;
 
-    if ( status.Num >= num_indices )
-      status.Num = num_indices - 1;
+    if ( status.offset >= num_indices )
+      status.offset = num_indices - 1;
 
     return 1;
   }
@@ -1160,9 +1160,9 @@
     case grKEY( '[' ):
       if ( status.use_custom_lcd_filter )
       {
-        status.fw_index--;
-        if ( status.fw_index < 0 )
-          status.fw_index = 4;
+        status.fw_idx--;
+        if ( status.fw_idx < 0 )
+          status.fw_idx = 4;
         status.update = 1;
       }
       break;
@@ -1170,9 +1170,9 @@
     case grKEY( ']' ):
       if ( status.use_custom_lcd_filter )
       {
-        status.fw_index++;
-        if ( status.fw_index > 4 )
-          status.fw_index = 0;
+        status.fw_idx++;
+        if ( status.fw_idx > 4 )
+          status.fw_idx = 0;
         status.update = 1;
       }
       break;
@@ -1183,7 +1183,7 @@
         FTC_Manager_RemoveFaceID( handle->cache_manager,
                                 handle->scaler.face_id );
 
-        status.filter_weights[status.fw_index]--;
+        status.filter_weights[status.fw_idx]--;
         FT_Library_SetLcdFilterWeights( handle->library,
                                         status.filter_weights );
         status.update = 1;
@@ -1197,7 +1197,7 @@
         FTC_Manager_RemoveFaceID( handle->cache_manager,
                                   handle->scaler.face_id );
 
-        status.filter_weights[status.fw_index]++;
+        status.filter_weights[status.fw_idx]++;
         FT_Library_SetLcdFilterWeights( handle->library,
                                         status.filter_weights );
         status.update = 1;
@@ -1261,18 +1261,20 @@
     /* char code, glyph index, glyph name */
     if ( status.encoding == FT_ENCODING_NONE )
       sprintf( buf, "top left glyph idx: %d",
-                    status.Num );
+                    status.offset );
     else if ( status.encoding == FT_ENCODING_UNICODE )
       sprintf( buf, "top left charcode: U+%04X (glyph idx %d)",
-                    status.Num, FTDemo_Get_Index( handle, status.Num ) );
+                    status.offset,
+                    FTDemo_Get_Index( handle, status.offset ) );
     else
       sprintf( buf, "top left charcode: 0x%X (glyph idx %d)",
-                    status.Num, FTDemo_Get_Index( handle, status.Num ) );
+                    status.offset,
+                    FTDemo_Get_Index( handle, status.offset ) );
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
       char*  p;
-      int    format_len, gindex, size;
+      int    format_len, glyph_idx, size;
 
 
       size = strlen( buf );
@@ -1284,12 +1286,12 @@
 
       if ( size >= format_len + 2 )
       {
-        gindex = status.Num;
+        glyph_idx = status.offset;
         if ( status.encoding != FT_ENCODING_NONE )
-          gindex = FTDemo_Get_Index( handle, status.Num );
+          glyph_idx = FTDemo_Get_Index( handle, status.offset );
 
         strcpy( p, format );
-        if ( FT_Get_Glyph_Name( face, gindex,
+        if ( FT_Get_Glyph_Name( face, glyph_idx,
                                 p + format_len, size - format_len ) )
           *p = '\0';
       }
@@ -1549,7 +1551,7 @@
     /* LCD filter settings */
     if ( status.use_custom_lcd_filter )
     {
-      int             fwi = status.fw_index;
+      int             fwi = status.fw_idx;
       unsigned char*  fw  = status.filter_weights;
       int             i;
 
@@ -1641,7 +1643,7 @@
         break;
 
       case 'f':
-        status.Num  = atoi( optarg );
+        status.offset  = atoi( optarg );
         break;
 
       case 'h':
@@ -1753,7 +1755,7 @@
     grSetTitle( display->surface,
                 "FreeType Glyph Viewer - press F1 for help" );
 
-    status.Fail = 0;
+    status.num_fails = 0;
 
     event_font_change( 0 );
 
@@ -1773,30 +1775,30 @@
       {
       case RENDER_MODE_ALL:
         error = Render_All( handle->current_font->num_indices,
-                            status.Num );
+                            status.offset );
         break;
 
       case RENDER_MODE_EMBOLDEN:
         error = Render_Embolden( handle->current_font->num_indices,
-                                 status.Num );
+                                 status.offset );
         break;
 
       case RENDER_MODE_SLANTED:
         error = Render_Slanted( handle->current_font->num_indices,
-                                status.Num );
+                                status.offset );
         break;
 
       case RENDER_MODE_STROKE:
         error = Render_Stroke( handle->current_font->num_indices,
-                               status.Num );
+                               status.offset );
         break;
 
       case RENDER_MODE_TEXT:
-        error = Render_Text( -1, status.Num );
+        error = Render_Text( -1, status.offset );
         break;
 
       case RENDER_MODE_WATERFALL:
-        error = Render_Waterfall( status.ptsize, status.Num );
+        error = Render_Waterfall( status.ptsize, status.offset );
         break;
       }
 
@@ -1807,7 +1809,7 @@
     } while ( Process_Event( &event ) == 0 );
 
     printf( "Execution completed successfully.\n" );
-    printf( "Fails = %d\n", status.Fail );
+    printf( "Fails = %d\n", status.num_fails );
 
     FTDemo_Display_Done( display );
     FTDemo_Done( handle );
