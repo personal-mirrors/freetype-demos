@@ -1106,8 +1106,7 @@
       break;
 
     case grKEY( 'H' ):
-      if ( handle->hinted                     &&
-           !handle->autohint                  &&
+      if ( !handle->autohint                  &&
            handle->lcd_mode != LCD_MODE_LIGHT )
       {
         FT_Face    face;
@@ -1606,8 +1605,7 @@
                          buf, display->fore_color );
     }
 
-    if ( handle->hinted                     &&
-         !handle->autohint                  &&
+    if ( !handle->autohint                  &&
          handle->lcd_mode != LCD_MODE_LIGHT )
     {
       /* hinting engine */
@@ -1628,7 +1626,7 @@
           break;
         }
 
-        sprintf( buf, " engine: %s",
+        sprintf( buf, "engine: %s",
                       hinting_engine );
         grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                            buf, display->fore_color );

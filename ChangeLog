@@ -1,3 +1,13 @@
+2013-04-26  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Allow engine change for non-hinted modes also.
+
+	This is useful to demonstrate the stem darkening of the Adobe's CFF
+	engine.
+
+	* src/ftview.c (Process_Event) <'H'>, (write_header): Adjust
+	conditions.
+
 2013-04-23  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Improve waterfall and text mode.
