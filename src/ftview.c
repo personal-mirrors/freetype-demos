@@ -1417,6 +1417,8 @@
     line++;
 
     /* encoding */
+    if ( !( status.render_mode == RENDER_MODE_TEXT      ||
+            status.render_mode == RENDER_MODE_WATERFALL ) )
     {
       const char*  encoding;
 

@@ -1,3 +1,12 @@
+2013-04-27  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Don't show encoding in `text' and `waterfall' modes.
+
+	Those two modes always use UTF-8 (or rather, they use
+	FTDemo_Get_Index).
+
+	* src/ftview.c (write_header): Implement it.
+
 2013-04-26  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Allow engine change for non-hinted modes also.
