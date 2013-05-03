@@ -24,6 +24,8 @@
 #include FT_ADVANCES_H
 #include FT_OUTLINE_H
 #include FT_BBOX_H
+#include FT_MODULE_H
+#include FT_CFF_DRIVER_H
 
 #ifdef UNIX
 #include <sys/time.h>
@@ -677,8 +679,8 @@ void usage(void)
 
   fprintf( stderr,
     "\n"
-    "ftbench: bench some common FreeType paths\n"
-    "-----------------------------------------\n"
+    "ftbench: run FreeType benchmarks\n"
+    "--------------------------------\n"
     "\n"
     "Usage: ftbench [options] fontname\n"
     "\n"
@@ -686,6 +688,7 @@ void usage(void)
     "  -c N      Use at most N iterations for each test\n"
     "            (0 means time limited).\n"
     "  -f L      Use hex number L as load flags.\n"
+    "  -H        Use alternative CFF engine.\n"
     "  -i IDX    Start with index IDX (default is 0).\n"
     "  -m M      Set maximum cache size to M KByte (default is %d).\n",
            CACHE_SIZE );
@@ -748,7 +751,7 @@ main(int argc,
     int  opt;
 
 
-    opt = getopt( argc, argv, "b:Cc:f:i:m:pr:s:t:v" );
+    opt = getopt( argc, argv, "b:Cc:f:Hi:m:pr:s:t:v" );
 
     if ( opt == -1 )
       break;
@@ -769,6 +772,15 @@ main(int argc,
 
     case 'f':
       load_flags = strtol( optarg, NULL, 16 );
+      break;
+
+    case 'H':
+      {
+        int  hinting_engine = FT_CFF_HINTING_ADOBE;
+
+
+        FT_Property_Set( lib, "cff", "hinting-engine", &hinting_engine );
+      }
       break;
 
     case 'i':

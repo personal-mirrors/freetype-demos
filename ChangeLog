@@ -1,3 +1,11 @@
+2013-05-03  Werner Lemberg  <wl@gnu.org>
+
+	[ftbench] New command line option `-H' to select Adobe's CFF engine.
+
+	* src/ftbench.c: Include FT_MODULE_H and FT_CFF_DRIVER_H.
+	(main): Handle `H' key.
+	(usage): Updated.
+
 2013-04-27  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Don't show encoding in `text' and `waterfall' modes.
