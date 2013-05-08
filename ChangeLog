@@ -1,3 +1,16 @@
+2013-05-08  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.4.12 released.
+	==========================
+
+
+	Tag sources with `VER-2-4-12'.
+
+	* README: Updated.
+
+	* src/x11/grx11.c: s/read/lread/, s/write/lwrite/ where appropriate
+	to avoid variable shadow warnings.
+
 2013-05-03  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] New command line option `-H' to select Adobe's CFF engine.
