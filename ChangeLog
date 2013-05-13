@@ -1,3 +1,7 @@
+2013-05-13  Sebastien Bacher  <seb128@ubuntu.com>
+
+	* src/ftview.c (write_header): Fix uninitialized variables.
+
 2013-05-08  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.4.12 released.

@@ -1420,7 +1420,7 @@
     if ( !( status.render_mode == RENDER_MODE_TEXT      ||
             status.render_mode == RENDER_MODE_WATERFALL ) )
     {
-      const char*  encoding;
+      const char*  encoding = NULL;
 
 
       switch ( status.encoding )
@@ -1489,7 +1489,7 @@
 
     /* render mode */
     {
-      const char*  render_mode;
+      const char*  render_mode = NULL;
 
 
       switch ( status.render_mode )
@@ -1563,7 +1563,7 @@
 
     if ( handle->antialias )
     {
-      const char*  lcd_mode;
+      const char*  lcd_mode = NULL;
 
 
       switch ( handle->lcd_mode )
