@@ -33,6 +33,7 @@
 #include FT_SYNTHESIS_H
 #include FT_LCD_FILTER_H
 #include FT_CFF_DRIVER_H
+#include FT_TRUETYPE_DRIVER_H
 
 
 #define MAXPTSIZE  500                 /* dtp */
@@ -66,7 +67,7 @@
 #endif
 
 
-#define N_HINTING_ENGINES  2
+#define N_CFF_HINTING_ENGINES  2
 
 
   enum
@@ -98,7 +99,8 @@
     double         radius;
     double         slant;
 
-    int            hinting_engine;    /* for CFF */
+    int            cff_hinting_engine;
+    int            tt_interpreter_version;
 
     int            font_idx;
     int            offset;            /* as selected by the user */
@@ -113,7 +115,7 @@
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
-               FT_CFF_HINTING_FREETYPE,
+               FT_CFF_HINTING_FREETYPE, TT_INTERPRETER_VERSION_35,
                0, 0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
@@ -867,19 +869,48 @@
 
 
   static void
-  event_hinting_engine_change( int  delta )
+  event_cff_hinting_engine_change( int  delta )
   {
     if ( delta )
-      status.hinting_engine = ( status.hinting_engine +
-                                delta                 +
-                                N_HINTING_ENGINES     ) % N_HINTING_ENGINES;
+      status.cff_hinting_engine =
+        ( status.cff_hinting_engine +
+          delta                     +
+          N_CFF_HINTING_ENGINES     ) % N_CFF_HINTING_ENGINES;
 
     FT_Property_Set( handle->library,
                      "cff",
-                     "hinting-engine", &status.hinting_engine );
+                     "hinting-engine", &status.cff_hinting_engine );
 
     FTC_Manager_RemoveFaceID( handle->cache_manager,
                               handle->scaler.face_id );
+  }
+
+
+  static int
+  event_tt_interpreter_version_change( void )
+  {
+    FT_UInt  new_interpreter_version;
+
+
+    if ( status.tt_interpreter_version == TT_INTERPRETER_VERSION_35 )
+      new_interpreter_version = TT_INTERPRETER_VERSION_38;
+    else
+      new_interpreter_version = TT_INTERPRETER_VERSION_35;
+
+    error = FT_Property_Set( handle->library,
+                             "truetype",
+                             "interpreter-version",
+                             &new_interpreter_version );
+
+    if ( !error )
+    {
+      FTC_Manager_RemoveFaceID( handle->cache_manager,
+                                handle->scaler.face_id );
+      status.tt_interpreter_version = new_interpreter_version;
+      return 1;
+    }
+
+    return 0;
   }
 
 
@@ -1118,11 +1149,14 @@
         if ( !error )
         {
           module = &face->driver->root;
+
           if ( !strcmp( module->clazz->module_name, "cff" ) )
           {
-            event_hinting_engine_change( 1 );
+            event_cff_hinting_engine_change( 1 );
             status.update = 1;
           }
+          else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+            status.update = event_tt_interpreter_version_change();
         }
       }
       break;
@@ -1612,13 +1646,13 @@
     {
       /* hinting engine */
 
-      FT_Module    module = &face->driver->root;
-      const char*  hinting_engine;
+      FT_Module    module         = &face->driver->root;
+      const char*  hinting_engine = NULL;
 
 
       if ( !strcmp( module->clazz->module_name, "cff" ) )
       {
-        switch ( status.hinting_engine )
+        switch ( status.cff_hinting_engine )
         {
         case FT_CFF_HINTING_FREETYPE:
           hinting_engine = "FreeType";
@@ -1627,7 +1661,23 @@
           hinting_engine = "Adobe";
           break;
         }
+      }
 
+      else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+      {
+        switch ( status.tt_interpreter_version )
+        {
+        case TT_INTERPRETER_VERSION_35:
+          hinting_engine = "v35";
+          break;
+        case TT_INTERPRETER_VERSION_38:
+          hinting_engine = "v38";
+          break;
+        }
+      }
+
+      if ( hinting_engine )
+      {
         sprintf( buf, "engine: %s",
                       hinting_engine );
         grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
@@ -1850,7 +1900,10 @@
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
     FT_Property_Set( handle->library,
                      "cff",
-                     "hinting-engine", &status.hinting_engine );
+                     "hinting-engine", &status.cff_hinting_engine );
+    FT_Property_Set( handle->library,
+                     "truetype",
+                     "interpreter-version", &status.tt_interpreter_version );
 
     handle->encoding = status.encoding;
 

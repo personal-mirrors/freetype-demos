@@ -26,6 +26,7 @@
 #include FT_BBOX_H
 #include FT_MODULE_H
 #include FT_CFF_DRIVER_H
+#include FT_TRUETYPE_DRIVER_H
 
 #ifdef UNIX
 #include <sys/time.h>
@@ -688,7 +689,7 @@ void usage(void)
     "  -c N      Use at most N iterations for each test\n"
     "            (0 means time limited).\n"
     "  -f L      Use hex number L as load flags.\n"
-    "  -H        Use alternative CFF engine.\n"
+    "  -H        Use alternative hinting engine (CFF and TTF).\n"
     "  -i IDX    Start with index IDX (default is 0).\n"
     "  -m M      Set maximum cache size to M KByte (default is %d).\n",
            CACHE_SIZE );
@@ -737,6 +738,8 @@ main(int argc,
   double      max_time = BENCH_TIME;
   int         compare_cached = 0;
   int         i;
+  int         hinting_engine;
+  int         interpreter_version;
 
 
   if ( FT_Init_FreeType( &lib ) )
@@ -745,6 +748,14 @@ main(int argc,
 
     return 1;
   }
+
+  hinting_engine = FT_CFF_HINTING_FREETYPE;
+  FT_Property_Set( lib, "cff", "hinting-engine",
+                   &hinting_engine );
+
+  interpreter_version = TT_INTERPRETER_VERSION_35;
+  FT_Property_Set( lib, "truetype", "interpreter-version",
+                   &interpreter_version );
 
   while ( 1 )
   {
@@ -775,12 +786,13 @@ main(int argc,
       break;
 
     case 'H':
-      {
-        int  hinting_engine = FT_CFF_HINTING_ADOBE;
+      hinting_engine = FT_CFF_HINTING_ADOBE;
+      FT_Property_Set( lib, "cff", "hinting-engine",
+                       &hinting_engine );
 
-
-        FT_Property_Set( lib, "cff", "hinting-engine", &hinting_engine );
-      }
+      interpreter_version = TT_INTERPRETER_VERSION_38;
+      FT_Property_Set( lib, "truetype", "interpreter-version",
+                       &interpreter_version );
       break;
 
     case 'i':

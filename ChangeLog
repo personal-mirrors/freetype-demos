@@ -1,3 +1,27 @@
+2013-05-17  Werner Lemberg  <wl@gnu.org>
+
+	[ftview, ftdiff, ftbench] Support `interpreter-version' property.
+
+	* src/ftbench.c: Include FT_TRUETYPE_DRIVER_H.
+	(usage): Updated.
+	(main): Update `-H' option.
+
+	* src/ftdiff.c: Include FT_TRUETYPE_DRIVER_H.
+	s/hinting_engine/cff_hinting_engine/.
+	(ColumnStateRec): Add `tt_interpreter_version' member.
+	(render_state_init, render_state_draw): Updated.
+	(event_help): Updated.
+	(process_event) <'H'>: Handle new property.
+
+	* src/ftview.c: Include FT_TRUETYPE_DRIVER_H.
+	s/hinting_engine/cff_hinting_engine/.
+	s/HINTING_ENGINES/CFF_HINTING_ENGINES/.
+	(status): Add `tt_interpreter_version' member.
+	(event_tt_interpreter_version_change): New function.
+	(Process_Event) <'H'>: Use it.
+	(write_header): Udpated.
+	(main): Set default value for `interpreter-version'.
+
 2013-05-13  Sebastien Bacher  <seb128@ubuntu.com>
 
 	* src/ftview.c (write_header): Fix uninitialized variables.

@@ -19,6 +19,7 @@
 #include FT_OUTLINE_H
 #include FT_LCD_FILTER_H
 #include FT_CFF_DRIVER_H
+#include FT_TRUETYPE_DRIVER_H
 
   /* showing driver name -- the two internal header files */
   /* shouldn't be used in normal programs                 */
@@ -185,7 +186,8 @@
     unsigned char  filter_weights[5];
     int            fw_index;
 
-    int            hinting_engine;
+    int            cff_hinting_engine;
+    int            tt_interpreter_version;
 
   } ColumnStateRec, *ColumnState;
 
@@ -240,24 +242,25 @@
     state->char_size    = 16;
     state->display      = display[0];
 
-    state->columns[0].use_cboxes            = 0;
-    state->columns[0].use_kerning           = 1;
-    state->columns[0].use_deltas            = 1;
-    state->columns[0].use_lcd_filter        = 1;
-    state->columns[0].lcd_filter            = FT_LCD_FILTER_DEFAULT;
-    state->columns[0].hint_mode             = HINT_MODE_BYTECODE;
-    state->columns[0].hinting_engine        = FT_CFF_HINTING_FREETYPE;
-    state->columns[0].use_custom_lcd_filter = 0;
-    state->columns[0].fw_index              = 2;
+    state->columns[0].use_cboxes             = 0;
+    state->columns[0].use_kerning            = 1;
+    state->columns[0].use_deltas             = 1;
+    state->columns[0].use_lcd_filter         = 1;
+    state->columns[0].lcd_filter             = FT_LCD_FILTER_DEFAULT;
+    state->columns[0].hint_mode              = HINT_MODE_BYTECODE;
+    state->columns[0].cff_hinting_engine     = FT_CFF_HINTING_FREETYPE;
+    state->columns[0].tt_interpreter_version = TT_INTERPRETER_VERSION_35;
+    state->columns[0].use_custom_lcd_filter  = 0;
+    state->columns[0].fw_index               = 2;
     /* freetype default filter weights */
     memcpy( state->columns[0].filter_weights, "\x10\x40\x70\x40\x10", 5 );
 
-    state->columns[1]                       = state->columns[0];
-    state->columns[1].hint_mode             = HINT_MODE_AUTOHINT;
-    state->columns[1].use_custom_lcd_filter = 1;
+    state->columns[1]                        = state->columns[0];
+    state->columns[1].hint_mode              = HINT_MODE_AUTOHINT;
+    state->columns[1].use_custom_lcd_filter  = 1;
 
-    state->columns[2]                       = state->columns[0];
-    state->columns[2].hint_mode             = HINT_MODE_UNHINTED;
+    state->columns[2]                        = state->columns[0];
+    state->columns[2].hint_mode              = HINT_MODE_UNHINTED;
 
     state->col = 1;
   }
@@ -522,7 +525,10 @@
 
     FT_Property_Set( state->library,
                      "cff",
-                     "hinting-engine", &column->hinting_engine );
+                     "hinting-engine", &column->cff_hinting_engine );
+    FT_Property_Set( state->library,
+                     "truetype",
+                     "interpreter-version", &column->tt_interpreter_version );
 
     if ( column->use_lcd_filter )
       FT_Library_SetLcdFilter( face->glyph->library, column->lcd_filter );
@@ -715,17 +721,32 @@
 
 
       hinting_engine = "";
-      if ( !strcmp( module->clazz->module_name, "cff" ) &&
-           rmode == HINT_MODE_BYTECODE                  )
+      if ( rmode == HINT_MODE_BYTECODE )
       {
-        switch ( column->hinting_engine )
+        if ( !strcmp( module->clazz->module_name, "cff" ) )
         {
-        case FT_CFF_HINTING_FREETYPE:
-          hinting_engine = " (CFF FT)";
-          break;
-        case FT_CFF_HINTING_ADOBE:
-          hinting_engine = " (CFF Adobe)";
-          break;
+          switch ( column->cff_hinting_engine )
+          {
+          case FT_CFF_HINTING_FREETYPE:
+            hinting_engine = " (CFF FT)";
+            break;
+          case FT_CFF_HINTING_ADOBE:
+            hinting_engine = " (CFF Adobe)";
+            break;
+          }
+        }
+
+        else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+        {
+          switch ( column->tt_interpreter_version )
+          {
+          case TT_INTERPRETER_VERSION_35:
+            hinting_engine = " (TT v35)";
+            break;
+          case TT_INTERPRETER_VERSION_38:
+            hinting_engine = " (TT v38)";
+            break;
+          }
         }
       }
 
@@ -1014,7 +1035,7 @@
     grLn();
     grWriteln( "  d            toggle lsb/rsb deltas" );
     grWriteln( "  h            toggle hinting mode" );
-    grWriteln( "  H            cycle hinting engine (if CFF)" );
+    grWriteln( "  H            cycle hinting engine (if CFF or TTF)" );
     grWriteln( "  k            toggle kerning (only from `kern' table)" );
     grWriteln( "  r            toggle rendering mode" );
     grWriteln( "  x            toggle layout mode" );
@@ -1134,12 +1155,29 @@
         FT_Module  module = &state->face->driver->root;
 
 
-        if ( strcmp( module->clazz->module_name, "cff" ) ||
-             column->hint_mode != HINT_MODE_BYTECODE     )
-          break;
+        if ( column->hint_mode == HINT_MODE_BYTECODE )
+        {
+          if ( !strcmp( module->clazz->module_name, "cff" ) )
+            column->cff_hinting_engine =
+              ( column->cff_hinting_engine + 1 ) % HINTING_ENGINE_MAX;
+          else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+          {
+            FT_UInt  new_interpreter_version;
 
-        column->hinting_engine =
-          ( column->hinting_engine + 1 ) % HINTING_ENGINE_MAX;
+
+            if ( column->tt_interpreter_version == TT_INTERPRETER_VERSION_35 )
+              new_interpreter_version = TT_INTERPRETER_VERSION_38;
+            else
+              new_interpreter_version = TT_INTERPRETER_VERSION_35;
+
+            error = FT_Property_Set( state->library,
+                                     "truetype",
+                                     "interpreter-version",
+                                     &new_interpreter_version );
+            if ( !error )
+              column->tt_interpreter_version = new_interpreter_version;
+          }
+        }
       }
       break;
 
