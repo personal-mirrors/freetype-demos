@@ -4,7 +4,7 @@
  *
  *    Graphics Subsystem interface
  *
- *  Copyright 1999, 2000, 2001, 2002, 2003, 2004, 2005
+ *  Copyright 1999-2007, 2013
  *     - The FreeType Development Team - www.freetype.org
  *
  ***************************************************************************/
@@ -46,6 +46,7 @@
     gr_pixel_mode_lcdv,        /* vertical RGB-decimated           */
     gr_pixel_mode_lcd2,        /* horizontal BGR-decimated         */
     gr_pixel_mode_lcdv2,       /* vertical BGR-decimated           */
+    gr_pixel_mode_bgra,        /* premultiplied BGRA colors        */
 
     gr_pixel_mode_max          /* don't remove */
 

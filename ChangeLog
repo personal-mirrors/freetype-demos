@@ -1,3 +1,30 @@
+2013-05-22  Behdad Esfahbod  <behdad@google.com>
+
+	Add support for color glyphs.
+
+	In ftview, key `c' toggles color, while use of sbits cache is now
+	mapped to key `C'.
+
+	The premultiplied bgra blending is still off.
+
+	* graph/gblany.h (_gblender_blit_bgra_): New template.
+	* graph/graph.h (grPixelMode): Add gr_pixel_mode_bgra.
+	* graph/gblblit.h (GBlenderSourceFormat): Add GBLENDER_SOURCE_BGRA.
+	* graph/gblblit.c (gblender_blit_init): Handle GBLENDER_SOURCE_BGRA.
+	* graph/grblit.c (grBlitGlyphToBitmap): Updated.
+	* graph/gblbgra.h: New header file.
+
+	* src/ftcommon.h (FTDemo_Handle): New member `color'.
+	* src/ftcommon.c (FTDemo_New, FTDemo_Update_Current_Flags): Updated.
+	(FTDemo_Glyph_To_Bitmap): Handle FT_PIXEL_MODE_BGRA.
+
+	* src/ftview.c (Process_Event) <'c'>: Handle color.
+	<'C'>: Handle sbits cache.
+	(help): Updated.
+	(write_header): Updated.
+
+	* Makefile (LINK_LIBS): Add -lpng.
+
 2013-05-17  Werner Lemberg  <wl@gnu.org>
 
 	[ftview, ftdiff, ftbench] Support `interpreter-version' property.

@@ -771,24 +771,25 @@
     grWriteln( "  backspace cycle backwards               l         cycle backwards         " );
     grWriteln( "                                                                            " );
     grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
-    grWriteln( "c           toggle cache modes                       emboldening (in mode 2)" );
-    grWriteln( "                                        y, Y        adjust vertical         " );
-    grWriteln( "p, n        previous/next font                       emboldening (in mode 2)" );
-    grWriteln( "                                        s, S        adjust slanting         " );
-    grWriteln( "Up, Down    adjust size by 1 unit                    (in mode 3)            " );
-    grWriteln( "PgUp, PgDn  adjust size by 10 units     r, R        adjust stroking radius  " );
-    grWriteln( "                                                     (in mode 4)            " );
-    grWriteln( "Left, Right adjust index by 1                                               " );
-    grWriteln( "F7, F8      adjust index by 10          L           toggle custom           " );
-    grWriteln( "F9, F10     adjust index by 100                      LCD filtering          " );
-    grWriteln( "F11, F12    adjust index by 1000        [, ]        select custom LCD       " );
-    grWriteln( "                                                      filter weight         " );
-    grWriteln( "h           toggle hinting                            (if custom filtering) " );
-    grWriteln( "H           cycle through hinting       -, +(=)     adjust selected custom  " );
-    grWriteln( "             engines (if available)                  LCD filter weight      " );
-    grWriteln( "f           toggle forced auto-                                             " );
-    grWriteln( "             hinting (if hinting)       G           show gamma ramp         " );
-    grWriteln( "                                        g, v        adjust gamma value      " );
+    grWriteln( "c           toggle color glyphs                      emboldening (in mode 2)" );
+    grWriteln( "C           toggle cache modes          y, Y        adjust vertical         " );
+    grWriteln( "                                                     emboldening (in mode 2)" );
+    grWriteln( "p, n        previous/next font          s, S        adjust slanting         " );
+    grWriteln( "                                                     (in mode 3)            " );
+    grWriteln( "Up, Down    adjust size by 1 unit       r, R        adjust stroking radius  " );
+    grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 4)            " );
+    grWriteln( "                                                                            " );
+    grWriteln( "Left, Right adjust index by 1           L           toggle custom           " );
+    grWriteln( "F7, F8      adjust index by 10                       LCD filtering          " );
+    grWriteln( "F9, F10     adjust index by 100         [, ]        select custom LCD       " );
+    grWriteln( "F11, F12    adjust index by 1000                      filter weight         " );
+    grWriteln( "                                                      (if custom filtering) " );
+    grWriteln( "h           toggle hinting              -, +(=)     adjust selected custom  " );
+    grWriteln( "H           cycle through hinting                    LCD filter weight      " );
+    grWriteln( "             engines (if available)                                         " );
+    grWriteln( "f           toggle forced auto-         G           show gamma ramp         " );
+    grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
+    grWriteln( "                                                                            " );
     grWriteln( "a           toggle anti-aliasing                                            " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
@@ -1117,9 +1118,14 @@
       break;
 
     case grKEY( 'c' ):
-      handle->use_sbits_cache = !handle->use_sbits_cache;
+      handle->color = !handle->color;
+      FTDemo_Update_Current_Flags( handle );
       status.update = 1;
       break;
+
+    case grKEY( 'C' ):
+      handle->use_sbits_cache = !handle->use_sbits_cache;
+      status.update = 1;
 
     case grKEY( 'f' ):
       if ( handle->hinted && handle->lcd_mode != LCD_MODE_LIGHT )
@@ -1690,6 +1696,12 @@
     /* embedded bitmaps */
     sprintf( buf, "bitmaps: %s",
                   handle->use_sbits ? "on" : "off" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* embedded color bitmaps */
+    sprintf( buf, "color bitmaps: %s",
+                  handle->color ? "on" : "off" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 

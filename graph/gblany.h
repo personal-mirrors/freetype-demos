@@ -41,8 +41,8 @@
 
 
 static void
-GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit    blit,
-                                             GBlenderPixel   color )
+GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit   blit,
+                                             GBlenderPixel  color )
 {
   GBlender  blender = blit->blender;
   int       r = (color >> 16) & 255;
@@ -56,8 +56,8 @@ GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit    blit,
 
 
 static void
-GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit    blit,
-                                            GBlenderPixel   color )
+GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit   blit,
+                                            GBlenderPixel  color )
 {
   GBlender  blender = blit->blender;
   int       r = (color >> 16) & 255;
@@ -71,8 +71,8 @@ GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit    blit,
 
 
 static void
-GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit    blit,
-                                            GBlenderPixel   color )
+GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit   blit,
+                                            GBlenderPixel  color )
 {
   GBlender  blender = blit->blender;
   int       r = (color >> 16) & 255;
@@ -86,8 +86,8 @@ GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit    blit,
 
 
 static void
-GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit    blit,
-                                            GBlenderPixel   color )
+GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit   blit,
+                                            GBlenderPixel  color )
 {
   GBlender  blender = blit->blender;
   int       r = (color >> 16) & 255;
@@ -99,9 +99,10 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit    blit,
 #include "gblvrgb.h"
 }
 
+
 static void
-GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit    blit,
-                                            GBlenderPixel   color )
+GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit   blit,
+                                            GBlenderPixel  color )
 {
   GBlender  blender = blit->blender;
   int       r = (color >> 16) & 255;
@@ -112,6 +113,19 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit    blit,
 
 #include "gblvbgr.h"
 }
+
+
+static void
+GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit   blit,
+                                            GBlenderPixel  color )
+{
+  GBlender  blender = blit->blender;
+
+  color = color; /* Unused */
+
+#include "gblbgra.h"
+}
+
 
 /* unset the macros, to prevent accidental re-use
  */
@@ -126,4 +140,5 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit    blit,
 #undef GDST_STOREP
 #undef GDST_STOREC
 #undef GDST_COPY_VAR
+
 /* EOF */

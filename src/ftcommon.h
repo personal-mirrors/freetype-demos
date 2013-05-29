@@ -192,6 +192,7 @@
     int             autohint;          /* force auto-hinting          */
     int             lcd_mode;
     int             preload;           /* force font file preloading  */
+    int             color;             /* load color bitmaps          */
 
     /* don't touch the following fields! */
 

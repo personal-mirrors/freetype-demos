@@ -247,6 +247,18 @@ gblender_blit_init( GBlenderBlit           blit,
       }
       break;
 
+  case GBLENDER_SOURCE_BGRA:
+      switch ( dst_format )
+      {
+      case GBLENDER_TARGET_RGB32:  blit_func = _gblender_blit_bgra_rgb32; break;
+      case GBLENDER_TARGET_RGB24:  blit_func = _gblender_blit_bgra_rgb24; break;
+      case GBLENDER_TARGET_RGB565: blit_func = _gblender_blit_bgra_rgb565; break;
+      case GBLENDER_TARGET_BGR565: blit_func = _gblender_blit_bgra_bgr565; break;
+      default:
+          ;
+      }
+      break;
+
   default:
     ;
   }

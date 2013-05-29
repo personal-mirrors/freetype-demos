@@ -297,6 +297,7 @@
     handle->use_sbits = 1;
     handle->autohint  = 0;
     handle->lcd_mode  = 0;
+    handle->color     = 1;
 
     handle->use_sbits_cache = 1;
 
@@ -595,6 +596,9 @@
         flags |= FT_LOAD_MONOCHROME;
     }
 
+    if ( handle->color )
+      flags |= FT_LOAD_COLOR;
+
     handle->load_flags    = flags;
     handle->string_reload = 1;
   }
@@ -715,6 +719,11 @@
     case FT_PIXEL_MODE_LCD_V:
       target->mode  = handle->lcd_mode == 4 ? gr_pixel_mode_lcdv
                                             : gr_pixel_mode_lcdv2;
+      target->grays = source->num_grays;
+      break;
+
+    case FT_PIXEL_MODE_BGRA:
+      target->mode  = gr_pixel_mode_bgra;
       target->grays = source->num_grays;
       break;
 

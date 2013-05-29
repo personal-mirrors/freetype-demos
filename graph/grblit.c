@@ -1867,6 +1867,7 @@
       case gr_pixel_mode_lcdv:  src_format = GBLENDER_SOURCE_VRGB;  break;
       case gr_pixel_mode_lcd2:  src_format = GBLENDER_SOURCE_HBGR;  break;
       case gr_pixel_mode_lcdv2: src_format = GBLENDER_SOURCE_VBGR;  break;
+      case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;  break;
 
       default:
           goto DefaultBlit;
