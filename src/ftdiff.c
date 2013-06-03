@@ -230,6 +230,10 @@
                      Display      display,
                      FT_Library   library )
   {
+    FT_UInt  cff_hinting_engine;
+    FT_UInt  tt_interpreter_version;
+
+
     memset( state, 0, sizeof ( *state ) );
 
     state->library = library;
@@ -242,14 +246,22 @@
     state->char_size    = 16;
     state->display      = display[0];
 
+    /* get the default value as compiled into FreeType */
+    FT_Property_Get( library,
+                     "cff",
+                     "hinting-engine", &cff_hinting_engine );
+    FT_Property_Get( library,
+                     "truetype",
+                     "interpreter-version", &tt_interpreter_version );
+
     state->columns[0].use_cboxes             = 0;
     state->columns[0].use_kerning            = 1;
     state->columns[0].use_deltas             = 1;
     state->columns[0].use_lcd_filter         = 1;
     state->columns[0].lcd_filter             = FT_LCD_FILTER_DEFAULT;
     state->columns[0].hint_mode              = HINT_MODE_BYTECODE;
-    state->columns[0].cff_hinting_engine     = FT_CFF_HINTING_FREETYPE;
-    state->columns[0].tt_interpreter_version = TT_INTERPRETER_VERSION_35;
+    state->columns[0].cff_hinting_engine     = cff_hinting_engine;
+    state->columns[0].tt_interpreter_version = tt_interpreter_version;
     state->columns[0].use_custom_lcd_filter  = 0;
     state->columns[0].fw_index               = 2;
     /* freetype default filter weights */
@@ -1158,8 +1170,20 @@
         if ( column->hint_mode == HINT_MODE_BYTECODE )
         {
           if ( !strcmp( module->clazz->module_name, "cff" ) )
-            column->cff_hinting_engine =
+          {
+            FT_UInt  new_cff_hinting_engine;
+
+
+            new_cff_hinting_engine =
               ( column->cff_hinting_engine + 1 ) % HINTING_ENGINE_MAX;
+
+            error = FT_Property_Set( state->library,
+                                     "cff",
+                                     "hinting-engine",
+                                     &new_cff_hinting_engine );
+            if ( !error )
+              column->cff_hinting_engine = new_cff_hinting_engine;
+          }
           else if ( !strcmp( module->clazz->module_name, "truetype" ) )
           {
             FT_UInt  new_interpreter_version;

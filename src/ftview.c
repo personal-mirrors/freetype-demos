@@ -115,7 +115,7 @@
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
-               FT_CFF_HINTING_FREETYPE, TT_INTERPRETER_VERSION_35,
+               0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
@@ -869,21 +869,32 @@
   }
 
 
-  static void
+  static int
   event_cff_hinting_engine_change( int  delta )
   {
+    int  new_cff_hinting_engine;
+
+
     if ( delta )
-      status.cff_hinting_engine =
+      new_cff_hinting_engine =
         ( status.cff_hinting_engine +
           delta                     +
           N_CFF_HINTING_ENGINES     ) % N_CFF_HINTING_ENGINES;
 
-    FT_Property_Set( handle->library,
-                     "cff",
-                     "hinting-engine", &status.cff_hinting_engine );
+    error = FT_Property_Set( handle->library,
+                             "cff",
+                             "hinting-engine",
+                             &new_cff_hinting_engine );
 
-    FTC_Manager_RemoveFaceID( handle->cache_manager,
-                              handle->scaler.face_id );
+    if ( !error )
+    {
+      FTC_Manager_RemoveFaceID( handle->cache_manager,
+                                handle->scaler.face_id );
+      status.cff_hinting_engine = new_cff_hinting_engine;
+      return 1;
+    }
+
+    return 0;
   }
 
 
@@ -1157,10 +1168,7 @@
           module = &face->driver->root;
 
           if ( !strcmp( module->clazz->module_name, "cff" ) )
-          {
-            event_cff_hinting_engine_change( 1 );
-            status.update = 1;
-          }
+            status.update = event_cff_hinting_engine_change( 1 );
           else if ( !strcmp( module->clazz->module_name, "truetype" ) )
             status.update = event_tt_interpreter_version_change();
         }
@@ -1910,10 +1918,12 @@
     parse_cmdline( &argc, &argv );
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
-    FT_Property_Set( handle->library,
+
+    /* get the default value as compiled into FreeType */
+    FT_Property_Get( handle->library,
                      "cff",
                      "hinting-engine", &status.cff_hinting_engine );
-    FT_Property_Set( handle->library,
+    FT_Property_Get( handle->library,
                      "truetype",
                      "interpreter-version", &status.tt_interpreter_version );
 

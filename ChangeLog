@@ -1,3 +1,20 @@
+2013-06-03  Werner Lemberg  <wl@gnu.org>
+
+	[ftview, ftdiff, ftbench] Update CFF and TT property handling.
+
+	* src/ftbench.c (main): Make option `-H' use the non-default
+	properties and warning if there is a problem.
+
+	* src/ftdiff (render_state_init): At startup, use default
+	properties.
+	(process_event) <'H'>: Do nothing if non-default `hinting-engine'
+	property is not available.
+
+	* src/ftview.c (event_cff_hinting_engine_change): Do nothing if
+	non-default `hinting-engine' property is not avaiable.
+	(Process_Event) <'H'>: Updated.
+	(main): At startup, use default properties.
+
 2013-05-22  Behdad Esfahbod  <behdad@google.com>
 
 	Add support for color glyphs.

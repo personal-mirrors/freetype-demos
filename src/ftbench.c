@@ -730,16 +730,18 @@ int
 main(int argc,
      char** argv)
 {
-  FT_Face     face;
-  long        max_bytes = CACHE_SIZE * 1024;
-  char*       test_string = NULL;
-  int         size = FACE_SIZE;
-  int         max_iter = 0;
-  double      max_time = BENCH_TIME;
-  int         compare_cached = 0;
-  int         i;
-  int         hinting_engine;
-  int         interpreter_version;
+  FT_Face   face;
+  FT_Error  error;
+
+  long    max_bytes      = CACHE_SIZE * 1024;
+  char*   test_string    = NULL;
+  int     size           = FACE_SIZE;
+  int     max_iter       = 0;
+  double  max_time       = BENCH_TIME;
+  int     compare_cached = 0;
+  int     i;
+  int     hinting_engine;
+  int     interpreter_version;
 
 
   if ( FT_Init_FreeType( &lib ) )
@@ -749,12 +751,10 @@ main(int argc,
     return 1;
   }
 
-  hinting_engine = FT_CFF_HINTING_FREETYPE;
-  FT_Property_Set( lib, "cff", "hinting-engine",
+  FT_Property_Get( lib, "cff", "hinting-engine",
                    &hinting_engine );
 
-  interpreter_version = TT_INTERPRETER_VERSION_35;
-  FT_Property_Set( lib, "truetype", "interpreter-version",
+  FT_Property_Get( lib, "truetype", "interpreter-version",
                    &interpreter_version );
 
   while ( 1 )
@@ -786,13 +786,25 @@ main(int argc,
       break;
 
     case 'H':
-      hinting_engine = FT_CFF_HINTING_ADOBE;
-      FT_Property_Set( lib, "cff", "hinting-engine",
-                       &hinting_engine );
+      if ( hinting_engine == FT_CFF_HINTING_ADOBE )
+        hinting_engine = FT_CFF_HINTING_FREETYPE;
+      else
+        hinting_engine = FT_CFF_HINTING_ADOBE;
 
-      interpreter_version = TT_INTERPRETER_VERSION_38;
-      FT_Property_Set( lib, "truetype", "interpreter-version",
-                       &interpreter_version );
+      error = FT_Property_Set( lib, "cff", "hinting-engine",
+                               &hinting_engine );
+      if ( error )
+        fprintf( stderr, "warning: couldn't change CFF hinting engine\n" );
+
+      if ( interpreter_version == TT_INTERPRETER_VERSION_35 )
+        interpreter_version = TT_INTERPRETER_VERSION_38;
+      else
+        interpreter_version = TT_INTERPRETER_VERSION_35;
+
+      error = FT_Property_Set( lib, "truetype", "interpreter-version",
+                               &interpreter_version );
+      if ( error )
+        fprintf( stderr, "warning: couldn't change TT interpreter version\n" );
       break;
 
     case 'i':
