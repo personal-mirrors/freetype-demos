@@ -1,5 +1,14 @@
 2013-06-09  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Add command `l', improve help and output.
+
+	* src/ttdebug.c (RunIns): Display message if entering a new code
+	range.
+	Improve output of `?' and `p' keys.
+	Add `l' key to show last bytecode instruction.
+
+2013-06-09  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Add command line option `-H' to select hinting engine.
 
 	* src/ttdebug.c: Include FT_TRUETYPE_DRIVER_H.

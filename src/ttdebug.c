@@ -888,6 +888,8 @@
     TT_GlyphZoneRec  save;
     TT_GlyphZoneRec  pts;
 
+    const FT_String*  code_range;
+
     const FT_String*  round_str[8] =
     {
       "to half-grid",
@@ -918,6 +920,23 @@
     save.tags = (FT_Byte*)malloc( save.n_points );
 
     CUR.instruction_trap = 1;
+
+    switch ( CUR.curRange )
+    {
+    case tt_coderange_glyph:
+      code_range = "glyf";
+      break;
+
+    case tt_coderange_cvt:
+      code_range = "prep";
+      break;
+
+    default:
+      code_range = "fpgm";
+    }
+
+    printf( "Entering `%s' table.\n"
+            "\n", code_range );
 
     do
     {
@@ -1048,6 +1067,22 @@
                   "v   show vector info\n"
                   "g   show graphics state\n"
                   "p   show points zone\n"
+                  "l   show last bytecode instruction\n"
+                  "\n"
+                  "\n"
+                  "  Format of point changes:\n"
+                  "\n"
+                  "    idx   orus.x  orus.y  tags  org.x  org.y  cur.x  cur.y\n"
+                  "\n"
+                  "  The first line gives the values before the instruction,\n"
+                  "  the second line the changes after the instruction,\n"
+                  "  indicated by parentheses and brackets, respectively.\n"
+                  "\n"
+                  "  Tag values (which are ORed):\n"
+                  "\n"
+                  "    1 on curve\n"
+                  "    2 touched along the X axis\n"
+                  "    4 touched along the Y axis\n"
                   "\n" );
           break;
 
@@ -1059,9 +1094,10 @@
           printf( "projection (%04hx,%04hx)\n",
                   CUR.GS.projVector.x,
                   CUR.GS.projVector.y );
-          printf( "dual       (%04hx,%04hx)\n\n",
+          printf( "dual       (%04hx,%04hx)\n",
                   CUR.GS.dualVector.x,
                   CUR.GS.dualVector.y );
+          printf( "\n" );
           break;
 
         /* Show graphics state */
@@ -1074,10 +1110,25 @@
                   CUR.GS.control_value_cutin );
           printf( "RP 0,1,2   %4x %4x %4x\n",
                   CUR.GS.rp0, CUR.GS.rp1, CUR.GS.rp2 );
+          printf( "\n" );
           break;
 
         /* Show points table */
         case 'p':
+          if ( CUR.pts.n_points )
+          {
+            printf( "idx  "
+                    "orig. unscaled  - "
+                    "original            - "
+                    "current            \n" );
+            printf( "-----"
+                    "------------------"
+                    "----------------------"
+                    "-------------------\n" );
+          }
+          else
+            printf( "not yet in `glyf' program\n" );
+
           for ( A = 0; A < CUR.pts.n_points; A++ )
           {
             printf( "%3d  ",
@@ -1089,7 +1140,6 @@
             printf( "(%8ld,%8ld)\n",
                     pts.cur[A].x, pts.cur[A].y );
           }
-
           printf( "\n" );
           break;
 
@@ -1154,6 +1204,11 @@
           if ( ( error = TT_RunIns( exc ) ) != 0 )
             goto LErrorLabel_;
 
+        oldch = ch;
+        break;
+
+      /* show last bytecode instruction */
+      case 'l':
         oldch = ch;
         break;
 
