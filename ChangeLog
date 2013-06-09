@@ -1,5 +1,14 @@
 2013-06-09  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Add command `f' to select number format.
+
+	* src/ttdebug.c (use_float): New global variable.
+	(RunIns): Add `f' key to toggle between floating and fixed point
+	number formats.
+	Update all affected print commands.
+
+2013-06-09  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Add command `l', improve help and output.
 
 	* src/ttdebug.c (RunIns): Display message if entering a new code

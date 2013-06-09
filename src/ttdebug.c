@@ -76,6 +76,8 @@
   int  default_version;       /* default TrueType engine version */
   int  alternative_version;   /* alternative TrueType engine version */
 
+  FT_Bool  use_float = FALSE; /* number format */
+
   FT_Error  error;
 
   typedef char  ByteStr[2];
@@ -1067,6 +1069,7 @@
                   "v   show vector info\n"
                   "g   show graphics state\n"
                   "p   show points zone\n"
+                  "f   toggle between floating and fixed point number format\n"
                   "l   show last bytecode instruction\n"
                   "\n"
                   "\n"
@@ -1076,7 +1079,7 @@
                   "\n"
                   "  The first line gives the values before the instruction,\n"
                   "  the second line the changes after the instruction,\n"
-                  "  indicated by parentheses and brackets, respectively.\n"
+                  "  indicated by parentheses and brackets for emphasis.\n"
                   "\n"
                   "  Tag values (which are ORed):\n"
                   "\n"
@@ -1086,29 +1089,65 @@
                   "\n" );
           break;
 
+        /* Toggle between floating and fixed point format */
+        case 'f':
+          use_float = !use_float;
+          printf( "use %s point format for displaying values\n",
+                  use_float ? "floating" : "fixed" );
+          printf( "\n" );
+          break;
+
         /* Show vectors */
         case 'v':
-          printf( "freedom    (%04hx,%04hx)\n",
-                  CUR.GS.freeVector.x,
-                  CUR.GS.freeVector.y );
-          printf( "projection (%04hx,%04hx)\n",
-                  CUR.GS.projVector.x,
-                  CUR.GS.projVector.y );
-          printf( "dual       (%04hx,%04hx)\n",
-                  CUR.GS.dualVector.x,
-                  CUR.GS.dualVector.y );
-          printf( "\n" );
+          if ( use_float )
+          {
+            /* 2.14 numbers */
+            printf( "freedom    (%.5f, %.5f)\n",
+                    CUR.GS.freeVector.x / 16384.0,
+                    CUR.GS.freeVector.y / 16384.0 );
+            printf( "projection (%.5f, %.5f)\n",
+                    CUR.GS.projVector.x / 16384.0,
+                    CUR.GS.projVector.y / 16384.0 );
+            printf( "dual       (%.5f, %.5f)\n",
+                    CUR.GS.dualVector.x / 16384.0,
+                    CUR.GS.dualVector.y / 16384.0 );
+            printf( "\n" );
+          }
+          else
+          {
+            printf( "freedom    ($%04hx, $%04hx)\n",
+                    CUR.GS.freeVector.x,
+                    CUR.GS.freeVector.y );
+            printf( "projection ($%04hx, $%04hx)\n",
+                    CUR.GS.projVector.x,
+                    CUR.GS.projVector.y );
+            printf( "dual       ($%04hx, $%04hx)\n",
+                    CUR.GS.dualVector.x,
+                    CUR.GS.dualVector.y );
+            printf( "\n" );
+          }
           break;
 
         /* Show graphics state */
         case 'g':
-          printf( "rounding   %s\n",
+          printf( "rounding state      %s\n",
                   round_str[CUR.GS.round_state] );
-          printf( "min dist   %04lx\n",
-                  CUR.GS.minimum_distance );
-          printf( "cvt_cutin  %04lx\n",
-                  CUR.GS.control_value_cutin );
-          printf( "RP 0,1,2   %4x %4x %4x\n",
+          if ( use_float )
+          {
+            /* 26.6 numbers */
+            printf( "minimum distance    %.2f\n",
+                    CUR.GS.minimum_distance / 64.0 );
+            printf( "CVT cut-in          %.2f\n",
+                    CUR.GS.control_value_cutin / 64.0 );
+          }
+          else
+          {
+            printf( "minimum distance    $%04lx\n",
+                    CUR.GS.minimum_distance );
+            printf( "CVT cut-in          $%04lx\n",
+                    CUR.GS.control_value_cutin );
+          }
+          printf( "ref. points 0,1,2   %d, %d, %d\n",
                   CUR.GS.rp0, CUR.GS.rp1, CUR.GS.rp2 );
           printf( "\n" );
           break;
@@ -1119,8 +1158,8 @@
           {
             printf( "idx  "
                     "orig. unscaled  - "
-                    "original            - "
-                    "current            \n" );
+                    "orig. scaled        - "
+                    "current scaled     \n" );
             printf( "-----"
                     "------------------"
                     "----------------------"
@@ -1135,10 +1174,20 @@
                     A );
             printf( "(%6ld,%6ld) - ",
                     pts.orus[A].x, pts.orus[A].y );
-            printf( "(%8ld,%8ld) - ",
-                    pts.org[A].x, pts.org[A].y );
-            printf( "(%8ld,%8ld)\n",
-                    pts.cur[A].x, pts.cur[A].y );
+            if ( use_float )
+            {
+              printf( "(%8.2f,%8.2f) - ",
+                      pts.org[A].x / 64.0, pts.org[A].y / 64.0 );
+              printf( "(%8.2f,%8.2f)\n",
+                      pts.cur[A].x / 64.0, pts.cur[A].y / 64.0 );
+            }
+            else
+            {
+              printf( "(%8ld,%8ld) - ",
+                      pts.org[A].x, pts.org[A].y );
+              printf( "(%8ld,%8ld)\n",
+                      pts.cur[A].x, pts.cur[A].y );
+            }
           }
           printf( "\n" );
           break;
@@ -1246,28 +1295,40 @@
           printf( temp, old_tag_to_new( save.tags[A] ) );
 
           if ( diff & 1 )
-            temp = "(%8ld)";
+            temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
-            temp = " %8ld ";
-          printf( temp, save.org[A].x );
+            temp = use_float ? " %8.2f " : " %8ld ";
+          if ( use_float )
+            printf( temp, save.org[A].x / 64.0 );
+          else
+            printf( temp, save.org[A].x );
 
           if ( diff & 2 )
-            temp = "(%8ld)";
+            temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
-            temp = " %8ld ";
-          printf( temp, save.org[A].y );
+            temp = use_float ? " %8.2f " : " %8ld ";
+          if ( use_float )
+            printf( temp, save.org[A].y / 64.0 );
+          else
+            printf( temp, save.org[A].y );
 
           if ( diff & 4 )
-            temp = "(%8ld)";
+            temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
-            temp = " %8ld ";
-          printf( temp, save.cur[A].x );
+            temp = use_float ? " %8.2f " : " %8ld ";
+          if ( use_float )
+            printf( temp, save.cur[A].x / 64.0 );
+          else
+            printf( temp, save.cur[A].x );
 
           if ( diff & 8 )
-            temp = "(%8ld)";
+            temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
-            temp = " %8ld ";
-          printf( temp, save.cur[A].y );
+            temp = use_float ? " %8.2f " : " %8ld ";
+          if ( use_float )
+            printf( temp, save.cur[A].y / 64.0 );
+          else
+            printf( temp, save.cur[A].y );
 
           printf( "\n" );
 
@@ -1280,28 +1341,40 @@
           printf( temp, old_tag_to_new( pts.tags[A] ) );
 
           if ( diff & 1 )
-            temp = "[%8ld]";
+            temp = use_float ? "[%8.2f]" : "[%8ld]";
           else
             temp = "          ";
-          printf( temp, pts.org[A].x );
+          if ( use_float )
+            printf( temp, pts.org[A].x / 64.0 );
+          else
+            printf( temp, pts.org[A].x );
 
           if ( diff & 2 )
-            temp = "[%8ld]";
+            temp = use_float ? "[%8.2f]" : "[%8ld]";
           else
             temp = "          ";
-          printf( temp, pts.org[A].y );
+          if ( use_float )
+            printf( temp, pts.org[A].y / 64.0 );
+          else
+            printf( temp, pts.org[A].y );
 
           if ( diff & 4 )
-            temp = "[%8ld]";
+            temp = use_float ? "[%8.2f]" : "[%8ld]";
           else
             temp = "          ";
-          printf( temp, pts.cur[A].x );
+          if ( use_float )
+            printf( temp, pts.cur[A].x / 64.0 );
+          else
+            printf( temp, pts.cur[A].x );
 
           if ( diff & 8 )
-            temp = "[%8ld]";
+            temp = use_float ? "[%8.2f]" : "[%8ld]";
           else
             temp = "          ";
-          printf( temp, pts.cur[A].y );
+          if ( use_float )
+            printf( temp, pts.cur[A].y / 64.0 );
+          else
+            printf( temp, pts.cur[A].y );
 
           printf( "\n" );
         }
