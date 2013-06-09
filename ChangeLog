@@ -1,5 +1,14 @@
 2013-06-09  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Add command line option `-H' to select hinting engine.
+
+	* src/ttdebug.c: Include FT_TRUETYPE_DRIVER_H.
+	(default_version, alternative_version): New global variables.
+	(Usage): Updated.
+	(main): Handle option `-H'.
+
+2013-06-09  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Fix cache handling.
 
 	* src/ftview.c (event_cff_hinting_engine_change,

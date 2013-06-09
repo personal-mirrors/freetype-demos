@@ -52,6 +52,8 @@
 #include FT_FREETYPE_H
 #include "common.h"
 
+#include FT_TRUETYPE_DRIVER_H
+
   /* The following header shouldn't be used in normal programs.    */
   /* `freetype2/src/truetype' must be in the current include path. */
 #include "ttobjs.h"
@@ -70,6 +72,9 @@
   TT_Size         size;       /* truetype size */
   TT_GlyphSlot    glyph;      /* truetype glyph slot */
   TT_ExecContext  exec;       /* truetype execution context */
+
+  int  default_version;       /* default TrueType engine version */
+  int  alternative_version;   /* alternative TrueType engine version */
 
   FT_Error  error;
 
@@ -1256,7 +1261,7 @@
 
 
   static void
-  Usage( char* execname )
+  Usage( char*  execname )
   {
     fprintf( stderr,
       "\n"
@@ -1271,10 +1276,12 @@
       "  size      The size of the glyph in pixels (ppem).\n"
       "  font      The TrueType font file to debug.\n"
       "\n"
+      "  -H        Use hinting engine version %d (default is version %d).\n"
       "  -v        Show version.\n"
       "\n"
       "While running, press the `?' key for help.\n"
-      "\n" );
+      "\n",
+      alternative_version, default_version );
 
     exit( 1 );
   }
@@ -1292,23 +1299,41 @@
     char*  execname;
     int    option;
 
+    int  change_interpreter_version = 0;
+
 
     /* init library, read face object, get driver, create size */
     error = FT_Init_FreeType( &library );
     if ( error )
       Abort( "could not initialize FreeType library" );
 
+    memory = library->memory;
+    driver = (FT_Driver)FT_Get_Module( library, "truetype" );
+    if ( !driver )
+      Abort( "could not find the TrueType driver in FreeType 2\n" );
+
+    FT_Property_Get( library,
+                     "truetype",
+                     "interpreter-version", &default_version );
+    alternative_version = default_version == TT_INTERPRETER_VERSION_35
+                          ? TT_INTERPRETER_VERSION_38
+                          : TT_INTERPRETER_VERSION_35;
+
     execname = ft_basename( argv[0] );
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "v" );
+      option = getopt( argc, argv, "Hv" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
+      case 'H':
+        change_interpreter_version = 1;
+        break;
+
       case 'v':
         {
           FT_Int  major, minor, patch;
@@ -1355,10 +1380,14 @@
 
     Init_Keyboard();
 
-    memory = library->memory;
-    driver = (FT_Driver)FT_Get_Module( library, "truetype" );
-    if ( !driver )
-      Abort( "could not find the TrueType driver in FreeType 2\n" );
+    if ( change_interpreter_version )
+    {
+      error = FT_Property_Set( library,
+                               "truetype",
+                               "interpreter-version", &alternative_version );
+      if ( error )
+        Abort( "could not select alternative TrueType engine version" );
+    }
 
     FT_Set_Debug_Hook( library,
                        FT_DEBUG_HOOK_TRUETYPE,
