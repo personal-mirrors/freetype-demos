@@ -888,8 +888,10 @@
 
     if ( !error )
     {
-      FTC_Manager_RemoveFaceID( handle->cache_manager,
-                                handle->scaler.face_id );
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type CFF, then unloading them explicitly.         */
+      FTC_Manager_Reset( handle->cache_manager );
       status.cff_hinting_engine = new_cff_hinting_engine;
       return 1;
     }
@@ -916,8 +918,10 @@
 
     if ( !error )
     {
-      FTC_Manager_RemoveFaceID( handle->cache_manager,
-                                handle->scaler.face_id );
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type TTF, then unloading them explicitly.         */
+      FTC_Manager_Reset( handle->cache_manager );
       status.tt_interpreter_version = new_interpreter_version;
       return 1;
     }

@@ -1,3 +1,13 @@
+2013-06-09  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Fix cache handling.
+
+	* src/ftview.c (event_cff_hinting_engine_change,
+	event_tt_interpreter_version_change): Reset the cache to flush the
+	glyph image cache.  Otherwise, the cache lookup functions get
+	confused since info about module properties is not stored in the
+	glyph cache nodes.
+
 2013-06-03  Werner Lemberg  <wl@gnu.org>
 
 	[ftview, ftdiff, ftbench] Update CFF and TT property handling.
