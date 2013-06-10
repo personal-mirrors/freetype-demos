@@ -1,3 +1,14 @@
+2013-06-10  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Use key `K' for toggling small cache.
+
+	Key `C' is already in use.
+
+	* src/ftview.c (Process_Event) <'C'>: Replace with...
+	<'K'>: This key.
+	Add missing `break'.
+	(event_help): Updated.
+
 2013-06-09  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Add command `f' to select number format.

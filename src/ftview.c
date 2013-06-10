@@ -772,7 +772,7 @@
     grWriteln( "                                                                            " );
     grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
     grWriteln( "c           toggle color glyphs                      emboldening (in mode 2)" );
-    grWriteln( "C           toggle cache modes          y, Y        adjust vertical         " );
+    grWriteln( "K           toggle cache modes          y, Y        adjust vertical         " );
     grWriteln( "                                                     emboldening (in mode 2)" );
     grWriteln( "p, n        previous/next font          s, S        adjust slanting         " );
     grWriteln( "                                                     (in mode 3)            " );
@@ -1138,9 +1138,10 @@
       status.update = 1;
       break;
 
-    case grKEY( 'C' ):
+    case grKEY( 'K' ):
       handle->use_sbits_cache = !handle->use_sbits_cache;
       status.update = 1;
+      break;
 
     case grKEY( 'f' ):
       if ( handle->hinted && handle->lcd_mode != LCD_MODE_LIGHT )
