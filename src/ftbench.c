@@ -830,8 +830,6 @@ main(int argc,
       size = atoi( optarg );
       if ( size <= 0 )
         size = 1;
-      else if ( size > 500 )
-        size = 500;
       break;
 
     case 't':
