@@ -1,3 +1,13 @@
+2013-0-19  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.5.0 released.
+	=========================
+
+
+	Tag sources with `VER-2-5-0'.
+
+	* README: Updated.
+
 2013-06-12  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] Allow arbitrary sizes.
