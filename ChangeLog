@@ -1,5 +1,22 @@
 2013-06-26  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Implement CFF and TTF engine change support.
+
+	Key `H' toggles this.
+
+	* src/ftgrid.c: Include FT_MODULE_H, FT_INTERNAL_OBJECTS_H,
+	FT_INTERNAL_DRIVER_H, FT_CFF_DRIVER_H, and FT_TRUETYPE_DRIVER_H.
+	(N_CFF_HINTING_ENGINES): Define macro.
+	(GridStatusRec): Add `cff_hinting_engine' and
+	`tt_interpreter_version'.
+	(event_help): New layout similar to ftview.
+	(event_cff_hinting_engine_change,
+	event_tt_interpreter_version_change): New functions.
+	(Process_Event): Extend handling of `H' key.
+	(main): Get default properties of CFF and TTF drivers.
+
+2013-06-26  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftview.c (event_help): Mention `q' and `ESC' keys.
 
 2013-06-19  Werner Lemberg  <wl@gnu.org>

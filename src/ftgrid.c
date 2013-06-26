@@ -6,7 +6,7 @@
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
-/*  FTGrid - a simple viewer to debug the auto-hinter                       */
+/*  FTGrid - a simple viewer to show glyph outlines on a grid               */
 /*                                                                          */
 /*  Press F1 when running this program to have a list of key-bindings       */
 /*                                                                          */
@@ -19,8 +19,16 @@
 
   /* the following header shouldn't be used in normal programs */
 #include FT_INTERNAL_DEBUG_H
+
+  /* showing driver name */
+#include FT_MODULE_H
+#include FT_INTERNAL_OBJECTS_H
+#include FT_INTERNAL_DRIVER_H
+
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
+#include FT_CFF_DRIVER_H
+#include FT_TRUETYPE_DRIVER_H
 
 #define MAXPTSIZE      500                 /* dtp */
 
@@ -35,6 +43,8 @@
 #ifdef _WIN32
 #define snprintf  _snprintf
 #endif
+
+#define N_CFF_HINTING_ENGINES  2
 
 
   /* these variables, structures and declarations are for   */
@@ -111,6 +121,9 @@
     double       gamma;
     const char*  header;
     char         header_buffer[256];
+
+    int          cff_hinting_engine;
+    int          tt_interpreter_version;
 
   } GridStatusRec, *GridStatus;
 
@@ -588,60 +601,113 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    grWriteln( "FreeType Glyph Viewer - part of the FreeType test suite" );
-    grLn();
-    grWriteln( "This program is used to display all glyphs from one or" );
-    grWriteln( "several font files, with the FreeType library." );
+    grWriteln( "FreeType Glyph Grid Viewer - part of the FreeType test suite" );
     grLn();
     grWriteln( "Use the following keys:" );
     grLn();
-    grWriteln( "  F1 or ?    : display this help screen" );
-    grLn();
-    grWriteln( "  a          : toggle anti-aliasing" );
-    grWriteln( "  f          : toggle forced autofit mode" );
-    grWriteln( "  h          : toggle ignore hinting mode" );
-    grWriteln( "  left/right : decrement/increment glyph index" );
-    grWriteln( "  up/down    : change character size" );
-    grLn();
-    grWriteln( "  F7         : decrement index by 10" );
-    grWriteln( "  F8         : increment index by 10" );
-    grWriteln( "  F9         : decrement index by 100" );
-    grWriteln( "  F10        : increment index by 100" );
-    grWriteln( "  F11        : decrement index by 1000" );
-    grWriteln( "  F12        : increment index by 1000" );
-    grLn();
-    grWriteln( "  i          : move grid up" );
-    grWriteln( "  j          : move grid left" );
-    grWriteln( "  k          : move grid down" );
-    grWriteln( "  l          : move grid right" );
-    grWriteln( "  Page up/dn : zoom in/out grid" );
-    grWriteln( "  RETURN     : reset zoom and position" );
-    grLn();
+    /*          |----------------------------------|    |----------------------------------| */
 #ifdef FT_DEBUG_AUTOFIT
-    grWriteln( "  H          : toggle horizontal hinting" );
-    grWriteln( "  V          : toggle vertical hinting" );
-    grWriteln( "  B          : toggle blue zone hinting" );
-    grWriteln( "  s          : toggle segment drawing" );
-#endif
-    grWriteln( "  d          : toggle dots display" );
-    grWriteln( "  o          : toggle outline display" );
-    grWriteln( "  g          : increase gamma by 0.1" );
-    grWriteln( "  v          : decrease gamma by 0.1" );
+    grWriteln( "F1, ?       display this help screen    if autohinting:                     " );
+    grWriteln( "                                          H         toggle horiz. hinting   " );
+    grWriteln( "i, k        move grid up/down             V         toggle vert. hinting    " );
+    grWriteln( "j, l        move grid left/right          B         toggle blue zone hinting" );
+    grWriteln( "PgUp, PgDn  zoom in/out grid              s         toggle segment drawing  " );
+    grWriteln( "SPC         reset zoom and position                                         " );
+    grWriteln( "                                          1         dump edge hints         " );
+    grWriteln( "p, n        previous/next font            2         dump segment hints      " );
+    grWriteln( "                                          3         dump point hints        " );
+#else
+    grWriteln( "F1, ?       display this help screen    i, k        move grid up/down       " );
+    grWriteln( "                                        j, l        move grid left/right    " );
+    grWriteln( "p, n        previous/next font          PgUp, PgDn  zoom in/out grid        " );
+    grWriteln( "                                        SPC         reset zoom and position " );
+#endif /* FT_DEBUG_AUTOFIT */
+    grWriteln( "Up, Down    adjust size by 0.5pt                                            " );
+    grWriteln( "                                        if not autohinting:                 " );
+    grWriteln( "Left, Right adjust index by 1             H         cycle through hinting   " );
+    grWriteln( "F7, F8      adjust index by 10                        engines (if available)" );
+    grWriteln( "F9, F10     adjust index by 100                                             " );
+    grWriteln( "F11, F12    adjust index by 1000        d           toggle dots display     " );
+    grWriteln( "                                        o           toggle outline display  " );
+    grWriteln( "h           toggle hinting                                                  " );
+    grWriteln( "f           toggle forced auto-                                             " );
+    grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
+    grWriteln( "                                                                            " );
+    grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftgrid             " );
+    /*          |----------------------------------|    |----------------------------------| */
     grLn();
-    grWriteln( "  n          : next font" );
-    grWriteln( "  p          : previous font" );
-    grWriteln( "  q / ESC    : exit program" );
     grLn();
-#ifdef FT_DEBUG_AUTOFIT
-    grWriteln( "  1          : dump edge hints" );
-    grWriteln( "  2          : dump segment hints" );
-    grWriteln( "  3          : dump point hints" );
-    grLn();
-#endif
     grWriteln( "press any key to exit this help screen" );
 
     grRefreshSurface( display->surface );
     grListenSurface( display->surface, gr_event_key, &dummy_event );
+  }
+
+
+  static void
+  event_cff_hinting_engine_change( int  delta )
+  {
+    int  new_cff_hinting_engine;
+
+
+    if ( delta )
+      new_cff_hinting_engine =
+        ( status.cff_hinting_engine +
+          delta                     +
+          N_CFF_HINTING_ENGINES     ) % N_CFF_HINTING_ENGINES;
+
+    error = FT_Property_Set( handle->library,
+                             "cff",
+                             "hinting-engine",
+                             &new_cff_hinting_engine );
+
+    if ( !error )
+    {
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type CFF, then unloading them explicitly.         */
+      FTC_Manager_Reset( handle->cache_manager );
+      status.cff_hinting_engine = new_cff_hinting_engine;
+    }
+
+    sprintf( status.header_buffer, "CFF engine changed to %s",
+             status.cff_hinting_engine == FT_CFF_HINTING_FREETYPE
+               ? "FreeType" : "Adobe" );
+
+    status.header = (const char *)status.header_buffer;
+  }
+
+
+  static void
+  event_tt_interpreter_version_change( void )
+  {
+    FT_UInt  new_interpreter_version;
+
+
+    if ( status.tt_interpreter_version == TT_INTERPRETER_VERSION_35 )
+      new_interpreter_version = TT_INTERPRETER_VERSION_38;
+    else
+      new_interpreter_version = TT_INTERPRETER_VERSION_35;
+
+    error = FT_Property_Set( handle->library,
+                             "truetype",
+                             "interpreter-version",
+                             &new_interpreter_version );
+
+    if ( !error )
+    {
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type TTF, then unloading them explicitly.         */
+      FTC_Manager_Reset( handle->cache_manager );
+      status.tt_interpreter_version = new_interpreter_version;
+    }
+
+    sprintf( status.header_buffer, "TrueType engine changed to version %s",
+             status.tt_interpreter_version == TT_INTERPRETER_VERSION_35
+               ? "35" : "38" );
+
+    status.header = (const char *)status.header_buffer;
   }
 
 
@@ -846,18 +912,36 @@
       event_font_change( -1 );
       break;
 
-#ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'H' ):
-      if ( handle->autohint )
+      if ( !handle->autohint )
+      {
+        FT_Face    face;
+        FT_Module  module;
+
+
+        error = FTC_Manager_LookupFace( handle->cache_manager,
+                                        handle->scaler.face_id, &face );
+        if ( !error )
+        {
+          module = &face->driver->root;
+
+          if ( !strcmp( module->clazz->module_name, "cff" ) )
+            event_cff_hinting_engine_change( 1 );
+          else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+            event_tt_interpreter_version_change();
+        }
+      }
+#ifdef FT_DEBUG_AUTOFIT
+      else
       {
         status.do_horz_hints = !status.do_horz_hints;
         status.header = status.do_horz_hints ? "horizontal hinting enabled"
                                              : "horizontal hinting disabled";
       }
-      else
-        status.header = "need autofit mode to toggle horizontal hinting";
       break;
+#endif
 
+#ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'V' ):
       if ( handle->autohint )
       {
@@ -1133,6 +1217,14 @@
 
     grid_status_init( &status );
     parse_cmdline( &argc, &argv );
+
+    /* get the default value as compiled into FreeType */
+    FT_Property_Get( handle->library,
+                     "cff",
+                     "hinting-engine", &status.cff_hinting_engine );
+    FT_Property_Get( handle->library,
+                     "truetype",
+                     "interpreter-version", &status.tt_interpreter_version );
 
     display = FTDemo_Display_New( gr_pixel_mode_rgb24,
                                   status.width, status.height );
