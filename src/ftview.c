@@ -790,7 +790,7 @@
     grWriteln( "f           toggle forced auto-         G           show gamma ramp         " );
     grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
     grWriteln( "                                                                            " );
-    grWriteln( "a           toggle anti-aliasing                                            " );
+    grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
