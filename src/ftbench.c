@@ -113,6 +113,8 @@ unsigned int    first_index;
 FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
 FT_Int32        load_flags  = FT_LOAD_DEFAULT;
 
+int  default_hinting_engine;
+int  default_interpreter_version;
 
 /*
  * Dummy face requester (the face object is already loaded)
@@ -688,10 +690,14 @@ void usage(void)
     "  -C        Compare with cached version (if available).\n"
     "  -c N      Use at most N iterations for each test\n"
     "            (0 means time limited).\n"
-    "  -f L      Use hex number L as load flags.\n"
-    "  -H        Use alternative hinting engine (CFF and TTF).\n"
+    "  -f L      Use hex number L as load flags (see `FT_LOAD_XXX').\n"
+    "  -H        Use alternative hinting engine (%s CFF or TTF v%s).\n"
     "  -i IDX    Start with index IDX (default is 0).\n"
     "  -m M      Set maximum cache size to M KByte (default is %d).\n",
+           default_hinting_engine == FT_CFF_HINTING_ADOBE ? "FreeType"
+                                                          : "Adobe",
+           default_interpreter_version == TT_INTERPRETER_VERSION_35 ? "38"
+                                                                    : "35",
            CACHE_SIZE );
   fprintf( stderr,
     "  -p        Preload font file in memory.\n"
@@ -756,6 +762,9 @@ main(int argc,
 
   FT_Property_Get( lib, "truetype", "interpreter-version",
                    &interpreter_version );
+
+  default_hinting_engine      = hinting_engine;
+  default_interpreter_version = interpreter_version;
 
   while ( 1 )
   {

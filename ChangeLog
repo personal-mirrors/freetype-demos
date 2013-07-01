@@ -1,3 +1,12 @@
+2013-07-02  Werner Lemberg  <wl@gnu.org>
+
+	[ftbench] Improve `usage' text.
+
+	* src/ftbench.c (default_hinting_engine,
+	default_interpreter_version): New global variables.
+	(usage): Improve text for `-H' and `-f'.
+	(main): Updated.
+
 2013-06-26  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Implement CFF and TTF engine change support.
