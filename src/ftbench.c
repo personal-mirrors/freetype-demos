@@ -193,7 +193,7 @@
     {
       if ( !cache_man )
       {
-        printf( "%-25s: no cache manager\n", test->title );
+        printf( "  %-25s: no cache manager\n", test->title );
 
         return;
       }
@@ -202,7 +202,7 @@
       test->bench( &timer, face, test->user_data );
     }
 
-    printf( "%-25s: ", test->title );
+    printf( "  %-25s ", test->title );
     fflush( stdout );
 
     n = done = 0;
@@ -727,7 +727,7 @@
       "  -f L      Use hex number L as load flags (see `FT_LOAD_XXX').\n"
       "  -H        Use alternative hinting engine (%s CFF or TTF v%s).\n"
       "  -i IDX    Start with index IDX (default is 0).\n"
-      "  -m M      Set maximum cache size to M KByte (default is %d).\n",
+      "  -m M      Set maximum cache size to M KiByte (default is %d).\n",
              default_hinting_engine == FT_CFF_HINTING_ADOBE ? "FreeType"
                                                             : "Adobe",
              default_interpreter_version == TT_INTERPRETER_VERSION_35 ? "38"
@@ -780,7 +780,7 @@
     int     max_iter       = 0;
     double  max_time       = BENCH_TIME;
     int     compare_cached = 0;
-    int     i;
+    size_t  i;
     int     hinting_engine;
     int     interpreter_version;
 
@@ -823,6 +823,8 @@
 
       case 'c':
         max_iter = atoi( optarg );
+        if ( max_iter < 0 )
+          max_iter = -max_iter;
         break;
 
       case 'f':
@@ -880,6 +882,8 @@
 
       case 't':
         max_time = atof( optarg );
+        if ( max_time < 0 )
+          max_time = -max_time;
         break;
 
       case 'v':
@@ -938,6 +942,52 @@
     font_type.width   = (short)size;
     font_type.height  = (short)size;
     font_type.flags   = load_flags;
+
+    printf( "\n"
+            "ftbench results for font `%s'\n"
+            "---------------------------",
+            filename );
+    for ( i = 0; i < strlen( filename ); i++ )
+      putchar( '-' );
+    putchar( '\n' );
+
+    printf( "\n"
+            "family: %s\n"
+            " style: %s\n"
+            "\n",
+            face->family_name,
+            face->style_name );
+
+    if ( max_iter )
+      printf( "number of iterations for each test: at most %d\n",
+              max_iter );
+    printf( "number of seconds for each test: %s%f\n",
+             max_iter ? "at most " : "",
+             max_time );
+
+    printf( "\n"
+            "starting glyph index: %d\n"
+            "face size: %dppem\n"
+            "font preloading into memory: %s\n",
+            first_index,
+            size,
+            preload ? "yes" : "no" );
+
+    printf( "\n"
+            "load flags: 0x%X\n"
+            "render mode: %d\n",
+            load_flags,
+            render_mode );
+    printf( "\n"
+            "CFF engine set to %s\n"
+            "TrueType engine set to version %s\n"
+            "maximum cache size: %ldKiByte\n",
+            hinting_engine == FT_CFF_HINTING_ADOBE ? "Adobe" : "FreeType",
+            interpreter_version == TT_INTERPRETER_VERSION_35 ? "35" : "38",
+            max_bytes / 1024 );
+
+    printf( "\n"
+            "executing tests:\n" );
 
     for ( i = 0; i < N_FT_BENCH; i++ )
     {
