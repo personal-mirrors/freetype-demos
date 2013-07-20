@@ -351,7 +351,8 @@
 
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,
-                       const char*     filepath )
+                       const char*     filepath,
+                       FT_Bool         outline_only )
   {
     static char  filename[1024 + 5];
     int          i, len, num_faces;
@@ -368,6 +369,9 @@
     error = FT_New_Face( handle->library, filename, 0, &face );
     if ( error )
       return error;
+
+    if ( outline_only && !FT_IS_SCALABLE( face ) )
+      return FT_Err_Invalid_Argument;
 
     /* allocate new font object */
     num_faces = face->num_faces;

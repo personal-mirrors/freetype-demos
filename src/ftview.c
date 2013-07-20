@@ -1938,7 +1938,7 @@
       FTDemo_Set_Preload( handle, 1 );
 
     for ( ; argc > 0; argc--, argv++ )
-      FTDemo_Install_Font( handle, argv[0] );
+      FTDemo_Install_Font( handle, argv[0], FALSE );
 
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );

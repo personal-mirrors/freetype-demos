@@ -1,3 +1,15 @@
+2013-07-20  Werner Lemberg  <wl@gnu.org>
+
+	Improve font loading.
+
+	In particular, avoid a crash in ftgrid for fonts without outlines.
+
+	* src/ftcommon.c (FTDemo_Install_Font): Provide argument to load
+	fonts with outlines only.
+	* src/ftcommon.h, src/ftview.c, src/ftstring.c: Updated.
+	* src/ftgrid.c (main): Updated.
+	Emit warning message for skipped fonts.
+
 2013-07-05  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] Be more verbose in reporting results.

@@ -219,7 +219,8 @@
   /* install a font */
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,
-                       const char*     filepath );
+                       const char*     filepath,
+                       FT_Bool         outline_only );
 
 
   void
