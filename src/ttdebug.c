@@ -76,7 +76,7 @@
   int  default_version;       /* default TrueType engine version */
   int  alternative_version;   /* alternative TrueType engine version */
 
-  FT_Bool  use_float = FALSE; /* number format */
+  FT_Bool  use_float = 0;     /* number format */
 
   FT_Error  error;
 
@@ -1379,7 +1379,7 @@
           printf( "\n" );
         }
       }
-    } while ( TRUE );
+    } while ( 1 );
 
   LErrorLabel_:
     if ( error && error != Quit )

@@ -1,5 +1,11 @@
 2013-07-20  Werner Lemberg  <wl@gnu.org>
 
+	Fix Savannah bug #39537.
+
+	*/* s/FALSE/0/, s/TRUE/1/.
+
+2013-07-20  Werner Lemberg  <wl@gnu.org>
+
 	Improve font loading.
 
 	In particular, avoid a crash in ftgrid for fonts without outlines.

@@ -1238,7 +1238,7 @@
 
     for ( ; argc > 0; argc--, argv++ )
     {
-      error = FTDemo_Install_Font( handle, argv[0], TRUE );
+      error = FTDemo_Install_Font( handle, argv[0], 1 );
       if ( error == FT_Err_Invalid_Argument )
         fprintf( stderr, "skipping font `%s' without outlines\n",
                          argv[0] );
