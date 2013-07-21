@@ -804,7 +804,6 @@
 
         case FT_PIXEL_MODE_GRAY:
           target->mode  = gr_pixel_mode_gray;
-          target->grays = sbit->max_grays + 1;
           break;
 
         case FT_PIXEL_MODE_GRAY2:
@@ -827,13 +826,11 @@
         case FT_PIXEL_MODE_LCD:
           target->mode  = handle->lcd_mode == 2 ? gr_pixel_mode_lcd
                                                 : gr_pixel_mode_lcd2;
-          target->grays = sbit->max_grays + 1;
           break;
 
         case FT_PIXEL_MODE_LCD_V:
           target->mode  = handle->lcd_mode == 4 ? gr_pixel_mode_lcdv
                                                 : gr_pixel_mode_lcdv2;
-          target->grays = sbit->max_grays + 1;
           break;
 
         default:

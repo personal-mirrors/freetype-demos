@@ -1,5 +1,9 @@
 2013-07-21  Behdad Esfahbod  <behdad@google.com>
 
+	* src/ftcommon.c (FTDemo_Index_To_Bitmap): Remove unneeded code.
+
+2013-07-21  Behdad Esfahbod  <behdad@google.com>
+
 	[graph] Fix BGRA blending.
 
 	* graph/gblbgra.h: Simplify and correct blending operation.
