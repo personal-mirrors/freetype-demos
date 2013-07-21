@@ -833,6 +833,10 @@
                                                 : gr_pixel_mode_lcdv2;
           break;
 
+        case FT_PIXEL_MODE_BGRA:
+          target->mode  = gr_pixel_mode_bgra;
+          break;
+
         default:
           return FT_Err_Invalid_Glyph_Format;
         }

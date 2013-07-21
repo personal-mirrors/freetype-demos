@@ -1,3 +1,7 @@
+2013-07-21  Behdad Esfahbod  <behdad@google.com>
+
+	* src/ftcommon.c (FTDemo_Index_To_Bitmap): Add BGRA support.
+
 2013-07-21  Werner Lemberg  <wl@gnu.org>
 
 	* graph/rules.mk (GRAPH_H): Add missing files.
