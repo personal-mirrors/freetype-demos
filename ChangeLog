@@ -1,3 +1,9 @@
+2013-07-21  Behdad Esfahbod  <behdad@google.com>
+
+	[graph] Fix BGRA blending.
+
+	* graph/gblbgra.h: Simplify and correct blending operation.
+
 2013-07-20  Werner Lemberg  <wl@gnu.org>
 
 	Fix Savannah bug #39537.
