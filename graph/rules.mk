@@ -16,26 +16,35 @@ GRAPH_LIB      := $(OBJ_DIR_2)/graph.$(SA)
 
 GRAPH := $(TOP_DIR_2)/graph
 
-GRAPH_H := $(GRAPH)/graph.h    \
-           $(GRAPH)/grevents.h \
-           $(GRAPH)/grfont.h   \
-           $(GRAPH)/grtypes.h  \
-           $(GRAPH)/grobjs.h   \
-           $(GRAPH)/grdevice.h \
-           $(GRAPH)/grblit.h   \
-           $(GRAPH)/gblender.h \
-           $(GRAPH)/gblblit.h
+GRAPH_H := $(GRAPH)/gblany.h    \
+           $(GRAPH)/gblbgra.h   \
+           $(GRAPH)/gblblit.h   \
+           $(GRAPH)/gblcolor.h  \
+           $(GRAPH)/gblhbgr.h   \
+           $(GRAPH)/gblhrgb.h   \
+           $(GRAPH)/gblvbgr.h   \
+           $(GRAPH)/gblvrgb.h   \
+           $(GRAPH)/gblender.h  \
+           $(GRAPH)/graph.h     \
+           $(GRAPH)/grblit.h    \
+           $(GRAPH)/grconfig.h  \
+           $(GRAPH)/grdevice.h  \
+           $(GRAPH)/grevents.h  \
+           $(GRAPH)/grfont.h    \
+           $(GRAPH)/grobjs.h    \
+           $(GRAPH)/grswizzle.h \
+           $(GRAPH)/grtypes.h
 
 
-GRAPH_OBJS := $(OBJ_DIR_2)/grblit.$(O)    \
-              $(OBJ_DIR_2)/grobjs.$(O)    \
-              $(OBJ_DIR_2)/grfont.$(O)    \
-              $(OBJ_DIR_2)/grfill.$(O)    \
-              $(OBJ_DIR_2)/grswizzle.$(O) \
-              $(OBJ_DIR_2)/grdevice.$(O)  \
-              $(OBJ_DIR_2)/grinit.$(O)    \
+GRAPH_OBJS := $(OBJ_DIR_2)/gblblit.$(O)   \
               $(OBJ_DIR_2)/gblender.$(O)  \
-              $(OBJ_DIR_2)/gblblit.$(O)
+              $(OBJ_DIR_2)/grblit.$(O)    \
+              $(OBJ_DIR_2)/grdevice.$(O)  \
+              $(OBJ_DIR_2)/grfill.$(O)    \
+              $(OBJ_DIR_2)/grfont.$(O)    \
+              $(OBJ_DIR_2)/grinit.$(O)    \
+              $(OBJ_DIR_2)/grobjs.$(O)    \
+              $(OBJ_DIR_2)/grswizzle.$(O)
 
 
 
