@@ -1,3 +1,11 @@
+2013-09-23  Werner Lemberg  <wl@gnu.org>
+
+	[ftdiff] Improve text display at small sizes.
+
+	* src/ftdiff.c (render_state_draw): Loop over the text.  This also
+	avoids problems if the .notdef character has zero width (for
+	whatever reasons).
+
 2013-07-21  Behdad Esfahbod  <behdad@google.com>
 
 	* src/ftcommon.c (FTDemo_Index_To_Bitmap): Add BGRA support.

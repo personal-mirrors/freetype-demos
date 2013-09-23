@@ -571,6 +571,11 @@
 
 
       ch = utf8_next( &p, p_end );
+      if ( ch < 0 )
+      {
+        p  = text;
+        ch = utf8_next( &p, p_end );
+      }
 
       /* handle newlines */
       if ( ch == 0x0A )
