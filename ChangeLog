@@ -1,3 +1,10 @@
+2013-09-28  Dave Arnold <darnold@adobe.com>
+
+	* src/ftdiff.c (ProcessEvent) <'H'>: Fix typo.
+
+	If FT_DEBUG_AUTOFIT is false, then the command `H' had a side-effect
+	of decrementing the glyph index.
+
 2013-09-23  Werner Lemberg  <wl@gnu.org>
 
 	[ftdiff] Improve text display at small sizes.

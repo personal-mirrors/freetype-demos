@@ -938,8 +938,8 @@
         status.header = status.do_horz_hints ? "horizontal hinting enabled"
                                              : "horizontal hinting disabled";
       }
-      break;
 #endif
+      break;
 
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'V' ):
