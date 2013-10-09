@@ -680,7 +680,8 @@
         }
       }
 
-      snprintf( text, 256, "%g: %n%s", pt_size / 64.0, &start, p );
+      start = snprintf( text, 256, "%g: ", pt_size / 64.0 );
+      snprintf( text + start, 256 - start, "%s", p );
 
       p    = text;
       pEnd = p + strlen( text );

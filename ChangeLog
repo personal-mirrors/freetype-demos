@@ -1,3 +1,9 @@
+2013-10-09  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftview.c (Render_Waterfall): Avoid `%n' in `snprintf'.
+
+	MSVC disables this by default, and compilation would fail otherwise.
+
 2013-09-28  Dave Arnold <darnold@adobe.com>
 
 	* src/ftdiff.c (ProcessEvent) <'H'>: Fix typo.
