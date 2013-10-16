@@ -1,3 +1,13 @@
+2013-10-16  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Display improvements.
+
+	* src/ttdebug.c (exec): Removed, unused.
+	(RunIns): Increase size of `temp' buffer.
+	Display negative hex numbers.
+	Correctly display hex numbers with more than 4 digits.
+	(RunIns) <'g'>: Display interpreter version.
+
 2013-10-09  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftview.c (Render_Waterfall): Avoid `%n' in `snprintf'.

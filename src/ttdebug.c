@@ -71,7 +71,6 @@
   TT_Face         face;       /* truetype face */
   TT_Size         size;       /* truetype size */
   TT_GlyphSlot    glyph;      /* truetype glyph slot */
-  TT_ExecContext  exec;       /* truetype execution context */
 
   int  default_version;       /* default TrueType engine version */
   int  alternative_version;   /* alternative TrueType engine version */
@@ -957,7 +956,7 @@
         /* [loc]:[addr] [opcode]  [disassemby]          [a][b]|[c][d]      */
 
         {
-          char  temp[80];
+          char  temp[90];
           int   n, col, pop;
           int   args = CUR.args;
 
@@ -997,20 +996,37 @@
 
           for ( n = 6; n > 0; n-- )
           {
+            int  num_chars;
+
+
             if ( pop == 0 )
               temp[col - 1] = temp[col - 1] == '(' ? ' ' : ')';
 
             if ( args < CUR.top && args >= 0 )
-              sprintf( temp + col, "%04lx", CUR.stack[args] );
-            else
-              sprintf( temp + col, "    " );
+            {
+              /* we display signed hexadimal numbers, which */
+              /* is easier to read and needs less space     */
+              long  val = (signed long)CUR.stack[args];
 
-            temp[col + 4] = ' ';
-            col          += 5;
+
+              num_chars = sprintf( temp + col, "%s%04lx",
+                                               val < 0 ? "-" : "",
+                                               val < 0 ? -val : val );
+              if ( col + num_chars >= 78 )
+                break;
+            }
+            else
+              num_chars = 0;
+
+            temp[col + num_chars] = ' ';
+            col                  += num_chars + 1;
 
             pop--;
             args--;
           }
+
+          for ( n = col; n < 78; n++ )
+            temp[n] = ' ';
 
           temp[78] = '\n';
           temp[79] = '\0';
@@ -1130,6 +1146,20 @@
 
         /* Show graphics state */
         case 'g':
+          {
+            int  version;
+
+
+            /* this doesn't really belong to the graphics state, */
+            /* but I consider it a good place to show            */
+            FT_Property_Get( library,
+                             "truetype",
+                             "interpreter-version", &version );
+            printf( "hinting engine version: %d\n"
+                    "\n",
+                    version );
+          }
+
           printf( "rounding state      %s\n",
                   round_str[CUR.GS.round_state] );
           if ( use_float )
