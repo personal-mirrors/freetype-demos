@@ -1,5 +1,15 @@
 2013-10-16  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Display twilight data; key `t' shows twilight point table.
+
+	* src/ttdebug.c (display_changed_points, show_points_table): Pass
+	flag for twilight zone and handle it accordingly.
+	(RunIns): Track twilight data.
+	Handle key `t'.
+	Update help.
+
+2013-10-16  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Some refactorization.
 
 	* src/ttdebug.c (display_changed_points, show_points_table): New

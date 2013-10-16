@@ -880,7 +880,8 @@
 
   static void
   display_changed_points( TT_GlyphZoneRec*  prev,
-                          TT_GlyphZoneRec*  curr )
+                          TT_GlyphZoneRec*  curr,
+                          FT_Bool           is_twilight )
   {
     FT_Int  A;
 
@@ -906,7 +907,7 @@
         const FT_String*  temp;
 
 
-        printf( "%3d  ", A );
+        printf( "%3d%s ", A, is_twilight ? "T" : " " );
         printf( "%6ld,%6ld  ", curr->orus[A].x, curr->orus[A].y );
 
         if ( diff & 16 )
@@ -1005,17 +1006,21 @@
 
   static void
   show_points_table( TT_GlyphZoneRec*  zone,
-                     int               n_points )
+                     int               n_points,
+                     FT_Bool           is_twilight )
   {
     int  A;
 
 
     if ( n_points )
     {
-      printf( "idx  "
-              "orig. unscaled  - "
-              "orig. scaled        - "
-              "current scaled     \n" );
+      printf( "%s points\n"
+              "\n",
+              is_twilight ? "twilight" : "glyph" );
+      printf( " idx "
+              " orig. unscaled - "
+              "    orig. scaled    - "
+              "  current scaled   \n" );
       printf( "-----"
               "------------------"
               "----------------------"
@@ -1026,8 +1031,8 @@
 
     for ( A = 0; A < n_points; A++ )
     {
-      printf( "%3d  ",
-              A );
+      printf( "%3d%s ",
+              A, is_twilight ? "T" : " " );
       printf( "(%6ld,%6ld) - ",
               zone->orus[A].x, zone->orus[A].y );
       if ( use_float )
@@ -1057,8 +1062,10 @@
 
     FT_String  ch, oldch = '\0';
 
-    TT_GlyphZoneRec  save_pts;
     TT_GlyphZoneRec  pts;
+    TT_GlyphZoneRec  twilight;
+    TT_GlyphZoneRec  save_pts;
+    TT_GlyphZoneRec  save_twilight;
 
     const FT_String*  code_range;
 
@@ -1077,10 +1084,8 @@
 
     error = FT_Err_Ok;
 
-    CUR.pts.n_points   = CUR.zp0.n_points;
-    CUR.pts.n_contours = CUR.zp0.n_contours;
-
-    pts = CUR.pts;
+    pts      = CUR.pts;
+    twilight = CUR.twilight;
 
     save_pts.n_points   = pts.n_points;
     save_pts.n_contours = pts.n_contours;
@@ -1090,6 +1095,15 @@
     save_pts.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
                                         save_pts.n_points );
     save_pts.tags = (FT_Byte*)malloc( save_pts.n_points );
+
+    save_twilight.n_points   = twilight.n_points;
+    save_twilight.n_contours = twilight.n_contours;
+
+    save_twilight.org  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+                                             save_twilight.n_points );
+    save_twilight.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+                                             save_twilight.n_points );
+    save_twilight.tags = (FT_Byte*)malloc( save_twilight.n_points );
 
     CUR.instruction_trap = 1;
 
@@ -1256,6 +1270,7 @@
                   "v   show vector info\n"
                   "g   show graphics state\n"
                   "p   show points zone\n"
+                  "t   show twilight zone\n"
                   "f   toggle between floating and fixed point number format\n"
                   "l   show last bytecode instruction\n"
                   "\n"
@@ -1267,6 +1282,8 @@
                   "  The first line gives the values before the instruction,\n"
                   "  the second line the changes after the instruction,\n"
                   "  indicated by parentheses and brackets for emphasis.\n"
+                  "\n"
+                  "  A `T' appended to the index indicates a twilight point.\n"
                   "\n"
                   "  Tag values (which are ORed):\n"
                   "\n"
@@ -1353,9 +1370,12 @@
           printf( "\n" );
           break;
 
-        /* Show points table */
         case 'p':
-          show_points_table( &pts, CUR.pts.n_points );
+          show_points_table( &pts, CUR.pts.n_points, 0 );
+          break;
+
+        case 't':
+          show_points_table( &twilight, CUR.twilight.n_points, 1 );
           break;
 
         default:
@@ -1372,6 +1392,16 @@
       FT_MEM_COPY( save_pts.tags,
                    pts.tags,
                    pts.n_points );
+
+      FT_MEM_COPY( save_twilight.org,
+                   twilight.org,
+                   twilight.n_points * sizeof ( FT_Vector ) );
+      FT_MEM_COPY( save_twilight.cur,
+                   twilight.cur,
+                   twilight.n_points * sizeof ( FT_Vector ) );
+      FT_MEM_COPY( save_twilight.tags,
+                   twilight.tags,
+                   twilight.n_points );
 
       /* a return indicates the last command */
       if ( ch == '\r' )
@@ -1438,7 +1468,8 @@
         oldch = '\0';
       }
 
-      display_changed_points(&save_pts, &pts);
+      display_changed_points(&save_pts, &pts, 0);
+      display_changed_points(&save_twilight, &twilight, 1);
 
     } while ( 1 );
 
