@@ -1,5 +1,9 @@
 2013-10-16  Werner Lemberg  <wl@gnu.org>
 
+	* src/ttdebug.c (RunIns): Handle `Enter' key correctly.
+
+2013-10-16  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Display twilight data; key `t' shows twilight point table.
 
 	* src/ttdebug.c (display_changed_points, show_points_table): Pass

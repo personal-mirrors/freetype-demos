@@ -1404,7 +1404,7 @@
                    twilight.n_points );
 
       /* a return indicates the last command */
-      if ( ch == '\r' )
+      if ( ch == '\r' || ch == '\n' )
         ch = oldch;
 
       switch ( ch )
