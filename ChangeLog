@@ -1,5 +1,13 @@
 2013-10-16  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Some refactorization.
+
+	* src/ttdebug.c (display_changed_points, show_points_table): New
+	functions, extracted from...
+	(RunIns): ... this one.
+
+2013-10-16  Werner Lemberg  <wl@gnu.org>
+
 	* src/ttdebug.c: s/save/save_pts/.
 
 2013-10-16  Werner Lemberg  <wl@gnu.org>

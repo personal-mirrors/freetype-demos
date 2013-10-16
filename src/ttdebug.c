@@ -878,10 +878,181 @@
   }
 
 
+  static void
+  display_changed_points( TT_GlyphZoneRec*  prev,
+                          TT_GlyphZoneRec*  curr )
+  {
+    FT_Int  A;
+
+
+    for ( A = 0; A < curr->n_points; A++ )
+    {
+      FT_Int  diff = 0;
+
+
+      if ( prev->org[A].x != curr->org[A].x )
+        diff |= 1;
+      if ( prev->org[A].y != curr->org[A].y )
+        diff |= 2;
+      if ( prev->cur[A].x != curr->cur[A].x )
+        diff |= 4;
+      if ( prev->cur[A].y != curr->cur[A].y )
+        diff |= 8;
+      if ( prev->tags[A] != curr->tags[A] )
+        diff |= 16;
+
+      if ( diff )
+      {
+        const FT_String*  temp;
+
+
+        printf( "%3d  ", A );
+        printf( "%6ld,%6ld  ", curr->orus[A].x, curr->orus[A].y );
+
+        if ( diff & 16 )
+          temp = "(%01hx)";
+        else
+          temp = " %01hx ";
+        printf( temp, old_tag_to_new( prev->tags[A] ) );
+
+        if ( diff & 1 )
+          temp = use_float ? "(%8.2f)" : "(%8ld)";
+        else
+          temp = use_float ? " %8.2f " : " %8ld ";
+        if ( use_float )
+          printf( temp, prev->org[A].x / 64.0 );
+        else
+          printf( temp, prev->org[A].x );
+
+        if ( diff & 2 )
+          temp = use_float ? "(%8.2f)" : "(%8ld)";
+        else
+          temp = use_float ? " %8.2f " : " %8ld ";
+        if ( use_float )
+          printf( temp, prev->org[A].y / 64.0 );
+        else
+          printf( temp, prev->org[A].y );
+
+        if ( diff & 4 )
+          temp = use_float ? "(%8.2f)" : "(%8ld)";
+        else
+          temp = use_float ? " %8.2f " : " %8ld ";
+        if ( use_float )
+          printf( temp, prev->cur[A].x / 64.0 );
+        else
+          printf( temp, prev->cur[A].x );
+
+        if ( diff & 8 )
+          temp = use_float ? "(%8.2f)" : "(%8ld)";
+        else
+          temp = use_float ? " %8.2f " : " %8ld ";
+        if ( use_float )
+          printf( temp, prev->cur[A].y / 64.0 );
+        else
+          printf( temp, prev->cur[A].y );
+
+        printf( "\n" );
+
+        printf( "                    " );
+
+        if ( diff & 16 )
+          temp = "[%01hx]";
+        else
+          temp = "   ";
+        printf( temp, old_tag_to_new( curr->tags[A] ) );
+
+        if ( diff & 1 )
+          temp = use_float ? "[%8.2f]" : "[%8ld]";
+        else
+          temp = "          ";
+        if ( use_float )
+          printf( temp, curr->org[A].x / 64.0 );
+        else
+          printf( temp, curr->org[A].x );
+
+        if ( diff & 2 )
+          temp = use_float ? "[%8.2f]" : "[%8ld]";
+        else
+          temp = "          ";
+        if ( use_float )
+          printf( temp, curr->org[A].y / 64.0 );
+        else
+          printf( temp, curr->org[A].y );
+
+        if ( diff & 4 )
+          temp = use_float ? "[%8.2f]" : "[%8ld]";
+        else
+          temp = "          ";
+        if ( use_float )
+          printf( temp, curr->cur[A].x / 64.0 );
+        else
+          printf( temp, curr->cur[A].x );
+
+        if ( diff & 8 )
+          temp = use_float ? "[%8.2f]" : "[%8ld]";
+        else
+          temp = "          ";
+        if ( use_float )
+          printf( temp, curr->cur[A].y / 64.0 );
+        else
+          printf( temp, curr->cur[A].y );
+
+        printf( "\n" );
+      }
+    }
+  }
+
+
+  static void
+  show_points_table( TT_GlyphZoneRec*  zone,
+                     int               n_points )
+  {
+    int  A;
+
+
+    if ( n_points )
+    {
+      printf( "idx  "
+              "orig. unscaled  - "
+              "orig. scaled        - "
+              "current scaled     \n" );
+      printf( "-----"
+              "------------------"
+              "----------------------"
+              "-------------------\n" );
+    }
+    else
+      printf( "not yet in `glyf' program\n" );
+
+    for ( A = 0; A < n_points; A++ )
+    {
+      printf( "%3d  ",
+              A );
+      printf( "(%6ld,%6ld) - ",
+              zone->orus[A].x, zone->orus[A].y );
+      if ( use_float )
+      {
+        printf( "(%8.2f,%8.2f) - ",
+                zone->org[A].x / 64.0, zone->org[A].y / 64.0 );
+        printf( "(%8.2f,%8.2f)\n",
+                zone->cur[A].x / 64.0, zone->cur[A].y / 64.0 );
+      }
+      else
+      {
+        printf( "(%8ld,%8ld) - ",
+                zone->org[A].x, zone->org[A].y );
+        printf( "(%8ld,%8ld)\n",
+                zone->cur[A].x, zone->cur[A].y );
+      }
+    }
+    printf( "\n" );
+  }
+
+
   static FT_Error
   RunIns( TT_ExecContext  exc )
   {
-    FT_Int   A, diff, key;
+    FT_Int   key;
     FT_Long  next_IP;
 
     FT_String  ch, oldch = '\0';
@@ -1184,42 +1355,7 @@
 
         /* Show points table */
         case 'p':
-          if ( CUR.pts.n_points )
-          {
-            printf( "idx  "
-                    "orig. unscaled  - "
-                    "orig. scaled        - "
-                    "current scaled     \n" );
-            printf( "-----"
-                    "------------------"
-                    "----------------------"
-                    "-------------------\n" );
-          }
-          else
-            printf( "not yet in `glyf' program\n" );
-
-          for ( A = 0; A < CUR.pts.n_points; A++ )
-          {
-            printf( "%3d  ",
-                    A );
-            printf( "(%6ld,%6ld) - ",
-                    pts.orus[A].x, pts.orus[A].y );
-            if ( use_float )
-            {
-              printf( "(%8.2f,%8.2f) - ",
-                      pts.org[A].x / 64.0, pts.org[A].y / 64.0 );
-              printf( "(%8.2f,%8.2f)\n",
-                      pts.cur[A].x / 64.0, pts.cur[A].y / 64.0 );
-            }
-            else
-            {
-              printf( "(%8ld,%8ld) - ",
-                      pts.org[A].x, pts.org[A].y );
-              printf( "(%8ld,%8ld)\n",
-                      pts.cur[A].x, pts.cur[A].y );
-            }
-          }
-          printf( "\n" );
+          show_points_table( &pts, CUR.pts.n_points );
           break;
 
         default:
@@ -1302,119 +1438,8 @@
         oldch = '\0';
       }
 
-      for ( A = 0; A < pts.n_points; A++ )
-      {
-        diff = 0;
-        if ( save_pts.org[A].x != pts.org[A].x )
-          diff |= 1;
-        if ( save_pts.org[A].y != pts.org[A].y )
-          diff |= 2;
-        if ( save_pts.cur[A].x != pts.cur[A].x )
-          diff |= 4;
-        if ( save_pts.cur[A].y != pts.cur[A].y )
-          diff |= 8;
-        if ( save_pts.tags[A] != pts.tags[A] )
-          diff |= 16;
+      display_changed_points(&save_pts, &pts);
 
-        if ( diff )
-        {
-          const FT_String*  temp;
-
-
-          printf( "%3d  ", A );
-          printf( "%6ld,%6ld  ", pts.orus[A].x, pts.orus[A].y );
-
-          if ( diff & 16 )
-            temp = "(%01hx)";
-          else
-            temp = " %01hx ";
-          printf( temp, old_tag_to_new( save_pts.tags[A] ) );
-
-          if ( diff & 1 )
-            temp = use_float ? "(%8.2f)" : "(%8ld)";
-          else
-            temp = use_float ? " %8.2f " : " %8ld ";
-          if ( use_float )
-            printf( temp, save_pts.org[A].x / 64.0 );
-          else
-            printf( temp, save_pts.org[A].x );
-
-          if ( diff & 2 )
-            temp = use_float ? "(%8.2f)" : "(%8ld)";
-          else
-            temp = use_float ? " %8.2f " : " %8ld ";
-          if ( use_float )
-            printf( temp, save_pts.org[A].y / 64.0 );
-          else
-            printf( temp, save_pts.org[A].y );
-
-          if ( diff & 4 )
-            temp = use_float ? "(%8.2f)" : "(%8ld)";
-          else
-            temp = use_float ? " %8.2f " : " %8ld ";
-          if ( use_float )
-            printf( temp, save_pts.cur[A].x / 64.0 );
-          else
-            printf( temp, save_pts.cur[A].x );
-
-          if ( diff & 8 )
-            temp = use_float ? "(%8.2f)" : "(%8ld)";
-          else
-            temp = use_float ? " %8.2f " : " %8ld ";
-          if ( use_float )
-            printf( temp, save_pts.cur[A].y / 64.0 );
-          else
-            printf( temp, save_pts.cur[A].y );
-
-          printf( "\n" );
-
-          printf( "                    " );
-
-          if ( diff & 16 )
-            temp = "[%01hx]";
-          else
-            temp = "   ";
-          printf( temp, old_tag_to_new( pts.tags[A] ) );
-
-          if ( diff & 1 )
-            temp = use_float ? "[%8.2f]" : "[%8ld]";
-          else
-            temp = "          ";
-          if ( use_float )
-            printf( temp, pts.org[A].x / 64.0 );
-          else
-            printf( temp, pts.org[A].x );
-
-          if ( diff & 2 )
-            temp = use_float ? "[%8.2f]" : "[%8ld]";
-          else
-            temp = "          ";
-          if ( use_float )
-            printf( temp, pts.org[A].y / 64.0 );
-          else
-            printf( temp, pts.org[A].y );
-
-          if ( diff & 4 )
-            temp = use_float ? "[%8.2f]" : "[%8ld]";
-          else
-            temp = "          ";
-          if ( use_float )
-            printf( temp, pts.cur[A].x / 64.0 );
-          else
-            printf( temp, pts.cur[A].x );
-
-          if ( diff & 8 )
-            temp = use_float ? "[%8.2f]" : "[%8ld]";
-          else
-            temp = "          ";
-          if ( use_float )
-            printf( temp, pts.cur[A].y / 64.0 );
-          else
-            printf( temp, pts.cur[A].y );
-
-          printf( "\n" );
-        }
-      }
     } while ( 1 );
 
   LErrorLabel_:
