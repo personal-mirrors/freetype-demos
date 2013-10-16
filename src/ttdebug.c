@@ -886,7 +886,7 @@
 
     FT_String  ch, oldch = '\0';
 
-    TT_GlyphZoneRec  save;
+    TT_GlyphZoneRec  save_pts;
     TT_GlyphZoneRec  pts;
 
     const FT_String*  code_range;
@@ -911,14 +911,14 @@
 
     pts = CUR.pts;
 
-    save.n_points   = pts.n_points;
-    save.n_contours = pts.n_contours;
+    save_pts.n_points   = pts.n_points;
+    save_pts.n_contours = pts.n_contours;
 
-    save.org  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
-                                    save.n_points );
-    save.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
-                                    save.n_points );
-    save.tags = (FT_Byte*)malloc( save.n_points );
+    save_pts.org  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+                                        save_pts.n_points );
+    save_pts.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+                                        save_pts.n_points );
+    save_pts.tags = (FT_Byte*)malloc( save_pts.n_points );
 
     CUR.instruction_trap = 1;
 
@@ -1227,9 +1227,15 @@
         }
       } while ( !key );
 
-      FT_MEM_COPY( save.org, pts.org, pts.n_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( save.cur, pts.cur, pts.n_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( save.tags, pts.tags, pts.n_points );
+      FT_MEM_COPY( save_pts.org,
+                   pts.org,
+                   pts.n_points * sizeof ( FT_Vector ) );
+      FT_MEM_COPY( save_pts.cur,
+                   pts.cur,
+                   pts.n_points * sizeof ( FT_Vector ) );
+      FT_MEM_COPY( save_pts.tags,
+                   pts.tags,
+                   pts.n_points );
 
       /* a return indicates the last command */
       if ( ch == '\r' )
@@ -1299,15 +1305,15 @@
       for ( A = 0; A < pts.n_points; A++ )
       {
         diff = 0;
-        if ( save.org[A].x != pts.org[A].x )
+        if ( save_pts.org[A].x != pts.org[A].x )
           diff |= 1;
-        if ( save.org[A].y != pts.org[A].y )
+        if ( save_pts.org[A].y != pts.org[A].y )
           diff |= 2;
-        if ( save.cur[A].x != pts.cur[A].x )
+        if ( save_pts.cur[A].x != pts.cur[A].x )
           diff |= 4;
-        if ( save.cur[A].y != pts.cur[A].y )
+        if ( save_pts.cur[A].y != pts.cur[A].y )
           diff |= 8;
-        if ( save.tags[A] != pts.tags[A] )
+        if ( save_pts.tags[A] != pts.tags[A] )
           diff |= 16;
 
         if ( diff )
@@ -1322,43 +1328,43 @@
             temp = "(%01hx)";
           else
             temp = " %01hx ";
-          printf( temp, old_tag_to_new( save.tags[A] ) );
+          printf( temp, old_tag_to_new( save_pts.tags[A] ) );
 
           if ( diff & 1 )
             temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
             temp = use_float ? " %8.2f " : " %8ld ";
           if ( use_float )
-            printf( temp, save.org[A].x / 64.0 );
+            printf( temp, save_pts.org[A].x / 64.0 );
           else
-            printf( temp, save.org[A].x );
+            printf( temp, save_pts.org[A].x );
 
           if ( diff & 2 )
             temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
             temp = use_float ? " %8.2f " : " %8ld ";
           if ( use_float )
-            printf( temp, save.org[A].y / 64.0 );
+            printf( temp, save_pts.org[A].y / 64.0 );
           else
-            printf( temp, save.org[A].y );
+            printf( temp, save_pts.org[A].y );
 
           if ( diff & 4 )
             temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
             temp = use_float ? " %8.2f " : " %8ld ";
           if ( use_float )
-            printf( temp, save.cur[A].x / 64.0 );
+            printf( temp, save_pts.cur[A].x / 64.0 );
           else
-            printf( temp, save.cur[A].x );
+            printf( temp, save_pts.cur[A].x );
 
           if ( diff & 8 )
             temp = use_float ? "(%8.2f)" : "(%8ld)";
           else
             temp = use_float ? " %8.2f " : " %8ld ";
           if ( use_float )
-            printf( temp, save.cur[A].y / 64.0 );
+            printf( temp, save_pts.cur[A].y / 64.0 );
           else
-            printf( temp, save.cur[A].y );
+            printf( temp, save_pts.cur[A].y );
 
           printf( "\n" );
 

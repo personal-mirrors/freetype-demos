@@ -1,5 +1,9 @@
 2013-10-16  Werner Lemberg  <wl@gnu.org>
 
+	* src/ttdebug.c: s/save/save_pts/.
+
+2013-10-16  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Display improvements.
 
 	* src/ttdebug.c (exec): Removed, unused.
