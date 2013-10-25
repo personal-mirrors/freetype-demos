@@ -1057,8 +1057,7 @@
   static FT_Error
   RunIns( TT_ExecContext  exc )
   {
-    FT_Int   key;
-    FT_Long  next_IP;
+    FT_Int  key;
 
     FT_String  ch, oldch = '\0';
 
@@ -1430,14 +1429,19 @@
       case 'n':
         if ( CUR.IP < CUR.codeSize )
         {
+          FT_Long  next_IP;
+          FT_Int   saved_range;
+
+
           /* `step over' is equivalent to `step into' except if */
           /* the current opcode is a CALL or LOOPCALL           */
           if ( CUR.opcode != 0x2a && CUR.opcode != 0x2b )
             goto Step_into;
 
           /* otherwise, loop execution until we reach the next opcode */
-          next_IP = CUR.IP + CUR.length;
-          while ( CUR.IP != next_IP )
+          saved_range = CUR.curRange;
+          next_IP     = CUR.IP + CUR.length;
+          while ( !( CUR.IP == next_IP && CUR.curRange == saved_range ) )
           {
             if ( ( error = TT_RunIns( exc ) ) != 0 )
               goto LErrorLabel_;
