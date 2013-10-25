@@ -1,5 +1,16 @@
 2013-10-25  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Change some key assignments from lowercase to uppercase.
+
+	* src/ttdebug.c (RunIns) <'v'>: Use 'V' instead.
+	<'g'>: Use 'G' instead.
+	<'p'>: Use 'P' instead.
+	<'t'>: Use 'T' instead.
+	<'q'>: Use 'Q' instead.
+	<'?'> Help updated.
+
+2013-10-25  Werner Lemberg  <wl@gnu.org>
+
 	* src/ttdebug.c (RunIns) <'n'>: Handle ranges correctly.
 
 2013-10-16  Werner Lemberg  <wl@gnu.org>

@@ -1262,14 +1262,17 @@
                   "ttdebug Help\n"
                   "\n"
                   "?   show this page\n"
-                  "q   quit debugger\n"
+                  "Q   quit debugger\n"
+                  "\n"
                   "c   continue to next code range\n"
                   "n   skip to next instruction\n"
                   "s   step into\n"
-                  "v   show vector info\n"
-                  "g   show graphics state\n"
-                  "p   show points zone\n"
-                  "t   show twilight zone\n"
+                  "\n"
+                  "V   show vector info\n"
+                  "G   show graphics state\n"
+                  "P   show points zone\n"
+                  "T   show twilight zone\n"
+                  "\n"
                   "f   toggle between floating and fixed point number format\n"
                   "l   show last bytecode instruction\n"
                   "\n"
@@ -1301,7 +1304,7 @@
           break;
 
         /* Show vectors */
-        case 'v':
+        case 'V':
           if ( use_float )
           {
             /* 2.14 numbers */
@@ -1332,7 +1335,7 @@
           break;
 
         /* Show graphics state */
-        case 'g':
+        case 'G':
           {
             int  version;
 
@@ -1369,11 +1372,11 @@
           printf( "\n" );
           break;
 
-        case 'p':
+        case 'P':
           show_points_table( &pts, CUR.pts.n_points, 0 );
           break;
 
-        case 't':
+        case 'T':
           show_points_table( &twilight, CUR.twilight.n_points, 1 );
           break;
 
@@ -1409,7 +1412,7 @@
       switch ( ch )
       {
       /* quit debugger */
-      case 'q':
+      case 'Q':
         error = Quit;
         goto LErrorLabel_;
 
