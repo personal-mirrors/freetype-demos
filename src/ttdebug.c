@@ -1066,6 +1066,8 @@
     TT_GlyphZoneRec  save_pts;
     TT_GlyphZoneRec  save_twilight;
 
+    FT_Long*  save_cvt;
+
     const FT_String*  code_range;
 
     const FT_String*  round_str[8] =
@@ -1103,6 +1105,8 @@
     save_twilight.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
                                              save_twilight.n_points );
     save_twilight.tags = (FT_Byte*)malloc( save_twilight.n_points );
+
+    save_cvt = (FT_Long*)malloc( sizeof ( FT_Long ) * CUR.cvtSize );
 
     CUR.instruction_trap = 1;
 
@@ -1272,6 +1276,7 @@
                   "G   show graphics state\n"
                   "P   show points zone\n"
                   "T   show twilight zone\n"
+                  "C   show CVT data\n"
                   "\n"
                   "f   toggle between floating and fixed point number format\n"
                   "l   show last bytecode instruction\n"
@@ -1285,7 +1290,8 @@
                   "  the second line the changes after the instruction,\n"
                   "  indicated by parentheses and brackets for emphasis.\n"
                   "\n"
-                  "  A `T' appended to the index indicates a twilight point.\n"
+                  "  A `T' appended to the index indicates a twilight point,\n"
+                  "  a `C' data from the Control Value Table (CVT).\n"
                   "\n"
                   "  Tag values (which are ORed):\n"
                   "\n"
@@ -1372,6 +1378,29 @@
           printf( "\n" );
           break;
 
+        /* Show CVT */
+        case 'C':
+          {
+            if ( CUR.curRange == tt_coderange_font )
+              printf( "not yet in `prep' or `glyf' program\n" );
+            else
+            {
+              FT_ULong  i;
+
+
+              printf( "Control Value Table (CVT) data\n"
+                      "\n" );
+              printf( " idx         value       \n"
+                      "-------------------------\n" );
+
+              for ( i = 0; i < CUR.cvtSize; i++ )
+                printf( "%3ldC  %8ld (%8.2f)\n",
+                        i, CUR.cvt[i], CUR.cvt[i] / 64.0 );
+              printf( "\n" );
+            }
+          }
+          break;
+
         case 'P':
           show_points_table( &pts, CUR.pts.n_points, 0 );
           break;
@@ -1404,6 +1433,10 @@
       FT_MEM_COPY( save_twilight.tags,
                    twilight.tags,
                    twilight.n_points );
+
+      FT_MEM_COPY( save_cvt,
+                   CUR.cvt,
+                   CUR.cvtSize * sizeof ( FT_Long ) );
 
       /* a return indicates the last command */
       if ( ch == '\r' || ch == '\n' )
@@ -1477,6 +1510,20 @@
 
       display_changed_points(&save_pts, &pts, 0);
       display_changed_points(&save_twilight, &twilight, 1);
+
+      {
+        FT_ULong  i;
+
+
+        for ( i = 0; i < CUR.cvtSize; i++ )
+          if ( save_cvt[i] != CUR.cvt[i] )
+          {
+            printf( "%3ldC %8ld (%8.2f)\n",
+                    i, save_cvt[i], save_cvt[i] / 64.0 );
+            printf( "     %8ld (%8.2f)\n",
+                    CUR.cvt[i], CUR.cvt[i] / 64.0 );
+          }
+      }
 
     } while ( 1 );
 

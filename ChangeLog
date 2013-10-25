@@ -1,5 +1,14 @@
 2013-10-25  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Display CVT data; key `C' shows all Control Values.
+
+	* src/ttdebug.c (RunIns): New array `save_cvt'.
+	After executing a step, CVT data different to before are displayed.
+	<'C'>: Show CVT data.
+	<'?'>: Help updated.
+
+2013-10-25  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Change some key assignments from lowercase to uppercase.
 
 	* src/ttdebug.c (RunIns) <'v'>: Use 'V' instead.
@@ -7,7 +16,7 @@
 	<'p'>: Use 'P' instead.
 	<'t'>: Use 'T' instead.
 	<'q'>: Use 'Q' instead.
-	<'?'> Help updated.
+	<'?'>: Help updated.
 
 2013-10-25  Werner Lemberg  <wl@gnu.org>
 
