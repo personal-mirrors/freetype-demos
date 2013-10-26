@@ -369,7 +369,8 @@
   };
 
 
-  static const FT_String*  OpStr[256] = {
+  static const FT_String*  OpStr[256] =
+  {
     "SVTCA y",       /* set vectors to coordinate axis y    */
     "SVTCA x",       /* set vectors to coordinate axis x    */
     "SPVTCA y",      /* set proj. vec. to coord. axis y     */
@@ -1006,13 +1007,14 @@
 
   static void
   show_points_table( TT_GlyphZoneRec*  zone,
+                     const FT_String*  code_range,
                      int               n_points,
                      FT_Bool           is_twilight )
   {
     int  A;
 
 
-    if ( n_points )
+    if ( code_range[0] == 'g' )
     {
       printf( "%s points\n"
               "\n",
@@ -1381,7 +1383,7 @@
         /* Show CVT */
         case 'C':
           {
-            if ( CUR.curRange == tt_coderange_font )
+            if ( code_range[0] == 'f' )
               printf( "not yet in `prep' or `glyf' program\n" );
             else
             {
@@ -1402,11 +1404,11 @@
           break;
 
         case 'P':
-          show_points_table( &pts, CUR.pts.n_points, 0 );
+          show_points_table( &pts, code_range, pts.n_points, 0 );
           break;
 
         case 'T':
-          show_points_table( &twilight, CUR.twilight.n_points, 1 );
+          show_points_table( &twilight, code_range, twilight.n_points, 1 );
           break;
 
         default:

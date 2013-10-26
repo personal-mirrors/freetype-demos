@@ -1,3 +1,13 @@
+2013-10-26  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Fix code range detection.
+
+	* src/ttdebug.c (RunIns): The `code_range' string identifies the
+	code range where `RunIns' has been called, so it's best to use it
+	throughout the code for this purpose.
+	<'C'>, <'P'>, <'S'>: Updated accordingly.
+	(show_points_table): Updated accordingly.
+
 2013-10-25  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Display CVT data; key `C' shows all Control Values.
