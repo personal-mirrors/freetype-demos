@@ -86,6 +86,13 @@
 
   static DebugStr  tempStr;
 
+  typedef struct  Storage_
+  {
+    FT_Bool  initialized;
+    FT_Long  value;
+
+  } Storage;
+
 
 #undef  PACK
 #define PACK( x, y )  ( ( x << 4 ) | y )
@@ -879,6 +886,27 @@
   }
 
 
+  /* we have to track the `WS' opcode specially so that we are able */
+  /* to properly handle uninitialized storage area values           */
+  static void
+  handle_WS( TT_ExecContext  exc,
+             Storage*        storage )
+  {
+    if ( CUR.opcode == 0x42 && CUR.top >= 2 )
+    {
+      FT_ULong  idx   = (FT_ULong)CUR.stack[CUR.top - 2];
+      FT_Long   value = (FT_Long) CUR.stack[CUR.top - 1];
+
+
+      if ( idx < CUR.storeSize )
+      {
+        storage[idx].initialized = 1;
+        storage[idx].value       = value;
+      }
+    }
+  }
+
+
   static void
   display_changed_points( TT_GlyphZoneRec*  prev,
                           TT_GlyphZoneRec*  curr,
@@ -1070,6 +1098,9 @@
 
     FT_Long*  save_cvt;
 
+    Storage*  storage;
+    Storage*  save_storage;
+
     const FT_String*  code_range;
 
     const FT_String*  round_str[8] =
@@ -1109,6 +1140,10 @@
     save_twilight.tags = (FT_Byte*)malloc( save_twilight.n_points );
 
     save_cvt = (FT_Long*)malloc( sizeof ( FT_Long ) * CUR.cvtSize );
+
+    /* set everything to zero in Storage Area */
+    storage      = (Storage*)calloc( CUR.storeSize, sizeof ( Storage ) );
+    save_storage = (Storage*)calloc( CUR.storeSize, sizeof ( Storage ) );
 
     CUR.instruction_trap = 1;
 
@@ -1264,8 +1299,7 @@
         {
         /* Help - show keybindings */
         case '?':
-          printf( "\n"
-                  "ttdebug Help\n"
+          printf( "ttdebug Help\n"
                   "\n"
                   "?   show this page\n"
                   "Q   quit debugger\n"
@@ -1278,6 +1312,7 @@
                   "G   show graphics state\n"
                   "P   show points zone\n"
                   "T   show twilight zone\n"
+                  "S   show storage area\n"
                   "C   show CVT data\n"
                   "\n"
                   "f   toggle between floating and fixed point number format\n"
@@ -1292,8 +1327,9 @@
                   "  the second line the changes after the instruction,\n"
                   "  indicated by parentheses and brackets for emphasis.\n"
                   "\n"
-                  "  A `T' appended to the index indicates a twilight point,\n"
-                  "  a `C' data from the Control Value Table (CVT).\n"
+                  "  A `T', `S', or `C' appended to the index indicates a\n"
+                  "  twilight point, a storage location, or data from the\n"
+                  "  Control Value Table (CVT), respectively.\n"
                   "\n"
                   "  Tag values (which are ORed):\n"
                   "\n"
@@ -1403,6 +1439,37 @@
           }
           break;
 
+        /* Show Storage Area */
+        case 'S':
+          {
+            if ( code_range[0] == 'f' )
+              printf( "not yet in `prep' or `glyf' program\n" );
+            else
+            {
+              FT_ULong  i;
+
+
+              printf( "Storage Area\n"
+                      "\n" );
+              printf( " idx         value       \n"
+                      "-------------------------\n" );
+
+              for ( i = 0; i < CUR.storeSize; i++ )
+              {
+                if ( storage[i].initialized )
+                  printf( "%3ldS  %8ld (%8.2f)\n",
+                          i,
+                          storage[i].value,
+                          storage[i].value / 64.0 );
+                else
+                  printf( "%3ldS  <uninitialized>\n",
+                          i );
+              }
+              printf( "\n" );
+            }
+          }
+          break;
+
         case 'P':
           show_points_table( &pts, code_range, pts.n_points, 0 );
           break;
@@ -1440,6 +1507,10 @@
                    CUR.cvt,
                    CUR.cvtSize * sizeof ( FT_Long ) );
 
+      FT_MEM_COPY( save_storage,
+                   storage,
+                   CUR.storeSize * sizeof ( Storage ) );
+
       /* a return indicates the last command */
       if ( ch == '\r' || ch == '\n' )
         ch = oldch;
@@ -1458,6 +1529,7 @@
           /* loop execution until we reach end of current code range */
           while ( CUR.IP < CUR.codeSize )
           {
+            handle_WS( exc, storage );
             if ( ( error = TT_RunIns( exc ) ) != 0 )
               goto LErrorLabel_;
           }
@@ -1481,6 +1553,7 @@
           next_IP     = CUR.IP + CUR.length;
           while ( !( CUR.IP == next_IP && CUR.curRange == saved_range ) )
           {
+            handle_WS( exc, storage );
             if ( ( error = TT_RunIns( exc ) ) != 0 )
               goto LErrorLabel_;
           }
@@ -1492,10 +1565,12 @@
       /* step into */
       case 's':
         if ( CUR.IP < CUR.codeSize )
-
-      Step_into:
+        {
+        Step_into:
+          handle_WS( exc, storage );
           if ( ( error = TT_RunIns( exc ) ) != 0 )
             goto LErrorLabel_;
+        }
 
         oldch = ch;
         break;
@@ -1524,6 +1599,16 @@
                     i, save_cvt[i], save_cvt[i] / 64.0 );
             printf( "     %8ld (%8.2f)\n",
                     CUR.cvt[i], CUR.cvt[i] / 64.0 );
+          }
+
+        for ( i = 0; i < CUR.storeSize; i++ )
+          if ( save_storage[i].initialized != storage[i].initialized ||
+               save_storage[i].value != storage[i].value             )
+          {
+            printf( "%3ldS %8ld (%8.2f)\n",
+                    i, save_storage[i].value, save_storage[i].value / 64.0 );
+            printf( "     %8ld (%8.2f)\n",
+                    storage[i].value, storage[i].value / 64.0 );
           }
       }
 

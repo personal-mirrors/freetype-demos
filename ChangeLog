@@ -1,5 +1,21 @@
 2013-10-26  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Display storage are data; key 'S' shows all of them.
+
+	* src/ttdebug.c (Storage): New structure.  We need to handle storage
+	area data specially since we have to make a distinction between
+	initialized and uninitialized values.
+	(handle_WS): New function.  Since it is not necessary for the
+	bytecode interpreter to trace whether a value is uninitialized or
+	not, we	have to do it manually right before every debugging step.
+	(RunIns): After executing a step, storage area data different to
+	before is displayed.
+	<'?'>: Help updated.
+	<'S'>: Show storage area data.
+	<'c'>, <'s'>, <'n'>: Call `handle_WS'.
+
+2013-10-26  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Fix code range detection.
 
 	* src/ttdebug.c (RunIns): The `code_range' string identifies the
@@ -13,7 +29,7 @@
 	[ttdebug] Display CVT data; key `C' shows all Control Values.
 
 	* src/ttdebug.c (RunIns): New array `save_cvt'.
-	After executing a step, CVT data different to before are displayed.
+	After executing a step, CVT data different to before is displayed.
 	<'C'>: Show CVT data.
 	<'?'>: Help updated.
 
