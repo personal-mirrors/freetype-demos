@@ -1615,6 +1615,19 @@
     } while ( 1 );
 
   LErrorLabel_:
+    free( save_pts.org );
+    free( save_pts.cur );
+    free( save_pts.tags );
+
+    free( save_twilight.org );
+    free( save_twilight.cur );
+    free( save_twilight.tags );
+
+    free( save_cvt );
+
+    free( storage );
+    free( save_storage );
+
     if ( error && error != Quit )
       Abort( "error during execution" );
     return error;
@@ -1781,6 +1794,9 @@
       Abort( "could not load glyph" );
 
     Reset_Keyboard();
+
+    FT_Done_Face( (FT_Face)face );
+    FT_Done_FreeType( library );
 
     return 0;
   }

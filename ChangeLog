@@ -1,3 +1,7 @@
+2013-10-27  Werner Lemberg  <wl@gnu.org>
+
+	* src/ttdebug.c (main, RunIns): Fix memory leaks.
+
 2013-10-26  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Display storage are data; key 'S' shows all of them.
