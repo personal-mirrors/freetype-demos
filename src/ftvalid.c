@@ -2,11 +2,11 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality font engine         */
 /*                                                                          */
-/*  Copyright 2005, 2006, 2007 by                                           */
+/*  Copyright 2005-2007, 2013 by                                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  ftvalid: Validates layout related tables of OpenType and                */
-/*           TrueTypeGX/AAT. This program calls `FT_OpenType_Validate',     */
+/*           TrueTypeGX/AAT.  This program calls `FT_OpenType_Validate',    */
 /*           `FT_TrueTypeGX_Validate' or `FT_ClassicKern_Validate' on a     */
 /*           given file, and reports the validation result.                 */
 /*                                                                          */
@@ -100,8 +100,8 @@
 				    int         validation_level );
     int         (* list_tables)   ( FT_Face     face );
 
-    TableSpec       table_spec;
-    unsigned int    n_table_spec;
+    TableSpec      table_spec;
+    unsigned int   n_table_spec;
 
   } ValidatorRec, *Validator;
 
@@ -124,14 +124,15 @@
   static int list_ckern_tables              ( FT_Face  face );
 
 
-  ValidatorRec validators[] = {
+  ValidatorRec validators[] =
+  {
     {
       OT_VALIDATE,
       "ot",
       ( "FT_OpenType_Validate"
-	"is disabled. replace FreeType2 with "
+	" is disabled!  Recompile FreeType 2 with "
 	"otvalid"
-	"-enabled version\n" ),
+	" module enabled.\n" ),
       is_ot_validator_implemented,
       run_ot_validator,
       list_ot_tables,
@@ -142,9 +143,9 @@
       GX_VALIDATE,
       "gx",
       ( "FT_TrueTypeGX_Validate"
-	"is disabled. replace FreeType2 with "
+	" is disabled!  Recompile FreeType 2 with "
 	"gxvalid"
-	"-enabled version\n" ),
+	" module enabled.\n" ),
       is_gx_validator_implemented,
       run_gx_validator,
       list_gx_tables,
@@ -155,9 +156,9 @@
       CKERN_VALIDATE,
       "ckern",
       ( "FT_ClassicKern_Validate"
-	"is disabled. replace FreeType2 with "
+	" is disabled!  Recompile FreeType 2 with "
 	"gxvalid"		/* NOTE: classic kern validator is in gxvalid. */
-	"-enabled version\n" ),
+	" module enabled.\n" ),
       is_ckern_validator_implemented,
       run_ckern_validator,
       list_ckern_tables,
@@ -217,30 +218,44 @@
       return ;
     }
 
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "ftvalid: layout table validator -- part of the FreeType project\n" );
-    fprintf( stderr, "---------------------------------------------------------------\n" );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "Usage: %s [options] fontfile\n", execname );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "  -f index                  Select font index (default: 0).\n" );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "  -t validator              Select validator.\n" );
-    fprintf( stderr, "                            Available validators: " );
+    fprintf( stderr,
+      "\n"
+      "ftvalid: layout table validator -- part of the FreeType project\n"
+      "---------------------------------------------------------------\n"
+      "\n" );
+    fprintf( stderr,
+      "Usage: %s [options] fontfile\n"
+      "\n",
+             execname );
+
+    fprintf( stderr,
+      "Options:\n"
+      "\n" );
+
+    fprintf( stderr,
+      "  -f index      Select font index (default: 0).\n"
+      "\n" );
+
+    fprintf( stderr,
+      "  -t validator  Select validator.\n"
+      "                Available validators:\n"
+      "                 " );
     for ( i = 0; i < LAST_VALIDATE; i++ )
     {
       v = &validators[i];
-      fprintf( stderr, "\"%s\"%s ",
-               v->symbol, v->is_implemented( library )? ""
-                                                      : "(NOT IMPLEMENTED)" );
+      fprintf( stderr, " %s%s",
+               v->symbol,
+               v->is_implemented( library ) ? ""
+                                            : " (NOT COMPILED IN)" );
     }
-    fprintf( stderr, "\n");
+    fprintf( stderr,
+      "\n"
+      "\n" );
 
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "  -T \"sfnt:tabl:enam:es  \"  Select snft table names to be\n" );
-    fprintf( stderr, "                            validated. `:' is for separating table names.\n" );
-    fprintf( stderr, "\n" );
-
+    fprintf( stderr,
+      "  -T tbls       [ot, gx] Select snft table name tags to be validated.\n"
+      "                Use `:' to separate tags.\n"
+      "\n" );
     for ( i = 0; i < LAST_VALIDATE; i++ )
     {
       v = &validators[i];
@@ -248,60 +263,76 @@
       if ( v->n_table_spec == 0 )
 	continue;
 
-      fprintf( stderr, "                            Supported tables in %s validator are:\n", v->symbol );
-      fprintf( stderr, "                            " );
+      fprintf( stderr,
+        "                Supported tables in %s validator:\n"
+        "                 ",
+               v->symbol );
       for ( j = 0; j < v->n_table_spec; j++ )
       {
-	print_tag( stderr, v->table_spec[j].tag );
 	fprintf( stderr, " " );
+	print_tag( stderr, v->table_spec[j].tag );
       }
-
-      fprintf( stderr, "\n" );
-      fprintf( stderr, "\n" );
+      fprintf( stderr,
+        "\n"
+        "\n" );
     }
+    fprintf( stderr,
+      "                Example: -T \"feat:morx\"\n"
+      "\n" );
 
-    fprintf( stderr, "  -T \"ms:apple\"             [ckern] Select (a) classic kern dialect(s) for\n" );
-    fprintf( stderr, "                            validation. `:' is for separating dialect names.\n" );
-    fprintf( stderr, "                            If more than one dialects is specified, all\n" );
-    fprintf( stderr, "                            dialects are accepted when validating.\n" );
+    fprintf( stderr,
+      "  -T dialect    [ckern] Select classic kern dialect for validation.\n"
+      "                Use `:' to separate dialect names.\n"
+      "                If more than one dialect is specified,\n"
+      "                all dialects are accepted when validating.\n"
+      "\n"
+      "                Supported dialects in ckern validator:\n"
+      "                  ms apple\n"
+      "\n" );
 
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "                            Supported dialects in ckern validator are:\n" );
-    fprintf( stderr, "                            ms apple" );
+    fprintf( stderr,
+      "  -l            List the layout-related SFNT tables\n"
+      "                available in the font file.\n"
+      "                The selected validator (with option `-t')\n"
+      "                affects the list.\n"
+      "\n"
+      "                ckern is applicable to `kern' table only.\n"
+      "                Option `-l' lists dialects supported in ckern validator\n"
+      "                only if `kern' table is available in the font file.\n"
+      "\n" );
 
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "  -L                        List the layout related SFNT tables\n" );
-    fprintf( stderr, "                            available in the font file. Choice of\n" );
-    fprintf( stderr, "                            validator with -t option affects on the\n" );
-    fprintf( stderr, "                            listing.\n" );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "                            ckern is applicable to kern table. -L lists\n");
-    fprintf( stderr, "                            dialects supported in ckern validator only if\n" );
-    fprintf( stderr, "                            kern table is available in the font file.\n" );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "  -v validation_level       Validation level.\n" );
-    fprintf( stderr, "                            validation_level = 0...2\n" );
-    fprintf( stderr, "                            (0: default, 1: tight, 2: paranoid)\n" );
+    fprintf( stderr,
+      "  -V level      Validation level.  Possible values:\n"
+      "                  0 (default), 1 (tight), 2 (paranoid)\n"
+      "\n" );
 
-#if 0
-    fprintf( stderr, "  -l trace_level            trace level for debug information.\n" );
-    fprintf( stderr, "                            trace_level = 1...7\n" );
-#endif /* 0 */
+    fprintf( stderr,
+      "  -v            Show version."
+      "\n" );
 
-    fprintf( stderr, "-------------------------------------------------------------------\n" );
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "Environment variable\n" );
-    fprintf( stderr, "FT2_DEBUG: You can specify trace components and their levels[1-7]\n" );
-    fprintf( stderr, "           to it like FT2_DEBUG=\"module1:level module2:level...\".\n" );
-    fprintf( stderr, "           Available components for ot validator:\n" );
-    fprintf( stderr, "           otvmodule otvcommon otvbase otvgdef otvgpos otvgsub otvjstf\n" );
-    fprintf( stderr, "           Available components for gx validator:\n" );
-    fprintf( stderr, "           gxvmodule gxvcommon gxvfeat gxvmort gxvmorx gxvbsln gxvjust\n");
-    fprintf( stderr, "           gxvkern gxvopbd gxvtrak gxvprop gxvlcar\n");
-    fprintf( stderr, "\n" );
-    fprintf( stderr, "           Only gxvkern is available for ckern validator.\n" );
-    fprintf( stderr, "\n" );
+    fprintf( stderr,
+      "-------------------------------------------------------------------\n"
+      "\n" );
+
+    fprintf( stderr,
+      "`FT2_DEBUG' environment variable:\n"
+      "\n"
+      "  You can specify `component:level' pairs for tracing.\n"
+      "  `level' must be in the range [1,7].\n"
+      "  Available components for ot validator:\n"
+      "    otvmodule otvcommon otvbase otvgdef otvgpos otvgsub otvjstf\n"
+      "  Available components for gx validator:\n"
+      "    gxvmodule gxvcommon gxvfeat gxvmort gxvmorx gxvbsln gxvjust\n"
+      "    gxvkern gxvopbd gxvtrak gxvprop gxvlcar\n"
+      "  Available components for ckern validator:\n"
+      "    gxvkern\n"
+      "\n"
+      "  Example:\n"
+      "\n"
+      "    FT2_DEBUG=\"otvcommon:5 gxvkern:7\"\n"
+      "\n"
+      "FT2_DEBUG only works if tracing support is compiled into FreeType 2\n"
+      "\n" );
 
     exit( 1 );
   }
@@ -717,9 +748,7 @@
     int    dump_table_list;
 
     FT_ValidationLevel  validation_level;
-#if 0
-    int  trace_level;
-#endif  /* 0 */
+
     int  font_index = 0;
 
     execname = ft_basename( argv[0] );
@@ -739,13 +768,10 @@
     tables           = NULL;
     dump_table_list  = 0;
     validation_level = FT_VALIDATE_DEFAULT;
-#if 0
-    trace_level      = 0;
-#endif  /* 0 */
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "t:T:Lv:l:f:" );
+      option = getopt( argc, argv, "f:lt:T:vV:" );
 
       if ( option == -1 )
         break;
@@ -777,11 +803,11 @@
         tables = optarg;
         break;
 
-      case 'L':
+      case 'l':
         dump_table_list = 1;
         break;
 
-      case 'v':
+      case 'V':
         validation_level = (FT_ValidationLevel)atoi( optarg );
         if ( validation_level > FT_VALIDATE_PARANOID )
         {
@@ -793,6 +819,21 @@
 
       case 'f':
         font_index = atoi( optarg );
+        break;
+
+      case 'v':
+        {
+          FT_Int  major, minor, patch;
+
+
+          FT_Library_Version( library, &major, &minor, &patch );
+
+          printf( "ftvalid (FreeType) %d.%d", major, minor );
+          if ( patch )
+            printf( ".%d", patch );
+          printf( "\n" );
+          exit( 0 );
+        }
         break;
 
       default:
@@ -816,23 +857,6 @@
     }
 
     fontfile = argv[0];
-
-#if 0
-    printf( "fontfile: %s\n",
-            fontfile );
-    printf( "validator type: " );
-    printf( "%s\n", validator_symbols[validator] );
-    printf( "tables: %s\n",
-            ( tables != NULL ) ? tables : "unspecified" );
-    printf( "action: %s\n",
-            ( dump_table_list == 1 ) ? "list" : "validate" );
-    printf( "validation level: %d\n",
-            validation_level );
-#if 0
-    printf( "trace level: %d\n", trace_level );
-#endif /* 0 */
-#endif /* 0 */
-
 
     /*
      * Run a validator

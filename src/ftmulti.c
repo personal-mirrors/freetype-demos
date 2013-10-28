@@ -615,18 +615,30 @@
       "--------------------------------------------------------\n"
       "\n" );
     fprintf( stderr,
-      "Usage: %s [options below] ppem fontname ...\n"
-      "\n", execname );
+      "Usage: %s [options] pt font ...\n"
+      "\n",
+             execname );
+    fprintf( stderr,
+      "  pt           The point size for the given resolution.\n"
+      "               If resolution is 72dpi, this directly gives the\n"
+      "               ppem value (pixels per EM).\n" );
+    fprintf( stderr,
+      "  font         The font file(s) to display.\n"
+      "\n" );
     fprintf( stderr,
       "  -w W         Set window width to W pixels (default: %dpx).\n"
       "  -h H         Set window height to H pixels (default: %dpx).\n"
-      "\n", DIM_X, DIM_Y );
+      "\n",
+             DIM_X, DIM_Y );
     fprintf( stderr,
-      "  -e encoding  Select encoding (default: no encoding).\n"
+      "  -e encoding  Specify encoding tag (default: no encoding).\n"
+      "               Common values: `unic' (Unicode), `symb' (symbol),\n"
+      "               `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -r R         Use resolution R dpi (default: 72dpi).\n"
       "  -f index     Specify first glyph index to display.\n"
       "  -d \"axis1 axis2 ...\"\n"
-      "               Specify the design coordinates for each axis.\n"
+      "               Specify the design coordinates for each\n"
+      "               Multiple Master axis at start-up.\n"
       "\n"
       "  -v           Show version."
       "\n" );

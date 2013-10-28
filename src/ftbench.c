@@ -110,7 +110,7 @@
     "render a glyph      (FT_Render_Glyph)",
     "load a glyph        (FT_Get_Glyph)",
     "get glyph cbox      (FT_Glyph_Get_CBox)",
-    "get glyph indices   (FT_Get_Char_Index",
+    "get glyph indices   (FT_Get_Char_Index)",
     "iterate CMap        (FT_Get_{First,Next}_Char)",
     "open a new face     (FT_New_Face)",
     "embolden            (FT_GlyphSlot_Embolden)",

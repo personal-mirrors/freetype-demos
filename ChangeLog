@@ -1,3 +1,17 @@
+2013-10-28  Werner Lemberg  <wl@gnu.org>
+
+	[ftbench, ftmulti, ftvalid] Improve and correct usage output.
+
+	This commit also changes key mappings in ftvalid ('L' -> 'l', 'v' ->
+	'V'), adds option -v to display the version, and removes dead code.
+
+	* src/ftbench.c (bench_desc): Fix typo.
+
+	* src/ftmulti.c (usage): Do it.
+
+	* src/ftvalid.c (validors, print_usage): Do it.
+	(main): Updated.
+
 2013-10-27  Werner Lemberg  <wl@gnu.org>
 
 	* src/ttdebug.c (main, RunIns): Fix memory leaks.
@@ -11,7 +25,7 @@
 	initialized and uninitialized values.
 	(handle_WS): New function.  Since it is not necessary for the
 	bytecode interpreter to trace whether a value is uninitialized or
-	not, we	have to do it manually right before every debugging step.
+	not, we have to do it manually right before every debugging step.
 	(RunIns): After executing a step, storage area data different to
 	before is displayed.
 	<'?'>: Help updated.
