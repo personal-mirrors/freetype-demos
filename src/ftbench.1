@@ -1,0 +1,148 @@
+.TH FTVIEW 1 "November 2013" "Freetype 2.5.0"
+.
+.
+.SH NAME
+.
+ftbench \- benchmark some common FreeType paths
+.
+.
+.SH SYNOPSIS
+.
+.B ftbench
+.RI [ options ]
+.I fontname
+.
+.
+.SH DESCRIPTION
+.
+The
+.B ftbench
+tool measures performance of some common FreeType operations.
+.
+.PP
+This program is part of the FreeType demos package.
+.
+.
+.SH OPTIONS
+.
+.TP
+.B \-C
+Compare with cached version if available.
+.
+.TP
+.BI \-c \ n
+Use at most
+.I n
+iterations for each test (0 means time limited).
+.
+.TP
+.BI \-f \ l
+Use hexadecimal number
+.I l
+as load flags (see `FT_LOAD_XXX').
+.
+.TP
+.B \-H
+Use alternative hinting engine (Adobe CFF or TTF v35).
+.
+.TP
+.BI \-i \ idx
+Start with index
+.I idx
+(default is 0).
+.
+.TP
+.BI \-m \ m
+Set maximum cache size to
+.I M
+KiByte (default is 1024).
+.
+.TP
+.B \-p
+Preload font file in memory.
+.
+.TP
+.BI \-r \ n
+Set render mode to
+.I n
+.
+.RS
+.TP
+.B 0
+normal
+.TP
+.B 1
+light
+.TP
+.B 2
+mono
+.TP
+.B 3
+horizontal LCD
+.TP
+.B 4
+vertical LCD
+.RE
+.
+.IP
+(default is 0).
+.
+.TP
+.BI \-s \ s
+Use
+.I s
+ppem as face size (default is 10ppem).
+.
+.TP
+.BI \-t \ t
+Use at most
+.I t
+seconds per bench (default is 2).
+.
+.TP
+.BI \-b \ tests
+Perform chosen tests:
+.
+.RS
+.TP
+.B a
+load a glyph (FT_Load_Glyph)
+.TP
+.B b
+load advance widths (FT_Get_Advances)
+.TP
+.B c
+render a glyph (FT_Render_Glyph)
+.TP
+.B d
+load a glyph (FT_Get_Glyph)
+.TP
+.B e
+get glyph cbox (FT_Glyph_Get_CBox)
+.TP
+.B f
+get glyph indices (FT_Get_Char_Index)
+.TP
+.B g
+iterate CMap (FT_Get_{First,Next}_Char)
+.TP
+.B h
+open a new face (FT_New_Face)
+.TP
+.B i
+embolden (FT_GlyphSlot_Embolden)
+.TP
+.B j
+get glyph bbox (FT_Outline_Get_BBox)
+.RE
+.
+.IP
+(default is
+.BR abcdefghij ,
+this is, all tests).
+.
+.TP
+.B \-v
+Show version.
+.
+.\" eof

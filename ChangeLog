@@ -1,5 +1,15 @@
 2013-10-28  Werner Lemberg  <wl@gnu.org>
 
+	Add manual pages.
+	Originally contributed (but heavily modified) by Nis Martensen
+	<nis.martensen@web.de>.
+
+	* src/ftbench.1, src/ftdiff.1, src/ftdump.1, src/ftgamma.1,
+	src/ftgrid.1, src/ftlint.1, src/ftmulti.1, src/ftstring.1,
+	src/ftvalid.1, src/ftview.1: New files.
+
+2013-10-28  Werner Lemberg  <wl@gnu.org>
+
 	[ftbench, ftmulti, ftvalid] Improve and correct usage output.
 
 	This commit also changes key mappings in ftvalid ('L' -> 'l', 'v' ->
