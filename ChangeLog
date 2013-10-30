@@ -1,3 +1,14 @@
+2013-10-30  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Make key `f' finish current function.
+	Change old `f' key to `F'.
+
+	* src/ttdebug.c (RunIns)
+	<'f'>: Renamed to ...
+	<'F'>: ... this.
+	<'f'>: Loop until current function is finished.
+	<'?'>: Updated.
+
 2013-10-28  Werner Lemberg  <wl@gnu.org>
 
 	Add manual pages.

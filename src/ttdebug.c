@@ -1307,6 +1307,7 @@
                   "c   continue to next code range\n"
                   "n   skip to next instruction\n"
                   "s   step into\n"
+                  "f   run until end of current function\n"
                   "\n"
                   "V   show vector info\n"
                   "G   show graphics state\n"
@@ -1315,7 +1316,7 @@
                   "S   show storage area\n"
                   "C   show CVT data\n"
                   "\n"
-                  "f   toggle between floating and fixed point number format\n"
+                  "F   toggle between floating and fixed point number format\n"
                   "l   show last bytecode instruction\n"
                   "\n"
                   "\n"
@@ -1340,7 +1341,7 @@
           break;
 
         /* Toggle between floating and fixed point format */
-        case 'f':
+        case 'F':
           use_float = !use_float;
           printf( "use %s point format for displaying values\n",
                   use_float ? "floating" : "fixed" );
@@ -1534,6 +1535,59 @@
               goto LErrorLabel_;
           }
         }
+        break;
+
+      /* finish current function */
+      case 'f':
+        oldch = ch;
+
+        if ( CUR.IP < CUR.codeSize )
+        {
+          if ( code_range[0] == 'f' )
+          {
+            printf( "not yet in `prep' or `glyf' program\n" );
+            break;
+          }
+
+          if ( CUR.curRange != tt_coderange_font )
+          {
+            printf( "not in a function\n" );
+            break;
+          }
+
+          while ( 1 )
+          {
+            Calc_Length( exc ); /* this updates CUR.opcode also */
+
+            /* we are done if we see the current function's ENDF opcode */
+            if ( CUR.opcode == 0x2d )
+              goto Step_into;
+
+            if ( CUR.opcode == 0x2a || CUR.opcode == 0x2b )
+            {
+              FT_Long  next_IP;
+
+
+              /* loop execution until we reach the next opcode */
+              next_IP = CUR.IP + CUR.length;
+              while ( CUR.IP != next_IP )
+              {
+                handle_WS( exc, storage );
+                if ( ( error = TT_RunIns( exc ) ) != 0 )
+                  goto LErrorLabel_;
+              }
+
+              printf( "\n" );
+            }
+            else
+            {
+              handle_WS( exc, storage );
+              if ( ( error = TT_RunIns( exc ) ) != 0 )
+                goto LErrorLabel_;
+            }
+          }
+        }
+        break;
 
       /* step over */
       case 'n':
@@ -1583,6 +1637,7 @@
       default:
         printf( "Unknown command.  Press ? for help\n" );
         oldch = '\0';
+        break;
       }
 
       display_changed_points(&save_pts, &pts, 0);
