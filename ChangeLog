@@ -1,5 +1,14 @@
 2013-10-31  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Make `b' set a breakpoint.
+
+	* src/ttdebug.c (Breakpoint): New structure.
+	(RunIns): Handle breakpoint.
+	<'h'>, <'c'>, <'f'>, <'n'>: Updated.
+	<'b'>: Set breakpoint.
+
+2013-10-31  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Improve help; add key `h' to show it.
 
 	* src/ttdebug.c (RunIns) <'?'>: Update and redesign help screen.

@@ -94,6 +94,16 @@
 
   } Storage;
 
+  typedef struct  Breakpoint_
+  {
+    FT_Long  IP;
+    FT_Int   range;
+
+  } Breakpoint;
+
+  /* right now, we support a single breakpoint only */
+  Breakpoint  breakpoint;
+
 
 #undef  PACK
 #define PACK( x, y )  ( ( x << 4 ) | y )
@@ -1290,6 +1300,10 @@
         }
       }
 
+      if ( breakpoint.IP == CUR.IP          &&
+           breakpoint.range == CUR.curRange )
+        printf( "Hit breakpoint.\n" );
+
       key = 0;
       do
       {
@@ -1312,6 +1326,7 @@
             "s   step into                           C   show CVT data\n"
             "f   finish current function             F   toggle floating/fixed\n"
             "l   show last bytecode instruction          point format\n"
+            "b   toggle breakpoint\n"
             "\n"
             "\n"
             "  Format of point changes:\n"
@@ -1533,16 +1548,21 @@
         if ( CUR.IP < CUR.codeSize )
         {
           /* loop execution until we reach end of current code range */
+          /* or hit the breakpoint's position                        */
           while ( CUR.IP < CUR.codeSize )
           {
             handle_WS( exc, storage );
             if ( ( error = TT_RunIns( exc ) ) != 0 )
               goto LErrorLabel_;
+
+            if ( CUR.IP == breakpoint.IP          &&
+                 CUR.curRange == breakpoint.range )
+              break;
           }
         }
         break;
 
-      /* finish current function */
+      /* finish current function or hit breakpoint */
       case 'f':
         oldch = ch;
 
@@ -1580,6 +1600,10 @@
                 handle_WS( exc, storage );
                 if ( ( error = TT_RunIns( exc ) ) != 0 )
                   goto LErrorLabel_;
+
+                if ( CUR.IP == breakpoint.IP          &&
+                     CUR.curRange == breakpoint.range )
+                  break;
               }
 
               printf( "\n" );
@@ -1590,11 +1614,15 @@
               if ( ( error = TT_RunIns( exc ) ) != 0 )
                 goto LErrorLabel_;
             }
+
+            if ( CUR.IP == breakpoint.IP          &&
+                 CUR.curRange == breakpoint.range )
+              break;
           }
         }
         break;
 
-      /* step over */
+      /* step over or hit breakpoint */
       case 'n':
         if ( CUR.IP < CUR.codeSize )
         {
@@ -1615,6 +1643,10 @@
             handle_WS( exc, storage );
             if ( ( error = TT_RunIns( exc ) ) != 0 )
               goto LErrorLabel_;
+
+            if ( CUR.IP == breakpoint.IP          &&
+                 CUR.curRange == breakpoint.range )
+              break;
           }
         }
 
@@ -1634,13 +1666,34 @@
         oldch = ch;
         break;
 
+      /* toggle breakpoint */
+      case 'b':
+        if ( breakpoint.IP == CUR.IP          &&
+             breakpoint.range == CUR.curRange )
+        {
+          breakpoint.IP    = 0;
+          breakpoint.range = 0;
+
+          printf( "Breakpoint removed.\n" );
+        }
+        else
+        {
+          breakpoint.IP    = CUR.IP;
+          breakpoint.range = CUR.curRange;
+
+          printf( "Breakpoint set.\n" );
+        }
+
+        oldch = ch;
+        break;
+
       /* show last bytecode instruction */
       case 'l':
         oldch = ch;
         break;
 
       default:
-        printf( "Unknown command.  Press ? for help\n" );
+        printf( "Unknown command.  Press ? or h for help\n" );
         oldch = '\0';
         break;
       }
