@@ -62,7 +62,8 @@
 #include "tterrors.h"
 
 
-#define Quit  -1
+#define Quit     -1
+#define Restart  -2
 
 
   FT_Library      library;    /* root library object */
@@ -1520,7 +1521,18 @@
       {
       /* quit debugger */
       case 'Q':
+        /* without the pedantic hinting flag,                   */
+        /* FreeType ignores bytecode errors in `glyf' programs  */
+        CUR.pedantic_hinting = 1;
         error = Quit;
+        goto LErrorLabel_;
+
+      /* restart debugger */
+      case 'R':
+        /* without the pedantic hinting flag,                   */
+        /* FreeType ignores bytecode errors in `glyf' programs  */
+        CUR.pedantic_hinting = 1;
+        error = Restart;
         goto LErrorLabel_;
 
       /* continue */
@@ -1683,7 +1695,7 @@
     free( storage );
     free( save_storage );
 
-    if ( error && error != Quit )
+    if ( error && error != Quit && error != Restart )
       Abort( "error during execution" );
     return error;
   }
@@ -1822,35 +1834,40 @@
                        FT_DEBUG_HOOK_TRUETYPE,
                        (FT_DebugHook_Func)RunIns );
 
-    error = FT_New_Face( library, file_name, 0, (FT_Face*)&face );
-    if ( error )
-      Abort( "could not open input font file" );
-
-    /* find driver and check format */
-    if ( face->root.driver != driver )
+    error = Restart;
+    while ( error == Restart )
     {
-      error = FT_Err_Invalid_File_Format;
-      Abort( "This is not a TrueType font" );
+      error = FT_New_Face( library, file_name, 0, (FT_Face*)&face );
+      if ( error )
+        Abort( "could not open input font file" );
+
+      /* find driver and check format */
+      if ( face->root.driver != driver )
+      {
+        error = FT_Err_Invalid_File_Format;
+        Abort( "This is not a TrueType font" );
+      }
+
+      size = (TT_Size)face->root.size;
+
+      error = FT_Set_Char_Size( (FT_Face)face,
+                                glyph_size << 6, glyph_size << 6,
+                                72, 72 );
+      if ( error )
+        Abort( "could not set character size" );
+
+      glyph = (TT_GlyphSlot)face->root.glyph;
+
+      /* now load glyph */
+      error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
+      if ( error && error != Quit && error != Restart )
+        Abort( "could not load glyph" );
+
+      FT_Done_Face( (FT_Face)face );
     }
-
-    size = (TT_Size)face->root.size;
-
-    error = FT_Set_Char_Size( (FT_Face)face,
-                              glyph_size << 6, glyph_size << 6,
-                              72, 72 );
-    if ( error )
-      Abort( "could not set character size" );
-
-    glyph = (TT_GlyphSlot)face->root.glyph;
-
-    /* now load glyph */
-    error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
-    if ( error && error != Quit )
-      Abort( "could not load glyph" );
 
     Reset_Keyboard();
 
-    FT_Done_Face( (FT_Face)face );
     FT_Done_FreeType( library );
 
     return 0;

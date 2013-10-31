@@ -1,3 +1,12 @@
+2013-10-31  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Make key `R' restart the debugger.
+
+	* src/ttdebug.c (Restart): New macro.
+	(RunIns) <'Q'>: Set `pedantic_hinting' flag.
+	<'R'>: Set error to `Restart'.
+	(main): Add loop.
+
 2013-10-30  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Make key `f' finish current function.
