@@ -1300,45 +1300,38 @@
         {
         /* Help - show keybindings */
         case '?':
-          printf( "ttdebug Help\n"
-                  "\n"
-                  "?   show this page\n"
-                  "Q   quit debugger\n"
-                  "\n"
-                  "c   continue to next code range\n"
-                  "n   skip to next instruction\n"
-                  "s   step into\n"
-                  "f   run until end of current function\n"
-                  "\n"
-                  "V   show vector info\n"
-                  "G   show graphics state\n"
-                  "P   show points zone\n"
-                  "T   show twilight zone\n"
-                  "S   show storage area\n"
-                  "C   show CVT data\n"
-                  "\n"
-                  "F   toggle between floating and fixed point number format\n"
-                  "l   show last bytecode instruction\n"
-                  "\n"
-                  "\n"
-                  "  Format of point changes:\n"
-                  "\n"
-                  "    idx   orus.x  orus.y  tags  org.x  org.y  cur.x  cur.y\n"
-                  "\n"
-                  "  The first line gives the values before the instruction,\n"
-                  "  the second line the changes after the instruction,\n"
-                  "  indicated by parentheses and brackets for emphasis.\n"
-                  "\n"
-                  "  A `T', `S', or `C' appended to the index indicates a\n"
-                  "  twilight point, a storage location, or data from the\n"
-                  "  Control Value Table (CVT), respectively.\n"
-                  "\n"
-                  "  Tag values (which are ORed):\n"
-                  "\n"
-                  "    1 on curve\n"
-                  "    2 touched along the X axis\n"
-                  "    4 touched along the Y axis\n"
-                  "\n" );
+        case 'h':
+          printf(
+            "ttdebug Help\n"
+            "\n"
+            "Q   quit debugger                       V   show vector info\n"
+            "R   restart debugger                    G   show graphics state\n"
+            "                                        P   show points zone\n"
+            "c   continue to next code range         T   show twilight zone\n"
+            "n   skip to next instruction            S   show storage area\n"
+            "s   step into                           C   show CVT data\n"
+            "f   finish current function             F   toggle floating/fixed\n"
+            "l   show last bytecode instruction          point format\n"
+            "\n"
+            "\n"
+            "  Format of point changes:\n"
+            "\n"
+            "    idx   orus.x  orus.y  tags  org.x  org.y  cur.x  cur.y\n"
+            "\n"
+            "  The first line gives the values before the instruction,\n"
+            "  the second line the changes after the instruction,\n"
+            "  indicated by parentheses and brackets for emphasis.\n"
+            "\n"
+            "  A `T', `S', or `C' appended to the index indicates a\n"
+            "  twilight point, a storage location, or data from the\n"
+            "  Control Value Table (CVT), respectively.\n"
+            "\n"
+            "  Tag values (which are ORed):\n"
+            "\n"
+            "    1 on curve\n"
+            "    2 touched along the X axis\n"
+            "    4 touched along the Y axis\n"
+            "\n" );
           break;
 
         /* Toggle between floating and fixed point format */
@@ -1739,6 +1732,7 @@
   {
     char*  execname;
     int    option;
+    char   version_string[64];
 
     int  change_interpreter_version = 0;
 
@@ -1752,6 +1746,22 @@
     driver = (FT_Driver)FT_Get_Module( library, "truetype" );
     if ( !driver )
       Abort( "could not find the TrueType driver in FreeType 2\n" );
+
+    {
+      FT_Int  major, minor, patch;
+      int     offset;
+
+
+      FT_Library_Version( library, &major, &minor, &patch );
+
+      offset = snprintf( version_string, 64 + 1,
+                         "ttdebug (FreeType) %d.%d",
+                         major, minor );
+      if ( patch )
+        offset = snprintf( version_string + offset, 64 + 1 - offset,
+                           ".%d",
+                           patch );
+    }
 
     FT_Property_Get( library,
                      "truetype",
@@ -1776,18 +1786,8 @@
         break;
 
       case 'v':
-        {
-          FT_Int  major, minor, patch;
-
-
-          FT_Library_Version( library, &major, &minor, &patch );
-
-          printf( "ttdebug (FreeType) %d.%d", major, minor );
-          if ( patch )
-            printf( ".%d", patch );
-          printf( "\n" );
-          exit( 0 );
-        }
+        printf( "%s\n", version_string );
+        exit( 0 );
         break;
 
       default:
@@ -1833,6 +1833,10 @@
     FT_Set_Debug_Hook( library,
                        FT_DEBUG_HOOK_TRUETYPE,
                        (FT_DebugHook_Func)RunIns );
+
+    printf( "%s\n"
+            "press key `h' or `?' for help\n"
+            "\n", version_string );
 
     error = Restart;
     while ( error == Restart )

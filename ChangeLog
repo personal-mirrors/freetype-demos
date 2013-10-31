@@ -1,5 +1,13 @@
 2013-10-31  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Improve help; add key `h' to show it.
+
+	* src/ttdebug.c (RunIns) <'?'>: Update and redesign help screen.
+	<'h'>: Same as key `?'.
+	(main): Show version string and help info at start-up.
+
+2013-10-31  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Make key `R' restart the debugger.
 
 	* src/ttdebug.c (Restart): New macro.
