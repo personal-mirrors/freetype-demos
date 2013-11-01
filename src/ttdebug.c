@@ -1329,7 +1329,7 @@
             "f   finish current function             C   show CVT data\n"
             "l   show last bytecode instruction      F   toggle floating/fixed\n"
             "b   toggle breakpoint at curr. pos.         point format\n"
-            "p   toggle breakpoint at prev. pos.\n"
+            "p   toggle breakpoint at prev. pos.     B   show backtrace\n"
             "\n"
             "\n"
             "  Format of point changes:\n"
@@ -1481,12 +1481,49 @@
           }
           break;
 
+        /* Show glyph points table */
         case 'P':
           show_points_table( &pts, code_range, pts.n_points, 0 );
           break;
 
+        /* Show twilight points table */
         case 'T':
           show_points_table( &twilight, code_range, twilight.n_points, 1 );
+          break;
+
+        /* Show backtrace */
+        case 'B':
+          if ( CUR.callTop <= 0 )
+            printf( "At top level.\n" );
+          else
+          {
+            FT_UInt  i;
+
+
+            printf( "Function call backtrace\n"
+                    "\n" );
+            printf( " idx   loopcount   start    end   caller\n"
+                    "----------------------------------------\n" );
+
+            for ( i = CUR.callTop; i > 0; i-- )
+            {
+              TT_CallRec  *rec = &CUR.callStack[i - 1];
+
+
+              printf( " %3d      %4ld     f%04lx   f%04lx   %c%04lx\n",
+                      rec->Def->opc,
+                      rec->Cur_Count,
+                      rec->Def->start,
+                      rec->Def->end,
+                      rec->Caller_Range == tt_coderange_font
+                        ? 'f'
+                        : ( rec->Caller_Range == tt_coderange_cvt
+                            ? 'c'
+                            : 'g' ),
+                      rec->Caller_IP - 1 );
+            }
+            printf( "\n" );
+          }
           break;
 
         default:

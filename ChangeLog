@@ -1,5 +1,14 @@
 2013-11-01  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Make `B' emit a function backtrace.
+
+	This needs the today's version of the FreeType library.
+
+	* src/ttdebug (RunIns) <'h'>: Updated.
+	<'B'>: Print backtrace.
+
+2013-11-01  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Make `p' set a breakpoint at previous position.
 
 	* src/ttdebug.c (RunIns): Store information about last position in
