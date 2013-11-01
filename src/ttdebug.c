@@ -1329,7 +1329,7 @@
             "f   finish current function             C   show CVT data\n"
             "l   show last bytecode instruction      F   toggle floating/fixed\n"
             "b   toggle breakpoint at curr. pos.         point format\n"
-            "B   toggle breakpoint at prev. pos.\n"
+            "p   toggle breakpoint at prev. pos.\n"
             "\n"
             "\n"
             "  Format of point changes:\n"
@@ -1701,7 +1701,7 @@
         break;
 
       /* toggle breakpoint at previous position */
-      case 'B':
+      case 'p':
         if ( last_IP == 0 && last_range == 0 )
           printf( "No previous position yet to set breakpoint.\n" );
         else
