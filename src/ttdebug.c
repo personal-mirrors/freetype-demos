@@ -1102,6 +1102,9 @@
 
     FT_String  ch, oldch = '\0';
 
+    FT_Long  last_IP    = 0;
+    FT_Int   last_range = 0;
+
     TT_GlyphZoneRec  pts;
     TT_GlyphZoneRec  twilight;
     TT_GlyphZoneRec  save_pts;
@@ -1320,13 +1323,13 @@
             "\n"
             "Q   quit debugger                       V   show vector info\n"
             "R   restart debugger                    G   show graphics state\n"
-            "                                        P   show points zone\n"
-            "c   continue to next code range         T   show twilight zone\n"
-            "n   skip to next instruction            S   show storage area\n"
-            "s   step into                           C   show CVT data\n"
-            "f   finish current function             F   toggle floating/fixed\n"
-            "l   show last bytecode instruction          point format\n"
-            "b   toggle breakpoint\n"
+            "c   continue to next code range         P   show points zone\n"
+            "n   skip to next instruction            T   show twilight zone\n"
+            "s   step into                           S   show storage area\n"
+            "f   finish current function             C   show CVT data\n"
+            "l   show last bytecode instruction      F   toggle floating/fixed\n"
+            "b   toggle breakpoint at curr. pos.         point format\n"
+            "B   toggle breakpoint at prev. pos.\n"
             "\n"
             "\n"
             "  Format of point changes:\n"
@@ -1545,6 +1548,9 @@
       case 'c':
         if ( CUR.IP < CUR.codeSize )
         {
+          last_IP    = CUR.IP;
+          last_range = CUR.curRange;
+
           /* loop execution until we reach end of current code range */
           /* or hit the breakpoint's position                        */
           while ( CUR.IP < CUR.codeSize )
@@ -1577,6 +1583,9 @@
             printf( "Not in a function.\n" );
             break;
           }
+
+          last_IP    = CUR.IP;
+          last_range = CUR.curRange;
 
           while ( 1 )
           {
@@ -1633,6 +1642,9 @@
           if ( CUR.opcode != 0x2a && CUR.opcode != 0x2b )
             goto Step_into;
 
+          last_IP    = CUR.IP;
+          last_range = CUR.curRange;
+
           /* otherwise, loop execution until we reach the next opcode */
           saved_range = CUR.curRange;
           next_IP     = CUR.IP + CUR.length;
@@ -1656,6 +1668,9 @@
         if ( CUR.IP < CUR.codeSize )
         {
         Step_into:
+          last_IP    = CUR.IP;
+          last_range = CUR.curRange;
+
           handle_WS( exc, storage );
           if ( ( error = TT_RunIns( exc ) ) != 0 )
             goto LErrorLabel_;
@@ -1664,7 +1679,7 @@
         oldch = ch;
         break;
 
-      /* toggle breakpoint */
+      /* toggle breakpoint at current position */
       case 'b':
         if ( breakpoint.IP == CUR.IP          &&
              breakpoint.range == CUR.curRange )
@@ -1680,6 +1695,38 @@
           breakpoint.range = CUR.curRange;
 
           printf( "Breakpoint set.\n" );
+        }
+
+        oldch = ch;
+        break;
+
+      /* toggle breakpoint at previous position */
+      case 'B':
+        if ( last_IP == 0 && last_range == 0 )
+          printf( "No previous position yet to set breakpoint.\n" );
+        else
+        {
+          if ( breakpoint.IP == last_IP       &&
+               breakpoint.range == last_range )
+          {
+            breakpoint.IP    = 0;
+            breakpoint.range = 0;
+
+            printf( "Breakpoint removed from previous position.\n" );
+          }
+          else
+          {
+            breakpoint.IP    = last_IP;
+            breakpoint.range = last_range;
+
+            printf( "Breakpoint set to previous position (%c%04lx).\n",
+                    last_range == tt_coderange_font
+                      ? 'f'
+                      : ( last_range == tt_coderange_cvt
+                            ? 'c'
+                            : 'g' ),
+                    last_IP );
+          }
         }
 
         oldch = ch;

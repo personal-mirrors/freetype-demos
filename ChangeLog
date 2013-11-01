@@ -1,5 +1,14 @@
 2013-10-31  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Make `B' set a breakpoint at previous position.
+
+	* src/ttdebug.c (RunIns): Store information about last position in
+	`last_IP' and `last_range'.
+	<'h'>, <'c'>, <'f'>, <'n'>, <'s'>: Updated.
+	<'B'>: Set breakpoint at previous instruction.
+
+2013-10-31  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Minor.
 
 	* src/ttdebug.c: Make full-sentence messages where appropriate.
