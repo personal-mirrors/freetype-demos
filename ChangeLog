@@ -1,5 +1,12 @@
 2013-10-31  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Minor.
+
+	* src/ttdebug.c: Make full-sentence messages where appropriate.
+	(RunIns): Make help screen more compact vertically.
+
+2013-10-31  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Make `b' set a breakpoint.
 
 	* src/ttdebug.c (Breakpoint): New structure.

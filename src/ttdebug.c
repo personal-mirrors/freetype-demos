@@ -731,7 +731,7 @@
   void
   Abort( const char*  message )
   {
-    fprintf( stderr, "%s\n  error code = 0x%04x\n", message, error );
+    fprintf( stderr, "%s\n  error code = 0x%04x.\n", message, error );
     Reset_Keyboard();
     exit( 1 );
   }
@@ -1068,7 +1068,7 @@
               "-------------------\n" );
     }
     else
-      printf( "not yet in `glyf' program\n" );
+      printf( "Not yet in `glyf' program.\n" );
 
     for ( A = 0; A < n_points; A++ )
     {
@@ -1272,7 +1272,7 @@
         /* First, check for empty stack and overflow */
         if ( CUR.args < 0 )
         {
-          printf( "ERROR: Too Few Arguments\n" );
+          printf( "ERROR: Too Few Arguments.\n" );
           CUR.error = TT_Err_Too_Few_Arguments;
           goto LErrorLabel_;
         }
@@ -1284,7 +1284,7 @@
 
         if ( CUR.new_top > CUR.stackSize )
         {
-          printf( "ERROR: Stack overflow\n" );
+          printf( "ERROR: Stack overflow.\n" );
           CUR.error = TT_Err_Stack_Overflow;
           goto LErrorLabel_;
         }
@@ -1341,18 +1341,16 @@
             "  twilight point, a storage location, or data from the\n"
             "  Control Value Table (CVT), respectively.\n"
             "\n"
-            "  Tag values (which are ORed):\n"
-            "\n"
-            "    1 on curve\n"
-            "    2 touched along the X axis\n"
-            "    4 touched along the Y axis\n"
+            "  Tag values (which are ORed): 1 on curve\n"
+            "                               2 touched along the X axis\n"
+            "                               4 touched along the Y axis\n"
             "\n" );
           break;
 
         /* Toggle between floating and fixed point format */
         case 'F':
           use_float = !use_float;
-          printf( "use %s point format for displaying values\n",
+          printf( "Use %s point format for displaying values.\n",
                   use_float ? "floating" : "fixed" );
           printf( "\n" );
           break;
@@ -1430,7 +1428,7 @@
         case 'C':
           {
             if ( code_range[0] == 'f' )
-              printf( "not yet in `prep' or `glyf' program\n" );
+              printf( "Not yet in `prep' or `glyf' program.\n" );
             else
             {
               FT_ULong  i;
@@ -1453,7 +1451,7 @@
         case 'S':
           {
             if ( code_range[0] == 'f' )
-              printf( "not yet in `prep' or `glyf' program\n" );
+              printf( "Not yet in `prep' or `glyf' program.\n" );
             else
             {
               FT_ULong  i;
@@ -1570,13 +1568,13 @@
         {
           if ( code_range[0] == 'f' )
           {
-            printf( "not yet in `prep' or `glyf' program\n" );
+            printf( "Not yet in `prep' or `glyf' program.\n" );
             break;
           }
 
           if ( CUR.curRange != tt_coderange_font )
           {
-            printf( "not in a function\n" );
+            printf( "Not in a function.\n" );
             break;
           }
 
@@ -1693,7 +1691,7 @@
         break;
 
       default:
-        printf( "Unknown command.  Press ? or h for help\n" );
+        printf( "Unknown command.  Press ? or h for help.\n" );
         oldch = '\0';
         break;
       }
@@ -1902,7 +1900,7 @@
       if ( face->root.driver != driver )
       {
         error = FT_Err_Invalid_File_Format;
-        Abort( "This is not a TrueType font" );
+        Abort( "this is not a TrueType font" );
       }
 
       size = (TT_Size)face->root.size;
