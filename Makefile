@@ -269,9 +269,13 @@ else
   #
   # The list of demonstration programs to build.
   #
+  # Note that ttdebug only works if the FreeType's `truetype' driver has
+  # been compiled with TT_CONFIG_OPTION_BYTECODE_INTERPRETER defined.
+  #
   EXES := ftbench \
           ftdump  \
-          ftlint
+          ftlint  \
+          ttdebug
 
   # Comment out the next line if you don't have a graphics subsystem.
   EXES += ftdiff   \
@@ -292,15 +296,11 @@ else
   # The following programs are not compiled automatically; either comment
   # out the affected line or use the program name as a Makefile target.
   #
-  # Note that ttdebug only works if the FreeType's `truetype' driver has
-  # been compiled with TT_CONFIG_OPTION_BYTECODE_INTERPRETER defined.
-  #
   # EXES += ftchkwd
   # EXES += ftmemchk
   # EXES += ftpatchk
   # EXES += fttimer
   # EXES += testname
-  # EXES += ttdebug
 
   exes: $(EXES:%=$(BIN_DIR_2)/%$E)
 
