@@ -1,3 +1,15 @@
+2013-11-05  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Enable debugging of composite glyphs (again).
+
+	This was lost while improving key handling.
+
+	* src/ttdebug.c (RunIns): Introduce variable `really_leave' to
+	insert one stop before really leaving the current glyph range.
+	Without that, inspecting the current data right after finishing the
+	hinting of a subglyph wouldn't be possible.
+	(main): Stay in loop even if `FT_Load_Glyph' returns zero.
+
 2013-11-04  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Provide man page and compile program by default.

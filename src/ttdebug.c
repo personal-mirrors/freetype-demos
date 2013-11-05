@@ -1100,6 +1100,8 @@
   {
     FT_Int  key;
 
+    FT_Bool  really_leave;
+
     FT_String  ch, oldch = '\0';
 
     FT_Long  last_IP    = 0;
@@ -1177,6 +1179,8 @@
 
     printf( "Entering `%s' table.\n"
             "\n", code_range );
+
+    really_leave = 0;
 
     do
     {
@@ -1276,7 +1280,7 @@
         if ( CUR.args < 0 )
         {
           printf( "ERROR: Too Few Arguments.\n" );
-          CUR.error = TT_Err_Too_Few_Arguments;
+          error = TT_Err_Too_Few_Arguments;
           goto LErrorLabel_;
         }
 
@@ -1288,14 +1292,25 @@
         if ( CUR.new_top > CUR.stackSize )
         {
           printf( "ERROR: Stack overflow.\n" );
-          CUR.error = TT_Err_Stack_Overflow;
+          error = TT_Err_Stack_Overflow;
           goto LErrorLabel_;
         }
       }
       else
       {
         if ( CUR.curRange == tt_coderange_glyph )
-          printf( "End of program reached.\n" );
+        {
+          if ( !really_leave )
+          {
+            printf( "End of `glyf' program reached.\n" );
+            really_leave = 1;
+          }
+          else
+          {
+            really_leave = 0;
+            goto LErrorLabel_;
+          }
+        }
         else
         {
           printf( "\n" );
@@ -1973,8 +1988,7 @@
             "press key `h' or `?' for help\n"
             "\n", version_string );
 
-    error = Restart;
-    while ( error == Restart )
+    while ( !error )
     {
       error = FT_New_Face( library, file_name, 0, (FT_Face*)&face );
       if ( error )
@@ -2001,6 +2015,8 @@
       error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
       if ( error && error != Quit && error != Restart )
         Abort( "could not load glyph" );
+      if ( error == Restart )
+        error = FT_Err_Ok;
 
       FT_Done_Face( (FT_Face)face );
     }
