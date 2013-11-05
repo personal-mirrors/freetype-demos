@@ -1,5 +1,14 @@
 2013-11-05  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Improve display of point tags.
+
+	* src/ttdebug.c (old_tag_to_new): Removed, no longer used.
+	(display_changed_points, show_points_table): Display tags with
+	mnemonic characters instead of ORed numbers.
+	(RunIns) <'h'>: Updated.
+
+2013-11-05  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Enable debugging of composite glyphs (again).
 
 	This was lost while improving key handling.

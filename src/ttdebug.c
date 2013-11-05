@@ -882,21 +882,6 @@
   }
 
 
-  static int
-  old_tag_to_new( int  tag )
-  {
-    int  result = tag & 1;
-
-
-    if ( tag & FT_Curve_Tag_Touch_X )
-      result |= 2;
-    if ( tag & FT_Curve_Tag_Touch_Y )
-      result |= 4;
-
-    return result;
-  }
-
-
   /* we have to track the `WS' opcode specially so that we are able */
   /* to properly handle uninitialized storage area values           */
   static void
@@ -951,10 +936,13 @@
         printf( "%6ld,%6ld  ", curr->orus[A].x, curr->orus[A].y );
 
         if ( diff & 16 )
-          temp = "(%01hx)";
+          temp = "(%c%c%c)";
         else
-          temp = " %01hx ";
-        printf( temp, old_tag_to_new( prev->tags[A] ) );
+          temp = " %c%c%c ";
+        printf( temp,
+                prev->tags[A] & FT_CURVE_TAG_ON ? 'P' : 'C',
+                prev->tags[A] & FT_CURVE_TAG_TOUCH_X ? 'X' : ' ',
+                prev->tags[A] & FT_CURVE_TAG_TOUCH_Y ? 'Y' : ' ' );
 
         if ( diff & 1 )
           temp = use_float ? "(%8.2f)" : "(%8ld)";
@@ -997,10 +985,13 @@
         printf( "                    " );
 
         if ( diff & 16 )
-          temp = "[%01hx]";
+          temp = "(%c%c%c)";
         else
-          temp = "   ";
-        printf( temp, old_tag_to_new( curr->tags[A] ) );
+          temp = "     ";
+        printf( temp,
+                curr->tags[A] & FT_CURVE_TAG_ON ? 'P' : 'C',
+                curr->tags[A] & FT_CURVE_TAG_TOUCH_X ? 'X' : ' ',
+                curr->tags[A] & FT_CURVE_TAG_TOUCH_Y ? 'Y' : ' ' );
 
         if ( diff & 1 )
           temp = use_float ? "[%8.2f]" : "[%8ld]";
@@ -1059,13 +1050,15 @@
               "\n",
               is_twilight ? "twilight" : "glyph" );
       printf( " idx "
-              " orig. unscaled - "
-              "    orig. scaled    - "
-              "  current scaled   \n" );
+              "orig. unscaled  "
+              "   orig. scaled     "
+              " current scaled     "
+              "tags\n" );
       printf( "-----"
-              "------------------"
-              "----------------------"
-              "-------------------\n" );
+              "----------------"
+              "--------------------"
+              "--------------------"
+              "----\n" );
     }
     else
       printf( "Not yet in `glyf' program.\n" );
@@ -1073,23 +1066,32 @@
     for ( A = 0; A < n_points; A++ )
     {
       printf( "%3d%s ",
-              A, is_twilight ? "T" : " " );
-      printf( "(%6ld,%6ld) - ",
+              A,
+              is_twilight
+                ? "T"
+                : ( A >= n_points - 4 )
+                    ? "F"
+                    : " " );
+      printf( "(%5ld,%5ld) - ",
               zone->orus[A].x, zone->orus[A].y );
       if ( use_float )
       {
-        printf( "(%8.2f,%8.2f) - ",
+        printf( "(%7.2f,%7.2f) - ",
                 zone->org[A].x / 64.0, zone->org[A].y / 64.0 );
-        printf( "(%8.2f,%8.2f)\n",
+        printf( "(%7.2f,%7.2f) - ",
                 zone->cur[A].x / 64.0, zone->cur[A].y / 64.0 );
       }
       else
       {
-        printf( "(%8ld,%8ld) - ",
+        printf( "(%7ld,%7ld) - ",
                 zone->org[A].x, zone->org[A].y );
-        printf( "(%8ld,%8ld)\n",
+        printf( "(%7ld,%7ld) - ",
                 zone->cur[A].x, zone->cur[A].y );
       }
+      printf( "%c%c%c\n",
+              zone->tags[A] & FT_CURVE_TAG_ON ? 'P' : 'C',
+              zone->tags[A] & FT_CURVE_TAG_TOUCH_X ? 'X' : ' ',
+              zone->tags[A] & FT_CURVE_TAG_TOUCH_Y ? 'Y' : ' ' );
     }
     printf( "\n" );
   }
@@ -1355,13 +1357,12 @@
             "  the second line the changes after the instruction,\n"
             "  indicated by parentheses and brackets for emphasis.\n"
             "\n"
-            "  A `T', `S', or `C' appended to the index indicates a\n"
-            "  twilight point, a storage location, or data from the\n"
-            "  Control Value Table (CVT), respectively.\n"
+            "  A `T', `F', `S', or `C' appended to the index indicates\n"
+            "  a twilight point, a phantom point, a storage location,\n"
+            "  or data from the Control Value Table (CVT), respectively.\n"
             "\n"
-            "  Tag values (which are ORed): 1 on curve\n"
-            "                               2 touched along the X axis\n"
-            "                               4 touched along the Y axis\n"
+            "  Possible tag values are `P' (on curve), `C' (control point),\n"
+            "  `X' (touched horizontally), and `Y' (touched vertically).\n"
             "\n" );
           break;
 
