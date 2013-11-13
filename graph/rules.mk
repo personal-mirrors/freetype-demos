@@ -2,7 +2,7 @@
 #*
 #*  FreeType demo utilities sub-Makefile
 #*
-#*  This Makefile is to be included by `freetype/demo/Makefile'.  Its
+#*  This Makefile is to be included by `../Makefile'.  Its
 #*  purpose is to compile MiGS (the Minimalist Graphics Subsystem).
 #*
 #*  It is written for GNU Make.  Other make utilities are not

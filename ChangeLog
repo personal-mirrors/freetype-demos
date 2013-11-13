@@ -1,3 +1,7 @@
+2013-11-13  Werner Lemberg  <wl@gnu.org>
+
+	* Makefile (FT_H): Update to new header layout of FreeType.
+
 2013-11-05  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Improve display of point tags.
