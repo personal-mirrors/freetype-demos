@@ -560,8 +560,8 @@
         char*  argv[] )
   {
     int    i, file;
-    char   filename[128 + 4];
-    char   alt_filename[128 + 4];
+    char   filename[256 + 4];
+    char   alt_filename[256 + 4];
     char*  execname;
     int    num_faces;
     int    option;
@@ -655,11 +655,11 @@
 
     file = 0;
 
-    filename[128]     = '\0';
-    alt_filename[128] = '\0';
+    filename[256]     = '\0';
+    alt_filename[256] = '\0';
 
-    strncpy( filename, argv[file], 128 );
-    strncpy( alt_filename, argv[file], 128 );
+    strncpy( filename, argv[file], 256 );
+    strncpy( alt_filename, argv[file], 256 );
 
     /* try to load the file name as is, first */
     error = FT_New_Face( library, argv[file], 0, &face );

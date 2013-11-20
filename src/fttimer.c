@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project - a Free and Portable Quality TrueType Renderer.   */
 /*                                                                          */
-/*  Copyright 1996-1998, 2003 by                                            */
+/*  Copyright 1996-1998, 2003, 2013 by                                      */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  fttimer: A simple performance benchmark.  Now with graylevel rendering  */
@@ -162,8 +162,8 @@
         char**  argv )
   {
     int    i, total, base, rendered_glyphs;
-    char   filename[128 + 4];
-    char   alt_filename[128 + 4];
+    char   filename[256 + 4];
+    char   alt_filename[256 + 4];
     char*  execname;
 
     long   t, t0, tz0;
@@ -225,11 +225,11 @@
       i--;
     }
 
-    filename[128]     = '\0';
-    alt_filename[128] = '\0';
+    filename[256]     = '\0';
+    alt_filename[256] = '\0';
 
-    strncpy( filename, argv[1], 128 );
-    strncpy( alt_filename, argv[1], 128 );
+    strncpy( filename, argv[1], 256 );
+    strncpy( alt_filename, argv[1], 256 );
 
     if ( i >= 0 )
     {

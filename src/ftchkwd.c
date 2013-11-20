@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality font engine         */
 /*                                                                          */
-/*  Copyright 2003, 2011 by                                                 */
+/*  Copyright 2003, 2011, 2013 by                                           */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  ftchkwd                                                                 */
@@ -118,8 +118,8 @@
     FT_Library  library;
 
     int         i, file_index;
-    char        filename[128 + 4];
-    char        alt_filename[128 + 4];
+    char        filename[256 + 4];
+    char        alt_filename[256 + 4];
     char*       execname;
     char*       fname;
 
@@ -160,11 +160,11 @@
         i--;
       }
 
-      filename[128] = '\0';
-      alt_filename[128] = '\0';
+      filename[256] = '\0';
+      alt_filename[256] = '\0';
 
-      strncpy( filename, fname, 128 );
-      strncpy( alt_filename, fname, 128 );
+      strncpy( filename, fname, 256 );
+      strncpy( alt_filename, fname, 256 );
 
 #ifndef macintosh
       if ( i >= 0 )

@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-1998 by                                                  */
+/*  Copyright 1996-1998, 2001, 2013 by                                      */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  ftlint: a simple TrueType instruction tester.                           */
@@ -59,8 +59,8 @@
   int  main( int  argc, char**  argv )
   {
     int           i, file_index, glyph_index;
-    char          filename[128 + 4];
-    char          alt_filename[128 + 4];
+    char          filename[256 + 4];
+    char          alt_filename[256 + 4];
     char*         execname;
     char*         fname;
     int           load_unscaled = 0;
@@ -101,11 +101,11 @@
         i--;
       }
 
-      filename[128] = '\0';
-      alt_filename[128] = '\0';
+      filename[256] = '\0';
+      alt_filename[256] = '\0';
 
-      strncpy( filename, fname, 128 );
-      strncpy( alt_filename, fname, 128 );
+      strncpy( filename, fname, 256 );
+      strncpy( alt_filename, fname, 256 );
 
       if ( i >= 0 )
       {

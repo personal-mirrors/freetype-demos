@@ -1,3 +1,12 @@
+2013-11-20  Werner Lemberg  <wl@gnu.org>
+
+	Increase file path size.
+
+	* src/compos.c (main), src/ftchkwd.c (main), src/ftdump.c (main),
+	src/ftlint.c (main), src/ftmemchk.c (main), src/ftsbit.c (main),
+	src/fttimer.c (main), src/fttry.c (main): Increase array size of
+	`filename' and `alt_filename' to 256.
+
 2013-11-13  Werner Lemberg  <wl@gnu.org>
 
 	* Makefile (FT_H): Update to new header layout of FreeType.
