@@ -227,8 +227,8 @@ int  main( int argc, char** argv )
 {
     int           i, file_index;
     unsigned int  id;
-    char          filename[256 + 4];
-    char          alt_filename[256 + 4];
+    char          filename[1024 + 4];
+    char          alt_filename[1024 + 4];
     char*         execname;
     char*         fname;
 
@@ -261,11 +261,11 @@ int  main( int argc, char** argv )
         i--;
       }
 
-      filename[256] = '\0';
-      alt_filename[256] = '\0';
+      filename[1024] = '\0';
+      alt_filename[1024] = '\0';
 
-      strncpy( filename, fname, 256 );
-      strncpy( alt_filename, fname, 256 );
+      strncpy( filename, fname, 1024 );
+      strncpy( alt_filename, fname, 1024 );
 
 #ifndef macintosh
       if ( i >= 0 )

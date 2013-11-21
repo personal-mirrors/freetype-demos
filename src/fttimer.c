@@ -162,8 +162,8 @@
         char**  argv )
   {
     int    i, total, base, rendered_glyphs;
-    char   filename[256 + 4];
-    char   alt_filename[256 + 4];
+    char   filename[1024 + 4];
+    char   alt_filename[1024 + 4];
     char*  execname;
 
     long   t, t0, tz0;
@@ -225,11 +225,11 @@
       i--;
     }
 
-    filename[256]     = '\0';
-    alt_filename[256] = '\0';
+    filename[1024]     = '\0';
+    alt_filename[1024] = '\0';
 
-    strncpy( filename, argv[1], 256 );
-    strncpy( alt_filename, argv[1], 256 );
+    strncpy( filename, argv[1], 1024 );
+    strncpy( alt_filename, argv[1], 1024 );
 
     if ( i >= 0 )
     {

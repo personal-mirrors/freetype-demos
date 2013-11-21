@@ -5,7 +5,7 @@
 	* src/compos.c (main), src/ftchkwd.c (main), src/ftdump.c (main),
 	src/ftlint.c (main), src/ftmemchk.c (main), src/ftsbit.c (main),
 	src/fttimer.c (main), src/fttry.c (main): Increase array size of
-	`filename' and `alt_filename' to 256.
+	`filename' and `alt_filename' to 1024.
 
 2013-11-13  Werner Lemberg  <wl@gnu.org>
 
