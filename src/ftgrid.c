@@ -53,10 +53,10 @@
   struct  AF_GlyphHintsRec_;
   typedef struct AF_GlyphHintsRec_*  AF_GlyphHints;
 
-  int            _af_debug_disable_horz_hints;
-  int            _af_debug_disable_vert_hints;
-  int            _af_debug_disable_blue_hints;
-  AF_GlyphHints  _af_debug_hints;
+  extern int            _af_debug_disable_horz_hints;
+  extern int            _af_debug_disable_vert_hints;
+  extern int            _af_debug_disable_blue_hints;
+  extern AF_GlyphHints  _af_debug_hints;
 
 #ifdef __cplusplus
   extern "C" {

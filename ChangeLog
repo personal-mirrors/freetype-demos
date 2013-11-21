@@ -1,3 +1,9 @@
+2013-11-21  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Fix compilation with C++.
+
+	* src/ftgrid.c (_af_debug_*): Add `extern' keyword.
+
 2013-11-20  Werner Lemberg  <wl@gnu.org>
 
 	Increase file path size.
