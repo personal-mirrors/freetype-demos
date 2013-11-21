@@ -1,5 +1,13 @@
 2013-11-21  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Make keys `1', `2', and `3' work again.
+
+	* src/ftgrid.c (Process_Event) <'1'>, <'2'>, <'3'>: Set
+	`trace_afhints'	trace level to value 7 temporarily since the autofit
+	dumping functions use `FT_TRACE7' since 2012-07-06.
+
+2013-11-21  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Fix compilation with C++.
 
 	* src/ftgrid.c (_af_debug_*): Add `extern' keyword.

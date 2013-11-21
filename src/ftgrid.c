@@ -849,11 +849,24 @@
       break;
 
 #ifdef FT_DEBUG_AUTOFIT
+    /* we use some internal FreeType functions and variables   */
+    /* to manipulate the trace level for the dumping functions */
+
     case grKEY( '1' ):
       if ( handle->hinted && handle->autohint )
       {
-        status.header = "dumping glyph edges to stdout";
-        af_glyph_hints_dump_edges( _af_debug_hints );
+        if ( FT_Trace_Get_Count() )
+        {
+          int  old_trace_level = ft_trace_levels[trace_afhints];
+
+
+          ft_trace_levels[trace_afhints] = 7;
+          status.header = "dumping glyph edges to stdout";
+          af_glyph_hints_dump_edges( _af_debug_hints );
+          ft_trace_levels[trace_afhints] = old_trace_level;
+        }
+        else
+          status.header = "need FreeType tracing support for dumping";
       }
       else
         status.header = "need autofit mode for edge dumping";
@@ -862,8 +875,18 @@
     case grKEY( '2' ):
       if ( handle->hinted && handle->autohint )
       {
-        status.header = "dumping glyph segments to stdout";
-        af_glyph_hints_dump_segments( _af_debug_hints );
+        if ( FT_Trace_Get_Count() )
+        {
+          int  old_trace_level = ft_trace_levels[trace_afhints];
+
+
+          ft_trace_levels[trace_afhints] = 7;
+          status.header = "dumping glyph segments to stdout";
+          af_glyph_hints_dump_segments( _af_debug_hints );
+          ft_trace_levels[trace_afhints] = old_trace_level;
+        }
+        else
+          status.header = "need FreeType tracing support for dumping";
       }
       else
         status.header = "need autofit mode for segment dumping";
@@ -872,8 +895,18 @@
     case grKEY( '3' ):
       if ( handle->hinted && handle->autohint )
       {
-        status.header = "dumping glyph points to stdout";
-        af_glyph_hints_dump_points( _af_debug_hints );
+        if ( FT_Trace_Get_Count() )
+        {
+          int  old_trace_level = ft_trace_levels[trace_afhints];
+
+
+          ft_trace_levels[trace_afhints] = 7;
+          status.header = "dumping glyph points to stdout";
+          af_glyph_hints_dump_points( _af_debug_hints );
+          ft_trace_levels[trace_afhints] = old_trace_level;
+        }
+        else
+          status.header = "need FreeType tracing support for dumping";
       }
       else
         status.header = "need autofit mode for point dumping";
