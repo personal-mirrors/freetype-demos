@@ -1,3 +1,14 @@
+2013-11-25  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.5.1 released.
+	=========================
+
+
+	Tag sources with `VER-2-5-1'.
+
+	* README: Updated.
+	* src/*.1: Updated.
+
 2013-11-21  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Make keys `1', `2', and `3' work again.
