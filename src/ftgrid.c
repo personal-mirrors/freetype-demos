@@ -47,6 +47,7 @@
 #define N_CFF_HINTING_ENGINES  2
 
 
+#ifdef FT_DEBUG_AUTOFIT
   /* these variables, structures and declarations are for   */
   /* communication with the debugger in the autofit module; */
   /* normal programs don't need this                        */
@@ -62,11 +63,14 @@
   extern "C" {
 #endif
   extern void
-  af_glyph_hints_dump_segments( AF_GlyphHints  hints );
+  af_glyph_hints_dump_segments( AF_GlyphHints  hints,
+                                FT_Bool        to_stdout );
   extern void
-  af_glyph_hints_dump_points( AF_GlyphHints  hints );
+  af_glyph_hints_dump_points( AF_GlyphHints  hints,
+                              FT_Bool        to_stdout );
   extern void
-  af_glyph_hints_dump_edges( AF_GlyphHints  hints );
+  af_glyph_hints_dump_edges( AF_GlyphHints  hints,
+                             FT_Bool        to_stdout );
   extern FT_Error
   af_glyph_hints_get_num_segments( AF_GlyphHints  hints,
                                    FT_Int         dimension,
@@ -79,6 +83,8 @@
 #ifdef __cplusplus
   }
 #endif
+
+#endif /* FT_DEBUG_AUTOFIT */
 
   typedef struct  GridStatusRec_
   {
@@ -263,6 +269,8 @@
   }
 
 
+#ifdef FT_DEBUG_AUTOFIT
+
   static void
   grid_hint_draw_segment( GridStatus     st,
                           AF_GlyphHints  hints )
@@ -304,6 +312,8 @@
       }
     }
   }
+
+#endif /* FT_DEBUG_AUTOFIT */
 
 
   static void
@@ -491,6 +501,7 @@
 
     FTDemo_Get_Size( handle, &size );
 
+#ifdef FT_DEBUG_AUTOFIT
     /* Draw segment before drawing glyph. */
     if ( status.do_segment )
     {
@@ -508,6 +519,7 @@
 
     _af_debug_disable_horz_hints = !st->do_horz_hints;
     _af_debug_disable_vert_hints = !st->do_vert_hints;
+#endif
 
     if ( FT_Load_Glyph( size->face, st->Num,
                         handle->load_flags | FT_LOAD_NO_BITMAP ) )
@@ -849,67 +861,28 @@
       break;
 
 #ifdef FT_DEBUG_AUTOFIT
-    /* we use some internal FreeType functions and variables   */
-    /* to manipulate the trace level for the dumping functions */
-
     case grKEY( '1' ):
       if ( handle->hinted && handle->autohint )
       {
-        if ( FT_Trace_Get_Count() )
-        {
-          int  old_trace_level = ft_trace_levels[trace_afhints];
-
-
-          ft_trace_levels[trace_afhints] = 7;
-          status.header = "dumping glyph edges to stdout";
-          af_glyph_hints_dump_edges( _af_debug_hints );
-          ft_trace_levels[trace_afhints] = old_trace_level;
-        }
-        else
-          status.header = "need FreeType tracing support for dumping";
+        status.header = "dumping glyph edges to stdout";
+        af_glyph_hints_dump_edges( _af_debug_hints, 1 );
       }
-      else
-        status.header = "need autofit mode for edge dumping";
       break;
 
     case grKEY( '2' ):
       if ( handle->hinted && handle->autohint )
       {
-        if ( FT_Trace_Get_Count() )
-        {
-          int  old_trace_level = ft_trace_levels[trace_afhints];
-
-
-          ft_trace_levels[trace_afhints] = 7;
-          status.header = "dumping glyph segments to stdout";
-          af_glyph_hints_dump_segments( _af_debug_hints );
-          ft_trace_levels[trace_afhints] = old_trace_level;
-        }
-        else
-          status.header = "need FreeType tracing support for dumping";
+        status.header = "dumping glyph segments to stdout";
+        af_glyph_hints_dump_segments( _af_debug_hints, 1 );
       }
-      else
-        status.header = "need autofit mode for segment dumping";
       break;
 
     case grKEY( '3' ):
       if ( handle->hinted && handle->autohint )
       {
-        if ( FT_Trace_Get_Count() )
-        {
-          int  old_trace_level = ft_trace_levels[trace_afhints];
-
-
-          ft_trace_levels[trace_afhints] = 7;
-          status.header = "dumping glyph points to stdout";
-          af_glyph_hints_dump_points( _af_debug_hints );
-          ft_trace_levels[trace_afhints] = old_trace_level;
-        }
-        else
-          status.header = "need FreeType tracing support for dumping";
+        status.header = "dumping glyph points to stdout";
+        af_glyph_hints_dump_points( _af_debug_hints, 1 );
       }
-      else
-        status.header = "need autofit mode for point dumping";
       break;
 #endif /* FT_DEBUG_AUTOFIT */
 

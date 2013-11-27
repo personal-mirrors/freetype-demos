@@ -1,3 +1,17 @@
+2013-11-27  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Fix compilation in non-debug mode.
+
+	* src/ftgrid.c: Guard autofit dump functions with FT_DEBUG_AUTOFIT
+	clause.
+	Update prototypes.
+	(grid_hint_draw_segment): Guard with FT_DEBUG_AUTOFIT clause.
+	(grid_status_draw_outline): Guard call to `grid_hint_draw_segment'
+	with FT_DEBUG_AUTOFIT clause.
+	(Process_Event) <'1'>, <'2'>, <'3'>: Don't mess around with trace
+	levels, which should always stay internal to the FreeType library.
+	Update calls to dump functions.
+
 2013-11-25  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.5.1 released.
