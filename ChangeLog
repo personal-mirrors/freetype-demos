@@ -1,3 +1,10 @@
+2013-12-22  Werner Lemberg  <wl@gnu.org>
+
+	* Makefile (LINK_LIBS) [unixdev]: Use pkg-config to get link flags.
+
+	This corresponds to a similar change in current FreeType to link
+	with HarfBuzz in development mode.
+
 2013-12-08  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.5.2 released.
