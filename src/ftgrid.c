@@ -79,7 +79,9 @@
   af_glyph_hints_get_segment_offset( AF_GlyphHints  hints,
                                      FT_Int         dimension,
                                      FT_Int         idx,
-                                     FT_Pos*        offset );
+                                     FT_Pos        *offset,
+                                     FT_Bool       *is_blue,
+                                     FT_Pos        *blue_offset );
 #ifdef __cplusplus
   }
 #endif
@@ -115,6 +117,7 @@
     grColor      on_color;
     grColor      off_color;
     grColor      segment_color;
+    grColor      blue_color;
 
     int          do_horz_hints;
     int          do_vert_hints;
@@ -170,9 +173,10 @@
     st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 ); /* black       */
     st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 ); /* gray        */
     st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 ); /* red         */
-    st->on_color      = grFindColor( display->bitmap,  64,  64, 255, 255 ); /* light blue  */
+    st->on_color      = grFindColor( display->bitmap, 255,   0,   0, 255 ); /* red         */
     st->off_color     = grFindColor( display->bitmap,   0, 128,   0, 255 ); /* dark green  */
     st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 ); /* light green */
+    st->blue_color    = grFindColor( display->bitmap,  64,  64, 255,  64 ); /* light blue  */
   }
 
 
@@ -288,12 +292,15 @@
 
       for ( count = 0; count < num_seg; count++ )
       {
-        int     pos;
-        FT_Pos  offset;
+        int      pos;
+        FT_Pos   offset;
+        FT_Bool  is_blue;
+        FT_Pos   blue_offset;
 
 
         af_glyph_hints_get_segment_offset( hints, dimension,
-                                           count, &offset );
+                                           count, &offset,
+                                           &is_blue, &blue_offset);
 
         if ( dimension == 0 ) /* AF_DIMENSION_HORZ is 0 */
         {
@@ -304,8 +311,26 @@
         else
         {
           pos = y_org - (int)offset * st->scale;
-          grFillHLine( st->disp_bitmap, 0, pos,
-                       st->disp_width, st->segment_color );
+
+          if ( is_blue )
+          {
+            int  blue_pos = y_org - (int)blue_offset * st->scale;
+
+
+            if ( blue_pos == pos )
+              grFillHLine( st->disp_bitmap, 0, blue_pos,
+                           st->disp_width, st->blue_color );
+            else
+            {
+              grFillHLine( st->disp_bitmap, 0, blue_pos,
+                           st->disp_width, st->blue_color );
+              grFillHLine( st->disp_bitmap, 0, pos,
+                           st->disp_width, st->segment_color );
+            }
+          }
+          else
+            grFillHLine( st->disp_bitmap, 0, pos,
+                         st->disp_width, st->segment_color );
         }
       }
     }
@@ -622,7 +647,7 @@
     grWriteln( "i, k        move grid up/down             V         toggle vert. hinting    " );
     grWriteln( "j, l        move grid left/right          B         toggle blue zone hinting" );
     grWriteln( "PgUp, PgDn  zoom in/out grid              s         toggle segment drawing  " );
-    grWriteln( "SPC         reset zoom and position                                         " );
+    grWriteln( "SPC         reset zoom and position                 (unfitted, with blues)  " );
     grWriteln( "                                          1         dump edge hints         " );
     grWriteln( "p, n        previous/next font            2         dump segment hints      " );
     grWriteln( "                                          3         dump point hints        " );

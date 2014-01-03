@@ -1,5 +1,17 @@
 2014-01-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Show (some) blue zones.
+
+	* src/ftgrid.c (af_glyph_hints_get_segment_offset): Update
+	prototype.
+	(GridStatucRec): New member `blue_color'.
+	(grid_status_display): Change `on' color to red.
+	Set `blue' color.
+	(grid_hint_draw_segment): Show associated blue zones.
+	(event_help): Updated.
+
+2014-01-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Minor.
 
 	* src/ftgrid.c (GridStatusRec): Rename `conic_color' to `off_color'.
