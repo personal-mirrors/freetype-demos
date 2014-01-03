@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2007, 2009-2013 by                            */
+/*  Copyright 1996-2000, 2003-2007, 2009-2014 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -113,8 +113,7 @@
     grColor      grid_color;
     grColor      outline_color;
     grColor      on_color;
-    grColor      conic_color;
-    grColor      cubic_color;
+    grColor      off_color;
     grColor      segment_color;
 
     int          do_horz_hints;
@@ -168,13 +167,12 @@
     st->disp_height   = display->bitmap->rows;
     st->disp_bitmap   = display->bitmap;
 
-    st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 );
-    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 );
-    st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 );
-    st->on_color      = grFindColor( display->bitmap,  64,  64, 255, 255 );
-    st->conic_color   = grFindColor( display->bitmap,   0, 128,   0, 255 );
-    st->cubic_color   = grFindColor( display->bitmap, 255,  64, 255, 255 );
-    st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 );
+    st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 ); /* black       */
+    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 ); /* gray        */
+    st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 ); /* red         */
+    st->on_color      = grFindColor( display->bitmap,  64,  64, 255, 255 ); /* light blue  */
+    st->off_color     = grFindColor( display->bitmap,   0, 128,   0, 255 ); /* dark green  */
+    st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 ); /* light green */
   }
 
 
@@ -566,7 +564,7 @@
             handle,
             display,
             ( gimage->tags[nn] & FT_CURVE_TAG_ON ) ? st->on_color
-                                                   : st->conic_color );
+                                                   : st->off_color );
       }
     }
   }
