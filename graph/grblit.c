@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2002, 2009, 2011 by                                      */
+/*  Copyright 1996-2002, 2009, 2011, 2014 by                                */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  grblit.c: Support for blitting of bitmaps with various depth.           */
@@ -1844,6 +1844,12 @@
     {
       grError = gr_err_bad_argument;
       return -1;
+    }
+
+    if ( !glyph->rows || !glyph->width )
+    {
+      /* nothing to do */
+      return 0;
     }
 
    /* short cut to alpha blender for certain glyph types

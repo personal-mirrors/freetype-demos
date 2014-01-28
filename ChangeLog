@@ -1,3 +1,8 @@
+2014-01-28  Werner Lemberg  <wl@gnu.org>
+
+	* graph/grblit.c (grBlitGlyphToBitmap): Don't crash on empty glyphs.
+	Problem reported by Dave Arnold <darnold@adobe.com>.
+
 2014-01-03  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Show (some) blue zones.
