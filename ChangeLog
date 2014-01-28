@@ -1,5 +1,10 @@
 2014-01-28  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftgrid.c (grid_status_rescale_initial): Avoid NaN values.
+	Remove forgotten debug message.
+
+2014-01-28  Werner Lemberg  <wl@gnu.org>
+
 	* graph/grblit.c (grBlitGlyphToBitmap): Don't crash on empty glyphs.
 	Problem reported by Dave Arnold <darnold@adobe.com>.
 

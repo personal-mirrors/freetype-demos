@@ -205,12 +205,15 @@
       xmax  = ( xmax + 63 ) & ~63;
       ymax  = ( ymax + 63 ) & ~63;
 
-      printf( "XXX x_ppem=%d y_ppem=%d width=%d height=%d\n",
-              size->metrics.x_ppem, size->metrics.y_ppem,
-              xmax - xmin, ymax - ymin );
+      if ( xmax - xmin )
+        x_scale = st->disp_width  * ( 1.0 - 2 * st->margin ) / ( xmax - xmin );
+      else
+        x_scale = 1.0;
 
-      x_scale = st->disp_width  * ( 1.0 - 2 * st->margin ) / ( xmax - xmin );
-      y_scale = st->disp_height * ( 1.0 - 2 * st->margin ) / ( ymax - ymin );
+      if ( ymax - ymin )
+        y_scale = st->disp_height * ( 1.0 - 2 * st->margin ) / ( ymax - ymin );
+      else
+        y_scale = 1.0;
 
       if ( x_scale <= y_scale )
         st->scale = x_scale;
