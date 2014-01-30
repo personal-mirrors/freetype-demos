@@ -12,6 +12,7 @@
 /*                                                                          */
 /****************************************************************************/
 
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -20,14 +21,15 @@
 #include <string.h>
 
 
-#define  DUMP_NAME
+#define DUMP_NAME
 
 #define gettext( x )  ( x )
 
-  FT_Error      error;
 
-  FT_Library    library;
-  FT_Face       face;
+  FT_Error  error;
+
+  FT_Library  library;
+  FT_Face     face;
 
   unsigned int  num_glyphs;
   int           ptsize;
@@ -36,8 +38,8 @@
   int  Num;
 
 
-
-  static void  Usage( char*  name )
+  static void
+  Usage( char*  name )
   {
     printf( "fttry: simple TrueType instruction tester -- part of the FreeType project\n" );
     printf( "--------------------------------------------------------------------------\n" );
@@ -50,20 +52,26 @@
   }
 
 
-  static void  Panic( const char*  message )
+  static void
+  Panic( const char*  message )
   {
-    fprintf( stderr, "%s\n  error code = 0x%04x\n", message, error );
-    exit(1);
+    fprintf( stderr,
+             "%s\n  error code = 0x%04x\n", message, error );
+    exit( 1 );
   }
 
-  int  main( int  argc, char**  argv )
+
+  int
+  main( int     argc,
+        char**  argv )
   {
-    int           i, file_index, glyph_index;
-    char          filename[1024 + 4];
-    char          alt_filename[1024 + 4];
-    char*         execname;
-    char*         fname;
-    int           load_unscaled = 0;
+    int    i, file_index, glyph_index;
+    char   filename[1024 + 4];
+    char   alt_filename[1024 + 4];
+    char*  execname;
+    char*  fname;
+    int    load_unscaled = 0;
+
 
     execname = argv[0];
 
@@ -72,9 +80,7 @@
 
     if ( argv[1][0] == '-' &&
          argv[1][1] == 'u' )
-    {
       load_unscaled = 1;
-    }
     else
     {
       if ( sscanf( argv[1], "%d", &ptsize ) != 1 )
@@ -87,7 +93,8 @@
       Usage( execname );
 
     error = FT_Init_FreeType( &library );
-    if (error) Panic( "Could not create library object" );
+    if ( error )
+      Panic( "Could not create library object" );
 
     /* Now check all files */
     for ( file_index = 2; file_index < argc; file_index++ )
@@ -120,7 +127,7 @@
         if ( filename[i] == '/' || filename[i] == '\\' )
         {
           fname = filename + i + 1;
-          i = -1;
+          i     = -1;
         }
         else
           i--;
@@ -129,19 +136,21 @@
 
       /* Load face */
       error = FT_New_Face( library, filename, 0, &face );
-      if (error) Panic( "Could not create face object" );
+      if ( error )
+        Panic( "Could not create face object" );
 
       num_glyphs = face->num_glyphs;
 
       error = FT_Set_Char_Size( face, ptsize << 6, 0, 0, 0 );
-      if (error) Panic( "Could not set character size" );
+      if ( error )
+        Panic( "Could not set character size" );
 
 #ifdef DUMP_NAME
       {
         char name[1024];
 
         error = FT_Get_Glyph_Name( face, glyph_index, name, 1024 );
-        if (error)
+        if ( error )
           printf( "no glyph name available\n" );
         else
           printf( "glyph name = '%s'\n", name );
