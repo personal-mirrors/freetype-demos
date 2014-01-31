@@ -1,3 +1,4 @@
+'\" t
 .TH FTVIEW 1 "December 2013" "Freetype 2.5.2"
 .
 .
@@ -67,21 +68,15 @@ Set render mode to
 .I n
 .
 .RS
-.TP
-.B 0
-normal
-.TP
-.B 1
-light
-.TP
-.B 2
-mono
-.TP
-.B 3
-horizontal LCD
-.TP
-.B 4
-vertical LCD
+.TS
+tab (@);
+rB l.
+0@normal
+1@light
+2@mono
+3@horizontal LCD
+4@verical LCD
+.TE
 .RE
 .
 .IP
@@ -104,36 +99,20 @@ seconds per bench (default is 2).
 Perform chosen tests:
 .
 .RS
-.TP
-.B a
-load a glyph (FT_Load_Glyph)
-.TP
-.B b
-load advance widths (FT_Get_Advances)
-.TP
-.B c
-render a glyph (FT_Render_Glyph)
-.TP
-.B d
-load a glyph (FT_Get_Glyph)
-.TP
-.B e
-get glyph cbox (FT_Glyph_Get_CBox)
-.TP
-.B f
-get glyph indices (FT_Get_Char_Index)
-.TP
-.B g
-iterate CMap (FT_Get_{First,Next}_Char)
-.TP
-.B h
-open a new face (FT_New_Face)
-.TP
-.B i
-embolden (FT_GlyphSlot_Embolden)
-.TP
-.B j
-get glyph bbox (FT_Outline_Get_BBox)
+.TS
+tab (@);
+rB l.
+a@load a glyph (FT_Load_Glyph)
+b@load advance widths (FT_Get_Advances)
+c@render a glyph (FT_Render_Glyph)
+d@load a glyph (FT_Get_Glyph)
+e@get glyph cbox (FT_Glyph_Get_CBox)
+f@get glyph indices (FT_Get_Char_Index)
+g@iterate CMap (FT_Get_{First,Next}_Char)
+h@open a new face (FT_New_Face)
+i@embolden (FT_GlyphSlot_Embolden)
+j@get glyph bbox (FT_Outline_Get_BBox)
+.TE
 .RE
 .
 .IP
