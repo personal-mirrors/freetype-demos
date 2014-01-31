@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2002-2006, 2009, 2010, 2013 by                                */
+/*  Copyright 2002-2006, 2009, 2010, 2013, 2014 by                          */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  ftbench: bench some common FreeType call paths                          */
@@ -193,7 +193,7 @@
     {
       if ( !cache_man )
       {
-        printf( "  %-25s: no cache manager\n", test->title );
+        printf( "  %-25s no cache manager\n", test->title );
 
         return;
       }
@@ -221,7 +221,10 @@
         break;
     }
 
-    printf( "%5.3f us/op\n", TIMER_GET( &timer ) * 1E6 / (double)done );
+    if ( done )
+      printf( "%5.3f us/op\n", TIMER_GET( &timer ) * 1E6 / (double)done );
+    else
+      printf( "no error-free calls\n" );
   }
 
 
@@ -321,7 +324,7 @@
         continue;
 
       TIMER_START( timer );
-      /* FT_GlyphSlot_Embolden ( face->glyph ); */
+      FT_GlyphSlot_Embolden( face->glyph );
       done++;
       TIMER_STOP( timer );
     }
@@ -738,7 +741,10 @@
       "  -r N      Set render mode to N\n"
       "              0: normal, 1: light, 2: mono, 3: LCD, 4: LCD vertical\n"
       "            (default is 0).\n"
-      "  -s S      Use S ppem as face size (default is %dppem).\n",
+      "  -s S      Use S ppem as face size (default is %dppem).\n"
+      "            If set to zero, don't call FT_Set_Pixel_Sizes.\n"
+      "            Use value 0 with option `-f 1' or something similar to\n"
+      "            load the glyphs unscaled, otherwise errors will show up.\n",
              FACE_SIZE );
     fprintf( stderr,
       "  -t T      Use at most T seconds per bench (default is %.0f).\n"
@@ -876,7 +882,7 @@
 
       case 's':
         size = atoi( optarg );
-        if ( size <= 0 )
+        if ( size < 0 )
           size = 1;
         break;
 
@@ -918,17 +924,20 @@
     if ( get_face( &face ) )
       goto Exit;
 
-    if ( FT_IS_SCALABLE( face ) )
+    if ( size )
     {
-      if ( FT_Set_Pixel_Sizes( face, size, size ) )
+      if ( FT_IS_SCALABLE( face ) )
       {
-        fprintf( stderr, "failed to set pixel size to %d\n", size );
+        if ( FT_Set_Pixel_Sizes( face, size, size ) )
+        {
+          fprintf( stderr, "failed to set pixel size to %d\n", size );
 
-        return 1;
+          return 1;
+        }
       }
+      else
+        size = face->available_sizes[0].width;
     }
-    else
-      size = face->available_sizes[0].width;
 
     FTC_Manager_New( lib,
                      0,
@@ -1020,7 +1029,10 @@
 
           test.title = "Load (sbit cached)";
           test.bench = test_sbit_cache;
-          benchmark( face, &test, max_iter, max_time );
+          if ( size )
+            benchmark( face, &test, max_iter, max_time );
+          else
+            printf( "  %-25s disabled (size = 0)\n", test.title );
         }
         break;
 
@@ -1041,7 +1053,10 @@
       case FT_BENCH_RENDER:
         test.title = "Render";
         test.bench = test_render;
-        benchmark( face, &test, max_iter, max_time );
+        if ( size )
+          benchmark( face, &test, max_iter, max_time );
+        else
+          printf( "  %-25s disabled (size = 0)\n", test.title );
         break;
 
       case FT_BENCH_GET_GLYPH:
@@ -1107,7 +1122,10 @@
       case FT_BENCH_EMBOLDEN:
         test.title = "Embolden";
         test.bench = test_embolden;
-        benchmark( face, &test, max_iter, max_time );
+        if ( size )
+          benchmark( face, &test, max_iter, max_time );
+        else
+          printf( "  %-25s disabled (size = 0)\n", test.title );
         break;
       }
     }

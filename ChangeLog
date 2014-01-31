@@ -1,3 +1,17 @@
+2014-01-30  Werner Lemberg  <wl@gnu.org>
+
+	[ftbench] Allow `-s 0' for better testing of FT_LOAD_NO_SCALE.
+
+	* src/ftbench.c	(main) <'s'>: Don't alter value 0.
+	Don't call `FT_Set_Pixel_Sizes' for size == 0.
+	Don't call tests for size == 0 that need valid scaling factors.
+	(usage): Updated.
+	(benchmark): Return meaningful timer value for error-only calls.
+	(test_embolden): Enable test.  I think there is no longer a reason
+	to not run it.
+
+	* src/ftbench.1: Updated.
+
 2014-01-28  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftgrid.c (grid_status_rescale_initial): Avoid NaN values.
