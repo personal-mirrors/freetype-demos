@@ -1,8 +1,15 @@
+2014-03-04  Werner Lemberg  <wl@gnu.org>
+
+	* Makefile (LINK_LIBS) [unixdev]: Don't use pkg-config for bzip2.
+
+	Not all platforms have `bzip2.pc'.  We also add `-lz' just for
+	completeness.
+
 2014-01-30  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] Allow `-s 0' for better testing of FT_LOAD_NO_SCALE.
 
-	* src/ftbench.c	(main) <'s'>: Don't alter value 0.
+	* src/ftbench.c (main) <'s'>: Don't alter value 0.
 	Don't call `FT_Set_Pixel_Sizes' for size == 0.
 	Don't call tests for size == 0 that need valid scaling factors.
 	(usage): Updated.
