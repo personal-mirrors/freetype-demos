@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2002, 2007, 2011, 2013 by                                */
+/*  Copyright 1996-2002, 2007, 2011, 2013, 2014 by                          */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -1905,11 +1905,11 @@
 
       FT_Library_Version( library, &major, &minor, &patch );
 
-      offset = snprintf( version_string, 64 + 1,
+      offset = snprintf( version_string, 64,
                          "ttdebug (FreeType) %d.%d",
                          major, minor );
       if ( patch )
-        offset = snprintf( version_string + offset, 64 + 1 - offset,
+        offset = snprintf( version_string + offset, 64 - offset,
                            ".%d",
                            patch );
     }
