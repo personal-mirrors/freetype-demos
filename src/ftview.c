@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2007, 2009-2013 by                            */
+/*  Copyright 1996-2000, 2003-2007, 2009-2014 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -745,8 +745,19 @@
   static void
   event_help( void )
   {
+    char  buf[256];
+    char  version[64];
+
+    const char*  format;
+    FT_Int       major, minor, patch;
+
     grEvent  dummy_event;
 
+
+    FT_Library_Version( handle->library, &major, &minor, &patch );
+
+    format = patch ? "%d.%d.%d" : "%d.%d";
+    sprintf( version, format, major, minor, patch );
 
     FTDemo_Display_Clear( display );
     grSetLineHeight( 10 );
@@ -754,7 +765,11 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    grWriteln( "FreeType Glyph Viewer - part of the FreeType test suite" );
+    sprintf( buf,
+             "FreeType Glyph Viewer - part of the FreeType %s test suite",
+             version );
+
+    grWriteln( buf );
     grLn();
     grWriteln( "Use the following keys:" );
     grLn();

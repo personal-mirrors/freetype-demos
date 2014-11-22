@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2007-2013 by                                                  */
+/*  Copyright 2007-2014 by                                                  */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -1019,9 +1019,20 @@
   static void
   event_help( RenderState  state )
   {
+    char  buf[256];
+    char  version[64];
+
+    const char*  format;
+    FT_Int       major, minor, patch;
+
     ADisplay  display = (ADisplay)state->display.disp;
     grEvent   dummy_event;
 
+
+    FT_Library_Version( state->library, &major, &minor, &patch );
+
+    format = patch ? "%d.%d.%d" : "%d.%d";
+    sprintf( version, format, major, minor, patch );
 
     adisplay_clear( display );
     grSetLineHeight( 10 );
@@ -1029,7 +1040,11 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    grWriteln( "FreeType hinting mode comparator - part of the FreeType test suite" );
+    sprintf( buf,
+             "FreeType Hinting Mode Comparator - part of the FreeType %s test suite",
+             version );
+
+    grWriteln( buf );
     grLn();
     grWriteln( "This program displays text using various hinting algorithms." );
     grLn();

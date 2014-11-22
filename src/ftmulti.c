@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2005, 2010-2013 by                            */
+/*  Copyright 1996-2000, 2003-2005, 2010-2014 by                            */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -392,8 +392,19 @@
   static void
   Help( void )
   {
+    char  buf[256];
+    char  version[64];
+
+    const char*  format;
+    FT_Int       major, minor, patch;
+
     grEvent  dummy_event;
 
+
+    FT_Library_Version( library, &major, &minor, &patch );
+
+    format = patch ? "%d.%d.%d" : "%d.%d";
+    sprintf( version, format, major, minor, patch );
 
     Clear_Display();
     grSetLineHeight( 10 );
@@ -401,7 +412,11 @@
     grSetMargin( 2, 1 );
     grGotobitmap( &bit );
 
-    grWriteln( "FreeType Multiple Masters Glyph Viewer - part of the FreeType test suite" );
+    sprintf( buf,
+             "FreeType MM Glyph Viewer - part of the FreeType %s test suite",
+             version );
+
+    grWriteln( buf );
     grLn();
     grWriteln( "This program is used to display all glyphs from one or" );
     grWriteln( "several Multiple Masters font files, with the FreeType library.");
