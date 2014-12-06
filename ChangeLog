@@ -1,3 +1,14 @@
+2014-12-06  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.5.4 released.
+	=========================
+
+
+	Tag sources with `VER-2-5-4'.
+
+	* README: Updated.
+	* src/*.1: Updated.
+
 2014-11-22  Werner Lemberg  <wl@gnu.org>
 
 	Show FreeType version in demo program help screens.
