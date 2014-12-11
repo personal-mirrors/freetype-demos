@@ -576,9 +576,9 @@ dist:
 
 	mv tmp ft2demos-$(version)
 
-	tar cfh - ft2demos-$(version) \
+	tar -H ustar -cfh - ft2demos-$(version) \
 	| gzip -c > ft2demos-$(version).tar.gz
-	tar cfh - ft2demos-$(version) \
+	tar -H ustar -cfh - ft2demos-$(version) \
 	| bzip2 -c > ft2demos-$(version).tar.bz2
 
 	@# Use CR/LF for zip files.

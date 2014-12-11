@@ -1,3 +1,12 @@
+2014-12-11  Werner Lemberg  <wl@gnu.org>
+
+	* Makefile (dist): Use older POSIX standard for `tar'.
+
+	Apparently, BSD tar isn't capable yet of handling POSIX-1.2001
+	(contrary to GNU tar), so force the POSIX-1.1988 format.
+
+	Problem reported by Stephen Fisher <sfisher@SDF.ORG>.
+
 2014-12-06  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.5.4 released.
