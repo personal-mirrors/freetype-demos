@@ -1,3 +1,16 @@
+2014-12-30  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.5.5 released.
+	=========================
+
+
+	Tag sources with `VER-2-5-5'.
+
+	* README: Updated.
+	* src/*.1: Updated.
+
+	* Makefile (dist): Fix typos.
+
 2014-12-11  Werner Lemberg  <wl@gnu.org>
 
 	* Makefile (dist): Use older POSIX standard for `tar'.
