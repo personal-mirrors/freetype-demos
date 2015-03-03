@@ -1,5 +1,9 @@
 2015-03-03  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftmulti.c (main): Always display 1/100ths for axis values.
+
+2015-03-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftmulti] Use F1-F8 keys to handle four axes.
 
 	Previously, we used F1 for help and F3-F8 for three axes.

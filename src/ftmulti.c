@@ -611,7 +611,7 @@
        * for mac fonts, which have a range of ~3.  And it's rather extreme
        * for optical size even in PS.
        */
-      pos += FT_MulDiv( i, a->maximum-a->minimum, 1000 );
+      pos += FT_MulDiv( i, a->maximum - a->minimum, 1000 );
       if ( pos < a->minimum ) pos = a->minimum;
       if ( pos > a->maximum ) pos = a->maximum;
 
@@ -874,7 +874,7 @@
         grWriteCellString( &bit, 0, 0, new_header, fore_color );
         new_header = 0;
 
-        sprintf( Header, "axis: " );
+        sprintf( Header, "axis:" );
         {
           int  n;
 
@@ -884,7 +884,7 @@
             char  temp[100];
 
 
-            sprintf( temp, "  %.50s:%g",
+            sprintf( temp, "  %.50s: %.02f",
                            multimaster->axis[n].name,
                            design_pos[n] / 65536.0 );
             strncat( Header, temp,
