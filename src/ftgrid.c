@@ -88,6 +88,10 @@
 
 #endif /* FT_DEBUG_AUTOFIT */
 
+
+#define BUFSIZE  256
+
+
   typedef struct  GridStatusRec_
   {
     int          width;
@@ -128,7 +132,7 @@
 
     double       gamma;
     const char*  header;
-    char         header_buffer[256];
+    char         header_buffer[BUFSIZE];
 
     int          cff_hinting_engine;
     int          tt_interpreter_version;
@@ -630,7 +634,7 @@
   static void
   event_help( void )
   {
-    char  buf[256];
+    char  buf[BUFSIZE];
     char  version[64];
 
     const char*  format;
@@ -1097,10 +1101,10 @@
     grWriteCellString( display->bitmap, 0, 0, status.header,
                        display->fore_color );
 
-    format = "at %g points, first glyph index = %d";
+    format = " %gpt, glyph %d";
 
-    snprintf( status.header_buffer, 256, format,
-              status.ptsize / 64., status.Num );
+    snprintf( status.header_buffer, BUFSIZE, format,
+              status.ptsize / 64.0, status.Num );
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
@@ -1110,9 +1114,9 @@
 
       size = strlen( status.header_buffer );
       p    = status.header_buffer + size;
-      size = 256 - size;
+      size = BUFSIZE - size;
 
-      format = ", name = ";
+      format = ": ";
       format_len = strlen( format );
 
       if ( size >= format_len + 2 )

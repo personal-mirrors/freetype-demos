@@ -1,5 +1,14 @@
 2015-03-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Less verbose header line.
+
+	* src/ftgrid.c (BUFSIZE): New macro.
+	(GridStatusRec, event_help): Use it.
+	(write_header): Use it.
+	Emit more compact header line.
+
+2015-03-03  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftmulti.c (main): Always display 1/100ths for axis values.
 
 2015-03-03  Werner Lemberg  <wl@gnu.org>
