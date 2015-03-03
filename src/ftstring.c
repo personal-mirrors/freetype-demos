@@ -626,7 +626,7 @@
       PanicZ( "could not allocate display surface" );
 
     grSetTitle( display->surface,
-                "FreeType String Viewer - press F1 for help" );
+                "FreeType String Viewer - press ? for help" );
 
     event_gamma_change( 0 );
     event_font_change( 0 );

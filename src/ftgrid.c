@@ -8,7 +8,7 @@
 /*                                                                          */
 /*  FTGrid - a simple viewer to show glyph outlines on a grid               */
 /*                                                                          */
-/*  Press F1 when running this program to have a list of key-bindings       */
+/*  Press ? when running this program to have a list of key-bindings        */
 /*                                                                          */
 /****************************************************************************/
 
@@ -1281,7 +1281,7 @@
     grid_status_display( &status, display );
 
     grSetTitle( display->surface,
-                "FreeType Glyph Grid Viewer - press F1 for help" );
+                "FreeType Glyph Grid Viewer - press ? for help" );
 
     for ( ; argc > 0; argc--, argv++ )
     {

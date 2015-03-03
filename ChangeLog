@@ -1,3 +1,13 @@
+2015-03-03  Werner Lemberg  <wl@gnu.org>
+
+	Recommend `?' instead of `F1' for help.
+
+	Usually, both `F1' and `?' map to the help screen.  However, not all
+	display managers provide the F1 key to the application.
+
+	* src/ftdiff.c (main), src/ftgrid.c (main), src/ftmulti.c (main),
+	src/ftstring.c (main), src/ftview.c (main): Apply.
+
 2014-12-30  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.5.5 released.

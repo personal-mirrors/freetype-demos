@@ -11,7 +11,7 @@
 /*  This is a new version using the MiGS graphics subsystem for             */
 /*  blitting and display.                                                   */
 /*                                                                          */
-/*  Press F1 when running this program to have a list of key-bindings       */
+/*  Press ? when running this program to have a list of key-bindings.       */
 /*                                                                          */
 /****************************************************************************/
 
@@ -1965,7 +1965,7 @@
       Fatal( "could not allocate display surface" );
 
     grSetTitle( display->surface,
-                "FreeType Glyph Viewer - press F1 for help" );
+                "FreeType Glyph Viewer - press ? for help" );
 
     status.num_fails = 0;
 

@@ -6,10 +6,8 @@
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
-/*  FTpatchk - a simple program which tests whether patented hinting is     */
+/*  FTpatchk - a simple program that tests whether patented hinting is      */
 /*             necessary.                                                   */
-/*                                                                          */
-/*  Press F1 when running this program to have a list of key-bindings       */
 /*                                                                          */
 /****************************************************************************/
 
@@ -21,8 +19,9 @@
 #include FT_FREETYPE_H
 
 
-  int  main( int    argc,
-             char*  argv[] )
+  int
+  main( int    argc,
+        char*  argv[] )
   {
     FT_Error    error;
     FT_Library  library;

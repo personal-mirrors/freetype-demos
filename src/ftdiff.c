@@ -8,7 +8,7 @@
 /*                                                                          */
 /*  FTDiff - a simple viewer to compare different hinting modes.            */
 /*                                                                          */
-/*  Press F1 when running this program to have a list of key-bindings.      */
+/*  Press ? when running this program to have a list of key-bindings.       */
 /*                                                                          */
 /****************************************************************************/
 
@@ -1492,7 +1492,7 @@
     render_state_set_files( state, argv, execname );
     render_state_set_file( state, 0 );
 
-    grSetTitle( adisplay->surface, "FreeType Text Proofer, press F1 for help" );
+    grSetTitle( adisplay->surface, "FreeType Text Proofer, press ? for help" );
 
     for (;;)
     {

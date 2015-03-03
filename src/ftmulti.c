@@ -8,7 +8,7 @@
 /*                                                                          */
 /*  FTMulti- a simple multiple masters font viewer                          */
 /*                                                                          */
-/*  Press F1 when running this program to have a list of key-bindings       */
+/*  Press ? when running this program to have a list of key-bindings        */
 /*                                                                          */
 /****************************************************************************/
 
@@ -815,7 +815,7 @@
       Init_Display();
     }
 
-    grSetTitle( surface, "FreeType Glyph Viewer - press F1 for help" );
+    grSetTitle( surface, "FreeType Glyph Viewer - press ? for help" );
     old_ptsize = ptsize;
 
     if ( file_loaded >= 1 )
