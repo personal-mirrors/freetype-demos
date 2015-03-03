@@ -29,6 +29,7 @@
 #include FT_SYNTHESIS_H
 #include FT_CFF_DRIVER_H
 #include FT_TRUETYPE_DRIVER_H
+#include FT_MULTIPLE_MASTERS_H
 
 #define MAXPTSIZE      500                 /* dtp */
 
@@ -48,7 +49,7 @@
 
 
 #ifdef FT_DEBUG_AUTOFIT
-  /* these variables, structures and declarations are for   */
+  /* these variables, structures, and declarations are for  */
   /* communication with the debugger in the autofit module; */
   /* normal programs don't need this                        */
   struct  AF_GlyphHintsRec_;
@@ -137,6 +138,10 @@
     int          cff_hinting_engine;
     int          tt_interpreter_version;
 
+    FT_MM_Var*   mm;
+    FT_Fixed     design_pos[T1_MAX_MM_AXIS];
+    FT_UInt      current_axis;
+
   } GridStatusRec, *GridStatus;
 
   static GridStatusRec  status;
@@ -163,6 +168,9 @@
     st->Num           = 0;
     st->gamma         = 1.0;
     st->header        = "";
+
+    st->mm            = NULL;
+    st->current_axis  = 0;
   }
 
 
@@ -669,7 +677,7 @@
     grWriteln( "i, k        move grid up/down             V         toggle vert. hinting    " );
     grWriteln( "j, l        move grid left/right          B         toggle blue zone hinting" );
     grWriteln( "PgUp, PgDn  zoom in/out grid              s         toggle segment drawing  " );
-    grWriteln( "SPC         reset zoom and position                 (unfitted, with blues)  " );
+    grWriteln( "SPC         reset zoom and position                  (unfitted, with blues) " );
     grWriteln( "                                          1         dump edge hints         " );
     grWriteln( "p, n        previous/next font            2         dump segment hints      " );
     grWriteln( "                                          3         dump point hints        " );
@@ -682,7 +690,7 @@
     grWriteln( "Up, Down    adjust size by 0.5pt                                            " );
     grWriteln( "                                        if not autohinting:                 " );
     grWriteln( "Left, Right adjust index by 1             H         cycle through hinting   " );
-    grWriteln( "F7, F8      adjust index by 10                        engines (if available)" );
+    grWriteln( "F7, F8      adjust index by 10                       engines (if available) " );
     grWriteln( "F9, F10     adjust index by 100                                             " );
     grWriteln( "F11, F12    adjust index by 1000        d           toggle dots display     " );
     grWriteln( "                                        o           toggle outline display  " );
@@ -691,6 +699,11 @@
     grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
     grWriteln( "                                                                            " );
     grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftgrid             " );
+    grWriteln( "                                                                            " );
+    grWriteln( "if Multiple Master or GX font:                                              " );
+    grWriteln( "  F2        cycle through axes                                              " );
+    grWriteln( "  F3, F4    adjust current axis by                                          " );
+    grWriteln( "             1/50th of its range                                            " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -847,10 +860,51 @@
 
 
   static void
+  event_axis_change( int  delta )
+  {
+    FT_Error      error;
+    FT_Size       size;
+    FT_Var_Axis*  a;
+    FT_Fixed      pos;
+
+
+    error = FTDemo_Get_Size( handle, &size );
+    if ( error )
+      return;
+
+    if ( !status.mm )
+      return;
+
+    a   = status.mm->axis + status.current_axis;
+    pos = status.design_pos[status.current_axis];
+
+    /*
+     * Normalize i.  Changing by 20 is all very well for PostScript fonts,
+     * which tend to have a range of ~1000 per axis, but it's not useful
+     * for mac fonts, which have a range of ~3.  And it's rather extreme
+     * for optical size even in PS.
+     */
+    pos += FT_MulDiv( delta, a->maximum - a->minimum, 1000 );
+    if ( pos < a->minimum )
+      pos = a->minimum;
+    if ( pos > a->maximum )
+      pos = a->maximum;
+
+    status.design_pos[status.current_axis] = pos;
+
+    (void)FT_Set_Var_Design_Coordinates( size->face,
+                                         status.mm->num_axis,
+                                         status.design_pos );
+  }
+
+
+  static void
   event_font_change( int  delta )
   {
-    int  num_indices;
-
+    FT_Error  error;
+    FT_Size   size;
+    FT_UInt   n;
+    int       num_indices;
 
     if ( status.font_index + delta >= handle->num_fonts ||
          status.font_index + delta < 0                  )
@@ -866,6 +920,21 @@
 
     if ( status.Num >= num_indices )
       status.Num = num_indices - 1;
+
+    error = FTDemo_Get_Size( handle, &size );
+    if ( error )
+      return;
+
+    error = FT_Get_MM_Var( size->face, &status.mm );
+    if ( error )
+      return;
+
+    for ( n = 0; n < status.mm->num_axis; n++ )
+      status.design_pos[n] = status.mm->axis[n].def;
+
+    (void)FT_Set_Var_Design_Coordinates( size->face,
+                                         status.mm->num_axis,
+                                         status.design_pos );
   }
 
 
@@ -1047,6 +1116,16 @@
     case grKeyPageUp:   event_grid_zoom( 1.25     ); break;
     case grKeyPageDown: event_grid_zoom( 1 / 1.25 ); break;
 
+    case grKeyF2:       if ( status.mm )
+                        {
+                          status.current_axis++;
+                          status.current_axis %= status.mm->num_axis;
+                        }
+                        break;
+
+    case grKeyF3:       event_axis_change( -20 ); break;
+    case grKeyF4:       event_axis_change(  20 ); break;
+
     default:
       ;
     }
@@ -1101,10 +1180,22 @@
     grWriteCellString( display->bitmap, 0, 0, status.header,
                        display->fore_color );
 
-    format = " %gpt, glyph %d";
-
-    snprintf( status.header_buffer, BUFSIZE, format,
-              status.ptsize / 64.0, status.Num );
+    if ( status.mm )
+    {
+      format = " %s axis: %.02f, %gpt, glyph %d";
+      snprintf( status.header_buffer, BUFSIZE, format,
+                status.mm->axis[status.current_axis].name,
+                status.design_pos[status.current_axis] / 65536.0,
+                status.ptsize / 64.0,
+                status.Num );
+    }
+    else
+    {
+      format = " %gpt, glyph %d";
+      snprintf( status.header_buffer, BUFSIZE, format,
+                status.ptsize / 64.0,
+                status.Num );
+    }
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
@@ -1324,10 +1415,11 @@
 
     printf( "Execution completed successfully.\n" );
 
+    free( status.mm );
     FTDemo_Display_Done( display );
     FTDemo_Done( handle );
-    exit( 0 );      /* for safety reasons */
 
+    exit( 0 );      /* for safety reasons */
     return 0;       /* never reached */
   }
 

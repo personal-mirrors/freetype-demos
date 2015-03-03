@@ -1,5 +1,22 @@
 2015-03-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Add support for MM (and GX) fonts.
+
+	F2 selects the axis, F3 and F4 change the axis value.
+
+	The new code is adapted from `ftmulti.c'.
+
+	* src/ftgrid.c: Include FT_MULTIPLE_MASTERS_H.
+	(GridStatusRec): Add `mm', `design_pos', and `current_axis' fields.
+	(grid_status_init): Initialize new fields.
+	(event_help): Updated.
+	(event_axis_change): New function.
+	(event_font_change): Handle MM data.
+	(Process_Event): Handle new keys.
+	(write_header, main): Updated.
+
+2015-03-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Less verbose header line.
 
 	* src/ftgrid.c (BUFSIZE): New macro.
