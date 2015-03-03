@@ -423,7 +423,7 @@
     grLn();
     grWriteln( "Use the following keys:");
     grLn();
-    grWriteln( "  F1 or ?   : display this help screen" );
+    grWriteln( "  ?         : display this help screen" );
     grWriteln( "  a         : toggle anti-aliasing" );
     grWriteln( "  h         : toggle outline hinting" );
     grWriteln( "  b         : toggle embedded bitmaps" );
@@ -440,12 +440,14 @@
     grWriteln( "  Right     : increment first glyph index" );
     grWriteln( "  Left      : decrement first glyph index" );
     grLn();
-    grWriteln( "  F3        : decrement first axis pos by 1/50th of its range" );
-    grWriteln( "  F4        : increment first axis pos by 1/50th of its range" );
-    grWriteln( "  F5        : decrement second axis pos by 1/50th of its range" );
-    grWriteln( "  F6        : increment second axis pos by 1/50th of its range" );
-    grWriteln( "  F7        : decrement third axis pos by 1/50th of its range" );
-    grWriteln( "  F8        : increment third axis pos by 1/50th of its range" );
+    grWriteln( "  F1        : decrement first axis pos by 1/50th of its range" );
+    grWriteln( "  F2        : increment first axis pos by 1/50th of its range" );
+    grWriteln( "  F3        : decrement second axis pos by 1/50th of its range" );
+    grWriteln( "  F4        : increment second axis pos by 1/50th of its range" );
+    grWriteln( "  F5        : decrement third axis pos by 1/50th of its range" );
+    grWriteln( "  F6        : increment third axis pos by 1/50th of its range" );
+    grWriteln( "  F7        : decrement fourth axis pos by 1/50th of its range" );
+    grWriteln( "  F8        : increment fourth axis pos by 1/50th of its range" );
     grWriteln( "  F9        : decrement index by 100" );
     grWriteln( "  F10       : increment index by 100" );
     grWriteln( "  F11       : decrement index by 1000" );
@@ -470,7 +472,6 @@
     case grKEY( 'q' ):
       return 0;
 
-    case grKeyF1:
     case grKEY( '?' ):
       Help();
       return 1;
@@ -508,34 +509,44 @@
 
     /* MM related keys */
 
-    case grKeyF3:
+    case grKeyF1:
       i = -20;
       axis = 0;
+      goto Do_Axis;
+
+    case grKeyF2:
+      i = 20;
+      axis = 0;
+      goto Do_Axis;
+
+    case grKeyF3:
+      i = -20;
+      axis = 1;
       goto Do_Axis;
 
     case grKeyF4:
       i = 20;
-      axis = 0;
+      axis = 1;
       goto Do_Axis;
 
     case grKeyF5:
       i = -20;
-      axis = 1;
+      axis = 2;
       goto Do_Axis;
 
     case grKeyF6:
       i = 20;
-      axis = 1;
+      axis = 2;
       goto Do_Axis;
 
     case grKeyF7:
       i = -20;
-      axis = 2;
+      axis = 3;
       goto Do_Axis;
 
     case grKeyF8:
       i = 20;
-      axis = 2;
+      axis = 3;
       goto Do_Axis;
 
     /* scaling related keys */
@@ -590,13 +601,16 @@
   Do_Axis:
     if ( axis < (int)multimaster->num_axis )
     {
-      FT_Var_Axis* a   = multimaster->axis + axis;
-      FT_Fixed     pos = design_pos[axis];
+      FT_Var_Axis*  a   = multimaster->axis + axis;
+      FT_Fixed      pos = design_pos[axis];
 
-      /* Normalize i. changing by 20 is all very well for PostScript fonts  */
-      /*  which tend to have a range of ~1000 per axis, but it's not useful */
-      /*  for mac fonts which have a range of ~3.                           */
-      /* And it's rather extreme for optical size even in PS                */
+
+      /*
+       * Normalize i.  Changing by 20 is all very well for PostScript fonts,
+       * which tend to have a range of ~1000 per axis, but it's not useful
+       * for mac fonts, which have a range of ~3.  And it's rather extreme
+       * for optical size even in PS.
+       */
       pos += FT_MulDiv( i, a->maximum-a->minimum, 1000 );
       if ( pos < a->minimum ) pos = a->minimum;
       if ( pos > a->maximum ) pos = a->maximum;

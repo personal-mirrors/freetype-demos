@@ -1,5 +1,14 @@
 2015-03-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftmulti] Use F1-F8 keys to handle four axes.
+
+	Previously, we used F1 for help and F3-F8 for three axes.
+
+	* src/ftmulti.c (Process_Event): Implement.
+	(Help): Updated.
+
+2015-03-03  Werner Lemberg  <wl@gnu.org>
+
 	Recommend `?' instead of `F1' for help.
 
 	Usually, both `F1' and `?' map to the help screen.  However, not all
