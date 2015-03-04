@@ -80,12 +80,12 @@
 #define FACE_SIZE   10
 
 
-  FT_Library        lib;
-  FTC_Manager       cache_man;
-  FTC_CMapCache     cmap_cache;
-  FTC_ImageCache    image_cache;
-  FTC_SBitCache     sbit_cache;
-  FTC_ImageTypeRec  font_type;
+  static FT_Library        lib;
+  static FTC_Manager       cache_man;
+  static FTC_CMapCache     cmap_cache;
+  static FTC_ImageCache    image_cache;
+  static FTC_SBitCache     sbit_cache;
+  static FTC_ImageTypeRec  font_type;
 
 
   enum {
@@ -103,7 +103,7 @@
   };
 
 
-  const char*  bench_desc[] =
+  static const char*  bench_desc[] =
   {
     "load a glyph        (FT_Load_Glyph)",
     "load advance widths (FT_Get_Advances)",
@@ -119,23 +119,23 @@
   };
 
 
-  int    preload;
-  char*  filename;
+  static int    preload;
+  static char*  filename;
 
-  unsigned int  first_index;
+  static unsigned int  first_index;
 
-  FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
-  FT_Int32        load_flags  = FT_LOAD_DEFAULT;
+  static FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
+  static FT_Int32        load_flags  = FT_LOAD_DEFAULT;
 
-  int  default_hinting_engine;
-  int  default_interpreter_version;
+  static int  default_hinting_engine;
+  static int  default_interpreter_version;
 
 
   /*
    * Dummy face requester (the face object is already loaded)
    */
 
-  FT_Error
+  static FT_Error
   face_requester( FTC_FaceID  face_id,
                   FT_Library  library,
                   FT_Pointer  request_data,
@@ -237,14 +237,15 @@
              FT_Face    face,
              void*      user_data )
   {
-    int  i, done = 0;
+    unsigned int  i;
+    int           done = 0;
 
     FT_UNUSED( user_data );
 
 
     TIMER_START( timer );
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       if ( !FT_Load_Glyph( face, i, load_flags ) )
         done++;
@@ -256,7 +257,7 @@
   }
 
 
-  int
+  static int
   test_load_advances( btimer_t*  timer,
                       FT_Face    face,
                       void*      user_data )
@@ -266,14 +267,17 @@
     FT_ULong   flags = *((FT_ULong*)user_data);
 
 
-    advances = (FT_Fixed *)calloc( sizeof ( FT_Fixed ), face->num_glyphs );
+    advances = (FT_Fixed *)calloc( sizeof ( FT_Fixed ),
+                                   (size_t)face->num_glyphs );
 
     TIMER_START( timer );
 
     FT_Get_Advances( face,
-                     first_index, face->num_glyphs - first_index,
-                     flags, advances );
-    done += face->num_glyphs - first_index;
+                     first_index,
+                     (unsigned int)face->num_glyphs - first_index,
+                     (FT_Int32)flags,
+                     advances );
+    done += face->num_glyphs - (int)first_index;
 
     TIMER_STOP( timer );
 
@@ -288,12 +292,13 @@
                FT_Face    face,
                void*      user_data )
   {
-    int  i, done = 0;
+    unsigned int  i;
+    int           done = 0;
 
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -313,12 +318,13 @@
                  FT_Face    face,
                  void*      user_data )
   {
-    int  i, done = 0;
+    unsigned int  i;
+    int           done = 0;
 
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -338,13 +344,14 @@
                   FT_Face    face,
                   void*      user_data )
   {
-    FT_Glyph  glyph;
-    int       i, done = 0;
+    FT_Glyph      glyph;
+    unsigned int  i;
+    int           done = 0;
 
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -367,14 +374,15 @@
                  FT_Face    face,
                  void*      user_data )
   {
-    FT_Glyph  glyph;
-    FT_BBox   bbox;
-    int       i, done = 0;
+    FT_Glyph      glyph;
+    FT_BBox       bbox;
+    unsigned int  i;
+    int           done = 0;
 
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -399,14 +407,15 @@
                  FT_Face    face,
                  void*      user_data )
   {
-    FT_BBox    bbox;
-    int        i, done = 0;
-    FT_Matrix  rot30 = { 0xDDB4, -0x8000, 0x8000, 0xDDB4 };
+    FT_BBox       bbox;
+    unsigned int  i;
+    int           done  = 0;
+    FT_Matrix     rot30 = { 0xDDB4, -0x8000, 0x8000, 0xDDB4 };
 
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       FT_Outline*  outline;
 
@@ -492,8 +501,9 @@
                     FT_Face    face,
                     void*      user_data )
   {
-    FT_Glyph  glyph;
-    int       i, done = 0;
+    FT_Glyph      glyph;
+    unsigned int  i;
+    int           done = 0;
 
     FT_UNUSED( user_data );
 
@@ -506,7 +516,7 @@
 
     TIMER_START( timer );
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       if ( !FTC_ImageCache_Lookup( image_cache,
                                    &font_type,
@@ -527,8 +537,9 @@
                    FT_Face    face,
                    void*      user_data )
   {
-    FTC_SBit  glyph;
-    int       i, done = 0;
+    FTC_SBit      glyph;
+    unsigned int  i;
+    int           done = 0;
 
     FT_UNUSED( user_data );
 
@@ -541,7 +552,7 @@
 
     TIMER_START( timer );
 
-    for ( i = first_index; i < face->num_glyphs; i++ )
+    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
     {
       if ( !FTC_SBitCache_Lookup( sbit_cache,
                                   &font_type,
@@ -615,7 +626,7 @@
     int       i;
 
 
-    charset->code = (FT_ULong*)calloc( face->num_glyphs,
+    charset->code = (FT_ULong*)calloc( (size_t)face->num_glyphs,
                                        sizeof ( FT_ULong ) );
     if ( !charset->code )
       return;
@@ -637,11 +648,13 @@
     }
     else
     {
-      int  j;
+      unsigned int  j;
 
 
       /* no charmap, do an identity mapping */
-      for ( i = 0, j = first_index; j < face->num_glyphs; i++, j++ )
+      for ( i = 0, j = first_index;
+            j < (unsigned int)face->num_glyphs;
+            i++, j++ )
         charset->code[i] = j;
     }
 
@@ -673,7 +686,7 @@
         }
 
         fseek( file, 0, SEEK_END );
-        memory_size = ftell( file );
+        memory_size = (size_t)ftell( file );
         fseek( file, 0, SEEK_SET );
 
         memory_file = (FT_Byte*)malloc( memory_size );
@@ -697,7 +710,7 @@
 
       error = FT_New_Memory_Face( lib,
                                   memory_file,
-                                  memory_size,
+                                  (FT_Long)memory_size,
                                   face_index,
                                   face );
     }
@@ -780,15 +793,16 @@
     FT_Face   face;
     FT_Error  error;
 
-    long    max_bytes      = CACHE_SIZE * 1024;
-    char*   test_string    = NULL;
-    int     size           = FACE_SIZE;
-    int     max_iter       = 0;
-    double  max_time       = BENCH_TIME;
-    int     compare_cached = 0;
-    size_t  i;
-    int     hinting_engine;
-    int     interpreter_version;
+    unsigned long  max_bytes      = CACHE_SIZE * 1024;
+    char*          test_string    = NULL;
+    unsigned int   size           = FACE_SIZE;
+    int            max_iter       = 0;
+    double         max_time       = BENCH_TIME;
+    int            compare_cached = 0;
+    size_t         i;
+    int            j;
+    int            hinting_engine;
+    int            interpreter_version;
 
 
     if ( FT_Init_FreeType( &lib ) )
@@ -862,12 +876,23 @@
         break;
 
       case 'i':
-        first_index = atoi( optarg );
+        {
+          int  fi = atoi( optarg );
+
+
+          if ( fi > 0 )
+            first_index = (unsigned int)fi;
+        }
         break;
 
       case 'm':
-        max_bytes  = atoi( optarg );
-        max_bytes *= 1024;
+        {
+          int  mb = atoi( optarg );
+
+
+          if ( mb > 0 )
+            max_bytes = (unsigned int)mb * 1024;
+        }
         break;
 
       case 'p':
@@ -875,15 +900,28 @@
         break;
 
       case 'r':
-        render_mode = (FT_Render_Mode)atoi( optarg );
-        if ( render_mode >= FT_RENDER_MODE_MAX )
-          render_mode = FT_RENDER_MODE_NORMAL;
+        {
+          int  rm = atoi( optarg );
+
+
+          if ( rm < 0 || rm >= FT_RENDER_MODE_MAX )
+            render_mode = FT_RENDER_MODE_NORMAL;
+          else
+            render_mode = (FT_Render_Mode)rm;
+        }
         break;
 
       case 's':
-        size = atoi( optarg );
-        if ( size < 0 )
-          size = 1;
+        {
+          int  sz = atoi( optarg );
+
+
+          /* value 0 is special */
+          if ( sz < 0 )
+            size = 1;
+          else
+            size = (unsigned int)sz;
+        }
         break;
 
       case 't':
@@ -905,7 +943,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       default:
         usage();
@@ -936,7 +974,7 @@
         }
       }
       else
-        size = face->available_sizes[0].width;
+        size = (unsigned int)face->available_sizes[0].width;
     }
 
     FTC_Manager_New( lib,
@@ -948,8 +986,8 @@
                      &cache_man );
 
     font_type.face_id = (FTC_FaceID)1;
-    font_type.width   = (short)size;
-    font_type.height  = (short)size;
+    font_type.width   = size;
+    font_type.height  = size;
     font_type.flags   = load_flags;
 
     printf( "\n"
@@ -998,13 +1036,13 @@
     printf( "\n"
             "executing tests:\n" );
 
-    for ( i = 0; i < N_FT_BENCH; i++ )
+    for ( j = 0; j < N_FT_BENCH; j++ )
     {
       btest_t   test;
       FT_ULong  flags;
 
 
-      if ( !TEST( 'a' + i ) )
+      if ( !TEST( 'a' + j ) )
         continue;
 
       test.title       = NULL;
@@ -1012,7 +1050,7 @@
       test.cache_first = 0;
       test.user_data   = NULL;
 
-      switch ( i )
+      switch ( j )
       {
       case FT_BENCH_LOAD_GLYPH:
         test.title = "Load";
