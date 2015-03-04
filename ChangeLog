@@ -1,5 +1,14 @@
 2015-03-04  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Various compiler warning fixes.
+
+	* src/ttdebug.c: Decorate global variables/functions with `static'.
+	Signedness fixes.
+	(main): Protect various command line arguments against invalid
+	values.
+
+2015-03-04  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftlint.c: Various minor compiler warning fixes.
 
 2015-03-04  Werner Lemberg  <wl@gnu.org>

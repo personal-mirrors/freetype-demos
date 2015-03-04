@@ -66,19 +66,20 @@
 #define Restart  -2
 
 
-  FT_Library      library;    /* root library object */
-  FT_Memory       memory;     /* system object */
-  FT_Driver       driver;     /* truetype driver */
-  TT_Face         face;       /* truetype face */
-  TT_Size         size;       /* truetype size */
-  TT_GlyphSlot    glyph;      /* truetype glyph slot */
+  static FT_Library    library;    /* root library object */
+  static FT_Memory     memory;     /* system object       */
+  static FT_Driver     driver;     /* truetype driver     */
+  static TT_Face       face;       /* truetype face       */
+  static TT_Size       size;       /* truetype size       */
+  static TT_GlyphSlot  glyph;      /* truetype glyph slot */
 
-  int  default_version;       /* default TrueType engine version */
-  int  alternative_version;   /* alternative TrueType engine version */
+  static int  default_version;     /* default TrueType engine version     */
+  static int  alternative_version; /* alternative TrueType engine version */
 
-  FT_Bool  use_float = 0;     /* number format */
+  static FT_Bool  use_float = 0;     /* number format */
 
-  FT_Error  error;
+  static FT_Error  error;
+
 
   typedef char  ByteStr[2];
   typedef char  WordStr[4];
@@ -87,12 +88,14 @@
 
   static DebugStr  tempStr;
 
+
   typedef struct  Storage_
   {
     FT_Bool  initialized;
     FT_Long  value;
 
   } Storage;
+
 
   typedef struct  Breakpoint_
   {
@@ -102,7 +105,7 @@
   } Breakpoint;
 
   /* right now, we support a single breakpoint only */
-  Breakpoint  breakpoint;
+  static Breakpoint  breakpoint;
 
 
 #undef  PACK
@@ -672,11 +675,11 @@
 
 #ifdef UNIX
 
-  struct termios  old_termio;
+  static struct termios  old_termio;
 
 
-  static
-  void Init_Keyboard( void )
+  static void
+  Init_Keyboard( void )
   {
     struct termios  termio;
 
@@ -690,9 +693,9 @@
     termio = old_termio;
 
 #if 0
-    termio.c_lflag &= ~( ICANON + ECHO + ECHOE + ECHOK + ECHONL + ECHOKE );
+    termio.c_lflag &= (tcflag_t)~( ICANON + ECHO + ECHOE + ECHOK + ECHONL + ECHOKE );
 #else
-    termio.c_lflag &= ~( ICANON + ECHO + ECHOE + ECHOK + ECHONL );
+    termio.c_lflag &= (tcflag_t)~( ICANON + ECHO + ECHOE + ECHOK + ECHONL );
 #endif
 
 #ifndef HAVE_TCSETATTR
@@ -703,8 +706,8 @@
   }
 
 
-  static
-  void Reset_Keyboard( void )
+  static void
+  Reset_Keyboard( void )
   {
 #ifndef HAVE_TCSETATTR
     ioctl( 0, TCSETS, &old_termio );
@@ -715,20 +718,20 @@
 
 #else /* !UNIX */
 
-  static
-  void Init_Keyboard( void )
+  static void
+  Init_Keyboard( void )
   {
   }
 
-  static
-  void Reset_Keyboard( void )
+  static void
+  Reset_Keyboard( void )
   {
   }
 
 #endif /* !UNIX */
 
 
-  void
+  static void
   Abort( const char*  message )
   {
     fprintf( stderr, "%s\n  error code = 0x%04x.\n", message, error );
@@ -805,7 +808,7 @@
 
   /* Disassemble the current line. */
   /*                               */
-  const FT_String*
+  static const FT_String*
   Cur_U_Line( TT_ExecContext  exc )
   {
     FT_String  s[32];
@@ -1328,7 +1331,7 @@
       do
       {
         /* read keyboard */
-        ch = getch();
+        ch = (FT_String)getch();
 
         switch ( ch )
         {
@@ -1513,7 +1516,7 @@
             printf( "At top level.\n" );
           else
           {
-            FT_UInt  i;
+            FT_Int  i;
 
 
             printf( "Function call backtrace\n"
@@ -1872,9 +1875,9 @@
   }
 
 
-  char*  file_name;
-  int    glyph_index;
-  int    glyph_size;
+  static char*         file_name;
+  static unsigned int  glyph_index;
+  static int           glyph_size;
 
 
   int
@@ -1886,6 +1889,8 @@
     char   version_string[64];
 
     int  change_interpreter_version = 0;
+
+    int  tmp;
 
 
     /* init library, read face object, get driver, create size */
@@ -1909,7 +1914,7 @@
                          "ttdebug (FreeType) %d.%d",
                          major, minor );
       if ( patch )
-        offset = snprintf( version_string + offset, 64 - offset,
+        offset = snprintf( version_string + offset, (size_t)( 64 - offset ),
                            ".%d",
                            patch );
     }
@@ -1939,7 +1944,7 @@
       case 'v':
         printf( "%s\n", version_string );
         exit( 0 );
-        break;
+        /* break; */
 
       default:
         Usage( execname );
@@ -1954,14 +1959,15 @@
       Usage( execname );
 
     /* get glyph index */
-    if ( sscanf( argv[0], "%d", &glyph_index ) != 1 )
+    if ( sscanf( argv[0], "%d", &tmp ) != 1 || tmp < 0 )
     {
       printf( "invalid glyph index = %s\n", argv[1] );
       Usage( execname );
     }
+    glyph_index = (unsigned int)tmp;
 
     /* get glyph size */
-    if ( sscanf( argv[1], "%d", &glyph_size ) != 1 )
+    if ( sscanf( argv[1], "%d", &glyph_size ) != 1 || glyph_size < 0 )
     {
       printf( "invalid glyph size = %s\n", argv[1] );
       Usage( execname );
@@ -2005,15 +2011,19 @@
       size = (TT_Size)face->root.size;
 
       error = FT_Set_Char_Size( (FT_Face)face,
-                                glyph_size << 6, glyph_size << 6,
-                                72, 72 );
+                                glyph_size << 6,
+                                glyph_size << 6,
+                                72,
+                                72 );
       if ( error )
         Abort( "could not set character size" );
 
       glyph = (TT_GlyphSlot)face->root.glyph;
 
       /* now load glyph */
-      error = FT_Load_Glyph( (FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP );
+      error = FT_Load_Glyph( (FT_Face)face,
+                             (FT_UInt)glyph_index,
+                             FT_LOAD_NO_BITMAP );
       if ( error && error != Quit && error != Restart )
         Abort( "could not load glyph" );
       if ( error == Restart )
