@@ -29,25 +29,25 @@
 #include <string.h>
 
 
-  FT_Error  error;
+  static FT_Error  error;
 
-  int  comma_flag  = 0;
-  int  verbose     = 0;
-  int  debug       = 0;
-  int  trace_level = 0;
-  int  name_tables = 0;
+  static int  comma_flag  = 0;
+  static int  verbose     = 0;
+  static int  debug       = 0;
+  static int  trace_level = 0;
+  static int  name_tables = 0;
 
 
   /* PanicZ */
-  static
-  void  PanicZ( const char*  message )
+  static void
+  PanicZ( const char*  message )
   {
     fprintf( stderr, "%s\n  error = 0x%04x\n", message, error );
     exit( 1 );
   }
 
 
-  void
+  static void
   Print_Comma( const char*  message )
   {
     if ( comma_flag )
@@ -88,7 +88,7 @@
   }
 
 
-  void
+  static void
   Print_Name( FT_Face  face )
   {
     const char*  ps_name;
@@ -109,7 +109,7 @@
   }
 
 
-  void
+  static void
   Print_Type( FT_Face  face )
   {
     FT_Module  module;
@@ -371,7 +371,7 @@
   }
 
 
-  void
+  static void
   Print_Sfnt_Names( FT_Face  face )
   {
     FT_SfntName  name;
@@ -478,7 +478,7 @@
   }
 
 
-  void
+  static void
   Print_Fixed( FT_Face  face )
   {
     int  i;
@@ -502,7 +502,7 @@
   }
 
 
-  void
+  static void
   Print_Charmaps( FT_Face  face )
   {
     int  i, active = -1;
@@ -613,7 +613,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       case 'V':
         verbose = 1;
@@ -667,7 +667,7 @@
       goto Success;
 
 #ifndef macintosh
-    i = strlen( argv[file] );
+    i = (int)strlen( argv[file] );
     while ( i > 0 && argv[file][i] != '\\' && argv[file][i] != '/' )
     {
       if ( argv[file][i] == '.' )
@@ -733,7 +733,7 @@
     FT_Done_FreeType( library );
 
     exit( 0 );      /* for safety reasons */
-    return 0;       /* never reached */
+    /* return 0; */ /* never reached */
   }
 
 
