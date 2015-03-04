@@ -23,24 +23,20 @@
 
 #define  xxTEST_PSNAMES
 
-#define gettext( x )  ( x )
 
-  FT_Error      error;
+  static FT_Error  error;
 
-  FT_Library    library;
-  FT_Face       face;
-  FT_Size       size;
-  FT_GlyphSlot  slot;
+  static FT_Library    library;
+  static FT_Face       face;
 
-  unsigned int  num_glyphs;
-  int           ptsize;
+  static unsigned int  num_glyphs;
+  static int           ptsize;
 
-  int  Fail;
-  int  Num;
+  static int  Fail;
 
 
-
-  static void  Usage( char*  name )
+  static void
+  Usage( char*  name )
   {
     printf( "ftlint: simple font tester -- part of the FreeType project\n" );
     printf( "----------------------------------------------------------\n" );
@@ -52,14 +48,17 @@
   }
 
 
-  static void  Panic( const char*  message )
+  static void
+  Panic( const char*  message )
   {
     fprintf( stderr, "%s\n  error code = 0x%04x\n", message, error );
     exit(1);
   }
 
 
-  int  main( int  argc, char**  argv )
+  int
+  main( int     argc,
+        char**  argv )
   {
     int           i, file_index;
     unsigned int  id;
@@ -103,7 +102,7 @@
       /* ok, we could not load the file, try to add an extension to */
       /* its name if possible..                                     */
 
-      i     = strlen( fname );
+      i = (int)strlen( fname );
       while ( i > 0 && fname[i] != '\\' && fname[i] != '/' )
       {
         if ( fname[i] == '.' )
@@ -124,7 +123,7 @@
         strncpy( alt_filename + strlen( alt_filename ), ".ttc", 4 );
       }
 #endif
-      i     = strlen( filename );
+      i     = (int)strlen( filename );
       fname = filename;
 
       while ( i >= 0 )
@@ -155,7 +154,7 @@
       if (error) Panic( "Could not open file" );
 
   Success:
-      num_glyphs = face->num_glyphs;
+      num_glyphs = (unsigned int)face->num_glyphs;
 
 #ifdef  TEST_PSNAMES
       {
@@ -196,7 +195,7 @@
     FT_Done_FreeType(library);
     exit( 0 );      /* for safety reasons */
 
-    return 0;       /* never reached */
+    /* return 0; */ /* never reached */
   }
 
 
