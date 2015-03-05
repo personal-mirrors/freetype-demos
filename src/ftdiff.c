@@ -186,8 +186,8 @@
     unsigned char  filter_weights[5];
     int            fw_index;
 
-    int            cff_hinting_engine;
-    int            tt_interpreter_version;
+    unsigned int   cff_hinting_engine;
+    unsigned int   tt_interpreter_version;
 
   } ColumnStateRec, *ColumnState;
 
@@ -206,13 +206,13 @@
   {
     FT_Library      library;
     const char*     text;
-    int             resolution;
-    float           char_size;
+    unsigned int    resolution;
+    double          char_size;
     int             need_rescale;
     int             col;
     ColumnStateRec  columns[3];
     FontFace        faces;
-    int             num_faces;
+    unsigned int    num_faces;
     int             face_index;
     const char*     filepath;
     const char*     filename;
@@ -305,8 +305,8 @@
 
 
   static void
-  render_state_set_resolution( RenderState  state,
-                               int          resolution )
+  render_state_set_resolution( RenderState   state,
+                               unsigned int  resolution )
   {
     state->resolution   = resolution;
     state->need_rescale = 1;
@@ -315,7 +315,7 @@
 
   static void
   render_state_set_size( RenderState  state,
-                         float        char_size )
+                         double       char_size )
   {
     state->char_size    = char_size;
     state->need_rescale = 1;
@@ -340,9 +340,9 @@
                           char**       files,
                           char*        execname )
   {
-    FontFace  faces     = NULL;
-    int       num_faces = 0;
-    int       max_faces = 0;
+    FontFace      faces     = NULL;
+    unsigned int  num_faces = 0;
+    unsigned int  max_faces = 0;
 
 
     state->files = files;
@@ -363,7 +363,7 @@
         continue;
       }
 
-      num_subfonts = (int)face->num_faces;
+      num_subfonts = face->num_faces;
 
       FT_Done_Face( face );
 
@@ -450,8 +450,8 @@
     const char*  filepath;
 
 
-    if ( idx < 0                 ||
-         idx >= state->num_faces )
+    if ( idx < 0                      ||
+         idx >= (int)state->num_faces )
       return -1;
 
     state->face_index = idx;
@@ -567,7 +567,7 @@
       FT_UInt       gindex;
       FT_GlyphSlot  slot = face->glyph;
       FT_Bitmap*    map  = &slot->bitmap;
-      int           xmax;
+      FT_Long       xmax;
 
 
       ch = utf8_next( &p, p_end );
@@ -624,7 +624,7 @@
         have_0x0D = 0;
       }
 
-      gindex = FT_Get_Char_Index( state->face, ch );
+      gindex = FT_Get_Char_Index( state->face, (FT_ULong)ch );
       error  = FT_Load_Glyph( face, gindex, load_flags );
 
       if ( error )
@@ -633,7 +633,7 @@
       if ( column->use_kerning && gindex != 0 && prev_glyph != 0 )
       {
         FT_Vector  vec;
-        FT_Int     kerning_mode = FT_KERNING_DEFAULT;
+        FT_UInt    kerning_mode = FT_KERNING_DEFAULT;
 
 
         if ( rmode == HINT_MODE_UNHINTED )
@@ -674,7 +674,8 @@
           xmax = ( x_origin + cbox.xMax + 63 ) >> 6;
         }
         else
-          xmax = ( x_origin >> 6 ) + slot->bitmap_left + slot->bitmap.width;
+          xmax = ( x_origin >> 6 ) +
+                 slot->bitmap_left + (FT_Long)slot->bitmap.width;
       }
       else
       {
@@ -716,7 +717,7 @@
         state->display.disp_draw( state->display.disp, mode,
                                   ( x_origin >> 6 ) + slot->bitmap_left,
                                   y - slot->bitmap_top,
-                                  map->width, map->rows,
+                                  (int)map->width, (int)map->rows,
                                   map->pitch, map->buffer );
       }
       if ( rmode == HINT_MODE_UNHINTED )
@@ -925,7 +926,9 @@
       pitch = -pitch;
 
     if ( bit->mode == gr_pixel_mode_gray )
-      memset( bit->buffer, display->back_color.value, pitch * bit->rows );
+      memset( bit->buffer,
+              display->back_color.value,
+              (unsigned int)( pitch * bit->rows ) );
     else
     {
       unsigned char*  p = bit->buffer;
@@ -1416,7 +1419,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       case 'w':
         width = atoi( optarg );
@@ -1446,18 +1449,18 @@
         fprintf( stderr, "could not read textfile '%s'\n", textfile );
       else
       {
-        long  tsize;
+        int  tsize;
 
 
         fseek( tfile, 0, SEEK_END );
         tsize = ftell( tfile );
 
         fseek( tfile, 0, SEEK_SET );
-        text = (char*)malloc( tsize + 1 );
+        text = (char*)malloc( (unsigned int)( tsize + 1 ) );
 
         if ( text != NULL )
         {
-          fread( text, tsize, 1, tfile );
+          fread( text, (unsigned int)tsize, 1, tfile );
           text[tsize] = 0;
         }
         else
@@ -1484,7 +1487,7 @@
     render_state_init( state, display, library );
 
     if ( resolution > 0 )
-      render_state_set_resolution( state, resolution );
+      render_state_set_resolution( state, (unsigned int)resolution );
 
     if ( size > 0.0 )
       render_state_set_size( state, size );
@@ -1546,7 +1549,7 @@
     adisplay_done( adisplay );
     exit( 0 );  /* for safety reasons */
 
-    return 0;   /* never reached */
+    /* return 0; */  /* never reached */
   }
 
 
