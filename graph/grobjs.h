@@ -140,27 +140,8 @@
   *
   ********************************************************************/
 
-  extern  unsigned char*  grAlloc( long size );
-
-
- /********************************************************************
-  *
-  * <Function>
-  *   grRealloc
-  *
-  * <Description>
-  *   Simple memory re-allocation.
-  *
-  * <Input>
-  *   block :: original memory block address
-  *   size  :: new requested block size in bytes
-  *
-  * <Return>
-  *   the memory block address. 0 in case of error
-  *
-  ********************************************************************/
-
-  extern unsigned char*  grRealloc( const unsigned char*  block, long size );
+  extern unsigned char*
+  grAlloc( unsigned long  size );
 
 
  /********************************************************************

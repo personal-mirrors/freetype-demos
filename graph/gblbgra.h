@@ -13,12 +13,12 @@
 
     do
     {
-      int  a  = GBLENDER_SHADE_INDEX(src[3]);
-      int  ra = src[3];
+      unsigned int  a  = GBLENDER_SHADE_INDEX(src[3]);
+      unsigned int  ra = src[3];
 
-      int  b = src[0];
-      int  g = src[1];
-      int  r = src[2];
+      unsigned int  b = src[0];
+      unsigned int  g = src[1];
+      unsigned int  r = src[2];
 
 
       if ( a == 0 )
@@ -27,21 +27,21 @@
       }
       else if ( a == 255 )
       {
-        dst[0] = r;
-        dst[1] = g;
-        dst[2] = b;
+        dst[0] = (unsigned char)r;
+        dst[1] = (unsigned char)g;
+        dst[2] = (unsigned char)b;
       }
       else
       {
-        int  ba = 255 - ra;
-        int  br = dst[0];
-        int  bb = dst[1];
-        int  bg = dst[2];
+        unsigned int  ba = 255 - ra;
+        unsigned int  br = dst[0];
+        unsigned int  bb = dst[1];
+        unsigned int  bg = dst[2];
 
 
-	dst[0] = br * ba / 255 + r;
-	dst[1] = bg * ba / 255 + g;
-	dst[2] = bb * ba / 255 + b;
+	dst[0] = (unsigned char)(br * ba / 255 + r);
+	dst[1] = (unsigned char)(bg * ba / 255 + g);
+	dst[2] = (unsigned char)(bb * ba / 255 + b);
       }
 
       src += 4;

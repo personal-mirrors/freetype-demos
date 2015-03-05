@@ -8,9 +8,9 @@
   gblender_use_channels( blender, 0 );
 
   /* make compiler happy */
-  (r)=(r);
-  (g)=(g);
-  (b)=(b);
+  (void)(r);
+  (void)(g);
+  (void)(b);
 
   do
   {

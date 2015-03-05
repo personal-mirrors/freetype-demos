@@ -33,16 +33,16 @@
         break;
 
       case gr_pixel_mode_rgb24:
-        color.chroma[0] = red;
-        color.chroma[1] = green;
-        color.chroma[2] = blue;
+        color.chroma[0] = (unsigned char)red;
+        color.chroma[1] = (unsigned char)green;
+        color.chroma[2] = (unsigned char)blue;
         break;
 
       case gr_pixel_mode_rgb32:
-        color.chroma[0] = red;
-        color.chroma[1] = green;
-        color.chroma[2] = blue;
-        color.chroma[3] = alpha;
+        color.chroma[0] = (unsigned char)red;
+        color.chroma[1] = (unsigned char)green;
+        color.chroma[2] = (unsigned char)blue;
+        color.chroma[3] = (unsigned char)alpha;
         break;
 
       default:
@@ -51,24 +51,25 @@
     return color;
   }
 
+
  /********************************************************************
   *
   * <Function>
-  *   grRealloc
+  *   grAlloc
   *
   * <Description>
-  *   Simple memory re-allocation.
+  *   Simple memory allocation. The returned block is always zero-ed
   *
   * <Input>
-  *   block :: original memory block address
-  *   size  :: new requested block size in bytes
+  *   size  :: size in bytes of the requested block
   *
   * <Return>
   *   the memory block address. 0 in case of error
   *
   ********************************************************************/
 
-  unsigned char*  grAlloc( long size )
+  unsigned char*
+  grAlloc( unsigned long  size )
   {
     unsigned char*  p;
 
@@ -81,36 +82,6 @@
     if (p)
       memset( p, 0, size );
 
-    return p;
-  }
-
-
- /********************************************************************
-  *
-  * <Function>
-  *   grRealloc
-  *
-  * <Description>
-  *   Simple memory re-allocation.
-  *
-  * <Input>
-  *   block :: original memory block address
-  *   size  :: new requested block size in bytes
-  *
-  * <Return>
-  *   the memory block address. 0 in case of error
-  *
-  ********************************************************************/
-
-  unsigned char*  grRealloc( const unsigned char*  block, long size )
-  {
-    unsigned char*  p;
-
-    p = (unsigned char *)realloc( (void*)block, size );
-    if (!p && size > 0)
-    {
-      grError = gr_err_memory;
-    }
     return p;
   }
 
@@ -223,7 +194,7 @@
     }
 
     bit->pitch  = pitch;
-    bit->buffer = grAlloc( (long)bit->pitch * bit->rows );
+    bit->buffer = grAlloc( (unsigned long)( bit->pitch * bit->rows ) );
     if (!bit->buffer) goto Fail;
 
     return 0;

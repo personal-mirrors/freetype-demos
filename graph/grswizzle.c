@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <memory.h>
 
+#include "grswizzle.h"
+
 /* technical note:
  *
  *   the following code is used to simulate the color display of an
@@ -102,7 +104,7 @@ copy_line_generic( unsigned char*    from,
   if (x+width < buff_width)
     width += 1;
 
-  memcpy( to, from, width*pix_bytes );
+  memcpy( to, from, (unsigned int)( width * pix_bytes ) );
 }
 
 
@@ -173,7 +175,7 @@ filter_rect_generic( unsigned char*   read_buff,
   read_buff  += y*read_pitch  + pix_bytes*x;
   write_buff += y*write_pitch + pix_bytes*x;
 
-  memset( temp_lines, 0, 3*pix_bytes*(width+2) );
+  memset( temp_lines, 0, (unsigned int)(3 * pix_bytes * ( width + 2 ) ) );
 
   lines[0] = (unsigned char*) temp_lines;
   lines[1] = lines[0] + pix_bytes*(width+2);
@@ -216,7 +218,7 @@ filter_rect_generic( unsigned char*   read_buff,
 
   /* process last line */
   if (y+height == buff_height)
-    memset( lines[2], 0, (width+2)*pix_bytes );
+    memset( lines[2], 0, (unsigned int)( ( width + 2 ) * pix_bytes ) );
   else
     copy_line_generic( read_buff + read_pitch, lines[2],
                        x, width, buff_width, pix_bytes );
@@ -254,7 +256,7 @@ swizzle_line_rgb24( unsigned char**  lines,
     int           off = nn + offset;
 
 #ifdef ANTIALIAS
-    sum  = current[off] << 2;
+    sum  = (unsigned int)current[off] << 2;
 
     sum += current[off-3] +
            current[off+3] +
@@ -547,7 +549,7 @@ gr_swizzle_generic( unsigned char*    read_buff,
 {
   unsigned char*  temp_lines;
   unsigned char   temp_local[ 2048 ];
-  int             temp_size;
+  unsigned int    temp_size;
 
   if ( height <= 0 || width <= 0 )
     return;
@@ -562,8 +564,8 @@ gr_swizzle_generic( unsigned char*    read_buff,
   * working 'lines', each of them having width+2 pixels. the first
   * and last pixels being always 0
   */
-  temp_size  = ((width+2)*3*pixbytes);
-  if ((size_t)temp_size <= sizeof(temp_local) )
+  temp_size = (unsigned int)( ( width + 2 ) * 3 * pixbytes );
+  if ( temp_size <= sizeof ( temp_local ) )
   {
     /* try to use stack allocation, which is a lot faster than malloc */
     temp_lines = temp_local;

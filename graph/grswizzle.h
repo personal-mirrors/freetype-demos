@@ -1,7 +1,7 @@
 #ifndef __gr_swizzle_h__
 #define __gr_swizzle_h__
 
-extern void
+void
 gr_swizzle_rect_rgb24( unsigned char*    read_buff,
                        int               read_pitch,
                        unsigned char*    write_buff,
@@ -13,7 +13,7 @@ gr_swizzle_rect_rgb24( unsigned char*    read_buff,
                        int               width,
                        int               height );
 
-extern void
+void
 gr_swizzle_rect_rgb565( unsigned char*    read_buff,
                         int               read_pitch,
                         unsigned char*    write_buff,
@@ -25,7 +25,7 @@ gr_swizzle_rect_rgb565( unsigned char*    read_buff,
                         int               width,
                         int               height );
 
-extern void
+void
 gr_swizzle_rect_xrgb32( unsigned char*    read_buff,
                         int               read_pitch,
                         unsigned char*    write_buff,

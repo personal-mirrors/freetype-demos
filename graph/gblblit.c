@@ -133,7 +133,7 @@
                                  p = GBGR565_TO_RGB24(p)
 
 #define  GDST_COPY_VAR           unsigned short  pix = GRGB_TO_BGR565(r,g,b);
-#define  GDST_COPY(d)            *(d) = pix
+#define  GDST_COPY(d)            *(d) = (unsigned char)pix
 
 #define  GDST_STOREB(d,cells,a)                                   \
     {                                                             \
@@ -159,8 +159,8 @@ static void
 _gblender_blit_dummy( GBlenderBlit   blit,
                       GBlenderPixel  color )
 {
-  (blit)=(blit);
-  (color)=(color);
+  (void)blit;
+  (void)color;
 }
 
 

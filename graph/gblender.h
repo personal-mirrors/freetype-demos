@@ -75,16 +75,16 @@
 
    /* a small cache for RGB channels modes
     */
-    int                   cache_r_back;
-    int                   cache_r_fore;
+    unsigned int          cache_r_back;
+    unsigned int          cache_r_fore;
     unsigned char*        cache_r_cells;
 
-    int                   cache_g_back;
-    int                   cache_g_fore;
+    unsigned int          cache_g_back;
+    unsigned int          cache_g_fore;
     unsigned char*        cache_g_cells;
 
-    int                   cache_b_back;
-    int                   cache_b_fore;
+    unsigned int          cache_b_back;
+    unsigned int          cache_b_fore;
     unsigned char*        cache_b_cells;
 
    /* are we in color or channel mode ?
@@ -129,9 +129,9 @@
                    GBlenderPixel  foreground );
 
   GBLENDER_API( unsigned char* )
-  gblender_lookup_channel( GBlender   blender,
-                           int        background,
-                           int        foreground );
+  gblender_lookup_channel( GBlender      blender,
+                           unsigned int  background,
+                           unsigned int  foreground );
 
 #ifdef GBLENDER_STATS
   GBLENDER_API( void )
@@ -170,15 +170,15 @@
 
   /* no final `;'! */
 #define  GBLENDER_CHANNEL_VARS(_gb,_rfore,_gfore,_bfore)                                                                                         \
-   int              _grback  = (_gb)->cache_r_back;                                                                                              \
+   unsigned int     _grback  = (_gb)->cache_r_back;                                                                                              \
    unsigned char*   _grcells = ( (_rfore) == (_gb)->cache_r_fore ? (_gb)->cache_r_cells : gblender_lookup_channel( (_gb), _grback, _rfore ));    \
-   int              _grfore  = (_rfore);                                                                                                         \
-   int              _ggback  = (_gb)->cache_g_back;                                                                                              \
+   unsigned int     _grfore  = (_rfore);                                                                                                         \
+   unsigned int     _ggback  = (_gb)->cache_g_back;                                                                                              \
    unsigned char*   _ggcells = ( (_gfore) == (_gb)->cache_g_fore ? (_gb)->cache_g_cells : gblender_lookup_channel( (_gb), _ggback, _gfore ));    \
-   int              _ggfore  = (_rfore);                                                                                                         \
-   int              _gbback  = (_gb)->cache_b_back;                                                                                              \
+   unsigned int     _ggfore  = (_rfore);                                                                                                         \
+   unsigned int     _gbback  = (_gb)->cache_b_back;                                                                                              \
    unsigned char*   _gbcells = ( (_bfore) == (_gb)->cache_b_fore ? (_gb)->cache_b_cells : gblender_lookup_channel( (_gb), _gbback, _bfore ));    \
-   int              _gbfore  = (_bfore)
+   unsigned int     _gbfore  = (_bfore)
 
 #define  GBLENDER_CHANNEL_CLOSE(_gb)   \
   (_gb)->cache_r_back  = _grback;      \
@@ -194,7 +194,7 @@
 
 #define  GBLENDER_LOOKUP_R(gb,back)                                 \
    GBLENDER_STAT_HIT(gb);                                           \
-   if ( _grback != (int)(back) )                                    \
+   if ( _grback != (back) )                                         \
    {                                                                \
      _grback  = (GBlenderPixel)(back);                              \
      _grcells = gblender_lookup_channel( (gb), _grback, _grfore );  \
@@ -202,7 +202,7 @@
 
 #define  GBLENDER_LOOKUP_G(gb,back)                                 \
    GBLENDER_STAT_HIT(gb);                                           \
-   if ( _ggback != (int)(back) )                                    \
+   if ( _ggback != (back) )                                         \
    {                                                                \
      _ggback  = (GBlenderPixel)(back);                              \
      _ggcells = gblender_lookup_channel( (gb), _ggback, _ggfore );  \
@@ -210,7 +210,7 @@
 
 #define  GBLENDER_LOOKUP_B(gb,back)                                 \
    GBLENDER_STAT_HIT(gb);                                           \
-   if ( _gbback != (int)(back) )                                    \
+   if ( _gbback != (back) )                                         \
    {                                                                \
      _gbback  = (GBlenderPixel)(back);                              \
      _gbcells = gblender_lookup_channel( (gb), _gbback, _gbfore );  \

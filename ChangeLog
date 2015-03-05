@@ -1,3 +1,14 @@
+2015-03-05  Werner Lemberg  <wl@gnu.org>
+
+	[graph] Many compiler warning fixes.
+
+	* graph/*, graph/x11/*: Fix signedness issues.
+	Unified handling of unused variables.
+	Add `static' keyword where appropriate.
+	Include `foo.h' into `foo.c' where appropriate.
+
+	* graph/grobjs.c, graph/grobjs.h (grRealloc): Removed.  Unused.
+
 2015-03-04  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Various compiler warning fixes.

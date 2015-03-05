@@ -15,10 +15,10 @@
 
     do
     {
-      int  ar = GBLENDER_SHADE_INDEX(src[0]);
-      int  ag = GBLENDER_SHADE_INDEX(src[1]);
-      int  ab = GBLENDER_SHADE_INDEX(src[2]);
-      int  aa = (ar << 16) | (ag << 8) | ab;
+      unsigned int  ar = GBLENDER_SHADE_INDEX(src[0]);
+      unsigned int  ag = GBLENDER_SHADE_INDEX(src[1]);
+      unsigned int  ab = GBLENDER_SHADE_INDEX(src[2]);
+      unsigned int  aa = (ar << 16) | (ag << 8) | ab;
 
       if ( aa == 0 )
       {
@@ -38,7 +38,7 @@
         GDST_READ(dst,back);
 
         {
-          int  back_r = (back >> 16) & 255;
+          unsigned int  back_r = (back >> 16) & 255;
 
           GBLENDER_LOOKUP_R( blender, back_r );
 
@@ -46,7 +46,7 @@
         }
 
         {
-          int  back_g = (back >> 8) & 255;
+          unsigned int  back_g = (back >> 8) & 255;
 
           GBLENDER_LOOKUP_G( blender, back_g );
 
@@ -54,7 +54,7 @@
         }
 
         {
-          int  back_b = (back) & 255;
+          unsigned int  back_b = (back) & 255;
 
           GBLENDER_LOOKUP_B( blender, back_b );
 

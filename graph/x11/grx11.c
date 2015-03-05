@@ -40,6 +40,8 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 
+#include "grx11.h"
+
 
 #if defined( __cplusplus ) || defined( c_plusplus )
 #define Class  c_class
@@ -513,7 +515,7 @@ typedef  unsigned long   uint32;
 
     for ( ; h > 0; h-- )
     {
-      memcpy( line_write, line_read, blit->width * 3 );
+      memcpy( line_write, line_read, (unsigned int)( blit->width * 3 ) );
       line_read  += blit->src_pitch;
       line_write += blit->dst_pitch;
     }
@@ -1136,7 +1138,9 @@ typedef  unsigned long   uint32;
                  surface->win,
                  surface->gc,
                  surface->ximage,
-                 blit.x, blit.y, blit.x, blit.y, blit.width, blit.height );
+                 blit.x, blit.y,
+                 blit.x, blit.y,
+                 (unsigned int)blit.width, (unsigned int)blit.height );
     }
   }
 
@@ -1247,8 +1251,8 @@ typedef  unsigned long   uint32;
                    x_event.xexpose.y,
                    x_event.xexpose.x,
                    x_event.xexpose.y,
-                   x_event.xexpose.width,
-                   x_event.xexpose.height );
+                   (unsigned int)x_event.xexpose.width,
+                   (unsigned int)x_event.xexpose.height );
 #else
         gr_x11_surface_refresh_rectangle( surface,
                                           x_event.xexpose.x,
@@ -1333,8 +1337,8 @@ typedef  unsigned long   uint32;
       pximage->rows   = bitmap->rows;
     }
 
-    pximage->buffer =
-      (unsigned char*)grAlloc( pximage->pitch * pximage->rows );
+    pximage->buffer = (unsigned char*)grAlloc(
+                        (unsigned long)( pximage->pitch * pximage->rows ) );
     if ( !pximage->buffer )
       return 0;
 
@@ -1351,12 +1355,12 @@ typedef  unsigned long   uint32;
     /* Now create the surface X11 image */
     surface->ximage = XCreateImage( display,
                                     surface->visual,
-                                    format->x_depth,
+                                    (unsigned int)format->x_depth,
                                     ZPixmap,
                                     0,
                                     (char*)pximage->buffer,
-                                    pximage->width,
-                                    pximage->rows,
+                                    (unsigned int)pximage->width,
+                                    (unsigned int)pximage->rows,
                                     x11dev.scanline_pad,
                                     0 );
     if ( !surface->ximage )
@@ -1367,7 +1371,7 @@ typedef  unsigned long   uint32;
       XTextProperty         xtp;
       XSizeHints            xsh;
       XSetWindowAttributes  xswa;
-      long                  xswa_mask = CWBackPixel | CWEventMask | CWCursor;
+      unsigned long         xswa_mask = CWBackPixel | CWEventMask | CWCursor;
 
       pid_t                 pid;
       Atom                  _NET_WM_PID;
@@ -1400,8 +1404,8 @@ typedef  unsigned long   uint32;
                                     RootWindow( display, screen ),
                                     0,
                                     0,
-                                    bitmap->width,
-                                    bitmap->rows,
+                                    (unsigned int)bitmap->width,
+                                    (unsigned int)bitmap->rows,
                                     10,
                                     format->x_depth,
                                     InputOutput,
