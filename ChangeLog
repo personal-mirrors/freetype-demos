@@ -1,5 +1,13 @@
 2015-03-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Various minor compiler warning fixes.
+
+	* src/ftgrid.c: Fix signedness issues.
+	(event_axis_change, event_font_change): Avoid variable shadowing.
+	(CEIL, X_TOO_LONG, Y_TOO_LONG): Removed.  Unused.
+
+2015-03-06  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftgamma.c: Various minor compiler warning fixes.
 
 2015-03-06  Werner Lemberg  <wl@gnu.org>

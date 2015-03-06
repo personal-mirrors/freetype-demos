@@ -33,14 +33,6 @@
 
 #define MAXPTSIZE      500                 /* dtp */
 
-#undef  CEIL
-#define CEIL( x )  ( ( (x) + 63 ) >> 6 )
-
-#define X_TOO_LONG( x, size, display ) \
-          ( (x) + ( (size)->metrics.max_advance >> 6 ) > (display)->bitmap->width )
-#define Y_TOO_LONG( y, size, display ) \
-          ( (y) >= (display)->bitmap->rows )
-
 #ifdef _WIN32
 #define snprintf  _snprintf
 #endif
@@ -135,8 +127,8 @@
     const char*  header;
     char         header_buffer[BUFSIZE];
 
-    int          cff_hinting_engine;
-    int          tt_interpreter_version;
+    unsigned int cff_hinting_engine;
+    unsigned int tt_interpreter_version;
 
     FT_MM_Var*   mm;
     FT_Fixed     design_pos[T1_MAX_MM_AXIS];
@@ -319,17 +311,17 @@
 
         if ( dimension == 0 ) /* AF_DIMENSION_HORZ is 0 */
         {
-          pos = x_org + (int)offset * st->scale;
+          pos = x_org + (int)( offset * st->scale );
           grFillVLine( st->disp_bitmap, pos, 0,
                        st->disp_height, st->segment_color );
         }
         else
         {
-          pos = y_org - (int)offset * st->scale;
+          pos = y_org - (int)( offset * st->scale );
 
           if ( is_blue )
           {
-            int  blue_pos = y_org - (int)blue_offset * st->scale;
+            int  blue_pos = y_org - (int)( blue_offset * st->scale );
 
 
             if ( blue_pos == pos )
@@ -364,8 +356,8 @@
     grBitmap  gbit;
 
 
-    gbit.width  = bitmap->width;
-    gbit.rows   = bitmap->rows;
+    gbit.width  = (int)bitmap->width;
+    gbit.rows   = (int)bitmap->rows;
     gbit.pitch  = bitmap->pitch;
     gbit.buffer = bitmap->buffer;
 
@@ -414,7 +406,7 @@
 
 
     FT_Outline_New( handle->library,
-                    outline->n_points,
+                    (FT_UInt)outline->n_points,
                     outline->n_contours,
                     &transformed );
 
@@ -441,12 +433,13 @@
     cbox.xMax  = ( cbox.xMax + 63 ) & ~63;
     cbox.yMax  = ( cbox.yMax + 63 ) & ~63;
 
-    bitm.width      = ( cbox.xMax - cbox.xMin ) >> 6;
-    bitm.rows       = ( cbox.yMax - cbox.yMin ) >> 6;
-    bitm.pitch      = bitm.width;
+    bitm.width      = (unsigned int)( ( cbox.xMax - cbox.xMin ) >> 6 );
+    bitm.rows       = (unsigned int)( ( cbox.yMax - cbox.yMin ) >> 6 );
+    bitm.pitch      = (int)bitm.width;
     bitm.num_grays  = 256;
     bitm.pixel_mode = FT_PIXEL_MODE_GRAY;
-    bitm.buffer     = (unsigned char*)calloc( bitm.pitch, bitm.rows );
+    bitm.buffer     = (unsigned char*)calloc( (unsigned int)bitm.pitch,
+                                              bitm.rows );
 
     FT_Outline_Translate( &transformed, -cbox.xMin, -cbox.yMin );
     FT_Outline_Get_Bitmap( handle->library, &transformed, &bitm );
@@ -547,7 +540,7 @@
       _af_debug_disable_horz_hints = 0;
       _af_debug_disable_vert_hints = 0;
 
-      if ( !FT_Load_Glyph( size->face, st->Num,
+      if ( !FT_Load_Glyph( size->face, (FT_UInt)st->Num,
                            FT_LOAD_DEFAULT        |
                            FT_LOAD_NO_BITMAP      |
                            FT_LOAD_FORCE_AUTOHINT |
@@ -559,7 +552,7 @@
     _af_debug_disable_vert_hints = !st->do_vert_hints;
 #endif
 
-    if ( FT_Load_Glyph( size->face, st->Num,
+    if ( FT_Load_Glyph( size->face, (FT_UInt)st->Num,
                         handle->load_flags | FT_LOAD_NO_BITMAP ) )
       return;
 
@@ -722,9 +715,9 @@
 
     if ( delta )
       new_cff_hinting_engine =
-        ( status.cff_hinting_engine +
-          delta                     +
-          N_CFF_HINTING_ENGINES     ) % N_CFF_HINTING_ENGINES;
+        ( (int)status.cff_hinting_engine +
+          delta                          +
+          N_CFF_HINTING_ENGINES          ) % N_CFF_HINTING_ENGINES;
 
     error = FT_Property_Set( handle->library,
                              "cff",
@@ -737,7 +730,7 @@
       /* lazy to walk over all loaded fonts to check whether they */
       /* are of type CFF, then unloading them explicitly.         */
       FTC_Manager_Reset( handle->cache_manager );
-      status.cff_hinting_engine = new_cff_hinting_engine;
+      status.cff_hinting_engine = (FT_UInt)new_cff_hinting_engine;
     }
 
     sprintf( status.header_buffer, "CFF engine changed to %s",
@@ -862,14 +855,14 @@
   static void
   event_axis_change( int  delta )
   {
-    FT_Error      error;
+    FT_Error      err;
     FT_Size       size;
     FT_Var_Axis*  a;
     FT_Fixed      pos;
 
 
-    error = FTDemo_Get_Size( handle, &size );
-    if ( error )
+    err = FTDemo_Get_Size( handle, &size );
+    if ( err )
       return;
 
     if ( !status.mm )
@@ -901,7 +894,7 @@
   static void
   event_font_change( int  delta )
   {
-    FT_Error  error;
+    FT_Error  err;
     FT_Size   size;
     FT_UInt   n;
     int       num_indices;
@@ -921,12 +914,12 @@
     if ( status.Num >= num_indices )
       status.Num = num_indices - 1;
 
-    error = FTDemo_Get_Size( handle, &size );
-    if ( error )
+    err = FTDemo_Get_Size( handle, &size );
+    if ( err )
       return;
 
-    error = FT_Get_MM_Var( size->face, &status.mm );
-    if ( error )
+    err = FT_Get_MM_Var( size->face, &status.mm );
+    if ( err )
       return;
 
     for ( n = 0; n < status.mm->num_axis; n++ )
@@ -1199,20 +1192,20 @@
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
-      char*  p;
-      int    format_len, gindex, size;
+      char*         p;
+      unsigned int  format_len, gindex, size;
 
 
       size = strlen( status.header_buffer );
       p    = status.header_buffer + size;
       size = BUFSIZE - size;
 
-      format = ": ";
+      format     = ": ";
       format_len = strlen( format );
 
       if ( size >= format_len + 2 )
       {
-        gindex = status.Num;
+        gindex = (unsigned int)status.Num;
 
         strcpy( p, format );
         if ( FT_Get_Glyph_Name( face, gindex,
@@ -1315,7 +1308,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       case 'w':
         status.width = atoi( optarg );
@@ -1420,7 +1413,7 @@
     FTDemo_Done( handle );
 
     exit( 0 );      /* for safety reasons */
-    return 0;       /* never reached */
+    /* return 0; */ /* never reached */
   }
 
 
