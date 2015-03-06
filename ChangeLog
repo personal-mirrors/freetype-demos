@@ -1,3 +1,13 @@
+2015-03-06  Werner Lemberg  <wl@gnu.org>
+
+	[ftcommon] Various minor compiler warning fixes.
+
+	* src/ftcommon.c: Fix signedness issues.
+	(my_face_requester): Remove dead code.
+	(FTDemo_Install_Font): Protect against stream failure.
+	(string_render_prepare): Add `static' keyword.
+	* src/ftcommon.h: Updated.
+
 2015-03-05  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftdiff.c: Various minor compiler warning fixes.

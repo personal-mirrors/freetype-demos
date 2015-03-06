@@ -183,7 +183,7 @@
     /* use FTDemo_Set_Current_XXX to set the following two fields */
     PFont           current_font;      /* selected font */
     FTC_ScalerRec   scaler;
-    FT_ULong        load_flags;
+    FT_Int32        load_flags;
 
     /* call FTDemo_Update_Current_Flags after setting any of the following fields */
     int             hinted;            /* is glyph hinting active?    */

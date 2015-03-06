@@ -149,7 +149,9 @@
       pitch = -pitch;
 
     if ( bit->mode == gr_pixel_mode_gray )
-      memset( bit->buffer, display->back_color.value, pitch * bit->rows );
+      memset( bit->buffer,
+              display->back_color.value,
+              (unsigned int)( pitch * bit->rows ) );
     else
     {
       unsigned char*  p = bit->buffer;
@@ -204,7 +206,7 @@
     if ( font->file_address != NULL )
       error = FT_New_Memory_Face( lib,
                                   (const FT_Byte*)font->file_address,
-                                  font->file_size,
+                                  (FT_Long)font->file_size,
                                   font->face_index,
                                   aface );
     else
@@ -229,7 +231,7 @@
         if ( has_extension )
           memcpy( orig, suffix, 5 );
         else
-          /* we have already allocate four more bytes */
+          /* we have already allocated four more bytes */
           suffix = (char*)font->filepathname + strlen( font->filepathname );
 
         memcpy( suffix, ".afm", 5 );
@@ -241,8 +243,6 @@
 
         if ( has_extension )
           memcpy( suffix, orig, 5 );
-        else
-          suffix = '\0';
       }
 
       if ( (*aface)->charmaps )
@@ -354,9 +354,10 @@
                        const char*     filepath,
                        FT_Bool         outline_only )
   {
-    static char  filename[1024 + 5];
-    int          i, len, num_faces;
-    FT_Face      face;
+    static char   filename[1024 + 5];
+    long          i, num_faces;
+    unsigned int  len;
+    FT_Face       face;
 
 
     len = strlen( filepath );
@@ -411,8 +412,8 @@
 
       if ( handle->preload )
       {
-        FILE*   file = fopen( filename, "rb" );
-        size_t  file_size;
+        FILE*  file = fopen( filename, "rb" );
+        int    file_size;
 
 
         if ( file == NULL )  /* shouldn't happen */
@@ -425,10 +426,13 @@
         file_size = ftell( file );
         fseek( file, 0, SEEK_SET );
 
-        font->file_address = malloc( file_size );
-        fread( font->file_address, 1, file_size, file );
+        if ( file_size <= 0 )
+          return FT_Err_Invalid_Stream_Operation;
 
-        font->file_size = file_size;
+        font->file_address = malloc( (size_t)file_size );
+        fread( font->file_address, 1, (size_t)file_size, file );
+
+        font->file_size = (size_t)file_size;
 
         fclose( file );
       }
@@ -470,18 +474,18 @@
       if ( handle->max_fonts == 0 )
       {
         handle->max_fonts = 16;
-        handle->fonts     = (PFont*)calloc( handle->max_fonts,
+        handle->fonts     = (PFont*)calloc( (size_t)handle->max_fonts,
                                             sizeof ( PFont ) );
       }
       else if ( handle->num_fonts >= handle->max_fonts )
       {
         handle->max_fonts *= 2;
         handle->fonts      = (PFont*)realloc( handle->fonts,
-                                              handle->max_fonts *
+                                              (size_t)handle->max_fonts *
                                                 sizeof ( PFont ) );
 
         memset( &handle->fonts[handle->num_fonts], 0,
-                ( handle->max_fonts - handle->num_fonts ) *
+                (size_t)( handle->max_fonts - handle->num_fonts ) *
                   sizeof ( PFont ) );
       }
 
@@ -550,7 +554,7 @@
   void
   FTDemo_Update_Current_Flags( FTDemo_Handle*  handle )
   {
-    FT_UInt32  flags, target;
+    FT_Int32  flags, target;
 
 
     flags = FT_LOAD_DEFAULT;  /* really 0 */
@@ -688,8 +692,8 @@
     bitmap = (FT_BitmapGlyph)glyf;
     source = &bitmap->bitmap;
 
-    target->rows   = source->rows;
-    target->width  = source->width;
+    target->rows   = (int)source->rows;
+    target->width  = (int)source->width;
     target->pitch  = source->pitch;
     target->buffer = source->buffer;
     target->grays  = source->num_grays;
@@ -755,7 +759,7 @@
                           int*            y_advance,
                           FT_Glyph*       aglyf )
   {
-    int  width, height;
+    unsigned int  width, height;
 
 
     *aglyf     = NULL;
@@ -781,7 +785,7 @@
 
       error = FTC_SBitCache_LookupScaler( handle->sbits_cache,
                                           &handle->scaler,
-                                          handle->load_flags,
+                                          (FT_ULong)handle->load_flags,
                                           Index,
                                           &sbit,
                                           NULL );
@@ -858,7 +862,7 @@
 
       error = FTC_ImageCache_LookupScaler( handle->image_cache,
                                            &handle->scaler,
-                                           handle->load_flags,
+                                           (FT_ULong)handle->load_flags,
                                            Index,
                                            &glyf,
                                            NULL );
@@ -889,8 +893,12 @@
     FT_Glyph  glyf;
 
 
-    error = FTDemo_Index_To_Bitmap( handle, gindex, &bit3, &left, &top,
-                                    &x_advance, &y_advance, &glyf );
+    error = FTDemo_Index_To_Bitmap( handle,
+                                    (FT_ULong)gindex,
+                                    &bit3,
+                                    &left, &top,
+                                    &x_advance, &y_advance,
+                                    &glyf );
     if ( error )
       return error;
 
@@ -998,7 +1006,7 @@
       if ( ch < 0 )
         break;
 
-      codepoint = ch;
+      codepoint = (unsigned long)ch;
 
       if ( handle->encoding != FT_ENCODING_NONE )
         glyph->glyph_index = FTDemo_Get_Index( handle, codepoint );
@@ -1072,7 +1080,7 @@
   }
 
 
-  FT_Error
+  static FT_Error
   string_render_prepare( FTDemo_Handle*          handle,
                          FTDemo_String_Context*  sc,
                          FT_Vector*              advances )
@@ -1096,12 +1104,15 @@
     if ( !sc->vertical && sc->kerning_degree )
     {
       /* this function needs and returns points, not pixels */
-      if ( FT_Get_Track_Kerning( face, handle->scaler.width << 10,
+      if ( FT_Get_Track_Kerning( face,
+                                 (FT_Fixed)handle->scaler.width << 10,
                                  -sc->kerning_degree,
                                  &track_kern ) )
         track_kern = 0;
       else
-        track_kern = ( track_kern / 1024.0 * handle->scaler.x_res ) / 72;
+        track_kern = (FT_Pos)(
+                       ( track_kern / 1024.0 * handle->scaler.x_res ) /
+                       72.0 );
     }
 
     for ( i = 0; i < handle->string_length; i++ )
