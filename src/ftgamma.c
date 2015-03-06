@@ -33,7 +33,7 @@ do_rect( grBitmap*  bitmap,
   if ( gray >= 0 )
   {
     for ( ; h > 0; h--, line += bitmap->pitch )
-      memset( line, gray, 3*w );
+      memset( line, gray, (unsigned int)( 3 * w ) );
   }
   else
   {
@@ -74,7 +74,7 @@ Render_GammaGrid( grBitmap*  bitmap )
     pitch = -pitch;
 
 #if 1
-  memset( bitmap->buffer, 255, pitch*bitmap->rows );
+  memset( bitmap->buffer, 255, (unsigned int)( pitch * bitmap->rows ) );
 #else
  /* fill the background with a simple pattern corresponding to 50%
   * linear gray from a reasonable viewing distance
@@ -148,7 +148,7 @@ main( void )
   grListenSurface( display->surface, 0, &dummy );
 
   exit( 0 );      /* for safety reasons */
-  return 0;       /* never reached */
+  /* return 0; */ /* never reached */
 }
 
 
