@@ -1,5 +1,9 @@
 2015-03-07  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftstring.c: Various minor compiler warning fixes.
+
+2015-03-07  Werner Lemberg  <wl@gnu.org>
+
 	[ftmulti] Various minor compiler warning fixes.
 
 	* src/ftmulti.c: Fix signedness issues.

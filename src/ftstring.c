@@ -555,7 +555,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       case 'w':
         status.width = atoi( optarg );
@@ -650,7 +650,7 @@
         {
           FTDemo_String_Context  sc = status.sc;
           FT_Int                 x, y;
-          FT_UInt                height;
+          FT_Int                 height;
 
 
           x = 55;
@@ -710,7 +710,7 @@
     FTDemo_Done( handle );
     exit( 0 );      /* for safety reasons */
 
-    return 0;       /* never reached */
+    /* return 0; */ /* never reached */
   }
 
 
