@@ -19,15 +19,17 @@
 #include <ft2build.h>
 
 #include FT_FREETYPE_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_VALIDATE_H
 #include FT_TRUETYPE_TABLES_H
 #include FT_TRUETYPE_TAGS_H
-#include FT_INTERNAL_MEMORY_H
-#include FT_INTERNAL_OBJECTS_H
 
 #include FT_OPENTYPE_VALIDATE_H
 #include FT_GX_VALIDATE_H
+
+  /* the following four header files shouldn't be used in normal programs */
+#include FT_INTERNAL_DEBUG_H
+#include FT_INTERNAL_VALIDATE_H
+#include FT_INTERNAL_MEMORY_H
+#include FT_INTERNAL_OBJECTS_H
 
 #include "common.h"
 
@@ -124,7 +126,7 @@
   static int list_ckern_tables              ( FT_Face  face );
 
 
-  ValidatorRec validators[] =
+  static ValidatorRec validators[] =
   {
     {
       OT_VALIDATE,
@@ -560,7 +562,7 @@
     unsigned int  i;
 
 
-    validation_flags  = validation_level;
+    validation_flags  = (FT_UInt)validation_level;
     validation_flags |= make_table_specs( face, tables, ot_table_spec,
                                           N_OT_TABLE_SPEC );
 
@@ -618,7 +620,8 @@
     FT_Bytes      data[N_GX_TABLE_SPEC];
     unsigned int  i;
 
-    validation_flags  = validation_level;
+
+    validation_flags  = (FT_UInt)validation_level;
     validation_flags |= make_table_specs( face, tables, gx_table_spec,
                                           N_GX_TABLE_SPEC );
 
@@ -681,7 +684,7 @@
       dialect_request = "ms:apple";
 
 
-    validation_flags  = validation_level;
+    validation_flags  = (FT_UInt)validation_level;
 
     if ( strcmp( dialect_request, "ms:apple" ) == 0 ||
          strcmp( dialect_request, "apple:ms" ) == 0 )
@@ -747,9 +750,10 @@
     char*  tables;
     int    dump_table_list;
 
-    FT_ValidationLevel  validation_level;
+    int  validation_level;
 
     int  font_index = 0;
+
 
     execname = ft_basename( argv[0] );
 
@@ -808,8 +812,9 @@
         break;
 
       case 'V':
-        validation_level = (FT_ValidationLevel)atoi( optarg );
-        if ( validation_level > FT_VALIDATE_PARANOID )
+        validation_level = atoi( optarg );
+        if ( validation_level < 0 ||
+             validation_level > FT_VALIDATE_PARANOID )
         {
           fprintf( stderr, "*** Validation level is out of range: %d\n",
                            validation_level );
@@ -834,7 +839,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       default:
         print_usage( NULL );
