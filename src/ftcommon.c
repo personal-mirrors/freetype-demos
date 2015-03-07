@@ -884,7 +884,7 @@
   FT_Error
   FTDemo_Draw_Index( FTDemo_Handle*   handle,
                      FTDemo_Display*  display,
-                     int              gindex,
+                     unsigned int     gindex,
                      int*             pen_x,
                      int*             pen_y )
   {
@@ -894,7 +894,7 @@
 
 
     error = FTDemo_Index_To_Bitmap( handle,
-                                    (FT_ULong)gindex,
+                                    gindex,
                                     &bit3,
                                     &left, &top,
                                     &x_advance, &y_advance,

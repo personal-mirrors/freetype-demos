@@ -1,5 +1,12 @@
 2015-03-07  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftview.c: Various minor compiler warning fixes.
+
+	* src/ftcommon.c, src/ftcommon.h (FTDemo_Draw_Index): Change type of
+	`gindex' to unsigned.
+
+2015-03-07  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftstring.c: Various minor compiler warning fixes.
 
 2015-03-07  Werner Lemberg  <wl@gnu.org>

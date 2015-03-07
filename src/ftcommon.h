@@ -285,7 +285,7 @@
   FT_Error
   FTDemo_Draw_Index( FTDemo_Handle*   handle,
                      FTDemo_Display*  display,
-                     int              gindex,
+                     unsigned int     gindex,
                      int*             pen_x,
                      int*             pen_y);
 

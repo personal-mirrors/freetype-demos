@@ -99,8 +99,8 @@
     double         radius;
     double         slant;
 
-    int            cff_hinting_engine;
-    int            tt_interpreter_version;
+    unsigned int   cff_hinting_engine;
+    unsigned int   tt_interpreter_version;
 
     int            font_idx;
     int            offset;            /* as selected by the user */
@@ -182,7 +182,8 @@
     face = size->face;
     slot = face->glyph;
 
-    radius = status.radius * ( status.ptsize * status.res / 72 );
+    radius = (FT_Fixed)(
+               status.radius * ( status.ptsize * status.res / 72 ) );
 
     FT_Stroker_Set( handle->stroker, radius,
                     FT_STROKER_LINECAP_ROUND,
@@ -193,13 +194,13 @@
 
     for ( i = offset; i < num_indices; i++ )
     {
-      int  glyph_idx;
+      FT_UInt  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        glyph_idx = i;
+        glyph_idx = (FT_UInt)i;
       else
-        glyph_idx = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FT_Load_Glyph( face, glyph_idx,
                              handle->load_flags | FT_LOAD_NO_BITMAP );
@@ -301,13 +302,13 @@
 
     for ( i = offset; i < num_indices; i++ )
     {
-      int  glyph_idx;
+      FT_UInt  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        glyph_idx = i;
+        glyph_idx = (FT_UInt)i;
       else
-        glyph_idx = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
       if ( !error )
@@ -371,20 +372,20 @@
     slot = face->glyph;
 
     ystr = status.ptsize * status.res / 72;
-    xstr = status.xbold_factor * ystr;
-    ystr = status.ybold_factor * ystr;
+    xstr = (FT_Pos)( status.xbold_factor * ystr );
+    ystr = (FT_Pos)( status.ybold_factor * ystr );
 
     have_topleft = 0;
 
     for ( i = offset; i < num_indices; i++ )
     {
-      int  glyph_idx;
+      FT_UInt  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        glyph_idx = i;
+        glyph_idx = (FT_UInt)i;
       else
-        glyph_idx = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
       if ( !error )
@@ -482,13 +483,13 @@
 
     for ( i = offset; i < num_indices; i++ )
     {
-      int  glyph_idx;
+      FT_UInt  glyph_idx;
 
 
       if ( handle->encoding == FT_ENCODING_NONE )
-        glyph_idx = i;
+        glyph_idx = (FT_UInt)i;
       else
-        glyph_idx = FTDemo_Get_Index( handle, i );
+        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
 
@@ -566,7 +567,7 @@
         ch = utf8_next( &p, pEnd );
       }
 
-      glyph_idx = FTDemo_Get_Index( handle, ch );
+      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)ch );
 
       error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
 
@@ -681,7 +682,7 @@
       }
 
       start = snprintf( text, 256, "%g: ", pt_size / 64.0 );
-      snprintf( text + start, 256 - start, "%s", p );
+      snprintf( text + start, (unsigned int)( 256 - start ), "%s", p );
 
       p    = text;
       pEnd = p + strlen( text );
@@ -701,7 +702,7 @@
           ch   = utf8_next( &p, pEnd );
         }
 
-        glyph_idx = FTDemo_Get_Index( handle, ch );
+        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)ch );
 
         error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
 
@@ -837,7 +838,9 @@
     if ( pitch < 0 )
       pitch = -pitch;
 
-    memset( display->bitmap->buffer, 100, pitch * display->bitmap->rows );
+    memset( display->bitmap->buffer,
+            100,
+            (unsigned int)( pitch * display->bitmap->rows ) );
 
     grWriteCellString( display->bitmap, 0, 0, "Gamma grid",
                        display->fore_color );
@@ -875,7 +878,7 @@
           int     gm  = (int)( 255.0 * pow( p, ggamma ) );
 
 
-          memset( dst, gm, xside * 3 );
+          memset( dst, gm, (unsigned int)( xside * 3 ) );
         }
       }
     }
@@ -886,9 +889,9 @@
 
 
   static int
-  event_cff_hinting_engine_change( int  delta )
+  event_cff_hinting_engine_change( unsigned int  delta )
   {
-    int  new_cff_hinting_engine;
+    unsigned int  new_cff_hinting_engine;
 
 
     if ( delta )
@@ -1444,19 +1447,19 @@
          status.render_mode == RENDER_MODE_WATERFALL )
       sprintf( buf, "top left charcode: U+%04X (glyph idx %d)",
                     status.topleft,
-                    FTDemo_Get_Index( handle, status.topleft ) );
+                    FTDemo_Get_Index( handle, (FT_UInt32)status.topleft ) );
     else if ( status.encoding == FT_ENCODING_NONE )
       sprintf( buf, "top left glyph idx: %d",
                     status.topleft );
     else
       sprintf( buf, "top left charcode: 0x%X (glyph idx %d)",
                     status.topleft,
-                    FTDemo_Get_Index( handle, status.topleft ) );
+                    FTDemo_Get_Index( handle, (FT_UInt32)status.topleft ) );
 
     if ( FT_HAS_GLYPH_NAMES( face ) )
     {
-      char*  p;
-      int    format_len, glyph_idx, size;
+      char*         p;
+      unsigned int  format_len, glyph_idx, size;
 
 
       size = strlen( buf );
@@ -1468,11 +1471,11 @@
 
       if ( size >= format_len + 2 )
       {
-        glyph_idx = status.topleft;
+        glyph_idx = (unsigned int)status.topleft;
         if ( status.encoding != FT_ENCODING_NONE         ||
              status.render_mode == RENDER_MODE_TEXT      ||
              status.render_mode == RENDER_MODE_WATERFALL )
-          glyph_idx = FTDemo_Get_Index( handle, status.topleft );
+          glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)status.topleft );
 
         strcpy( p, format );
         if ( FT_Get_Glyph_Name( face, glyph_idx,
@@ -1897,7 +1900,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       case 'w':
         status.width = atoi( optarg );
@@ -2027,7 +2030,7 @@
     FTDemo_Done( handle );
     exit( 0 );      /* for safety reasons */
 
-    return 0;       /* never reached */
+    /* return 0; */ /* never reached */
   }
 
 
