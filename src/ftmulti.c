@@ -29,62 +29,55 @@
 #define  DIM_X   640
 #define  DIM_Y   480
 
-#define  CENTER_X   ( bit.width / 2 )
-#define  CENTER_Y   ( bit.rows / 2 )
-
 #define  MAXPTSIZE  500                 /* dtp */
 
-  char  Header[256];
-  char* new_header = 0;
+  static char  Header[256];
+  static char* new_header = 0;
 
-  const unsigned char*  Text = (unsigned char*)
+  static const unsigned char*  Text = (unsigned char*)
     "The quick brown fox jumps over the lazy dog 0123456789 "
     "\342\352\356\373\364\344\353\357\366\374\377\340\371\351\350\347 "
     "&#~\"\'(-`_^@)=+\260 ABCDEFGHIJKLMNOPQRSTUVWXYZ "
     "$\243^\250*\265\371%!\247:/;.,?<>";
 
-  FT_Library    library;      /* the FreeType library        */
-  FT_Face       face;         /* the font face               */
-  FT_Size       size;         /* the font size               */
-  FT_GlyphSlot  glyph;        /* the glyph slot              */
+  static FT_Library    library;      /* the FreeType library        */
+  static FT_Face       face;         /* the font face               */
+  static FT_Size       size;         /* the font size               */
+  static FT_GlyphSlot  glyph;        /* the glyph slot              */
 
-  FT_Encoding   encoding = FT_ENCODING_NONE;
+  static FT_Encoding   encoding = FT_ENCODING_NONE;
 
-  FT_Error      error;        /* error returned by FreeType? */
+  static FT_Error      error;        /* error returned by FreeType? */
 
-  grSurface*    surface;      /* current display surface     */
-  grBitmap      bit;          /* current display bitmap      */
+  static grSurface*    surface;      /* current display surface     */
+  static grBitmap      bit;          /* current display bitmap      */
 
-  int  width     = DIM_X;     /* window width                */
-  int  height    = DIM_Y;     /* window height               */
+  static int  width     = DIM_X;     /* window width                */
+  static int  height    = DIM_Y;     /* window height               */
 
-  int  num_glyphs;            /* number of glyphs            */
-  int  ptsize;                /* current point size          */
+  static int  num_glyphs;            /* number of glyphs            */
+  static int  ptsize;                /* current point size          */
 
-  int  hinted    = 1;         /* is glyph hinting active?    */
-  int  antialias = 1;         /* is anti-aliasing active?    */
-  int  use_sbits = 1;         /* do we use embedded bitmaps? */
-  int  Num;                   /* current first glyph index   */
+  static int  hinted    = 1;         /* is glyph hinting active?    */
+  static int  antialias = 1;         /* is anti-aliasing active?    */
+  static int  use_sbits = 1;         /* do we use embedded bitmaps? */
+  static int  Num;                   /* current first glyph index   */
 
-  int  res       = 72;
+  static int  res       = 72;
 
   static grColor  fore_color = { 255 };
 
-  int            Fail;
-  unsigned char  autorun;
+  static int  Fail;
 
-  int  graph_init  = 0;
+  static int  graph_init  = 0;
 
-  int  render_mode = 1;
-  int  use_grays   = 1;
+  static int  render_mode = 1;
 
-  FT_MM_Var       *multimaster = NULL;
-  FT_Fixed         design_pos   [T1_MAX_MM_AXIS];
-  FT_Fixed         requested_pos[T1_MAX_MM_AXIS];
-  int              requested_cnt = 0;
+  static FT_MM_Var       *multimaster = NULL;
+  static FT_Fixed         design_pos   [T1_MAX_MM_AXIS];
+  static FT_Fixed         requested_pos[T1_MAX_MM_AXIS];
+  static int              requested_cnt = 0;
 
-#define RASTER_BUFF_SIZE  32768
-  char             raster_buff[RASTER_BUFF_SIZE];
 
 #define DEBUGxxx
 
@@ -93,6 +86,7 @@
 #else
 #define LOG( x )  /* empty */
 #endif
+
 
 #ifdef DEBUG
   static void
@@ -159,7 +153,7 @@
 
     if ( bitmap_size < 0 )
       bitmap_size = -bitmap_size;
-    memset( bit.buffer, 0, bitmap_size );
+    memset( bit.buffer, 0, (unsigned long)bitmap_size );
   }
 
 
@@ -182,11 +176,6 @@
   }
 
 
-#define FLOOR( x )  ( (x) & -64 )
-#define CEIL( x )   ( ( (x) + 63 ) & -64 )
-#define TRUNC( x )  ( (x) >> 6 )
-
-
   /* Render a single glyph with the `grays' component */
   static FT_Error
   Render_Glyph( int  x_offset,
@@ -206,8 +195,8 @@
     }
 
     /* now blit it to our display screen */
-    bit3.rows   = glyph->bitmap.rows;
-    bit3.width  = glyph->bitmap.width;
+    bit3.rows   = (int)glyph->bitmap.rows;
+    bit3.width  = (int)glyph->bitmap.width;
     bit3.pitch  = glyph->bitmap.pitch;
     bit3.buffer = glyph->bitmap.buffer;
 
@@ -236,13 +225,15 @@
   static void
   Reset_Scale( int  pointSize )
   {
-    (void)FT_Set_Char_Size( face, pointSize << 6, pointSize << 6, res, res );
+    (void)FT_Set_Char_Size( face,
+                            pointSize << 6, pointSize << 6,
+                            (FT_UInt)res, (FT_UInt)res );
   }
 
 
   static FT_Error
-  LoadChar( int  idx,
-            int  hint )
+  LoadChar( unsigned int  idx,
+            int           hint )
   {
     int  flags;
 
@@ -260,11 +251,11 @@
 
 
   static FT_Error
-  Render_All( int  first_glyph,
-              int  pt_size )
+  Render_All( unsigned int  first_glyph,
+              int           pt_size )
   {
-    FT_F26Dot6  start_x, start_y, step_y, x, y;
-    int         i;
+    FT_F26Dot6    start_x, start_y, step_y, x, y;
+    unsigned int  i;
 
 
     start_x = 4;
@@ -278,9 +269,9 @@
     i = first_glyph;
 
 #if 0
-     while ( i < first_glyph + 1 )
+    while ( i < first_glyph + 1 )
 #else
-     while ( i < num_glyphs )
+    while ( i < (unsigned int)num_glyphs )
 #endif
     {
       if ( !( error = LoadChar( i, hinted ) ) )
@@ -322,10 +313,10 @@
 
 
   static FT_Error
-  Render_Text( int  first_glyph )
+  Render_Text( unsigned int  first_glyph )
   {
-    FT_F26Dot6  start_x, start_y, step_y, x, y;
-    int         i;
+    FT_F26Dot6    start_x, start_y, step_y, x, y;
+    unsigned int  i;
 
     const unsigned char*  p;
 
@@ -743,7 +734,7 @@
           printf( "\n" );
           exit( 0 );
         }
-        break;
+        /* break; */
 
       case 'w':
         width = atoi( optarg );
@@ -856,11 +847,11 @@
         switch ( render_mode )
         {
         case 0:
-          Render_Text( Num );
+          Render_Text( (unsigned int)Num );
           break;
 
         default:
-          Render_All( Num, ptsize );
+          Render_All( (unsigned int)Num, ptsize );
         }
 
         sprintf( Header, "%.50s %.50s (file %.100s)",
@@ -952,7 +943,7 @@
     printf( "Fails = %d\n", Fail );
 
     exit( 0 );      /* for safety reasons */
-    return 0;       /* never reached */
+    /* return 0; */ /* never reached */
   }
 
 

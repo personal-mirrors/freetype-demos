@@ -1,3 +1,12 @@
+2015-03-07  Werner Lemberg  <wl@gnu.org>
+
+	[ftmulti] Various minor compiler warning fixes.
+
+	* src/ftmulti.c: Fix signedness issues.
+	Add `static' keyword where appropriate.
+	(CENTER_X, CENTER_Y, autorun, use_grays, raster_buff, FLOOR, CEIL,
+	TRUNC): Removed.  Unused.
+
 2015-03-06  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Various minor compiler warning fixes.
