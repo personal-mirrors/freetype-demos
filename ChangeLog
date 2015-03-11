@@ -1,3 +1,10 @@
+2015-03-11  Werner Lemberg  <wl@gnu.org>
+
+	Update to latest FreeType library changes.
+
+	* src/ftcommon.c: s/FT_XFREE86_H/FT_FONT_FORMATS_H/.
+	(my_face_requester): s/FT_Get_X11_Font_Format/FT_Get_Font_Format/.
+
 2015-03-07  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftvalid.c: Various minor compiler warning fixes.

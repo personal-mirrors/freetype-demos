@@ -18,7 +18,7 @@
 #include FT_CACHE_MANAGER_H
 
 #include FT_BITMAP_H
-#include FT_XFREE86_H
+#include FT_FONT_FORMATS_H
 
 #include "common.h"
 #include "ftcommon.h"
@@ -216,7 +216,7 @@
                            aface );
     if ( !error )
     {
-      const char*  format = FT_Get_X11_Font_Format( *aface );
+      const char*  format = FT_Get_Font_Format( *aface );
 
 
       if ( !strcmp( format, "Type 1" ) )
