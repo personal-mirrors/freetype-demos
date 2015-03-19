@@ -1,3 +1,12 @@
+2015-03-19  Werner Lemberg  <wl@gnu.org>
+
+	[ftdump] Various minor improvements.
+
+	* src/ftdump.c (name_id): Handle WWS entries also.
+	Return NULL for not pre-defined entries.
+	(put_ascii): Display characters >= 0x80 as hex escape sequence.
+	(Print_Sfnt_Names): Improve output.
+
 2015-03-11  Werner Lemberg  <wl@gnu.org>
 
 	Update to latest FreeType library changes.

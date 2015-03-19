@@ -212,7 +212,7 @@
     case TT_NAME_ID_TRADEMARK:
       return "trademark";
 
-   /* the following values are from the OpenType spec */
+    /* the following values are from the OpenType spec */
     case TT_NAME_ID_MANUFACTURER:
       return "manufacturer";
     case TT_NAME_ID_DESIGNER:
@@ -235,16 +235,22 @@
     case TT_NAME_ID_MAC_FULL_NAME:
       return "Mac full name";
 
-   /* The following code is new as of 2000-01-21 */
+    /* the following code is new as of 2000-01-21 */
     case TT_NAME_ID_SAMPLE_TEXT:
       return "sample text";
 
-   /* This is new in OpenType 1.3 */
+    /* this is new in OpenType 1.3 */
     case TT_NAME_ID_CID_FINDFONT_NAME:
       return "CID `findfont' name";
 
+    /* this is new in OpenType 1.5 */
+    case TT_NAME_ID_WWS_FAMILY:
+      return "WWS family name";
+    case TT_NAME_ID_WWS_SUBFAMILY:
+      return "WWS subfamily name";
+
     default:
-      return "UNKNOWN";
+      return NULL;
     }
   }
 
@@ -289,7 +295,10 @@
         break;
 
       default:
-        putchar( string[i] );
+        if ( string[i] < 0x80 )
+          putchar( string[i] );
+        else
+          printf( "\\x%02X", string[i] );
         break;
       }
     }
@@ -386,8 +395,14 @@
       error = FT_Get_Sfnt_Name( face, i, &name );
       if ( error == FT_Err_Ok )
       {
-        printf( "   %-15s [%s]", name_id( name.name_id ),
-                                 platform_id( name.platform_id ) );
+        const char*  NameID     = name_id( name.name_id );
+        const char*  PlatformID = platform_id( name.platform_id );
+
+
+        if ( NameID )
+          printf( "   %-15s [%s]", NameID, PlatformID );
+        else
+          printf( "   Name ID %-5d   [%s]", name.name_id, PlatformID );
 
         switch ( name.platform_id )
         {
@@ -402,7 +417,7 @@
             break;
 
           default:
-            printf( "{unsupported encoding %d}", name.encoding_id );
+            printf( "{unsupported Unicode encoding %d}", name.encoding_id );
             break;
           }
           break;
@@ -422,7 +437,7 @@
             break;
 
           default:
-            printf( "{unsupported encoding %d}", name.encoding_id );
+            printf( "      [data in encoding %d]", name.encoding_id );
             break;
           }
 
