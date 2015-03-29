@@ -13,6 +13,7 @@
 #include FT_SFNT_NAMES_H
 #include FT_TRUETYPE_IDS_H
 #include FT_TRUETYPE_TABLES_H
+#include FT_MULTIPLE_MASTERS_H
 
   /* the following header shouldn't be used in normal programs */
 #include FT_INTERNAL_DEBUG_H
@@ -570,6 +571,40 @@
   }
 
 
+  static void
+  Print_MM_Axes( FT_Face  face )
+  {
+    FT_MM_Var*       mm;
+    FT_Multi_Master  dummy;
+    FT_UInt          is_GX, i;
+
+
+    /* MM or GX axes */
+    error = FT_Get_Multi_Master( face, &dummy );
+    is_GX = error ? 1 : 0;
+
+    printf( "%s axes\n", is_GX ? "GX" : "MM" );
+
+    error = FT_Get_MM_Var( face, &mm );
+    if ( error )
+    {
+      printf( "   Can't access axis data (error code %d)\n", error );
+      return;
+    }
+
+    for ( i = 0; i < mm->num_axis; i++ )
+    {
+      printf( "   %s: [%g;%g], default %g\n",
+              mm->axis[i].name,
+              mm->axis[i].minimum / 65536.0,
+              mm->axis[i].maximum / 65536.0,
+              mm->axis[i].def / 65536.0 );
+    }
+
+    free( mm );
+  }
+
+
   int
   main( int    argc,
         char*  argv[] )
@@ -740,6 +775,12 @@
       {
         printf( "\n" );
         Print_Charmaps( face );
+      }
+
+      if ( FT_HAS_MULTIPLE_MASTERS( face ) )
+      {
+        printf( "\n" );
+        Print_MM_Axes( face );
       }
 
       FT_Done_Face( face );
