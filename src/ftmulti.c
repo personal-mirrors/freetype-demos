@@ -73,10 +73,11 @@
 
   static int  render_mode = 1;
 
-  static FT_MM_Var       *multimaster = NULL;
-  static FT_Fixed         design_pos   [T1_MAX_MM_AXIS];
-  static FT_Fixed         requested_pos[T1_MAX_MM_AXIS];
-  static int              requested_cnt = 0;
+  static FT_MM_Var  *multimaster   = NULL;
+  static FT_Fixed    design_pos   [T1_MAX_MM_AXIS];
+  static FT_Fixed    requested_pos[T1_MAX_MM_AXIS];
+  static int         requested_cnt = 0;
+  static int         used_num_axis = 0;
 
 
 #define DEBUGxxx
@@ -590,7 +591,7 @@
     return 1;
 
   Do_Axis:
-    if ( axis < (int)multimaster->num_axis )
+    if ( axis < used_num_axis )
     {
       FT_Var_Axis*  a   = multimaster->axis + axis;
       FT_Fixed      pos = design_pos[axis];
@@ -608,7 +609,7 @@
 
       design_pos[axis] = pos;
 
-      FT_Set_Var_Design_Coordinates( face, multimaster->num_axis, design_pos );
+      FT_Set_Var_Design_Coordinates( face, used_num_axis, design_pos );
     }
     return 1;
 
@@ -787,7 +788,16 @@
       int  n;
 
 
-      for ( n = 0; n < (int)multimaster->num_axis; n++ )
+      if ( multimaster->num_axis > T1_MAX_MM_AXIS )
+      {
+        fprintf( stderr, "only handling first %d GX axes (of %d)\n",
+                         T1_MAX_MM_AXIS, multimaster->num_axis );
+        used_num_axis = T1_MAX_MM_AXIS;
+      }
+      else
+        used_num_axis = (int)multimaster->num_axis;
+
+      for ( n = 0; n < used_num_axis; n++ )
       {
         design_pos[n] = n < requested_cnt ? requested_pos[n]
                                           : multimaster->axis[n].def;
@@ -798,9 +808,7 @@
       }
     }
 
-    error = FT_Set_Var_Design_Coordinates( face,
-                                           multimaster->num_axis,
-                                           design_pos );
+    error = FT_Set_Var_Design_Coordinates( face, used_num_axis, design_pos );
     if ( error )
       goto Display_Font;
 
@@ -870,7 +878,7 @@
           int  n;
 
 
-          for ( n = 0; n < (int)multimaster->num_axis; n++ )
+          for ( n = 0; n < used_num_axis; n++ )
           {
             char  temp[100];
 

@@ -31,7 +31,8 @@
 #include FT_TRUETYPE_DRIVER_H
 #include FT_MULTIPLE_MASTERS_H
 
-#define MAXPTSIZE      500                 /* dtp */
+#define MAXPTSIZE    500                 /* dtp */
+#define MAX_MM_AXES   32
 
 #ifdef _WIN32
 #define snprintf  _snprintf
@@ -131,8 +132,9 @@
     unsigned int tt_interpreter_version;
 
     FT_MM_Var*   mm;
-    FT_Fixed     design_pos[T1_MAX_MM_AXIS];
+    FT_Fixed     design_pos[MAX_MM_AXES];
     FT_UInt      current_axis;
+    FT_UInt      used_num_axis;
 
   } GridStatusRec, *GridStatus;
 
@@ -886,7 +888,7 @@
     status.design_pos[status.current_axis] = pos;
 
     (void)FT_Set_Var_Design_Coordinates( size->face,
-                                         status.mm->num_axis,
+                                         status.used_num_axis,
                                          status.design_pos );
   }
 
@@ -922,11 +924,20 @@
     if ( err )
       return;
 
-    for ( n = 0; n < status.mm->num_axis; n++ )
+    if ( status.mm->num_axis >= MAX_MM_AXES )
+    {
+      fprintf( stderr, "only handling first %d GX axes (of %d)\n",
+                       MAX_MM_AXES, status.mm->num_axis );
+      status.used_num_axis = MAX_MM_AXES;
+    }
+    else
+      status.used_num_axis = status.mm->num_axis;
+
+    for ( n = 0; n < status.used_num_axis; n++ )
       status.design_pos[n] = status.mm->axis[n].def;
 
     (void)FT_Set_Var_Design_Coordinates( size->face,
-                                         status.mm->num_axis,
+                                         status.used_num_axis,
                                          status.design_pos );
   }
 
@@ -1112,7 +1123,7 @@
     case grKeyF2:       if ( status.mm )
                         {
                           status.current_axis++;
-                          status.current_axis %= status.mm->num_axis;
+                          status.current_axis %= status.used_num_axis;
                         }
                         break;
 

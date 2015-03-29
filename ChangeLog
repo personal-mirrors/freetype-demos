@@ -1,5 +1,19 @@
 2015-03-29  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid, ftmulti]: Handle GX fonts with more than 4 axes.
+
+	ftgrid now handles up to 32 axes, while ftmulti will ignore all axes
+	but the first four.
+
+	* src/ftgrid.c (MAX_MM_AXES): New macro.
+	(GridStatusRec): New field `used_num_axis'.
+	(event_axis_change, event_font_change, Process_Event): Use it.
+
+	* src/ftmulti.c (used_num_axis): New global variable.
+	(Process_Event, main): Use it.
+
+2015-03-29  Werner Lemberg  <wl@gnu.org>
+
 	[ftdump] Display info about MM axes.
 
 	* src/ftdump.c: Include FT_MULTIPLE_MASTERS_H.
