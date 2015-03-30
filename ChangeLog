@@ -1,3 +1,11 @@
+2015-03-30  Werner Lemberg  <wl@gnu.org>
+
+	[ftdump] Show proper names for GX axes.
+
+	* src/ftdump.c (Print_MM_Axes): Try to find and display English
+	versions of the GX axis names (stored in the `name' table) instead
+	of 4-letter tags.
+
 2015-03-29  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid, ftmulti]: Handle GX fonts with more than 4 axes.

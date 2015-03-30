@@ -469,8 +469,8 @@
 
           switch ( name.encoding_id )
           {
-          /* TT_MS_ID_SYMBOL_CS is supposed to be Unicode, according to */
-          /* information from the MS font development team              */
+            /* TT_MS_ID_SYMBOL_CS is supposed to be Unicode, according to */
+            /* information from the MS font development team              */
           case TT_MS_ID_SYMBOL_CS:
           case TT_MS_ID_UNICODE_CS:
             put_unicode_be16( name.string, name.string_len, 6 );
@@ -576,7 +576,7 @@
   {
     FT_MM_Var*       mm;
     FT_Multi_Master  dummy;
-    FT_UInt          is_GX, i;
+    FT_UInt          is_GX, i, num_names;
 
 
     /* MM or GX axes */
@@ -592,10 +592,55 @@
       return;
     }
 
+    num_names = FT_Get_Sfnt_Name_Count( face );
+
     for ( i = 0; i < mm->num_axis; i++ )
     {
-      printf( "   %s: [%g;%g], default %g\n",
-              mm->axis[i].name,
+      FT_SfntName  name;
+
+
+      name.string = NULL;
+
+      if ( is_GX )
+      {
+        FT_UInt  strid = mm->axis[i].strid;
+        FT_UInt  j;
+
+
+        /* iterate over all name entries        */
+        /* to find an English entry for `strid' */
+
+        for ( j = 0; j < num_names; j++ )
+        {
+          error = FT_Get_Sfnt_Name( face, j, &name );
+          if ( error )
+            continue;
+
+          if ( name.name_id == strid )
+          {
+            /* XXX we don't have support for Apple's new `ltag' table yet, */
+            /* thus we ignore TT_PLATFORM_APPLE_UNICODE                    */
+            if ( ( name.platform_id == TT_PLATFORM_MACINTOSH &&
+                   name.language_id == TT_MAC_LANGID_ENGLISH )        ||
+                 ( name.platform_id == TT_PLATFORM_MICROSOFT        &&
+                   ( name.language_id & 0xFF )
+                                    == TT_MS_LANGID_ENGLISH_GENERAL ) )
+              break;
+          }
+        }
+      }
+
+      if ( name.string )
+      {
+        if ( name.platform_id == TT_PLATFORM_MACINTOSH )
+          put_ascii( name.string, name.string_len, 3 );
+        else
+          put_unicode_be16( name.string, name.string_len, 3 );
+      }
+      else
+        printf( "   %s", mm->axis[i].name );
+
+      printf( ": [%g;%g], default %g\n",
               mm->axis[i].minimum / 65536.0,
               mm->axis[i].maximum / 65536.0,
               mm->axis[i].def / 65536.0 );
