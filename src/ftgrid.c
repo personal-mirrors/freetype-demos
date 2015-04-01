@@ -128,6 +128,8 @@
     const char*  header;
     char         header_buffer[BUFSIZE];
 
+    FT_Stroker  stroker;
+
     unsigned int cff_hinting_engine;
     unsigned int tt_interpreter_version;
 
@@ -516,19 +518,18 @@
                             FTDemo_Handle*   handle,
                             FTDemo_Display*  display )
   {
-    static FT_Stroker  stroker;
-    FT_Size            size;
-    FT_GlyphSlot       slot;
-    double             scale = 64.0 * st->scale;
-    int                ox    = (int)st->x_origin;
-    int                oy    = (int)st->y_origin;
+    FT_Size       size;
+    FT_GlyphSlot  slot;
+    double        scale = 64.0 * st->scale;
+    int           ox    = (int)st->x_origin;
+    int           oy    = (int)st->y_origin;
 
 
-    if ( stroker == NULL )
+    if ( st->stroker == NULL )
     {
-      FT_Stroker_New( handle->library, &stroker );
+      FT_Stroker_New( handle->library, &st->stroker );
 
-      FT_Stroker_Set( stroker, 32, FT_STROKER_LINECAP_BUTT,
+      FT_Stroker_Set( st->stroker, 32, FT_STROKER_LINECAP_BUTT,
                       FT_STROKER_LINEJOIN_ROUND, 0x20000 );
     }
 
@@ -580,7 +581,7 @@
       if ( st->do_outline )
       {
         FT_Get_Glyph( slot, &glyph );
-        FT_Glyph_Stroke( &glyph, stroker, 1 );
+        FT_Glyph_Stroke( &glyph, st->stroker, 1 );
 
         error = FTDemo_Draw_Glyph_Color( handle, display, glyph, &ox, &oy,
                                          st->outline_color );
@@ -1420,6 +1421,7 @@
     printf( "Execution completed successfully.\n" );
 
     free( status.mm );
+    FT_Stroker_Done( status.stroker );
     FTDemo_Display_Done( display );
     FTDemo_Done( handle );
 

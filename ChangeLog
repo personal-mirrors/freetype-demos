@@ -1,3 +1,11 @@
+2015-04-01  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Fix minor memory leak.
+
+	* src/ftgrid.c (GridStatusRec): Add `stroker' field.
+	(grid_status_draw_outline): Updated.
+	(main): Call `FT_Stroker_Done'.
+
 2015-03-30  Werner Lemberg  <wl@gnu.org>
 
 	[ftdump] Show proper names for GX axes.
