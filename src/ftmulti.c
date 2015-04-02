@@ -29,7 +29,9 @@
 #define  DIM_X   640
 #define  DIM_Y   480
 
-#define  MAXPTSIZE  500                 /* dtp */
+#define  MAXPTSIZE    500               /* dtp */
+#define  MAX_MM_AXES    6
+
 
   static char  Header[256];
   static char* new_header = 0;
@@ -74,8 +76,8 @@
   static int  render_mode = 1;
 
   static FT_MM_Var  *multimaster   = NULL;
-  static FT_Fixed    design_pos   [T1_MAX_MM_AXIS];
-  static FT_Fixed    requested_pos[T1_MAX_MM_AXIS];
+  static FT_Fixed    design_pos   [MAX_MM_AXES];
+  static FT_Fixed    requested_pos[MAX_MM_AXES];
   static int         requested_cnt = 0;
   static int         used_num_axis = 0;
 
@@ -134,7 +136,7 @@
   static void
   parse_design_coords( char  *s )
   {
-    for ( requested_cnt = 0; requested_cnt < T1_MAX_MM_AXIS && *s;
+    for ( requested_cnt = 0; requested_cnt < MAX_MM_AXES && *s;
           requested_cnt++ )
     {
       requested_pos[requested_cnt] = (FT_Fixed)( strtod( s, &s ) * 65536.0 );
@@ -260,7 +262,7 @@
 
 
     start_x = 4;
-    start_y = 36 + pt_size;
+    start_y = pt_size + ( used_num_axis > MAX_MM_AXES / 2 ? 44 : 36 );
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -410,40 +412,34 @@
 
     grWriteln( buf );
     grLn();
-    grWriteln( "This program is used to display all glyphs from one or" );
-    grWriteln( "several Multiple Masters font files, with the FreeType library.");
+    grWriteln( "This program displays all glyphs from one or several" );
+    grWriteln( "Multiple Masters or GX font files, with the FreeType library." );
     grLn();
     grWriteln( "Use the following keys:");
     grLn();
-    grWriteln( "  ?         : display this help screen" );
-    grWriteln( "  a         : toggle anti-aliasing" );
-    grWriteln( "  h         : toggle outline hinting" );
-    grWriteln( "  b         : toggle embedded bitmaps" );
-    grWriteln( "  space     : toggle rendering mode" );
+    grWriteln( "?           display this help screen" );
+    grWriteln( "a           toggle anti-aliasing" );
+    grWriteln( "h           toggle outline hinting" );
+    grWriteln( "b           toggle embedded bitmaps" );
+    grWriteln( "space       toggle rendering mode" );
     grLn();
-    grWriteln( "  n         : next font" );
-    grWriteln( "  p         : previous font" );
+    grWriteln( "p, n        previous/next font" );
     grLn();
-    grWriteln( "  Up        : increase pointsize by 1 unit" );
-    grWriteln( "  Down      : decrease pointsize by 1 unit" );
-    grWriteln( "  Page Up   : increase pointsize by 10 units" );
-    grWriteln( "  Page Down : decrease pointsize by 10 units" );
+    grWriteln( "Up, Down    change pointsize by 1 unit" );
+    grWriteln( "PgUp, PgDn  change pointsize by 10 units" );
     grLn();
-    grWriteln( "  Right     : increment first glyph index" );
-    grWriteln( "  Left      : decrement first glyph index" );
+    grWriteln( "Left, Right adjust index by 1" );
+    grWriteln( "F7, F8      adjust index by 10" );
+    grWriteln( "F9, F10     adjust index by 100" );
+    grWriteln( "F11, F12    adjust index by 1000" );
     grLn();
-    grWriteln( "  F1        : decrement first axis pos by 1/50th of its range" );
-    grWriteln( "  F2        : increment first axis pos by 1/50th of its range" );
-    grWriteln( "  F3        : decrement second axis pos by 1/50th of its range" );
-    grWriteln( "  F4        : increment second axis pos by 1/50th of its range" );
-    grWriteln( "  F5        : decrement third axis pos by 1/50th of its range" );
-    grWriteln( "  F6        : increment third axis pos by 1/50th of its range" );
-    grWriteln( "  F7        : decrement fourth axis pos by 1/50th of its range" );
-    grWriteln( "  F8        : increment fourth axis pos by 1/50th of its range" );
-    grWriteln( "  F9        : decrement index by 100" );
-    grWriteln( "  F10       : increment index by 100" );
-    grWriteln( "  F11       : decrement index by 1000" );
-    grWriteln( "  F12       : increment index by 1000" );
+    grWriteln( "F1, F2      adjust first axis by 1/50th of its range" );
+    grWriteln( "F3, F4      adjust second axis by 1/50th of its range" );
+    grWriteln( "F5, F6      adjust third axis by 1/50th of its range" );
+    grWriteln( "1, 2        adjust fourth axis by 1/50th of its range" );
+    grWriteln( "3, 4        adjust fifth axis by 1/50th of its range" );
+    grWriteln( "5, 6        adjust sixth axis by 1/50th of its range" );
+    grLn();
     grLn();
     grWriteln( "press any key to exit this help screen" );
 
@@ -495,8 +491,8 @@
 
     case grKEY( ' ' ):
       render_mode ^= 1;
-      new_header = render_mode ? (char *)"rendering all glyphs in font"
-                               : (char *)"rendering test text string";
+      new_header   = render_mode ? (char *)"rendering all glyphs in font"
+                                 : (char *)"rendering test text string";
       break;
 
     /* MM related keys */
@@ -531,14 +527,34 @@
       axis = 2;
       goto Do_Axis;
 
-    case grKeyF7:
+    case grKEY( '1' ):
       i = -20;
       axis = 3;
       goto Do_Axis;
 
-    case grKeyF8:
+    case grKEY( '2' ):
       i = 20;
       axis = 3;
+      goto Do_Axis;
+
+    case grKEY( '3' ):
+      i = -20;
+      axis = 4;
+      goto Do_Axis;
+
+    case grKEY( '4' ):
+      i = 20;
+      axis = 4;
+      goto Do_Axis;
+
+    case grKEY( '5' ):
+      i = -20;
+      axis = 5;
+      goto Do_Axis;
+
+    case grKEY( '6' ):
+      i = 20;
+      axis = 5;
       goto Do_Axis;
 
     /* scaling related keys */
@@ -567,6 +583,14 @@
 
     case grKeyRight:
       i = 1;
+      goto Do_Glyph;
+
+    case grKeyF7:
+      i = -10;
+      goto Do_Glyph;
+
+    case grKeyF8:
+      i = 10;
       goto Do_Glyph;
 
     case grKeyF9:
@@ -788,11 +812,11 @@
       int  n;
 
 
-      if ( multimaster->num_axis > T1_MAX_MM_AXIS )
+      if ( multimaster->num_axis > MAX_MM_AXES )
       {
         fprintf( stderr, "only handling first %d GX axes (of %d)\n",
-                         T1_MAX_MM_AXIS, multimaster->num_axis );
-        used_num_axis = T1_MAX_MM_AXIS;
+                         MAX_MM_AXES, multimaster->num_axis );
+        used_num_axis = MAX_MM_AXES;
       }
       else
         used_num_axis = (int)multimaster->num_axis;
@@ -873,12 +897,14 @@
         grWriteCellString( &bit, 0, 0, new_header, fore_color );
         new_header = 0;
 
-        sprintf( Header, "axis:" );
+        sprintf( Header, "axes:" );
         {
           int  n;
+          int  limit = used_num_axis > MAX_MM_AXES / 2 ? MAX_MM_AXES / 2
+                                                       : used_num_axis;
 
 
-          for ( n = 0; n < used_num_axis; n++ )
+          for ( n = 0; n < limit; n++ )
           {
             char  temp[100];
 
@@ -891,6 +917,29 @@
           }
         }
         grWriteCellString( &bit, 0, 16, Header, fore_color );
+
+        if ( used_num_axis > MAX_MM_AXES / 2 )
+        {
+          int  n;
+          int  limit = used_num_axis;
+
+
+          sprintf( Header, "     " );
+
+          for ( n = MAX_MM_AXES / 2; n < limit; n++ )
+          {
+            char  temp[100];
+
+
+            sprintf( temp, "  %.50s: %.02f",
+                           multimaster->axis[n].name,
+                           design_pos[n] / 65536.0 );
+            strncat( Header, temp,
+                     sizeof ( Header ) - strlen( Header ) - 1 );
+          }
+
+          grWriteCellString( &bit, 0, 24, Header, fore_color );
+        }
 
         sprintf( Header, "at %d points, first glyph = %d",
                          ptsize,

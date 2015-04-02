@@ -1,3 +1,17 @@
+2015-04-02  Werner Lemberg  <wl@gnu.org>
+
+	[ftmulti] Make the first six axes accessible.
+
+	We now use keys F1-F6 and 1-6.  F7 and F8 get its original function
+	back (this is, adjusting the glyph index by 10).
+
+	* src/ftmulti.c (MAX_MM_AXES): New macro.  Replaces `T1_MAX_MM_AXIS'
+	everywhere.
+	(Render_All): Adjust vertical position depending on number of axes.
+	(Help): Updated.
+	(Process_Event): Handle new keys.
+	(main): Use two lines for axes if we have more than three.
+
 2015-04-01  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Fix minor memory leak.
