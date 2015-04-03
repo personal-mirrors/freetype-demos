@@ -1,3 +1,16 @@
+2015-04-03  Werner Lemberg  <wl@gnu.org>
+
+	[ftdump] Add option `-u' to emit data in UTF-8 encoding.
+
+	* src/ftdump.c (utf8): New global variable.
+	(usage): Updated.
+	(put_unicode_be16): Only emit characters < 0x80 as-is.
+	(put_unicode_be_as_utf8): New function.
+	(Print_Sfnt_Names, Print_MM_Axes): Use it.
+	(main): Handle new option `-u'.
+
+	* src/ftdump.1: Updated.
+
 2015-04-02  Werner Lemberg  <wl@gnu.org>
 
 	[ftmulti] Make the first six axes accessible.

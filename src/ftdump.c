@@ -37,6 +37,7 @@
   static int  debug       = 0;
   static int  trace_level = 0;
   static int  name_tables = 0;
+  static int  utf8        = 0;
 
 
   /* PanicZ */
@@ -80,6 +81,7 @@
 #endif
     fprintf( stderr,
       "  -n        Print SFNT name tables.\n"
+      "  -u        Emit UTF8.\n"
       "  -V        Be verbose.\n"
       "\n"
       "  -v        Show version.\n"
@@ -369,10 +371,88 @@
         break;
 
       default:
-        if ( ch < 256 )
+        if ( ch < 128 )
           putchar( ch );
         else
           printf( "\\U+%04X", ch );
+        break;
+      }
+    }
+    if ( ch != '\n' )
+      putchar( '"' );
+  }
+
+
+  static void
+  put_unicode_be16_as_utf8( FT_Byte*  string,
+                            FT_UInt   string_len,
+                            FT_UInt   indent )
+  {
+    FT_Int   ch = 0;
+    FT_UInt  i, j;
+
+
+    for ( j = 0; j < indent; j++ )
+      putchar( ' ' );
+    putchar( '"' );
+
+    for ( i = 0; i < string_len; i += 2 )
+    {
+      ch = ( string[i] << 8 ) | string[i + 1];
+
+      switch ( ch )
+      {
+      case '\n':
+        fputs( "\\n\"", stdout );
+        if ( i + 2 < string_len )
+        {
+          putchar( '\n' );
+          for ( j = 0; j < indent; j++ )
+            putchar( ' ' );
+          putchar( '"' );
+        }
+        break;
+      case '\r':
+        fputs( "\\r", stdout );
+        break;
+      case '\t':
+        fputs( "\\t", stdout );
+        break;
+      case '\\':
+        fputs( "\\\\", stdout );
+        break;
+      case '"':
+        fputs( "\\\"", stdout );
+        break;
+
+        /*
+         * UTF-8 encoding
+         *
+         *   0x00000080 - 0x000007FF:
+         *        110xxxxx 10xxxxxx
+         *
+         *   0x00000800 - 0x0000FFFF:
+         *        1110xxxx 10xxxxxx 10xxxxxx
+         *
+         *   0x00010000 - 0x001FFFFF:
+         *        11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+         */
+
+      default:
+        if ( ch < 0x80 )
+          putchar( ch );
+        else if ( ch < 0x800 )
+        {
+          putchar( 0xC0 | ( (FT_UInt)ch >> 6 ) );
+          putchar( 0x80 | ( (FT_UInt)ch & 0x3F ) );
+        }
+        else
+        {
+          /* we don't handle surrogates */
+          putchar( 0xE0 | ( (FT_UInt)ch >> 12 ) );
+          putchar( 0x80 | ( ( (FT_UInt)ch >> 6 ) & 0x3F ) );
+          putchar( 0x80 | ( (FT_UInt)ch & 0x3F ) );
+        }
         break;
       }
     }
@@ -408,13 +488,17 @@
         switch ( name.platform_id )
         {
         case TT_PLATFORM_APPLE_UNICODE:
+          fputs( ":\n", stdout );
           switch ( name.encoding_id )
           {
           case TT_APPLE_ID_DEFAULT:
           case TT_APPLE_ID_UNICODE_1_1:
           case TT_APPLE_ID_ISO_10646:
           case TT_APPLE_ID_UNICODE_2_0:
-            put_unicode_be16( name.string, name.string_len, 6 );
+            if ( utf8 )
+              put_unicode_be16_as_utf8( name.string, name.string_len, 6 );
+            else
+              put_unicode_be16( name.string, name.string_len, 6 );
             break;
 
           default:
@@ -445,6 +529,7 @@
           break;
 
         case TT_PLATFORM_ISO:
+          fputs( ":\n", stdout );
           switch ( name.encoding_id )
           {
           case TT_ISO_ID_7BIT_ASCII:
@@ -453,7 +538,10 @@
             break;
 
           case TT_ISO_ID_10646:
-            put_unicode_be16( name.string, name.string_len, 6 );
+            if ( utf8 )
+              put_unicode_be16_as_utf8( name.string, name.string_len, 6 );
+            else
+              put_unicode_be16( name.string, name.string_len, 6 );
             break;
 
           default:
@@ -473,7 +561,10 @@
             /* information from the MS font development team              */
           case TT_MS_ID_SYMBOL_CS:
           case TT_MS_ID_UNICODE_CS:
-            put_unicode_be16( name.string, name.string_len, 6 );
+            if ( utf8 )
+              put_unicode_be16_as_utf8( name.string, name.string_len, 6 );
+            else
+              put_unicode_be16( name.string, name.string_len, 6 );
             break;
 
           default:
@@ -635,7 +726,12 @@
         if ( name.platform_id == TT_PLATFORM_MACINTOSH )
           put_ascii( name.string, name.string_len, 3 );
         else
-          put_unicode_be16( name.string, name.string_len, 3 );
+        {
+          if ( utf8 )
+            put_unicode_be16_as_utf8( name.string, name.string_len, 3 );
+          else
+            put_unicode_be16( name.string, name.string_len, 3 );
+        }
       }
       else
         printf( "   %s", mm->axis[i].name );
@@ -674,7 +770,7 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "dl:nvV" );
+      option = getopt( argc, argv, "dl:nuvV" );
 
       if ( option == -1 )
         break;
@@ -693,6 +789,10 @@
 
       case 'n':
         name_tables = 1;
+        break;
+
+      case 'u':
+        utf8 = 1;
         break;
 
       case 'v':
