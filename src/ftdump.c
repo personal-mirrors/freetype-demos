@@ -34,8 +34,6 @@
 
   static int  comma_flag  = 0;
   static int  verbose     = 0;
-  static int  debug       = 0;
-  static int  trace_level = 0;
   static int  name_tables = 0;
   static int  utf8        = 0;
 
@@ -71,14 +69,7 @@
       "Usage: %s [options] fontname\n"
       "\n",
              execname );
-#if FREETYPE_MAJOR == 2 && FREETYPE_MINOR == 0 && FREETYPE_PATCH <= 8
-    fprintf( stderr,
-      "  -d        Enable debug information.\n" );
-#  ifdef FT_DEBUG_LEVEL_TRACE
-    fprintf( stderr,
-      "  -l level  Trace level for debug information.\n" );
-#  endif
-#endif
+
     fprintf( stderr,
       "  -n        Print SFNT name tables.\n"
       "  -u        Emit UTF8.\n"
@@ -770,23 +761,13 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "dl:nuvV" );
+      option = getopt( argc, argv, "nuvV" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
-      case 'd':
-        debug = 1;
-        break;
-
-      case 'l':
-        trace_level = atoi( optarg );
-        if ( trace_level < 1 || trace_level > 7 )
-          usage( execname );
-        break;
-
       case 'n':
         name_tables = 1;
         break;
@@ -825,28 +806,6 @@
 
     if ( argc != 1 )
       usage( execname );
-
-#if FREETYPE_MAJOR == 2 && FREETYPE_MINOR == 0 && FREETYPE_PATCH <= 8
-    if ( debug )
-    {
-#  ifdef FT_DEBUG_LEVEL_TRACE
-      FT_SetTraceLevel( trace_any, (FT_Byte)trace_level );
-#  else
-      trace_level = 0;
-#  endif
-    }
-#elif 0
-       /* "setenv/putenv" is not ANSI and I don't want to mess */
-       /* with this portability issue right now                */
-    if ( debug )
-    {
-      char  temp[32];
-
-
-      sprintf( temp, "any=%d", trace_level );
-      setenv( "FT2_DEBUG", temp );
-    }
-#endif
 
     file = 0;
 

@@ -1,5 +1,14 @@
 2015-04-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftdump] Remove dead code.
+
+	* src/ftdump.c (debug, trace_level): Remove.
+	(usage): Remove #ifdef'ed code.
+	(main): Don't handle obsolete options `-d' and `-l'.
+	Remove #ifdef'ed code.
+
+2015-04-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftdump] Add option `-u' to emit data in UTF-8 encoding.
 
 	* src/ftdump.c (utf8): New global variable.
