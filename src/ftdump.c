@@ -304,7 +304,8 @@
   static void
   put_unicode_be16( FT_Byte*  string,
                     FT_UInt   string_len,
-                    FT_UInt   indent )
+                    FT_UInt   indent,
+                    FT_Int    as_utf8 )
   {
     FT_Int   ch = 0;
     FT_UInt  i, j;
@@ -329,93 +330,25 @@
             putchar( ' ' );
           putchar( '"' );
         }
-        break;
+        continue;
       case '\r':
         fputs( "\\r", stdout );
-        break;
+        continue;
       case '\t':
         fputs( "\\t", stdout );
-        break;
+        continue;
       case '\\':
         fputs( "\\\\", stdout );
-        break;
+        continue;
       case '"':
         fputs( "\\\"", stdout );
-        break;
-
-      case 0x00A9:
-        fputs( "(c)", stdout );
-        break;
-      case 0x00AE:
-        fputs( "(r)", stdout );
-        break;
-
-      case 0x2013:
-        fputs( "--", stdout );
-        break;
-      case 0x2019:
-        fputs( "\'", stdout );
-        break;
-
-      case 0x2122:
-        fputs( "(tm)", stdout );
-        break;
-
+        continue;
       default:
-        if ( ch < 128 )
-          putchar( ch );
-        else
-          printf( "\\U+%04X", ch );
         break;
       }
-    }
-    if ( ch != '\n' )
-      putchar( '"' );
-  }
 
-
-  static void
-  put_unicode_be16_as_utf8( FT_Byte*  string,
-                            FT_UInt   string_len,
-                            FT_UInt   indent )
-  {
-    FT_Int   ch = 0;
-    FT_UInt  i, j;
-
-
-    for ( j = 0; j < indent; j++ )
-      putchar( ' ' );
-    putchar( '"' );
-
-    for ( i = 0; i < string_len; i += 2 )
-    {
-      ch = ( string[i] << 8 ) | string[i + 1];
-
-      switch ( ch )
+      if ( as_utf8 )
       {
-      case '\n':
-        fputs( "\\n\"", stdout );
-        if ( i + 2 < string_len )
-        {
-          putchar( '\n' );
-          for ( j = 0; j < indent; j++ )
-            putchar( ' ' );
-          putchar( '"' );
-        }
-        break;
-      case '\r':
-        fputs( "\\r", stdout );
-        break;
-      case '\t':
-        fputs( "\\t", stdout );
-        break;
-      case '\\':
-        fputs( "\\\\", stdout );
-        break;
-      case '"':
-        fputs( "\\\"", stdout );
-        break;
-
         /*
          * UTF-8 encoding
          *
@@ -424,12 +357,8 @@
          *
          *   0x00000800 - 0x0000FFFF:
          *        1110xxxx 10xxxxxx 10xxxxxx
-         *
-         *   0x00010000 - 0x001FFFFF:
-         *        11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
          */
 
-      default:
         if ( ch < 0x80 )
           putchar( ch );
         else if ( ch < 0x800 )
@@ -444,9 +373,39 @@
           putchar( 0x80 | ( ( (FT_UInt)ch >> 6 ) & 0x3F ) );
           putchar( 0x80 | ( (FT_UInt)ch & 0x3F ) );
         }
-        break;
+
+        continue;
+      }
+
+      switch ( ch )
+      {
+      case 0x00A9:
+        fputs( "(c)", stdout );
+        continue;
+      case 0x00AE:
+        fputs( "(r)", stdout );
+        continue;
+
+      case 0x2013:
+        fputs( "--", stdout );
+        continue;
+      case 0x2019:
+        fputs( "\'", stdout );
+        continue;
+
+      case 0x2122:
+        fputs( "(tm)", stdout );
+        continue;
+
+      default:
+        if ( ch < 128 )
+          putchar( ch );
+        else
+          printf( "\\U+%04X", ch );
+        continue;
       }
     }
+
     if ( ch != '\n' )
       putchar( '"' );
   }
@@ -486,10 +445,7 @@
           case TT_APPLE_ID_UNICODE_1_1:
           case TT_APPLE_ID_ISO_10646:
           case TT_APPLE_ID_UNICODE_2_0:
-            if ( utf8 )
-              put_unicode_be16_as_utf8( name.string, name.string_len, 6 );
-            else
-              put_unicode_be16( name.string, name.string_len, 6 );
+            put_unicode_be16( name.string, name.string_len, 6, utf8 );
             break;
 
           default:
@@ -529,10 +485,7 @@
             break;
 
           case TT_ISO_ID_10646:
-            if ( utf8 )
-              put_unicode_be16_as_utf8( name.string, name.string_len, 6 );
-            else
-              put_unicode_be16( name.string, name.string_len, 6 );
+            put_unicode_be16( name.string, name.string_len, 6, utf8 );
             break;
 
           default:
@@ -552,10 +505,7 @@
             /* information from the MS font development team              */
           case TT_MS_ID_SYMBOL_CS:
           case TT_MS_ID_UNICODE_CS:
-            if ( utf8 )
-              put_unicode_be16_as_utf8( name.string, name.string_len, 6 );
-            else
-              put_unicode_be16( name.string, name.string_len, 6 );
+            put_unicode_be16( name.string, name.string_len, 6, utf8 );
             break;
 
           default:
@@ -717,12 +667,7 @@
         if ( name.platform_id == TT_PLATFORM_MACINTOSH )
           put_ascii( name.string, name.string_len, 3 );
         else
-        {
-          if ( utf8 )
-            put_unicode_be16_as_utf8( name.string, name.string_len, 3 );
-          else
-            put_unicode_be16( name.string, name.string_len, 3 );
-        }
+          put_unicode_be16( name.string, name.string_len, 3, utf8 );
       }
       else
         printf( "   %s", mm->axis[i].name );
