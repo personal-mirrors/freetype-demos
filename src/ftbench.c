@@ -1086,6 +1086,11 @@
         test.bench  = test_load_advances;
         flags       = FT_LOAD_TARGET_LIGHT;
         benchmark( face, &test, max_iter, max_time );
+
+        test.title  = "Load_Advances (Unscaled)";
+        test.bench  = test_load_advances;
+        flags       = FT_LOAD_NO_SCALE;
+        benchmark( face, &test, max_iter, max_time );
         break;
 
       case FT_BENCH_RENDER:

@@ -1,9 +1,15 @@
+2015-04-11  Werner Lemberg  <wl@gnu.org>
+
+	[ftbench] Check unscaled advance widths also.
+
+	* src/ftbench.c (main) <FT_BENCH_LOAD_ADVANCES>: Add test.
+
 2015-04-05  Werner Lemberg  <wl@gnu.org>
 
 	[ftdump] Simplify code.
 
 	* src/ftdump.c (put_unicode_be16_as_utf8): Fold into...
-	(put_unicode_b316): This function, with an additional argument.
+	(put_unicode_be16): This function, with an additional argument.
 	Update all callers.
 
 2015-04-03  Werner Lemberg  <wl@gnu.org>
