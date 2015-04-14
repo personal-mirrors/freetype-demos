@@ -1,3 +1,14 @@
+2015-04-14  Werner Lemberg  <wl@gnu.org>
+
+	Move some output functions to a separate file.
+
+	* src/aux.c, src/aux.h: New files, holding `put_ascii' and
+	`put_unicode_be16' from...
+	* src/ftdump.c: ... this file, which now includes `aux.h'.
+
+	* Makefile (COMMON_OBJ): Add `aux.c'.
+	Fix rule.
+
 2015-04-11  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] Check unscaled advance widths also.

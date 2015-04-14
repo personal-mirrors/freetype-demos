@@ -6,7 +6,7 @@
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
-/*  ftcommon.h - common routines for the FreeType demo programs.            */
+/*  ftcommon.h - common routines for the graphic FreeType demo programs.    */
 /*                                                                          */
 /****************************************************************************/
 

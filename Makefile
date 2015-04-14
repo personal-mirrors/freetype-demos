@@ -309,26 +309,26 @@ else
   INCLUDES := $(subst /,$(COMPILER_SEP),$(FT_INCLUDES))
 
 
+  # generic rule
+  $(OBJ_DIR_2)/%.$(SO): $(SRC_DIR)/%.c $(FTLIB)
+	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+
   ####################################################################
   #
   # Rules for compiling object files for text-only demos.
   #
-  COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO)
-  $(COMMON_OBJ): $(SRC_DIR)/common.c
-  ifdef DOSLIKE
-	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<) $DEXPAND_WILDCARDS
-  else
-	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
-  endif
+  $(OBJ_DIR_2)/common.$(SO): $(SRC_DIR)/common.c
+  $(OBJ_DIR_2)/aux.$(SO): $(SRC_DIR)/aux.c
+  COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO) \
+                $(OBJ_DIR_2)/aux.$(SO)
+
 
   FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO)
   $(FTCOMMON_OBJ): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-
-  $(OBJ_DIR_2)/%.$(SO): $(SRC_DIR)/%.c $(FTLIB)
-	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   $(OBJ_DIR_2)/ftlint.$(SO): $(SRC_DIR)/ftlint.c
 	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
