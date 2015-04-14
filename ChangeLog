@@ -1,5 +1,16 @@
 2015-04-14  Werner Lemberg  <wl@gnu.org>
 
+	[aux] Add functions for outputting strings.
+
+	* src/aux.c (hexdigit): New static array.
+	(put_ascii_string, put_ascii_string_size, put_unicode_be16_string,
+	put_unicode_be16_string_size): New functions.
+	(put_ascii, put_unicode_be16): Use new functions to implement it.
+
+	* src/aux.h: Updated.
+
+2015-04-14  Werner Lemberg  <wl@gnu.org>
+
 	Move some output functions to a separate file.
 
 	* src/aux.c, src/aux.h: New files, holding `put_ascii' and

@@ -29,9 +29,34 @@
 
 
   void
+  put_ascii_string( char*     out,
+                    FT_Byte*  string,
+                    FT_UInt   string_len,
+                    FT_UInt   indent );
+
+  FT_UInt
+  put_ascii_string_size( FT_Byte*  string,
+                         FT_UInt   string_len,
+                         FT_UInt   indent );
+
+  void
   put_ascii( FT_Byte*  string,
              FT_UInt   string_len,
              FT_UInt   indent );
+
+
+  void
+  put_unicode_be16_string( char*     out,
+                           FT_Byte*  string,
+                           FT_UInt   string_len,
+                           FT_UInt   indent,
+                           FT_Int    as_utf8 );
+
+  FT_UInt
+  put_unicode_be16_string_size( FT_Byte*  string,
+                                FT_UInt   string_len,
+                                FT_UInt   indent,
+                                FT_Int    as_utf8 );
 
   void
   put_unicode_be16( FT_Byte*  string,
