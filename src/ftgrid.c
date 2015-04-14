@@ -15,6 +15,7 @@
 
 #include "ftcommon.h"
 #include "common.h"
+#include "aux.h"
 #include <math.h>
 
   /* the following header shouldn't be used in normal programs */
@@ -30,6 +31,8 @@
 #include FT_CFF_DRIVER_H
 #include FT_TRUETYPE_DRIVER_H
 #include FT_MULTIPLE_MASTERS_H
+#include FT_SFNT_NAMES_H
+#include FT_TRUETYPE_IDS_H
 
 #define MAXPTSIZE    500                 /* dtp */
 #define MAX_MM_AXES   32
@@ -134,6 +137,7 @@
     unsigned int tt_interpreter_version;
 
     FT_MM_Var*   mm;
+    char*        axis_name[MAX_MM_AXES];
     FT_Fixed     design_pos[MAX_MM_AXES];
     FT_UInt      current_axis;
     FT_UInt      used_num_axis;
@@ -897,10 +901,12 @@
   static void
   event_font_change( int  delta )
   {
-    FT_Error  err;
-    FT_Size   size;
-    FT_UInt   n;
-    int       num_indices;
+    FT_Error         err;
+    FT_Size          size;
+    FT_UInt          n, num_names;
+    FT_Multi_Master  dummy;
+    int              num_indices, is_GX;
+
 
     if ( status.font_index + delta >= handle->num_fonts ||
          status.font_index + delta < 0                  )
@@ -934,8 +940,88 @@
     else
       status.used_num_axis = status.mm->num_axis;
 
+    err   = FT_Get_Multi_Master( size->face, &dummy );
+    is_GX = err ? 1 : 0;
+
+    num_names = FT_Get_Sfnt_Name_Count( size->face );
+
+    for ( n = 0; n < MAX_MM_AXES; n++ )
+    {
+      free( status.axis_name[n] );
+      status.axis_name[n] = NULL;
+    }
+
     for ( n = 0; n < status.used_num_axis; n++ )
+    {
       status.design_pos[n] = status.mm->axis[n].def;
+
+      if ( is_GX )
+      {
+        FT_SfntName  name;
+        FT_UInt      strid, j;
+
+
+        name.string = NULL;
+        strid       = status.mm->axis[n].strid;
+
+        /* iterate over all name entries        */
+        /* to find an English entry for `strid' */
+
+        for ( j = 0; j < num_names; j++ )
+        {
+          error = FT_Get_Sfnt_Name( size->face, j, &name );
+          if ( error )
+            continue;
+
+          if ( name.name_id == strid )
+          {
+            /* XXX we don't have support for Apple's new `ltag' table yet, */
+            /* thus we ignore TT_PLATFORM_APPLE_UNICODE                    */
+            if ( ( name.platform_id == TT_PLATFORM_MACINTOSH &&
+                   name.language_id == TT_MAC_LANGID_ENGLISH )        ||
+                 ( name.platform_id == TT_PLATFORM_MICROSOFT        &&
+                   ( name.language_id & 0xFF )
+                                    == TT_MS_LANGID_ENGLISH_GENERAL ) )
+              break;
+          }
+        }
+
+        if ( name.string )
+        {
+          FT_UInt  len;
+          char*    s;
+
+
+          if ( name.platform_id == TT_PLATFORM_MACINTOSH )
+          {
+            len = put_ascii_string_size( name.string, name.string_len, 0 );
+            s   = (char*)malloc( len );
+            if ( s )
+            {
+              put_ascii_string( s, name.string, name.string_len, 0 );
+              status.axis_name[n] = s;
+            }
+          }
+          else
+          {
+            len = put_unicode_be16_string_size( name.string,
+                                                name.string_len,
+                                                0,
+                                                0 );
+            s   = (char*)malloc( len );
+            if ( s )
+            {
+              put_unicode_be16_string( s,
+                                       name.string,
+                                       name.string_len,
+                                       0,
+                                       0 );
+              status.axis_name[n] = s;
+            }
+          }
+        }
+      }
+    }
 
     (void)FT_Set_Var_Design_Coordinates( size->face,
                                          status.used_num_axis,
@@ -1189,7 +1275,9 @@
     {
       format = " %s axis: %.02f, %gpt, glyph %d";
       snprintf( status.header_buffer, BUFSIZE, format,
-                status.mm->axis[status.current_axis].name,
+                status.axis_name[status.current_axis]
+                  ? status.axis_name[status.current_axis]
+                  : status.mm->axis[status.current_axis].name,
                 status.design_pos[status.current_axis] / 65536.0,
                 status.ptsize / 64.0,
                 status.Num );
@@ -1357,6 +1445,7 @@
         char*  argv[] )
   {
     grEvent  event;
+    int      n;
 
 
     /* initialize engine */
@@ -1420,7 +1509,10 @@
 
     printf( "Execution completed successfully.\n" );
 
+    for ( n = 0; n < MAX_MM_AXES; n++ )
+      free( status.axis_name[n] );
     free( status.mm );
+
     FT_Stroker_Done( status.stroker );
     FTDemo_Display_Done( display );
     FTDemo_Done( handle );

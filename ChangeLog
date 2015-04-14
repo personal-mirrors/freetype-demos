@@ -1,5 +1,16 @@
 2015-04-14  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Show proper names for GX axes.
+
+	* src/ftgrid.c: Include `aux.h', FT_SFNT_NAMES_H, and
+	FT_TRUETYPE_IDS_H.
+	(GridStatusRec): Add `axis_name' array.
+	(event_font_change): Set GX axis name if possible.
+	(write_header): Use `axis_name' if non-NULL.
+	(main): Add clean-up code for `axis_name' array.
+
+2015-04-14  Werner Lemberg  <wl@gnu.org>
+
 	[aux] Add functions for outputting strings.
 
 	* src/aux.c (hexdigit): New static array.
