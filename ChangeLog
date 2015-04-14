@@ -1,5 +1,12 @@
 2015-04-14  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Fix memory leak.
+
+	* src/ftgrid.c (event_font_change): Free `status.mm' before calling
+	`FT_Get_MM_Var' (again).
+
+2015-04-14  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Show proper names for GX axes.
 
 	* src/ftgrid.c: Include `aux.h', FT_SFNT_NAMES_H, and

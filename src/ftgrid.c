@@ -927,6 +927,7 @@
     if ( err )
       return;
 
+    free( status.mm );
     err = FT_Get_MM_Var( size->face, &status.mm );
     if ( err )
       return;
