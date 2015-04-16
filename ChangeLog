@@ -1,5 +1,17 @@
 2015-04-16  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid]: Key `W' now toggles warper (if compiled-in).
+
+	* src/ftgrid.c [FT_DEBUG_AUTOFIT]: New extern variable
+	`_af_debug_disable_warper'.
+	(GridStatusRec): Add `do_warp' member.
+	(grid_status_init): Updated.
+	(grid_status_draw_outline): Set `_af_debug_disable_warper'.
+	(event_help): Updated.
+	(Process_Event): Handle `W' key.
+
+2015-04-16  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid]: Make blue zone toggling actually work.
 
 	* src/ftgrid.c (grid_status_draw_outline) [FT_DEBUG_AUTOFIT]: Set

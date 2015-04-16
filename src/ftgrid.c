@@ -54,6 +54,7 @@
   extern int            _af_debug_disable_horz_hints;
   extern int            _af_debug_disable_vert_hints;
   extern int            _af_debug_disable_blue_hints;
+  extern int            _af_debug_disable_warper;
   extern AF_GlyphHints  _af_debug_hints;
 
 #ifdef __cplusplus
@@ -123,6 +124,7 @@
     int          do_horz_hints;
     int          do_vert_hints;
     int          do_blue_hints;
+    int          do_warp;
     int          do_outline;
     int          do_dots;
     int          do_segment;
@@ -161,6 +163,7 @@
     st->do_horz_hints = 1;
     st->do_vert_hints = 1;
     st->do_blue_hints = 1;
+    st->do_warp       = 1;
     st->do_dots       = 1;
     st->do_outline    = 1;
     st->do_segment    = 0;
@@ -558,6 +561,7 @@
     _af_debug_disable_horz_hints = !st->do_horz_hints;
     _af_debug_disable_vert_hints = !st->do_vert_hints;
     _af_debug_disable_blue_hints = !st->do_blue_hints;
+    _af_debug_disable_warper     = !st->do_warp;
 #endif
 
     if ( FT_Load_Glyph( size->face, (FT_UInt)st->Num,
@@ -677,10 +681,12 @@
     grWriteln( "                                          H         toggle horiz. hinting   " );
     grWriteln( "i, k        move grid up/down             V         toggle vert. hinting    " );
     grWriteln( "j, l        move grid left/right          B         toggle blue zone hinting" );
-    grWriteln( "PgUp, PgDn  zoom in/out grid              s         toggle segment drawing  " );
-    grWriteln( "SPC         reset zoom and position                  (unfitted, with blues) " );
+    grWriteln( "PgUp, PgDn  zoom in/out grid              W         toggle warper (light AA," );
+    grWriteln( "SPC         reset zoom and position                  if compiled-in)        " );
+    grWriteln( "                                          s         toggle segment drawing  " );
+    grWriteln( "p, n        previous/next font                       (unfitted, with blues) " );
     grWriteln( "                                          1         dump edge hints         " );
-    grWriteln( "p, n        previous/next font            2         dump segment hints      " );
+    grWriteln( "                                          2         dump segment hints      " );
     grWriteln( "                                          3         dump point hints        " );
 #else
     grWriteln( "F1, ?       display this help screen    i, k        move grid up/down       " );
@@ -1225,6 +1231,17 @@
         status.header = "need autofit mode to toggle blue zone hinting";
       break;
 
+    case grKEY( 'W' ):
+      if ( handle->lcd_mode == LCD_MODE_LIGHT )
+      {
+        status.do_warp = !status.do_warp;
+        status.header = status.do_warp ? "warping enabled"
+                                       : "warping disabled";
+      }
+      else
+        status.header = "need light anti-aliasing mode to toggle warping";
+      break;
+
     case grKEY( 's' ):
       status.do_segment = !status.do_segment;
       status.header = status.do_segment ? "segment drawing enabled"
@@ -1249,6 +1266,7 @@
                         status.do_horz_hints = 1;
                         status.do_vert_hints = 1;
                         status.do_blue_hints = 1;
+                        status.do_warp       = 1;
 #endif
                         break;
 
