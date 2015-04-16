@@ -1,3 +1,13 @@
+2015-04-16  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Cycle through AA rendering modes with F5 and F6.
+
+	* src/ftgrid.c (event_lcd_mode_change): New function.
+	(Process_Event) [FT_DEBUG_AUTOFIT]: Enable debug stuff for light AA
+	mode also.
+	Handle `F5' and `F6' keys.
+	(event_help): Updated.
+
 2015-04-14  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Fix memory leak.

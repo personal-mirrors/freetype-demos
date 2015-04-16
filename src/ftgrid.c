@@ -700,8 +700,8 @@
     grWriteln( "                                                                            " );
     grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftgrid             " );
     grWriteln( "                                                                            " );
-    grWriteln( "if Multiple Master or GX font:                                              " );
-    grWriteln( "  F2        cycle through axes                                              " );
+    grWriteln( "if Multiple Master or GX font:          F5, F6      cycle through           " );
+    grWriteln( "  F2        cycle through axes                      anti-aliasing modes     " );
     grWriteln( "  F3, F4    adjust current axis by                                          " );
     grWriteln( "             1/50th of its range                                            " );
     /*          |----------------------------------|    |----------------------------------| */
@@ -827,6 +827,51 @@
              status.scale * 100.0 / status.scale_0 );
 
     status.header = (const char *)status.header_buffer;
+  }
+
+
+  static void
+  event_lcd_mode_change( int  delta )
+  {
+    if ( handle->antialias )
+    {
+      const char*  lcd_mode = NULL;
+
+
+      handle->lcd_mode = ( handle->lcd_mode +
+                           delta            +
+                           N_LCD_MODES      ) % N_LCD_MODES;
+
+      switch ( handle->lcd_mode )
+      {
+      case LCD_MODE_AA:
+        lcd_mode = "normal AA";
+        break;
+      case LCD_MODE_LIGHT:
+        lcd_mode = "light AA";
+        break;
+      case LCD_MODE_RGB:
+        lcd_mode = "LCD (horiz. RGB)";
+        break;
+      case LCD_MODE_BGR:
+        lcd_mode = "LCD (horiz. BGR)";
+        break;
+      case LCD_MODE_VRGB:
+        lcd_mode = "LCD (vert. RGB)";
+        break;
+      case LCD_MODE_VBGR:
+        lcd_mode = "LCD (vert. BGR)";
+        break;
+      }
+      sprintf( status.header_buffer, "rendering mode changed to %s",
+               lcd_mode );
+
+      status.header = (const char *)status.header_buffer;
+
+      FTDemo_Update_Current_Flags( handle );
+    }
+    else
+      status.header = "need anti-aliasing to change rendering mode";
   }
 
 
@@ -1068,7 +1113,8 @@
 
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( '1' ):
-      if ( handle->hinted && handle->autohint )
+      if ( handle->hinted                                             &&
+           ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
       {
         status.header = "dumping glyph edges to stdout";
         af_glyph_hints_dump_edges( _af_debug_hints, 1 );
@@ -1076,7 +1122,8 @@
       break;
 
     case grKEY( '2' ):
-      if ( handle->hinted && handle->autohint )
+      if ( handle->hinted                                             &&
+           ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
       {
         status.header = "dumping glyph segments to stdout";
         af_glyph_hints_dump_segments( _af_debug_hints, 1 );
@@ -1084,7 +1131,8 @@
       break;
 
     case grKEY( '3' ):
-      if ( handle->hinted && handle->autohint )
+      if ( handle->hinted                                             &&
+           ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
       {
         status.header = "dumping glyph points to stdout";
         af_glyph_hints_dump_points( _af_debug_hints, 1 );
@@ -1125,7 +1173,7 @@
       break;
 
     case grKEY( 'H' ):
-      if ( !handle->autohint )
+      if ( !( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
       {
         FT_Face    face;
         FT_Module  module;
@@ -1155,7 +1203,7 @@
 
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'V' ):
-      if ( handle->autohint )
+      if ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT )
       {
         status.do_vert_hints = !status.do_vert_hints;
         status.header = status.do_vert_hints ? "vertical hinting enabled"
@@ -1166,7 +1214,7 @@
       break;
 
     case grKEY( 'B' ):
-      if ( handle->autohint )
+      if ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT )
       {
         status.do_blue_hints = !status.do_blue_hints;
         status.header = status.do_blue_hints ? "blue zone hinting enabled"
@@ -1217,6 +1265,9 @@
 
     case grKeyF3:       event_axis_change( -20 ); break;
     case grKeyF4:       event_axis_change(  20 ); break;
+
+    case grKeyF5:       event_lcd_mode_change( -1 ); break;
+    case grKeyF6:       event_lcd_mode_change(  1 ); break;
 
     default:
       ;
