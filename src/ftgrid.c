@@ -557,6 +557,7 @@
 
     _af_debug_disable_horz_hints = !st->do_horz_hints;
     _af_debug_disable_vert_hints = !st->do_vert_hints;
+    _af_debug_disable_blue_hints = !st->do_blue_hints;
 #endif
 
     if ( FT_Load_Glyph( size->face, (FT_UInt)st->Num,
@@ -1247,6 +1248,7 @@
 #if 0
                         status.do_horz_hints = 1;
                         status.do_vert_hints = 1;
+                        status.do_blue_hints = 1;
 #endif
                         break;
 

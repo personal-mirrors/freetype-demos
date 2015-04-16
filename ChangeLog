@@ -1,5 +1,12 @@
 2015-04-16  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid]: Make blue zone toggling actually work.
+
+	* src/ftgrid.c (grid_status_draw_outline) [FT_DEBUG_AUTOFIT]: Set
+	`_af_debug_disable_blue_hints'.
+
+2015-04-16  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftgrid.c (Process_Event) <' '>: Don't reset debugging flags.
 
 2015-04-16  Werner Lemberg  <wl@gnu.org>
