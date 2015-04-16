@@ -1244,8 +1244,10 @@
     case grKeyDown:     event_size_change( -32 ); break;
 
     case grKEY( ' ' ):  event_grid_reset( &status );
+#if 0
                         status.do_horz_hints = 1;
                         status.do_vert_hints = 1;
+#endif
                         break;
 
     case grKEY( 'i' ):  event_grid_translate(  0,  1 ); break;

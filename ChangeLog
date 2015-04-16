@@ -1,5 +1,9 @@
 2015-04-16  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftgrid.c (Process_Event) <' '>: Don't reset debugging flags.
+
+2015-04-16  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Cycle through AA rendering modes with F5 and F6.
 
 	* src/ftgrid.c (event_lcd_mode_change): New function.
