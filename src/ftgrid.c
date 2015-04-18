@@ -568,6 +568,16 @@
                         handle->load_flags | FT_LOAD_NO_BITMAP ) )
       return;
 
+    /* show advance width */
+    grFillVLine( st->disp_bitmap,
+                 (int)( st->x_origin +
+                          size->face->glyph->metrics.horiAdvance *
+                          st->scale ),
+                 0,
+                 st->disp_height,
+                 st->axis_color );
+
+
     slot = size->face->glyph;
     if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
     {
