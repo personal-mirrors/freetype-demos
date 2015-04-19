@@ -208,7 +208,6 @@
     const char*     text;
     unsigned int    resolution;
     double          char_size;
-    int             need_rescale;
     int             col;
     ColumnStateRec  columns[3];
     FontFace        faces;
@@ -308,8 +307,7 @@
   render_state_set_resolution( RenderState   state,
                                unsigned int  resolution )
   {
-    state->resolution   = resolution;
-    state->need_rescale = 1;
+    state->resolution = resolution;
   }
 
 
@@ -317,21 +315,25 @@
   render_state_set_size( RenderState  state,
                          double       char_size )
   {
-    state->char_size    = char_size;
-    state->need_rescale = 1;
+    state->char_size = char_size;
+  }
+
+
+  static void
+  render_state_set_face_index( RenderState  state,
+                               int          idx )
+  {
+    state->face_index = idx;
   }
 
 
   static void
   _render_state_rescale( RenderState  state )
   {
-    if ( state->need_rescale && state->size )
-    {
+    if ( state->size )
       FT_Set_Char_Size( state->face, 0,
                         (FT_F26Dot6)( state->char_size * 64.0 ),
                         0, state->resolution );
-      state->need_rescale = 0;
-    }
   }
 
 
@@ -444,31 +446,26 @@
 
 
   static int
-  render_state_set_file( RenderState  state,
-                         int          idx )
+  render_state_set_file( RenderState  state )
   {
     const char*  filepath;
 
 
-    if ( idx < 0                      ||
-         idx >= (int)state->num_faces )
-      return -1;
-
-    state->face_index = idx;
-    filepath          = state->faces[idx].filepath;
+    filepath = state->faces[state->face_index].filepath;
 
     if ( state->face )
     {
       FT_Done_Face( state->face );
-      state->face         = NULL;
-      state->size         = NULL;
-      state->need_rescale = 1;
+      state->face = NULL;
+      state->size = NULL;
     }
 
     if ( filepath != NULL && filepath[0] != 0 )
     {
-      error = FT_New_Face( state->library, filepath,
-                           state->faces[idx].index, &state->face );
+      error = FT_New_Face( state->library,
+                           filepath,
+                           state->faces[state->face_index].index,
+                           &state->face );
       if ( error )
         return -1;
 
@@ -494,8 +491,7 @@
         state->filename = p ? p + 1 : state->filepath;
       }
 
-      state->size         = state->face->size;
-      state->need_rescale = 1;
+      state->size = state->face->size;
     }
 
     return 0;
@@ -517,7 +513,7 @@
     const char*  p              = text;
     const char*  p_end          = p + strlen( text );
     long         load_flags     = FT_LOAD_DEFAULT;
-    FT_Face      face           = state->face;
+    FT_Face      face;
     int          left           = x;
     int          right          = x + width;
     int          bottom         = y + height;
@@ -530,17 +526,20 @@
     FT_Bool      have_0x0D      = 0;
 
 
-    if ( !face )
-      return;
-
-    _render_state_rescale( state );
-
     FT_Property_Set( state->library,
                      "cff",
                      "hinting-engine", &column->cff_hinting_engine );
     FT_Property_Set( state->library,
                      "truetype",
                      "interpreter-version", &column->tt_interpreter_version );
+
+    /* changing a property is in most cases a global operation; */
+    /* we are on the safe side if we reload the face completely */
+    /* (this is something a normal program doesn't need to do)  */
+    render_state_set_file( state );
+    _render_state_rescale( state );
+
+    face = state->face;
 
     if ( column->use_lcd_filter )
       FT_Library_SetLcdFilter( face->glyph->library, column->lcd_filter );
@@ -1114,6 +1113,20 @@
   }
 
 
+  static void
+  event_change_face_index( RenderState  state,
+                           int          idx )
+  {
+    if ( idx < 0 )
+      idx = 0;
+
+    if ( idx >= (int)state->num_faces )
+      idx = (int)state->num_faces - 1;
+
+    render_state_set_face_index( state, idx );
+  }
+
+
   static int
   process_event( RenderState  state,
                  grEvent*     event )
@@ -1263,11 +1276,11 @@
       break;
 
     case grKEY( 'n' ):
-      render_state_set_file( state, state->face_index + 1 );
+      event_change_face_index( state, state->face_index + 1 );
       break;
 
     case grKEY( 'p' ):
-      render_state_set_file( state, state->face_index - 1 );
+      event_change_face_index( state, state->face_index - 1 );
       break;
 
     case grKEY( 'r' ):
@@ -1330,7 +1343,7 @@
     double    gamma    = adisplay->gamma;
     char      buf[256];
 
-    FontFace  face = &state->faces[state->face_index];
+    FontFace     face = &state->faces[state->face_index];
     const char*  basename;
 
 
@@ -1493,7 +1506,6 @@
       render_state_set_size( state, size );
 
     render_state_set_files( state, argv, execname );
-    render_state_set_file( state, 0 );
 
     grSetTitle( adisplay->surface, "FreeType Text Proofer, press ? for help" );
 

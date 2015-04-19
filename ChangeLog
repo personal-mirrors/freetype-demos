@@ -1,3 +1,21 @@
+2015-04-19  Werner Lemberg  <wl@gnu.org>
+
+	[ftdiff] Correctly reload face after changing hinting engine.
+
+	In most cases, calling `FT_Property_Set' acts globally on the
+	FT_Library object.
+
+	* src/ftdiff.c (RenderStateRec): Remove `need_rescale', since we
+	always rescale now after reloading the face.
+	Update all users.
+	(render_state_set_face_index): New function.
+	(render_state_set_file): Remove `idx' argument.  Instead, (re)load
+	font with index `state->face_index'.
+	(render_state_draw): Call `render_state_set_file'.
+	(event_change_face_index): New function.
+	(process_event): s/render_state_set_file/event_change_face_index/.
+	(main): Updated.
+
 2015-04-18  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Show advance width.
