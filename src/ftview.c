@@ -101,6 +101,7 @@
 
     unsigned int   cff_hinting_engine;
     unsigned int   tt_interpreter_version;
+    FT_Bool        warping;
 
     int            font_idx;
     int            offset;            /* as selected by the user */
@@ -115,7 +116,7 @@
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
-               0, 0, /* default values are set at runtime */
+               0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
 
@@ -806,8 +807,10 @@
     grWriteln( "             engines (if available)                                         " );
     grWriteln( "f           toggle forced auto-         G           show gamma ramp         " );
     grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
+    grWriteln( "w           toggle warping (in light                                        " );
+    grWriteln( "             AA mode, if available)     q, ESC      quit ftview             " );
     grWriteln( "                                                                            " );
-    grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftview             " );
+    grWriteln( "a           toggle anti-aliasing                                            " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -943,6 +946,34 @@
       FTC_Manager_Reset( handle->cache_manager );
       status.tt_interpreter_version = new_interpreter_version;
       return 1;
+    }
+
+    return 0;
+  }
+
+
+  static int
+  event_warping_change( void )
+  {
+    if ( handle->lcd_mode == LCD_MODE_LIGHT )
+    {
+      FT_Bool  new_warping_state = !status.warping;
+
+
+      error = FT_Property_Set( handle->library,
+                               "autofitter",
+                               "warping",
+                               &new_warping_state );
+
+      if ( !error )
+      {
+        /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+        /* lazy to walk over all loaded fonts to check whether they */
+        /* are auto-hinted, then unloading them explicitly.         */
+        FTC_Manager_Reset( handle->cache_manager );
+        status.warping = new_warping_state;
+        return 1;
+      }
     }
 
     return 0;
@@ -1213,6 +1244,10 @@
         FTDemo_Update_Current_Flags( handle );
         status.update = 1;
       }
+      break;
+
+    case grKEY( 'w' ):
+      status.update = event_warping_change();
       break;
 
     case grKeySpace:
@@ -1723,6 +1758,14 @@
       }
     }
 
+    if ( handle->lcd_mode == LCD_MODE_LIGHT )
+    {
+      sprintf( buf, "warping: %s",
+                    status.warping ? "on" : "off" );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+    }
+
     line++;
 
     /* embedded bitmaps */
@@ -1950,6 +1993,9 @@
     FT_Property_Get( handle->library,
                      "truetype",
                      "interpreter-version", &status.tt_interpreter_version );
+    FT_Property_Get( handle->library,
+                     "autofitter",
+                     "warping", &status.warping );
 
     handle->encoding = status.encoding;
 

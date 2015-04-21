@@ -1,5 +1,15 @@
 2015-04-21  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Key `w' now toggles warper (if compiled-in).
+
+	* src/ftview.c (status): Add `warping' field.
+	(event_help): Updated.
+	(event_warping_change): New function.
+	(Process_Event): Handle `w' key.
+	(write_header, main): Updated.
+
+2015-04-21  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Key `w' now toggles warper (if compiled-in).
 
 	This replaces the no longer existing debugging hook with a generic
