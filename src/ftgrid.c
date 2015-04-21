@@ -54,7 +54,6 @@
   extern int            _af_debug_disable_horz_hints;
   extern int            _af_debug_disable_vert_hints;
   extern int            _af_debug_disable_blue_hints;
-  extern int            _af_debug_disable_warper;
   extern AF_GlyphHints  _af_debug_hints;
 
 #ifdef __cplusplus
@@ -124,7 +123,6 @@
     int          do_horz_hints;
     int          do_vert_hints;
     int          do_blue_hints;
-    int          do_warp;
     int          do_outline;
     int          do_dots;
     int          do_segment;
@@ -137,6 +135,7 @@
 
     unsigned int cff_hinting_engine;
     unsigned int tt_interpreter_version;
+    FT_Bool      warping;
 
     FT_MM_Var*   mm;
     char*        axis_name[MAX_MM_AXES];
@@ -163,7 +162,6 @@
     st->do_horz_hints = 1;
     st->do_vert_hints = 1;
     st->do_blue_hints = 1;
-    st->do_warp       = 1;
     st->do_dots       = 1;
     st->do_outline    = 1;
     st->do_segment    = 0;
@@ -561,7 +559,6 @@
     _af_debug_disable_horz_hints = !st->do_horz_hints;
     _af_debug_disable_vert_hints = !st->do_vert_hints;
     _af_debug_disable_blue_hints = !st->do_blue_hints;
-    _af_debug_disable_warper     = !st->do_warp;
 #endif
 
     if ( FT_Load_Glyph( size->face, (FT_UInt)st->Num,
@@ -691,12 +688,10 @@
     grWriteln( "                                          H         toggle horiz. hinting   " );
     grWriteln( "i, k        move grid up/down             V         toggle vert. hinting    " );
     grWriteln( "j, l        move grid left/right          B         toggle blue zone hinting" );
-    grWriteln( "PgUp, PgDn  zoom in/out grid              W         toggle warper (light AA," );
-    grWriteln( "SPC         reset zoom and position                  if compiled-in)        " );
-    grWriteln( "                                          s         toggle segment drawing  " );
-    grWriteln( "p, n        previous/next font                       (unfitted, with blues) " );
+    grWriteln( "PgUp, PgDn  zoom in/out grid              s         toggle segment drawing  " );
+    grWriteln( "SPC         reset zoom and position                  (unfitted, with blues) " );
     grWriteln( "                                          1         dump edge hints         " );
-    grWriteln( "                                          2         dump segment hints      " );
+    grWriteln( "p, n        previous/next font            2         dump segment hints      " );
     grWriteln( "                                          3         dump point hints        " );
 #else
     grWriteln( "F1, ?       display this help screen    i, k        move grid up/down       " );
@@ -705,22 +700,22 @@
     grWriteln( "                                        SPC         reset zoom and position " );
 #endif /* FT_DEBUG_AUTOFIT */
     grWriteln( "Up, Down    adjust size by 0.5pt                                            " );
-    grWriteln( "                                        if not autohinting:                 " );
+    grWriteln( "                                        if not auto-hinting:                " );
     grWriteln( "Left, Right adjust index by 1             H         cycle through hinting   " );
     grWriteln( "F7, F8      adjust index by 10                       engines (if available) " );
-    grWriteln( "F9, F10     adjust index by 100                                             " );
-    grWriteln( "F11, F12    adjust index by 1000        d           toggle dots display     " );
-    grWriteln( "                                        o           toggle outline display  " );
+    grWriteln( "F9, F10     adjust index by 100         if light auto-hinting:              " );
+    grWriteln( "F11, F12    adjust index by 1000          w         toggle warping          " );
+    grWriteln( "                                                      (if available)        " );
     grWriteln( "h           toggle hinting                                                  " );
-    grWriteln( "f           toggle forced auto-                                             " );
-    grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
+    grWriteln( "f           toggle forced auto-         d           toggle dots display     " );
+    grWriteln( "             hinting (if hinting)       o           toggle outline display  " );
     grWriteln( "                                                                            " );
-    grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftgrid             " );
+    grWriteln( "a           toggle anti-aliasing        g, v        adjust gamma value      " );
     grWriteln( "                                                                            " );
-    grWriteln( "if Multiple Master or GX font:          F5, F6      cycle through           " );
-    grWriteln( "  F2        cycle through axes                      anti-aliasing modes     " );
-    grWriteln( "  F3, F4    adjust current axis by                                          " );
-    grWriteln( "             1/50th of its range                                            " );
+    grWriteln( "if Multiple Master or GX font:          q, ESC      quit ftgrid             " );
+    grWriteln( "  F2        cycle through axes                                              " );
+    grWriteln( "  F3, F4    adjust current axis by      F5, F6      cycle through           " );
+    grWriteln( "             1/50th of its range                    anti-aliasing modes     " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -795,6 +790,36 @@
                ? "35" : "38" );
 
     status.header = (const char *)status.header_buffer;
+  }
+
+
+  static void
+  event_warping_change( void )
+  {
+    if ( handle->lcd_mode == LCD_MODE_LIGHT )
+    {
+      FT_Bool  new_warping_state = !status.warping;
+
+
+      error = FT_Property_Set( handle->library,
+                               "autofitter",
+                               "warping",
+                               &new_warping_state );
+
+      if ( !error )
+      {
+        /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+        /* lazy to walk over all loaded fonts to check whether they */
+        /* are auto-hinted, then unloading them explicitly.         */
+        FTC_Manager_Reset( handle->cache_manager );
+        status.warping = new_warping_state;
+      }
+
+      status.header = status.warping ? "warping enabled"
+                                     : "warping disabled";
+    }
+    else
+      status.header = "need light anti-aliasing mode to toggle warping";
   }
 
 
@@ -1218,6 +1243,10 @@
 #endif
       break;
 
+    case grKEY( 'w' ):
+      event_warping_change();
+      break;
+
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'V' ):
       if ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT )
@@ -1239,17 +1268,6 @@
       }
       else
         status.header = "need autofit mode to toggle blue zone hinting";
-      break;
-
-    case grKEY( 'W' ):
-      if ( handle->lcd_mode == LCD_MODE_LIGHT )
-      {
-        status.do_warp = !status.do_warp;
-        status.header = status.do_warp ? "warping enabled"
-                                       : "warping disabled";
-      }
-      else
-        status.header = "need light anti-aliasing mode to toggle warping";
       break;
 
     case grKEY( 's' ):
@@ -1276,7 +1294,6 @@
                         status.do_horz_hints = 1;
                         status.do_vert_hints = 1;
                         status.do_blue_hints = 1;
-                        status.do_warp       = 1;
 #endif
                         break;
 
@@ -1545,6 +1562,9 @@
     FT_Property_Get( handle->library,
                      "truetype",
                      "interpreter-version", &status.tt_interpreter_version );
+    FT_Property_Get( handle->library,
+                     "autofitter",
+                     "warping", &status.warping );
 
     display = FTDemo_Display_New( gr_pixel_mode_rgb24,
                                   status.width, status.height );

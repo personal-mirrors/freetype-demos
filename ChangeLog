@@ -1,5 +1,20 @@
 2015-04-21  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Key `w' now toggles warper (if compiled-in).
+
+	This replaces the no longer existing debugging hook with a generic
+	solution that uses the `warping' auto-hinter module property.
+
+	* src/ftgrid.c (_af_debug_disable_warper): Removed.
+	(GridStatusRec): s/do_warp/warping/.
+	(grid_status_init, grid_status_draw_outline, event_help): Updated.
+	(event_warping_change): New function.
+	(Process_Event): Handle `w', not `W', and use
+	`event_warping_change'.
+	(main): Updated.
+
+2015-04-21  Werner Lemberg  <wl@gnu.org>
+
 	[ftdiff] Key `w' now toggles warper (if compiled-in).
 
 	* src/ftdiff.c (render_mode_names): Updated.
