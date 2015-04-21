@@ -1,3 +1,12 @@
+2015-04-21  Werner Lemberg  <wl@gnu.org>
+
+	[ftdiff] Key `w' now toggles warper (if compiled-in).
+
+	* src/ftdiff.c (render_mode_names): Updated.
+	(ColumnStateRec): Add `warping' field.
+	(render_state_init, render_state_draw, event_help): Updated.
+	(process_event): Handle `w' key.
+
 2015-04-19  Werner Lemberg  <wl@gnu.org>
 
 	[ftdiff] Correctly reload face after changing hinting engine.

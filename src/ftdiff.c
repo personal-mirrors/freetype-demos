@@ -163,8 +163,8 @@
   static const char* const  render_mode_names[HINT_MODE_MAX] =
   {
     "unhinted",
-    "auto hinter",
-    "light auto hinter",
+    "auto-hinter",
+    "light auto-hinter",
     "native hinter"
   };
 
@@ -188,6 +188,7 @@
 
     unsigned int   cff_hinting_engine;
     unsigned int   tt_interpreter_version;
+    FT_Bool        warping;
 
   } ColumnStateRec, *ColumnState;
 
@@ -231,6 +232,7 @@
   {
     FT_UInt  cff_hinting_engine;
     FT_UInt  tt_interpreter_version;
+    FT_Bool  warping;
 
 
     memset( state, 0, sizeof ( *state ) );
@@ -252,6 +254,9 @@
     FT_Property_Get( library,
                      "truetype",
                      "interpreter-version", &tt_interpreter_version );
+    FT_Property_Get( library,
+                     "autofitter",
+                     "warping", &warping );
 
     state->columns[0].use_cboxes             = 0;
     state->columns[0].use_kerning            = 1;
@@ -261,6 +266,7 @@
     state->columns[0].hint_mode              = HINT_MODE_BYTECODE;
     state->columns[0].cff_hinting_engine     = cff_hinting_engine;
     state->columns[0].tt_interpreter_version = tt_interpreter_version;
+    state->columns[0].warping                = warping;
     state->columns[0].use_custom_lcd_filter  = 0;
     state->columns[0].fw_index               = 2;
     /* freetype default filter weights */
@@ -522,16 +528,21 @@
     FT_Pos       prev_rsb_delta = 0;
     FT_Pos       x_origin       = x << 6;
     HintMode     rmode          = column->hint_mode;
+    FT_Bool      warping        = column->warping;
     FT_Bool      have_0x0A      = 0;
     FT_Bool      have_0x0D      = 0;
 
 
+    /* no need to check for errors: the values used here are always valid */
     FT_Property_Set( state->library,
                      "cff",
                      "hinting-engine", &column->cff_hinting_engine );
     FT_Property_Set( state->library,
                      "truetype",
                      "interpreter-version", &column->tt_interpreter_version );
+    FT_Property_Set( state->library,
+                     "autofitter",
+                     "warping", &column->warping );
 
     /* changing a property is in most cases a global operation; */
     /* we are on the safe side if we reload the face completely */
@@ -732,12 +743,12 @@
       FT_Module    module = &state->face->driver->root;
       void*        disp   = state->display.disp;
 
-      const char*  hinting_engine;
+      const char*  extra;
       const char*  msg;
       char         temp[64];
 
 
-      hinting_engine = "";
+      extra = "";
       if ( rmode == HINT_MODE_BYTECODE )
       {
         if ( !strcmp( module->clazz->module_name, "cff" ) )
@@ -745,10 +756,10 @@
           switch ( column->cff_hinting_engine )
           {
           case FT_CFF_HINTING_FREETYPE:
-            hinting_engine = " (CFF FT)";
+            extra = " (CFF FT)";
             break;
           case FT_CFF_HINTING_ADOBE:
-            hinting_engine = " (CFF Adobe)";
+            extra = " (CFF Adobe)";
             break;
           }
         }
@@ -758,17 +769,19 @@
           switch ( column->tt_interpreter_version )
           {
           case TT_INTERPRETER_VERSION_35:
-            hinting_engine = " (TT v35)";
+            extra = " (TT v35)";
             break;
           case TT_INTERPRETER_VERSION_38:
-            hinting_engine = " (TT v38)";
+            extra = " (TT v38)";
             break;
           }
         }
       }
+      else if ( rmode == HINT_MODE_AUTOHINT_LIGHT )
+        extra = warping ? " (+warp)" : " (-warp)";
 
       sprintf( temp, "%s%s",
-               render_mode_names[column->hint_mode], hinting_engine );
+               render_mode_names[column->hint_mode], extra );
       state->display.disp_text( disp, left,
                                 bottom + 5, temp );
 
@@ -1070,6 +1083,7 @@
     grWriteln( "  d            toggle lsb/rsb deltas" );
     grWriteln( "  h            toggle hinting mode" );
     grWriteln( "  H            cycle hinting engine (if CFF or TTF)" );
+    grWriteln( "  w            toggle warping (if light auto-hinting" );
     grWriteln( "  k            toggle kerning (only from `kern' table)" );
     grWriteln( "  r            toggle rendering mode" );
     grWriteln( "  x            toggle layout mode" );
@@ -1240,6 +1254,19 @@
         }
       }
       break;
+
+    case grKEY( 'w' ):
+      {
+        FT_Bool  new_warping_state = !column->warping;
+
+
+        error = FT_Property_Set( state->library,
+                                 "autofitter",
+                                 "warping",
+                                 &new_warping_state );
+        if ( !error )
+          column->warping = new_warping_state;
+      }
 
     case grKEY( 'k' ):
       column->use_kerning = !column->use_kerning;
