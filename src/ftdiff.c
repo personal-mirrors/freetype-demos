@@ -1267,6 +1267,7 @@
         if ( !error )
           column->warping = new_warping_state;
       }
+      break;
 
     case grKEY( 'k' ):
       column->use_kerning = !column->use_kerning;

@@ -1,3 +1,7 @@
+2015-04-22  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftdiff.c (process_event): Add missing `break' statement.
+
 2015-04-21  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Key `w' now toggles warper (if compiled-in).
