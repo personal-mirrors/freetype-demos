@@ -33,6 +33,7 @@
 #include FT_MULTIPLE_MASTERS_H
 #include FT_SFNT_NAMES_H
 #include FT_TRUETYPE_IDS_H
+#include FT_TRIGONOMETRY_H
 
 #define MAXPTSIZE    500                 /* dtp */
 #define MAX_MM_AXES   32
@@ -125,6 +126,7 @@
     int          do_blue_hints;
     int          do_outline;
     int          do_dots;
+    int          do_dotnumbers;
     int          do_segment;
 
     double       gamma;
@@ -163,6 +165,7 @@
     st->do_vert_hints = 1;
     st->do_blue_hints = 1;
     st->do_dots       = 1;
+    st->do_dotnumbers = 0;
     st->do_outline    = 1;
     st->do_segment    = 0;
 
@@ -605,7 +608,7 @@
           FT_Done_Glyph( glyph );
       }
 
-      /* now draw the points */
+      /* draw the points... */
       if ( st->do_dots )
       {
         for ( nn = 0; nn < gimage->n_points; nn++ )
@@ -617,6 +620,133 @@
             display,
             ( gimage->tags[nn] & FT_CURVE_TAG_ON ) ? st->on_color
                                                    : st->off_color );
+      }
+
+      /* ... and point numbers */
+      if ( st->do_dotnumbers )
+      {
+        FT_Vector*  points   = gimage->points;
+        FT_Short*   contours = gimage->contours;
+        int         cc;
+        char        number_string[10];
+        size_t      number_string_len = sizeof ( number_string );
+
+        FT_Long  octant_x[8] = { 1024, 724, 0, -724, -1024, -724, 0, 724 };
+        FT_Long  octant_y[8] = { 0, 724, 1024, 724, 0, -724, -1024, -724 };
+
+
+        cc = 0;
+        nn = 0;
+        for ( ; cc < gimage->n_contours; cc++ )
+        {
+          for (;;)
+          {
+            short      prev, next;
+            FT_Vector  in, out, middle;
+            FT_Fixed   in_len, out_len, middle_len;
+            int        num_digits;
+
+
+            /* find previous and next point in outline */
+            if ( cc == 0 )
+            {
+              if ( contours[cc] == 0 )
+              {
+                prev = 0;
+                next = 0;
+              }
+              else
+              {
+                prev = nn > 0 ? nn - 1
+                              : contours[cc];
+                next = nn < contours[cc] ? nn + 1
+                                         : 0;
+              }
+            }
+            else
+            {
+              prev = nn > ( contours[cc - 1] + 1 ) ? nn - 1
+                                                   : contours[cc];
+              next = nn < contours[cc] ? nn + 1
+                                       : contours[cc - 1] + 1;
+            }
+
+            /* get vectors to previous and next point and normalize them; */
+            /* we use 16.16 format to improve the computation precision   */
+            in.x = ( points[prev].x - points[nn].x ) << 10;
+            in.y = ( points[prev].y - points[nn].y ) << 10;
+
+            out.x = ( points[next].x - points[nn].x ) << 10;
+            out.y = ( points[next].y - points[nn].y ) << 10;
+
+            in_len  = FT_Vector_Length( &in );
+            out_len = FT_Vector_Length( &out );
+
+            if ( in_len )
+            {
+              in.x = FT_DivFix( in.x, in_len );
+              in.y = FT_DivFix( in.y, in_len );
+            }
+            if ( out_len )
+            {
+              out.x = FT_DivFix( out.x, out_len );
+              out.y = FT_DivFix( out.y, out_len );
+            }
+
+            middle.x = in.x + out.x;
+            middle.y = in.y + out.y;
+            /* we use a delta of 1 << 13 (corresponding to 1/8px) */
+            if ( ( middle.x < 4096 ) && ( middle.x > -4096 ) &&
+                 ( middle.y < 4096 ) && ( middle.y > -4096 ) )
+            {
+              /* in case of vectors in almost exactly opposite directions, */
+              /* use a vector orthogonal to them                           */
+              middle.x =  out.y;
+              middle.y = -out.x;
+
+              if ( ( middle.x < 4096 ) && ( middle.x > -4096 ) &&
+                   ( middle.y < 4096 ) && ( middle.y > -4096 ) )
+              {
+                /* use direction based on point index for the offset */
+                /* if we still don't have a good value               */
+                middle.x = octant_x[nn % 8];
+                middle.y = octant_y[nn % 8];
+              }
+            }
+
+            /* normalize `middle' vector (which is never zero) and */
+            /* convert it back to 26.6 format, this time using a   */
+            /* length of 8 pixels to get some distance between the */
+            /* point and the number                                */
+            middle_len = FT_Vector_Length( &middle );
+            middle.x   = FT_DivFix( middle.x, middle_len ) >> 7;
+            middle.y   = FT_DivFix( middle.y, middle_len ) >> 7;
+
+            num_digits = snprintf( number_string,
+                                   number_string_len,
+                                   "%d", nn );
+
+            /* we now position the point number in the opposite       */
+            /* direction of the `middle' vector, adding some offset   */
+            /* since the string drawing function expects the upper    */
+            /* left corner of the number string (the font size is 8x8 */
+            /* pixels)                                                */
+            grWriteCellString( display->bitmap,
+                               st->x_origin +
+                                 ( ( points[nn].x - middle.x ) >> 6 ) -
+                                 ( middle.x > 0 ? ( num_digits - 1 ) * 8 + 2
+                                                : 2 ),
+                               st->y_origin -
+                                 ( ( ( points[nn].y - middle.y ) >> 6 ) +
+                                   8 / 2 ),
+                               number_string,
+                               st->axis_color );
+
+            nn++;
+            if ( nn > contours[cc] )
+              break;
+          }
+        }
       }
     }
   }
@@ -707,9 +837,9 @@
     grWriteln( "F11, F12    adjust index by 1000          w         toggle warping          " );
     grWriteln( "                                                      (if available)        " );
     grWriteln( "h           toggle hinting                                                  " );
-    grWriteln( "f           toggle forced auto-         d           toggle dots display     " );
+    grWriteln( "f           toggle forced auto-         d           toggle dot display      " );
     grWriteln( "             hinting (if hinting)       o           toggle outline display  " );
-    grWriteln( "                                                                            " );
+    grWriteln( "                                        D           toggle dotnumber display" );
     grWriteln( "a           toggle anti-aliasing        g, v        adjust gamma value      " );
     grWriteln( "                                                                            " );
     grWriteln( "if Multiple Master or GX font:          q, ESC      quit ftgrid             " );
@@ -1206,6 +1336,10 @@
       status.do_dots = !status.do_dots;
       break;
 
+    case grKEY( 'D' ):
+      status.do_dotnumbers = !status.do_dotnumbers;
+      break;
+
     case grKEY( 'o' ):
       status.do_outline = !status.do_outline;
       break;
@@ -1601,7 +1735,7 @@
 
       grid_status_draw_grid( &status );
 
-      if ( status.do_outline || status.do_dots )
+      if ( status.do_outline || status.do_dots || status.do_dotnumbers )
         grid_status_draw_outline( &status, handle, display );
 
       write_header( 0 );

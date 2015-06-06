@@ -1,3 +1,15 @@
+2015-06-06  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Key `D' now toggles display of point numbers.
+
+	* src/ftgrid.c: Include FT_TRIGONOMETRY_H.
+	(GridStatusRec): Add field `do_dotnumbers'.
+	(grid_status_init): Updated.
+	(grid_status_draw_outline): Implement point number display.
+	(event_help): Updated.
+	(Process_Event): Handle `D' key.
+	(main): Updated.
+
 2015-04-22  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftdiff.c (process_event): Add missing `break' statement.
