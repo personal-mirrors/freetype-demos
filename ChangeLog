@@ -1,3 +1,16 @@
+2015-06-07  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.6 released.
+	=======================
+
+
+	Tag sources with `VER-2-6'.
+
+	* README: Updated.
+	* src/*.1: Updated.
+
+	* Makefile: Omit a zero patch level in computation of `version'.
+
 2015-06-06  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Key `D' now toggles display of point numbers.
