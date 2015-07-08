@@ -367,25 +367,26 @@
     strncpy( filename, filepath, len );
     filename[len] = 0;
 
-    error = FT_New_Face( handle->library, filename, 0, &face );
+    error = FT_New_Face( handle->library, filename, -1, &face );
     if ( error )
       return error;
-
-    if ( outline_only && !FT_IS_SCALABLE( face ) )
-      return FT_Err_Invalid_Argument;
-
-    /* allocate new font object */
     num_faces = face->num_faces;
+    FT_Done_Face( face );
+
+    /* allocate new font object(s) */
     for ( i = 0; i < num_faces; i++ )
     {
       PFont  font;
 
 
-      if ( i > 0 )
+      error = FT_New_Face( handle->library, filename, i, &face );
+      if ( error )
+        continue;
+
+      if ( outline_only && !FT_IS_SCALABLE( face ) )
       {
-        error = FT_New_Face( handle->library, filename, i, &face );
-        if ( error )
-          continue;
+        FT_Done_Face( face );
+        continue;
       }
 
       if ( handle->encoding != FT_ENCODING_NONE )
@@ -394,7 +395,7 @@
         if ( error )
         {
           FT_Done_Face( face );
-          return error;
+          continue;
         }
       }
 

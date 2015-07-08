@@ -1,3 +1,14 @@
+2015-07-08  Werner Lemberg  <wl@gnu.org>
+
+	[ftcommon] Improve loading of font collections.
+
+	* src/ftcommon.c (FTDemo_Install_Font): Don't exit if first face of
+	a font is invalid.
+	Don't exit if we want outline fonts only and the first face isn't.
+	Don't exit if there are problems with the cmap.
+
+	In all three cases, simply skip the font face.
+
 2015-06-07  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.6 released.
