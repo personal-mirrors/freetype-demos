@@ -792,7 +792,10 @@
     /* Load face */
     error = FT_New_Face( library, argv[file], 0, &face );
     if ( error )
+    {
+      face = NULL;
       goto Display_Font;
+    }
 
     if ( encoding != FT_ENCODING_NONE )
     {
@@ -804,7 +807,10 @@
     /* retrieve multiple master information */
     error = FT_Get_MM_Var( face, &multimaster );
     if ( error )
+    {
+      multimaster = NULL;
       goto Display_Font;
+    }
 
     /* if the user specified a position, use it, otherwise */
     /* set the current position to the median of each axis */

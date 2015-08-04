@@ -1,3 +1,7 @@
+2015-08-04  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftmulti.c (main): Fix double-free in case of invalid font.
+
 2015-07-08  Werner Lemberg  <wl@gnu.org>
 
 	[ftcommon] Improve loading of font collections.
