@@ -673,11 +673,11 @@
 
             /* get vectors to previous and next point and normalize them; */
             /* we use 16.16 format to improve the computation precision   */
-            in.x = ( points[prev].x - points[nn].x ) << 10;
-            in.y = ( points[prev].y - points[nn].y ) << 10;
+            in.x = ( points[prev].x - points[nn].x ) * 1024;
+            in.y = ( points[prev].y - points[nn].y ) * 1024;
 
-            out.x = ( points[next].x - points[nn].x ) << 10;
-            out.y = ( points[next].y - points[nn].y ) << 10;
+            out.x = ( points[next].x - points[nn].x ) * 1024;
+            out.y = ( points[next].y - points[nn].y ) * 1024;
 
             in_len  = FT_Vector_Length( &in );
             out_len = FT_Vector_Length( &out );

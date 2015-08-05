@@ -1,3 +1,10 @@
+2015-08-05  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Avoid invalid left-shift of negative values.
+
+	* src/ftgrid.c (grid_status_draw_outline): Don't use left-shift but
+	multiplication.
+
 2015-08-04  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftmulti.c (main): Fix double-free in case of invalid font.
