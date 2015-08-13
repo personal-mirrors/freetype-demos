@@ -367,6 +367,13 @@
     strncpy( filename, filepath, len );
     filename[len] = 0;
 
+    /* We use a conservative approach here, at the cost of calling     */
+    /* `FT_New_Face' quite often.  The idea is that our demo programs  */
+    /* should be able to try all faces and named instances of a font,  */
+    /* expecting that some faces don't work for various reasons, e.g., */
+    /* a broken subfont, or an unsupported NFNT bitmap font in a Mac   */
+    /* dfont resource that holds more than a single font.              */
+
     error = FT_New_Face( handle->library, filename, -1, &face );
     if ( error )
       return error;
@@ -377,120 +384,134 @@
     for ( i = 0; i < num_faces; i++ )
     {
       PFont  font;
+      long   j, instance_count;
 
 
-      error = FT_New_Face( handle->library, filename, i, &face );
+      error = FT_New_Face( handle->library, filename, -( i + 1 ), &face );
       if ( error )
         continue;
+      instance_count = face->style_flags >> 16;
+      FT_Done_Face( face );
 
-      if ( outline_only && !FT_IS_SCALABLE( face ) )
+      /* load face with and without named instances */
+      for ( j = 0; j < instance_count + 1; j++ )
       {
-        FT_Done_Face( face );
-        continue;
-      }
-
-      if ( handle->encoding != FT_ENCODING_NONE )
-      {
-        error = FT_Select_Charmap( face, handle->encoding );
+        error = FT_New_Face( handle->library,
+                             filename,
+                             ( j << 16 ) + i,
+                             &face );
         if ( error )
+          continue;
+
+        if ( outline_only && !FT_IS_SCALABLE( face ) )
         {
           FT_Done_Face( face );
           continue;
         }
-      }
 
-      font = (PFont)malloc( sizeof ( *font ) );
-
-      /* We allocate four more bytes since we want to attach an AFM */
-      /* or PFM file for Type 1 fonts (if available).  Such fonts   */
-      /* always have the extension `.afm' or `.pfm'.                */
-      font->filepathname = (char*)malloc( strlen( filename ) + 4 + 1 );
-      strcpy( (char*)font->filepathname, filename );
-
-      font->face_index = i;
-      font->cmap_index = face->charmap ? FT_Get_Charmap_Index( face->charmap )
-                                       : 0;
-
-      if ( handle->preload )
-      {
-        FILE*  file = fopen( filename, "rb" );
-        int    file_size;
-
-
-        if ( file == NULL )  /* shouldn't happen */
+        if ( handle->encoding != FT_ENCODING_NONE )
         {
-          free( font );
-          return FT_Err_Invalid_Argument;
+          error = FT_Select_Charmap( face, handle->encoding );
+          if ( error )
+          {
+            FT_Done_Face( face );
+            continue;
+          }
         }
 
-        fseek( file, 0, SEEK_END );
-        file_size = ftell( file );
-        fseek( file, 0, SEEK_SET );
+        font = (PFont)malloc( sizeof ( *font ) );
 
-        if ( file_size <= 0 )
-          return FT_Err_Invalid_Stream_Operation;
+        /* We allocate four more bytes since we want to attach an AFM */
+        /* or PFM file for Type 1 fonts (if available).  Such fonts   */
+        /* always have the extension `.afm' or `.pfm'.                */
+        font->filepathname = (char*)malloc( strlen( filename ) + 4 + 1 );
+        strcpy( (char*)font->filepathname, filename );
 
-        font->file_address = malloc( (size_t)file_size );
-        fread( font->file_address, 1, (size_t)file_size, file );
+        font->face_index = ( j << 16 ) + i;
+        font->cmap_index = face->charmap ? FT_Get_Charmap_Index( face->charmap )
+                                         : 0;
 
-        font->file_size = (size_t)file_size;
+        if ( handle->preload )
+        {
+          FILE*  file = fopen( filename, "rb" );
+          int    file_size;
 
-        fclose( file );
+
+          if ( file == NULL )  /* shouldn't happen */
+          {
+            free( font );
+            return FT_Err_Invalid_Argument;
+          }
+
+          fseek( file, 0, SEEK_END );
+          file_size = ftell( file );
+          fseek( file, 0, SEEK_SET );
+
+          if ( file_size <= 0 )
+            return FT_Err_Invalid_Stream_Operation;
+
+          font->file_address = malloc( (size_t)file_size );
+          fread( font->file_address, 1, (size_t)file_size, file );
+
+          font->file_size = (size_t)file_size;
+
+          fclose( file );
+        }
+        else
+        {
+          font->file_address = NULL;
+          font->file_size    = 0;
+        }
+
+        switch ( handle->encoding )
+        {
+        case FT_ENCODING_NONE:
+          font->num_indices = face->num_glyphs;
+          break;
+
+        case FT_ENCODING_UNICODE:
+          font->num_indices = 0x110000L;
+          break;
+
+        case FT_ENCODING_ADOBE_LATIN_1:
+        case FT_ENCODING_ADOBE_STANDARD:
+        case FT_ENCODING_ADOBE_EXPERT:
+        case FT_ENCODING_ADOBE_CUSTOM:
+        case FT_ENCODING_APPLE_ROMAN:
+          font->num_indices = 0x100L;
+          break;
+
+          /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
+        case FT_ENCODING_MS_SYMBOL:
+          font->num_indices = 0x10000L;
+
+        default:
+          font->num_indices = 0x10000L;
+        }
+
+        FT_Done_Face( face );
+        face = NULL;
+
+        if ( handle->max_fonts == 0 )
+        {
+          handle->max_fonts = 16;
+          handle->fonts     = (PFont*)calloc( (size_t)handle->max_fonts,
+                                              sizeof ( PFont ) );
+        }
+        else if ( handle->num_fonts >= handle->max_fonts )
+        {
+          handle->max_fonts *= 2;
+          handle->fonts      = (PFont*)realloc( handle->fonts,
+                                                (size_t)handle->max_fonts *
+                                                  sizeof ( PFont ) );
+
+          memset( &handle->fonts[handle->num_fonts], 0,
+                  (size_t)( handle->max_fonts - handle->num_fonts ) *
+                    sizeof ( PFont ) );
+        }
+
+        handle->fonts[handle->num_fonts++] = font;
       }
-      else
-      {
-        font->file_address = NULL;
-        font->file_size    = 0;
-      }
-
-      switch ( handle->encoding )
-      {
-      case FT_ENCODING_NONE:
-        font->num_indices = face->num_glyphs;
-        break;
-
-      case FT_ENCODING_UNICODE:
-        font->num_indices = 0x110000L;
-        break;
-
-      case FT_ENCODING_ADOBE_LATIN_1:
-      case FT_ENCODING_ADOBE_STANDARD:
-      case FT_ENCODING_ADOBE_EXPERT:
-      case FT_ENCODING_ADOBE_CUSTOM:
-      case FT_ENCODING_APPLE_ROMAN:
-        font->num_indices = 0x100L;
-        break;
-
-        /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
-      case FT_ENCODING_MS_SYMBOL:
-        font->num_indices = 0x10000L;
-
-      default:
-        font->num_indices = 0x10000L;
-      }
-
-      FT_Done_Face( face );
-      face = NULL;
-
-      if ( handle->max_fonts == 0 )
-      {
-        handle->max_fonts = 16;
-        handle->fonts     = (PFont*)calloc( (size_t)handle->max_fonts,
-                                            sizeof ( PFont ) );
-      }
-      else if ( handle->num_fonts >= handle->max_fonts )
-      {
-        handle->max_fonts *= 2;
-        handle->fonts      = (PFont*)realloc( handle->fonts,
-                                              (size_t)handle->max_fonts *
-                                                sizeof ( PFont ) );
-
-        memset( &handle->fonts[handle->num_fonts], 0,
-                (size_t)( handle->max_fonts - handle->num_fonts ) *
-                  sizeof ( PFont ) );
-      }
-
-      handle->fonts[handle->num_fonts++] = font;
     }
 
     return FT_Err_Ok;
