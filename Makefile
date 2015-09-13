@@ -540,7 +540,7 @@ endif
 
 # we check for `dist', not `distclean'
 ifneq ($(findstring distx,$(MAKECMDGOALS)x),)
-  FT_H := ../freetype2/include/freetype.h
+  FT_H := ../freetype2/include/freetype/freetype.h
 
   major := $(shell sed -n 's/.*FREETYPE_MAJOR[^0-9]*\([0-9]\+\)/\1/p' < $(FT_H))
   minor := $(shell sed -n 's/.*FREETYPE_MINOR[^0-9]*\([0-9]\+\)/\1/p' < $(FT_H))
