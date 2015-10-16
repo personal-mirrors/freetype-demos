@@ -319,9 +319,9 @@ else
   # Rules for compiling object files for text-only demos.
   #
   $(OBJ_DIR_2)/common.$(SO): $(SRC_DIR)/common.c
-  $(OBJ_DIR_2)/aux.$(SO): $(SRC_DIR)/aux.c
+  $(OBJ_DIR_2)/output.$(SO): $(SRC_DIR)/output.c
   COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO) \
-                $(OBJ_DIR_2)/aux.$(SO)
+                $(OBJ_DIR_2)/output.$(SO)
 
 
   FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO)

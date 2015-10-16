@@ -1,3 +1,15 @@
+2015-10-16  Werner Lemberg  <wl@gnu.org>
+
+	Don't use `aux' as a file name.
+
+	This should be avoided under Windows.
+	Problem reported by Dave Arnold <darnold@adobe.com>.
+
+	* src/aux.c, src/aux.h: Renamed to...
+	* src/output.c, src/output.h: ... these file names.
+
+	* Makefile, src/ftdump.c, src/ftgrid.c: Updated.
+
 2015-10-04  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.6.1 released.

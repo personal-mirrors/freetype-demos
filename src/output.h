@@ -6,26 +6,17 @@
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
-/*  aux.h - auxiliary routines for the FreeType demo programs.              */
+/*  output.h - string output routines for the FreeType demo programs.       */
 /*                                                                          */
 /****************************************************************************/
 
 
-#ifndef _AUX_H_
-#define _AUX_H_
+#ifndef _OUTPUT_H_
+#define _OUTPUT_H_
 
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
-
-  /*************************************************************************/
-  /*************************************************************************/
-  /*****                                                               *****/
-  /*****                    STRING OUTPUT FUNCTIONS                    *****/
-  /*****                                                               *****/
-  /*************************************************************************/
-  /*************************************************************************/
 
 
   void
@@ -65,6 +56,6 @@
                     FT_Int    as_utf8 );
 
 
-#endif /* _AUX_H_ */
+#endif /* _OUTPUT_H_ */
 
 /* End */

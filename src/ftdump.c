@@ -24,7 +24,7 @@
 #include FT_INTERNAL_DRIVER_H
 
 #include "common.h"
-#include "aux.h"
+#include "output.h"
 
 #include <stdio.h>
 #include <stdlib.h>

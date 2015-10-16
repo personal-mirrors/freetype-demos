@@ -15,7 +15,7 @@
 
 #include "ftcommon.h"
 #include "common.h"
-#include "aux.h"
+#include "output.h"
 #include <math.h>
 
   /* the following header shouldn't be used in normal programs */
