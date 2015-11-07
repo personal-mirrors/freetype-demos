@@ -54,7 +54,7 @@
     char         header_buffer[256];
 
   } status = { DIM_X, DIM_Y,
-               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 2.0, 0 };
+               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 1.8, 0 };
 
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;
@@ -629,6 +629,7 @@
                 "FreeType String Viewer - press ? for help" );
 
     event_gamma_change( 0 );
+    status.sc.gamma_ramp = status.gamma_ramp;
     event_font_change( 0 );
     status.header = 0;
 

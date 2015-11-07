@@ -1,3 +1,10 @@
+2015-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview,ftstring] Default to gamma = 1.8.
+
+	* src/ftview.c (status): Updated.
+	* src/ftstring.c (status, main): Updated.
+
 2015-10-16  Werner Lemberg  <wl@gnu.org>
 
 	Don't use `aux' as a file name.
@@ -1297,7 +1304,7 @@
 
 2013-02-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-        [ftbench] Make BBox test harder.
+	[ftbench] Make BBox test harder.
 
 	Rotating an outline puts more off-points outside of its bounding box.
 

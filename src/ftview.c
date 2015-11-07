@@ -115,7 +115,7 @@
 
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
-               72, 48, -1, 1.0, 0.04, 0.04, 0.02, 0.22,
+               72, 48, -1, 1.8, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
                0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
