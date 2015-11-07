@@ -17,8 +17,8 @@ gblender_set_gamma_table( double           gamma_value,
     {
       double  x = (double)ii / 255.0;
 
-      if ( x <= 0.03926 )
-        x = x/12.92;
+      if ( x <= 0.039285714 )
+        x /= 12.92321;
       else
         x = pow( (x+0.055)/ 1.055, 2.4 );
 
@@ -29,8 +29,8 @@ gblender_set_gamma_table( double           gamma_value,
     {
       double  x = (double)ii / gmax;
 
-      if ( x <= 0.00304 )
-        x = 12.92*x;
+      if ( x <= 0.0030399346 )
+        x *= 12.92321;
       else
         x = 1.055*pow(x,1/2.4) - 0.055;
 

@@ -1,5 +1,11 @@
 2015-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Minor sRGB accuracy update.
+
+	* graph/gblender.c (gblender_set_gamma_table): Updated.
+
+2015-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftview,ftstring] Default to gamma = 1.8.
 
 	* src/ftview.c (status): Updated.
