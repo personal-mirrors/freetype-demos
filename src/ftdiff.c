@@ -916,7 +916,7 @@
     display->height  = height;
     display->surface = surface;
     display->bitmap  = &surface->bitmap;
-    display->gamma   = 1.0;
+    display->gamma   = 1.8;
 
     grSetGlyphGamma( display->gamma );
 

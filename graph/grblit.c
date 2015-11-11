@@ -1823,7 +1823,7 @@
 
 #include "gblblit.h"
 
-  static double    gr_glyph_gamma = 1.2;
+  static double    gr_glyph_gamma = 1.8;
 
   void  grSetGlyphGamma( double  gamma )
   {

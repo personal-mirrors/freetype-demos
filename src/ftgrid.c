@@ -170,7 +170,7 @@
     st->do_segment    = 0;
 
     st->Num           = 0;
-    st->gamma         = 1.0;
+    st->gamma         = 1.8;
     st->header        = "";
 
     st->mm            = NULL;

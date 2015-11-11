@@ -110,8 +110,6 @@
     display->surface = surface;
     display->bitmap  = &surface->bitmap;
 
-    grSetGlyphGamma( 1.0 );
-
     display->fore_color = grFindColor( display->bitmap,
                                        0x00, 0x00, 0x00, 0xff );
     display->back_color = grFindColor( display->bitmap,

@@ -1,3 +1,12 @@
+2015-11-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdiff,ftgrid] Default to gamma = 1.8.
+
+	* src/ftcommon.c (FTDemo_Display_New): Do not set gamma.
+	* graph/grblit.c (gr_glyph_gamma): Updated.
+	* src/ftdiff.c (adisplay_init): Updated.
+	* src/ftgrid.c (grid_status_init): Updated.
+
 2015-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Minor sRGB accuracy update.
