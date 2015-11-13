@@ -1,3 +1,13 @@
+2015-11-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Define and use GAMMA.
+
+	* src/ftcommon.h (GAMMA): Define new macro.
+	* src/ftdiff.c (adisplay_init): Use it.
+	* src/ftgrid.c (grid_status_init): Use it.
+	* src/ftstring.c (status): Use it.
+	* src/ftview.c (status): Use it.
+
 2015-11-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdiff,ftgrid] Default to gamma = 1.8.

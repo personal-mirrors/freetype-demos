@@ -54,7 +54,7 @@
     char         header_buffer[256];
 
   } status = { DIM_X, DIM_Y,
-               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 1.8, 0 };
+               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, GAMMA, 0 };
 
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;

@@ -65,6 +65,9 @@
   /* baseline distance between header lines */
 #define HEADER_HEIGHT  12
 
+  /* default gamma setting */
+#define GAMMA  1.8
+
 #include "graph.h"
 #include "grobjs.h"
 #include "grfont.h"
