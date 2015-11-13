@@ -1,5 +1,9 @@
 2015-11-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/gblender.c (gblender_reset_key): Fix typo.
+
+2015-11-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Define and use GAMMA.
 
 	* src/ftcommon.h (GAMMA): Define new macro.

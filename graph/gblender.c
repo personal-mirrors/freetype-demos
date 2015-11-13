@@ -225,7 +225,7 @@ gblender_reset_key( GBlender     blender,
 
     r = (int)((r2-r1)*a + 128);
     g = (int)((g2-g1)*a + 128);
-    b = (int)((g2-g1)*a + 128);
+    b = (int)((b2-b1)*a + 128);
 
     r = (r + (r >> 8)) >> 8;
     g = (g + (g >> 8)) >> 8;
