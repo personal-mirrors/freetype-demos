@@ -1368,7 +1368,7 @@
   write_global_info( RenderState  state )
   {
     ADisplay  adisplay = (ADisplay)state->display.disp;
-    double    gamma    = adisplay->gamma;
+    char      gamma[] = "sRGB";
     char      buf[256];
 
     FontFace     face = &state->faces[state->face_index];
@@ -1383,12 +1383,13 @@
     grWriteCellString( adisplay->bitmap, 0, 5,
                        buf, adisplay->fore_color );
 
-    sprintf( buf, "%.1fpt (%dppem) at %ddpi, gamma: %.1f%s",
+    if ( adisplay->gamma != 0.0 )
+      sprintf( gamma, "%.1f", adisplay->gamma );
+    sprintf( buf, "%.1fpt (%dppem) at %ddpi, gamma: %s",
                   state->char_size,
                   (int)(state->char_size * state->resolution / 72 + 0.5),
                   state->resolution,
-                  gamma,
-                  gamma == 0.0 ? " (sRGB)" : "" );
+                  gamma );
     grWriteCellString( adisplay->bitmap, 0, 5 + HEADER_HEIGHT,
                        buf, adisplay->fore_color );
 

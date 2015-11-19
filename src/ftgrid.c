@@ -965,8 +965,10 @@
 
     grSetGlyphGamma( status.gamma );
 
-    sprintf( status.header_buffer, "gamma changed to %.1f%s",
-             status.gamma, status.gamma == 0.0 ? " (sRGB mode)" : "" );
+    if ( status.gamma == 0.0 )
+      sprintf( status.header_buffer, "gamma changed to sRGB mode" );
+    else
+      sprintf( status.header_buffer, "gamma changed to %.1f", status.gamma );
 
     status.header = (const char *)status.header_buffer;
   }

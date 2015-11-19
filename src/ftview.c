@@ -1787,9 +1787,10 @@
                        buf, display->fore_color );
 
     /* gamma */
-    sprintf( buf, "gamma: %.1f%s",
-                  status.gamma, status.gamma == 0.0 ? " (sRGB mode)"
-                                                    : "" );
+    if ( status.gamma == 0.0 )
+      sprintf( buf, "gamma: sRGB mode" );
+    else
+      sprintf( buf, "gamma: %.1f", status.gamma );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 

@@ -1,3 +1,11 @@
+2015-11-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Cosmetic improvements.
+
+	* src/ftdiff.c (write_global_info): Do not display zero gamma.
+	* src/ftgrid.c (event_gamma_change): Ditto.
+	* src/ftview.c (write_header): Ditto.
+
 2015-11-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/gblender.c (gblender_reset_key): Fix typo.
