@@ -1767,7 +1767,7 @@
  /**********************************************************************
   *
   * <Function>
-  *    grBlitGlyphBitmap
+  *    grBlitGlyphToBitmap
   *
   * <Description>
   *    writes a given glyph bitmap to a target surface.
