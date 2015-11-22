@@ -116,7 +116,6 @@
     grWriteln( "  t         : cycle through kerning degrees" );
     grWriteln( "  V         : toggle vertical rendering" );
     grLn();
-    grWriteln( "  G         : toggle gamma correction" );
     grWriteln( "  g         : increase gamma by 0.1" );
     grWriteln( "  v         : decrease gamma by 0.1" );
     grLn();
@@ -343,13 +342,6 @@
       status.header = sc->vertical
                       ? (char *)"using vertical layout"
                       : (char *)"using horizontal layout";
-      break;
-
-    case grKEY( 'G' ):
-      sc->gamma_ramp = sc->gamma_ramp ? NULL : status.gamma_ramp;
-      status.header  = sc->gamma_ramp
-                       ? (char *)"gamma correction is now on"
-                       : (char *)"gamma correction is now off";
       break;
 
     case grKEY( 'g' ):

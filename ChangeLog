@@ -1,3 +1,9 @@
+2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Remove gamma toggle.
+
+	* src/ftstring.c (event_help, Process_Event): Updated.
+
 2015-11-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	Copy-paste typos.
