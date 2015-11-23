@@ -1,5 +1,15 @@
 2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftstring] Use shared `grSetGlyphGamma'.
+
+	* src/ftcommon.h (FTDemo_String_Context): Remove `gamma_ramp'.
+	* src/ftcommon.c (apply_gamma_ramp): Remove.
+	(FTDemo_String_Draw): Do not apply gamma correction here.
+	* src/ftstring.c (event_gamma_change): Call `grSetGlyphGamma' here.
+	(main): Switch from gray to rgb24; update.
+
+2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftstring] Remove gamma toggle.
 
 	* src/ftstring.c (event_help, Process_Event): Updated.

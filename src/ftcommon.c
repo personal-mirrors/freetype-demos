@@ -1207,27 +1207,6 @@
   }
 
 
-  static void
-  gamma_ramp_apply( FT_Byte    gamma_ramp[256],
-                    grBitmap*  bitmap )
-  {
-    int       i, j;
-    FT_Byte*  p = (FT_Byte*)bitmap->buffer;
-
-
-    if ( bitmap->pitch < 0 )
-      p += -bitmap->pitch * ( bitmap->rows - 1 );
-
-    for ( i = 0; i < bitmap->rows; i++ )
-    {
-      for ( j = 0; j < bitmap->width; j++ )
-        p[j] = gamma_ramp[p[j]];
-
-      p += bitmap->pitch;
-    }
-  }
-
-
   FT_Error
   FTDemo_String_Draw( FTDemo_Handle*          handle,
                       FTDemo_Display*         display,
@@ -1369,9 +1348,6 @@
                                         &dummy1, &dummy2, &glyf );
         if ( !error )
         {
-          if ( sc->gamma_ramp )
-            gamma_ramp_apply( sc->gamma_ramp, &bit3 );
-
           /* change back to the usual coordinates */
           top = display->bitmap->rows - top;
 

@@ -165,7 +165,6 @@
     FT_Fixed    center;            /* 0..1 */
     int         vertical;          /* displayed vertically? */
     FT_Matrix*  matrix;            /* string transformation */
-    FT_Byte*    gamma_ramp;        /* an array of size 256 */
 
   } FTDemo_String_Context;
 

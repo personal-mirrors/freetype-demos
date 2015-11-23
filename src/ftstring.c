@@ -203,6 +203,8 @@
     else if ( status.gamma < 0.1 )
       status.gamma = 0.1;
 
+    grSetGlyphGamma( status.gamma );
+
     sprintf( status.header_buffer, "gamma changed to %.1f", status.gamma );
     status.header = status.header_buffer;
 
@@ -383,6 +385,7 @@
                    grBitmap*  bitmap )
   {
     int       i, x, y;
+    int       bpp = bitmap->pitch / bitmap->width;
     FT_Byte*  p = (FT_Byte*)bitmap->buffer;
 
 
@@ -393,7 +396,7 @@
     y = ( bitmap->rows + 256 ) / 2;
 
     for (i = 0; i < 256; i++)
-      p[bitmap->pitch * ( y - gamma_ramp[i] ) + ( x + i )] = 80;
+      p[bitmap->pitch * ( y - gamma_ramp[i] ) + bpp * ( x + i )] = 0x80;
   }
 
 
@@ -609,23 +612,25 @@
     if ( handle->num_fonts == 0 )
       PanicZ( "could not open any font file" );
 
-    display = FTDemo_Display_New( gr_pixel_mode_gray,
+    display = FTDemo_Display_New( gr_pixel_mode_rgb24,
                                   status.width, status.height );
-    display->back_color.value = 0;
-    display->fore_color.value = 0xff;
 
     if ( !display )
       PanicZ( "could not allocate display surface" );
+
+    display->back_color = grFindColor( display->bitmap,
+                                       0x00, 0x00, 0x00, 0xff );
+    display->fore_color = grFindColor( display->bitmap,
+                                       0xff, 0xff, 0xff, 0xff );
 
     grSetTitle( display->surface,
                 "FreeType String Viewer - press ? for help" );
 
     event_gamma_change( 0 );
-    status.sc.gamma_ramp = status.gamma_ramp;
     event_font_change( 0 );
     status.header = 0;
 
-    for ( ;; )
+    do
     {
       FTDemo_Display_Clear( display );
 
@@ -686,16 +691,14 @@
         break;
       }
 
-      if ( !error && status.sc.gamma_ramp )
+      if ( !error )
         gamma_ramp_draw( status.gamma_ramp, display->bitmap );
 
       write_header( error );
 
       status.header = 0;
       grListenSurface( display->surface, 0, &event );
-      if ( Process_Event( &event ) )
-        break;
-    }
+    } while ( !Process_Event( &event ) );
 
     printf( "Execution completed successfully.\n" );
 
