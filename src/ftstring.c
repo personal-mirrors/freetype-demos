@@ -115,6 +115,7 @@
     grWriteln( "  k         : cycle through kerning modes" );
     grWriteln( "  t         : cycle through kerning degrees" );
     grWriteln( "  V         : toggle vertical rendering" );
+    grWriteln( "  space     : cycle through color" );
     grLn();
     grWriteln( "  g         : increase gamma by 0.1" );
     grWriteln( "  v         : decrease gamma by 0.1" );
@@ -186,6 +187,22 @@
     status.trans_matrix.yx = sinus;
     status.trans_matrix.xy = -sinus;
     status.trans_matrix.yy = cosinus;
+  }
+
+
+  static void
+  event_color_change()
+  {
+    static int     i = 0;
+    unsigned char  r = i & 4 ? 0xff : 0;
+    unsigned char  g = i & 2 ? 0xff : 0;
+    unsigned char  b = i & 1 ? 0xff : 0;
+
+
+    display->back_color = grFindColor( display->bitmap,  r,  g,  b, 0xff );
+    display->fore_color = grFindColor( display->bitmap, ~r, ~g, ~b, 0xff );
+
+    i++;
   }
 
 
@@ -344,6 +361,10 @@
       status.header = sc->vertical
                       ? (char *)"using vertical layout"
                       : (char *)"using horizontal layout";
+      break;
+
+    case grKeySpace:
+      event_color_change();
       break;
 
     case grKEY( 'g' ):
@@ -618,14 +639,10 @@
     if ( !display )
       PanicZ( "could not allocate display surface" );
 
-    display->back_color = grFindColor( display->bitmap,
-                                       0x00, 0x00, 0x00, 0xff );
-    display->fore_color = grFindColor( display->bitmap,
-                                       0xff, 0xff, 0xff, 0xff );
-
     grSetTitle( display->surface,
                 "FreeType String Viewer - press ? for help" );
 
+    event_color_change();
     event_gamma_change( 0 );
     event_font_change( 0 );
     status.header = 0;

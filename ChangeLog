@@ -1,5 +1,15 @@
 2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftstring] Enable changing display color.
+
+	* src/ftstring.c (event_color_change): New function.
+	(Process_Event) [grKeySpace]: New event to change color.
+	(event_help): Offer it.
+	(main): Updated.
+	* src/ftstring.1: Updated.
+
+2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftstring] Use shared `grSetGlyphGamma'.
 
 	* src/ftcommon.h (FTDemo_String_Context): Remove `gamma_ramp'.
