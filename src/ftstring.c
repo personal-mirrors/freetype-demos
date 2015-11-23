@@ -651,6 +651,8 @@
     {
       FTDemo_Display_Clear( display );
 
+      gamma_ramp_draw( status.gamma_ramp, display->bitmap );
+
       switch ( status.render_mode )
       {
       case RENDER_MODE_STRING:
@@ -707,9 +709,6 @@
         }
         break;
       }
-
-      if ( !error )
-        gamma_ramp_draw( status.gamma_ramp, display->bitmap );
 
       write_header( error );
 

@@ -1,5 +1,9 @@
 2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftstring.c (main); Move gamma curve in the background.
+
+2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftstring] Enable changing display color.
 
 	* src/ftstring.c (event_color_change): New function.
