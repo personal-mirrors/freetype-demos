@@ -194,7 +194,7 @@
 
 
   static void
-  event_lcdmode_change()
+  event_lcdmode_change( void )
   {
     const char  *lcd_mode = NULL;
 
@@ -231,7 +231,7 @@
 
 
   static void
-  event_color_change()
+  event_color_change( void )
   {
     static int     i = 0;
     unsigned char  r = i & 4 ? 0xff : 0;
