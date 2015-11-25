@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2007, 2009-2014 by                                       */
+/*  Copyright 1996-2007, 2009-2015 by                                       */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -19,6 +19,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+
+#include FT_LCD_FILTER_H
 
 #define CELLSTRING_HEIGHT  8
 #define MAXPTSIZE          500   /* dtp */
@@ -112,10 +114,11 @@
     grWriteln( "  h         : toggle outline hinting" );
     grLn();
     grWriteln( "  1-2       : select rendering mode" );
+    grWriteln( "  l         : cycle through LCD modes" );
     grWriteln( "  k         : cycle through kerning modes" );
     grWriteln( "  t         : cycle through kerning degrees" );
-    grWriteln( "  V         : toggle vertical rendering" );
     grWriteln( "  space     : cycle through color" );
+    grWriteln( "  V         : toggle vertical rendering" );
     grLn();
     grWriteln( "  g         : increase gamma by 0.1" );
     grWriteln( "  v         : decrease gamma by 0.1" );
@@ -187,6 +190,43 @@
     status.trans_matrix.yx = sinus;
     status.trans_matrix.xy = -sinus;
     status.trans_matrix.yy = cosinus;
+  }
+
+
+  static void
+  event_lcdmode_change()
+  {
+    const char  *lcd_mode = NULL;
+
+
+    handle->lcd_mode++;
+
+    switch ( handle->lcd_mode )
+    {
+    case N_LCD_MODES:
+      handle->lcd_mode = 0;
+    case LCD_MODE_AA:
+      lcd_mode = " normal AA";
+      break;
+    case LCD_MODE_LIGHT:
+      lcd_mode = " light AA";
+      break;
+    case LCD_MODE_RGB:
+      lcd_mode = " LCD (horiz. RGB)";
+      break;
+    case LCD_MODE_BGR:
+      lcd_mode = " LCD (horiz. BGR)";
+      break;
+    case LCD_MODE_VRGB:
+      lcd_mode = " LCD (vert. RGB)";
+      break;
+    case LCD_MODE_VBGR:
+      lcd_mode = " LCD (vert. BGR)";
+      break;
+    }
+
+    sprintf( status.header_buffer, "mode changed to %s", lcd_mode );
+    status.header = status.header_buffer;
   }
 
 
@@ -334,6 +374,12 @@
       FTDemo_Update_Current_Flags( handle );
       break;
 
+    case grKEY( 'l' ):
+      event_lcdmode_change();
+
+      FTDemo_Update_Current_Flags( handle );
+      break;
+
     case grKEY( 'k' ):
       sc->kerning_mode = ( sc->kerning_mode + 1 ) % N_KERNING_MODES;
       status.header =
@@ -356,15 +402,15 @@
             : (char *)"tight track kerning active";
       break;
 
+    case grKeySpace:
+      event_color_change();
+      break;
+
     case grKEY( 'V' ):
       sc->vertical  = !sc->vertical;
       status.header = sc->vertical
                       ? (char *)"using vertical layout"
                       : (char *)"using horizontal layout";
-      break;
-
-    case grKeySpace:
-      event_color_change();
       break;
 
     case grKEY( 'g' ):
@@ -611,6 +657,8 @@
     handle = FTDemo_New();
 
     parse_cmdline( &argc, &argv );
+
+    FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_LIGHT );
 
     handle->encoding  = status.encoding;
     handle->use_sbits = 0;

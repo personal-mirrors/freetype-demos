@@ -1,6 +1,15 @@
+2015-11-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Enable sub-pixel rendering,
+
+	* src/ftstring.c (event_lcdmode_change): New function.
+	(Process_Event): New event to change LCD mode.
+	(event_help): Offer it.
+	(main): Select light LCD filter.
+
 2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/ftstring.c (main); Move gamma curve in the background.
+	* src/ftstring.c (main): Move gamma curve in the background.
 
 2015-11-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
