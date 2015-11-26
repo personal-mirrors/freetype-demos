@@ -1670,14 +1670,11 @@
 
     if ( handle->antialias )
     {
-      const char*  lcd_mode = NULL;
+      const char*  lcd_mode;
 
 
       switch ( handle->lcd_mode )
       {
-      case LCD_MODE_AA:
-        lcd_mode = " normal AA";
-        break;
       case LCD_MODE_LIGHT:
         lcd_mode = " light AA";
         break;
@@ -1693,6 +1690,9 @@
       case LCD_MODE_VBGR:
         lcd_mode = " LCD (vert. BGR)";
         break;
+      default:
+        handle->lcd_mode = 0;
+        lcd_mode = " normal AA";
       }
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          lcd_mode, display->fore_color );

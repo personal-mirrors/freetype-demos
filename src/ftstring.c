@@ -196,18 +196,13 @@
   static void
   event_lcdmode_change( void )
   {
-    const char  *lcd_mode = NULL;
+    const char  *lcd_mode;
 
 
     handle->lcd_mode++;
 
     switch ( handle->lcd_mode )
     {
-    case N_LCD_MODES:
-      handle->lcd_mode = 0;
-    case LCD_MODE_AA:
-      lcd_mode = " normal AA";
-      break;
     case LCD_MODE_LIGHT:
       lcd_mode = " light AA";
       break;
@@ -223,6 +218,9 @@
     case LCD_MODE_VBGR:
       lcd_mode = " LCD (vert. BGR)";
       break;
+    default:
+      handle->lcd_mode = 0;
+      lcd_mode = " normal AA";
     }
 
     sprintf( status.header_buffer, "mode changed to %s", lcd_mode );
