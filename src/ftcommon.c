@@ -153,16 +153,18 @@
     else
     {
       unsigned char*  p = bit->buffer;
-      int             i, j;
+      int             i;
 
 
-      for ( i = 0; i < bit->rows; i++ )
+      for ( i = 0; i < pitch; i += 3, p += 3 )
       {
-        for ( j = 0; j < bit->width; j++ )
-          memcpy( p + 3 * j, display->back_color.chroma, 3 );
-
-        p += pitch;
+        p[0] = display->back_color.chroma[0];
+        p[1] = display->back_color.chroma[1];
+        p[2] = display->back_color.chroma[2];
       }
+
+      for ( i = 1; i < bit->rows; i++, p += pitch )
+        memcpy( p, p - pitch, pitch );
     }
   }
 
