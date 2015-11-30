@@ -164,12 +164,9 @@
     int    i, total, base, rendered_glyphs;
     char   filename[1024 + 4];
     char   alt_filename[1024 + 4];
-    char*  execname;
 
     long   t, t0, tz0;
 
-
-    execname = argv[0];
 
     antialias = 1;
     force_low = 0;
