@@ -1,5 +1,5 @@
 
-  GBLENDER_CHANNEL_VARS(blender,r,g,b);
+  GBLENDER_CHANNEL_VARS;
 
   int                   h         = blit->height;
   const unsigned char*  src_line  = blit->src_line;
@@ -7,6 +7,8 @@
   unsigned char*        dst_line  = blit->dst_line;
 
   gblender_use_channels( blender, 1 );
+
+  GBLENDER_CHANNEL_VARS_SET(blender,r,g,b);
 
   do
   {

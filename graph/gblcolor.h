@@ -1,11 +1,13 @@
 
-  GBLENDER_VARS(blender,color);
+  GBLENDER_VARS;
 
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line;
   unsigned char*        dst_line = blit->dst_line;
 
   gblender_use_channels( blender, 0 );
+
+  GBLENDER_VARS_SET(blender,color);
 
   /* make compiler happy */
   (void)(r);

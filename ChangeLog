@@ -1,3 +1,19 @@
+2015-11-30  Werner Lemberg  <wl@gnu.org>
+
+	[graph] Initialize local variables after checking channel change.
+
+	This fixes a crash if foreground color == background color.
+
+	Problem reported by Alexei.
+
+	* graph/gblender.h (GBLENDER_VARS): Split off initialization to...
+	(GBLENDER_VARS_SET): ...this new macro.
+	(GBLENDER_CHANNEL_VARS): Split off initialization to...
+	(GBLENDER_CHANNEL_VARS_SET): ...this new macro.
+
+	* graph/gblcolor.h, graph/gblhbgr.h, graph/gblhrgb.h,
+	graph/gblvbgr.h, graph/gblvrgb.h: Updated.
+
 2015-11-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/gblender.c (gblender_clear): Fix typo.
