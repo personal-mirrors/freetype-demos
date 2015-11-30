@@ -1,5 +1,9 @@
 2015-11-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/gblender.c (gblender_clear): Fix typo.
+
+2015-11-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/fttimer.c (main): Remove unused variable.
 
 2015-11-28  Alexei Podtelezhnikov  <apodtele@gmail.com>

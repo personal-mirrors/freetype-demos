@@ -81,7 +81,7 @@ gblender_clear( GBlender  blender )
 
     blender->cache_b_back  = ~0U;
     blender->cache_b_fore  = ~0U;
-    blender->cache_g_cells = NULL;
+    blender->cache_b_cells = NULL;
   }
   else
   {
