@@ -39,9 +39,9 @@
         unsigned int  bg = dst[2];
 
 
-	dst[0] = (unsigned char)(br * ba / 255 + r);
-	dst[1] = (unsigned char)(bg * ba / 255 + g);
-	dst[2] = (unsigned char)(bb * ba / 255 + b);
+        dst[0] = (unsigned char)(br * ba / 255 + r);
+        dst[1] = (unsigned char)(bg * ba / 255 + g);
+        dst[2] = (unsigned char)(bb * ba / 255 + b);
       }
 
       src += 4;

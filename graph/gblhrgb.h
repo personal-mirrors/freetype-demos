@@ -77,4 +77,3 @@
   while (--h > 0);
 
   GBLENDER_CHANNEL_CLOSE(blender);
-
