@@ -173,7 +173,6 @@ gblender_reset_key( GBlender     blender,
   GBlenderPixel  fore = key->foreground;
   GBlenderCell*  gr   = key->cells;
   unsigned int   nn;
-  int            gmax = (256 << GBLENDER_GAMMA_SHIFT)-1;
 
   const unsigned char*   gamma_ramp_inv = blender->gamma_ramp_inv;
   const unsigned short*  gamma_ramp     = blender->gamma_ramp;
@@ -210,7 +209,7 @@ gblender_reset_key( GBlender     blender,
   {
     unsigned int  bits = 8;
     unsigned int  a    = 0;
-    int           r, g, b;
+    unsigned int  r, g, b;
 
     while ( bits >= GBLENDER_SHADE_BITS )
     {
@@ -223,41 +222,23 @@ gblender_reset_key( GBlender     blender,
       a   += (nn >> bits);
     }
 
-    r = (int)((r2-r1)*a + 128);
-    g = (int)((g2-g1)*a + 128);
-    b = (int)((b2-b1)*a + 128);
-
-    r = (r + (r >> 8)) >> 8;
-    g = (g + (g >> 8)) >> 8;
-    b = (b + (b >> 8)) >> 8;
-
-    r += (int)r1;
-    g += (int)g1;
-    b += (int)b1;
-
-#if 0
-    r = ( r | -(r >> 8) ) & 255;
-    g = ( g | -(g >> 8) ) & 255;
-    b = ( b | -(b >> 8) ) & 255;
-#else
-   if ( r < 0 ) r = 0; else if ( r > gmax ) r = gmax;
-   if ( g < 0 ) g = 0; else if ( g > gmax ) g = gmax;
-   if ( b < 0 ) b = 0; else if ( b > gmax ) b = gmax;
-#endif
+    r = ( r2 * a + r1 * ( 255 - a ) + 127 ) / 255;
+    g = ( g2 * a + g1 * ( 255 - a ) + 127 ) / 255;
+    b = ( b2 * a + b1 * ( 255 - a ) + 127 ) / 255;
 
     r = gamma_ramp_inv[r];
     g = gamma_ramp_inv[g];
     b = gamma_ramp_inv[b];
 
 #ifdef GBLENDER_STORE_BYTES
-   gr[0] = (unsigned char)r;
-   gr[1] = (unsigned char)g;
-   gr[2] = (unsigned char)b;
-   gr   += 3;
+    gr[0] = (unsigned char)r;
+    gr[1] = (unsigned char)g;
+    gr[2] = (unsigned char)b;
+    gr   += 3;
 #else
-    gr[0] = (( (unsigned int)r & 255 ) << 16) |
-            (( (unsigned int)g & 255 ) << 8 ) |
-            (( (unsigned int)b & 255 )      ) ;
+    gr[0] = (( r & 255 ) << 16) |
+            (( g & 255 ) << 8 ) |
+            (( b & 255 )      ) ;
     gr ++;
 #endif
   }
@@ -341,7 +322,6 @@ gblender_reset_channel_key( GBlender         blender,
   const unsigned short*  gamma_ramp     = blender->gamma_ramp;
 
   unsigned int  r1,r2;
-  int           gmax = (256 << GBLENDER_GAMMA_SHIFT)-1;
 
   r1    = back;
   r2    = fore;
@@ -357,7 +337,7 @@ gblender_reset_channel_key( GBlender         blender,
   {
     unsigned int  bits = 8;
     unsigned int  a    = 0;
-    int  r;
+    unsigned int  r;
 
     while ( bits >= GBLENDER_SHADE_BITS )
     {
@@ -367,10 +347,8 @@ gblender_reset_channel_key( GBlender         blender,
     if ( bits > 0 )
       a += (nn >> (GBLENDER_SHADE_BITS-bits));
 
-    r = (int)((r2-r1)*a + 128);
-    r = (r + (r >> 8)) >> 8;
-    r += (int)r1;
-    if ( r < 0 ) r = 0; else if ( r > gmax ) r = gmax;
+    r = ( r2 * a + r1 * ( 255 - a ) + 127 ) / 255;
+
     r  = gamma_ramp_inv[r];
 
     gr[0] = (unsigned char)r;
