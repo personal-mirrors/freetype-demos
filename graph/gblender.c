@@ -207,20 +207,9 @@ gblender_reset_key( GBlender     blender,
 
   for ( nn = 1; nn < GBLENDER_SHADE_COUNT; nn++ )
   {
-    unsigned int  bits = 8;
-    unsigned int  a    = 0;
+    unsigned int  a = 255 * nn / ( GBLENDER_SHADE_COUNT - 1 );
     unsigned int  r, g, b;
 
-    while ( bits >= GBLENDER_SHADE_BITS )
-    {
-      bits -= GBLENDER_SHADE_BITS;
-      a    += (nn << bits);
-    }
-    if ( bits > 0 )
-    {
-      bits = GBLENDER_SHADE_BITS - bits;
-      a   += (nn >> bits);
-    }
 
     r = ( r2 * a + r1 * ( 255 - a ) + 127 ) / 255;
     g = ( g2 * a + g1 * ( 255 - a ) + 127 ) / 255;
@@ -329,23 +318,14 @@ gblender_reset_channel_key( GBlender         blender,
   gr[0] = (unsigned char)r1;
   gr++;
 
-
   r1 = gamma_ramp[r1];
   r2 = gamma_ramp[r2];
 
   for ( nn = 1; nn < GBLENDER_SHADE_COUNT; nn++ )
   {
-    unsigned int  bits = 8;
-    unsigned int  a    = 0;
+    unsigned int  a = 255 * nn / ( GBLENDER_SHADE_COUNT - 1 );
     unsigned int  r;
 
-    while ( bits >= GBLENDER_SHADE_BITS )
-    {
-      a    += (nn << (bits - GBLENDER_SHADE_BITS));
-      bits -= GBLENDER_SHADE_BITS;
-    }
-    if ( bits > 0 )
-      a += (nn >> (GBLENDER_SHADE_BITS-bits));
 
     r = ( r2 * a + r1 * ( 255 - a ) + 127 ) / 255;
 

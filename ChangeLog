@@ -1,3 +1,10 @@
+2015-12-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Unravel blending, part 2.
+
+	* graph/gblender.c (gblender_reset_key, gblender_reset_channel_key):
+	Set alpha grid values explicitly.
+
 2015-12-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Unravel blending.
