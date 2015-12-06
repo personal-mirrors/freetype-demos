@@ -1,3 +1,10 @@
+2015-12-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Small improvements.
+
+	* graph/gblender.h (GBLENDER_SHADE_INDEX): Round to nearest grid.
+	* graph/gblender.c (gblender_lookup, gblender_lookup_channel): Minor.
+
 2015-12-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Unravel blending, part 2.

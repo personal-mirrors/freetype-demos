@@ -19,7 +19,7 @@
 
 #define  GBLENDER_SHADE_BITS      4   /* must be <= 7 !! */
 #define  GBLENDER_SHADE_COUNT     ( 1 << GBLENDER_SHADE_BITS )
-#define  GBLENDER_SHADE_INDEX(n)  ((n) >> (8-GBLENDER_SHADE_BITS))
+#define  GBLENDER_SHADE_INDEX(n)  (((n) * (GBLENDER_SHADE_COUNT-1) + 128) >> 8)
 #define  GBLENDER_KEY_COUNT       256  /* must be a power of 2 */
 #define  GBLENDER_GAMMA_SHIFT     2
 

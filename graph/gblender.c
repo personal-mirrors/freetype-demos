@@ -257,7 +257,7 @@ gblender_lookup( GBlender       blender,
   }
 #endif
 
-  idx0 = ( background + foreground*63 ) % GBLENDER_KEY_COUNT;
+  idx0 = ( background + foreground*63 ) & (GBLENDER_KEY_COUNT-1);
   idx  = idx0;
   do
   {
@@ -360,7 +360,7 @@ gblender_lookup_channel( GBlender      blender,
   }
 #endif
 
-  idx0 = ( background + foreground*17 ) % (GBLENDER_KEY_COUNT);
+  idx0 = ( background + foreground*17 ) & (GBLENDER_KEY_COUNT-1);
   idx  = idx0;
   do
   {
