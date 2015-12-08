@@ -235,7 +235,7 @@
   *    grWriteCellChar
   *
   * <Description>
-  *    The graphics sub-system contains an internal Latin1 8x8 font
+  *    The graphics sub-system contains an internal CP437 8x8 font
   *    which can be used to display simple strings of text without
   *    using FreeType.
   *
@@ -264,7 +264,7 @@
   *    grWriteCellString
   *
   * <Description>
-  *    The graphics sub-system contains an internal Latin1 8x8 font
+  *    The graphics sub-system contains an internal CP437 8x8 font
   *    which can be used to display simple strings of text without
   *    using FreeType.
   *
@@ -571,7 +571,7 @@
   *    This function is equivalent to calling grWriteCellChar on the
   *    surface's bitmap, then invoking grRefreshRectangle.
   *
-  *    The graphics sub-system contains an internal Latin1 8x8 font
+  *    The graphics sub-system contains an internal CP437 8x8 font
   *    which can be used to display simple strings of text without
   *    using FreeType.
   *
@@ -603,7 +603,7 @@
   *    This function is equivalent to calling grWriteCellString on the
   *    surface's bitmap, then invoking grRefreshRectangle.
   *
-  *    The graphics sub-system contains an internal Latin1 8x8 font
+  *    The graphics sub-system contains an internal CP437 8x8 font
   *    which can be used to display simple strings of text without
   *    using FreeType.
   *

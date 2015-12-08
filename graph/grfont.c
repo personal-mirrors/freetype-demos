@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-  /* font characters */
+  /* internal CP437 8x8 font characters */
 
   const unsigned char  font_8x8[2048] =
   {
