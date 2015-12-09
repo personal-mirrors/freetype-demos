@@ -260,9 +260,6 @@
 
     grSetGlyphGamma( status.gamma );
 
-    sprintf( status.header_buffer, "gamma changed to %.1f", status.gamma );
-    status.header = status.header_buffer;
-
     gamma_inv = 1.0f / status.gamma;
 
     for ( i = 0; i < 256; i++ )
@@ -461,7 +458,7 @@
     y = ( bitmap->rows + 256 ) / 2;
 
     for (i = 0; i < 256; i++)
-      p[bitmap->pitch * ( y - gamma_ramp[i] ) + bpp * ( x + i )] = 0x80;
+      p[bitmap->pitch * ( y - gamma_ramp[i] ) + bpp * ( x + i )] ^= 0xFF;
   }
 
 
@@ -511,8 +508,8 @@
     grWriteCellString( display->bitmap, 0, 0,
                        status.header, display->fore_color );
 
-    sprintf( status.header_buffer, "at %g points, angle = %d",
-             status.ptsize / 64.0, status.angle );
+    sprintf( status.header_buffer, "at %g points, angle = %d, gamma = %g",
+             status.ptsize / 64.0, status.angle, status.gamma );
     grWriteCellString( display->bitmap, 0, CELLSTRING_HEIGHT,
                        status.header_buffer, display->fore_color );
 

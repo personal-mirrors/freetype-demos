@@ -1,3 +1,11 @@
+2015-12-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Miscellaneous updates.
+
+	* src/ftstring.c (event_gamma_change): Do not report gamma updates.
+	(write_header): Permanently display gamma.
+	(gamma_ramp_draw): Brighten the curve.
+
 2015-12-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Small improvements.
