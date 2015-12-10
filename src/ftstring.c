@@ -168,7 +168,12 @@
     FT_Fixed  sinus;
 
 
-    status.angle = ( status.angle + delta ) % 360;
+    status.angle += delta;
+
+    if ( status.angle <= -180 )
+      status.angle += 360;
+    if ( status.angle > 180 )
+      status.angle -= 360;
 
     if ( status.angle == 0 )
     {
@@ -179,10 +184,7 @@
 
     status.sc.matrix = &status.trans_matrix;
 
-    if ( status.angle < 0 )
-      status.angle += 360;
-
-    radian  = status.angle * 3.14159 / 180.0;
+    radian  = status.angle * 3.14159265 / 180.0;
     cosinus = (FT_Fixed)( cos( radian ) * 65536.0 );
     sinus   = (FT_Fixed)( sin( radian ) * 65536.0 );
 

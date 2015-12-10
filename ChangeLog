@@ -1,3 +1,7 @@
+2015-12-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftstring.c (event_angle_change): Wrap angle differently.
+
 2015-12-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Miscellaneous updates.
