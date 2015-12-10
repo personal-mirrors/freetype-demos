@@ -433,8 +433,8 @@
 
         if ( handle->preload )
         {
-          FILE*  file = fopen( filename, "rb" );
-          int    file_size;
+          FILE*   file = fopen( filename, "rb" );
+          size_t  file_size;
 
 
           if ( file == NULL )  /* shouldn't happen */
@@ -444,16 +444,33 @@
           }
 
           fseek( file, 0, SEEK_END );
-          file_size = ftell( file );
+          file_size = (size_t)ftell( file );
           fseek( file, 0, SEEK_SET );
 
           if ( file_size <= 0 )
+          {
+            free( font );
+            fclose( file );
             return FT_Err_Invalid_Stream_Operation;
+          }
 
-          font->file_address = malloc( (size_t)file_size );
-          fread( font->file_address, 1, (size_t)file_size, file );
+          font->file_address = malloc( file_size );
+          if ( !font->file_address )
+          {
+            free( font );
+            fclose( file );
+            return FT_Err_Out_Of_Memory;
+          }
 
-          font->file_size = (size_t)file_size;
+          if ( fread( font->file_address, 1, file_size, file ) != file_size )
+          {
+            free( font->file_address );
+            free( font );
+            fclose( file );
+            return FT_Err_Invalid_Stream_Read;
+          }
+
+          font->file_size = file_size;
 
           fclose( file );
         }
