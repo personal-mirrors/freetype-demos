@@ -1,3 +1,10 @@
+2015-12-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgamma] Modernize appearance.
+
+	* src/ftgamma.c: Major renovations.
+	* src/ftgamma.1: Update.
+
 2015-12-10  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftcommon.c (FTDemo_Install_Font): Handle alloc/file errors.

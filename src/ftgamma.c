@@ -16,39 +16,54 @@
 
 
 static void
-do_rect( grBitmap*  bitmap,
+do_fill( grBitmap*  bitmap,
          int        x,
          int        y,
          int        w,
          int        h,
-         int        gray )
+         int        back,
+         int        fore )
 {
-  unsigned char*  line = bitmap->buffer + y*bitmap->pitch;
+  int           pitch = bitmap->pitch;
+  unsigned int  i;
+  double        b, f;
 
-  if ( bitmap->pitch < 0 )
-    line -= bitmap->pitch*(bitmap->rows-1);
+  unsigned char*  line = bitmap->buffer + y*pitch + 3*x;
+  unsigned char*  dst;
 
-  line += 3*x;
 
-  if ( gray >= 0 )
-  {
-    for ( ; h > 0; h--, line += bitmap->pitch )
-      memset( line, gray, (unsigned int)( 3 * w ) );
-  }
-  else
-  {
-    for ( ; h > 0; h--, line+= bitmap->pitch )
+  if ( back == 0 || back == 255 )
+    for ( i = 0; i < w; i++ )
     {
-      int             w2 = w;
-      unsigned char*  dst = line;
-
-      for ( ; w2 > 0; w2--, dst += 3 )
-      {
-        int  color = ((w2+h) & 1)*255;
-
-        dst[0] = dst[1] = dst[2] = (unsigned char)color;
-      }
+      dst = line + 3 * i + ( i & 1 ) * pitch;
+      dst[0] = dst[1] = dst[2] = back;
     }
+  else
+    for ( b = back / 255., i = 0; i < w; i++ )
+    {
+      dst = line + 3 * i + ( i & 1 ) * pitch;
+      dst[0] = dst[1] = dst[2] = 0.5 +
+                                 255. * pow ( b, 1. / (1. + 2. * i / w ) );
+    }
+
+  if ( fore == 0 || fore == 255 )
+    for ( i = 0; i < w; i++ )
+    {
+      dst = line + 3 * i + ( ~i & 1 ) * pitch;
+      dst[0] = dst[1] = dst[2] = fore;
+    }
+  else
+    for ( f = fore / 255., i = 0; i < w; i++ )
+    {
+      dst = line + 3 * i + ( ~i & 1 ) * pitch;
+      dst[0] = dst[1] = dst[2] = 0.5 +
+                                 255. * pow ( f, 1. / (1. + 2. * i / w ) );
+    }
+
+  for ( i = 2; i < h; i += 2 )
+  {
+    memcpy( line + i * pitch, line, 3 * w );
+    memcpy( line + i * pitch + pitch, line + pitch, 3 * w );
   }
 }
 
@@ -56,73 +71,40 @@ do_rect( grBitmap*  bitmap,
 static FT_Error
 Render_GammaGrid( grBitmap*  bitmap )
 {
-  int   g;
-  int   xmargin = 10;
-  int   gamma_first = 16;
-  int   gamma_last  = 26;
-  int   gammas      = gamma_last - gamma_first + 1;
-  int   xside       = (bitmap->width-100)/gammas - xmargin;
-  int   yside       = (bitmap->rows-100)/2;
-  int   yrepeat     = 1;
+  int  x = 20;
+  int  y = 90;
+  int  h = ( bitmap->rows - 2 * y ) / 15;
+  int  w = bitmap->width - 2 * x;
 
-  int   x_0     = (bitmap->width - gammas*(xside+xmargin)+xmargin)/2;
-  int   y_0     = (bitmap->rows  - (8+yside*2*yrepeat))/2;
-  int   pitch   = bitmap->pitch;
+  int     i;
+  char    buf[4];
+  grColor color = grFindColor( bitmap, 0x00, 0x00, 0x00, 0xff );
 
 
-  if ( pitch < 0 )
-    pitch = -pitch;
+  do_fill( bitmap, x,    y, w, h,  85, 255 );
+  do_fill( bitmap, x, y+=h, w, h, 170, 170 );
+  do_fill( bitmap, x, y+=h, w, h,  85, 255 );
+  do_fill( bitmap, x, y+=h, w, h, 170, 170 );
+  do_fill( bitmap, x, y+=h, w, h,  85, 255 );
 
-#if 1
-  memset( bitmap->buffer, 255, (unsigned int)( pitch * bitmap->rows ) );
-#else
- /* fill the background with a simple pattern corresponding to 50%
-  * linear gray from a reasonable viewing distance
-  */
+  do_fill( bitmap, x, y+=h, w, h,   0, 255 );
+  do_fill( bitmap, x, y+=h, w, h, 127, 127 );
+  do_fill( bitmap, x, y+=h, w, h,   0, 255 );
+  do_fill( bitmap, x, y+=h, w, h, 127, 127 );
+  do_fill( bitmap, x, y+=h, w, h,   0, 255 );
+
+  do_fill( bitmap, x, y+=h, w, h,   0, 170 );
+  do_fill( bitmap, x, y+=h, w, h,  85,  85 );
+  do_fill( bitmap, x, y+=h, w, h,   0, 170 );
+  do_fill( bitmap, x, y+=h, w, h,  85,  85 );
+  do_fill( bitmap, x, y+=h, w, h,   0, 170 );
+
+  for ( i = 0; i <= 10; i++ )
   {
-    int             nx, ny;
-    unsigned char*  line = bitmap->buffer;
-    if ( bitmap->pitch < 0 )
-      line -= (bitmap->pitch*(bitmap->rows-1));
-
-    for ( ny = 0; ny < bitmap->rows; ny++, line += bitmap->pitch )
-    {
-      unsigned char*  dst = line;
-      int             nx;
-
-      for ( nx = 0; nx < bitmap->width; nx++, dst += 3 )
-      {
-        int  color = ((nx+ny) & 1)*255;
-
-        dst[0] = dst[1] = dst[2] = (unsigned char)color;
-      }
-    }
+    sprintf( buf, "%.1f", 1. + .2 * i );
+    grWriteCellString( bitmap, 9 + i * w / 10, 395, buf, color );
   }
-#endif
 
-  grGotobitmap( bitmap );
-
-  for ( g = gamma_first; g <= gamma_last; g += 1 )
-  {
-    double gamma_value = g/10.0;
-    char   temp[6];
-    int    x = x_0 + (xside+xmargin)*(g-gamma_first);
-    int    y = y_0;
-    int    ny;
-
-    grSetPixelMargin( x, y_0-8 );
-    grGotoxy( 0, 0 );
-
-    sprintf( temp, "%.1f", gamma_value );
-    grWrite( temp );
-
-    for ( ny = 0; ny < yrepeat; ny++, y += 2*yside )
-    {
-      do_rect( bitmap, x, y, xside, yside,
-               (int)( 255.0 * pow( 0.5, 1.0 / gamma_value ) ) );
-      do_rect( bitmap, x, y+yside, xside, yside, -1 );
-    }
-  }
   return 0;
 }
 
@@ -141,6 +123,8 @@ main( void )
   }
 
   grSetTitle( display->surface, "FreeType Gamma Matcher" );
+
+  FTDemo_Display_Clear( display );
 
   Render_GammaGrid( display->bitmap );
 
