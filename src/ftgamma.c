@@ -24,9 +24,9 @@ do_fill( grBitmap*  bitmap,
          int        back,
          int        fore )
 {
-  int           pitch = bitmap->pitch;
-  unsigned int  i;
-  double        b, f;
+  int     pitch = bitmap->pitch;
+  int     i;
+  double  b, f;
 
   unsigned char*  line = bitmap->buffer + y*pitch + 3*x;
   unsigned char*  dst;
