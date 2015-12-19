@@ -7,7 +7,7 @@ gblender_set_gamma_table( double           gamma_value,
                           unsigned short*  gamma_ramp,
                           unsigned char*   gamma_ramp_inv )
 {
-  int  gmax = (256 << GBLENDER_GAMMA_SHIFT)-1;
+  const int  gmax = (256 << GBLENDER_GAMMA_SHIFT)-1;
 
   if ( gamma_value <= 0 )  /* special case for sRGB */
   {
@@ -22,10 +22,10 @@ gblender_set_gamma_table( double           gamma_value,
       else
         x = pow( (x+0.055)/ 1.055, 2.4 );
 
-      gamma_ramp[ii] = (unsigned short)(gmax*x);
+      gamma_ramp[ii] = (unsigned short)(gmax*x + 0.5);
     }
 
-    for ( ii = 0; ii < gmax; ii++ )
+    for ( ii = 0; ii <= gmax; ii++ )
     {
       double  x = (double)ii / gmax;
 
@@ -34,24 +34,23 @@ gblender_set_gamma_table( double           gamma_value,
       else
         x = 1.055*pow(x,1/2.4) - 0.055;
 
-      gamma_ramp_inv[ii] = (unsigned char)(255*x);
+      gamma_ramp_inv[ii] = (unsigned char)(255.*x + 0.5);
     }
-    gamma_ramp_inv[gmax] = 255;
   }
   else
   {
     int     ii;
-    double  gamma_inv = 1.0f / gamma_value;
+    double  gamma_inv = 1. / gamma_value;
 
     /* voltage to linear */
     for ( ii = 0; ii < 256; ii++ )
-      gamma_ramp[ii] = (unsigned short)( pow( (double)ii/255.0f, gamma_value )*gmax );
+      gamma_ramp[ii] =
+        (unsigned short)( gmax*pow( (double)ii/255., gamma_value ) + 0.5 );
 
     /* linear to voltage */
-    for ( ii = 0; ii < gmax; ii++ )
-      gamma_ramp_inv[ii] = (unsigned char)( pow( (double)ii/gmax, gamma_inv ) * 255.0f );
-
-    gamma_ramp_inv[gmax] = 255;
+    for ( ii = 0; ii <= gmax; ii++ )
+      gamma_ramp_inv[ii] =
+        (unsigned char)( 255.*pow( (double)ii/gmax, gamma_inv ) + 0.5 );
   }
 }
 

@@ -1,3 +1,7 @@
+2015-12-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/gblender.c (gblender_set_gamma_table): Rounding, formatting.
+
 2015-12-15  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftgamma.c (do_fill): Fix compiler warning.
