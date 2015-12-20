@@ -1,5 +1,12 @@
 2015-12-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftstring, ftview] Auxiliary gamma rounding fixes.
+
+	* src/ftstring.c (event_gamma_change): Updated.
+	* src/ftview.c (event_gamma_grid): Updated.
+
+2015-12-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/gblender.c (gblender_set_gamma_table): Rounding, formatting.
 
 2015-12-15  Werner Lemberg  <wl@gnu.org>

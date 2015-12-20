@@ -49,7 +49,7 @@
 
     FTDemo_String_Context  sc;
 
-    FT_Byte      gamma_ramp[256];
+    FT_Byte      gamma_ramp[256];   /* for show only */
     FT_Matrix    trans_matrix;
     int          font_index;
     char*        header;
@@ -262,11 +262,11 @@
 
     grSetGlyphGamma( status.gamma );
 
-    gamma_inv = 1.0f / status.gamma;
+    gamma_inv = 1. / status.gamma;
 
     for ( i = 0; i < 256; i++ )
-      status.gamma_ramp[i] = (FT_Byte)( pow( (double)i / 255.0f, gamma_inv )
-                                        * 255.0f );
+      status.gamma_ramp[i] = (FT_Byte)( pow( (double)i / 255., gamma_inv )
+                                        * 255. + 0.5 );
   }
 
 

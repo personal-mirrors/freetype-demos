@@ -878,7 +878,7 @@
         for ( nx = 0; nx < levels; nx++, dst += 3 * xside )
         {
           double  p   = nx / (double)( levels - 1 );
-          int     gm  = (int)( 255.0 * pow( p, ggamma ) );
+          int     gm  = (int)( 255.0 * pow( p, ggamma ) + 0.5 );
 
 
           memset( dst, gm, (unsigned int)( xside * 3 ) );
