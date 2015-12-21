@@ -1,3 +1,15 @@
+2015-12-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Relocate gamma grid display from [ftview] to [ftgamma].
+
+	* src/ftview.c (Procenn_Event): Remove event `G'.
+	(event_help): Update.
+	(event_gamma_grid): Move to...
+	* src/ftgamma.c (event_gamma_grid): ... here.
+	(Process_Event): New function.
+	(event_help): New function.
+	(main): Update to handle events.
+
 2015-12-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring, ftview] Auxiliary gamma rounding fixes.
