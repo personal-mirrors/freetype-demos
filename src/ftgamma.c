@@ -79,10 +79,6 @@
     int  h = ( bitmap->rows - 2 * y ) / 15;
     int  w = bitmap->width - 2 * x;
 
-    int     i;
-    char    buf[4];
-    grColor color = grFindColor( bitmap, 0x00, 0x00, 0x00, 0xff );
-
 
     do_fill( bitmap, x,    y, w, h,  85, 255 );
     do_fill( bitmap, x, y+=h, w, h, 170, 170 );
@@ -101,12 +97,6 @@
     do_fill( bitmap, x, y+=h, w, h,   0, 170 );
     do_fill( bitmap, x, y+=h, w, h,  85,  85 );
     do_fill( bitmap, x, y+=h, w, h,   0, 170 );
-
-    for ( i = 0; i <= 10; i++ )
-    {
-      sprintf( buf, "%.1f", 1. + .2 * i );
-      grWriteCellString( bitmap, 9 + i * w / 10, 395, buf, color );
-    }
 
     return 0;
   }
@@ -245,6 +235,8 @@
   main( void )
   {
     grEvent          event;
+    char             buf[4];
+    int              i;
 
     display = FTDemo_Display_New( gr_pixel_mode_rgb24, DIM_X, DIM_Y );
     if ( !display )
@@ -259,6 +251,13 @@
       FTDemo_Display_Clear( display );
 
       Render_GammaGrid( display->bitmap );
+
+      for ( i = 0; i <= 10; i++ )
+      {
+        sprintf( buf, "%.1f", 1. + .2 * i );
+        grWriteCellString( display->bitmap, 9 + i * 60, 395, buf,
+                           display->fore_color );
+      }
 
       grRefreshSurface( display->surface );
       grListenSurface( display->surface, 0, &event );

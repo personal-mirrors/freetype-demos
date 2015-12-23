@@ -1,3 +1,10 @@
+2015-12-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgamma] Minor refactoring.
+
+	* src/ftgamma.c (Render_GammaGrid): Move labels from here...
+	(main): ... to here.
+
 2015-12-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	Relocate gamma grid display from [ftview] to [ftgamma].
