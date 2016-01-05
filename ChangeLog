@@ -1,3 +1,14 @@
+2016-01-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgamma] Enable color.
+
+	* src/ftcamma.c (Render_GammaGrid): Split into...
+	(Render_Bitmap): ... this renderer with color controls.
+	(GammaGrid): ... and this grayscale bitmap builder.
+	(event_color_change): New function.
+	(Process_Event, event_help, main): Updated.
+	* src/ftgamma.1: Updated.
+
 2015-12-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgamma] Minor refactoring.

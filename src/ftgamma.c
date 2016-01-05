@@ -31,51 +31,38 @@
     int     i;
     double  b, f;
 
-    unsigned char*  line = bitmap->buffer + y*pitch + 3*x;
-    unsigned char*  dst;
+    unsigned char*  line = bitmap->buffer + y*pitch + x;
 
 
     if ( back == 0 || back == 255 )
       for ( i = 0; i < w; i++ )
-      {
-        dst = line + 3 * i + ( i & 1 ) * pitch;
-        dst[0] = dst[1] = dst[2] = back;
-      }
+        line[i + ( i & 1 ) * pitch] = back;
     else
       for ( b = back / 255., i = 0; i < w; i++ )
-      {
-        dst = line + 3 * i + ( i & 1 ) * pitch;
-        dst[0] = dst[1] = dst[2] = 0.5 +
-                                   255. * pow ( b, 1. / (1. + 2. * i / w ) );
-      }
+        line[i + ( i & 1 ) * pitch] =
+          0.5 + 255. * pow ( b, 1. / (1. + 2. * i / w ) );
 
     if ( fore == 0 || fore == 255 )
       for ( i = 0; i < w; i++ )
-      {
-        dst = line + 3 * i + ( ~i & 1 ) * pitch;
-        dst[0] = dst[1] = dst[2] = fore;
-      }
+        line[i + ( ~i & 1 ) * pitch] = fore;
     else
       for ( f = fore / 255., i = 0; i < w; i++ )
-      {
-        dst = line + 3 * i + ( ~i & 1 ) * pitch;
-        dst[0] = dst[1] = dst[2] = 0.5 +
-                                   255. * pow ( f, 1. / (1. + 2. * i / w ) );
-      }
+        line[i + ( ~i & 1 ) * pitch] =
+          0.5 + 255. * pow ( f, 1. / (1. + 2. * i / w ) );
 
     for ( i = 2; i < h; i += 2 )
     {
-      memcpy( line + i * pitch, line, 3 * w );
-      memcpy( line + i * pitch + pitch, line + pitch, 3 * w );
+      memcpy( line + i * pitch, line, w );
+      memcpy( line + i * pitch + pitch, line + pitch, w );
     }
   }
 
 
   static FT_Error
-  Render_GammaGrid( grBitmap*  bitmap )
+  GammaGrid( grBitmap*  bitmap )
   {
-    int  x = 20;
-    int  y = 90;
+    int  x = 0;
+    int  y = 0;
     int  h = ( bitmap->rows - 2 * y ) / 15;
     int  w = bitmap->width - 2 * x;
 
@@ -121,6 +108,7 @@
     grLn();
     grWriteln( "F1, ?       display this help screen" );
     grLn();
+    grWriteln( "space       cycle through color");
     grWriteln( "G           show gamma ramp" );
     grLn();
     grLn();
@@ -128,6 +116,24 @@
 
     grRefreshSurface( display->surface );
     grListenSurface( display->surface, gr_event_key, &dummy_event );
+  }
+
+
+  static void
+  event_color_change( void )
+  {
+    static int     i = 7;
+    unsigned char  r = i & 4 ? 0xff : 0;
+    unsigned char  g = i & 2 ? 0xff : 0;
+    unsigned char  b = i & 1 ? 0xff : 0;
+
+
+    display->back_color = grFindColor( display->bitmap, 0, 0, 0, 0xff );
+    display->fore_color = grFindColor( display->bitmap, r, g, b, 0xff );
+
+    i++;
+    if ( ( i & 0x7 ) == 0 )
+      i = 1;
   }
 
 
@@ -202,6 +208,44 @@
   }
 
 
+  static void
+  Render_Bitmap( grBitmap*  bitmap,
+                 grBitmap*  bit,
+                 int x,
+                 int y,
+                 grColor color )
+  {
+    int     pitch = bitmap->pitch;
+    int     i, j;
+
+    unsigned char*  src;
+    unsigned char*  dst;
+
+    if ( color.chroma[0] == 255 )
+      for ( src = bit->buffer, i = 0; i < bit->rows; i++ )
+      {
+        dst = bitmap->buffer + ( y + i ) * pitch + 3 * x;
+        for ( j = 0; j < bit->width; j++, src++, dst += 3 )
+          *dst = *src;
+      }
+
+    if ( color.chroma[1] == 255 )
+      for ( src = bit->buffer, i = 0; i < bit->rows; i++ )
+      {
+        dst = bitmap->buffer + ( y + i ) * pitch + 3 * x + 1;
+        for ( j = 0; j < bit->width; j++, src++, dst += 3 )
+          *dst = *src;
+      }
+
+    if ( color.chroma[2] == 255 )
+      for ( src = bit->buffer, i = 0; i < bit->rows; i++ )
+      {
+        dst = bitmap->buffer + ( y + i ) * pitch + 3 * x + 2;
+        for ( j = 0; j < bit->width; j++, src++, dst += 3 )
+          *dst = *src;
+      }
+  }
+
   static int
   Process_Event( grEvent*  event )
   {
@@ -219,6 +263,10 @@
       event_help();
       break;
 
+    case grKeySpace:
+      event_color_change();
+      break;
+
     case grKEY( 'G' ):
       event_gamma_grid();
       break;
@@ -234,6 +282,7 @@
   int
   main( void )
   {
+    grBitmap         bit;
     grEvent          event;
     char             buf[4];
     int              i;
@@ -246,11 +295,22 @@
 
     grSetTitle( display->surface, "FreeType Gamma Matcher - press ? for help" );
 
+    bit.rows = 300;
+    bit.width = 600;
+    bit.pitch = 600;
+    bit.grays = 256;
+    bit.mode = gr_pixel_mode_gray;
+
+    grNewBitmap( bit.mode, bit.grays, bit.width, bit.rows, &bit );
+    GammaGrid( &bit );
+
+    event_color_change();
+
     do
     {
       FTDemo_Display_Clear( display );
 
-      Render_GammaGrid( display->bitmap );
+      Render_Bitmap( display->bitmap, &bit, 20, 90, display->fore_color );
 
       for ( i = 0; i <= 10; i++ )
       {
