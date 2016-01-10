@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2004, 2005, 2012 by                                           */
+/*  Copyright 2004-2016 by                                                  */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -16,6 +16,72 @@
 
 
   static FTDemo_Display*  display;
+
+  grBitmap   bit1 = { 300, 600, 600, gr_pixel_mode_gray, 256 };
+  grBitmap   bit2 = { 300, 600, 600, gr_pixel_mode_gray, 256 };
+  grBitmap*  bit;
+
+
+  static void
+  do_ptrn( grBitmap*  bitmap,
+           int        x,
+           int        y,
+           int        w,
+           int        h )
+  {
+    int     pitch = bitmap->pitch;
+    int     i, j, k;
+    double  p[4];
+
+    unsigned char*  line;
+
+    for ( i = 0; i < h; i++ )
+    {
+      for ( k = 0; k < 4; k++)
+      {
+        j = 2 * i + 1 + ( k - 4 ) * h / 2;
+        if ( j > h )
+          j -= 2 * h;
+        if ( j < -h )
+          j += 2 * h;
+        if ( j < 0 )
+          j = -j;
+        j -= h / 4;
+        if ( j < 0 )
+          j = 0;
+        if ( j > h / 2 )
+          j = h / 2;
+
+        p[k] = 2. * j / h;
+      }
+
+      line = bitmap->buffer + ( y + i ) * pitch + x;
+      for ( j = 0, k = 0; j < w; j++ )
+      {
+        line[j] = 0.5 + 255. * pow ( p[k], 1. / (1. + 2. * j / w ) );
+        k++;
+        if ( k == 4 )
+          k = 0;
+      }
+    }
+  }
+
+
+  static FT_Error
+  GammaPtrn( grBitmap*  bitmap )
+  {
+    int  x = 0;
+    int  y = 0;
+    int  h = ( bitmap->rows - 2 * y ) / 3;
+    int  w = bitmap->width - 2 * x;
+
+
+    do_ptrn( bitmap, x,    y, w, h );
+    do_ptrn( bitmap, x, y+=h, w, h );
+    do_ptrn( bitmap, x, y+=h, w, h );
+
+    return 0;
+  }
 
 
   static void
@@ -109,6 +175,7 @@
     grWriteln( "F1, ?       display this help screen" );
     grLn();
     grWriteln( "space       cycle through color");
+    grWriteln( "tab         alternate pattern");
     grWriteln( "G           show gamma ramp" );
     grLn();
     grLn();
@@ -267,6 +334,11 @@
       event_color_change();
       break;
 
+    case grKeyTab:
+      bit = bit == &bit1 ? &bit2
+                         : &bit1;
+      break;
+
     case grKEY( 'G' ):
       event_gamma_grid();
       break;
@@ -282,7 +354,6 @@
   int
   main( void )
   {
-    grBitmap         bit;
     grEvent          event;
     char             buf[4];
     int              i;
@@ -295,22 +366,20 @@
 
     grSetTitle( display->surface, "FreeType Gamma Matcher - press ? for help" );
 
-    bit.rows = 300;
-    bit.width = 600;
-    bit.pitch = 600;
-    bit.grays = 256;
-    bit.mode = gr_pixel_mode_gray;
+    grNewBitmap( bit1.mode, bit1.grays, bit1.width, bit1.rows, &bit1 );
+    GammaGrid( &bit1 );
 
-    grNewBitmap( bit.mode, bit.grays, bit.width, bit.rows, &bit );
-    GammaGrid( &bit );
+    grNewBitmap( bit2.mode, bit2.grays, bit2.width, bit2.rows, &bit2 );
+    GammaPtrn( &bit2 );
 
+    bit = &bit1;
     event_color_change();
 
     do
     {
       FTDemo_Display_Clear( display );
 
-      Render_Bitmap( display->bitmap, &bit, 20, 90, display->fore_color );
+      Render_Bitmap( display->bitmap, bit, 20, 90, display->fore_color );
 
       for ( i = 0; i <= 10; i++ )
       {

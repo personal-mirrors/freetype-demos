@@ -18,11 +18,17 @@ The
 demo program opens a window showing series of grey stripes filled with
 solid color and checkered pattern of pixels.  Your monitor's gamma value
 roughly corresponds to the horizontal position where the solid and checkered
-stripes are equally bright when seen from some distance. Three brightness
-targets are explored: 33%, 50%, and 67%. If the input-output curve of your
+stripes are equally bright when seen from some distance.  Three brightness
+targets are explored: 33%, 50%, and 67%.  If the input-output curve of your
 monitor does not follow ideal power law relationship, you might observe
-slightly different gamma values at different brightness levels. It is also
+slightly different gamma values at different brightness levels.  It is also
 possible to examine gamma values for basic colors.
+.
+.PP
+An alternative pattern of slightly slanted anti-aliased lines is provided
+to calibrate gamma for uniform perceived thickness of the lines.  The gamma
+value that corresponds to vanishing moiré pattern is ideal for anti-aliased
+font rendering.
 .
 .PP
 This program does not have any options.
