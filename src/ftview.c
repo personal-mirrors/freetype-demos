@@ -118,7 +118,7 @@
                72, 48, -1, GAMMA, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
-               0, { 0x10, 0x40, 0x70, 0x40, 0x10 }, 2 };
+               0, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
 
 
   static FTDemo_Display*  display;
@@ -1296,7 +1296,7 @@
                                         status.filter_weights );
       else
         FT_Library_SetLcdFilterWeights( handle->library,
-                                        (unsigned char*)"\x10\x40\x70\x40\x10" );
+                                        (unsigned char*)"\x08\x4D\x56\x4D\x08" );
       status.update = 1;
       break;
 

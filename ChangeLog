@@ -1,3 +1,7 @@
+2016-01-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftview.c (status, Process_Event): Update default LCD filter.
+
 2016-01-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgamma] Provide alternative pattern.
