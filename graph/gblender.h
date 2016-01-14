@@ -6,8 +6,8 @@
  *
  */
 
-#ifndef __GBLENDER_H__
-#define __GBLENDER_H__
+#ifndef GBLENDER_H_
+#define GBLENDER_H_
 
 #ifndef GBLENDER_API
 #define GBLENDER_API(x)  extern x
@@ -233,4 +233,4 @@
    }
 
 
-#endif /* __GBENCH_CACHE_H__ */
+#endif /* GBLENDER_H_ */

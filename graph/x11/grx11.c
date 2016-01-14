@@ -1374,7 +1374,7 @@ typedef  unsigned long   uint32;
       unsigned long         xswa_mask = CWBackPixel | CWEventMask | CWCursor;
 
       pid_t                 pid;
-      Atom                  _NET_WM_PID;
+      Atom                  NET_WM_PID;
 
 
       xswa.border_pixel = BlackPixel( display, screen );
@@ -1438,8 +1438,8 @@ typedef  unsigned long   uint32;
                         NULL, 0, &xsh, NULL, NULL );
 
       pid = getpid();
-      _NET_WM_PID = XInternAtom( display, "_NET_WM_PID", False );
-      XChangeProperty( display, surface->win, _NET_WM_PID,
+      NET_WM_PID = XInternAtom( display, "_NET_WM_PID", False );
+      XChangeProperty( display, surface->win, NET_WM_PID,
                        XA_CARDINAL, 32, PropModeReplace,
                        (unsigned char *)&pid, 1 );
     }

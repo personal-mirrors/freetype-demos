@@ -9,8 +9,8 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef GRBLIT_H
-#define GRBLIT_H
+#ifndef GRBLIT_H_
+#define GRBLIT_H_
 
 #include "grobjs.h"
 
@@ -21,5 +21,7 @@
                    grColor    color );
 
 
-#endif /* GRBLIT_H */
+#endif /* GRBLIT_H_ */
+
+
 /* End */

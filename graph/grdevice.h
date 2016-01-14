@@ -9,8 +9,8 @@
  *
  ***************************************************************************/
 
-#ifndef GRDEVICE_H
-#define GRDEVICE_H
+#ifndef GRDEVICE_H_
+#define GRDEVICE_H_
 
 #include "graph.h"
 
@@ -133,4 +133,4 @@ gr_swizzle_rgb24( unsigned char*    read_buff,
                   int               width,
                   int               height );
 
-#endif /* GRDEVICE_H */
+#endif /* GRDEVICE_H_ */

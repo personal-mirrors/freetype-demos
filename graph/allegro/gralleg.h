@@ -1,5 +1,5 @@
-#ifndef GRALLEG_H
-#define GRALLEG_H
+#ifndef GRALLEG_H_
+#define GRALLEG_H_
 
 #include "grobjs.h"
 
@@ -20,4 +20,4 @@
 
 #endif  /* GR_INIT_BUILD */
 
-#endif /* GRALLEG_H */
+#endif /* GRALLEG_H_ */

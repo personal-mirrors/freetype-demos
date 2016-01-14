@@ -9,8 +9,8 @@
  *
  ***************************************************************************/
 
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef GRAPH_H_
+#define GRAPH_H_
 
 #include "grevents.h"
 
@@ -690,4 +690,4 @@
 
 /* */
 
-#endif /* GRAPH_H */
+#endif /* GRAPH_H_ */

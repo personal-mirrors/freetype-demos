@@ -7,8 +7,8 @@
  *  10 October 1997
  */
 
-#ifndef _H_COMMON
-#define _H_COMMON
+#ifndef COMMON_H_
+#define COMMON_H_
 
 /* Note that by default, both functions are implemented in common.c */
 
@@ -66,7 +66,7 @@
   }
 #endif
 
-#endif /* _H_COMMON */
+#endif /* COMMON_H_ */
 
 
 /* End */

@@ -1,5 +1,5 @@
-#ifndef GROS2PM_H
-#define GROS2PM_H
+#ifndef GROS2PM_H_
+#define GROS2PM_H_
 
 #include "grobjs.h"
 
@@ -20,4 +20,4 @@
 
 #endif  /* GR_INIT_BUILD */
 
-#endif /* GROS2PM_H */
+#endif /* GROS2PM_H_ */

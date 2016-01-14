@@ -1,3 +1,16 @@
+2016-01-14  Werner Lemberg  <wl@gnu.org>
+
+	Don't use macro names that start with `_[A-Z]' or contain `__'.
+
+	Such macro names are reserved for both C and C++.
+
+	* *.h: Harmonize ID macros so that file `foo.h' uses `FOO_H_'.
+	* *.c: s/_Translator/Translator_'.
+
+	* graph/x11/grx11.c (gr_x11_surface_init):
+	s/_NET_WM_PID/NET_WM_PID/.
+	* src/ftdiff.c: Replace structure names `_foo' with `foo_'.
+
 2016-01-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Cycle through available LCD filtering.

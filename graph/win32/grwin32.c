@@ -65,7 +65,7 @@
 /* These values can be changed, but WIN_WIDTH should remain for now a  */
 /* multiple of 32 to avoid padding issues.                             */
 
-  typedef struct  _Translator
+  typedef struct  Translator_
   {
     ULONG   winkey;
     grKey   grkey;

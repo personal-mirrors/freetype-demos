@@ -10,8 +10,8 @@
 /*                                                                          */
 /****************************************************************************/
 
-#ifndef _FT_COMMON_H_
-#define _FT_COMMON_H_
+#ifndef FT_COMMON_H_
+#define FT_COMMON_H_
 
 
 #include <ft2build.h>
@@ -338,6 +338,6 @@
   FTDemo_Make_Encoding_Tag( const char*  s );
 
 
-#endif /* _FTCOMMON_H_ */
+#endif /* FTCOMMON_H_ */
 
 /* End */

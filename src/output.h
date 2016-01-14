@@ -11,8 +11,8 @@
 /****************************************************************************/
 
 
-#ifndef _OUTPUT_H_
-#define _OUTPUT_H_
+#ifndef OUTPUT_H_
+#define OUTPUT_H_
 
 
 #include <ft2build.h>
@@ -56,6 +56,6 @@
                     FT_Int    as_utf8 );
 
 
-#endif /* _OUTPUT_H_ */
+#endif /* OUTPUT_H_ */
 
 /* End */

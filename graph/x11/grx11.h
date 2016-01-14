@@ -16,8 +16,8 @@
  *
  ******************************************************************/
 
-#ifndef GRX11_H
-#define GRX11_H
+#ifndef GRX11_H_
+#define GRX11_H_
 
 #ifdef __cplusplus
 #define class  c_class
@@ -43,4 +43,4 @@
 
 #endif  /* GR_INIT_BUILD */
 
-#endif /* GRX11_H */
+#endif /* GRX11_H_ */

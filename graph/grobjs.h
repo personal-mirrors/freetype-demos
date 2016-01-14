@@ -11,8 +11,8 @@
  *
  ***************************************************************************/
 
-#ifndef GROBJS_H
-#define GROBJS_H
+#ifndef GROBJS_H_
+#define GROBJS_H_
 
 #include "graph.h"
 #include "grconfig.h"
@@ -160,4 +160,4 @@
   extern void  grFree( const void*  block );
 
 
-#endif /* GROBJS_H */
+#endif /* GROBJS_H_ */

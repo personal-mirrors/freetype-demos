@@ -1,5 +1,5 @@
-#ifndef GRBEOS_H
-#define GRBEOS_H
+#ifndef GRBEOS_H_
+#define GRBEOS_H_
 
 #include "grobjs.h"
 
@@ -20,5 +20,5 @@
 
 #endif  /* GR_INIT_BUILD */
 
-#endif /* GRBEOS_H */
+#endif /* GRBEOS_H_ */
 

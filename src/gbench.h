@@ -12,8 +12,8 @@
 /****************************************************************************/
 
 
-#ifndef __GBENCH_H__
-#define __GBENCH_H__
+#ifndef GBENCH_H_
+#define GBENCH_H_
 
   typedef enum
   {
@@ -80,7 +80,7 @@
 #define  gblitter_blit(b,c)   (b)->blit( (b), (c) )
 
 
-#endif /* __GBENCH_H__ */
+#endif /* GBENCH_H_ */
 
 
 /* End */

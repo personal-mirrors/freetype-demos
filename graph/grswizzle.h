@@ -1,5 +1,5 @@
-#ifndef __gr_swizzle_h__
-#define __gr_swizzle_h__
+#ifndef GRSWIZZLE_H_
+#define GRSWIZZLE_H_
 
 void
 gr_swizzle_rect_rgb24( unsigned char*    read_buff,
@@ -37,4 +37,4 @@ gr_swizzle_rect_xrgb32( unsigned char*    read_buff,
                         int               width,
                         int               height );
 
-#endif /* __gr_swizzle_h__ */
+#endif /* GRSWIZZLE_H_ */

@@ -1,5 +1,5 @@
-#ifndef __GBLENDER_BLIT_H__
-#define __GBLENDER_BLIT_H__
+#ifndef GBLBLIT_H_
+#define GBLBLIT_H_
 
 #include "gblender.h"
 
@@ -80,4 +80,4 @@ gblender_blit_init( GBlenderBlit           blit,
 #define  gblender_blit_run(b,color)  (b)->blit_func( (b), (color) )
 
 
-#endif /* __GBLENDER_BLIT_H__ */
+#endif /* GBLBLIT_H_ */

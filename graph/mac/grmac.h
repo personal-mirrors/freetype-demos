@@ -1,5 +1,5 @@
-#ifndef GRMAC_H
-#define GRMAC_H
+#ifndef GRMAC_H_
+#define GRMAC_H_
 
 #include "grobjs.h"
 
@@ -20,4 +20,4 @@
 
 #endif  /* GR_INIT_BUILD */
 
-#endif /* GRMAC_H */
+#endif /* GRMAC_H_ */

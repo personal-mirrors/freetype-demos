@@ -55,7 +55,7 @@
  }
 #endif
 
- typedef struct  _Translator
+ typedef struct  Translator_
  {
    int32   beoskey;
 grKey   grkey;

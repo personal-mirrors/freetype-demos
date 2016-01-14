@@ -1,7 +1,7 @@
 /* grfont.h */
 
-#ifndef GRFONT_H
-#define GRFONT_H
+#ifndef GRFONT_H_
+#define GRFONT_H_
 
 #include "graph.h"
 
@@ -36,7 +36,7 @@
   void
   grLn( void );
 
-#endif /* GRFONT_H */
+#endif /* GRFONT_H_ */
 
 
 /* eof */

@@ -1,5 +1,5 @@
-#ifndef GREVENTS_H
-#define GREVENTS_H
+#ifndef GREVENTS_H_
+#define GREVENTS_H_
 
 
 #define gr_event_none   0
@@ -174,4 +174,4 @@
   } grEvent;
 
 
-#endif /* GREVENTS_H */
+#endif /* GREVENTS_H_ */

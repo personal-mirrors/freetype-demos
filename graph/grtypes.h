@@ -11,8 +11,8 @@
  *
  ***************************************************************************/
 
-#ifndef GRTYPES_H
-#define GRTYPES_H
+#ifndef GRTYPES_H_
+#define GRTYPES_H_
 
   typedef unsigned char  byte;
 
@@ -49,4 +49,4 @@
 #define  GR_LOCAL_FUNC    /* void */
 #endif
 
-#endif /* GRTYPES_H */
+#endif /* GRTYPES_H_ */

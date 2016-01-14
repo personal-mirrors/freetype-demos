@@ -19,8 +19,8 @@
  *
  ******************************************************************/
 
-#ifndef GRWIN32_H
-#define GRWIN32_H
+#ifndef GRWIN32_H_
+#define GRWIN32_H_
 
 #include "grobjs.h"
 
@@ -41,4 +41,4 @@
 
 #endif  /* GR_INIT_BUILD */
 
-#endif /* GRWIN32_H */
+#endif /* GRWIN32_H_ */

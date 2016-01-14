@@ -54,7 +54,7 @@
 
 /* Mac to FT key mapping */
 
-  typedef struct  _Translator
+  typedef struct  Translator_
   {
     short   mackey;
     grKey   grkey;

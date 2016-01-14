@@ -85,7 +85,7 @@
 
   /** DISPLAY ABSTRACTION **/
 
-  typedef enum  _DisplayMode
+  typedef enum  DisplayMode_
   {
     DISPLAY_MODE_MONO = 0,
     DISPLAY_MODE_GRAY,
@@ -111,7 +111,7 @@
                        const char*  msg );
 
 
-  typedef struct  _DisplayRec
+  typedef struct  DisplayRec_
   {
     void*             disp;
     Display_drawFunc  disp_draw;
@@ -150,7 +150,7 @@
   /***********************************************************************/
   /***********************************************************************/
 
-  typedef enum  _HintMode
+  typedef enum  HintMode_
   {
     HINT_MODE_UNHINTED,
     HINT_MODE_AUTOHINT,
@@ -172,7 +172,7 @@
 
   /** RENDER STATE **/
 
-  typedef struct  _ColumnStateRec
+  typedef struct  ColumnStateRec_
   {
     int            use_cboxes;
     int            use_kerning;
@@ -193,7 +193,7 @@
   } ColumnStateRec, *ColumnState;
 
 
-  typedef struct  _FontFaceRec
+  typedef struct  FontFaceRec_
   {
     const char*  filepath;
     char*        family_name;
@@ -203,7 +203,7 @@
   } FontFaceRec, *FontFace;
 
 
-  typedef struct  _RenderStateRec
+  typedef struct  RenderStateRec_
   {
     FT_Library      library;
     const char*     text;
@@ -873,7 +873,7 @@
 #include "grobjs.h"
 #include "grfont.h"
 
-  typedef struct  _ADisplayRec
+  typedef struct  ADisplayRec_
   {
     int         width;
     int         height;
