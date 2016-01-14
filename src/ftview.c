@@ -109,7 +109,7 @@
     int            num_fails;
     int            preload;
 
-    int            use_custom_lcd_filter;
+    int            lcd_filter;
     unsigned char  filter_weights[5];
     int            fw_idx;
 
@@ -118,7 +118,7 @@
                72, 48, -1, GAMMA, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
-               0, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
+               FT_LCD_FILTER_DEFAULT, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
 
 
   static FTDemo_Display*  display;
@@ -797,7 +797,7 @@
     grWriteln( "Up, Down    adjust size by 1 unit       r, R        adjust stroking radius  " );
     grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 4)            " );
     grWriteln( "                                                                            " );
-    grWriteln( "Left, Right adjust index by 1           L           toggle custom           " );
+    grWriteln( "Left, Right adjust index by 1           L           cycle through           " );
     grWriteln( "F7, F8      adjust index by 10                       LCD filtering          " );
     grWriteln( "F9, F10     adjust index by 100         [, ]        select custom LCD       " );
     grWriteln( "F11, F12    adjust index by 1000                      filter weight         " );
@@ -1290,18 +1290,27 @@
       FTC_Manager_RemoveFaceID( handle->cache_manager,
                                 handle->scaler.face_id );
 
-      status.use_custom_lcd_filter = !status.use_custom_lcd_filter;
-      if ( status.use_custom_lcd_filter )
-        FT_Library_SetLcdFilterWeights( handle->library,
-                                        status.filter_weights );
-      else
-        FT_Library_SetLcdFilterWeights( handle->library,
-                                        (unsigned char*)"\x08\x4D\x56\x4D\x08" );
+      status.lcd_filter++;
+      switch ( status.lcd_filter )
+      {
+        case FT_LCD_FILTER_NONE:
+        case FT_LCD_FILTER_DEFAULT:
+        case FT_LCD_FILTER_LIGHT:
+        case FT_LCD_FILTER_LEGACY1:
+          FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
+          break;
+        default:
+          FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
+          FT_Library_SetLcdFilterWeights( handle->library,
+                                          status.filter_weights );
+          status.lcd_filter = -1;
+      }
+
       status.update = 1;
       break;
 
     case grKEY( '[' ):
-      if ( status.use_custom_lcd_filter )
+      if ( status.lcd_filter < 0 )
       {
         status.fw_idx--;
         if ( status.fw_idx < 0 )
@@ -1311,7 +1320,7 @@
       break;
 
     case grKEY( ']' ):
-      if ( status.use_custom_lcd_filter )
+      if ( status.lcd_filter < 0 )
       {
         status.fw_idx++;
         if ( status.fw_idx > 4 )
@@ -1321,7 +1330,7 @@
       break;
 
     case grKEY( '-' ):
-      if ( status.use_custom_lcd_filter )
+      if ( status.lcd_filter < 0 )
       {
         FTC_Manager_RemoveFaceID( handle->cache_manager,
                                 handle->scaler.face_id );
@@ -1335,7 +1344,7 @@
 
     case grKEY( '+' ):
     case grKEY( '=' ):
-      if ( status.use_custom_lcd_filter )
+      if ( status.lcd_filter < 0 )
       {
         FTC_Manager_RemoveFaceID( handle->cache_manager,
                                   handle->scaler.face_id );
@@ -1721,14 +1730,17 @@
 
     line++;
 
-    /* custom LCD filtering */
-    sprintf( buf, "custom LCD: %s",
-                  status.use_custom_lcd_filter ? "on" : "off" );
+    /* LCD filtering */
+    sprintf( buf, "LCD filter: %s",
+                  status.lcd_filter == 0 ? "none" :
+                  status.lcd_filter == 1 ? "default" :
+                  status.lcd_filter == 2 ? "light" :
+                  status.lcd_filter == 3 ? "legacy" : "custom" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
-    /* LCD filter settings */
-    if ( status.use_custom_lcd_filter )
+    /* custom LCD filter settings */
+    if ( status.lcd_filter < 0 )
     {
       int             fwi = status.fw_idx;
       unsigned char*  fw  = status.filter_weights;
