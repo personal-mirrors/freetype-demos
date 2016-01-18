@@ -1,3 +1,7 @@
+2016-01-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftdiff.c (render_state_init): Update default LCD filter.
+
 2016-01-14  Werner Lemberg  <wl@gnu.org>
 
 	Don't use macro names that start with `_[A-Z]' or contain `__'.
