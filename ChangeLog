@@ -30,7 +30,7 @@
 
 	[ftgamma] Provide alternative pattern.
 
-	* src/ftgamma.c (do_ptrn, GammaPtrn): Implement sligntly slanted
+	* src/ftgamma.c (do_ptrn, GammaPtrn): Implement slightly slanted
 	anti-aliased lines.
 	(Process_Event, event_help, main): Updated.
 	* src/ftgamma.1: Updated.
@@ -1016,7 +1016,7 @@
 
 	* src/ftmulti.c (usage): Do it.
 
-	* src/ftvalid.c (validors, print_usage): Do it.
+	* src/ftvalid.c (validators, print_usage): Do it.
 	(main): Updated.
 
 2013-10-27  Werner Lemberg  <wl@gnu.org>
@@ -1282,7 +1282,7 @@
 	property is not available.
 
 	* src/ftview.c (event_cff_hinting_engine_change): Do nothing if
-	non-default `hinting-engine' property is not avaiable.
+	non-default `hinting-engine' property is not available.
 	(Process_Event) <'H'>: Updated.
 	(main): At startup, use default properties.
 
@@ -1334,7 +1334,7 @@
 	(status): Add `tt_interpreter_version' member.
 	(event_tt_interpreter_version_change): New function.
 	(Process_Event) <'H'>: Use it.
-	(write_header): Udpated.
+	(write_header): Updated.
 	(main): Set default value for `interpreter-version'.
 
 2013-05-13  Sebastien Bacher  <seb128@ubuntu.com>
@@ -1851,7 +1851,7 @@
 	(grid_status_init): Updated.
 	(usage): Updated.
 	(parse_cmdline): Handle `-w' and `-h' options.
-	(main): Updatd.
+	(main): Updated.
 
 	* src/ftmulti.c (DIM_X, DIM_Y): Use the same (new) values as in
 	other demo programs.
@@ -1915,14 +1915,14 @@
 
 2012-09-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-        [ftview] Use pixel size calculation that works for bitmap fonts too.
+	[ftview] Use pixel size calculation that works for bitmap fonts too.
 
 	* src/ftview.c (Render_Stroke, Render_Embolden): Rely on the status
 	point size and resolution to get the pixel size.
 
 2012-08-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-        [ftview] Implement adjustable stroker radius.
+	[ftview] Implement adjustable stroker radius.
 
 	* src/ftview.c (status): New field 'radius'.
 	(Render_Stroke): Updated.
@@ -1932,13 +1932,13 @@
 
 2012-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-        [ftview] Use more readable loop.
+	[ftview] Use more readable loop.
 
 	* src/ftview.c (main): use do-while instead of for-break.
 
 2012-07-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-        [ftview] Clean up the code.
+	[ftview] Clean up the code.
 
 	* src/ftview.c (Render_Slanted): Move the shear matrix setup out of
 	the loop.
@@ -1947,9 +1947,9 @@
 
 2012-07-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-        [ftview] Further code homogenization.
+	[ftview] Further code homogenization.
 
-	* src/ftview.c (Render_Stroke): Stroker contructor and destructor
+	* src/ftview.c (Render_Stroke): Stroker constructor and destructor
 	are moved to...
 	* src/ftcommon.c (FTDemo_New, FTDemo_Done): Here.
 	* src/ftcommon.h (FTDemo_Handle): New field `stroker'.
@@ -1964,9 +1964,9 @@
 
 2012-07-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-        [ftview] Clean up and homogenize the code.
+	[ftview] Clean up and homogenize the code.
 
-        * src/ftview.c (Render_Stroke): Replace while-loop with for-loop.
+	* src/ftview.c (Render_Stroke): Replace while-loop with for-loop.
 	(Render_Slanted): Ditto.
 	(Render_Embolden): Ditto.
 	(Render_All): Ditto.
@@ -2193,7 +2193,7 @@
 	(grid_hint_draw_segment): New function.
 	(grid_status_draw_outline): Call it.
 	(Process_Event) <'s'>: Toggle display of segment lines.
-	(event_help): Udpated.
+	(event_help): Updated.
 
 2011-04-24  Werner Lemberg  <wl@gnu.org>
 
@@ -2209,7 +2209,7 @@
 	* src/ftmulti.c (LoadChar): Update load flags.
 
 	* src/ftdiff.c (ColumnStateRec): Remove `use_global_advance_width'.
-	(render_state_init, render_state_draw): Udpated.
+	(render_state_init, render_state_draw): Updated.
 	(process_event): No longer handle key `a'.
 	(event_help): Updated.
 
@@ -3156,7 +3156,7 @@
 	* src/ftview.c (status): Add member `lcd_mode'.
 	(Render_Text): Compensate the additional empty pixels inserted by
 	Draw_Index.
-	Hande number of glyph indices better.
+	Handle number of glyph indices better.
 	(parse_cmdline): Handle `-m' and `-l'.
 	Updated.
 	(usage): Updated.
@@ -3409,7 +3409,7 @@
 	(gx_table_spec): New const.
 	(N_GX_TABLE_SPEC): New definition.
 	(print_usage): Write about gxvalid and ckern valid.
-	(run_gx_validator): New funtion.
+	(run_gx_validator): New function.
 	(list_gx_tables): Ditto.
 	(run_ckern_validator): Ditto.
 	(list_ckern_tables): Ditto.
@@ -3418,7 +3418,7 @@
 	* src/ftvalid.c: Following are misc modifications.
 	(report_result): Use printf instead fprintf. Fix incorrect message.
 	(main): Use switch/case instead of if/else
-	when calling per validator funtions.
+	when calling per validator functions.
 	Call FT_Done_Face. Use a loop to set validator.
 	(print_usage): Insert empty line in usage strings.
 	(validator_symbols): Added NULL as the last
@@ -4009,7 +4009,7 @@
 
 	* Jamfile: Set FT2_TOP.
 	* src/ftbench.c (main): Use `long' for `max_bytes'.
-	* src/ftcheckfixidwidth.c: New test program.
+	* src/ftcheckfixedwidth.c: New test program.
 	* src/ftstring.c: (prepare_text): Remove unused variable `codepoint'.
 	(apply_gamma): Fix initialization of `buffer'.
 	* src/ftview.c (Render_Waterfall): Print more characters.

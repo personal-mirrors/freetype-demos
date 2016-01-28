@@ -1252,8 +1252,8 @@
 
             if ( args < CUR.top && args >= 0 )
             {
-              /* we display signed hexadimal numbers, which */
-              /* is easier to read and needs less space     */
+              /* we display signed hexadecimal numbers, which */
+              /* is easier to read and needs less space       */
               long  val = (signed long)CUR.stack[args];
 
 

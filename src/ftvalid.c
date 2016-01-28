@@ -204,7 +204,7 @@
 
 
   /* To initialize the internal variable, call this
-     funtion with FT_Library variable. Then call
+     function with FT_Library variable. Then call
      with NULL. The print messages is printed if
      call with NULL. */
   static void
@@ -540,7 +540,7 @@
 
 
   /*
-   * OpenType related funtions
+   * OpenType related functions
    */
   static int
   is_ot_validator_implemented( FT_Library library )
@@ -599,7 +599,7 @@
 
 
   /*
-   * TrueTypeGX related funtions
+   * TrueTypeGX related functions
    */
   static int
   is_gx_validator_implemented( FT_Library library )
@@ -658,7 +658,7 @@
 
 
   /*
-   * Classic kern related funtions
+   * Classic kern related functions
    */
   static int
   is_ckern_validator_implemented( FT_Library library )
