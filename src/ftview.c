@@ -1124,7 +1124,7 @@
       break;
 
     case grKEY( 'f' ):
-      if ( handle->hinted && handle->lcd_mode != LCD_MODE_LIGHT )
+      if ( handle->hinted )
       {
         handle->autohint = !handle->autohint;
         FTDemo_Update_Current_Flags( handle );
