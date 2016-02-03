@@ -18,7 +18,6 @@
 
 #include "ftcommon.h"
 #include "common.h"
-#include <math.h>
 #include <stdio.h>
 
   /* the following header shouldn't be used in normal programs */

@@ -1,5 +1,9 @@
 2016-02-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftgrid.c, src/ftview.c, src/testname.c: Remove math.h.
+
+2016-02-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid] Fix dot position and shape.
 
 	* src/ftgrid.c (circle_draw): Correct subpixel positioning.
