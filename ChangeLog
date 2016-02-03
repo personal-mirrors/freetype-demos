@@ -1,3 +1,10 @@
+2016-02-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Fix dot position and shape.
+
+	* src/ftgrid.c (circle_draw): Correct subpixel positioning.
+	(ft_outline_new_circle): Correct circle approximation.
+
 2016-02-01  Nikolaus Waxweiler  <madigens@gmail.com>
 
 	[ftview] Fix toggling of `force auto-hinter' in light mode.

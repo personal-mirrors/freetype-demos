@@ -474,7 +474,8 @@
   {
     char*       tag;
     FT_Vector*  vec;
-    FT_F26Dot6  disp = (FT_F26Dot6)( radius * 0.6781 );
+    FT_F26Dot6  disp = (FT_F26Dot6)( radius * 0.5523 );
+    /* so that Bézier curve touches circle at 0, 45, and 90 degrees */
 
 
     FT_Outline_New( handle->library, 12, 1, outline );
@@ -512,7 +513,8 @@
 
 
     ft_outline_new_circle( &outline, radius, handle );
-    FT_Outline_Translate( &outline, center_x & 63, center_y & 63 );
+    /* subpixel adjustment considering downward direction of y-axis */
+    FT_Outline_Translate( &outline, center_x & 63, -( center_y & 63 ) );
 
     ft_outline_draw( &outline, 1., ( center_x >> 6 ), ( center_y >> 6 ),
                      handle, display, color );
