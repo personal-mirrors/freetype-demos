@@ -1326,7 +1326,7 @@
         if ( sc->vertical )
         {
           bitmap->left += ( glyph->vvector.x + pen.x ) >> 6;
-          bitmap->top  += ( glyph->vvector.x + pen.y ) >> 6;
+          bitmap->top  += ( glyph->vvector.y + pen.y ) >> 6;
         }
         else
         {
