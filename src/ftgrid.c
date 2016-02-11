@@ -541,7 +541,7 @@
       FT_Stroker_New( handle->library, &st->stroker );
 
       FT_Stroker_Set( st->stroker, 32, FT_STROKER_LINECAP_BUTT,
-                      FT_STROKER_LINEJOIN_ROUND, 0x20000 );
+                      FT_STROKER_LINEJOIN_BEVEL, 0x20000 );
     }
 
     FTDemo_Get_Size( handle, &size );

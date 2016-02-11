@@ -1,5 +1,9 @@
 2016-02-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftgrid.c (grid_status_draw_outline): Use simpler line join.
+
+2016-02-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid] Use fixed-point scale and integer origin.
 
 	* src/ftgrid.c (status): Change field types.
