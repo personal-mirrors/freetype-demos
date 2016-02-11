@@ -99,14 +99,13 @@
     int          Num;  /* glyph index */
     int          font_index;
 
-    double       scale;
-    double       x_origin;
-    double       y_origin;
-    double       margin;
+    FT_F26Dot6   scale;
+    int          x_origin;
+    int          y_origin;
 
-    double       scale_0;
-    double       x_origin_0;
-    double       y_origin_0;
+    FT_F26Dot6   scale_0;
+    int          x_origin_0;
+    int          y_origin_0;
 
     int          disp_width;
     int          disp_height;
@@ -155,10 +154,9 @@
     st->width         = DIM_X;
     st->height        = DIM_Y;
 
-    st->scale         = 1.0;
+    st->scale         = 64;
     st->x_origin      = 0;
     st->y_origin      = 0;
-    st->margin        = 0.05;
 
     st->do_horz_hints = 1;
     st->do_vert_hints = 1;
@@ -199,8 +197,9 @@
   grid_status_rescale_initial( GridStatus      st,
                                FTDemo_Handle*  handle )
   {
-    FT_Size   size;
-    FT_Error  err = FTDemo_Get_Size( handle, &size );
+    FT_Size     size;
+    FT_Error    err = FTDemo_Get_Size( handle, &size );
+    FT_F26Dot6  margin = 4;
 
 
     if ( !err )
@@ -212,7 +211,7 @@
       int  xmax = FT_MulFix( face->bbox.xMax, size->metrics.x_scale );
       int  ymax = FT_MulFix( face->bbox.yMax, size->metrics.y_scale );
 
-      double  x_scale, y_scale;
+      FT_F26Dot6  x_scale, y_scale;
 
 
       xmin &= ~63;
@@ -221,29 +220,32 @@
       ymax  = ( ymax + 63 ) & ~63;
 
       if ( xmax - xmin )
-        x_scale = st->disp_width  * ( 1.0 - 2 * st->margin ) / ( xmax - xmin );
+        x_scale = st->disp_width  * ( 64 - 2 * margin ) / ( xmax - xmin );
       else
-        x_scale = 1.0;
+        x_scale = 64;
 
       if ( ymax - ymin )
-        y_scale = st->disp_height * ( 1.0 - 2 * st->margin ) / ( ymax - ymin );
+        y_scale = st->disp_height * ( 64 - 2 * margin ) / ( ymax - ymin );
       else
-        y_scale = 1.0;
+        y_scale = 64;
 
       if ( x_scale <= y_scale )
         st->scale = x_scale;
       else
         st->scale = y_scale;
 
-      st->x_origin = st->disp_width  * st->margin         - xmin * st->scale;
-      st->y_origin = st->disp_height * ( 1 - st->margin ) + ymin * st->scale;
+      st->x_origin = st->disp_width  * margin          - xmin * st->scale;
+      st->y_origin = st->disp_height * ( 64 - margin ) + ymin * st->scale;
     }
     else
     {
-      st->scale    = 1.;
-      st->x_origin = st->disp_width  * st->margin;
-      st->y_origin = st->disp_height * st->margin;
+      st->scale    = 64;
+      st->x_origin = st->disp_width  * margin;
+      st->y_origin = st->disp_height * ( 64 - margin );
     }
+
+    st->x_origin >>= 6;
+    st->y_origin >>= 6;
 
     st->scale_0    = st->scale;
     st->x_origin_0 = st->x_origin;
@@ -254,31 +256,31 @@
   static void
   grid_status_draw_grid( GridStatus  st )
   {
-    int     x_org   = (int)st->x_origin;
-    int     y_org   = (int)st->y_origin;
-    double  xy_incr = 64.0 * st->scale;
+    int         x_org   = st->x_origin;
+    int         y_org   = st->y_origin;
+    FT_F26Dot6  xy_incr = st->scale;
 
 
-    if ( xy_incr >= 2. )
+    if ( xy_incr >= 2 )
     {
-      double  x2 = x_org;
-      double  y2 = y_org;
+      int  x2 = x_org;
+      int  y2 = y_org;
 
 
       for ( ; x2 < st->disp_width; x2 += xy_incr )
-        grFillVLine( st->disp_bitmap, (int)x2, 0,
+        grFillVLine( st->disp_bitmap, x2, 0,
                      st->disp_height, st->grid_color );
 
-      for ( x2 = x_org - xy_incr; (int)x2 >= 0; x2 -= xy_incr )
-        grFillVLine( st->disp_bitmap, (int)x2, 0,
+      for ( x2 = x_org - xy_incr; x2 >= 0; x2 -= xy_incr )
+        grFillVLine( st->disp_bitmap, x2, 0,
                      st->disp_height, st->grid_color );
 
       for ( ; y2 < st->disp_height; y2 += xy_incr )
-        grFillHLine( st->disp_bitmap, 0, (int)y2,
+        grFillHLine( st->disp_bitmap, 0, y2,
                      st->disp_width, st->grid_color );
 
-      for ( y2 = y_org - xy_incr; (int)y2 >= 0; y2 -= xy_incr )
-        grFillHLine( st->disp_bitmap, 0, (int)y2,
+      for ( y2 = y_org - xy_incr; y2 >= 0; y2 -= xy_incr )
+        grFillHLine( st->disp_bitmap, 0, y2,
                      st->disp_width, st->grid_color );
     }
 
@@ -296,8 +298,8 @@
                           AF_GlyphHints  hints )
   {
     FT_Int  dimension;
-    int     x_org = (int)st->x_origin;
-    int     y_org = (int)st->y_origin;
+    int     x_org = st->x_origin;
+    int     y_org = st->y_origin;
 
 
     for ( dimension = 1; dimension >= 0; dimension-- )
@@ -322,17 +324,17 @@
 
         if ( dimension == 0 ) /* AF_DIMENSION_HORZ is 0 */
         {
-          pos = x_org + (int)( offset * st->scale );
+          pos = x_org + ( ( offset * st->scale ) >> 6 );
           grFillVLine( st->disp_bitmap, pos, 0,
                        st->disp_height, st->segment_color );
         }
         else
         {
-          pos = y_org - (int)( offset * st->scale );
+          pos = y_org - ( ( offset * st->scale ) >> 6 );
 
           if ( is_blue )
           {
-            int  blue_pos = y_org - (int)( blue_offset * st->scale );
+            int  blue_pos = y_org - ( ( blue_offset * st->scale ) >> 6 );
 
 
             if ( blue_pos == pos )
@@ -529,9 +531,9 @@
   {
     FT_Size       size;
     FT_GlyphSlot  slot;
-    double        scale = 64.0 * st->scale;
-    int           ox    = (int)st->x_origin;
-    int           oy    = (int)st->y_origin;
+    FT_F26Dot6    scale = st->scale;
+    int           ox    = st->x_origin;
+    int           oy    = st->y_origin;
 
 
     if ( st->stroker == NULL )
@@ -571,9 +573,8 @@
 
     /* show advance width */
     grFillVLine( st->disp_bitmap,
-                 (int)( st->x_origin +
-                          size->face->glyph->metrics.horiAdvance *
-                          st->scale ),
+                 st->x_origin +
+                   ( size->face->glyph->metrics.horiAdvance * st->scale >> 6 ),
                  0,
                  st->disp_height,
                  st->axis_color );
@@ -593,8 +594,8 @@
         FT_Vector*  vec = &gimage->points[nn];
 
 
-        vec->x = (FT_F26Dot6)( vec->x * scale );
-        vec->y = (FT_F26Dot6)( vec->y * scale );
+        vec->x *= scale;
+        vec->y *= scale;
       }
 
       /* stroke then draw it */
@@ -614,8 +615,8 @@
       {
         for ( nn = 0; nn < gimage->n_points; nn++ )
           circle_draw(
-            (FT_F26Dot6)( st->x_origin * 64 + gimage->points[nn].x ),
-            (FT_F26Dot6)( st->y_origin * 64 - gimage->points[nn].y ),
+            st->x_origin * 64 + gimage->points[nn].x,
+            st->y_origin * 64 - gimage->points[nn].y,
             128,
             handle,
             display,

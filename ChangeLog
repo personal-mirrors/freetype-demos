@@ -1,3 +1,11 @@
+2016-02-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Use fixed-point scale and integer origin.
+
+	* src/ftgrid.c (status): Change field types.
+	(grid_status_init, grid_status_rescale_initial, grid_status_draw_grid,
+	grid_hint_draw_segment, grid_status_draw_outline): Updated.
+
 2016-02-07  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.6.3 released.
