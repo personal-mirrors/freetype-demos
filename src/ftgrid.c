@@ -122,6 +122,7 @@
     int          do_horz_hints;
     int          do_vert_hints;
     int          do_blue_hints;
+    int          do_bitmap;
     int          do_outline;
     int          do_dots;
     int          do_dotnumbers;
@@ -161,6 +162,7 @@
     st->do_horz_hints = 1;
     st->do_vert_hints = 1;
     st->do_blue_hints = 1;
+    st->do_bitmap     = 1;
     st->do_dots       = 1;
     st->do_dotnumbers = 0;
     st->do_outline    = 1;
@@ -588,6 +590,44 @@
       int          nn;
 
 
+      /* render scaled bitmap */
+      if ( st->do_bitmap )
+      {
+        int             i, ii, j, jj;
+        FT_Bitmap       bitm;
+        FT_BitmapGlyph  bitg;
+
+
+        FT_Get_Glyph( slot, &glyph );
+        FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_NORMAL, NULL, 1 );
+        bitg = (FT_BitmapGlyph)glyph;
+
+        bitm.width      = (unsigned int)scale;
+        bitm.rows       = (unsigned int)scale;
+        bitm.pitch      = (int)bitm.width;
+        bitm.num_grays  = 256;
+        bitm.pixel_mode = FT_PIXEL_MODE_GRAY;
+        bitm.buffer     = (unsigned char*)malloc( scale * scale );
+
+        for ( ii = oy - bitg->top * scale,
+              i = 0; i < bitg->bitmap.rows; i++, ii += scale )
+          for ( jj = ox + bitg->left * scale,
+                j = 0; j < bitg->bitmap.width; j++, jj += scale )
+          {
+            memset( bitm.buffer,
+                    bitg->bitmap.buffer[i * bitg->bitmap.pitch + j],
+                    scale * scale );
+            ft_bitmap_draw( &bitm,
+                            jj,
+                            ii,
+                            display,
+                            st->axis_color );
+          }
+
+        free( bitm.buffer );
+        FT_Done_Glyph( glyph );
+      }
+
       /* scale the outline */
       for ( nn = 0; nn < gimage->n_points; nn++ )
       {
@@ -831,14 +871,14 @@
     grWriteln( "p, n        previous/next font          PgUp, PgDn  zoom in/out grid        " );
     grWriteln( "                                        SPC         reset zoom and position " );
 #endif /* FT_DEBUG_AUTOFIT */
-    grWriteln( "Up, Down    adjust size by 0.5pt                                            " );
-    grWriteln( "                                        if not auto-hinting:                " );
-    grWriteln( "Left, Right adjust index by 1             H         cycle through hinting   " );
-    grWriteln( "F7, F8      adjust index by 10                       engines (if available) " );
-    grWriteln( "F9, F10     adjust index by 100         if light auto-hinting:              " );
-    grWriteln( "F11, F12    adjust index by 1000          w         toggle warping          " );
-    grWriteln( "                                                      (if available)        " );
-    grWriteln( "h           toggle hinting                                                  " );
+    grWriteln( "Up, Down    adjust size by 0.5pt        if not auto-hinting:                " );
+    grWriteln( "                                          H         cycle through hinting   " );
+    grWriteln( "Left, Right adjust index by 1                        engines (if available) " );
+    grWriteln( "F7, F8      adjust index by 10          if light auto-hinting:              " );
+    grWriteln( "F9, F10     adjust index by 100           w         toggle warping          " );
+    grWriteln( "F11, F12    adjust index by 1000                      (if available)        " );
+    grWriteln( "                                                                            " );
+    grWriteln( "h           toggle hinting              b           toggle bitmap           " );
     grWriteln( "f           toggle forced auto-         d           toggle dot display      " );
     grWriteln( "             hinting (if hinting)       o           toggle outline display  " );
     grWriteln( "                                        D           toggle dotnumber display" );
@@ -1346,6 +1386,10 @@
 
     case grKEY( 'o' ):
       status.do_outline = !status.do_outline;
+      break;
+
+    case grKEY( 'b' ):
+      status.do_bitmap = !status.do_bitmap;
       break;
 
     case grKEY( 'p' ):
