@@ -1,3 +1,10 @@
+2016-02-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Actually clear cache when full.
+
+	* graph/gblender.c (gblender_lookup, gblender_lookup_channel):
+	Updated.
+
 2016-02-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid] Display rendered bitmap (new feature).

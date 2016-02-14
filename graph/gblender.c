@@ -277,8 +277,8 @@ gblender_lookup( GBlender       blender,
   */
 #ifdef GBLENDER_STATS
   blender->stat_clears++;
-  gblender_clear( blender );
 #endif
+  gblender_clear( blender );
 
 NewNode:
   key->background = background;
@@ -379,8 +379,8 @@ gblender_lookup_channel( GBlender      blender,
   */
 #ifdef GBLENDER_STATS
   blender->stat_clears++;
-  gblender_clear( blender );
 #endif
+  gblender_clear( blender );
 
 NewNode:
   key->backfore   = backfore;
