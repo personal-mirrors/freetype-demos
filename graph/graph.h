@@ -199,35 +199,6 @@
                int        blue,
                int        alpha );
 
-#if 0
-
- /**********************************************************************
-  *
-  * <Function>
-  *    grFillRectangle
-  *
-  * <Description>
-  *    this function is used to fill a given rectangle on a surface
-  *
-  * <Input>
-  *    surface :: handle to target surface
-  *    x       :: x coordinate of the top-left corner of the rectangle
-  *    y       :: y coordinate of the top-left corner of the rectangle
-  *    width   :: rectangle width in pixels
-  *    height  :: rectangle height in pixels
-  *    color   :: fill color
-  *
-  **********************************************************************/
-
-  extern void  grFillRectangle( grBitmap*  surface,
-                                grPos      x,
-                                grPos      y,
-                                grPos      width,
-                                grPos      height,
-                                grColor    color );
-
-#endif /* 0 */
-
 
  /**********************************************************************
   *
@@ -305,6 +276,24 @@
 
   extern  void  grDoneBitmap( grBitmap*  bit );
 
+
+ /**********************************************************************
+  *
+  * <Function>
+  *    grFillRect
+  *
+  * <Description>
+  *    this function is used to fill a given rectangle on a surface
+  *
+  * <Input>
+  *    target  :: handle to target surface
+  *    x       :: x coordinate of the top-left corner of the rectangle
+  *    y       :: y coordinate of the top-left corner of the rectangle
+  *    width   :: rectangle width in pixels
+  *    height  :: rectangle height in pixels
+  *    color   :: fill color
+  *
+  **********************************************************************/
 
   extern void
   grFillHLine( grBitmap*  target,
