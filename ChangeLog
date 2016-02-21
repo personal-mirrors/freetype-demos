@@ -1,3 +1,10 @@
+2016-02-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Enable LCD filtering.
+
+	* src/ftgrid.c (event_lcd_filter_change): New function.
+	(status, main, Process_Event, event_help): Updated.
+
 2016-02-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid] Improve stroked path appearance.

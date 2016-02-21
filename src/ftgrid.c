@@ -27,6 +27,7 @@
 
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
+#include FT_LCD_FILTER_H
 #include FT_CFF_DRIVER_H
 #include FT_TRUETYPE_DRIVER_H
 #include FT_MULTIPLE_MASTERS_H
@@ -128,6 +129,7 @@
     int          do_dotnumbers;
     int          do_segment;
 
+    int          lcd_filter;
     double       gamma;
     const char*  header;
     char         header_buffer[BUFSIZE];
@@ -169,6 +171,7 @@
     st->do_segment    = 0;
 
     st->Num           = 0;
+    st->lcd_filter    = FT_LCD_FILTER_DEFAULT;
     st->gamma         = GAMMA;
     st->header        = "";
 
@@ -969,12 +972,13 @@
     grWriteln( "f           toggle forced auto-         d           toggle dot display      " );
     grWriteln( "             hinting (if hinting)       o           toggle outline display  " );
     grWriteln( "                                        D           toggle dotnumber display" );
-    grWriteln( "a           toggle anti-aliasing        g, v        adjust gamma value      " );
-    grWriteln( "                                                                            " );
-    grWriteln( "if Multiple Master or GX font:          q, ESC      quit ftgrid             " );
-    grWriteln( "  F2        cycle through axes                                              " );
-    grWriteln( "  F3, F4    adjust current axis by      F5, F6      cycle through           " );
-    grWriteln( "             1/50th of its range                    anti-aliasing modes     " );
+    grWriteln( "a           toggle anti-aliasing                                            " );
+    grWriteln( "F5, F6      cycle through               if Multiple Master or GX font:      " );
+    grWriteln( "             anti-aliasing modes          F2        cycle through axes      " );
+    grWriteln( "L           cycle through LCD             F3, F4    adjust current axis by  " );
+    grWriteln( "             filters                                 1/50th of its range    " );
+    grWriteln( "g, v        adjust gamma value                                              " );
+    grWriteln( "                                        q, ESC      quit ftgrid             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -1175,6 +1179,45 @@
     }
     else
       status.header = "need anti-aliasing to change rendering mode";
+  }
+
+
+  static void
+  event_lcd_filter_change( void )
+  {
+    if ( handle->antialias && handle->lcd_mode > 1 )
+    {
+      const char*  lcd_filter = NULL;
+
+
+      status.lcd_filter++;
+
+      switch ( status.lcd_filter )
+      {
+        case FT_LCD_FILTER_DEFAULT:
+          lcd_filter = "default";
+          break;
+        case FT_LCD_FILTER_LIGHT:
+          lcd_filter = "light";
+          break;
+        case FT_LCD_FILTER_LEGACY1:
+          lcd_filter = "legacy";
+          break;
+        case FT_LCD_FILTER_NONE:
+        default:
+          status.lcd_filter = 0;
+          lcd_filter = "none";
+      }
+
+      sprintf( status.header_buffer, "LCD filter changed to %s",
+               lcd_filter );
+
+      status.header = (const char *)status.header_buffer;
+
+      FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
+    }
+    else
+      status.header = "need LCD mode to change filter";
   }
 
 
@@ -1442,6 +1485,10 @@
       }
       break;
 #endif /* FT_DEBUG_AUTOFIT */
+
+    case grKEY( 'L' ):
+      event_lcd_filter_change();
+      break;
 
     case grKEY( 'g' ):
       event_gamma_change( 0.1 );
@@ -1834,6 +1881,8 @@
     FT_Property_Get( handle->library,
                      "autofitter",
                      "warping", &status.warping );
+
+    FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
 
     display = FTDemo_Display_New( gr_pixel_mode_rgb24,
                                   status.width, status.height );
