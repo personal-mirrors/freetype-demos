@@ -1128,7 +1128,15 @@
   static void
   event_grid_zoom( double  zoom )
   {
+    FT_F26Dot6  scale_old = status.scale;
+
+
     status.scale *= zoom;
+
+    /* avoid same zoom value due to truncation */
+    /* to integer in above multiplication      */
+    if ( status.scale == scale_old && zoom > 1.0 )
+      status.scale++;
 
     sprintf( status.header_buffer, "zoom level %.0f%%",
              status.scale * 100.0 / status.scale_0 );

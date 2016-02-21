@@ -1,3 +1,7 @@
+2016-02-21  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftgrid.c (event_grid_zoom): Make zoom up always work.
+
 2016-02-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid] Enable LCD filtering.
