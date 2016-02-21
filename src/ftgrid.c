@@ -527,6 +527,103 @@
 
 
   static void
+  bitmap_scale( grBitmap*   bit,
+                FT_F26Dot6  scale )
+  {
+    unsigned char*  s = bit->buffer;
+    unsigned char*  t;
+    unsigned char*  line;
+    int             pitch;
+    int             i, j, k;
+
+    pitch = bit->pitch > 0 ?  bit->pitch
+                           : -bit->pitch;
+
+    t = (unsigned char*)malloc( pitch * bit->rows * scale * scale );
+    if ( !t )
+      return;
+
+    line = t;
+
+    switch( bit->mode )
+    {
+      case gr_pixel_mode_mono:
+        for ( i = 0; i < bit->rows; i++ )
+        {
+          for ( j = 0; j < pitch * scale * 8; j++ )
+            if ( s[i * pitch + j / scale / 8] & ( 0x80 >> ( j / scale & 7 ) ) )
+              line[j / 8] |= 0x80 >> ( j & 7 );
+            else
+              line[j / 8] &= ~( 0x80 >> ( j & 7 ) );
+
+          for ( k = 1; k < scale; k++, line += pitch * scale )
+            memcpy( line + pitch * scale, line, pitch * scale );
+          line += pitch * scale;
+        }
+        break;
+
+      case gr_pixel_mode_gray:
+        for ( i = 0; i < bit->rows; i++ )
+        {
+          for ( j = 0; j < pitch; j++ )
+            memset( line + j * scale, s[i * pitch + j], scale );
+
+          for ( k = 1; k < scale; k++, line += pitch * scale )
+            memcpy( line + pitch * scale, line, pitch * scale );
+          line += pitch * scale;
+        }
+        break;
+
+      case gr_pixel_mode_lcd:
+      case gr_pixel_mode_lcd2:
+        for ( i = 0; i < bit->rows; i++ )
+        {
+          for ( j = 0; j < pitch; j += 3 )
+            for ( k = 0; k < scale; k++ )
+            {
+              line[j * scale + 3 * k    ] = s[i * pitch + j    ];
+              line[j * scale + 3 * k + 1] = s[i * pitch + j + 1];
+              line[j * scale + 3 * k + 2] = s[i * pitch + j + 2];
+            }
+
+          for ( k = 1; k < scale; k++, line += pitch * scale )
+            memcpy( line + pitch * scale, line, pitch * scale );
+          line += pitch * scale;
+        }
+        break;
+
+      case gr_pixel_mode_lcdv:
+      case gr_pixel_mode_lcdv2:
+        for ( i = 0; i < bit->rows; i += 3 )
+        {
+          for ( j = 0; j < pitch; j++ )
+          {
+            memset( line + j * scale,
+                    s[i * pitch +             j], scale );
+            memset( line + j * scale +     pitch * scale,
+                    s[i * pitch +     pitch + j], scale );
+            memset( line + j * scale + 2 * pitch * scale,
+                    s[i * pitch + 2 * pitch + j], scale );
+          }
+
+          for ( k = 1; k < scale; k++, line += 3 * pitch * scale )
+            memcpy( line + 3 * pitch * scale, line, 3 * pitch * scale );
+          line += 3 * pitch * scale;
+        }
+        break;
+
+      default:
+        return;
+    }
+
+    bit->buffer = t;
+    bit->rows  *= scale;
+    bit->width *= scale;
+    bit->pitch *= scale;
+  }
+
+
+  static void
   grid_status_draw_outline( GridStatus       st,
                             FTDemo_Handle*   handle,
                             FTDemo_Display*  display )
@@ -593,38 +690,27 @@
       /* render scaled bitmap */
       if ( st->do_bitmap )
       {
-        int             i, ii, j, jj;
-        FT_Bitmap       bitm;
-        FT_BitmapGlyph  bitg;
+        int             left, top, x_advance, y_advance;
+        grBitmap        bitg;
+        FT_Glyph        glyf;
 
 
         FT_Get_Glyph( slot, &glyph );
-        FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_NORMAL, NULL, 1 );
-        bitg = (FT_BitmapGlyph)glyph;
+        error  = FTDemo_Glyph_To_Bitmap( handle, glyph, &bitg, &left, &top,
+                                         &x_advance, &y_advance, &glyf);
 
-        bitm.width      = (unsigned int)scale;
-        bitm.rows       = (unsigned int)scale;
-        bitm.pitch      = (int)bitm.width;
-        bitm.num_grays  = 256;
-        bitm.pixel_mode = FT_PIXEL_MODE_GRAY;
-        bitm.buffer     = (unsigned char*)malloc( scale * scale );
+        if ( !error )
+        {
+          bitmap_scale( &bitg, scale );
 
-        for ( ii = oy - bitg->top * scale,
-              i = 0; i < bitg->bitmap.rows; i++, ii += scale )
-          for ( jj = ox + bitg->left * scale,
-                j = 0; j < bitg->bitmap.width; j++, jj += scale )
-          {
-            memset( bitm.buffer,
-                    bitg->bitmap.buffer[i * bitg->bitmap.pitch + j],
-                    scale * scale );
-            ft_bitmap_draw( &bitm,
-                            jj,
-                            ii,
-                            display,
-                            st->axis_color );
-          }
+          grBlitGlyphToBitmap( display->bitmap, &bitg,
+                               ox + left * scale, oy - top * scale,
+                               st->axis_color );
 
-        free( bitm.buffer );
+          if ( glyf )
+            FT_Done_Glyph( glyf );
+        }
+
         FT_Done_Glyph( glyph );
       }
 
