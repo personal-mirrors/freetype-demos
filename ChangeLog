@@ -1,5 +1,12 @@
 2016-02-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid] Improve stroked path appearance.
+
+	* src/ftgrid.c (grid_status_draw_outline): Hint scaled outline to
+	follow gridlines and cover entire pixels.
+
+2016-02-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid] Display monochrome and LCD bitmaps.
 
 	* src/ftgrid.c (grid_status_draw_outline): Rework to use...

@@ -720,8 +720,9 @@
         FT_Vector*  vec = &gimage->points[nn];
 
 
-        vec->x *= scale;
-        vec->y *= scale;
+        /* half-pixel shift hints the stroked path */
+        vec->x = vec->x * scale + 32;
+        vec->y = vec->y * scale - 32;
       }
 
       /* stroke then draw it */
