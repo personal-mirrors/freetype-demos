@@ -89,6 +89,10 @@
 
 #define BUFSIZE  256
 
+#define DO_BITMAP      1
+#define DO_OUTLINE     2
+#define DO_DOTS        4
+#define DO_DOTNUMBERS  8
 
   typedef struct  GridStatusRec_
   {
@@ -120,13 +124,10 @@
     grColor      segment_color;
     grColor      blue_color;
 
+    int          work;
     int          do_horz_hints;
     int          do_vert_hints;
     int          do_blue_hints;
-    int          do_bitmap;
-    int          do_outline;
-    int          do_dots;
-    int          do_dotnumbers;
     int          do_segment;
 
     int          lcd_filter;
@@ -134,7 +135,7 @@
     const char*  header;
     char         header_buffer[BUFSIZE];
 
-    FT_Stroker  stroker;
+    FT_Stroker   stroker;
 
     unsigned int cff_hinting_engine;
     unsigned int tt_interpreter_version;
@@ -161,19 +162,16 @@
     st->x_origin      = 0;
     st->y_origin      = 0;
 
+    st->work          = DO_BITMAP | DO_OUTLINE | DO_DOTS;
     st->do_horz_hints = 1;
     st->do_vert_hints = 1;
     st->do_blue_hints = 1;
-    st->do_bitmap     = 1;
-    st->do_dots       = 1;
-    st->do_dotnumbers = 0;
-    st->do_outline    = 1;
     st->do_segment    = 0;
 
     st->Num           = 0;
     st->lcd_filter    = FT_LCD_FILTER_DEFAULT;
     st->gamma         = GAMMA;
-    st->header        = "";
+    st->header        = NULL;
 
     st->mm            = NULL;
     st->current_axis  = 0;
@@ -691,7 +689,7 @@
 
 
       /* render scaled bitmap */
-      if ( st->do_bitmap )
+      if ( st->work & DO_BITMAP )
       {
         int             left, top, x_advance, y_advance;
         grBitmap        bitg;
@@ -729,7 +727,7 @@
       }
 
       /* stroke then draw it */
-      if ( st->do_outline )
+      if ( st->work & DO_OUTLINE )
       {
         FT_Get_Glyph( slot, &glyph );
         FT_Glyph_Stroke( &glyph, st->stroker, 1 );
@@ -741,7 +739,7 @@
       }
 
       /* draw the points... */
-      if ( st->do_dots )
+      if ( st->work & DO_DOTS )
       {
         for ( nn = 0; nn < gimage->n_points; nn++ )
           circle_draw(
@@ -755,7 +753,7 @@
       }
 
       /* ... and point numbers */
-      if ( st->do_dotnumbers )
+      if ( st->work & DO_DOTNUMBERS )
       {
         FT_Vector*  points   = gimage->points;
         FT_Short*   contours = gimage->contours;
@@ -1519,19 +1517,19 @@
       break;
 
     case grKEY( 'd' ):
-      status.do_dots = !status.do_dots;
+      status.work ^= DO_DOTS;
       break;
 
     case grKEY( 'D' ):
-      status.do_dotnumbers = !status.do_dotnumbers;
+      status.work ^= DO_DOTNUMBERS;
       break;
 
     case grKEY( 'o' ):
-      status.do_outline = !status.do_outline;
+      status.work ^= DO_OUTLINE;
       break;
 
     case grKEY( 'b' ):
-      status.do_bitmap = !status.do_bitmap;
+      status.work ^= DO_BITMAP;
       break;
 
     case grKEY( 'p' ):
@@ -1927,7 +1925,7 @@
 
       grid_status_draw_grid( &status );
 
-      if ( status.do_outline || status.do_dots || status.do_dotnumbers )
+      if ( status.work )
         grid_status_draw_outline( &status, handle, display );
 
       write_header( 0 );
