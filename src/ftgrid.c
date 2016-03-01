@@ -1621,10 +1621,10 @@
 #endif
                         break;
 
-    case grKEY( 'i' ):  event_grid_translate(  0,  1 ); break;
-    case grKEY( 'k' ):  event_grid_translate(  0, -1 ); break;
-    case grKEY( 'l' ):  event_grid_translate(  1,  0 ); break;
+    case grKEY( 'i' ):  event_grid_translate(  0, -1 ); break;
+    case grKEY( 'k' ):  event_grid_translate(  0,  1 ); break;
     case grKEY( 'j' ):  event_grid_translate( -1,  0 ); break;
+    case grKEY( 'l' ):  event_grid_translate(  1,  0 ); break;
 
     case grKeyPageUp:   event_grid_zoom( 1.25     ); break;
     case grKeyPageDown: event_grid_zoom( 1 / 1.25 ); break;

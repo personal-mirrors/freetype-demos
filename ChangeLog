@@ -1,5 +1,14 @@
 2016-03-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Exchange movement directions of `i' and `k' keys.
+
+	This synchronizes the actions with its descriptions in the the help
+	screen.
+
+	* src/ftgrid.c (Process_Event): Implement it.
+
+2016-03-01  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftgrid.c (grid_status_draw_outline): Fix memory leak.
 
 2016-02-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
