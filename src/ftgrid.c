@@ -708,6 +708,8 @@
                                ox + left * scale, oy - top * scale,
                                st->axis_color );
 
+          free( bitg.buffer );
+
           if ( glyf )
             FT_Done_Glyph( glyf );
         }
