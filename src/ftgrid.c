@@ -759,6 +759,7 @@
       {
         FT_Vector*  points   = gimage->points;
         FT_Short*   contours = gimage->contours;
+        char*       tags     = gimage->tags;
         int         cc;
         char        number_string[10];
         size_t      number_string_len = sizeof ( number_string );
@@ -872,7 +873,9 @@
                                  ( ( ( points[nn].y - middle.y ) >> 6 ) +
                                    8 / 2 ),
                                number_string,
-                               st->axis_color );
+                               ( tags[nn] & FT_CURVE_TAG_ON )
+                                 ? st->on_color
+                                 : st->off_color );
 
             nn++;
             if ( nn > contours[cc] )
