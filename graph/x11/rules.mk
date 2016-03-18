@@ -69,7 +69,8 @@ endif
 ifneq ($(X11_PATH),)
 
   X11_INCLUDE := $(subst /,$(COMPILER_SEP),$(X11_PATH:%=%/include))
-  X11_LIB     := $(subst /,$(COMPILER_SEP),$(X11_PATH:%=%/lib))
+  X11_LIB     := $(subst /,$(COMPILER_SEP),$(X11_PATH:%=%/lib64) \
+                                           $(X11_PATH:%=%/lib))
 
   # The GRAPH_LINK variable is expanded each time an executable is linked
   # against the graphics library.

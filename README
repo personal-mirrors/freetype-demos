@@ -39,6 +39,13 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
         make X11_PATH="/usr/openwin /usr/local/X11R6"
 
+    The build  system then derives  the X11_INCLUDE include  file path
+    from X11_PATH by appending `/include'  to all path components.  It
+    also derives the  X11_LIB library path from  X11_PATH by appending
+    `/lib64' and `/lib' to all  components (in that order).  You might
+    override  those  variables similar  to  X11_PATH  as arguments  to
+    `make'.
+
     If  you don't  have X11  at all,  fix the  definition of  the EXES
     variable as described in the top-level Makefile.
 
