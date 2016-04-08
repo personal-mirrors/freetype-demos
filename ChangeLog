@@ -1,3 +1,12 @@
+2016-04-08  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Avoid hangs with bitmap only fonts.
+
+	Problem reported by Hin-Tak Leung <htl10@users.sourceforge.net>.
+
+	* src/ftview.c (Render_Text, Render_Waterfall): Escape loop if not a
+	single glyph could be rendered.
+
 2016-03-18  Werner Lemberg  <wl@gnu.org>
 
 	* graph/x11/rules.mk (X11_LIB): Also append `/lib64'.

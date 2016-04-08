@@ -565,6 +565,10 @@
       {
         p  = Text;
         ch = utf8_next( &p, pEnd );
+
+        /* not a single character of the text string could be displayed */
+        if ( !have_topleft )
+          return error;
       }
 
       glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)ch );
@@ -700,6 +704,10 @@
           p    = Text;
           oldp = p;
           ch   = utf8_next( &p, pEnd );
+
+          /* not a single character of the text string could be displayed */
+          if ( !have_topleft )
+            return error;
         }
 
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)ch );
