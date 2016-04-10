@@ -24,7 +24,7 @@
 
 	[ftgrid] Exchange movement directions of `i' and `k' keys.
 
-	This synchronizes the actions with its descriptions in the the help
+	This synchronizes the actions with its descriptions in the help
 	screen.
 
 	* src/ftgrid.c (Process_Event): Implement it.
@@ -169,7 +169,7 @@
 
 	[ftgamma] Enable color.
 
-	* src/ftcamma.c (Render_GammaGrid): Split into...
+	* src/ftgamma.c (Render_GammaGrid): Split into...
 	(Render_Bitmap): ... this renderer with color controls.
 	(GammaGrid): ... and this grayscale bitmap builder.
 	(event_color_change): New function.
@@ -1247,7 +1247,7 @@
 
 2013-09-28  Dave Arnold <darnold@adobe.com>
 
-	* src/ftdiff.c (ProcessEvent) <'H'>: Fix typo.
+	* src/ftdiff.c (Process_Event) <'H'>: Fix typo.
 
 	If FT_DEBUG_AUTOFIT is false, then the command `H' had a side-effect
 	of decrementing the glyph index.
@@ -3196,7 +3196,7 @@
 	NULL argument.
 
 	* src/ftview.c (Fatal): New function to finalize FreeType library.
-	This allows to use FreeType's memory debugger in case of errors.
+	This allows using FreeType's memory debugger in case of errors.
 	s/PanicZ/Fatal/.
 
 2006-06-04  David Turner  <david@freetype.org>
