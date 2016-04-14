@@ -255,7 +255,7 @@
       "\n" );
 
     fprintf( stderr,
-      "  -T tbls       [ot, gx] Select snft table name tags to be validated.\n"
+      "  -T tbls       [ot, gx] Select sfnt table name tags to be validated.\n"
       "                Use `:' to separate tags.\n"
       "\n" );
     for ( i = 0; i < LAST_VALIDATE; i++ )
