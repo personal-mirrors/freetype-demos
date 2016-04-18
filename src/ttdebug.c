@@ -1201,7 +1201,7 @@
         /* Print the current line.  We use an 80-columns console with the  */
         /* following formatting:                                           */
         /*                                                                 */
-        /* [loc]:[addr] [opcode]  [disassemby]          [a][b]|[c][d]      */
+        /* [loc]:[addr] [opcode]  [disassembly]         [a][b]|[c][d]      */
 
         {
           char  temp[90];

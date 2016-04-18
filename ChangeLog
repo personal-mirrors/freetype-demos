@@ -187,7 +187,7 @@
 
 	Relocate gamma grid display from [ftview] to [ftgamma].
 
-	* src/ftview.c (Procenn_Event): Remove event `G'.
+	* src/ftview.c (Process_Event): Remove event `G'.
 	(event_help): Update.
 	(event_gamma_grid): Move to...
 	* src/ftgamma.c (event_gamma_grid): ... here.
@@ -950,7 +950,7 @@
 
 	* src/ftgrid.c (af_glyph_hints_get_segment_offset): Update
 	prototype.
-	(GridStatucRec): New member `blue_color'.
+	(GridStatusRec): New member `blue_color'.
 	(grid_status_display): Change `on' color to red.
 	Set `blue' color.
 	(grid_hint_draw_segment): Show associated blue zones.
@@ -3119,7 +3119,7 @@
 
 	* graph/grswizzle.c, graph/grswizzle.h: New files.
 
-	* graph/grdevice.h (gr_swizzle_rbg24): Declare.
+	* graph/grdevice.h (gr_swizzle_rgb24): Declare.
 
 	* graph/Jamfile (graph_sources): Add `grswizzle'.
 
