@@ -1,3 +1,17 @@
+2016-04-30  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] A new Qt based variant for ftgrid.  GUI draft only.
+
+	The idea is to eventually integrate the functionality of ftview,
+	ftkern, and ftdiff also.
+
+	The code compiles fine with both Qt4 and Qt5; it doesn't do anything
+	yet beyond showing how the GUI looks like.
+
+	* src/ftinspect.cpp, src/ftinspect.h: New source code files.
+
+	* src/ftinspect.pro: New qmake input file.
+
 2016-04-08  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Avoid hangs with bitmap only fonts.
