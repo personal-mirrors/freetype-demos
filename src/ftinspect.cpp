@@ -128,6 +128,7 @@ MainGUI::createLayout()
   QComboBox *dummyComboBox = new QComboBox;
   dummyComboBox->insertItems(0, dummyComboStringList);
   width = dummyComboBox->minimumSizeHint().width();
+  delete dummyComboBox;
   hintingModeComboBox->setMinimumWidth(width);
   antiAliasingComboBox->setMinimumWidth(width);
   lcdFilterComboBox->setMinimumWidth(width);

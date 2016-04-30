@@ -1,5 +1,9 @@
 2016-04-30  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftinspect.cpp (MainGUI::createLayout): Fix memory leak.
+
+2016-04-30  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] A new Qt based variant for ftgrid.  GUI draft only.
 
 	The idea is to eventually integrate the functionality of ftview,
