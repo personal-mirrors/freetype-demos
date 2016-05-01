@@ -43,6 +43,7 @@ protected:
 
 private slots:
   void about();
+  void checkHintingMode(int);
 
 private:
   QAction *aboutAct;
@@ -50,7 +51,7 @@ private:
   QAction *exitAct;
 
   QCheckBox *blueZoneHintingCheckBox;
-  QCheckBox *hortizontalHintingCheckBox;
+  QCheckBox *horizontalHintingCheckBox;
   QCheckBox *segmentDrawingCheckBox;
   QCheckBox *showBitmapsCheckBox;
   QCheckBox *showOutlinesCheckBox;

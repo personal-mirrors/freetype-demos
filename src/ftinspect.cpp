@@ -62,6 +62,28 @@ MainGUI::about()
 }
 
 
+void
+MainGUI::checkHintingMode(int index)
+{
+  if (index == HintingMode_AutoHinting)
+  {
+    horizontalHintingCheckBox->setEnabled(true);
+    verticalHintingCheckBox->setEnabled(true);
+    blueZoneHintingCheckBox->setEnabled(true);
+    segmentDrawingCheckBox->setEnabled(true);
+    warpingCheckBox->setEnabled(true);
+  }
+  else
+  {
+    horizontalHintingCheckBox->setEnabled(false);
+    verticalHintingCheckBox->setEnabled(false);
+    blueZoneHintingCheckBox->setEnabled(false);
+    segmentDrawingCheckBox->setEnabled(false);
+    warpingCheckBox->setEnabled(false);
+  }
+}
+
+
 // XXX distances are specified in pixels,
 //     making the layout dependent on the output device resolution
 void
@@ -85,7 +107,7 @@ MainGUI::createLayout()
                                   tr("Auto-Hinting"));
   hintingModeLabel->setBuddy(hintingModeComboBox);
 
-  hortizontalHintingCheckBox = new QCheckBox(tr("Horizontal Hinting"));
+  horizontalHintingCheckBox = new QCheckBox(tr("Horizontal Hinting"));
   verticalHintingCheckBox = new QCheckBox(tr("Vertical Hinting"));
   blueZoneHintingCheckBox = new QCheckBox(tr("Blue-Zone Hinting"));
   segmentDrawingCheckBox = new QCheckBox(tr("Segment Drawing"));
@@ -169,7 +191,7 @@ MainGUI::createLayout()
 
   generalTabLayout = new QVBoxLayout;
   generalTabLayout->addLayout(hintingModeLayout);
-  generalTabLayout->addWidget(hortizontalHintingCheckBox);
+  generalTabLayout->addWidget(horizontalHintingCheckBox);
   generalTabLayout->addWidget(verticalHintingCheckBox);
   generalTabLayout->addWidget(blueZoneHintingCheckBox);
   generalTabLayout->addWidget(segmentDrawingCheckBox);
@@ -320,6 +342,8 @@ MainGUI::createLayout()
 void
 MainGUI::createConnections()
 {
+  connect(hintingModeComboBox, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(checkHintingMode(int)));
 }
 
 

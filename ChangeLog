@@ -1,5 +1,16 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add signal for HintingModeComboBox.
+
+	Also fix typo `hortizontal' -> `horizontal'.
+
+	* src/ftinspect.cpp (MainGUI::checkHintingMode): New function.
+	(MainGUI::createConnections): Add signal.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Improve combo box setup.
 
 	* src/ftinspect.h (MainGUI): New enums `AntiAliasing',
