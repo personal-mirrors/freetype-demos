@@ -46,6 +46,7 @@ protected:
 
 private slots:
   void about();
+  void checkAntiAliasing(int);
   void checkHintingMode(int);
 
 private:

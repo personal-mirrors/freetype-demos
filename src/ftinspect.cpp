@@ -104,6 +104,24 @@ MainGUI::checkHintingMode(int index)
 }
 
 
+void
+MainGUI::checkAntiAliasing(int index)
+{
+  if (index == AntiAliasing_None
+      || index == AntiAliasing_Normal
+      || index == AntiAliasing_Slight)
+  {
+    lcdFilterLabel->setEnabled(false);
+    lcdFilterComboBox->setEnabled(false);
+  }
+  else
+  {
+    lcdFilterLabel->setEnabled(true);
+    lcdFilterComboBox->setEnabled(true);
+  }
+}
+
+
 // XXX distances are specified in pixels,
 //     making the layout dependent on the output device resolution
 void
@@ -122,7 +140,7 @@ MainGUI::createLayout()
   hintingModeComboBox->insertItem(HintingMode_CFF_FreeType,
                                   tr("CFF (FreeType)"));
   hintingModeComboBox->insertItem(HintingMode_CFF_Adobe,
-                                  tr("CFF(Adobe)"));
+                                  tr("CFF (Adobe)"));
   hintingModeComboBox->insertItem(HintingMode_AutoHinting,
                                   tr("Auto-Hinting"));
   hintingModeLabel->setBuddy(hintingModeComboBox);
@@ -364,6 +382,8 @@ MainGUI::createConnections()
 {
   connect(hintingModeComboBox, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkHintingMode(int)));
+  connect(antiAliasingComboBox, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(checkAntiAliasing(int)));
 }
 
 

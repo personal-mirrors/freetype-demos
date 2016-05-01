@@ -1,5 +1,14 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add signal for AntiAliasingComboBox.
+
+	* src/ftinspect.cpp (MainGUI::checkAntiAliasing): New function.
+	(MainGUI::createConnections): Add signal.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Refine signal for HintingModeComboBox.
 
 	* src/ftinspect.cpp (MainGUI::checkHintingMode): Grey out `slight'
