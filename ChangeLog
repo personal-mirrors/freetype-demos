@@ -1,5 +1,11 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Some more GUI initialization defaults.
+
+	* src/ftinspect.cpp (MainGUI::setDefaults): Updated.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Avoid parameters for signal functions.
 
 	This makes the code a bit more elegant.

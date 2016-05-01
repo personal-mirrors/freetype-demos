@@ -454,6 +454,10 @@ MainGUI::setDefaults()
   antiAliasingComboBox->setCurrentIndex(AntiAliasing_LCD);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
 
+  horizontalHintingCheckBox->setChecked(true);
+  verticalHintingCheckBox->setChecked(true);
+  blueZoneHintingCheckBox->setChecked(true);
+
   showBitmapsCheckBox->setChecked(true);
   showOutlinesCheckBox->setChecked(true);
 
