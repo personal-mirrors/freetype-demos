@@ -122,6 +122,16 @@ MainGUI::checkAntiAliasing(int index)
 }
 
 
+void
+MainGUI::checkShowPoints()
+{
+  if (showPointsCheckBox->isChecked())
+    showPointIndicesCheckBox->setEnabled(true);
+  else
+    showPointIndicesCheckBox->setEnabled(false);
+}
+
+
 // XXX distances are specified in pixels,
 //     making the layout dependent on the output device resolution
 void
@@ -384,6 +394,9 @@ MainGUI::createConnections()
           SLOT(checkHintingMode(int)));
   connect(antiAliasingComboBox, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkAntiAliasing(int)));
+
+  connect(showPointsCheckBox, SIGNAL(clicked()), this,
+          SLOT(checkShowPoints()));
 }
 
 

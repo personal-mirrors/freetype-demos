@@ -48,6 +48,7 @@ private slots:
   void about();
   void checkAntiAliasing(int);
   void checkHintingMode(int);
+  void checkShowPoints();
 
 private:
   QAction *aboutAct;
