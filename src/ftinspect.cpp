@@ -65,6 +65,11 @@ MainGUI::about()
 void
 MainGUI::checkHintingMode(int index)
 {
+  const QStandardItemModel* model = qobject_cast<const QStandardItemModel*>
+                                      (antiAliasingComboBox->model());
+  QStandardItem* AAslightItem = model->item(AntiAliasing_Slight);
+  int AAcurrIndex = antiAliasingComboBox->currentIndex();
+
   if (index == HintingMode_AutoHinting)
   {
     horizontalHintingCheckBox->setEnabled(true);
@@ -72,6 +77,10 @@ MainGUI::checkHintingMode(int index)
     blueZoneHintingCheckBox->setEnabled(true);
     segmentDrawingCheckBox->setEnabled(true);
     warpingCheckBox->setEnabled(true);
+
+    AAslightItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    AAslightItem->setData(QVariant(),
+                          Qt::TextColorRole);
   }
   else
   {
@@ -80,6 +89,17 @@ MainGUI::checkHintingMode(int index)
     blueZoneHintingCheckBox->setEnabled(false);
     segmentDrawingCheckBox->setEnabled(false);
     warpingCheckBox->setEnabled(false);
+
+    AAslightItem->setFlags(AAslightItem->flags()
+                           & ~(Qt::ItemIsSelectable | Qt::ItemIsEnabled));
+    // clear item data in order to use default color;
+    // this visually greys out the item
+    AAslightItem->setData(antiAliasingComboBox->palette().color(
+                            QPalette::Disabled, QPalette::Text),
+                          Qt::TextColorRole);
+
+    if (AAcurrIndex == AntiAliasing_Slight)
+      antiAliasingComboBox->setCurrentIndex(AntiAliasing_Normal);
   }
 }
 

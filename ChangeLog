@@ -1,5 +1,16 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Refine signal for HintingModeComboBox.
+
+	* src/ftinspect.cpp (MainGUI::checkHintingMode): Grey out `slight'
+	hinting item in antiAliasingComboBox if not in auto-hinting mode.
+	Also set a different anti aliasing value for this case if `slight'
+	was the current value.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Add signal for HintingModeComboBox.
 
 	Also fix typo `hortizontal' -> `horizontal'.

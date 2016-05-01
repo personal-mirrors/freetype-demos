@@ -23,8 +23,11 @@
 #include <QSizePolicy>
 #include <QSlider>
 #include <QSpinBox>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include <QStatusBar>
 #include <QTabWidget>
+#include <QVariant>
 #include <QVBoxLayout>
 #include <QWidget>
 
