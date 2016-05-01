@@ -1,5 +1,11 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Provide dummy default values for GUI initialization.
+
+	* src/ftinspect.cpp (MainGUI::setDefaults): Set some values.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Add signal for showPointsCheckBox.
 
 	* src/ftinspect.cpp (MainGUI::checkShowPoints): New function.

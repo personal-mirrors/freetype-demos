@@ -445,6 +445,18 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
+  // XXX only dummy values right now
+
+  hintingModeComboBox->setCurrentIndex(HintingMode_TrueType_v35);
+  antiAliasingComboBox->setCurrentIndex(AntiAliasing_LCD_RGB);
+  lcdFilterComboBox->setCurrentIndex(LCD_Light);
+
+  showBitmapsCheckBox->setChecked(true);
+  showOutlinesCheckBox->setChecked(true);
+
+  checkHintingMode(hintingModeComboBox->currentIndex());
+  checkAntiAliasing(antiAliasingComboBox->currentIndex());
+  checkShowPoints();
 }
 
 
