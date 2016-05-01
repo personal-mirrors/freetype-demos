@@ -63,8 +63,9 @@ MainGUI::about()
 
 
 void
-MainGUI::checkHintingMode(int index)
+MainGUI::checkHintingMode()
 {
+  int index = hintingModeComboBox->currentIndex();
   const QStandardItemModel* model = qobject_cast<const QStandardItemModel*>
                                       (antiAliasingComboBox->model());
   QStandardItem* AAslightItem = model->item(AntiAliasing_Slight);
@@ -105,8 +106,10 @@ MainGUI::checkHintingMode(int index)
 
 
 void
-MainGUI::checkAntiAliasing(int index)
+MainGUI::checkAntiAliasing()
 {
+  int index = antiAliasingComboBox->currentIndex();
+
   if (index == AntiAliasing_None
       || index == AntiAliasing_Normal
       || index == AntiAliasing_Slight)
@@ -391,9 +394,9 @@ void
 MainGUI::createConnections()
 {
   connect(hintingModeComboBox, SIGNAL(currentIndexChanged(int)), this,
-          SLOT(checkHintingMode(int)));
+          SLOT(checkHintingMode()));
   connect(antiAliasingComboBox, SIGNAL(currentIndexChanged(int)), this,
-          SLOT(checkAntiAliasing(int)));
+          SLOT(checkAntiAliasing()));
 
   connect(showPointsCheckBox, SIGNAL(clicked()), this,
           SLOT(checkShowPoints()));
@@ -454,8 +457,8 @@ MainGUI::setDefaults()
   showBitmapsCheckBox->setChecked(true);
   showOutlinesCheckBox->setChecked(true);
 
-  checkHintingMode(hintingModeComboBox->currentIndex());
-  checkAntiAliasing(antiAliasingComboBox->currentIndex());
+  checkHintingMode();
+  checkAntiAliasing();
   checkShowPoints();
 }
 

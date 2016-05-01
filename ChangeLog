@@ -1,5 +1,17 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Avoid parameters for signal functions.
+
+	This makes the code a bit more elegant.
+
+	* src/ftinspect.cpp (MainGUI::checkHintingMode,
+	MainGUI::checkAntiAliasing): Implement.
+	(MainGUI::createConnections, MainGUI::setDefaults): Updated.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Rename some enum values.
 
 	* src/ftinspect.cpp, src/ftinspect.h: Updated.
