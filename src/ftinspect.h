@@ -129,9 +129,9 @@ private:
     AntiAliasing_None,
     AntiAliasing_Normal,
     AntiAliasing_Slight,
-    AntiAliasing_LCD_RGB,
+    AntiAliasing_LCD,
     AntiAliasing_LCD_BGR,
-    AntiAliasing_LCD_Vertical_RGB,
+    AntiAliasing_LCD_Vertical,
     AntiAliasing_LCD_Vertical_BGR
   };
   enum HintingModes
@@ -145,10 +145,10 @@ private:
   };
   enum LCDFilter
   {
-    LCD_Default,
-    LCD_Light,
-    LCD_None,
-    LCD_Legacy
+    LCDFilter_Default,
+    LCDFilter_Light,
+    LCDFilter_None,
+    LCDFilter_Legacy
   };
 
   void createActions();

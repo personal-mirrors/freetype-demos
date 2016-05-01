@@ -170,11 +170,11 @@ MainGUI::createLayout()
                                    tr("Normal"));
   antiAliasingComboBox->insertItem(AntiAliasing_Slight,
                                    tr("Slight"));
-  antiAliasingComboBox->insertItem(AntiAliasing_LCD_RGB,
+  antiAliasingComboBox->insertItem(AntiAliasing_LCD,
                                    tr("LCD (RGB)"));
   antiAliasingComboBox->insertItem(AntiAliasing_LCD_BGR,
                                    tr("LCD (BGR)"));
-  antiAliasingComboBox->insertItem(AntiAliasing_LCD_Vertical_RGB,
+  antiAliasingComboBox->insertItem(AntiAliasing_LCD_Vertical,
                                    tr("LCD (vert. RGB)"));
   antiAliasingComboBox->insertItem(AntiAliasing_LCD_Vertical_BGR,
                                    tr("LCD (vert. BGR)"));
@@ -183,10 +183,10 @@ MainGUI::createLayout()
   lcdFilterLabel = new QLabel(tr("LCD Filter"));
   lcdFilterLabel->setAlignment(Qt::AlignRight);
   lcdFilterComboBox = new QComboBox;
-  lcdFilterComboBox->insertItem(LCD_Default, tr("Default"));
-  lcdFilterComboBox->insertItem(LCD_Light, tr("Light"));
-  lcdFilterComboBox->insertItem(LCD_None, tr("None"));
-  lcdFilterComboBox->insertItem(LCD_Legacy, tr("Legacy"));
+  lcdFilterComboBox->insertItem(LCDFilter_Default, tr("Default"));
+  lcdFilterComboBox->insertItem(LCDFilter_Light, tr("Light"));
+  lcdFilterComboBox->insertItem(LCDFilter_None, tr("None"));
+  lcdFilterComboBox->insertItem(LCDFilter_Legacy, tr("Legacy"));
   lcdFilterLabel->setBuddy(lcdFilterComboBox);
 
   int width;
@@ -448,8 +448,8 @@ MainGUI::setDefaults()
   // XXX only dummy values right now
 
   hintingModeComboBox->setCurrentIndex(HintingMode_TrueType_v35);
-  antiAliasingComboBox->setCurrentIndex(AntiAliasing_LCD_RGB);
-  lcdFilterComboBox->setCurrentIndex(LCD_Light);
+  antiAliasingComboBox->setCurrentIndex(AntiAliasing_LCD);
+  lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
 
   showBitmapsCheckBox->setChecked(true);
   showOutlinesCheckBox->setChecked(true);

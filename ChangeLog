@@ -1,5 +1,11 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Rename some enum values.
+
+	* src/ftinspect.cpp, src/ftinspect.h: Updated.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Provide dummy default values for GUI initialization.
 
 	* src/ftinspect.cpp (MainGUI::setDefaults): Set some values.
