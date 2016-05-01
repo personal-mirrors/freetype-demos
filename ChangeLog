@@ -1,3 +1,14 @@
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Improve combo box setup.
+
+	* src/ftinspect.h (MainGUI): New enums `AntiAliasing',
+	`HintingModes', and `LCDFilter'.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): Use new enums to set
+	items in combo boxes.
+	Also simplify computation of maximum width.
+
 2016-04-30  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftinspect.cpp (MainGUI::createLayout): Fix memory leak.

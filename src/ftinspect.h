@@ -118,6 +118,33 @@ private:
   QWidget *rightWidget;
   QWidget *mmgxTabWidget;
 
+  enum AntiAliasing
+  {
+    AntiAliasing_None,
+    AntiAliasing_Normal,
+    AntiAliasing_Slight,
+    AntiAliasing_LCD_RGB,
+    AntiAliasing_LCD_BGR,
+    AntiAliasing_LCD_Vertical_RGB,
+    AntiAliasing_LCD_Vertical_BGR
+  };
+  enum HintingModes
+  {
+    HintingMode_TrueType_v35,
+    HintingMode_TrueType_v38,
+    HintingMode_TrueType_v40,
+    HintingMode_CFF_FreeType,
+    HintingMode_CFF_Adobe,
+    HintingMode_AutoHinting
+  };
+  enum LCDFilter
+  {
+    LCD_Default,
+    LCD_Light,
+    LCD_None,
+    LCD_Legacy
+  };
+
   void createActions();
   void createConnections();
   void createLayout();

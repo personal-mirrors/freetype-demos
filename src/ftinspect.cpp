@@ -70,13 +70,19 @@ MainGUI::createLayout()
   // left side
   hintingModeLabel = new QLabel(tr("Hinting Mode"));
   hintingModeLabel->setAlignment(Qt::AlignRight);
-  QStringList hintingModeStringList;
-  hintingModeStringList << tr("TrueType v35")
-                        << tr("TrueType v38")
-                        << tr("TrueType v40")
-                        << tr("Auto-Hinting");
   hintingModeComboBox = new QComboBox;
-  hintingModeComboBox->insertItems(0, hintingModeStringList);
+  hintingModeComboBox->insertItem(HintingMode_TrueType_v35,
+                                  tr("TrueType v35"));
+  hintingModeComboBox->insertItem(HintingMode_TrueType_v38,
+                                  tr("TrueType v38"));
+  hintingModeComboBox->insertItem(HintingMode_TrueType_v40,
+                                  tr("TrueType v40"));
+  hintingModeComboBox->insertItem(HintingMode_CFF_FreeType,
+                                  tr("CFF (FreeType)"));
+  hintingModeComboBox->insertItem(HintingMode_CFF_Adobe,
+                                  tr("CFF(Adobe)"));
+  hintingModeComboBox->insertItem(HintingMode_AutoHinting,
+                                  tr("Auto-Hinting"));
   hintingModeLabel->setBuddy(hintingModeComboBox);
 
   hortizontalHintingCheckBox = new QCheckBox(tr("Horizontal Hinting"));
@@ -87,32 +93,35 @@ MainGUI::createLayout()
 
   antiAliasingLabel = new QLabel(tr("Anti-Aliasing"));
   antiAliasingLabel->setAlignment(Qt::AlignRight);
-  QStringList antiAliasingStringList;
-  antiAliasingStringList << tr("None")
-                         << tr("Normal")
-                         << tr("Slight")
-                         << tr("LCD (horiz. RGB)")
-                         << tr("LCD (horiz. BGR)")
-                         << tr("LCD (vert. RGB)")
-                         << tr("LCD (vert. BGR)");
   antiAliasingComboBox = new QComboBox;
-  antiAliasingComboBox->insertItems(0, antiAliasingStringList);
+  antiAliasingComboBox->insertItem(AntiAliasing_None,
+                                   tr("None"));
+  antiAliasingComboBox->insertItem(AntiAliasing_Normal,
+                                   tr("Normal"));
+  antiAliasingComboBox->insertItem(AntiAliasing_Slight,
+                                   tr("Slight"));
+  antiAliasingComboBox->insertItem(AntiAliasing_LCD_RGB,
+                                   tr("LCD (RGB)"));
+  antiAliasingComboBox->insertItem(AntiAliasing_LCD_BGR,
+                                   tr("LCD (BGR)"));
+  antiAliasingComboBox->insertItem(AntiAliasing_LCD_Vertical_RGB,
+                                   tr("LCD (vert. RGB)"));
+  antiAliasingComboBox->insertItem(AntiAliasing_LCD_Vertical_BGR,
+                                   tr("LCD (vert. BGR)"));
   antiAliasingLabel->setBuddy(antiAliasingComboBox);
 
   lcdFilterLabel = new QLabel(tr("LCD Filter"));
   lcdFilterLabel->setAlignment(Qt::AlignRight);
-  QStringList lcdFilterStringList;
-  lcdFilterStringList << tr("Default")
-                      << tr("Light")
-                      << tr("None")
-                      << tr("Legacy");
   lcdFilterComboBox = new QComboBox;
-  lcdFilterComboBox->insertItems(0, lcdFilterStringList);
+  lcdFilterComboBox->insertItem(LCD_Default, tr("Default"));
+  lcdFilterComboBox->insertItem(LCD_Light, tr("Light"));
+  lcdFilterComboBox->insertItem(LCD_None, tr("None"));
+  lcdFilterComboBox->insertItem(LCD_Legacy, tr("Legacy"));
   lcdFilterLabel->setBuddy(lcdFilterComboBox);
 
-  int width = 0;
+  int width;
   // make all labels have the same width
-  width = qMax(hintingModeLabel->minimumSizeHint().width(), width);
+  width = hintingModeLabel->minimumSizeHint().width();
   width = qMax(antiAliasingLabel->minimumSizeHint().width(), width);
   width = qMax(lcdFilterLabel->minimumSizeHint().width(), width);
   hintingModeLabel->setMinimumWidth(width);
@@ -121,14 +130,9 @@ MainGUI::createLayout()
 
   // ensure that all items in combo boxes fit completely;
   // also make all combo boxes have the same width
-  QStringList dummyComboStringList;
-  dummyComboStringList << hintingModeStringList
-                       << antiAliasingStringList
-                       << lcdFilterStringList;
-  QComboBox *dummyComboBox = new QComboBox;
-  dummyComboBox->insertItems(0, dummyComboStringList);
-  width = dummyComboBox->minimumSizeHint().width();
-  delete dummyComboBox;
+  width = hintingModeComboBox->minimumSizeHint().width();
+  width = qMax(antiAliasingComboBox->minimumSizeHint().width(), width);
+  width = qMax(lcdFilterComboBox->minimumSizeHint().width(), width);
   hintingModeComboBox->setMinimumWidth(width);
   antiAliasingComboBox->setMinimumWidth(width);
   lcdFilterComboBox->setMinimumWidth(width);
