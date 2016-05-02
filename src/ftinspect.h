@@ -59,7 +59,7 @@ private:
   QCheckBox *blueZoneHintingCheckBox;
   QCheckBox *horizontalHintingCheckBox;
   QCheckBox *segmentDrawingCheckBox;
-  QCheckBox *showBitmapsCheckBox;
+  QCheckBox *showBitmapCheckBox;
   QCheckBox *showOutlinesCheckBox;
   QCheckBox *showPointIndicesCheckBox;
   QCheckBox *showPointsCheckBox;

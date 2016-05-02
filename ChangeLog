@@ -1,5 +1,12 @@
 2016-05-02  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Minor.
+
+	* src/ftinspect.h, src/ftinspect.cpp:
+	s/showBitmapsCheckBox/showBitmapCheckBox/.
+
+2016-05-02  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Adjust layout.
 
 	* src/ftinspect.cpp (MainGUI::createLayout): Move size, dpi, and

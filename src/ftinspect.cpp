@@ -235,7 +235,7 @@ MainGUI::createLayout()
   gammaSlider->setTickPosition(QSlider::TicksBelow);
   gammaLabel->setBuddy(gammaSlider);
 
-  showBitmapsCheckBox = new QCheckBox(tr("Show Bitmaps"));
+  showBitmapCheckBox = new QCheckBox(tr("Show Bitmap"));
   showPointsCheckBox = new QCheckBox(tr("Show Points"));
   showPointIndicesCheckBox = new QCheckBox(tr("Show Point Indices"));
   showOutlinesCheckBox = new QCheckBox(tr("Show Outlines"));
@@ -274,7 +274,7 @@ MainGUI::createLayout()
   generalTabLayout->addLayout(gammaLayout);
   generalTabLayout->addSpacing(20); // XXX px
   generalTabLayout->addStretch(1);
-  generalTabLayout->addWidget(showBitmapsCheckBox);
+  generalTabLayout->addWidget(showBitmapCheckBox);
   generalTabLayout->addWidget(showPointsCheckBox);
   generalTabLayout->addWidget(showPointIndicesCheckBox);
   generalTabLayout->addWidget(showOutlinesCheckBox);
@@ -494,7 +494,7 @@ MainGUI::setDefaults()
   verticalHintingCheckBox->setChecked(true);
   blueZoneHintingCheckBox->setChecked(true);
 
-  showBitmapsCheckBox->setChecked(true);
+  showBitmapCheckBox->setChecked(true);
   showOutlinesCheckBox->setChecked(true);
 
   checkHintingMode();
