@@ -49,6 +49,7 @@ private slots:
   void checkAntiAliasing();
   void checkHintingMode();
   void checkShowPoints();
+  void checkUnits();
 
 private:
   QAction *aboutAct;
@@ -68,6 +69,7 @@ private:
   QComboBox *antiAliasingComboBox;
   QComboBox *hintingModeComboBox;
   QComboBox *lcdFilterComboBox;
+  QComboBox *unitsComboBox;
 
   QDoubleSpinBox *sizeDoubleSpinBox;
 
@@ -83,6 +85,7 @@ private:
   QHBoxLayout *watchLayout;
 
   QLabel *antiAliasingLabel;
+  QLabel *dpiLabel;
   QLabel *gammaLabel;
   QLabel *hintingModeLabel;
   QLabel *lcdFilterLabel;
@@ -110,6 +113,7 @@ private:
 
   QSlider *gammaSlider;
 
+  QSpinBox *dpiSpinBox;
   QSpinBox *zoomSpinBox;
 
   QTabWidget *tabWidget;
@@ -149,6 +153,11 @@ private:
     LCDFilter_Light,
     LCDFilter_None,
     LCDFilter_Legacy
+  };
+  enum Units
+  {
+    Units_px,
+    Units_pt
   };
 
   void createActions();

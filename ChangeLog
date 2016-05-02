@@ -1,5 +1,17 @@
 2016-05-01  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add DPI control.
+
+	* src/ftinspect.cpp: Add `unitsComboBox' to select between px and
+	pt.
+	Add `dpiLabel' and `dpiSpinBox' to select the DPI value.
+	(MainGUI::checkUnits): New function.
+	(MainGUI::createConnections, MainGUI::setDefaults): Updated.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-01  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Some more GUI initialization defaults.
 
 	* src/ftinspect.cpp (MainGUI::setDefaults): Updated.

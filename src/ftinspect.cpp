@@ -135,6 +135,24 @@ MainGUI::checkShowPoints()
 }
 
 
+void
+MainGUI::checkUnits()
+{
+  int index = unitsComboBox->currentIndex();
+
+  if (index == Units_px)
+  {
+    dpiLabel->setEnabled(false);
+    dpiSpinBox->setEnabled(false);
+  }
+  else
+  {
+    dpiLabel->setEnabled(true);
+    dpiSpinBox->setEnabled(true);
+  }
+}
+
+
 // XXX distances are specified in pixels,
 //     making the layout dependent on the output device resolution
 void
@@ -301,10 +319,21 @@ MainGUI::createLayout()
   sizeDoubleSpinBox->setAlignment(Qt::AlignRight);
   sizeDoubleSpinBox->setDecimals(1);
   sizeDoubleSpinBox->setRange(1, 500);
-  sizeDoubleSpinBox->setSuffix("px");
   sizeDoubleSpinBox->setSingleStep(0.5);
   sizeDoubleSpinBox->setValue(20); // XXX default
   sizeLabel->setBuddy(sizeDoubleSpinBox);
+
+  unitsComboBox = new QComboBox;
+  unitsComboBox->insertItem(Units_px, "px");
+  unitsComboBox->insertItem(Units_pt, "pt");
+
+  dpiLabel = new QLabel(tr("DPI "));
+  dpiLabel->setAlignment(Qt::AlignRight);
+  dpiSpinBox = new QSpinBox;
+  dpiSpinBox->setAlignment(Qt::AlignRight);
+  dpiSpinBox->setRange(10, 600);
+  dpiSpinBox->setValue(96); // XXX default
+  dpiLabel->setBuddy(dpiSpinBox);
 
   toStartButton = new QPushButton("|<");
   toStartButton->setFixedWidth(40);
@@ -344,6 +373,10 @@ MainGUI::createLayout()
   navigationLayout->setSpacing(0);
   navigationLayout->addWidget(sizeLabel);
   navigationLayout->addWidget(sizeDoubleSpinBox);
+  navigationLayout->addWidget(unitsComboBox);
+  navigationLayout->addSpacing(10); // XXX px
+  navigationLayout->addWidget(dpiLabel);
+  navigationLayout->addWidget(dpiSpinBox);
   navigationLayout->addSpacing(10); // XXX px
   navigationLayout->addStretch(1);
   navigationLayout->addWidget(toStartButton);
@@ -400,6 +433,9 @@ MainGUI::createConnections()
 
   connect(showPointsCheckBox, SIGNAL(clicked()), this,
           SLOT(checkShowPoints()));
+
+  connect(unitsComboBox, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(checkUnits()));
 }
 
 
@@ -464,6 +500,7 @@ MainGUI::setDefaults()
   checkHintingMode();
   checkAntiAliasing();
   checkShowPoints();
+  checkUnits();
 }
 
 
