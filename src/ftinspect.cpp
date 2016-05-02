@@ -371,13 +371,6 @@ MainGUI::createLayout()
 
   navigationLayout = new QHBoxLayout;
   navigationLayout->setSpacing(0);
-  navigationLayout->addWidget(sizeLabel);
-  navigationLayout->addWidget(sizeDoubleSpinBox);
-  navigationLayout->addWidget(unitsComboBox);
-  navigationLayout->addSpacing(10); // XXX px
-  navigationLayout->addWidget(dpiLabel);
-  navigationLayout->addWidget(dpiSpinBox);
-  navigationLayout->addSpacing(10); // XXX px
   navigationLayout->addStretch(1);
   navigationLayout->addWidget(toStartButton);
   navigationLayout->addWidget(toM1000Button);
@@ -389,23 +382,30 @@ MainGUI::createLayout()
   navigationLayout->addWidget(toP100Button);
   navigationLayout->addWidget(toP1000Button);
   navigationLayout->addWidget(toEndButton);
-  navigationLayout->addSpacing(10); // XXX px
   navigationLayout->addStretch(1);
-  navigationLayout->addWidget(zoomLabel);
-  navigationLayout->addWidget(zoomSpinBox);
 
-  fontLayout = new QHBoxLayout;
-  fontLayout->addStretch(1);
-  fontLayout->addWidget(previousFontButton);
-  fontLayout->addStretch(1);
-  fontLayout->addWidget(nextFontButton);
-  fontLayout->addStretch(1);
+  fontSizeLayout = new QHBoxLayout;
+  fontSizeLayout->addWidget(sizeLabel);
+  fontSizeLayout->addWidget(sizeDoubleSpinBox);
+  fontSizeLayout->addWidget(unitsComboBox);
+  fontSizeLayout->addSpacing(10); // XXX px
+  fontSizeLayout->addWidget(dpiLabel);
+  fontSizeLayout->addWidget(dpiSpinBox);
+  fontSizeLayout->addSpacing(10); // XXX px
+  fontSizeLayout->addStretch(1);
+  fontSizeLayout->addWidget(previousFontButton);
+  fontSizeLayout->addStretch(1);
+  fontSizeLayout->addWidget(nextFontButton);
+  fontSizeLayout->addStretch(1);
+  fontSizeLayout->addSpacing(10); // XXX px
+  fontSizeLayout->addWidget(zoomLabel);
+  fontSizeLayout->addWidget(zoomSpinBox);
 
   rightLayout = new QVBoxLayout;
   rightLayout->addWidget(glyphView);
   rightLayout->addLayout(navigationLayout);
   rightLayout->addSpacing(10); // XXX px
-  rightLayout->addLayout(fontLayout);
+  rightLayout->addLayout(fontSizeLayout);
 
   // for symmetry with the left side use a widget also
   rightWidget = new QWidget;

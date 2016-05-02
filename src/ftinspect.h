@@ -76,7 +76,7 @@ private:
   QGraphicsView *glyphView;
 
   QHBoxLayout *antiAliasingLayout;
-  QHBoxLayout *fontLayout;
+  QHBoxLayout *fontSizeLayout;
   QHBoxLayout *gammaLayout;
   QHBoxLayout *hintingModeLayout;
   QHBoxLayout *ftinspectLayout;

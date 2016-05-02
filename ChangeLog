@@ -1,9 +1,19 @@
-2016-05-01  Werner Lemberg  <wl@gnu.org>
+2016-05-02  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Adjust layout.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): Move size, dpi, and
+	zoom stuff one row down.
+	s/fontLayout/fontSizeLayout/.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-02  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Add DPI control.
 
-	* src/ftinspect.cpp: Add `unitsComboBox' to select between px and
-	pt.
+	* src/ftinspect.cpp (MainGUI::createLayout): Add `unitsComboBox' to
+	select between px and pt.
 	Add `dpiLabel' and `dpiSpinBox' to select the DPI value.
 	(MainGUI::checkUnits): New function.
 	(MainGUI::createConnections, MainGUI::setDefaults): Updated.
