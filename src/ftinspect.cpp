@@ -150,6 +150,35 @@ MainGUI::about()
 
 
 void
+MainGUI::loadFonts()
+{
+  QStringList files = QFileDialog::getOpenFileNames(
+                        this,
+                        tr("Load one or more fonts"),
+                        QDir::homePath(),
+                        "",
+                        NULL,
+                        QFileDialog::ReadOnly);
+  fontFileNames += files;
+
+  if (!fontFileNames.isEmpty() && currentFontFileIndex == -1)
+    currentFontFileIndex = 0;
+}
+
+
+void
+MainGUI::closeFont()
+{
+  if (currentFontFileIndex >= 0)
+    fontFileNames.removeAt(currentFontFileIndex);
+  if (currentFontFileIndex >= fontFileNames.size())
+    currentFontFileIndex--;
+
+  // XXX trigger redisplay
+}
+
+
+void
 MainGUI::checkHintingMode()
 {
   int index = hintingModeComboBoxx->currentIndex();
@@ -518,6 +547,14 @@ MainGUI::createConnections()
 void
 MainGUI::createActions()
 {
+  loadFontsAct = new QAction(tr("&Load Fonts"), this);
+  loadFontsAct->setShortcuts(QKeySequence::Open);
+  connect(loadFontsAct, SIGNAL(triggered()), this, SLOT(loadFonts()));
+
+  closeFontAct = new QAction(tr("&Close Font"), this);
+  closeFontAct->setShortcuts(QKeySequence::Close);
+  connect(closeFontAct, SIGNAL(triggered()), this, SLOT(closeFont()));
+
   exitAct = new QAction(tr("E&xit"), this);
   exitAct->setShortcuts(QKeySequence::Quit);
   connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
@@ -534,6 +571,8 @@ void
 MainGUI::createMenus()
 {
   menuFile = menuBar()->addMenu(tr("&File"));
+  menuFile->addAction(loadFontsAct);
+  menuFile->addAction(closeFontAct);
   menuFile->addAction(exitAct);
 
   menuHelp = menuBar()->addMenu(tr("&Help"));
@@ -560,6 +599,8 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
+  currentFontFileIndex = -1;
+
   // XXX only dummy values right now
 
   hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);

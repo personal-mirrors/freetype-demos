@@ -14,7 +14,9 @@
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDesktopWidget>
+#include <QDir>
 #include <QDoubleSpinBox>
+#include <QFileDialog>
 #include <QGraphicsView>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -113,11 +115,18 @@ private slots:
   void checkHintingMode();
   void checkShowPoints();
   void checkUnits();
+  void closeFont();
+  void loadFonts();
 
 private:
+  QStringList fontFileNames;
+  int currentFontFileIndex;
+
   QAction *aboutAct;
   QAction *aboutQtAct;
+  QAction *closeFontAct;
   QAction *exitAct;
+  QAction *loadFontsAct;
 
   QCheckBox *blueZoneHintingCheckBox;
   QCheckBox *horizontalHintingCheckBox;

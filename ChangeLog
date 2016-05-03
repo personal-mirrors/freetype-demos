@@ -1,5 +1,18 @@
 2016-05-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add file dialogs.
+
+	* src/ftinspect.h: Include some more Qt headers.
+	(MainGUI): Add `fontFileNames' and `currentFontFileIndex'.
+	Add actions to load and close font files.
+
+	* src/ftinspect.cpp (MainGUI::loadFonts, MainGUI::closeFont): New
+	methods.
+	(MainGUI::createActions, MainGUI::createMenus,
+	MainGUI::setDefaults): Updated.
+
+2016-05-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Better code.
 
 	* src/ftinspect.h (QComboBoxx): New class, derived from `QComboBox';
