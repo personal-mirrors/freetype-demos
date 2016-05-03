@@ -1,4 +1,19 @@
-2016-05-02  Werner Lemberg  <wl@gnu.org>
+2016-05-03  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Better code.
+
+	* src/ftinspect.h (QComboBoxx): New class, derived from `QComboBox';
+	we add one method `setItemEnabled' to enable (or disable) an item
+	with a given index.
+	(MainGUI): Use `QComboBoxx' for `antiAliasingComboBoxx' (was:
+	`antiAliasingCombBox') and `hintingModeComboBoxx' (was:
+	`hintingModeComboBox').
+	Update all users.
+
+	* src/ftinspect.cpp (MainGUI::checkHintingMode): Simplified.
+	(QComboBoxx::setItemEnabled): New method.
+
+2016-05-03  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Start with FreeType initialization.
 

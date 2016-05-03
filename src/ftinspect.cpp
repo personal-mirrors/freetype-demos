@@ -152,11 +152,8 @@ MainGUI::about()
 void
 MainGUI::checkHintingMode()
 {
-  int index = hintingModeComboBox->currentIndex();
-  const QStandardItemModel* model = qobject_cast<const QStandardItemModel*>
-                                      (antiAliasingComboBox->model());
-  QStandardItem* AAslightItem = model->item(AntiAliasing_Slight);
-  int AAcurrIndex = antiAliasingComboBox->currentIndex();
+  int index = hintingModeComboBoxx->currentIndex();
+  int AAcurrIndex = antiAliasingComboBoxx->currentIndex();
 
   if (index == HintingMode_AutoHinting)
   {
@@ -166,9 +163,7 @@ MainGUI::checkHintingMode()
     segmentDrawingCheckBox->setEnabled(true);
     warpingCheckBox->setEnabled(true);
 
-    AAslightItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-    AAslightItem->setData(QVariant(),
-                          Qt::TextColorRole);
+    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, true);
   }
   else
   {
@@ -178,16 +173,10 @@ MainGUI::checkHintingMode()
     segmentDrawingCheckBox->setEnabled(false);
     warpingCheckBox->setEnabled(false);
 
-    AAslightItem->setFlags(AAslightItem->flags()
-                           & ~(Qt::ItemIsSelectable | Qt::ItemIsEnabled));
-    // clear item data in order to use default color;
-    // this visually greys out the item
-    AAslightItem->setData(antiAliasingComboBox->palette().color(
-                            QPalette::Disabled, QPalette::Text),
-                          Qt::TextColorRole);
+    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
 
     if (AAcurrIndex == AntiAliasing_Slight)
-      antiAliasingComboBox->setCurrentIndex(AntiAliasing_Normal);
+      antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
   }
 }
 
@@ -195,7 +184,7 @@ MainGUI::checkHintingMode()
 void
 MainGUI::checkAntiAliasing()
 {
-  int index = antiAliasingComboBox->currentIndex();
+  int index = antiAliasingComboBoxx->currentIndex();
 
   if (index == AntiAliasing_None
       || index == AntiAliasing_Normal
@@ -248,20 +237,20 @@ MainGUI::createLayout()
   // left side
   hintingModeLabel = new QLabel(tr("Hinting Mode"));
   hintingModeLabel->setAlignment(Qt::AlignRight);
-  hintingModeComboBox = new QComboBox;
-  hintingModeComboBox->insertItem(HintingMode_TrueType_v35,
-                                  tr("TrueType v35"));
-  hintingModeComboBox->insertItem(HintingMode_TrueType_v38,
-                                  tr("TrueType v38"));
-  hintingModeComboBox->insertItem(HintingMode_TrueType_v40,
-                                  tr("TrueType v40"));
-  hintingModeComboBox->insertItem(HintingMode_CFF_FreeType,
-                                  tr("CFF (FreeType)"));
-  hintingModeComboBox->insertItem(HintingMode_CFF_Adobe,
-                                  tr("CFF (Adobe)"));
-  hintingModeComboBox->insertItem(HintingMode_AutoHinting,
-                                  tr("Auto-Hinting"));
-  hintingModeLabel->setBuddy(hintingModeComboBox);
+  hintingModeComboBoxx = new QComboBoxx;
+  hintingModeComboBoxx->insertItem(HintingMode_TrueType_v35,
+                                   tr("TrueType v35"));
+  hintingModeComboBoxx->insertItem(HintingMode_TrueType_v38,
+                                   tr("TrueType v38"));
+  hintingModeComboBoxx->insertItem(HintingMode_TrueType_v40,
+                                   tr("TrueType v40"));
+  hintingModeComboBoxx->insertItem(HintingMode_CFF_FreeType,
+                                   tr("CFF (FreeType)"));
+  hintingModeComboBoxx->insertItem(HintingMode_CFF_Adobe,
+                                   tr("CFF (Adobe)"));
+  hintingModeComboBoxx->insertItem(HintingMode_AutoHinting,
+                                   tr("Auto-Hinting"));
+  hintingModeLabel->setBuddy(hintingModeComboBoxx);
 
   horizontalHintingCheckBox = new QCheckBox(tr("Horizontal Hinting"));
   verticalHintingCheckBox = new QCheckBox(tr("Vertical Hinting"));
@@ -271,22 +260,22 @@ MainGUI::createLayout()
 
   antiAliasingLabel = new QLabel(tr("Anti-Aliasing"));
   antiAliasingLabel->setAlignment(Qt::AlignRight);
-  antiAliasingComboBox = new QComboBox;
-  antiAliasingComboBox->insertItem(AntiAliasing_None,
-                                   tr("None"));
-  antiAliasingComboBox->insertItem(AntiAliasing_Normal,
-                                   tr("Normal"));
-  antiAliasingComboBox->insertItem(AntiAliasing_Slight,
-                                   tr("Slight"));
-  antiAliasingComboBox->insertItem(AntiAliasing_LCD,
-                                   tr("LCD (RGB)"));
-  antiAliasingComboBox->insertItem(AntiAliasing_LCD_BGR,
-                                   tr("LCD (BGR)"));
-  antiAliasingComboBox->insertItem(AntiAliasing_LCD_Vertical,
-                                   tr("LCD (vert. RGB)"));
-  antiAliasingComboBox->insertItem(AntiAliasing_LCD_Vertical_BGR,
-                                   tr("LCD (vert. BGR)"));
-  antiAliasingLabel->setBuddy(antiAliasingComboBox);
+  antiAliasingComboBoxx = new QComboBoxx;
+  antiAliasingComboBoxx->insertItem(AntiAliasing_None,
+                                    tr("None"));
+  antiAliasingComboBoxx->insertItem(AntiAliasing_Normal,
+                                    tr("Normal"));
+  antiAliasingComboBoxx->insertItem(AntiAliasing_Slight,
+                                    tr("Slight"));
+  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD,
+                                    tr("LCD (RGB)"));
+  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD_BGR,
+                                    tr("LCD (BGR)"));
+  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD_Vertical,
+                                    tr("LCD (vert. RGB)"));
+  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD_Vertical_BGR,
+                                    tr("LCD (vert. BGR)"));
+  antiAliasingLabel->setBuddy(antiAliasingComboBoxx);
 
   lcdFilterLabel = new QLabel(tr("LCD Filter"));
   lcdFilterLabel->setAlignment(Qt::AlignRight);
@@ -308,11 +297,11 @@ MainGUI::createLayout()
 
   // ensure that all items in combo boxes fit completely;
   // also make all combo boxes have the same width
-  width = hintingModeComboBox->minimumSizeHint().width();
-  width = qMax(antiAliasingComboBox->minimumSizeHint().width(), width);
+  width = hintingModeComboBoxx->minimumSizeHint().width();
+  width = qMax(antiAliasingComboBoxx->minimumSizeHint().width(), width);
   width = qMax(lcdFilterComboBox->minimumSizeHint().width(), width);
-  hintingModeComboBox->setMinimumWidth(width);
-  antiAliasingComboBox->setMinimumWidth(width);
+  hintingModeComboBoxx->setMinimumWidth(width);
+  antiAliasingComboBoxx->setMinimumWidth(width);
   lcdFilterComboBox->setMinimumWidth(width);
 
   gammaLabel = new QLabel(tr("Gamma"));
@@ -331,11 +320,11 @@ MainGUI::createLayout()
 
   hintingModeLayout = new QHBoxLayout;
   hintingModeLayout->addWidget(hintingModeLabel);
-  hintingModeLayout->addWidget(hintingModeComboBox);
+  hintingModeLayout->addWidget(hintingModeComboBoxx);
 
   antiAliasingLayout = new QHBoxLayout;
   antiAliasingLayout->addWidget(antiAliasingLabel);
-  antiAliasingLayout->addWidget(antiAliasingComboBox);
+  antiAliasingLayout->addWidget(antiAliasingComboBoxx);
 
   lcdFilterLayout = new QHBoxLayout;
   lcdFilterLayout->addWidget(lcdFilterLabel);
@@ -513,9 +502,9 @@ MainGUI::createLayout()
 void
 MainGUI::createConnections()
 {
-  connect(hintingModeComboBox, SIGNAL(currentIndexChanged(int)), this,
+  connect(hintingModeComboBoxx, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkHintingMode()));
-  connect(antiAliasingComboBox, SIGNAL(currentIndexChanged(int)), this,
+  connect(antiAliasingComboBoxx, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkAntiAliasing()));
 
   connect(showPointsCheckBox, SIGNAL(clicked()), this,
@@ -573,8 +562,8 @@ MainGUI::setDefaults()
 {
   // XXX only dummy values right now
 
-  hintingModeComboBox->setCurrentIndex(HintingMode_TrueType_v35);
-  antiAliasingComboBox->setCurrentIndex(AntiAliasing_LCD);
+  hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);
+  antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
 
   horizontalHintingCheckBox->setChecked(true);
@@ -608,6 +597,32 @@ MainGUI::writeSettings()
   QSettings settings;
 //  settings.setValue("pos", pos());
 //  settings.setValue("size", size());
+}
+
+
+void
+QComboBoxx::setItemEnabled(int index,
+                           bool enable)
+{
+  const QStandardItemModel* itemModel =
+    qobject_cast<const QStandardItemModel*>(model());
+  QStandardItem* item = itemModel->item(index);
+
+  if (enable)
+  {
+    item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    item->setData(QVariant(),
+                  Qt::TextColorRole);
+  }
+  else
+  {
+    item->setFlags(item->flags()
+                   & ~(Qt::ItemIsSelectable | Qt::ItemIsEnabled));
+    // clear item data in order to use default color;
+    // this visually greys out the item
+    item->setData(palette().color(QPalette::Disabled, QPalette::Text),
+                  Qt::TextColorRole);
+  }
 }
 
 

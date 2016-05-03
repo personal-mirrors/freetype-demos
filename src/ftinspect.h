@@ -81,6 +81,18 @@ private:
 };
 
 
+// we want to grey out items in a combo box;
+// since Qt doesn't provide a function for this we derive a class
+class QComboBoxx
+: public QComboBox
+{
+  Q_OBJECT
+
+public:
+  void setItemEnabled(int, bool);
+};
+
+
 class MainGUI
 : public QMainWindow
 {
@@ -117,8 +129,8 @@ private:
   QCheckBox *verticalHintingCheckBox;
   QCheckBox *warpingCheckBox;
 
-  QComboBox *antiAliasingComboBox;
-  QComboBox *hintingModeComboBox;
+  QComboBoxx *antiAliasingComboBoxx;
+  QComboBoxx *hintingModeComboBoxx;
   QComboBox *lcdFilterComboBox;
   QComboBox *unitsComboBox;
 
