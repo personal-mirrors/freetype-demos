@@ -1,5 +1,20 @@
 2016-05-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Make `previous font' and `next font' button logic work.
+
+	* src/ftinspect.h (MainGUI): New slots `checkCurrentFontFileIndex',
+	`previousFont, and `nextFont'.
+
+	* src/ftinspect.cpp
+	(MainGUI::checkCurrentFontFileIndex, MainGUI::previousFont,
+	MainGUI::nextFont): New methods.
+	(MainGUI::createConnections): Register connections for
+	`previousFontButton' and `nextFontButton'.
+	(MainGUI::loadFonts, MainGUI::closeFont, MainGUI::setDefaults):
+	Updated.
+
+2016-05-03  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Add file dialogs.
 
 	* src/ftinspect.h: Include some more Qt headers.

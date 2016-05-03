@@ -163,6 +163,10 @@ MainGUI::loadFonts()
 
   if (!fontFileNames.isEmpty() && currentFontFileIndex == -1)
     currentFontFileIndex = 0;
+
+  checkCurrentFontFileIndex();
+
+  // XXX trigger redisplay
 }
 
 
@@ -173,6 +177,8 @@ MainGUI::closeFont()
     fontFileNames.removeAt(currentFontFileIndex);
   if (currentFontFileIndex >= fontFileNames.size())
     currentFontFileIndex--;
+
+  checkCurrentFontFileIndex();
 
   // XXX trigger redisplay
 }
@@ -254,6 +260,54 @@ MainGUI::checkUnits()
   {
     dpiLabel->setEnabled(true);
     dpiSpinBox->setEnabled(true);
+  }
+}
+
+
+void
+MainGUI::checkCurrentFontFileIndex()
+{
+  if (currentFontFileIndex == -1)
+  {
+    previousFontButton->setEnabled(false);
+    nextFontButton->setEnabled(false);
+  }
+  else if (currentFontFileIndex == 0)
+  {
+    previousFontButton->setEnabled(false);
+    nextFontButton->setEnabled(true);
+  }
+  else if (currentFontFileIndex == fontFileNames.size() - 1)
+  {
+    previousFontButton->setEnabled(true);
+    nextFontButton->setEnabled(false);
+  }
+  else
+  {
+    previousFontButton->setEnabled(true);
+    nextFontButton->setEnabled(true);
+  }
+}
+
+
+void
+MainGUI::previousFont()
+{
+  if (currentFontFileIndex > 0)
+  {
+    currentFontFileIndex--;
+    checkCurrentFontFileIndex();
+  }
+}
+
+
+void
+MainGUI::nextFont()
+{
+  if (currentFontFileIndex < fontFileNames.size() - 1)
+  {
+    currentFontFileIndex++;
+    checkCurrentFontFileIndex();
   }
 }
 
@@ -541,6 +595,11 @@ MainGUI::createConnections()
 
   connect(unitsComboBox, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkUnits()));
+
+  connect(previousFontButton, SIGNAL(clicked()), this,
+          SLOT(previousFont()));
+  connect(nextFontButton, SIGNAL(clicked()), this,
+          SLOT(nextFont()));
 }
 
 
@@ -618,6 +677,7 @@ MainGUI::setDefaults()
   checkAntiAliasing();
   checkShowPoints();
   checkUnits();
+  checkCurrentFontFileIndex();
 }
 
 

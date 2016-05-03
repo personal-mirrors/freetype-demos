@@ -112,11 +112,14 @@ protected:
 private slots:
   void about();
   void checkAntiAliasing();
+  void checkCurrentFontFileIndex();
   void checkHintingMode();
   void checkShowPoints();
   void checkUnits();
   void closeFont();
   void loadFonts();
+  void nextFont();
+  void previousFont();
 
 private:
   QStringList fontFileNames;
