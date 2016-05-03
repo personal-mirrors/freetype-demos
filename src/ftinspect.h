@@ -3,6 +3,10 @@
 #ifndef FTINSPECT_H_
 #define FTINSPECT_H_
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_CACHE_H
+
 #include <QAction>
 #include <QApplication>
 #include <QButtonGroup>
@@ -32,6 +36,51 @@
 #include <QWidget>
 
 
+class MainGUI;
+
+
+struct Font
+{
+  const char* filePathname;
+  int faceIndex;
+  int numIndices;
+  size_t fileSize;
+};
+
+
+class Engine
+{
+public:
+  Engine();
+
+  void update(const MainGUI&);
+
+private:
+  FT_Library library;
+  FTC_Manager cacheManager;
+  FTC_ImageCache imageCache;
+  FTC_SBitCache sbitsCache;
+
+  double pointSize;
+  double pixelSize;
+  int dpi;
+  int zoom;
+
+  bool doHorizontalHinting;
+  bool doVerticalHinting;
+  bool doBlueZoneHinting;
+  bool showSegments;
+  bool doWarping;
+
+  bool showBitmap;
+  bool showPoints;
+  bool showPointIndices;
+  bool showOutlines;
+
+  double gamma;
+};
+
+
 class MainGUI
 : public QMainWindow
 {
@@ -40,6 +89,8 @@ class MainGUI
 public:
   MainGUI();
   ~MainGUI();
+
+  friend class Engine;
 
 protected:
   void closeEvent(QCloseEvent*);

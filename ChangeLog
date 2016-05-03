@@ -1,5 +1,23 @@
 2016-05-02  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Start with FreeType initialization.
+
+	* src/ftinspect.h: Include some FreeType headers.
+	(Font): New structure for holding a (physical) font.
+	(Engine): New class for communication with FreeType library.
+	(MainGUI): Make `engine' a friend.
+
+	* src/ftinspect.cpp (faceRequester): New function for FreeType's
+	cache manager.
+	(Engine::Engine, Engine::update): Some basic functions; to be
+	extensively revised in later commits.
+	(main): Updated.
+
+	* src/ftinspect.pro: Add support for FreeType and dependent
+	libraries.  Right now, you have to adjust paths manually.
+
+2016-05-02  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Minor.
 
 	* src/ftinspect.h, src/ftinspect.cpp:

@@ -8,6 +8,93 @@
 #define VERSION "X.Y.Z"
 
 
+// The face requester is a function provided by the client application to
+// the cache manager to translate an `abstract' face ID into a real
+// `FT_Face' object.
+//
+// Here, the face IDs are simply pointers to `Font' objects.
+
+static FT_Error
+faceRequester(FTC_FaceID faceID,
+              FT_Library library,
+              FT_Pointer /* requestData */,
+              FT_Face* faceP)
+{
+  Font* font = static_cast<Font*>(faceID);
+
+  return FT_New_Face(library,
+                     font->filePathname,
+                     font->faceIndex,
+                     faceP);
+}
+
+
+Engine::Engine()
+{
+  FT_Error error;
+
+  error = FT_Init_FreeType(&library);
+  if (error)
+  {
+    // XXX error handling
+  }
+
+  error = FTC_Manager_New(library, 0, 0, 0,
+                          faceRequester, 0, &cacheManager);
+  if (error)
+  {
+    // XXX error handling
+  }
+
+  error = FTC_SBitCache_New(cacheManager, &sbitsCache);
+  if (error)
+  {
+    // XXX error handling
+  }
+
+  error = FTC_ImageCache_New(cacheManager, &imageCache);
+  if (error)
+  {
+    // XXX error handling
+  }
+}
+
+
+void
+Engine::update(const MainGUI& gui)
+{
+  dpi = gui.dpiSpinBox->value();
+  zoom = gui.zoomSpinBox->value();
+
+  if (gui.unitsComboBox->currentIndex() == MainGUI::Units_px)
+  {
+    pointSize = gui.sizeDoubleSpinBox->value();
+    pixelSize = pointSize * dpi / 72.0;
+  }
+  else
+  {
+    pixelSize = gui.sizeDoubleSpinBox->value();
+    pointSize = pixelSize * 72.0 / dpi;
+  }
+
+  doHorizontalHinting = gui.horizontalHintingCheckBox->isChecked();
+  doVerticalHinting = gui.verticalHintingCheckBox->isChecked();
+  doBlueZoneHinting = gui.blueZoneHintingCheckBox->isChecked();
+  showSegments = gui.segmentDrawingCheckBox->isChecked();
+  doWarping = gui.warpingCheckBox->isChecked();
+
+  showBitmap = gui.showBitmapCheckBox->isChecked();
+  showPoints = gui.showPointsCheckBox->isChecked();
+  if (showPoints)
+    showPointIndices = gui.showPointIndicesCheckBox->isChecked();
+  else
+    showPointIndices = false;
+  showOutlines = gui.showOutlinesCheckBox->isChecked();
+
+  gamma = gui.gammaSlider->value();
+}
+
+
 MainGUI::MainGUI()
 {
   createLayout();
@@ -534,7 +621,10 @@ main(int argc,
   app.setOrganizationName("FreeType");
   app.setOrganizationDomain("freetype.org");
 
+  Engine engine;
   MainGUI gui;
+
+  engine.update(gui);
   gui.show();
 
   return app.exec();
