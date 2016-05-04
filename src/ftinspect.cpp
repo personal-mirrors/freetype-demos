@@ -115,6 +115,13 @@ MainGUI::~MainGUI()
 }
 
 
+void
+MainGUI::update(const Engine& e)
+{
+  engine = e;
+}
+
+
 // overloading
 
 void
@@ -824,6 +831,8 @@ main(int argc,
   MainGUI gui;
 
   engine.update(gui);
+  gui.update(engine);
+
   gui.show();
 
   return app.exec();

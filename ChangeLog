@@ -1,5 +1,16 @@
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Better intertwine `Engine' and `MainGUI'.
+
+	* src/ftinspect.cpp (MainGUI::update): New method.
+	(main): Use it.
+
+	* src/ftinspect.h (Engine): Make it a friend of `MainGUI'.
+	(MainGUI): New member `engine'.
+	Updated.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftinspect.cpp (MainGUI::loadFonts): Improve logic.
 
 2016-05-04  Werner Lemberg  <wl@gnu.org>

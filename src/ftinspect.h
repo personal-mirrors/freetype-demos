@@ -57,6 +57,8 @@ public:
 
   void update(const MainGUI&);
 
+  friend class MainGUI;
+
 private:
   FT_Library library;
   FTC_Manager cacheManager;
@@ -116,6 +118,8 @@ public:
   MainGUI();
   ~MainGUI();
 
+  void update(const Engine&);
+
   friend class Engine;
 
 protected:
@@ -137,6 +141,8 @@ private slots:
   void previousFont();
 
 private:
+  Engine engine;
+
   QStringList fontFileNames;
   int currentFontFileIndex;
 
