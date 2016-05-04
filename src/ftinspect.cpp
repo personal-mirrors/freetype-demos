@@ -152,6 +152,8 @@ MainGUI::about()
 void
 MainGUI::loadFonts()
 {
+  int oldSize = fontFileNames.size();
+
   QStringList files = QFileDialog::getOpenFileNames(
                         this,
                         tr("Load one or more fonts"),
@@ -161,8 +163,10 @@ MainGUI::loadFonts()
                         QFileDialog::ReadOnly);
   fontFileNames += files;
 
-  if (!fontFileNames.isEmpty() && currentFontFileIndex == -1)
-    currentFontFileIndex = 0;
+  // if we have new fonts, set the current index to the first new one
+  if (!fontFileNames.isEmpty()
+      && oldSize < fontFileNames.size())
+    currentFontFileIndex = oldSize;
 
   checkCurrentFontFileIndex();
 

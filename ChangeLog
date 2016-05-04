@@ -1,4 +1,8 @@
-2016-05-03  Werner Lemberg  <wl@gnu.org>
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftinspect.cpp (MainGUI::loadFonts): Improve logic.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Make `previous face' and `next face' button logic work.
 
