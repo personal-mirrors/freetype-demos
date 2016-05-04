@@ -124,18 +124,24 @@ protected:
 private slots:
   void about();
   void checkAntiAliasing();
+  void checkCurrentFaceIndex();
   void checkCurrentFontFileIndex();
   void checkHintingMode();
   void checkShowPoints();
   void checkUnits();
   void closeFont();
   void loadFonts();
+  void nextFace();
   void nextFont();
+  void previousFace();
   void previousFont();
 
 private:
   QStringList fontFileNames;
   int currentFontFileIndex;
+
+  int numFaces;
+  int currentFaceIndex;
 
   QAction *aboutAct;
   QAction *aboutQtAct;

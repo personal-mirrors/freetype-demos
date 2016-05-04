@@ -291,6 +291,32 @@ MainGUI::checkCurrentFontFileIndex()
 
 
 void
+MainGUI::checkCurrentFaceIndex()
+{
+  if (numFaces < 2)
+  {
+    previousFaceButton->setEnabled(false);
+    nextFaceButton->setEnabled(false);
+  }
+  else if (currentFaceIndex == 0)
+  {
+    previousFaceButton->setEnabled(false);
+    nextFaceButton->setEnabled(true);
+  }
+  else if (currentFaceIndex == numFaces - 1)
+  {
+    previousFaceButton->setEnabled(true);
+    nextFaceButton->setEnabled(false);
+  }
+  else
+  {
+    previousFaceButton->setEnabled(true);
+    nextFaceButton->setEnabled(true);
+  }
+}
+
+
+void
 MainGUI::previousFont()
 {
   if (currentFontFileIndex > 0)
@@ -308,6 +334,28 @@ MainGUI::nextFont()
   {
     currentFontFileIndex++;
     checkCurrentFontFileIndex();
+  }
+}
+
+
+void
+MainGUI::previousFace()
+{
+  if (currentFaceIndex > 0)
+  {
+    currentFaceIndex--;
+    checkCurrentFaceIndex();
+  }
+}
+
+
+void
+MainGUI::nextFace()
+{
+  if (currentFaceIndex < numFaces - 1)
+  {
+    currentFaceIndex++;
+    checkCurrentFaceIndex();
   }
 }
 
@@ -601,6 +649,10 @@ MainGUI::createConnections()
           SLOT(previousFont()));
   connect(nextFontButton, SIGNAL(clicked()), this,
           SLOT(nextFont()));
+  connect(previousFaceButton, SIGNAL(clicked()), this,
+          SLOT(previousFace()));
+  connect(nextFaceButton, SIGNAL(clicked()), this,
+          SLOT(nextFace()));
 }
 
 
@@ -663,6 +715,9 @@ MainGUI::setDefaults()
 
   // XXX only dummy values right now
 
+  numFaces = 0;
+  currentFaceIndex = -1;
+
   hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);
   antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
@@ -679,6 +734,7 @@ MainGUI::setDefaults()
   checkShowPoints();
   checkUnits();
   checkCurrentFontFileIndex();
+  checkCurrentFaceIndex();
 }
 
 

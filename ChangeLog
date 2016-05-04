@@ -1,3 +1,20 @@
+2016-05-03  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Make `previous face' and `next face' button logic work.
+
+	It still does nothing, though.
+
+	* src/ftinspect.h (MainGUI): New slots `checkCurrentFaceIndex',
+	`previousFace, and `nextFace'.
+	New members `numFaces' and `currentFaceIndex'.
+
+	* src/ftinspect.cpp
+	(MainGUI::checkCurrentFaceIndex, MainGUI::previousFace,
+	MainGUI::nextFace): New methods.
+	(MainGUI::createConnections): Register connections for
+	`previousFaceButton' and `nextFaceButton'.
+	(MainGUI::setDefaults):	Updated.
+
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftinspect.cpp (MainGUI::checkCurrentFontFileIndex): Fix logic.
