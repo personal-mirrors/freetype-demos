@@ -1,5 +1,17 @@
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add buttons for instances.
+
+	* src/ftinspect.cpp (MainGUI::checkCurrentInstanceIndex,
+	MainGUI::previousInstance, MainGUI::nextInstance): New methods.
+	(MainGUI::createLayout): Updated.  We now use a grid layout for the
+	font buttons.
+	(MainGUI::createConnections, MainGUI::setDefaults): Updated.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Redesign font handling.
 
 	At this early stage, it's not always clear to me how to do things

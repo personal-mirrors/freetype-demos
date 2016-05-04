@@ -18,6 +18,7 @@
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QGraphicsView>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMainWindow>
@@ -143,6 +144,7 @@ private slots:
   void checkAntiAliasing();
   void checkCurrentFaceIndex();
   void checkCurrentFontIndex();
+  void checkCurrentInstanceIndex();
   void checkHintingMode();
   void checkShowPoints();
   void checkUnits();
@@ -150,8 +152,10 @@ private slots:
   void loadFonts();
   void nextFace();
   void nextFont();
+  void nextInstance();
   void previousFace();
   void previousFont();
+  void previousInstance();
 
 private:
   const Engine* engine;
@@ -186,8 +190,9 @@ private:
 
   QGraphicsView *glyphView;
 
+  QGridLayout *fontLayout;
+
   QHBoxLayout *antiAliasingLayout;
-  QHBoxLayout *fontLayout;
   QHBoxLayout *gammaLayout;
   QHBoxLayout *hintingModeLayout;
   QHBoxLayout *ftinspectLayout;
@@ -211,8 +216,10 @@ private:
 
   QPushButton *nextFaceButton;
   QPushButton *nextFontButton;
+  QPushButton *nextInstanceButton;
   QPushButton *previousFaceButton;
   QPushButton *previousFontButton;
+  QPushButton *previousInstanceButton;
   QPushButton *watchButton;
 
   QPushButtonx *toEndButtonx;

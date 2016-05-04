@@ -357,6 +357,45 @@ MainGUI::checkCurrentFaceIndex()
 
 
 void
+MainGUI::checkCurrentInstanceIndex()
+{
+  int numInstances;
+
+  if (currentFontIndex < 0)
+    numInstances = 0;
+  else
+  {
+    if (currentFaceIndex < 0)
+      numInstances = 0;
+    else
+      numInstances = fonts[currentFontIndex].
+                       numInstancesList[currentFaceIndex];
+  }
+
+  if (numInstances < 2)
+  {
+    previousInstanceButton->setEnabled(false);
+    nextInstanceButton->setEnabled(false);
+  }
+  else if (currentInstanceIndex == 0)
+  {
+    previousInstanceButton->setEnabled(false);
+    nextInstanceButton->setEnabled(true);
+  }
+  else if (currentInstanceIndex == numInstances - 1)
+  {
+    previousInstanceButton->setEnabled(true);
+    nextInstanceButton->setEnabled(false);
+  }
+  else
+  {
+    previousInstanceButton->setEnabled(true);
+    nextInstanceButton->setEnabled(true);
+  }
+}
+
+
+void
 MainGUI::previousFont()
 {
   if (currentFontIndex > 0)
@@ -393,10 +432,36 @@ void
 MainGUI::nextFace()
 {
   int numFaces = fonts[currentFontIndex].numInstancesList.size();
+
   if (currentFaceIndex < numFaces - 1)
   {
     currentFaceIndex++;
     checkCurrentFaceIndex();
+  }
+}
+
+
+void
+MainGUI::previousInstance()
+{
+  if (currentInstanceIndex > 0)
+  {
+    currentInstanceIndex--;
+    checkCurrentInstanceIndex();
+  }
+}
+
+
+void
+MainGUI::nextInstance()
+{
+  int numInstances = fonts[currentFontIndex].
+                       numInstancesList[currentFaceIndex];
+
+  if (currentInstanceIndex < numInstances - 1)
+  {
+    currentInstanceIndex++;
+    checkCurrentInstanceIndex();
   }
 }
 
@@ -608,6 +673,8 @@ MainGUI::createLayout()
   nextFontButton = new QPushButton(tr("Next Font"));
   previousFaceButton = new QPushButton(tr("Previous Face"));
   nextFaceButton = new QPushButton(tr("Next Face"));
+  previousInstanceButton = new QPushButton(tr("Previous Instance"));
+  nextInstanceButton = new QPushButton(tr("Next Instance"));
 
   navigationLayout = new QHBoxLayout;
   navigationLayout->setSpacing(0);
@@ -637,16 +704,17 @@ MainGUI::createLayout()
   sizeLayout->addWidget(zoomSpinBox);
   sizeLayout->addStretch(2);
 
-  fontLayout = new QHBoxLayout;
-  fontLayout->addStretch(2);
-  fontLayout->addWidget(previousFontButton);
-  fontLayout->addStretch(1);
-  fontLayout->addWidget(nextFontButton);
-  fontLayout->addStretch(1);
-  fontLayout->addWidget(previousFaceButton);
-  fontLayout->addStretch(1);
-  fontLayout->addWidget(nextFaceButton);
-  fontLayout->addStretch(2);
+  fontLayout = new QGridLayout;
+  fontLayout->setColumnStretch(0, 2);
+  fontLayout->addWidget(nextFontButton, 0, 1);
+  fontLayout->addWidget(previousFontButton, 1, 1);
+  fontLayout->setColumnStretch(2, 1);
+  fontLayout->addWidget(nextFaceButton, 0, 3);
+  fontLayout->addWidget(previousFaceButton, 1, 3);
+  fontLayout->setColumnStretch(4, 1);
+  fontLayout->addWidget(nextInstanceButton, 0, 5);
+  fontLayout->addWidget(previousInstanceButton, 1, 5);
+  fontLayout->setColumnStretch(6, 2);
 
   rightLayout = new QVBoxLayout;
   rightLayout->addWidget(glyphView);
@@ -694,6 +762,10 @@ MainGUI::createConnections()
           SLOT(previousFace()));
   connect(nextFaceButton, SIGNAL(clicked()), this,
           SLOT(nextFace()));
+  connect(previousInstanceButton, SIGNAL(clicked()), this,
+          SLOT(previousInstance()));
+  connect(nextInstanceButton, SIGNAL(clicked()), this,
+          SLOT(nextInstance()));
 }
 
 
@@ -776,6 +848,7 @@ MainGUI::setDefaults()
   checkUnits();
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
+  checkCurrentInstanceIndex();
 }
 
 
