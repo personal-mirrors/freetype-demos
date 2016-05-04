@@ -1,5 +1,15 @@
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Minor.
+
+	* src/ftinspect.h (Engine): Add destructor.
+	(MainGUI): Use point to `engine'.
+
+	* src/ftinspect.cpp (Engine::~Engine): Implement.
+	(MainGUI::update): Updated.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Better intertwine `Engine' and `MainGUI'.
 
 	* src/ftinspect.cpp (MainGUI::update): New method.

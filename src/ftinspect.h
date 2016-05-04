@@ -54,6 +54,7 @@ class Engine
 {
 public:
   Engine();
+  ~Engine();
 
   void update(const MainGUI&);
 
@@ -118,7 +119,7 @@ public:
   MainGUI();
   ~MainGUI();
 
-  void update(const Engine&);
+  void update(const Engine*);
 
   friend class Engine;
 
@@ -141,7 +142,7 @@ private slots:
   void previousFont();
 
 private:
-  Engine engine;
+  const Engine* engine;
 
   QStringList fontFileNames;
   int currentFontFileIndex;

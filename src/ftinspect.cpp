@@ -60,6 +60,13 @@ Engine::Engine()
 }
 
 
+Engine::~Engine()
+{
+  FTC_Manager_Done(cacheManager);
+  FT_Done_FreeType(library);
+}
+
+
 void
 Engine::update(const MainGUI& gui)
 {
@@ -116,7 +123,7 @@ MainGUI::~MainGUI()
 
 
 void
-MainGUI::update(const Engine& e)
+MainGUI::update(const Engine* e)
 {
   engine = e;
 }
@@ -831,7 +838,7 @@ main(int argc,
   MainGUI gui;
 
   engine.update(gui);
-  gui.update(engine);
+  gui.update(&engine);
 
   gui.show();
 
