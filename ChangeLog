@@ -1,5 +1,31 @@
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Redesign font handling.
+
+	At this early stage, it's not always clear to me how to do things
+	correctly, so here's another try.
+
+	* src/ftinspect.h (Font): Redesigned, using a list of 
+	instance numbers.
+	(FaceID): New structure, for communication with the face requester.
+	(Engine): We need the `MainGUI' structure for initializing the face
+	requester.
+	(MainGUI): Make `faceRequester' a friend.
+	Replace string list `fontFileNames' with `fonts', which is a list of
+	`Font' elements.
+	Add `currentInstanceIndex'.
+
+	* src/ftinspect.cpp (faceRequester): Replace dummy code with
+	something more serious.
+	(Engine::Engine, Engine::update): Updated.
+	(MainGUI::loadFonts, MainGUI::closeFont,
+	MainGUI::checkCurrentFontIndex, MainGUI::checkCurrentFaceIndex,
+	MainGUI::nextFont, MainGUI::nextFace):
+	Updated to use new `fonts' member.
+	(MainGUI::setDefaults, main): Updated.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Minor.
 
 	* src/ftinspect.h, src/ftinspect.cpp:

@@ -43,20 +43,28 @@ class MainGUI;
 
 struct Font
 {
-  const char* filePathname;
+  QString filePathname;
+  // the number of instances per face;
+  // the size of the list gives the number of faces
+  QList<int> numInstancesList;
+};
+
+
+struct FaceID
+{
+  int fontIndex;
   int faceIndex;
-  int numIndices;
-  size_t fileSize;
+  int instanceIndex;
 };
 
 
 class Engine
 {
 public:
-  Engine();
+  Engine(MainGUI&);
   ~Engine();
 
-  void update(const MainGUI&);
+  void update(MainGUI&);
 
   friend class MainGUI;
 
@@ -122,6 +130,10 @@ public:
   void update(const Engine*);
 
   friend class Engine;
+  friend FT_Error faceRequester(FTC_FaceID,
+                                FT_Library,
+                                FT_Pointer,
+                                FT_Face*);
 
 protected:
   void closeEvent(QCloseEvent*);
@@ -144,11 +156,10 @@ private slots:
 private:
   const Engine* engine;
 
-  QStringList fontFileNames;
+  QList<Font> fonts;
   int currentFontIndex;
-
-  int numFaces;
   int currentFaceIndex;
+  int currentInstanceIndex;
 
   QAction *aboutAct;
   QAction *aboutQtAct;

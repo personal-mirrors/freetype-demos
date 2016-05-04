@@ -14,22 +14,29 @@
 //
 // Here, the face IDs are simply pointers to `Font' objects.
 
-static FT_Error
+FT_Error
 faceRequester(FTC_FaceID faceID,
               FT_Library library,
-              FT_Pointer /* requestData */,
+              FT_Pointer requestData,
               FT_Face* faceP)
 {
-  Font* font = static_cast<Font*>(faceID);
+  MainGUI* gui = static_cast<MainGUI*>(requestData);
+  FaceID* id = static_cast<FaceID*>(faceID);
+
+  Font font = gui->fonts[id->fontIndex];
+  int faceIndex = id->faceIndex;
+
+  if (id->instanceIndex >= 0)
+    faceIndex += id->instanceIndex << 16;
 
   return FT_New_Face(library,
-                     font->filePathname,
-                     font->faceIndex,
+                     qPrintable(font.filePathname),
+                     faceIndex,
                      faceP);
 }
 
 
-Engine::Engine()
+Engine::Engine(MainGUI& gui)
 {
   FT_Error error;
 
@@ -40,7 +47,7 @@ Engine::Engine()
   }
 
   error = FTC_Manager_New(library, 0, 0, 0,
-                          faceRequester, 0, &cacheManager);
+                          faceRequester, &gui, &cacheManager);
   if (error)
   {
     // XXX error handling
@@ -57,6 +64,8 @@ Engine::Engine()
   {
     // XXX error handling
   }
+
+  update(gui);
 }
 
 
@@ -68,7 +77,7 @@ Engine::~Engine()
 
 
 void
-Engine::update(const MainGUI& gui)
+Engine::update(MainGUI& gui)
 {
   dpi = gui.dpiSpinBox->value();
   zoom = gui.zoomSpinBox->value();
@@ -166,7 +175,7 @@ MainGUI::about()
 void
 MainGUI::loadFonts()
 {
-  int oldSize = fontFileNames.size();
+  int oldSize = fonts.size();
 
   QStringList files = QFileDialog::getOpenFileNames(
                         this,
@@ -175,11 +184,17 @@ MainGUI::loadFonts()
                         "",
                         NULL,
                         QFileDialog::ReadOnly);
-  fontFileNames += files;
+
+  for (int i = 0; i < files.size(); i++)
+  {
+    Font font;
+    font.filePathname = files[i];
+    fonts.append(font);
+  }
 
   // if we have new fonts, set the current index to the first new one
-  if (!fontFileNames.isEmpty()
-      && oldSize < fontFileNames.size())
+  if (!fonts.isEmpty()
+      && oldSize < fonts.size())
     currentFontIndex = oldSize;
 
   checkCurrentFontIndex();
@@ -192,8 +207,8 @@ void
 MainGUI::closeFont()
 {
   if (currentFontIndex >= 0)
-    fontFileNames.removeAt(currentFontIndex);
-  if (currentFontIndex >= fontFileNames.size())
+    fonts.removeAt(currentFontIndex);
+  if (currentFontIndex >= fonts.size())
     currentFontIndex--;
 
   checkCurrentFontIndex();
@@ -285,7 +300,7 @@ MainGUI::checkUnits()
 void
 MainGUI::checkCurrentFontIndex()
 {
-  if (fontFileNames.size() < 2)
+  if (fonts.size() < 2)
   {
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(false);
@@ -295,7 +310,7 @@ MainGUI::checkCurrentFontIndex()
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(true);
   }
-  else if (currentFontIndex == fontFileNames.size() - 1)
+  else if (currentFontIndex == fonts.size() - 1)
   {
     previousFontButton->setEnabled(true);
     nextFontButton->setEnabled(false);
@@ -311,6 +326,13 @@ MainGUI::checkCurrentFontIndex()
 void
 MainGUI::checkCurrentFaceIndex()
 {
+  int numFaces;
+
+  if (currentFontIndex < 0)
+    numFaces = 0;
+  else
+    numFaces = fonts[currentFontIndex].numInstancesList.size();
+
   if (numFaces < 2)
   {
     previousFaceButton->setEnabled(false);
@@ -348,7 +370,7 @@ MainGUI::previousFont()
 void
 MainGUI::nextFont()
 {
-  if (currentFontIndex < fontFileNames.size() - 1)
+  if (currentFontIndex < fonts.size() - 1)
   {
     currentFontIndex++;
     checkCurrentFontIndex();
@@ -370,6 +392,7 @@ MainGUI::previousFace()
 void
 MainGUI::nextFace()
 {
+  int numFaces = fonts[currentFontIndex].numInstancesList.size();
   if (currentFaceIndex < numFaces - 1)
   {
     currentFaceIndex++;
@@ -733,8 +756,8 @@ MainGUI::setDefaults()
 
   // XXX only dummy values right now
 
-  numFaces = 0;
   currentFaceIndex = -1;
+  currentInstanceIndex = -1;
 
   hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);
   antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
@@ -834,10 +857,9 @@ main(int argc,
   app.setOrganizationName("FreeType");
   app.setOrganizationDomain("freetype.org");
 
-  Engine engine;
   MainGUI gui;
+  Engine engine(gui);
 
-  engine.update(gui);
   gui.update(&engine);
 
   gui.show();
