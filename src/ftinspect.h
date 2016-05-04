@@ -95,6 +95,18 @@ public:
 };
 
 
+// we want buttons that are horizontally as small as possible
+class QPushButtonx
+: public QPushButton
+{
+  Q_OBJECT
+
+public:
+  QPushButtonx(const QString&, QWidget* = 0);
+  virtual ~QPushButtonx(){}
+};
+
+
 class MainGUI
 : public QMainWindow
 {
@@ -174,17 +186,18 @@ private:
 
   QPushButton *nextFontButton;
   QPushButton *previousFontButton;
-  QPushButton *toEndButton;
-  QPushButton *toM1000Button;
-  QPushButton *toM100Button;
-  QPushButton *toM10Button;
-  QPushButton *toM1Button;
-  QPushButton *toP1000Button;
-  QPushButton *toP100Button;
-  QPushButton *toP10Button;
-  QPushButton *toP1Button;
-  QPushButton *toStartButton;
   QPushButton *watchButton;
+
+  QPushButtonx *toEndButtonx;
+  QPushButtonx *toM1000Buttonx;
+  QPushButtonx *toM100Buttonx;
+  QPushButtonx *toM10Buttonx;
+  QPushButtonx *toM1Buttonx;
+  QPushButtonx *toP1000Buttonx;
+  QPushButtonx *toP100Buttonx;
+  QPushButtonx *toP10Buttonx;
+  QPushButtonx *toP1Buttonx;
+  QPushButtonx *toStartButtonx;
 
   QSlider *gammaSlider;
 

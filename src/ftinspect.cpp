@@ -494,26 +494,16 @@ MainGUI::createLayout()
   dpiSpinBox->setValue(96); // XXX default
   dpiLabel->setBuddy(dpiSpinBox);
 
-  toStartButton = new QPushButton("|<");
-  toStartButton->setFixedWidth(40);
-  toM1000Button = new QPushButton("-1000");
-  toM1000Button->setFixedWidth(65);
-  toM100Button = new QPushButton("-100");
-  toM100Button->setFixedWidth(55);
-  toM10Button = new QPushButton("-10");
-  toM10Button->setFixedWidth(50);
-  toM1Button = new QPushButton("-1");
-  toM1Button->setFixedWidth(50);
-  toP1Button = new QPushButton("+1");
-  toP1Button->setFixedWidth(50);
-  toP10Button = new QPushButton("+10");
-  toP10Button->setFixedWidth(50);
-  toP100Button = new QPushButton("+100");
-  toP100Button->setFixedWidth(55);
-  toP1000Button = new QPushButton("+1000");
-  toP1000Button->setFixedWidth(65);
-  toEndButton = new QPushButton(">|");
-  toEndButton->setFixedWidth(40);
+  toStartButtonx = new QPushButtonx("|<");
+  toM1000Buttonx = new QPushButtonx("-1000");
+  toM100Buttonx = new QPushButtonx("-100");
+  toM10Buttonx = new QPushButtonx("-10");
+  toM1Buttonx = new QPushButtonx("-1");
+  toP1Buttonx = new QPushButtonx("+1");
+  toP10Buttonx = new QPushButtonx("+10");
+  toP100Buttonx = new QPushButtonx("+100");
+  toP1000Buttonx = new QPushButtonx("+1000");
+  toEndButtonx = new QPushButtonx(">|");
 
   zoomLabel = new QLabel(tr("Zoom "));
   zoomLabel->setAlignment(Qt::AlignRight);
@@ -531,16 +521,16 @@ MainGUI::createLayout()
   navigationLayout = new QHBoxLayout;
   navigationLayout->setSpacing(0);
   navigationLayout->addStretch(1);
-  navigationLayout->addWidget(toStartButton);
-  navigationLayout->addWidget(toM1000Button);
-  navigationLayout->addWidget(toM100Button);
-  navigationLayout->addWidget(toM10Button);
-  navigationLayout->addWidget(toM1Button);
-  navigationLayout->addWidget(toP1Button);
-  navigationLayout->addWidget(toP10Button);
-  navigationLayout->addWidget(toP100Button);
-  navigationLayout->addWidget(toP1000Button);
-  navigationLayout->addWidget(toEndButton);
+  navigationLayout->addWidget(toStartButtonx);
+  navigationLayout->addWidget(toM1000Buttonx);
+  navigationLayout->addWidget(toM100Buttonx);
+  navigationLayout->addWidget(toM10Buttonx);
+  navigationLayout->addWidget(toM1Buttonx);
+  navigationLayout->addWidget(toP1Buttonx);
+  navigationLayout->addWidget(toP10Buttonx);
+  navigationLayout->addWidget(toP100Buttonx);
+  navigationLayout->addWidget(toP1000Buttonx);
+  navigationLayout->addWidget(toEndButtonx);
   navigationLayout->addStretch(1);
 
   fontSizeLayout = new QHBoxLayout;
@@ -724,6 +714,28 @@ QComboBoxx::setItemEnabled(int index,
     item->setData(palette().color(QPalette::Disabled, QPalette::Text),
                   Qt::TextColorRole);
   }
+}
+
+
+// code derived from Qt 4.8.7, function `QPushButton::sizeHint',
+// file `src/gui/widgets/qpushbutton.cpp'
+
+QPushButtonx::QPushButtonx(const QString &text,
+                           QWidget *parent)
+: QPushButton(text, parent)
+{
+  QStyleOptionButton opt;
+  opt.initFrom(this);
+  QString s(this->text());
+  QFontMetrics fm = fontMetrics();
+  QSize sz = fm.size(Qt::TextShowMnemonic, s);
+  opt.rect.setSize(sz);
+
+  sz = style()->sizeFromContents(QStyle::CT_PushButton,
+                                 &opt,
+                                 sz,
+                                 this);
+  setFixedWidth(sz.width());
 }
 
 

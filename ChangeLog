@@ -1,3 +1,15 @@
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Don't use size in pixels for navigation buttons.
+
+	Instead, derive the width from the displayed text.
+
+	* src/ftinspect.h (QPushButtonx): New class, derived from
+	`QPushButton'.
+
+	* src/ftinspect.cpp (QPushButtonx::QPushButtonx): New constructor.
+	(MainGUI::createLayout): Use `QPushButtonx' for navigation buttons.
+
 2016-05-03  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Make `previous font' and `next font' button logic work.
