@@ -180,9 +180,9 @@ MainGUI::loadFonts()
   // if we have new fonts, set the current index to the first new one
   if (!fontFileNames.isEmpty()
       && oldSize < fontFileNames.size())
-    currentFontFileIndex = oldSize;
+    currentFontIndex = oldSize;
 
-  checkCurrentFontFileIndex();
+  checkCurrentFontIndex();
 
   // XXX trigger redisplay
 }
@@ -191,12 +191,12 @@ MainGUI::loadFonts()
 void
 MainGUI::closeFont()
 {
-  if (currentFontFileIndex >= 0)
-    fontFileNames.removeAt(currentFontFileIndex);
-  if (currentFontFileIndex >= fontFileNames.size())
-    currentFontFileIndex--;
+  if (currentFontIndex >= 0)
+    fontFileNames.removeAt(currentFontIndex);
+  if (currentFontIndex >= fontFileNames.size())
+    currentFontIndex--;
 
-  checkCurrentFontFileIndex();
+  checkCurrentFontIndex();
 
   // XXX trigger redisplay
 }
@@ -283,19 +283,19 @@ MainGUI::checkUnits()
 
 
 void
-MainGUI::checkCurrentFontFileIndex()
+MainGUI::checkCurrentFontIndex()
 {
   if (fontFileNames.size() < 2)
   {
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(false);
   }
-  else if (currentFontFileIndex == 0)
+  else if (currentFontIndex == 0)
   {
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(true);
   }
-  else if (currentFontFileIndex == fontFileNames.size() - 1)
+  else if (currentFontIndex == fontFileNames.size() - 1)
   {
     previousFontButton->setEnabled(true);
     nextFontButton->setEnabled(false);
@@ -337,10 +337,10 @@ MainGUI::checkCurrentFaceIndex()
 void
 MainGUI::previousFont()
 {
-  if (currentFontFileIndex > 0)
+  if (currentFontIndex > 0)
   {
-    currentFontFileIndex--;
-    checkCurrentFontFileIndex();
+    currentFontIndex--;
+    checkCurrentFontIndex();
   }
 }
 
@@ -348,10 +348,10 @@ MainGUI::previousFont()
 void
 MainGUI::nextFont()
 {
-  if (currentFontFileIndex < fontFileNames.size() - 1)
+  if (currentFontIndex < fontFileNames.size() - 1)
   {
-    currentFontFileIndex++;
-    checkCurrentFontFileIndex();
+    currentFontIndex++;
+    checkCurrentFontIndex();
   }
 }
 
@@ -729,7 +729,7 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
-  currentFontFileIndex = -1;
+  currentFontIndex = -1;
 
   // XXX only dummy values right now
 
@@ -751,7 +751,7 @@ MainGUI::setDefaults()
   checkAntiAliasing();
   checkShowPoints();
   checkUnits();
-  checkCurrentFontFileIndex();
+  checkCurrentFontIndex();
   checkCurrentFaceIndex();
 }
 

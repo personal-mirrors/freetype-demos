@@ -130,7 +130,7 @@ private slots:
   void about();
   void checkAntiAliasing();
   void checkCurrentFaceIndex();
-  void checkCurrentFontFileIndex();
+  void checkCurrentFontIndex();
   void checkHintingMode();
   void checkShowPoints();
   void checkUnits();
@@ -145,7 +145,7 @@ private:
   const Engine* engine;
 
   QStringList fontFileNames;
-  int currentFontFileIndex;
+  int currentFontIndex;
 
   int numFaces;
   int currentFaceIndex;

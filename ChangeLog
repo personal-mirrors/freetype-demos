@@ -2,6 +2,14 @@
 
 	[ftinspect] Minor.
 
+	* src/ftinspect.h, src/ftinspect.cpp:
+	s/checkCurrentFontFileIndex/checkCurrentFontIndex/,
+	s/currentFontFileIndex/currentFontIndex/.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Minor.
+
 	* src/ftinspect.h (Engine): Add destructor.
 	(MainGUI): Use point to `engine'.
 
