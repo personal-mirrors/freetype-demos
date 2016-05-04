@@ -267,7 +267,7 @@ MainGUI::checkUnits()
 void
 MainGUI::checkCurrentFontFileIndex()
 {
-  if (currentFontFileIndex == -1)
+  if (fontFileNames.size() < 2)
   {
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(false);

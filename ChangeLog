@@ -1,5 +1,9 @@
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftinspect.cpp (MainGUI::checkCurrentFontFileIndex): Fix logic.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Add buttons for faces.
 
 	* src/ftinspect.cpp (MainGUI::createLayout): New buttons for
