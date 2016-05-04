@@ -1,5 +1,17 @@
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add buttons for faces.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): New buttons for
+	`previous face' and `next face'; they are put into a separate row
+	(`fontLayout') together with the buttons for `previous font' and
+	`next font'.
+	s/fontSizeLayout/sizeLayout/.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-04  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Don't use size in pixels for navigation buttons.
 
 	Instead, derive the width from the displayed text.

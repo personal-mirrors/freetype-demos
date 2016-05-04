@@ -163,12 +163,13 @@ private:
   QGraphicsView *glyphView;
 
   QHBoxLayout *antiAliasingLayout;
-  QHBoxLayout *fontSizeLayout;
+  QHBoxLayout *fontLayout;
   QHBoxLayout *gammaLayout;
   QHBoxLayout *hintingModeLayout;
   QHBoxLayout *ftinspectLayout;
   QHBoxLayout *lcdFilterLayout;
   QHBoxLayout *navigationLayout;
+  QHBoxLayout *sizeLayout;
   QHBoxLayout *watchLayout;
 
   QLabel *antiAliasingLabel;
@@ -184,7 +185,9 @@ private:
   QMenu *menuFile;
   QMenu *menuHelp;
 
+  QPushButton *nextFaceButton;
   QPushButton *nextFontButton;
+  QPushButton *previousFaceButton;
   QPushButton *previousFontButton;
   QPushButton *watchButton;
 

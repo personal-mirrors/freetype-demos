@@ -517,6 +517,8 @@ MainGUI::createLayout()
 
   previousFontButton = new QPushButton(tr("Previous Font"));
   nextFontButton = new QPushButton(tr("Next Font"));
+  previousFaceButton = new QPushButton(tr("Previous Face"));
+  nextFaceButton = new QPushButton(tr("Next Face"));
 
   navigationLayout = new QHBoxLayout;
   navigationLayout->setSpacing(0);
@@ -533,28 +535,37 @@ MainGUI::createLayout()
   navigationLayout->addWidget(toEndButtonx);
   navigationLayout->addStretch(1);
 
-  fontSizeLayout = new QHBoxLayout;
-  fontSizeLayout->addWidget(sizeLabel);
-  fontSizeLayout->addWidget(sizeDoubleSpinBox);
-  fontSizeLayout->addWidget(unitsComboBox);
-  fontSizeLayout->addSpacing(10); // XXX px
-  fontSizeLayout->addWidget(dpiLabel);
-  fontSizeLayout->addWidget(dpiSpinBox);
-  fontSizeLayout->addSpacing(10); // XXX px
-  fontSizeLayout->addStretch(1);
-  fontSizeLayout->addWidget(previousFontButton);
-  fontSizeLayout->addStretch(1);
-  fontSizeLayout->addWidget(nextFontButton);
-  fontSizeLayout->addStretch(1);
-  fontSizeLayout->addSpacing(10); // XXX px
-  fontSizeLayout->addWidget(zoomLabel);
-  fontSizeLayout->addWidget(zoomSpinBox);
+  sizeLayout = new QHBoxLayout;
+  sizeLayout->addStretch(2);
+  sizeLayout->addWidget(sizeLabel);
+  sizeLayout->addWidget(sizeDoubleSpinBox);
+  sizeLayout->addWidget(unitsComboBox);
+  sizeLayout->addStretch(1);
+  sizeLayout->addWidget(dpiLabel);
+  sizeLayout->addWidget(dpiSpinBox);
+  sizeLayout->addStretch(1);
+  sizeLayout->addWidget(zoomLabel);
+  sizeLayout->addWidget(zoomSpinBox);
+  sizeLayout->addStretch(2);
+
+  fontLayout = new QHBoxLayout;
+  fontLayout->addStretch(2);
+  fontLayout->addWidget(previousFontButton);
+  fontLayout->addStretch(1);
+  fontLayout->addWidget(nextFontButton);
+  fontLayout->addStretch(1);
+  fontLayout->addWidget(previousFaceButton);
+  fontLayout->addStretch(1);
+  fontLayout->addWidget(nextFaceButton);
+  fontLayout->addStretch(2);
 
   rightLayout = new QVBoxLayout;
   rightLayout->addWidget(glyphView);
   rightLayout->addLayout(navigationLayout);
   rightLayout->addSpacing(10); // XXX px
-  rightLayout->addLayout(fontSizeLayout);
+  rightLayout->addLayout(sizeLayout);
+  rightLayout->addSpacing(10); // XXX px
+  rightLayout->addLayout(fontLayout);
 
   // for symmetry with the left side use a widget also
   rightWidget = new QWidget;
