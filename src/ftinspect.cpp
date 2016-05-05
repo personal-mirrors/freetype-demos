@@ -67,6 +67,121 @@ Engine::Engine(MainGUI* g)
     // XXX error handling
   }
 
+  // query engines and check for alternatives
+
+  // CFF
+  error = FT_Property_Get(library,
+                          "cff",
+                          "hinting-engine",
+                          &cffHintingEngineDefault);
+  if (error)
+  {
+    // no CFF engine
+    cffHintingEngineDefault = -1;
+    cffHintingEngineOther = -1;
+  }
+  else
+  {
+    int engines[2] =
+    {
+      FT_CFF_HINTING_FREETYPE,
+      FT_CFF_HINTING_ADOBE
+    };
+
+    int i;
+    for (i = 0; i < 2; i++)
+      if (cffHintingEngineDefault == engines[i])
+        break;
+
+    cffHintingEngineOther = engines[(i + 1) % 2];
+
+    error = FT_Property_Set(library,
+                            "cff",
+                            "hinting-engine",
+                            &cffHintingEngineOther);
+    if (error)
+      cffHintingEngineOther = -1;
+
+    // reset
+    FT_Property_Set(library,
+                    "cff",
+                    "hinting-engine",
+                    &cffHintingEngineDefault);
+  }
+
+  // TrueType
+  error = FT_Property_Get(library,
+                          "truetype",
+                          "interpreter-version",
+                          &ttInterpreterVersionDefault);
+  if (error)
+  {
+    // no TrueType engine
+    ttInterpreterVersionDefault = -1;
+    ttInterpreterVersionOther = -1;
+    ttInterpreterVersionOther1 = -1;
+  }
+  else
+  {
+    int interpreters[3] =
+    {
+      TT_INTERPRETER_VERSION_35,
+      TT_INTERPRETER_VERSION_38,
+      40, // TT_INTERPRETER_VERSION_40, not yet implemented
+    };
+
+    int i;
+    for (i = 0; i < 3; i++)
+      if (ttInterpreterVersionDefault == interpreters[i])
+        break;
+
+    ttInterpreterVersionOther = interpreters[(i + 1) % 3];
+
+    error = FT_Property_Set(library,
+                            "truetype",
+                            "interpreter-version",
+                            &ttInterpreterVersionOther);
+    if (error)
+      ttInterpreterVersionOther = -1;
+
+    ttInterpreterVersionOther1 = interpreters[(i + 2) % 3];
+
+    error = FT_Property_Set(library,
+                            "truetype",
+                            "interpreter-version",
+                            &ttInterpreterVersionOther1);
+    if (error)
+      ttInterpreterVersionOther1 = -1;
+
+    // reset
+    FT_Property_Set(library,
+                    "truetype",
+                    "interpreter-version",
+                    &ttInterpreterVersionDefault);
+  }
+
+  // auto-hinter
+  error = FT_Property_Get(library,
+                          "autofitter",
+                          "warping",
+                          &doWarping);
+  if (error)
+  {
+    // no warping
+    haveWarping = 0;
+    doWarping = 0;
+  }
+  else
+  {
+    haveWarping = 1;
+    doWarping = 0; // we don't do warping by default
+
+    FT_Property_Set(library,
+                    "autofitter",
+                    "warping",
+                    &doWarping);
+  }
+
   update();
 }
 

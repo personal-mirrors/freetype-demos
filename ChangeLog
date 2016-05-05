@@ -1,5 +1,15 @@
 2016-05-05  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Handle engine properties.
+
+	* src/ftinspect.cpp (Engine::Engine): Handle CFF's `hinting-engine',
+	TrueType's `interpreter-version', and the auto-hinter's `warping'
+	properties.
+
+	* src/ftinspect.h (Engine): Updated.
+
+2016-05-05  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Start implementation of `showFont'.
 
 	* src/ftinspect.cpp (MainGUI::loadFonts): Call `showFont'.

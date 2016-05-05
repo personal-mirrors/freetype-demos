@@ -6,6 +6,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_CACHE_H
+#include FT_CFF_DRIVER_H
+#include FT_MODULE_H
+#include FT_TRUETYPE_DRIVER_H
 
 #include <QAction>
 #include <QApplication>
@@ -78,6 +81,15 @@ private:
   FTC_Manager cacheManager;
   FTC_ImageCache imageCache;
   FTC_SBitCache sbitsCache;
+
+  int cffHintingEngineDefault;
+  int cffHintingEngineOther;
+
+  int ttInterpreterVersionDefault;
+  int ttInterpreterVersionOther;
+  int ttInterpreterVersionOther1;
+
+  int haveWarping;
 
   double pointSize;
   double pixelSize;
