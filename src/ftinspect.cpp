@@ -78,6 +78,78 @@ Engine::~Engine()
 }
 
 
+int
+Engine::numFaces(int fontIndex)
+{
+  if (fontIndex >= gui->fonts.size())
+    return -1;
+
+  Font& font = gui->fonts[fontIndex];
+
+  // value already available?
+  if (!font.numInstancesList.isEmpty())
+    return font.numInstancesList.size();
+
+  FT_Error error;
+  FT_Face face;
+
+  error = FT_New_Face(library,
+                      qPrintable(font.filePathname),
+                      -1,
+                      &face);
+  if (error)
+  {
+    // XXX error handling
+    return -1;
+  }
+
+  int result = face->num_faces;
+
+  FT_Done_Face(face);
+
+  return result;
+}
+
+
+int
+Engine::numInstances(int fontIndex,
+                     int faceIndex)
+{
+  if (fontIndex >= gui->fonts.size())
+    return -1;
+
+  Font& font = gui->fonts[fontIndex];
+
+  if (faceIndex >= font.numInstancesList.size())
+    return -1;
+
+  // value already available?
+  if (font.numInstancesList[faceIndex] >= 0)
+    return font.numInstancesList[faceIndex];
+
+  FT_Error error;
+  FT_Face face;
+
+  error = FT_New_Face(library,
+                      qPrintable(font.filePathname),
+                      -(faceIndex + 1),
+                      &face);
+  if (error)
+  {
+    // XXX error handling
+    return -1;
+  }
+
+  // we return `n' instances plus one,
+  // the latter representing a face without an instance selected
+  int result = (face->style_flags >> 16) + 1;
+
+  FT_Done_Face(face);
+
+  return result;
+}
+
+
 void
 Engine::update()
 {

@@ -66,6 +66,8 @@ public:
   ~Engine();
 
   void update();
+  int numFaces(int);
+  int numInstances(int, int);
 
   friend class MainGUI;
 

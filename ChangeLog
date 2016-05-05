@@ -1,5 +1,14 @@
 2016-05-05  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add methods to get number of faces and instances.
+
+	* src/ftinspect.cpp (Engine::numFaces, Engine::numInstances): New
+	methods.
+
+	* src/ftinspect.h (Engine): Updated.
+
+2016-05-05  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Minor.
 
 	* src/ftinspect.cpp (faceRequester): Use reference.
