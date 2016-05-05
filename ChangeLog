@@ -1,3 +1,17 @@
+2016-05-05  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Make `MainGUI' and `Engine' classes more symmetric.
+
+	Also avoid `const' issues.
+
+	* src/ftinspect.h (Engine): Add `gui' field.
+	Updated.
+	(MainGUI): Don't use `const' for `engine'.
+	Updated.
+
+	* src/ftinspect.cpp (Engine::Engine, Engine::update): Updated.
+	(MainGUI::update, main): Updated.
+
 2016-05-04  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Add buttons for instances.

@@ -62,14 +62,16 @@ struct FaceID
 class Engine
 {
 public:
-  Engine(MainGUI&);
+  Engine(MainGUI*);
   ~Engine();
 
-  void update(MainGUI&);
+  void update();
 
   friend class MainGUI;
 
 private:
+  MainGUI* gui;
+
   FT_Library library;
   FTC_Manager cacheManager;
   FTC_ImageCache imageCache;
@@ -128,7 +130,7 @@ public:
   MainGUI();
   ~MainGUI();
 
-  void update(const Engine*);
+  void update(Engine*);
 
   friend class Engine;
   friend FT_Error faceRequester(FTC_FaceID,
@@ -158,7 +160,7 @@ private slots:
   void previousInstance();
 
 private:
-  const Engine* engine;
+  Engine* engine;
 
   QList<Font> fonts;
   int currentFontIndex;

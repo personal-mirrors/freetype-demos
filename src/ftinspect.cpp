@@ -36,8 +36,10 @@ faceRequester(FTC_FaceID faceID,
 }
 
 
-Engine::Engine(MainGUI& gui)
+Engine::Engine(MainGUI* g)
 {
+  gui = g;
+
   FT_Error error;
 
   error = FT_Init_FreeType(&library);
@@ -47,7 +49,7 @@ Engine::Engine(MainGUI& gui)
   }
 
   error = FTC_Manager_New(library, 0, 0, 0,
-                          faceRequester, &gui, &cacheManager);
+                          faceRequester, gui, &cacheManager);
   if (error)
   {
     // XXX error handling
@@ -65,7 +67,7 @@ Engine::Engine(MainGUI& gui)
     // XXX error handling
   }
 
-  update(gui);
+  update();
 }
 
 
@@ -77,37 +79,37 @@ Engine::~Engine()
 
 
 void
-Engine::update(MainGUI& gui)
+Engine::update()
 {
-  dpi = gui.dpiSpinBox->value();
-  zoom = gui.zoomSpinBox->value();
+  dpi = gui->dpiSpinBox->value();
+  zoom = gui->zoomSpinBox->value();
 
-  if (gui.unitsComboBox->currentIndex() == MainGUI::Units_px)
+  if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
   {
-    pointSize = gui.sizeDoubleSpinBox->value();
+    pointSize = gui->sizeDoubleSpinBox->value();
     pixelSize = pointSize * dpi / 72.0;
   }
   else
   {
-    pixelSize = gui.sizeDoubleSpinBox->value();
+    pixelSize = gui->sizeDoubleSpinBox->value();
     pointSize = pixelSize * 72.0 / dpi;
   }
 
-  doHorizontalHinting = gui.horizontalHintingCheckBox->isChecked();
-  doVerticalHinting = gui.verticalHintingCheckBox->isChecked();
-  doBlueZoneHinting = gui.blueZoneHintingCheckBox->isChecked();
-  showSegments = gui.segmentDrawingCheckBox->isChecked();
-  doWarping = gui.warpingCheckBox->isChecked();
+  doHorizontalHinting = gui->horizontalHintingCheckBox->isChecked();
+  doVerticalHinting = gui->verticalHintingCheckBox->isChecked();
+  doBlueZoneHinting = gui->blueZoneHintingCheckBox->isChecked();
+  showSegments = gui->segmentDrawingCheckBox->isChecked();
+  doWarping = gui->warpingCheckBox->isChecked();
 
-  showBitmap = gui.showBitmapCheckBox->isChecked();
-  showPoints = gui.showPointsCheckBox->isChecked();
+  showBitmap = gui->showBitmapCheckBox->isChecked();
+  showPoints = gui->showPointsCheckBox->isChecked();
   if (showPoints)
-    showPointIndices = gui.showPointIndicesCheckBox->isChecked();
+    showPointIndices = gui->showPointIndicesCheckBox->isChecked();
   else
     showPointIndices = false;
-  showOutlines = gui.showOutlinesCheckBox->isChecked();
+  showOutlines = gui->showOutlinesCheckBox->isChecked();
 
-  gamma = gui.gammaSlider->value();
+  gamma = gui->gammaSlider->value();
 }
 
 
@@ -132,7 +134,7 @@ MainGUI::~MainGUI()
 
 
 void
-MainGUI::update(const Engine* e)
+MainGUI::update(Engine* e)
 {
   engine = e;
 }
@@ -368,8 +370,8 @@ MainGUI::checkCurrentInstanceIndex()
     if (currentFaceIndex < 0)
       numInstances = 0;
     else
-      numInstances = fonts[currentFontIndex].
-                       numInstancesList[currentFaceIndex];
+      numInstances = fonts[currentFontIndex]
+                       .numInstancesList[currentFaceIndex];
   }
 
   if (numInstances < 2)
@@ -455,8 +457,8 @@ MainGUI::previousInstance()
 void
 MainGUI::nextInstance()
 {
-  int numInstances = fonts[currentFontIndex].
-                       numInstancesList[currentFaceIndex];
+  int numInstances = fonts[currentFontIndex]
+                       .numInstancesList[currentFaceIndex];
 
   if (currentInstanceIndex < numInstances - 1)
   {
@@ -931,7 +933,7 @@ main(int argc,
   app.setOrganizationDomain("freetype.org");
 
   MainGUI gui;
-  Engine engine(gui);
+  Engine engine(&gui);
 
   gui.update(&engine);
 
