@@ -1,5 +1,19 @@
 2016-05-05  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Start implementation of `showFont'.
+
+	* src/ftinspect.cpp (MainGUI::loadFonts): Call `showFont'.
+	(MainGUI:closeFont): Fix logic and call `showFont'.
+	(MainGUI::showFont): New method.  Doesn't display something yet, but
+	font navigation buttons are fully functional now.
+	(MainGUI::previousFont, MainGUI::nextFont, MainGUI::previousFace,
+	MainGUI::nextFace, MainGUI::previousInstance,
+	MainGUI::nextInstance): Call `showFont'.
+
+	* src/ftinspect.h (MainGUI): Updated.
+
+2016-05-05  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Add methods to get number of faces and instances.
 
 	* src/ftinspect.cpp (Engine::numFaces, Engine::numInstances): New

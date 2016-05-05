@@ -294,6 +294,7 @@ private:
   void createStatusBar();
   void readSettings();
   void setDefaults();
+  void showFont();
   void writeSettings();
 };
 
