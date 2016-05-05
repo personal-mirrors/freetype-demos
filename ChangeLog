@@ -1,5 +1,12 @@
 2016-05-05  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Minor.
+
+	* src/ftinspect.cpp (faceRequester): Use reference.
+	(MainGUI::loadFonts): Simplify.
+
+2016-05-05  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Make `MainGUI' and `Engine' classes more symmetric.
 
 	Also avoid `const' issues.

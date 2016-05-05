@@ -23,7 +23,7 @@ faceRequester(FTC_FaceID faceID,
   MainGUI* gui = static_cast<MainGUI*>(requestData);
   FaceID* id = static_cast<FaceID*>(faceID);
 
-  Font font = gui->fonts[id->fontIndex];
+  Font& font = gui->fonts[id->fontIndex];
   int faceIndex = id->faceIndex;
 
   if (id->instanceIndex >= 0)
@@ -195,8 +195,7 @@ MainGUI::loadFonts()
   }
 
   // if we have new fonts, set the current index to the first new one
-  if (!fonts.isEmpty()
-      && oldSize < fonts.size())
+  if (oldSize < fonts.size())
     currentFontIndex = oldSize;
 
   checkCurrentFontIndex();
