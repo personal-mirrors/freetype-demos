@@ -473,6 +473,31 @@ MainGUI::showFont()
 
 
 void
+MainGUI::checkHinting()
+{
+  if (hintingCheckBox->isChecked())
+  {
+    autoHintingCheckBox->setEnabled(true);
+    checkAutoHinting();
+  }
+  else
+  {
+    hintingModeLabel->setEnabled(false);
+    hintingModeComboBoxx->setEnabled(false);
+
+    autoHintingCheckBox->setEnabled(false);
+    horizontalHintingCheckBox->setEnabled(false);
+    verticalHintingCheckBox->setEnabled(false);
+    blueZoneHintingCheckBox->setEnabled(false);
+    segmentDrawingCheckBox->setEnabled(false);
+    warpingCheckBox->setEnabled(false);
+
+    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
+  }
+}
+
+
+void
 MainGUI::checkHintingMode()
 {
   int index = hintingModeComboBoxx->currentIndex();
@@ -486,6 +511,7 @@ MainGUI::checkAutoHinting()
 {
   if (autoHintingCheckBox->isChecked())
   {
+    hintingModeLabel->setEnabled(false);
     hintingModeComboBoxx->setEnabled(false);
 
     horizontalHintingCheckBox->setEnabled(true);
@@ -499,6 +525,7 @@ MainGUI::checkAutoHinting()
   }
   else
   {
+    hintingModeLabel->setEnabled(true);
     hintingModeComboBoxx->setEnabled(true);
 
     horizontalHintingCheckBox->setEnabled(false);
@@ -752,6 +779,8 @@ void
 MainGUI::createLayout()
 {
   // left side
+  hintingCheckBox = new QCheckBox(tr("Hinting"));
+
   hintingModeLabel = new QLabel(tr("Hinting Mode"));
   hintingModeLabel->setAlignment(Qt::AlignRight);
   hintingModeComboBoxx = new QComboBoxx;
@@ -876,6 +905,7 @@ MainGUI::createLayout()
   pointIndicesLayout->addWidget(showPointIndicesCheckBox);
 
   generalTabLayout = new QVBoxLayout;
+  generalTabLayout->addWidget(hintingCheckBox);
   generalTabLayout->addLayout(hintingModeLayout);
   generalTabLayout->addWidget(autoHintingCheckBox);
   generalTabLayout->addLayout(horizontalHintingLayout);
@@ -1045,6 +1075,9 @@ MainGUI::createLayout()
 void
 MainGUI::createConnections()
 {
+  connect(hintingCheckBox, SIGNAL(clicked()), this,
+          SLOT(checkHinting()));
+
   connect(hintingModeComboBoxx, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkHintingMode()));
   connect(antiAliasingComboBoxx, SIGNAL(currentIndexChanged(int)), this,
@@ -1171,6 +1204,8 @@ MainGUI::setDefaults()
   currentFaceIndex = -1;
   currentInstanceIndex = -1;
 
+  hintingCheckBox->setChecked(true);
+
   hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);
   antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
@@ -1187,6 +1222,7 @@ MainGUI::setDefaults()
   dpiSpinBox->setValue(96);
   zoomSpinBox->setValue(100);
 
+  checkHinting();
   checkHintingMode();
   checkAutoHinting();
   checkAntiAliasing();

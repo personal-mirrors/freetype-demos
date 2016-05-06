@@ -166,6 +166,7 @@ private slots:
   void checkCurrentFaceIndex();
   void checkCurrentFontIndex();
   void checkCurrentInstanceIndex();
+  void checkHinting();
   void checkHintingMode();
   void checkLcdFilter();
   void checkShowPoints();
@@ -196,6 +197,7 @@ private:
 
   QCheckBox *autoHintingCheckBox;
   QCheckBox *blueZoneHintingCheckBox;
+  QCheckBox *hintingCheckBox;
   QCheckBox *horizontalHintingCheckBox;
   QCheckBox *segmentDrawingCheckBox;
   QCheckBox *showBitmapCheckBox;

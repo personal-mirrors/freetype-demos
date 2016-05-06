@@ -1,5 +1,16 @@
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add general hinting check button.
+
+	* src/ftinspect.cpp (MainGUI::checkHinting): New method.
+	(MainGUI::createLayout, MainGUI::createConnections,
+	MainGUI::setDefaults): Updated.
+	(MainGUI::checkAutoHinting): Also handle `hintingModeLabel'.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] More gamma slider settings.
 
 	* src/ftinspect.cpp (MainGUI::createLayout): Set gamma slider tick
@@ -21,7 +32,7 @@
 
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
-	[ftinspect] Indend `show point indices' check box.
+	[ftinspect] Indent `show point indices' check box.
 
 	* src/ftinspect.cpp (MainGUI::createLayout): Implement it.
 
