@@ -492,7 +492,8 @@ MainGUI::checkAutoHinting()
     verticalHintingCheckBox->setEnabled(true);
     blueZoneHintingCheckBox->setEnabled(true);
     segmentDrawingCheckBox->setEnabled(true);
-    warpingCheckBox->setEnabled(true);
+    if (engine->haveWarping)
+      warpingCheckBox->setEnabled(true);
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, true);
   }
