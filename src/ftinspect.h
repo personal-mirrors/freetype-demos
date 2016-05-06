@@ -225,6 +225,7 @@ private:
   QHBoxLayout *horizontalHintingLayout;
   QHBoxLayout *lcdFilterLayout;
   QHBoxLayout *navigationLayout;
+  QHBoxLayout *pointIndicesLayout;
   QHBoxLayout *segmentDrawingLayout;
   QHBoxLayout *sizeLayout;
   QHBoxLayout *verticalHintingLayout;

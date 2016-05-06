@@ -862,6 +862,10 @@ MainGUI::createLayout()
   gammaLayout->addWidget(gammaLabel);
   gammaLayout->addWidget(gammaSlider);
 
+  pointIndicesLayout = new QHBoxLayout;
+  pointIndicesLayout->addSpacing(20); // XXX px
+  pointIndicesLayout->addWidget(showPointIndicesCheckBox);
+
   generalTabLayout = new QVBoxLayout;
   generalTabLayout->addLayout(hintingModeLayout);
   generalTabLayout->addWidget(autoHintingCheckBox);
@@ -881,7 +885,7 @@ MainGUI::createLayout()
   generalTabLayout->addStretch(1);
   generalTabLayout->addWidget(showBitmapCheckBox);
   generalTabLayout->addWidget(showPointsCheckBox);
-  generalTabLayout->addWidget(showPointIndicesCheckBox);
+  generalTabLayout->addLayout(pointIndicesLayout);
   generalTabLayout->addWidget(showOutlinesCheckBox);
 
   generalTabWidget = new QWidget;

@@ -1,5 +1,13 @@
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Indend `show point indices' check box.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): Implement it.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Minor.
 
 	* src/ftinspect.cpp (MainGUI::checkAutoHinting): Fix logic for
