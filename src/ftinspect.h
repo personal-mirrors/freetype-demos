@@ -99,6 +99,8 @@ private:
   int dpi;
   int zoom;
 
+  bool doHinting;
+  bool doAutoHinting;
   bool doHorizontalHinting;
   bool doVerticalHinting;
   bool doBlueZoneHinting;
@@ -111,6 +113,8 @@ private:
   bool showOutlines;
 
   double gamma;
+
+  int loadFlags;
 };
 
 

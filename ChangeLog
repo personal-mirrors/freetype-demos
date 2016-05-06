@@ -1,5 +1,14 @@
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Compute load flags for `FT_Load_Glyph'.
+
+	* src/ftinspect.cpp (Engine::update): Compute `doHinting' and
+	`doAutoHinting', and `loadFlags'.
+
+	* src/ftinspect.h (Engine): Updated.
+
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Add general hinting check button.
 
 	* src/ftinspect.cpp (MainGUI::checkHinting): New method.

@@ -282,6 +282,9 @@ Engine::update()
     pointSize = pixelSize * 72.0 / dpi;
   }
 
+  doHinting = gui->hintingCheckBox->isChecked();
+
+  doAutoHinting = gui->autoHintingCheckBox->isChecked();
   doHorizontalHinting = gui->horizontalHintingCheckBox->isChecked();
   doVerticalHinting = gui->verticalHintingCheckBox->isChecked();
   doBlueZoneHinting = gui->blueZoneHintingCheckBox->isChecked();
@@ -297,6 +300,54 @@ Engine::update()
   showOutlines = gui->showOutlinesCheckBox->isChecked();
 
   gamma = gui->gammaSlider->value();
+
+  loadFlags = FT_LOAD_DEFAULT;
+  if (doAutoHinting)
+    loadFlags |= FT_LOAD_FORCE_AUTOHINT;
+  loadFlags |= FT_LOAD_NO_BITMAP; // XXX handle bitmap fonts also
+
+  int index = gui->antiAliasingComboBoxx->currentIndex();
+
+  if (doHinting)
+  {
+    int target;
+
+    if (index == MainGUI::AntiAliasing_None)
+      target = FT_LOAD_TARGET_MONO;
+    else
+    {
+      switch (index)
+      {
+      case MainGUI::AntiAliasing_Slight:
+        target = FT_LOAD_TARGET_LIGHT;
+        break;
+
+      case MainGUI::AntiAliasing_LCD:
+      case MainGUI::AntiAliasing_LCD_BGR:
+        target = FT_LOAD_TARGET_LCD;
+        break;
+
+      case MainGUI::AntiAliasing_LCD_Vertical:
+      case MainGUI::AntiAliasing_LCD_Vertical_BGR:
+        target = FT_LOAD_TARGET_LCD_V;
+        break;
+
+      default:
+        target = FT_LOAD_TARGET_NORMAL;
+      }
+    }
+
+    loadFlags |= target;
+  }
+  else
+  {
+    loadFlags |= FT_LOAD_NO_HINTING;
+
+    if (index == MainGUI::AntiAliasing_None)
+      loadFlags |= FT_LOAD_MONOCHROME;
+  }
+
+  // XXX handle color fonts also
 }
 
 
