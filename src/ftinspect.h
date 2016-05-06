@@ -161,6 +161,7 @@ protected:
 private slots:
   void about();
   void checkAntiAliasing();
+  void checkAutoHinting();
   void checkCurrentFaceIndex();
   void checkCurrentFontIndex();
   void checkCurrentInstanceIndex();
@@ -191,6 +192,7 @@ private:
   QAction *exitAct;
   QAction *loadFontsAct;
 
+  QCheckBox *autoHintingCheckBox;
   QCheckBox *blueZoneHintingCheckBox;
   QCheckBox *horizontalHintingCheckBox;
   QCheckBox *segmentDrawingCheckBox;
@@ -216,12 +218,17 @@ private:
   QHash<int, int> hintingModesCFFHash;
 
   QHBoxLayout *antiAliasingLayout;
+  QHBoxLayout *blueZoneHintingLayout;
+  QHBoxLayout *ftinspectLayout;
   QHBoxLayout *gammaLayout;
   QHBoxLayout *hintingModeLayout;
-  QHBoxLayout *ftinspectLayout;
+  QHBoxLayout *horizontalHintingLayout;
   QHBoxLayout *lcdFilterLayout;
   QHBoxLayout *navigationLayout;
+  QHBoxLayout *segmentDrawingLayout;
   QHBoxLayout *sizeLayout;
+  QHBoxLayout *verticalHintingLayout;
+  QHBoxLayout *warpingLayout;
   QHBoxLayout *watchLayout;
 
   QLabel *antiAliasingLabel;
@@ -292,7 +299,6 @@ private:
     HintingMode_TrueType_v40,
     HintingMode_CFF_FreeType,
     HintingMode_CFF_Adobe,
-    HintingMode_AutoHinting
   };
   enum LCDFilter
   {

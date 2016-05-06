@@ -476,10 +476,18 @@ void
 MainGUI::checkHintingMode()
 {
   int index = hintingModeComboBoxx->currentIndex();
-  int AAcurrIndex = antiAliasingComboBoxx->currentIndex();
 
-  if (index == HintingMode_AutoHinting)
+  // XXX to be completed
+}
+
+
+void
+MainGUI::checkAutoHinting()
+{
+  if (autoHintingCheckBox->isChecked())
   {
+    hintingModeComboBoxx->setEnabled(false);
+
     horizontalHintingCheckBox->setEnabled(true);
     verticalHintingCheckBox->setEnabled(true);
     blueZoneHintingCheckBox->setEnabled(true);
@@ -490,6 +498,8 @@ MainGUI::checkHintingMode()
   }
   else
   {
+    hintingModeComboBoxx->setEnabled(true);
+
     horizontalHintingCheckBox->setEnabled(false);
     verticalHintingCheckBox->setEnabled(false);
     blueZoneHintingCheckBox->setEnabled(false);
@@ -498,7 +508,7 @@ MainGUI::checkHintingMode()
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
 
-    if (AAcurrIndex == AntiAliasing_Slight)
+    if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_Slight)
       antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
   }
 }
@@ -746,10 +756,9 @@ MainGUI::createLayout()
                                    tr("CFF (FreeType)"));
   hintingModeComboBoxx->insertItem(HintingMode_CFF_Adobe,
                                    tr("CFF (Adobe)"));
-  hintingModeComboBoxx->insertItem(HintingMode_AutoHinting,
-                                   tr("Auto-Hinting"));
   hintingModeLabel->setBuddy(hintingModeComboBoxx);
 
+  autoHintingCheckBox = new QCheckBox(tr("Auto-Hinting"));
   horizontalHintingCheckBox = new QCheckBox(tr("Horizontal Hinting"));
   verticalHintingCheckBox = new QCheckBox(tr("Vertical Hinting"));
   blueZoneHintingCheckBox = new QCheckBox(tr("Blue-Zone Hinting"));
@@ -820,6 +829,26 @@ MainGUI::createLayout()
   hintingModeLayout->addWidget(hintingModeLabel);
   hintingModeLayout->addWidget(hintingModeComboBoxx);
 
+  horizontalHintingLayout = new QHBoxLayout;
+  horizontalHintingLayout->addSpacing(20); // XXX px
+  horizontalHintingLayout->addWidget(horizontalHintingCheckBox);
+
+  verticalHintingLayout = new QHBoxLayout;
+  verticalHintingLayout->addSpacing(20); // XXX px
+  verticalHintingLayout->addWidget(verticalHintingCheckBox);
+
+  blueZoneHintingLayout = new QHBoxLayout;
+  blueZoneHintingLayout->addSpacing(20); // XXX px
+  blueZoneHintingLayout->addWidget(blueZoneHintingCheckBox);
+
+  segmentDrawingLayout = new QHBoxLayout;
+  segmentDrawingLayout->addSpacing(20); // XXX px
+  segmentDrawingLayout->addWidget(segmentDrawingCheckBox);
+
+  warpingLayout = new QHBoxLayout;
+  warpingLayout->addSpacing(20); // XXX px
+  warpingLayout->addWidget(warpingCheckBox);
+
   antiAliasingLayout = new QHBoxLayout;
   antiAliasingLayout->addWidget(antiAliasingLabel);
   antiAliasingLayout->addWidget(antiAliasingComboBoxx);
@@ -834,11 +863,12 @@ MainGUI::createLayout()
 
   generalTabLayout = new QVBoxLayout;
   generalTabLayout->addLayout(hintingModeLayout);
-  generalTabLayout->addWidget(horizontalHintingCheckBox);
-  generalTabLayout->addWidget(verticalHintingCheckBox);
-  generalTabLayout->addWidget(blueZoneHintingCheckBox);
-  generalTabLayout->addWidget(segmentDrawingCheckBox);
-  generalTabLayout->addWidget(warpingCheckBox);
+  generalTabLayout->addWidget(autoHintingCheckBox);
+  generalTabLayout->addLayout(horizontalHintingLayout);
+  generalTabLayout->addLayout(verticalHintingLayout);
+  generalTabLayout->addLayout(blueZoneHintingLayout);
+  generalTabLayout->addLayout(segmentDrawingLayout);
+  generalTabLayout->addLayout(warpingLayout);
   generalTabLayout->addSpacing(20); // XXX px
   generalTabLayout->addStretch(1);
   generalTabLayout->addLayout(antiAliasingLayout);
@@ -1009,6 +1039,8 @@ MainGUI::createConnections()
   connect(antiAliasingComboBoxx, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkAntiAliasing()));
 
+  connect(autoHintingCheckBox, SIGNAL(clicked()), this,
+          SLOT(checkAutoHinting()));
   connect(showPointsCheckBox, SIGNAL(clicked()), this,
           SLOT(checkShowPoints()));
 
@@ -1121,8 +1153,6 @@ MainGUI::setDefaults()
   currentFaceIndex = -1;
   currentInstanceIndex = -1;
 
-  // XXX only dummy values right now
-
   hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);
   antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
@@ -1135,6 +1165,7 @@ MainGUI::setDefaults()
   showOutlinesCheckBox->setChecked(true);
 
   checkHintingMode();
+  checkAutoHinting();
   checkAntiAliasing();
   checkShowPoints();
   checkUnits();

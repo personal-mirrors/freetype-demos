@@ -1,5 +1,22 @@
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Add check box for auto-hinting.
+
+	This allows easier hinting mode switch than having it in the hinting
+	mode combo box.
+
+	* src/ftinspect.cpp (MainGUI::checkAutoHinting): New method,
+	containing almost stuff from ...
+	(MainGUI::checkHintingMode): Updated.
+	(MainGUI::createLayout): Updated; we also indent check boxes
+	dependent on auto-hinting.
+	(MainGUI::createConnections, MainGUI::setDefaults): Updated.
+
+	* src/ftinspect.h: Updated.
+	(HintingModes): Remove `HintingMode_AutoHinting' enum value.
+
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Disable unavailable items in anti-aliasing combo box.
 
 	* src/ftinspect.h (MainGUI): Make `setDefaults' public.
