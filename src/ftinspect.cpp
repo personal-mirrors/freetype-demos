@@ -466,55 +466,55 @@ MainGUI::closeFont()
 void
 MainGUI::showFont()
 {
-  if (currentFontIndex < 0)
-    return;
-
-  // we do lazy evaluation as much as possible
-
-  Font& font = fonts[currentFontIndex];
-
-  // if not yet available, extract the number of faces and indices
-  // for the current font
-
-  if (font.numInstancesList.isEmpty())
+  if (currentFontIndex >= 0)
   {
-    int numFaces = engine->numFaces(currentFontIndex);
+    // we do lazy evaluation as much as possible
 
-    if (numFaces > 0)
+    Font& font = fonts[currentFontIndex];
+
+    // if not yet available, extract the number of faces and indices
+    // for the current font
+
+    if (font.numInstancesList.isEmpty())
     {
-      for (int i = 0; i < numFaces; i++)
-        font.numInstancesList.append(-1);
+      int numFaces = engine->numFaces(currentFontIndex);
 
-      currentFaceIndex = 0;
+      if (numFaces > 0)
+      {
+        for (int i = 0; i < numFaces; i++)
+          font.numInstancesList.append(-1);
+
+        currentFaceIndex = 0;
+        currentInstanceIndex = 0;
+      }
+      else
+      {
+        // we use `numInstancesList' with a single element set to zero
+        // to indicate either a non-font or a font FreeType couldn't load;
+        font.numInstancesList.append(0);
+
+        currentFaceIndex = -1;
+        currentInstanceIndex = -1;
+      }
+    }
+
+    // value -1 in `numInstancesList' means `not yet initialized'
+    if (font.numInstancesList[currentFaceIndex] < 0)
+    {
+      int numInstances = engine->numInstances(currentFontIndex,
+                                              currentFaceIndex);
+
+      // XXX? we ignore errors
+      if (numInstances < 0)
+        numInstances = 1;
+
+      font.numInstancesList[currentFaceIndex] = numInstances;
+
+      // instance index 0 represents a face without an instance;
+      // consequently, `n' instances are enumerated from 1 to `n'
+      // (instead of having indices 0 to `n-1')
       currentInstanceIndex = 0;
     }
-    else
-    {
-      // we use `numInstancesList' with a single element set to zero
-      // to indicate either a non-font or a font FreeType couldn't load;
-      font.numInstancesList.append(0);
-
-      currentFaceIndex = -1;
-      currentInstanceIndex = -1;
-    }
-  }
-
-  // value -1 in `numInstancesList' means `not yet initialized'
-  else if (font.numInstancesList[currentFaceIndex] < 0)
-  {
-    int numInstances = engine->numInstances(currentFontIndex,
-                                            currentFaceIndex);
-
-    // XXX? we ignore errors
-    if (numInstances < 0)
-      numInstances = 1;
-
-    font.numInstancesList[currentFaceIndex] = numInstances;
-
-    // instance index 0 represents a face without an instance;
-    // consequently, `n' instances are enumerated from 1 to `n'
-    // (instead of having indices 0 to `n-1')
-    currentInstanceIndex = 0;
   }
 
   checkCurrentFontIndex();
