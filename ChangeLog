@@ -1,5 +1,15 @@
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] More gamma slider settings.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): Set gamma slider tick
+	intervals.
+
+	(MainGUI::setDefaults): Set default value for gamma slider.
+	Also move other spin box default values to this function.
+
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Handle LCD filter change.
 
 	* src/ftinspect.cpp (MainGUI::checkLcdFilter): New method.

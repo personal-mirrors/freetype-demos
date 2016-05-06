@@ -825,6 +825,7 @@ MainGUI::createLayout()
   gammaSlider = new QSlider(Qt::Horizontal);
   gammaSlider->setRange(0, 30); // in 1/10th
   gammaSlider->setTickPosition(QSlider::TicksBelow);
+  gammaSlider->setTickInterval(5);
   gammaLabel->setBuddy(gammaSlider);
 
   showBitmapCheckBox = new QCheckBox(tr("Show Bitmap"));
@@ -937,7 +938,6 @@ MainGUI::createLayout()
   sizeDoubleSpinBox->setDecimals(1);
   sizeDoubleSpinBox->setRange(1, 500);
   sizeDoubleSpinBox->setSingleStep(0.5);
-  sizeDoubleSpinBox->setValue(20); // XXX default
   sizeLabel->setBuddy(sizeDoubleSpinBox);
 
   unitsComboBox = new QComboBox;
@@ -949,7 +949,6 @@ MainGUI::createLayout()
   dpiSpinBox = new QSpinBox;
   dpiSpinBox->setAlignment(Qt::AlignRight);
   dpiSpinBox->setRange(10, 600);
-  dpiSpinBox->setValue(96); // XXX default
   dpiLabel->setBuddy(dpiSpinBox);
 
   toStartButtonx = new QPushButtonx("|<");
@@ -970,7 +969,6 @@ MainGUI::createLayout()
   zoomSpinBox->setRange(1, 10000);
   zoomSpinBox->setSuffix("%");
   zoomSpinBox->setSingleStep(10);
-  zoomSpinBox->setValue(100); // XXX default
   zoomLabel->setBuddy(zoomSpinBox);
 
   previousFontButton = new QPushButton(tr("Previous Font"));
@@ -1183,6 +1181,11 @@ MainGUI::setDefaults()
 
   showBitmapCheckBox->setChecked(true);
   showOutlinesCheckBox->setChecked(true);
+
+  gammaSlider->setValue(18); // 1.8
+  sizeDoubleSpinBox->setValue(20);
+  dpiSpinBox->setValue(96);
+  zoomSpinBox->setValue(100);
 
   checkHintingMode();
   checkAutoHinting();
