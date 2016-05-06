@@ -536,6 +536,14 @@ MainGUI::checkAntiAliasing()
 
 
 void
+MainGUI::checkLcdFilter()
+{
+  int index = lcdFilterComboBox->currentIndex();
+  FT_Library_SetLcdFilter(engine->library, lcdFilterHash.key(index));
+}
+
+
+void
 MainGUI::checkShowPoints()
 {
   if (showPointsCheckBox->isChecked())
@@ -1043,6 +1051,8 @@ MainGUI::createConnections()
           SLOT(checkHintingMode()));
   connect(antiAliasingComboBoxx, SIGNAL(currentIndexChanged(int)), this,
           SLOT(checkAntiAliasing()));
+  connect(lcdFilterComboBox, SIGNAL(currentIndexChanged(int)), this,
+          SLOT(checkLcdFilter()));
 
   connect(autoHintingCheckBox, SIGNAL(clicked()), this,
           SLOT(checkAutoHinting()));
@@ -1131,6 +1141,11 @@ MainGUI::setDefaults()
   hintingModesCFFHash[FT_CFF_HINTING_FREETYPE] = HintingMode_CFF_FreeType;
   hintingModesCFFHash[FT_CFF_HINTING_ADOBE] = HintingMode_CFF_Adobe;
 
+  lcdFilterHash[FT_LCD_FILTER_DEFAULT] = LCDFilter_Default;
+  lcdFilterHash[FT_LCD_FILTER_LIGHT] = LCDFilter_Light;
+  lcdFilterHash[FT_LCD_FILTER_NONE] = LCDFilter_None;
+  lcdFilterHash[FT_LCD_FILTER_LEGACY] = LCDFilter_Legacy;
+
   // make copies and remove existing elements...
   QHash<int, int> hmTTHash = hintingModesTrueTypeHash;
   if (hmTTHash.contains(engine->ttInterpreterVersionDefault))
@@ -1172,6 +1187,7 @@ MainGUI::setDefaults()
   checkHintingMode();
   checkAutoHinting();
   checkAntiAliasing();
+  checkLcdFilter();
   checkShowPoints();
   checkUnits();
   checkCurrentFontIndex();

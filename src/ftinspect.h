@@ -7,6 +7,7 @@
 #include FT_FREETYPE_H
 #include FT_CACHE_H
 #include FT_CFF_DRIVER_H
+#include FT_LCD_FILTER_H
 #include FT_MODULE_H
 #include FT_TRUETYPE_DRIVER_H
 
@@ -166,6 +167,7 @@ private slots:
   void checkCurrentFontIndex();
   void checkCurrentInstanceIndex();
   void checkHintingMode();
+  void checkLcdFilter();
   void checkShowPoints();
   void checkUnits();
   void closeFont();
@@ -216,6 +218,7 @@ private:
 
   QHash<int, int> hintingModesTrueTypeHash;
   QHash<int, int> hintingModesCFFHash;
+  QHash<FT_LcdFilter, int> lcdFilterHash;
 
   QHBoxLayout *antiAliasingLayout;
   QHBoxLayout *blueZoneHintingLayout;

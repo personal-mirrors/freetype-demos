@@ -1,5 +1,16 @@
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Handle LCD filter change.
+
+	* src/ftinspect.cpp (MainGUI::checkLcdFilter): New method.
+	(MainGUI::setDefaults): Set up LCD filter mapping.
+	Call `checkLcdFilter'.
+	(MainGUI::createConnections): Register `checkLcdFilter'.
+
+	* src/ftinspect.h (MainGUI): Updated.
+
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Indend `show point indices' check box.
 
 	* src/ftinspect.cpp (MainGUI::createLayout): Implement it.
