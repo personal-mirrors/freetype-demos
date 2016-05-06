@@ -1,5 +1,13 @@
 2016-05-06  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Simplify code.
+
+	* src/ftinspect.cpp (MainGUI::createConnections,
+	MainGUI::createActions): Use `connect' variant that doesn't need
+	`this' parameter.
+
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Compute load flags for `FT_Load_Glyph'.
 
 	* src/ftinspect.cpp (Engine::update): Compute `doHinting' and

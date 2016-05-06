@@ -1126,35 +1126,35 @@ MainGUI::createLayout()
 void
 MainGUI::createConnections()
 {
-  connect(hintingCheckBox, SIGNAL(clicked()), this,
+  connect(hintingCheckBox, SIGNAL(clicked()),
           SLOT(checkHinting()));
 
-  connect(hintingModeComboBoxx, SIGNAL(currentIndexChanged(int)), this,
+  connect(hintingModeComboBoxx, SIGNAL(currentIndexChanged(int)),
           SLOT(checkHintingMode()));
-  connect(antiAliasingComboBoxx, SIGNAL(currentIndexChanged(int)), this,
+  connect(antiAliasingComboBoxx, SIGNAL(currentIndexChanged(int)),
           SLOT(checkAntiAliasing()));
-  connect(lcdFilterComboBox, SIGNAL(currentIndexChanged(int)), this,
+  connect(lcdFilterComboBox, SIGNAL(currentIndexChanged(int)),
           SLOT(checkLcdFilter()));
 
-  connect(autoHintingCheckBox, SIGNAL(clicked()), this,
+  connect(autoHintingCheckBox, SIGNAL(clicked()),
           SLOT(checkAutoHinting()));
-  connect(showPointsCheckBox, SIGNAL(clicked()), this,
+  connect(showPointsCheckBox, SIGNAL(clicked()),
           SLOT(checkShowPoints()));
 
-  connect(unitsComboBox, SIGNAL(currentIndexChanged(int)), this,
+  connect(unitsComboBox, SIGNAL(currentIndexChanged(int)),
           SLOT(checkUnits()));
 
-  connect(previousFontButton, SIGNAL(clicked()), this,
+  connect(previousFontButton, SIGNAL(clicked()),
           SLOT(previousFont()));
-  connect(nextFontButton, SIGNAL(clicked()), this,
+  connect(nextFontButton, SIGNAL(clicked()),
           SLOT(nextFont()));
-  connect(previousFaceButton, SIGNAL(clicked()), this,
+  connect(previousFaceButton, SIGNAL(clicked()),
           SLOT(previousFace()));
-  connect(nextFaceButton, SIGNAL(clicked()), this,
+  connect(nextFaceButton, SIGNAL(clicked()),
           SLOT(nextFace()));
-  connect(previousInstanceButton, SIGNAL(clicked()), this,
+  connect(previousInstanceButton, SIGNAL(clicked()),
           SLOT(previousInstance()));
-  connect(nextInstanceButton, SIGNAL(clicked()), this,
+  connect(nextInstanceButton, SIGNAL(clicked()),
           SLOT(nextInstance()));
 }
 
@@ -1164,21 +1164,21 @@ MainGUI::createActions()
 {
   loadFontsAct = new QAction(tr("&Load Fonts"), this);
   loadFontsAct->setShortcuts(QKeySequence::Open);
-  connect(loadFontsAct, SIGNAL(triggered()), this, SLOT(loadFonts()));
+  connect(loadFontsAct, SIGNAL(triggered()), SLOT(loadFonts()));
 
   closeFontAct = new QAction(tr("&Close Font"), this);
   closeFontAct->setShortcuts(QKeySequence::Close);
-  connect(closeFontAct, SIGNAL(triggered()), this, SLOT(closeFont()));
+  connect(closeFontAct, SIGNAL(triggered()), SLOT(closeFont()));
 
   exitAct = new QAction(tr("E&xit"), this);
   exitAct->setShortcuts(QKeySequence::Quit);
-  connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+  connect(exitAct, SIGNAL(triggered()), SLOT(close()));
 
   aboutAct = new QAction(tr("&About"), this);
-  connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+  connect(aboutAct, SIGNAL(triggered()), SLOT(about()));
 
   aboutQtAct = new QAction(tr("About &Qt"), this);
-  connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+  connect(aboutQtAct, SIGNAL(triggered()), SLOT(aboutQt()));
 }
 
 
