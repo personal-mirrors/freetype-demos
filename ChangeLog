@@ -1,3 +1,21 @@
+2016-05-06  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Disable unavailable items in anti-aliasing combo box.
+
+	* src/ftinspect.h (MainGUI): Make `setDefaults' public.
+	(hintingModesTrueTypeHash, hintingModesCFFHash): New maps.
+	(hintingModesAlwaysDisabled): New list.
+
+	* src/ftinspect.cpp (MainGUI::setDefaults): Set up mappings between
+	GUI enumerations and FreeType property values.
+
+	Use them to create `hintingModesAlwaysDisabled', a list of enum
+	values that gets fed to the anti-alias combo box's `setItemDisabled'
+	method.
+	(MainGUI::MainGUI): Don't call `setDefaults'
+	here but...
+	(main): ... here, after FreeType initialization.
+
 2016-05-05  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Handle engine properties.

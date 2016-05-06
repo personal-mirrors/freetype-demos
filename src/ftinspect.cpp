@@ -308,7 +308,6 @@ MainGUI::MainGUI()
   createMenus();
   createStatusBar();
 
-  setDefaults();
   readSettings();
 
   setUnifiedTitleAndToolBarOnMac(true);
@@ -1086,12 +1085,43 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
+  // set up mappings between property values and combo box indices
+  hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
+  hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_38] = HintingMode_TrueType_v38;
+  // TT_INTERPRETER_VERSION_40, not yet implemented
+  hintingModesTrueTypeHash[40] = HintingMode_TrueType_v40;
+
+  hintingModesCFFHash[FT_CFF_HINTING_FREETYPE] = HintingMode_CFF_FreeType;
+  hintingModesCFFHash[FT_CFF_HINTING_ADOBE] = HintingMode_CFF_Adobe;
+
+  // make copies and remove existing elements...
+  QHash<int, int> hmTTHash = hintingModesTrueTypeHash;
+  if (hmTTHash.contains(engine->ttInterpreterVersionDefault))
+    hmTTHash.remove(engine->ttInterpreterVersionDefault);
+  if (hmTTHash.contains(engine->ttInterpreterVersionOther))
+    hmTTHash.remove(engine->ttInterpreterVersionOther);
+  if (hmTTHash.contains(engine->ttInterpreterVersionOther1))
+    hmTTHash.remove(engine->ttInterpreterVersionOther1);
+
+  QHash<int, int> hmCFFHash = hintingModesCFFHash;
+  if (hmCFFHash.contains(engine->cffHintingEngineDefault))
+    hmCFFHash.remove(engine->cffHintingEngineDefault);
+  if (hmCFFHash.contains(engine->cffHintingEngineOther))
+    hmCFFHash.remove(engine->cffHintingEngineOther);
+
+  // ... to construct a list of always disabled hinting mode combo box items
+  hintingModesAlwaysDisabled = hmTTHash.values();
+  hintingModesAlwaysDisabled += hmCFFHash.values();
+
+  for (int i = 0; i < hintingModesAlwaysDisabled.size(); i++)
+    hintingModeComboBoxx->setItemEnabled(hintingModesAlwaysDisabled[i],
+                                         false);
+
   currentFontIndex = -1;
-
-  // XXX only dummy values right now
-
   currentFaceIndex = -1;
   currentInstanceIndex = -1;
+
+  // XXX only dummy values right now
 
   hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);
   antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
@@ -1196,6 +1226,7 @@ main(int argc,
   Engine engine(&gui);
 
   gui.update(&engine);
+  gui.setDefaults();
 
   gui.show();
 

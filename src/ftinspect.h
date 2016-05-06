@@ -22,8 +22,10 @@
 #include <QFileDialog>
 #include <QGraphicsView>
 #include <QGridLayout>
+#include <QHash>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QList>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -144,6 +146,7 @@ public:
   MainGUI();
   ~MainGUI();
 
+  void setDefaults();
   void update(Engine*);
 
   friend class Engine;
@@ -181,6 +184,7 @@ private:
   int currentFaceIndex;
   int currentInstanceIndex;
 
+  // layout related stuff
   QAction *aboutAct;
   QAction *aboutQtAct;
   QAction *closeFontAct;
@@ -208,6 +212,9 @@ private:
 
   QGridLayout *fontLayout;
 
+  QHash<int, int> hintingModesTrueTypeHash;
+  QHash<int, int> hintingModesCFFHash;
+
   QHBoxLayout *antiAliasingLayout;
   QHBoxLayout *gammaLayout;
   QHBoxLayout *hintingModeLayout;
@@ -224,6 +231,8 @@ private:
   QLabel *lcdFilterLabel;
   QLabel *sizeLabel;
   QLabel *zoomLabel;
+
+  QList<int> hintingModesAlwaysDisabled;
 
   QLocale *locale;
 
@@ -305,7 +314,6 @@ private:
   void clearStatusBar();
   void createStatusBar();
   void readSettings();
-  void setDefaults();
   void showFont();
   void writeSettings();
 };
