@@ -8,11 +8,51 @@
 #define VERSION "X.Y.Z"
 
 
+FaceID::FaceID()
+: fontIndex(0),
+  faceIndex(0),
+  instanceIndex(0)
+{
+  // empty
+}
+
+
+FaceID::FaceID(int fontIdx,
+               int faceIdx,
+               int instanceIdx)
+: fontIndex(fontIdx),
+  faceIndex(faceIdx),
+  instanceIndex(instanceIdx)
+{
+  // empty
+}
+
+
+bool
+FaceID::operator==(const FaceID& other) const
+{
+  return (fontIndex == other.fontIndex
+          && faceIndex == other.faceIndex
+          && instanceIndex == other.instanceIndex);
+}
+
+
+uint
+qHash(FaceID key)
+{
+  return ((uint)key.fontIndex << 20)
+         | ((uint)key.faceIndex << 10)
+         | (uint)key.instanceIndex;
+}
+
+
 // The face requester is a function provided by the client application to
 // the cache manager to translate an `abstract' face ID into a real
 // `FT_Face' object.
 //
-// Here, the face IDs are simply pointers to `Font' objects.
+// We use a hash: `faceID' is the value, and its associated key gives the
+// font, face, and instance indices.  Getting a key from a value is slow,
+// but this must be done only once.
 
 FT_Error
 faceRequester(FTC_FaceID faceID,
@@ -21,13 +61,16 @@ faceRequester(FTC_FaceID faceID,
               FT_Face* faceP)
 {
   MainGUI* gui = static_cast<MainGUI*>(requestData);
-  FaceID* id = static_cast<FaceID*>(faceID);
+  // in C++ it's tricky to convert a void pointer back to an integer
+  // without warnings related to 32bit vs. 64bit pointer size
+  int val = static_cast<int>((char*)faceID - (char*)0);
+  const FaceID& id = gui->faceIDHash.key(val);
 
-  Font& font = gui->fonts[id->fontIndex];
-  int faceIndex = id->faceIndex;
+  Font& font = gui->fonts[id.fontIndex];
+  int faceIndex = id.faceIndex;
 
-  if (id->instanceIndex >= 0)
-    faceIndex += id->instanceIndex << 16;
+  if (id.instanceIndex >= 0)
+    faceIndex += id.instanceIndex << 16;
 
   return FT_New_Face(library,
                      qPrintable(font.filePathname),
@@ -468,7 +511,7 @@ MainGUI::showFont()
 {
   if (currentFontIndex >= 0)
   {
-    // we do lazy evaluation as much as possible
+    // we do lazy computation of FT_Face objects
 
     Font& font = fonts[currentFontIndex];
 
@@ -509,6 +552,12 @@ MainGUI::showFont()
         numInstances = 1;
 
       font.numInstancesList[currentFaceIndex] = numInstances;
+
+      // assign the (font,face,instance) triplet to a running ID;
+      // we need this for the `faceRequester' function
+      for (int i = 0; i < numInstances; i++)
+        faceIDHash.insert(FaceID(currentFontIndex, currentFaceIndex, i),
+                          maxFaces++);
 
       // instance index 0 represents a face without an instance;
       // consequently, `n' instances are enumerated from 1 to `n'
@@ -1214,6 +1263,8 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
+  maxFaces = 0;
+
   // set up mappings between property values and combo box indices
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_38] = HintingMode_TrueType_v38;
