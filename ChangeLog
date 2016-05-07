@@ -1,5 +1,19 @@
 2016-05-07  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Make glyph navigation work.
+
+	* src/ftinspect.cpp (MainGUI::showFont): Don't use local variable.
+	(MainGUI::adjustGlyphIndex): New method.
+	(MainGUI::createConnections): Use `QSignalMapper' class to map all
+	navigation button signals to a single receiver function (namely
+	`adjustGlyphIndex').
+	(MainGUI::setDefaults): Updated.
+
+	* src/ftinspect.h (MainGUI): New `currentGlyphIndex' member.
+	Updated.
+
+2016-05-07  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Really load fonts.
 
 	* src/ftinspect.cpp (Engine::loadFont, Engine::removeFont): New

@@ -33,6 +33,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalMapper>
 #include <QSizePolicy>
 #include <QSlider>
 #include <QSpinBox>
@@ -195,6 +196,7 @@ protected:
 
 private slots:
   void about();
+  void adjustGlyphIndex(int);
   void checkAntiAliasing();
   void checkAutoHinting();
   void checkCurrentFaceIndex();
@@ -221,7 +223,9 @@ private:
   int currentFontIndex;
   int currentFaceIndex;
   int currentInstanceIndex;
+
   int currentNumGlyphs;
+  int currentGlyphIndex;
 
   int faceCounter; // a running number used to initialize `faceIDHash'
   QHash<FaceID, int> faceIDHash;
@@ -308,6 +312,8 @@ private:
   QPushButtonx *toP10Buttonx;
   QPushButtonx *toP1Buttonx;
   QPushButtonx *toStartButtonx;
+
+  QSignalMapper *glyphNavigationMapper;
 
   QSlider *gammaSlider;
 

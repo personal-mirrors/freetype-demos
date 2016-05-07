@@ -636,9 +636,9 @@ MainGUI::showFont()
 
       // if the (font,face,instance) triplet is invalid,
       // remove it from the hash
-      int currentNumGlyphs = engine->loadFont(currentFontIndex,
-                                              currentFaceIndex,
-                                              currentInstanceIndex);
+      currentNumGlyphs = engine->loadFont(currentFontIndex,
+                                          currentFaceIndex,
+                                          currentInstanceIndex);
       if (currentNumGlyphs < 0)
         faceIDHash.remove(FaceID(currentFontIndex,
                                  currentFaceIndex,
@@ -775,6 +775,21 @@ MainGUI::checkUnits()
     dpiLabel->setEnabled(true);
     dpiSpinBox->setEnabled(true);
   }
+}
+
+
+void
+MainGUI::adjustGlyphIndex(int delta)
+{
+  // don't adjust current glyph index if we have an invalid font
+  if (currentFaceIndex < 0 || currentNumGlyphs < 0)
+    return;
+
+  currentGlyphIndex += delta;
+  if (currentGlyphIndex < 0)
+    currentGlyphIndex = 0;
+  else if (currentGlyphIndex >= currentNumGlyphs)
+    currentGlyphIndex = currentNumGlyphs - 1;
 }
 
 
@@ -1285,6 +1300,42 @@ MainGUI::createConnections()
           SLOT(previousInstance()));
   connect(nextInstanceButton, SIGNAL(clicked()),
           SLOT(nextInstance()));
+
+  glyphNavigationMapper = new QSignalMapper;
+  connect(glyphNavigationMapper, SIGNAL(mapped(int)),
+          SLOT(adjustGlyphIndex(int)));
+
+  connect(toStartButtonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toM1000Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toM100Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toM10Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toM1Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toP1Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toP10Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toP100Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toP1000Buttonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+  connect(toEndButtonx, SIGNAL(clicked()),
+          glyphNavigationMapper, SLOT(map()));
+
+  glyphNavigationMapper->setMapping(toStartButtonx, -0x10000);
+  glyphNavigationMapper->setMapping(toM1000Buttonx, -1000);
+  glyphNavigationMapper->setMapping(toM100Buttonx, -100);
+  glyphNavigationMapper->setMapping(toM10Buttonx, -10);
+  glyphNavigationMapper->setMapping(toM1Buttonx, -1);
+  glyphNavigationMapper->setMapping(toP1Buttonx, 1);
+  glyphNavigationMapper->setMapping(toP10Buttonx, 10);
+  glyphNavigationMapper->setMapping(toP100Buttonx, 100);
+  glyphNavigationMapper->setMapping(toP1000Buttonx, 1000);
+  glyphNavigationMapper->setMapping(toEndButtonx, 0x10000);
 }
 
 
@@ -1343,7 +1394,8 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
-  // starting value 0 only works with FreeType 2.6.4 or newer
+  // starting value 0 for a cache's face ID
+  // only works with FreeType 2.6.4 or newer
   faceCounter = 1;
 
   // set up mappings between property values and combo box indices
@@ -1386,6 +1438,9 @@ MainGUI::setDefaults()
   currentFontIndex = -1;
   currentFaceIndex = -1;
   currentInstanceIndex = -1;
+
+  currentNumGlyphs = -1;
+  currentGlyphIndex = 0;
 
   hintingCheckBox->setChecked(true);
 
