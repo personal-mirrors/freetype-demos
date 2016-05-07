@@ -1,5 +1,11 @@
 2016-05-07  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] s/maxFaces/faceCounter/.
+
+	* src/ftinspect.cpp, src/ftinspect.h: Do it.
+
+2016-05-07  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Another try to implement `faceRequester'.
 
 	* src/ftinspect.h (FaceID): Extend structure to make it suitable as

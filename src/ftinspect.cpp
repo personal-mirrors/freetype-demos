@@ -557,7 +557,7 @@ MainGUI::showFont()
       // we need this for the `faceRequester' function
       for (int i = 0; i < numInstances; i++)
         faceIDHash.insert(FaceID(currentFontIndex, currentFaceIndex, i),
-                          maxFaces++);
+                          faceCounter++);
 
       // instance index 0 represents a face without an instance;
       // consequently, `n' instances are enumerated from 1 to `n'
@@ -1263,7 +1263,7 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
-  maxFaces = 0;
+  faceCounter = 0;
 
   // set up mappings between property values and combo box indices
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
