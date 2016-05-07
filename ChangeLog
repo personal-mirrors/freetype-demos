@@ -1,5 +1,9 @@
 2016-05-07  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftinspect.cpp (MainGUI::showFont): Another logic fix.
+
+2016-05-07  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] s/maxFaces/faceCounter/.
 
 	* src/ftinspect.cpp, src/ftinspect.h: Do it.

@@ -542,7 +542,8 @@ MainGUI::showFont()
     }
 
     // value -1 in `numInstancesList' means `not yet initialized'
-    if (font.numInstancesList[currentFaceIndex] < 0)
+    if (currentFaceIndex >= 0
+        && font.numInstancesList[currentFaceIndex] < 0)
     {
       int numInstances = engine->numInstances(currentFontIndex,
                                               currentFaceIndex);
