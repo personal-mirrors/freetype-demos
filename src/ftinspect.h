@@ -96,9 +96,11 @@ public:
   Engine(MainGUI*);
   ~Engine();
 
-  void update();
   int numFaces(int);
   int numInstances(int, int);
+  int loadFont(int, int, int); // returns number of glyphs
+  void removeFont(int, int, int);
+  void update();
 
   friend class MainGUI;
 
@@ -109,6 +111,9 @@ private:
   FTC_Manager cacheManager;
   FTC_ImageCache imageCache;
   FTC_SBitCache sbitsCache;
+
+  FTC_ScalerRec scaler;
+  FT_Size ftSize;
 
   int cffHintingEngineDefault;
   int cffHintingEngineOther;
@@ -216,6 +221,7 @@ private:
   int currentFontIndex;
   int currentFaceIndex;
   int currentInstanceIndex;
+  int currentNumGlyphs;
 
   int faceCounter; // a running number used to initialize `faceIDHash'
   QHash<FaceID, int> faceIDHash;

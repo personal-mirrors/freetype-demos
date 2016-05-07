@@ -1,5 +1,21 @@
 2016-05-07  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Really load fonts.
+
+	* src/ftinspect.cpp (Engine::loadFont, Engine::removeFont): New
+	methods.
+	(Engine::update): Set font-independent scaler values.
+	(MainGUI::closeFont): Remove font ID from hash and font from cache.
+	(MainGUI::showFOnt): Call `loadFont'.
+	(MainGUI::setDefaults): Set initial value of `faceCounter' to 1 to
+	circumvent a FreeType buglet.
+
+	* src/ftinspect.h (Engine): New `scaler' and `ftSize' members.
+	Updated.
+	(MainGUI): New member `currentNumGlyphs'.
+
+2016-05-07  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftinspect.cpp (MainGUI::showFont): Another logic fix.
 
 2016-05-07  Werner Lemberg  <wl@gnu.org>

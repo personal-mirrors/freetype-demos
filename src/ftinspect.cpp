@@ -308,6 +308,40 @@ Engine::numInstances(int fontIndex,
 }
 
 
+int
+Engine::loadFont(int fontIndex,
+                 int faceIndex,
+                 int instanceIndex)
+{
+  scaler.face_id = reinterpret_cast<void*>
+                     (gui->faceIDHash.value(FaceID(fontIndex,
+                                                   faceIndex,
+                                                   instanceIndex)));
+
+  FT_Error error = FTC_Manager_LookupSize(cacheManager, &scaler, &ftSize);
+  if (error)
+  {
+    // XXX error handling
+    return -1;
+  }
+
+  return ftSize->face->num_glyphs;
+}
+
+
+void
+Engine::removeFont(int fontIndex,
+                   int faceIndex,
+                   int instanceIndex)
+{
+  FTC_FaceID face_id = reinterpret_cast<void*>
+                         (gui->faceIDHash.value(FaceID(fontIndex,
+                                                       faceIndex,
+                                                       instanceIndex)));
+  FTC_Manager_RemoveFaceID(cacheManager, face_id);
+}
+
+
 void
 Engine::update()
 {
@@ -391,6 +425,25 @@ Engine::update()
   }
 
   // XXX handle color fonts also
+
+  scaler.pixel = 0; // use 26.6 format
+
+  if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
+  {
+    scaler.width = int(pixelSize * 64.0);
+    scaler.height = int(pixelSize * 64.0);
+    scaler.x_res = 0;
+    scaler.y_res = 0;
+  }
+  else
+  {
+    scaler.width = int(pointSize * 64.0);
+    scaler.height = int(pointSize * 64.0);
+    scaler.x_res = dpi;
+    scaler.y_res = dpi;
+  }
+
+
 }
 
 
@@ -486,7 +539,16 @@ void
 MainGUI::closeFont()
 {
   if (currentFontIndex >= 0)
+  {
+    for (int i = 0; i < fonts[currentFontIndex].numInstancesList.size(); i++)
+      for (int j = 0; j < fonts[currentFontIndex].numInstancesList[i]; j++)
+      {
+        faceIDHash.remove(FaceID(currentFontIndex, i, j));
+        engine->removeFont(currentFontIndex, i, j);
+      }
+
     fonts.removeAt(currentFontIndex);
+  }
   if (currentFontIndex >= fonts.size())
     currentFontIndex--;
 
@@ -564,6 +626,23 @@ MainGUI::showFont()
       // consequently, `n' instances are enumerated from 1 to `n'
       // (instead of having indices 0 to `n-1')
       currentInstanceIndex = 0;
+    }
+
+    if (currentFaceIndex >= 0)
+    {
+      // up to now we only called for rudimentary font handling
+      // (via the `engine->numFaces' and `engine->numInstances' methods);
+      // `engine->loadFont', however, really parses a font
+
+      // if the (font,face,instance) triplet is invalid,
+      // remove it from the hash
+      int currentNumGlyphs = engine->loadFont(currentFontIndex,
+                                              currentFaceIndex,
+                                              currentInstanceIndex);
+      if (currentNumGlyphs < 0)
+        faceIDHash.remove(FaceID(currentFontIndex,
+                                 currentFaceIndex,
+                                 currentInstanceIndex));
     }
   }
 
@@ -1264,7 +1343,8 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
-  faceCounter = 0;
+  // starting value 0 only works with FreeType 2.6.4 or newer
+  faceCounter = 1;
 
   // set up mappings between property values and combo box indices
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
