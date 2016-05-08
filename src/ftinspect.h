@@ -157,12 +157,14 @@ class Grid
 : public QGraphicsItem
 {
 public:
-  Grid(const QPen&);
+  Grid(const QPen&,
+       const QPen&);
   QRectF boundingRect() const;
   void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 
 private:
-  QPen pen;
+  QPen gridPen;
+  QPen axisPen;
 };
 
 

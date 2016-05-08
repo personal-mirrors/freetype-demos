@@ -1,5 +1,18 @@
 2016-05-08  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Display axes.
+
+	& src/ftinspect.cpp (Grid::Grid): Add second parameter to pass axis
+	pen.
+	(Grid::paint): Add axes.
+	Increase grid size.
+	(Grid::boundingRect):Updated.
+	(MainGUI::createLayout): Updated.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-08  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Display grid.
 
 	The dimensions are still arbitrary, though.

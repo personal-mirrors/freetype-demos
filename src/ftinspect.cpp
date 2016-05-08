@@ -446,8 +446,10 @@ Engine::update()
 }
 
 
-Grid::Grid(const QPen& p)
-: pen(p)
+Grid::Grid(const QPen& gridP,
+           const QPen& axisP)
+: gridPen(gridP),
+  axisPen(axisP)
 {
  // empty
 }
@@ -459,10 +461,13 @@ Grid::boundingRect() const
   // XXX fix size
 
   // no need to take care of pen width
-  return QRectF(0, 0,
-                100, 100);
+  return QRectF(-100, -100,
+                200, 200);
 }
 
+
+// XXX call this in a `myQDraphicsView::drawBackground' derived method
+//     to always fill the complete viewport
 
 void
 Grid::paint(QPainter* painter,
@@ -472,19 +477,26 @@ Grid::paint(QPainter* painter,
   const qreal lod = option->levelOfDetailFromTransform(
                               painter->worldTransform());
 
-  painter->setPen(pen);
+  painter->setPen(gridPen);
 
   // don't draw grid if magnification is too small
   if (lod >= 5)
   {
     // XXX fix size
-    for (qreal x = 0; x <= 100; x++ )
-      painter->drawLine(x, 0,
+    for (qreal x = -100; x <= 100; x++)
+      painter->drawLine(x, -100,
                         x, 100);
-    for (qreal y = 0; y <= 100; y++)
-      painter->drawLine(0, y,
+    for (qreal y = -100; y <= 100; y++)
+      painter->drawLine(-100, y,
                         100, y);
   }
+
+  painter->setPen(axisPen);
+
+  painter->drawLine(0, -100,
+                    0, 100);
+  painter->drawLine(-100, 0,
+                    100, 0);
 }
 
 
@@ -1234,7 +1246,7 @@ MainGUI::createLayout()
 
   // right side
   glyphScene = new QGraphicsScene;
-  glyphScene->addItem(new Grid(gridPen));
+  glyphScene->addItem(new Grid(gridPen, axisPen));
 
   glyphView = new QGraphicsView;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
