@@ -16,6 +16,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QCloseEvent>
+#include <QColor>
 #include <QComboBox>
 #include <QDesktopWidget>
 #include <QDir>
@@ -31,6 +32,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPen>
 #include <QPushButton>
 #include <QSettings>
 #include <QSignalMapper>
@@ -294,6 +296,14 @@ private:
   QMenu *menuFile;
   QMenu *menuHelp;
 
+  QPen axisPen;
+  QPen blueZonePen;
+  QPen gridPen;
+  QPen offPen;
+  QPen onPen;
+  QPen outlinePen;
+  QPen segmentPen;
+
   QPushButton *nextFaceButton;
   QPushButton *nextFontButton;
   QPushButton *nextInstanceButton;
@@ -370,6 +380,7 @@ private:
   void clearStatusBar();
   void createStatusBar();
   void readSettings();
+  void setGraphicsDefaults();
   void showFont();
   void writeSettings();
 };

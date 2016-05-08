@@ -1,3 +1,13 @@
+2016-05-08  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Provide some drawing colors.
+
+	* src/ftinspect.h (MainGUI): Provide colors for axes, blue zones,
+	grid lines, on and off points, outlines, and segment lines.
+
+	* src/ftinspect.cpp (MainGUI::setGraphicsDefaults): New method.
+	(MainGUI::MainGUI): Updated.
+
 2016-05-07  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Make glyph navigation work.

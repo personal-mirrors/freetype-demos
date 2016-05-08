@@ -449,6 +449,7 @@ Engine::update()
 
 MainGUI::MainGUI()
 {
+  setGraphicsDefaults();
   createLayout();
   createConnections();
   createActions();
@@ -968,6 +969,25 @@ MainGUI::nextInstance()
 }
 
 
+void
+MainGUI::setGraphicsDefaults()
+{
+  // XXX make this user-configurable
+
+  axisPen.setColor(QColor(0, 0, 0, 255));        // black
+  axisPen.setWidth(0);
+  blueZonePen.setColor(QColor(64, 64, 255, 64)); // light blue
+  blueZonePen.setWidth(0);
+  gridPen.setColor(QColor(192, 192, 192, 255));  // gray
+  gridPen.setWidth(0);
+  offPen.setColor(QColor(0, 128, 0, 255));       // dark green
+  onPen.setColor(QColor(255, 0, 0, 255));        // red
+  outlinePen.setColor(QColor(255, 0, 0, 255));   // red
+  segmentPen.setColor(QColor(64, 255, 128, 64)); // light green
+  segmentPen.setWidth(0);
+}
+
+
 // XXX distances are specified in pixels,
 //     making the layout dependent on the output device resolution
 void
@@ -1394,10 +1414,6 @@ MainGUI::clearStatusBar()
 void
 MainGUI::setDefaults()
 {
-  // starting value 0 for a cache's face ID
-  // only works with FreeType 2.6.4 or newer
-  faceCounter = 1;
-
   // set up mappings between property values and combo box indices
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_38] = HintingMode_TrueType_v38;
@@ -1434,6 +1450,10 @@ MainGUI::setDefaults()
   for (int i = 0; i < hintingModesAlwaysDisabled.size(); i++)
     hintingModeComboBoxx->setItemEnabled(hintingModesAlwaysDisabled[i],
                                          false);
+
+  // starting value 0 for a cache's face ID
+  // only works with FreeType 2.6.4 or newer
+  faceCounter = 1;
 
   currentFontIndex = -1;
   currentFaceIndex = -1;
