@@ -22,6 +22,8 @@
 #include <QDir>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
+#include <QGraphicsItem>
+#include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGridLayout>
 #include <QHash>
@@ -43,6 +45,7 @@
 #include <QStandardItemModel>
 #include <QStatusBar>
 #include <QTabWidget>
+#include <QTransform>
 #include <QVariant>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -130,7 +133,6 @@ private:
   double pointSize;
   double pixelSize;
   int dpi;
-  int zoom;
 
   bool doHinting;
   bool doAutoHinting;
@@ -148,6 +150,19 @@ private:
   double gamma;
 
   int loadFlags;
+};
+
+
+class Grid
+: public QGraphicsItem
+{
+public:
+  Grid(const QPen&);
+  QRectF boundingRect() const;
+  void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
+
+private:
+  QPen pen;
 };
 
 
@@ -217,6 +232,7 @@ private slots:
   void previousFace();
   void previousFont();
   void previousInstance();
+  void zoom();
 
 private:
   Engine* engine;
@@ -258,6 +274,7 @@ private:
 
   QDoubleSpinBox *sizeDoubleSpinBox;
 
+  QGraphicsScene *glyphScene;
   QGraphicsView *glyphView;
 
   QGridLayout *fontLayout;

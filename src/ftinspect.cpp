@@ -346,7 +346,6 @@ void
 Engine::update()
 {
   dpi = gui->dpiSpinBox->value();
-  zoom = gui->zoomSpinBox->value();
 
   if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
   {
@@ -444,6 +443,48 @@ Engine::update()
   }
 
 
+}
+
+
+Grid::Grid(const QPen& p)
+: pen(p)
+{
+ // empty
+}
+
+
+QRectF
+Grid::boundingRect() const
+{
+  // XXX fix size
+
+  // no need to take care of pen width
+  return QRectF(0, 0,
+                100, 100);
+}
+
+
+void
+Grid::paint(QPainter* painter,
+            const QStyleOptionGraphicsItem* option,
+            QWidget*)
+{
+  const qreal lod = option->levelOfDetailFromTransform(
+                              painter->worldTransform());
+
+  painter->setPen(pen);
+
+  // don't draw grid if magnification is too small
+  if (lod >= 5)
+  {
+    // XXX fix size
+    for (qreal x = 0; x <= 100; x++ )
+      painter->drawLine(x, 0,
+                        x, 100);
+    for (qreal y = 0; y <= 100; y++)
+      painter->drawLine(0, y,
+                        100, y);
+  }
 }
 
 
@@ -970,6 +1011,24 @@ MainGUI::nextInstance()
 
 
 void
+MainGUI::zoom()
+{
+  int scale = zoomSpinBox->value();
+
+  QTransform transform;
+  transform.scale(scale, scale);
+
+  // we want horizontal and vertical 1px lines displayed with full pixels;
+  // we thus have to shift the coordinate system accordingly, using a value
+  // that represents 0.5px (i.e., half the 1px line width) after the scaling
+  qreal shift = 0.5 / scale;
+  transform.translate(shift, shift);
+
+  glyphView->setTransform(transform);
+}
+
+
+void
 MainGUI::setGraphicsDefaults()
 {
   // XXX make this user-configurable
@@ -1174,7 +1233,16 @@ MainGUI::createLayout()
   leftWidget->setSizePolicy(leftWidgetPolicy);
 
   // right side
+  glyphScene = new QGraphicsScene;
+  glyphScene->addItem(new Grid(gridPen));
+
   glyphView = new QGraphicsView;
+  glyphView->setRenderHint(QPainter::Antialiasing, true);
+  glyphView->setDragMode(QGraphicsView::ScrollHandDrag);
+  glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+  glyphView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+  glyphView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+  glyphView->setScene(glyphScene);
 
   sizeLabel = new QLabel(tr("Size "));
   sizeLabel->setAlignment(Qt::AlignRight);
@@ -1207,13 +1275,12 @@ MainGUI::createLayout()
   toP1000Buttonx = new QPushButtonx("+1000");
   toEndButtonx = new QPushButtonx(">|");
 
-  zoomLabel = new QLabel(tr("Zoom "));
+  zoomLabel = new QLabel(tr("Zoom Factor"));
   zoomLabel->setAlignment(Qt::AlignRight);
   zoomSpinBox = new QSpinBox;
   zoomSpinBox->setAlignment(Qt::AlignRight);
-  zoomSpinBox->setRange(1, 10000);
-  zoomSpinBox->setSuffix("%");
-  zoomSpinBox->setSingleStep(10);
+  zoomSpinBox->setRange(1, 1000);
+  zoomSpinBox->setSingleStep(1);
   zoomLabel->setBuddy(zoomSpinBox);
 
   previousFontButton = new QPushButton(tr("Previous Font"));
@@ -1307,6 +1374,9 @@ MainGUI::createConnections()
 
   connect(unitsComboBox, SIGNAL(currentIndexChanged(int)),
           SLOT(checkUnits()));
+
+  connect(zoomSpinBox, SIGNAL(valueChanged(int)),
+          SLOT(zoom()));
 
   connect(previousFontButton, SIGNAL(clicked()),
           SLOT(previousFont()));
@@ -1478,7 +1548,7 @@ MainGUI::setDefaults()
   gammaSlider->setValue(18); // 1.8
   sizeDoubleSpinBox->setValue(20);
   dpiSpinBox->setValue(96);
-  zoomSpinBox->setValue(100);
+  zoomSpinBox->setValue(20);
 
   checkHinting();
   checkHintingMode();
@@ -1490,6 +1560,7 @@ MainGUI::setDefaults()
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
   checkCurrentInstanceIndex();
+  zoom();
 }
 
 
