@@ -1,5 +1,29 @@
 2016-05-09  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Display glyph points.
+
+	Also fix other minor issues.
+
+	* src/ftinspect.cpp (GlyphPoints::GlyphPoints,
+	GlyphPoints::boundRect, GlyphPoints::paint): New methods for
+	constructing the set of glyph points.
+	(MainGUI::checkShowPoints, MainGUI::setGraphicsDefaults): Updated.
+	(MainGUI::drawGlyph): Honor `glyph outlines' and `glyph points'
+	check boxes.
+	(MainGUI::createLayout): Updated.
+	(MainGUI::createConnections): Handle `showOutlinesCheckBox'.
+
+	(GlyphOutline::GlyphOutline): Improve computation of bounding
+	rectangle.
+	(Engine::update): Updated.
+
+	* src/ftinspect.h (Engine): Remove unused members which are handled
+	in MainGUI.
+	(GlyphPoints): New class, derived from `QGraphicsItem'.
+	(MainGUI): Mew member `currentGlyphPointsItem'.
+
+2016-05-09  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Minor.
 
 	* src/ftinspect.cpp, src/ftinspect.h: s/loadGlyph/loadOutline/.

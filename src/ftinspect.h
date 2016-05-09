@@ -146,9 +146,6 @@ private:
   bool doWarping;
 
   bool showBitmap;
-  bool showPoints;
-  bool showPointIndices;
-  bool showOutlines;
 
   double gamma;
 
@@ -186,6 +183,26 @@ public:
 
 private:
   QPen outlinePen;
+  FT_Outline* outline;
+  QRectF bRect;
+};
+
+
+class GlyphPoints
+: public QGraphicsItem
+{
+public:
+  GlyphPoints(const QPen&,
+              const QPen&,
+              FT_Outline*);
+  QRectF boundingRect() const;
+  void paint(QPainter*,
+             const QStyleOptionGraphicsItem*,
+             QWidget*);
+
+private:
+  QPen onPen;
+  QPen offPen;
   FT_Outline* outline;
   QRectF bRect;
 };
@@ -301,6 +318,7 @@ private:
   QDoubleSpinBox *sizeDoubleSpinBox;
 
   QGraphicsItem *currentGlyphOutlineItem;
+  QGraphicsItem *currentGlyphPointsItem;
 
   QGraphicsScene *glyphScene;
   QGraphicsView *glyphView;
