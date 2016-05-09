@@ -9,6 +9,7 @@
 #include FT_CFF_DRIVER_H
 #include FT_LCD_FILTER_H
 #include FT_MODULE_H
+#include FT_OUTLINE_H
 #include FT_TRUETYPE_DRIVER_H
 
 #include <QAction>
@@ -34,6 +35,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPainterPath>
 #include <QPen>
 #include <QPushButton>
 #include <QSettings>
@@ -105,6 +107,7 @@ public:
   int numFaces(int);
   int numInstances(int, int);
   int loadFont(int, int, int); // returns number of glyphs
+  FT_Outline* loadGlyph(int);
   void removeFont(int, int, int);
   void update();
 
@@ -170,6 +173,24 @@ private:
 };
 
 
+class Glyph
+: public QGraphicsItem
+{
+public:
+  Glyph(const QPen&,
+        FT_Outline*);
+  QRectF boundingRect() const;
+  void paint(QPainter*,
+             const QStyleOptionGraphicsItem*,
+             QWidget*);
+
+private:
+  QPen outlinePen;
+  FT_Outline* outline;
+  QRectF bRect;
+};
+
+
 // we want to grey out items in a combo box;
 // since Qt doesn't provide a function for this we derive a class
 class QComboBoxx
@@ -229,6 +250,7 @@ private slots:
   void checkShowPoints();
   void checkUnits();
   void closeFont();
+  void drawGlyphOutline();
   void loadFonts();
   void nextFace();
   void nextFont();
@@ -277,6 +299,8 @@ private:
   QComboBox *unitsComboBox;
 
   QDoubleSpinBox *sizeDoubleSpinBox;
+
+  QGraphicsItem *currentGlyphOutlineItem;
 
   QGraphicsScene *glyphScene;
   QGraphicsView *glyphView;

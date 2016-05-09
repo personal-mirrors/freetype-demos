@@ -1,5 +1,27 @@
 2016-05-09  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Display glyphs outlines.
+
+	* src/ftinspect.cpp (Engine::loadGlyph): New method.
+	(moveTo, lineTo, conicTo, cubicTo): New wrapper functions for
+	`QPainterPath' methods.
+	(outlineFuncs): New structure, used as an interface to
+	`FT_Outline_Decompose'.
+	(Glyph::Glyph, Glyph::boundRect, Glyph::paint): New methods for
+	constructing a glyph object.
+	(MainGUI::drawGlyphOutline): New method.
+	(MainGUI::showFont, MainGUI::checkUnits, MainGUI::adjustGlyphIndex,
+	MainGUI::createLayout): Updated.
+	(MainGUI::createConnections): Handle `sizeDoubleSpinBox' and
+	`dpiSpinBox'.
+
+	* src/ftinspect.h (Engine): Updated.
+	(Glyph): New class, derived from `QGraphicsItem'.
+	(MainGUI): New member `currentGlyphOutlineItem'.
+	Updated.
+
+2016-05-09  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Fix a bunch of glitches.
 
 	* src/ftinspect.cpp (FaceID::FaceID): Initialize members with `-1'.
@@ -21,7 +43,7 @@
 
 	[ftinspect] Display axes.
 
-	& src/ftinspect.cpp (Grid::Grid): Add second parameter to pass axis
+	* src/ftinspect.cpp (Grid::Grid): Add second parameter to pass axis
 	pen.
 	(Grid::paint): Add axes.
 	Increase grid size.

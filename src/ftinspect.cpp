@@ -348,6 +348,37 @@ Engine::removeFont(int fontIndex,
 }
 
 
+FT_Outline*
+Engine::loadGlyph(int glyphIndex)
+{
+  update();
+
+  FT_Glyph glyph;
+
+  // XXX handle bitmap fonts
+
+  // the `scaler' object is set up by the
+  // `update' and `loadFont' methods
+  if (FTC_ImageCache_LookupScaler(imageCache,
+                                  &scaler,
+                                  loadFlags | FT_LOAD_NO_BITMAP,
+                                  glyphIndex,
+                                  &glyph,
+                                  NULL))
+  {
+    // XXX error handling?
+    return NULL;
+  }
+
+  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+    return NULL;
+
+  FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
+
+  return &outlineGlyph->outline;
+}
+
+
 void
 Engine::update()
 {
@@ -501,6 +532,120 @@ Grid::paint(QPainter* painter,
                     0, 100);
   painter->drawLine(-100, 0,
                     100, 0);
+}
+
+
+extern "C" {
+
+// vertical font coordinates are bottom-up,
+// while Qt uses top-down
+
+static int
+moveTo(const FT_Vector* to,
+       void* user)
+{
+  QPainterPath* path = static_cast<QPainterPath*>(user);
+
+  path->moveTo(qreal(to->x) / 64,
+               -qreal(to->y) / 64);
+
+  return 0;
+}
+
+
+static int
+lineTo(const FT_Vector* to,
+       void* user)
+{
+  QPainterPath* path = static_cast<QPainterPath*>(user);
+
+  path->lineTo(qreal(to->x) / 64,
+               -qreal(to->y) / 64);
+
+  return 0;
+}
+
+
+static int
+conicTo(const FT_Vector* control,
+        const FT_Vector* to,
+        void* user)
+{
+  QPainterPath* path = static_cast<QPainterPath*>(user);
+
+  path->quadTo(qreal(control->x) / 64,
+               -qreal(control->y) / 64,
+               qreal(to->x) / 64,
+               -qreal(to->y) / 64);
+
+  return 0;
+}
+
+
+static int
+cubicTo(const FT_Vector* control1,
+        const FT_Vector* control2,
+        const FT_Vector* to,
+        void* user)
+{
+  QPainterPath* path = static_cast<QPainterPath*>(user);
+
+  path->cubicTo(qreal(control1->x) / 64,
+                -qreal(control1->y) / 64,
+                qreal(control2->x) / 64,
+                -qreal(control2->y) / 64,
+                qreal(to->x) / 64,
+                -qreal(to->y) / 64);
+
+  return 0;
+}
+
+
+static FT_Outline_Funcs outlineFuncs =
+{
+  moveTo,
+  lineTo,
+  conicTo,
+  cubicTo,
+  0, // no shift
+  0  // no delta
+};
+
+} // extern "C"
+
+
+Glyph::Glyph(const QPen& outlineP,
+             FT_Outline* outln)
+: outlinePen(outlineP),
+  outline(outln)
+{
+  FT_BBox cbox;
+
+  FT_Outline_Get_CBox(outline, &cbox);
+
+  bRect.setCoords(qreal(cbox.xMin) / 64, -qreal(cbox.yMax) / 64,
+                  qreal(cbox.xMax) / 64, -qreal(cbox.yMin) / 64);
+}
+
+
+QRectF
+Glyph::boundingRect() const
+{
+  return bRect;
+}
+
+
+void
+Glyph::paint(QPainter* painter,
+             const QStyleOptionGraphicsItem*,
+             QWidget*)
+{
+  painter->setPen(outlinePen);
+
+  QPainterPath path;
+  FT_Outline_Decompose(outline, &outlineFuncs, &path);
+
+  painter->drawPath(path);
 }
 
 
@@ -716,6 +861,8 @@ MainGUI::showFont()
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
   checkCurrentInstanceIndex();
+
+  drawGlyphOutline();
 }
 
 
@@ -842,6 +989,8 @@ MainGUI::checkUnits()
     dpiLabel->setEnabled(true);
     dpiSpinBox->setEnabled(true);
   }
+
+  drawGlyphOutline();
 }
 
 
@@ -857,6 +1006,8 @@ MainGUI::adjustGlyphIndex(int delta)
     currentGlyphIndex = 0;
   else if (currentGlyphIndex >= currentNumGlyphs)
     currentGlyphIndex = currentNumGlyphs - 1;
+
+  drawGlyphOutline();
 }
 
 
@@ -1073,6 +1224,35 @@ MainGUI::setGraphicsDefaults()
 }
 
 
+void
+MainGUI::drawGlyphOutline()
+{
+  if (!engine)
+    return;
+
+  if (currentGlyphOutlineItem)
+  {
+    glyphScene->removeItem(currentGlyphOutlineItem);
+    delete currentGlyphOutlineItem;
+
+    currentGlyphOutlineItem = NULL;
+  }
+
+  if (currentFontIndex >= 0
+      && currentFaceIndex >= 0)
+  {
+    FT_Outline* outline = engine->loadGlyph(currentGlyphIndex);
+    if (outline)
+    {
+      currentGlyphOutlineItem = new Glyph(outlinePen, outline);
+      glyphScene->addItem(currentGlyphOutlineItem);
+    }
+  }
+
+  glyphScene->update();
+}
+
+
 // XXX distances are specified in pixels,
 //     making the layout dependent on the output device resolution
 void
@@ -1262,6 +1442,9 @@ MainGUI::createLayout()
   glyphScene = new QGraphicsScene;
   glyphScene->addItem(new Grid(gridPen, axisPen));
 
+  currentGlyphOutlineItem = NULL;
+  drawGlyphOutline();
+
   glyphView = new QGraphicsView;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
   glyphView->setDragMode(QGraphicsView::ScrollHandDrag);
@@ -1398,8 +1581,12 @@ MainGUI::createConnections()
   connect(showPointsCheckBox, SIGNAL(clicked()),
           SLOT(checkShowPoints()));
 
+  connect(sizeDoubleSpinBox, SIGNAL(valueChanged(double)),
+          SLOT(drawGlyphOutline()));
   connect(unitsComboBox, SIGNAL(currentIndexChanged(int)),
           SLOT(checkUnits()));
+  connect(dpiSpinBox, SIGNAL(valueChanged(int)),
+          SLOT(drawGlyphOutline()));
 
   connect(zoomSpinBox, SIGNAL(valueChanged(int)),
           SLOT(zoom()));
