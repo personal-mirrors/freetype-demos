@@ -1,3 +1,22 @@
+2016-05-09  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Fix a bunch of glitches.
+
+	* src/ftinspect.cpp (FaceID::FaceID): Initialize members with `-1'.
+	While not needed, it better indicates an invalid lookup in the hash
+	for debugging purposes.
+	(Engine::Engine): Don't call `update' here, since
+	`MainGUI::setDefaults' wasn't called yet.
+	(Engine::loadFont): Call `update'.
+	Return -1 for an invalid face ID.
+	(Engine::removeFont): Properly handle invalid face ID.
+	(Engine::update): Fix code reversal for pixels vs. points.
+	(MainGUI::MainGUI): Initialize `engine'.
+	(MainGUI::closeFont): First remove the font, then the face ID.
+	Handle invalid font also.
+	(MainGUI::showFont): Handle invalid font also.
+	(MainGUI::setGraphicsDefault): Set width of outline pen.
+
 2016-05-08  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Display axes.

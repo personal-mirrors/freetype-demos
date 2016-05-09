@@ -160,7 +160,9 @@ public:
   Grid(const QPen&,
        const QPen&);
   QRectF boundingRect() const;
-  void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
+  void paint(QPainter*,
+             const QStyleOptionGraphicsItem*,
+             QWidget*);
 
 private:
   QPen gridPen;

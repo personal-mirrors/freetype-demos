@@ -9,9 +9,9 @@
 
 
 FaceID::FaceID()
-: fontIndex(0),
-  faceIndex(0),
-  instanceIndex(0)
+: fontIndex(-1),
+  faceIndex(-1),
+  instanceIndex(-1)
 {
   // empty
 }
@@ -224,8 +224,6 @@ Engine::Engine(MainGUI* g)
                     "warping",
                     &doWarping);
   }
-
-  update();
 }
 
 
@@ -313,10 +311,17 @@ Engine::loadFont(int fontIndex,
                  int faceIndex,
                  int instanceIndex)
 {
+  update();
+
   scaler.face_id = reinterpret_cast<void*>
                      (gui->faceIDHash.value(FaceID(fontIndex,
                                                    faceIndex,
                                                    instanceIndex)));
+  if (scaler.face_id == 0)
+  {
+    // an invalid font, missing in the hash
+    return -1;
+  }
 
   FT_Error error = FTC_Manager_LookupSize(cacheManager, &scaler, &ftSize);
   if (error)
@@ -338,7 +343,8 @@ Engine::removeFont(int fontIndex,
                          (gui->faceIDHash.value(FaceID(fontIndex,
                                                        faceIndex,
                                                        instanceIndex)));
-  FTC_Manager_RemoveFaceID(cacheManager, face_id);
+  if (face_id)
+    FTC_Manager_RemoveFaceID(cacheManager, face_id);
 }
 
 
@@ -349,13 +355,13 @@ Engine::update()
 
   if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
   {
-    pointSize = gui->sizeDoubleSpinBox->value();
-    pixelSize = pointSize * dpi / 72.0;
+    pixelSize = gui->sizeDoubleSpinBox->value();
+    pointSize = pixelSize * 72.0 / dpi;
   }
   else
   {
-    pixelSize = gui->sizeDoubleSpinBox->value();
-    pointSize = pixelSize * 72.0 / dpi;
+    pointSize = gui->sizeDoubleSpinBox->value();
+    pixelSize = pointSize * dpi / 72.0;
   }
 
   doHinting = gui->hintingCheckBox->isChecked();
@@ -441,8 +447,6 @@ Engine::update()
     scaler.x_res = dpi;
     scaler.y_res = dpi;
   }
-
-
 }
 
 
@@ -502,6 +506,8 @@ Grid::paint(QPainter* painter,
 
 MainGUI::MainGUI()
 {
+  engine = NULL;
+
   setGraphicsDefaults();
   createLayout();
   createConnections();
@@ -597,8 +603,8 @@ MainGUI::closeFont()
     for (int i = 0; i < fonts[currentFontIndex].numInstancesList.size(); i++)
       for (int j = 0; j < fonts[currentFontIndex].numInstancesList[i]; j++)
       {
-        faceIDHash.remove(FaceID(currentFontIndex, i, j));
         engine->removeFont(currentFontIndex, i, j);
+        faceIDHash.remove(FaceID(currentFontIndex, i, j));
       }
 
     fonts.removeAt(currentFontIndex);
@@ -607,7 +613,8 @@ MainGUI::closeFont()
     currentFontIndex--;
 
   if (currentFontIndex < 0
-      || fonts[currentFontIndex].numInstancesList.isEmpty())
+      || fonts[currentFontIndex].numInstancesList.isEmpty()
+      || fonts[currentFontIndex].numInstancesList[0] == 0)
   {
     currentFaceIndex = -1;
     currentInstanceIndex = -1;
@@ -682,7 +689,8 @@ MainGUI::showFont()
       currentInstanceIndex = 0;
     }
 
-    if (currentFaceIndex >= 0)
+    if (currentFontIndex >= 0
+        && fonts[currentFontIndex].numInstancesList[0] != 0)
     {
       // up to now we only called for rudimentary font handling
       // (via the `engine->numFaces' and `engine->numInstances' methods);
@@ -697,6 +705,11 @@ MainGUI::showFont()
         faceIDHash.remove(FaceID(currentFontIndex,
                                  currentFaceIndex,
                                  currentInstanceIndex));
+    }
+    else
+    {
+      currentFaceIndex = -1;
+      currentNumGlyphs = -1;
     }
   }
 
@@ -1054,6 +1067,7 @@ MainGUI::setGraphicsDefaults()
   offPen.setColor(QColor(0, 128, 0, 255));       // dark green
   onPen.setColor(QColor(255, 0, 0, 255));        // red
   outlinePen.setColor(QColor(255, 0, 0, 255));   // red
+  outlinePen.setWidth(0);
   segmentPen.setColor(QColor(64, 255, 128, 64)); // light green
   segmentPen.setWidth(0);
 }
@@ -1533,8 +1547,7 @@ MainGUI::setDefaults()
     hintingModeComboBoxx->setItemEnabled(hintingModesAlwaysDisabled[i],
                                          false);
 
-  // starting value 0 for a cache's face ID
-  // only works with FreeType 2.6.4 or newer
+  // we reserve value 0 for the `invalid face ID'
   faceCounter = 1;
 
   currentFontIndex = -1;
