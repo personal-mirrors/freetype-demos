@@ -349,7 +349,7 @@ Engine::removeFont(int fontIndex,
 
 
 FT_Outline*
-Engine::loadGlyph(int glyphIndex)
+Engine::loadOutline(int glyphIndex)
 {
   update();
 
@@ -614,8 +614,8 @@ static FT_Outline_Funcs outlineFuncs =
 } // extern "C"
 
 
-Glyph::Glyph(const QPen& outlineP,
-             FT_Outline* outln)
+GlyphOutline::GlyphOutline(const QPen& outlineP,
+                           FT_Outline* outln)
 : outlinePen(outlineP),
   outline(outln)
 {
@@ -629,16 +629,16 @@ Glyph::Glyph(const QPen& outlineP,
 
 
 QRectF
-Glyph::boundingRect() const
+GlyphOutline::boundingRect() const
 {
   return bRect;
 }
 
 
 void
-Glyph::paint(QPainter* painter,
-             const QStyleOptionGraphicsItem*,
-             QWidget*)
+GlyphOutline::paint(QPainter* painter,
+                    const QStyleOptionGraphicsItem*,
+                    QWidget*)
 {
   painter->setPen(outlinePen);
 
@@ -862,7 +862,7 @@ MainGUI::showFont()
   checkCurrentFaceIndex();
   checkCurrentInstanceIndex();
 
-  drawGlyphOutline();
+  drawGlyph();
 }
 
 
@@ -990,7 +990,7 @@ MainGUI::checkUnits()
     dpiSpinBox->setEnabled(true);
   }
 
-  drawGlyphOutline();
+  drawGlyph();
 }
 
 
@@ -1007,7 +1007,7 @@ MainGUI::adjustGlyphIndex(int delta)
   else if (currentGlyphIndex >= currentNumGlyphs)
     currentGlyphIndex = currentNumGlyphs - 1;
 
-  drawGlyphOutline();
+  drawGlyph();
 }
 
 
@@ -1225,7 +1225,7 @@ MainGUI::setGraphicsDefaults()
 
 
 void
-MainGUI::drawGlyphOutline()
+MainGUI::drawGlyph()
 {
   if (!engine)
     return;
@@ -1241,10 +1241,10 @@ MainGUI::drawGlyphOutline()
   if (currentFontIndex >= 0
       && currentFaceIndex >= 0)
   {
-    FT_Outline* outline = engine->loadGlyph(currentGlyphIndex);
+    FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
     if (outline)
     {
-      currentGlyphOutlineItem = new Glyph(outlinePen, outline);
+      currentGlyphOutlineItem = new GlyphOutline(outlinePen, outline);
       glyphScene->addItem(currentGlyphOutlineItem);
     }
   }
@@ -1443,7 +1443,7 @@ MainGUI::createLayout()
   glyphScene->addItem(new Grid(gridPen, axisPen));
 
   currentGlyphOutlineItem = NULL;
-  drawGlyphOutline();
+  drawGlyph();
 
   glyphView = new QGraphicsView;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
@@ -1582,11 +1582,11 @@ MainGUI::createConnections()
           SLOT(checkShowPoints()));
 
   connect(sizeDoubleSpinBox, SIGNAL(valueChanged(double)),
-          SLOT(drawGlyphOutline()));
+          SLOT(drawGlyph()));
   connect(unitsComboBox, SIGNAL(currentIndexChanged(int)),
           SLOT(checkUnits()));
   connect(dpiSpinBox, SIGNAL(valueChanged(int)),
-          SLOT(drawGlyphOutline()));
+          SLOT(drawGlyph()));
 
   connect(zoomSpinBox, SIGNAL(valueChanged(int)),
           SLOT(zoom()));

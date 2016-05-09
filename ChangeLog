@@ -1,5 +1,13 @@
 2016-05-09  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Minor.
+
+	* src/ftinspect.cpp, src/ftinspect.h: s/loadGlyph/loadOutline/.
+	s/Glyph/GlyphOutline/.
+	s/drawGlyphOutline/drawGlyph/.
+
+2016-05-09  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Display glyphs outlines.
 
 	* src/ftinspect.cpp (Engine::loadGlyph): New method.

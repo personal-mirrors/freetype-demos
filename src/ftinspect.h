@@ -107,7 +107,7 @@ public:
   int numFaces(int);
   int numInstances(int, int);
   int loadFont(int, int, int); // returns number of glyphs
-  FT_Outline* loadGlyph(int);
+  FT_Outline* loadOutline(int);
   void removeFont(int, int, int);
   void update();
 
@@ -173,12 +173,12 @@ private:
 };
 
 
-class Glyph
+class GlyphOutline
 : public QGraphicsItem
 {
 public:
-  Glyph(const QPen&,
-        FT_Outline*);
+  GlyphOutline(const QPen&,
+               FT_Outline*);
   QRectF boundingRect() const;
   void paint(QPainter*,
              const QStyleOptionGraphicsItem*,
@@ -250,7 +250,7 @@ private slots:
   void checkShowPoints();
   void checkUnits();
   void closeFont();
-  void drawGlyphOutline();
+  void drawGlyph();
   void loadFonts();
   void nextFace();
   void nextFont();
