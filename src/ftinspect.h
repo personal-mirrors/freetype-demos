@@ -162,8 +162,6 @@ private:
   bool showSegments;
   bool doWarping;
 
-  bool showBitmap;
-
   double gamma;
 
   int loadFlags;
@@ -241,6 +239,31 @@ private:
   QPen onPen;
   QPen offPen;
   FT_Outline* outline;
+  QRectF bRect;
+};
+
+
+class GlyphBitmap
+: public QGraphicsItem
+{
+public:
+  GlyphBitmap(FT_Outline*,
+              FT_Library,
+              int,
+              const QVector<QRgb>&,
+              const QVector<QRgb>&);
+  ~GlyphBitmap();
+  QRectF boundingRect() const;
+  void paint(QPainter*,
+             const QStyleOptionGraphicsItem*,
+             QWidget*);
+
+private:
+  FT_Outline transformed;
+  FT_Library library;
+  int pixelMode;
+  const QVector<QRgb>& monoColorTable;
+  const QVector<QRgb>& grayColorTable;
   QRectF bRect;
 };
 
@@ -335,6 +358,7 @@ private:
   GlyphOutline *currentGlyphOutlineItem;
   GlyphPoints *currentGlyphPointsItem;
   GlyphPointNumbers *currentGlyphPointNumbersItem;
+  GlyphBitmap *currentGlyphBitmapItem;
 
   QAction *aboutAct;
   QAction *aboutQtAct;
@@ -439,6 +463,9 @@ private:
   QVBoxLayout *generalTabLayout;
   QVBoxLayout *leftLayout;
   QVBoxLayout *rightLayout;
+
+  QVector<QRgb> grayColorTable;
+  QVector<QRgb> monoColorTable;
 
   QWidget *ftinspectWidget;
   QWidget *generalTabWidget;

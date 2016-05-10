@@ -448,8 +448,6 @@ Engine::update()
   showSegments = gui->segmentDrawingCheckBox->isChecked();
   doWarping = gui->warpingCheckBox->isChecked();
 
-  showBitmap = gui->showBitmapCheckBox->isChecked();
-
   gamma = gui->gammaSlider->value();
 
   loadFlags = FT_LOAD_DEFAULT;
@@ -974,6 +972,97 @@ GlyphPointNumbers::paint(QPainter* painter,
 }
 
 
+GlyphBitmap::GlyphBitmap(FT_Outline* outline,
+                         FT_Library lib,
+                         int pxlMode,
+                         const QVector<QRgb>& monoColorTbl,
+                         const QVector<QRgb>& grayColorTbl)
+: library(lib),
+  pixelMode(pxlMode),
+  monoColorTable(monoColorTbl),
+  grayColorTable(grayColorTbl)
+{
+  // make a copy of the outline since we are going to manipulate it
+  FT_Outline_New(library,
+                 outline->n_points,
+                 outline->n_contours,
+                 &transformed);
+  FT_Outline_Copy(outline, &transformed);
+
+  FT_BBox cbox;
+  FT_Outline_Get_CBox(outline, &cbox);
+
+  cbox.xMin &= ~63;
+  cbox.yMin &= ~63;
+  cbox.xMax = (cbox.xMax + 63) & ~63;
+  cbox.yMax = (cbox.yMax + 63) & ~63;
+
+  // we shift the outline to the origin for rendering later on
+  FT_Outline_Translate(&transformed, -cbox.xMin, -cbox.yMin);
+
+  bRect.setCoords(cbox.xMin / 64, -cbox.yMax / 64,
+                  cbox.xMax / 64, -cbox.yMin / 64);
+}
+
+
+GlyphBitmap::~GlyphBitmap()
+{
+  FT_Outline_Done(library, &transformed);
+}
+
+
+QRectF
+GlyphBitmap::boundingRect() const
+{
+  return bRect;
+}
+
+
+void
+GlyphBitmap::paint(QPainter* painter,
+                   const QStyleOptionGraphicsItem*,
+                   QWidget*)
+{
+  FT_Bitmap bitmap;
+
+  int height = bRect.height();
+  int width = bRect.width();
+  QImage::Format format = QImage::Format_Indexed8;
+
+  // XXX cover LCD and color
+  if (pixelMode == FT_PIXEL_MODE_MONO)
+    format = QImage::Format_Mono;
+
+  QImage image(QSize(width, height), format);
+
+  if (pixelMode == FT_PIXEL_MODE_MONO)
+    image.setColorTable(monoColorTable);
+  else
+    image.setColorTable(grayColorTable);
+
+  image.fill(0);
+
+  bitmap.rows = height;
+  bitmap.width = width;
+  bitmap.buffer = const_cast<uchar*>(image.constBits());
+  bitmap.pitch = image.bytesPerLine();
+  bitmap.pixel_mode = pixelMode;
+
+  FT_Error error = FT_Outline_Get_Bitmap(library,
+                                         &transformed,
+                                         &bitmap);
+  if (error)
+  {
+    // XXX error handling
+    return;
+  }
+
+  painter->drawImage(QPoint(bRect.left(), bRect.top()),
+                     image.convertToFormat(
+                       QImage::Format_ARGB32_Premultiplied));
+}
+
+
 MainGUI::MainGUI()
 {
   engine = NULL;
@@ -1333,6 +1422,8 @@ MainGUI::checkAntiAliasing()
     lcdFilterLabel->setEnabled(true);
     lcdFilterComboBox->setEnabled(true);
   }
+
+  drawGlyph();
 }
 
 
@@ -1589,6 +1680,17 @@ MainGUI::zoom()
 void
 MainGUI::setGraphicsDefaults()
 {
+  // color tables (with suitable opacity values) for converting
+  // FreeType's pixmaps to something Qt understands
+  monoColorTable.append(0x00FFFFFF);
+  monoColorTable.append(0xFF000000);
+
+  for (int i = 0xFF; i >= 0; i--)
+    grayColorTable.append((0xFF - i) << 24
+                          | i << 16
+                          | i << 8
+                          | i);
+
   // XXX make this user-configurable
 
   axisPen.setColor(QColor(0, 0, 0, 255));        // black
@@ -1615,6 +1717,14 @@ MainGUI::drawGlyph()
 
   if (!engine)
     return;
+
+  if (currentGlyphBitmapItem)
+  {
+    glyphScene->removeItem(currentGlyphBitmapItem);
+    delete currentGlyphBitmapItem;
+
+    currentGlyphBitmapItem = NULL;
+  }
 
   if (currentGlyphOutlineItem)
   {
@@ -1646,6 +1756,21 @@ MainGUI::drawGlyph()
     FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
     if (outline)
     {
+      if (showBitmapCheckBox->isChecked())
+      {
+        // XXX support LCD
+        int pixelMode = FT_PIXEL_MODE_GRAY;
+        if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_None)
+          pixelMode = FT_PIXEL_MODE_MONO;
+
+        currentGlyphBitmapItem = new GlyphBitmap(outline,
+                                                 engine->library,
+                                                 pixelMode,
+                                                 monoColorTable,
+                                                 grayColorTable);
+        glyphScene->addItem(currentGlyphBitmapItem);
+      }
+
       if (showOutlinesCheckBox->isChecked())
       {
         currentGlyphOutlineItem = new GlyphOutline(outlinePen, outline);
@@ -1861,6 +1986,7 @@ MainGUI::createLayout()
   glyphScene = new QGraphicsScene;
   glyphScene->addItem(new Grid(gridPen, axisPen));
 
+  currentGlyphBitmapItem = NULL;
   currentGlyphOutlineItem = NULL;
   currentGlyphPointsItem = NULL;
   currentGlyphPointNumbersItem = NULL;
@@ -1999,6 +2125,8 @@ MainGUI::createConnections()
 
   connect(autoHintingCheckBox, SIGNAL(clicked()),
           SLOT(checkAutoHinting()));
+  connect(showBitmapCheckBox, SIGNAL(clicked()),
+          SLOT(drawGlyph()));
   connect(showPointsCheckBox, SIGNAL(clicked()),
           SLOT(checkShowPoints()));
   connect(showPointNumbersCheckBox, SIGNAL(clicked()),
@@ -2176,7 +2304,7 @@ MainGUI::setDefaults()
 
   hintingCheckBox->setChecked(true);
 
-  antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
+  antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
 
   horizontalHintingCheckBox->setChecked(true);

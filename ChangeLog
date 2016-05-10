@@ -1,5 +1,27 @@
 2016-05-10  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Display rendered glyph bitmaps.
+
+	* src/ftinspect.cpp (Engine::update): Updated.
+	(GlyphBitmap::GlyphBitmap, GlyphBitmap::~GlyphBitmap,
+	GlyphBitmap::boundRect, GlyphBitmap::paint): New methods
+	for constructing a rendered bitmap of the glyph.
+	(MainGUI::checkAntiAliasing): Updated.
+	(MainGUI::setGraphicsDefaults): Create color mapping tables for 8bit
+	and 1bit pixmaps as needed by Qt.
+	(MainGUI::drawGlyph): Honor `show bitmap' check box.
+	(MainGUI::createLayout, MainGUI::setDefaults): Updated.
+	(MainGUI::createConnections): Handle `showBitmapCheckBox'.
+
+	* src/ftinspect.h (GlyphBitmap): New class, derived from
+	`QGraphicsItem'.
+	(MainGUI): Mew member `currentGlyphBitmapItem'.
+	New members `grayColorTable' and `monoColorTable'.
+	Updated.
+	(Engine): Remove unused `showBitmap' member.
+
+2016-05-10  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Make hinting mode selection work.
 
 	* src/ftinspect.cpp (Engine::loadFont): Set font type.
