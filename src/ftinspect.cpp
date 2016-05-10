@@ -1127,6 +1127,13 @@ MainGUI::about()
 
 
 void
+MainGUI::aboutQt()
+{
+  QApplication::aboutQt();
+}
+
+
+void
 MainGUI::loadFonts()
 {
   int oldSize = fonts.size();

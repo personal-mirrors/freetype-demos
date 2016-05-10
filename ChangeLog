@@ -1,5 +1,11 @@
 2016-05-10  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftinspect.cpp, src/ftinspect.h (MainGUI): Provide `aboutQt'.
+
+	This removes a warning at start-up.
+
+2016-05-10  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Display rendered glyph bitmaps.
 
 	* src/ftinspect.cpp (Engine::update): Updated.

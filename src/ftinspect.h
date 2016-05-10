@@ -315,6 +315,7 @@ protected:
 
 private slots:
   void about();
+  void aboutQt();
   void adjustGlyphIndex(int);
   void checkAntiAliasing();
   void checkAutoHinting();
