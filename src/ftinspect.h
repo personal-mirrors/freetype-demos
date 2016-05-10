@@ -49,6 +49,7 @@
 #include <QTabWidget>
 #include <QTransform>
 #include <QVariant>
+#include <QVector2D>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -208,6 +209,26 @@ private:
 };
 
 
+class GlyphPointNumbers
+: public QGraphicsItem
+{
+public:
+  GlyphPointNumbers(const QPen&,
+                    const QPen&,
+                    FT_Outline*);
+  QRectF boundingRect() const;
+  void paint(QPainter*,
+             const QStyleOptionGraphicsItem*,
+             QWidget*);
+
+private:
+  QPen onPen;
+  QPen offPen;
+  FT_Outline* outline;
+  QRectF bRect;
+};
+
+
 // we want to grey out items in a combo box;
 // since Qt doesn't provide a function for this we derive a class
 class QComboBoxx
@@ -292,6 +313,10 @@ private:
   QHash<FaceID, int> faceIDHash;
 
   // layout related stuff
+  GlyphOutline *currentGlyphOutlineItem;
+  GlyphPoints *currentGlyphPointsItem;
+  GlyphPointNumbers *currentGlyphPointNumbersItem;
+
   QAction *aboutAct;
   QAction *aboutQtAct;
   QAction *closeFontAct;
@@ -316,9 +341,6 @@ private:
   QComboBox *unitsComboBox;
 
   QDoubleSpinBox *sizeDoubleSpinBox;
-
-  QGraphicsItem *currentGlyphOutlineItem;
-  QGraphicsItem *currentGlyphPointsItem;
 
   QGraphicsScene *glyphScene;
   QGraphicsView *glyphView;

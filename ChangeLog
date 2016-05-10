@@ -1,3 +1,19 @@
+2016-05-10  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Display glyph point numbers.
+
+	* src/ftinspect.cpp (GlyphPointNumbers::GlyphPointNumbers,
+	GlyphPointNumbers::boundRect, GlyphPointNumbers::paint): New methods
+	for constructing the set of glyph point numbers.
+	(MainGUI::drawGlyph): Honor `glyph point indices' check box.
+	(MainGUI::createLayout): Updated.
+	(MainGUI::createConnections): Handle `showPointIndicesCheckBox'.
+
+	* src/ftinspect.h (GlyphPoints): New class, derived from
+	`QGraphicsItem'.
+	(MainGUI): Mew member `currentGlyphPointNumbersItem'.
+	Updated.
+
 2016-05-09  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Display glyph points.
