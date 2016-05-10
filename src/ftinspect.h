@@ -12,6 +12,10 @@
 #include FT_OUTLINE_H
 #include FT_TRUETYPE_DRIVER_H
 
+// internal FreeType header files; only available in the source code bundle
+#include FT_INTERNAL_DRIVER_H
+#include FT_INTERNAL_OBJECTS_H
+
 #include <QAction>
 #include <QApplication>
 #include <QButtonGroup>
@@ -110,9 +114,19 @@ public:
   int loadFont(int, int, int); // returns number of glyphs
   FT_Outline* loadOutline(int);
   void removeFont(int, int, int);
+  void setCFFHintingMode(int);
+  void setTTInterpreterVersion(int);
   void update();
 
   friend class MainGUI;
+
+  // XXX cover all available modules
+  enum FontType
+  {
+    FontType_CFF,
+    FontType_TrueType,
+    FontType_Other
+  };
 
 private:
   MainGUI* gui;
@@ -131,6 +145,8 @@ private:
   int ttInterpreterVersionDefault;
   int ttInterpreterVersionOther;
   int ttInterpreterVersionOther1;
+
+  int fontType;
 
   int haveWarping;
 
@@ -312,6 +328,9 @@ private:
   int faceCounter; // a running number used to initialize `faceIDHash'
   QHash<FaceID, int> faceIDHash;
 
+  int currentCFFHintingMode;
+  int currentTTInterpreterVersion;
+
   // layout related stuff
   GlyphOutline *currentGlyphOutlineItem;
   GlyphPoints *currentGlyphPointsItem;
@@ -437,7 +456,7 @@ private:
     AntiAliasing_LCD_Vertical,
     AntiAliasing_LCD_Vertical_BGR
   };
-  enum HintingModes
+  enum HintingMode
   {
     HintingMode_TrueType_v35,
     HintingMode_TrueType_v38,

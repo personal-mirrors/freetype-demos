@@ -1,5 +1,29 @@
 2016-05-10  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Make hinting mode selection work.
+
+	* src/ftinspect.cpp (Engine::loadFont): Set font type.
+	(Engine::setCFFHintingMode, Engine::setTTInterpreterVersion): New
+	methods.
+	(MainGUI::showFont): Updated.
+	(MainGUI::checkHinting): Gray out hinting mode combo box items
+	depending on font type.
+	(MainGUI::checkHintingMode): Implemented.
+	(MainGUI::checkAutoHinting): Updated.
+	(MainGUI::setDefaults): Updated.
+
+	* src/ftinspect.h: Include some internal FreeType header files.
+	(Engine): New member `fontType'.
+	New enumeration `FontType'.
+	Updated.
+	(MainGUI): New members `currentCFFHintingMode' and
+	`currentTTInterpreterVersion'.
+
+	* ftinspect.pro (DEFINES): Add `FT2_BUILD_LIBRARY' to enable access
+	to internal FreeType headers.
+
+2016-05-10  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Minor.
 
 	* src/ftinspect.cpp, src/ftinspect.h: Rename `point indices' to

@@ -313,6 +313,8 @@ Engine::loadFont(int fontIndex,
 {
   update();
 
+  fontType = FontType_Other;
+
   scaler.face_id = reinterpret_cast<void*>
                      (gui->faceIDHash.value(FaceID(fontIndex,
                                                    faceIndex,
@@ -329,6 +331,14 @@ Engine::loadFont(int fontIndex,
     // XXX error handling
     return -1;
   }
+
+  FT_Module module = &ftSize->face->driver->root;
+
+  // XXX cover all available modules
+  if (!strcmp(module->clazz->module_name, "cff"))
+    fontType = FontType_CFF;
+  else if (!strcmp(module->clazz->module_name, "truetype"))
+    fontType = FontType_TrueType;
 
   return ftSize->face->num_glyphs;
 }
@@ -376,6 +386,40 @@ Engine::loadOutline(int glyphIndex)
   FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
 
   return &outlineGlyph->outline;
+}
+
+
+void
+Engine::setCFFHintingMode(int mode)
+{
+  int index = gui->hintingModesCFFHash.key(mode);
+
+  FT_Error error = FT_Property_Set(library,
+                                   "cff",
+                                   "hinting-engine",
+                                   &index);
+  if (!error)
+  {
+    // reset the cache
+    FTC_Manager_Reset(cacheManager);
+  }
+}
+
+
+void
+Engine::setTTInterpreterVersion(int mode)
+{
+  int index = gui->hintingModesTrueTypeHash.key(mode);
+
+  FT_Error error = FT_Property_Set(library,
+                                   "truetype",
+                                   "interpreter-version",
+                                   &index);
+  if (!error)
+  {
+    // reset the cache
+    FTC_Manager_Reset(cacheManager);
+  }
 }
 
 
@@ -1142,6 +1186,7 @@ MainGUI::showFont()
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
   checkCurrentInstanceIndex();
+  checkHinting();
 
   drawGlyph();
 }
@@ -1152,6 +1197,40 @@ MainGUI::checkHinting()
 {
   if (hintingCheckBox->isChecked())
   {
+    if (engine->fontType == Engine::FontType_CFF)
+    {
+      for (int i = 0; i < hintingModeComboBoxx->count(); i++)
+      {
+        if (hintingModesCFFHash.key(i, -1) != -1)
+          hintingModeComboBoxx->setItemEnabled(i, true);
+        else
+          hintingModeComboBoxx->setItemEnabled(i, false);
+      }
+
+      hintingModeComboBoxx->setCurrentIndex(currentCFFHintingMode);
+    }
+    else if (engine->fontType == Engine::FontType_TrueType)
+    {
+      for (int i = 0; i < hintingModeComboBoxx->count(); i++)
+      {
+        if (hintingModesTrueTypeHash.key(i, -1) != -1)
+          hintingModeComboBoxx->setItemEnabled(i, true);
+        else
+          hintingModeComboBoxx->setItemEnabled(i, false);
+      }
+
+      hintingModeComboBoxx->setCurrentIndex(currentTTInterpreterVersion);
+    }
+    else
+    {
+      hintingModeLabel->setEnabled(false);
+      hintingModeComboBoxx->setEnabled(false);
+    }
+
+    for (int i = 0; i < hintingModesAlwaysDisabled.size(); i++)
+      hintingModeComboBoxx->setItemEnabled(hintingModesAlwaysDisabled[i],
+                                           false);
+
     autoHintingCheckBox->setEnabled(true);
     checkAutoHinting();
   }
@@ -1169,6 +1248,8 @@ MainGUI::checkHinting()
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
   }
+
+  drawGlyph();
 }
 
 
@@ -1177,7 +1258,19 @@ MainGUI::checkHintingMode()
 {
   int index = hintingModeComboBoxx->currentIndex();
 
-  // XXX to be completed
+  if (engine->fontType == Engine::FontType_CFF)
+  {
+    engine->setCFFHintingMode(index);
+    currentCFFHintingMode = index;
+  }
+  else if (engine->fontType == Engine::FontType_TrueType)
+  {
+    engine->setTTInterpreterVersion(index);
+    currentTTInterpreterVersion = index;
+  }
+
+  // this enforces reloading of the font
+  showFont();
 }
 
 
@@ -1200,8 +1293,12 @@ MainGUI::checkAutoHinting()
   }
   else
   {
-    hintingModeLabel->setEnabled(true);
-    hintingModeComboBoxx->setEnabled(true);
+    if (engine->fontType == Engine::FontType_CFF
+        || engine->fontType == Engine::FontType_TrueType)
+    {
+      hintingModeLabel->setEnabled(true);
+      hintingModeComboBoxx->setEnabled(true);
+    }
 
     horizontalHintingCheckBox->setEnabled(false);
     verticalHintingCheckBox->setEnabled(false);
@@ -1214,6 +1311,8 @@ MainGUI::checkAutoHinting()
     if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_Slight)
       antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
   }
+
+  drawGlyph();
 }
 
 
@@ -1512,6 +1611,8 @@ MainGUI::setGraphicsDefaults()
 void
 MainGUI::drawGlyph()
 {
+  // the call to `engine->loadOutline' updates FreeType's load flags
+
   if (!engine)
     return;
 
@@ -2068,9 +2169,13 @@ MainGUI::setDefaults()
   currentNumGlyphs = -1;
   currentGlyphIndex = 0;
 
+  currentCFFHintingMode
+    = hintingModesCFFHash[engine->cffHintingEngineDefault];
+  currentTTInterpreterVersion
+    = hintingModesTrueTypeHash[engine->ttInterpreterVersionDefault];
+
   hintingCheckBox->setChecked(true);
 
-  hintingModeComboBoxx->setCurrentIndex(HintingMode_TrueType_v35);
   antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_LCD);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
 

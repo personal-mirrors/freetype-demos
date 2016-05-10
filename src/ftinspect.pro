@@ -17,6 +17,9 @@ win32 {
 
 CONFIG += qt debug
 
+# we need access to internal FreeType header files
+DEFINES += FT2_BUILD_LIBRARY
+
 SOURCES += ftinspect.cpp
 HEADERS += ftinspect.h
 
