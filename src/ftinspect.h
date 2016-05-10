@@ -330,7 +330,7 @@ private:
   QCheckBox *segmentDrawingCheckBox;
   QCheckBox *showBitmapCheckBox;
   QCheckBox *showOutlinesCheckBox;
-  QCheckBox *showPointIndicesCheckBox;
+  QCheckBox *showPointNumbersCheckBox;
   QCheckBox *showPointsCheckBox;
   QCheckBox *verticalHintingCheckBox;
   QCheckBox *warpingCheckBox;
@@ -359,7 +359,7 @@ private:
   QHBoxLayout *horizontalHintingLayout;
   QHBoxLayout *lcdFilterLayout;
   QHBoxLayout *navigationLayout;
-  QHBoxLayout *pointIndicesLayout;
+  QHBoxLayout *pointNumbersLayout;
   QHBoxLayout *segmentDrawingLayout;
   QHBoxLayout *sizeLayout;
   QHBoxLayout *verticalHintingLayout;

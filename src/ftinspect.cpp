@@ -1249,9 +1249,9 @@ void
 MainGUI::checkShowPoints()
 {
   if (showPointsCheckBox->isChecked())
-    showPointIndicesCheckBox->setEnabled(true);
+    showPointNumbersCheckBox->setEnabled(true);
   else
-    showPointIndicesCheckBox->setEnabled(false);
+    showPointNumbersCheckBox->setEnabled(false);
 
   drawGlyph();
 }
@@ -1556,7 +1556,7 @@ MainGUI::drawGlyph()
         currentGlyphPointsItem = new GlyphPoints(onPen, offPen, outline);
         glyphScene->addItem(currentGlyphPointsItem);
 
-        if (showPointIndicesCheckBox->isChecked())
+        if (showPointNumbersCheckBox->isChecked())
         {
           currentGlyphPointNumbersItem = new GlyphPointNumbers(onPen,
                                                                offPen,
@@ -1657,7 +1657,7 @@ MainGUI::createLayout()
 
   showBitmapCheckBox = new QCheckBox(tr("Show Bitmap"));
   showPointsCheckBox = new QCheckBox(tr("Show Points"));
-  showPointIndicesCheckBox = new QCheckBox(tr("Show Point Indices"));
+  showPointNumbersCheckBox = new QCheckBox(tr("Show Point Numbers"));
   showOutlinesCheckBox = new QCheckBox(tr("Show Outlines"));
 
   watchButton = new QPushButton(tr("Watch"));
@@ -1698,9 +1698,9 @@ MainGUI::createLayout()
   gammaLayout->addWidget(gammaLabel);
   gammaLayout->addWidget(gammaSlider);
 
-  pointIndicesLayout = new QHBoxLayout;
-  pointIndicesLayout->addSpacing(20); // XXX px
-  pointIndicesLayout->addWidget(showPointIndicesCheckBox);
+  pointNumbersLayout = new QHBoxLayout;
+  pointNumbersLayout->addSpacing(20); // XXX px
+  pointNumbersLayout->addWidget(showPointNumbersCheckBox);
 
   generalTabLayout = new QVBoxLayout;
   generalTabLayout->addWidget(hintingCheckBox);
@@ -1722,7 +1722,7 @@ MainGUI::createLayout()
   generalTabLayout->addStretch(1);
   generalTabLayout->addWidget(showBitmapCheckBox);
   generalTabLayout->addWidget(showPointsCheckBox);
-  generalTabLayout->addLayout(pointIndicesLayout);
+  generalTabLayout->addLayout(pointNumbersLayout);
   generalTabLayout->addWidget(showOutlinesCheckBox);
 
   generalTabWidget = new QWidget;
@@ -1900,7 +1900,7 @@ MainGUI::createConnections()
           SLOT(checkAutoHinting()));
   connect(showPointsCheckBox, SIGNAL(clicked()),
           SLOT(checkShowPoints()));
-  connect(showPointIndicesCheckBox, SIGNAL(clicked()),
+  connect(showPointNumbersCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));
   connect(showOutlinesCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));

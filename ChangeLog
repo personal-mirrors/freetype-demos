@@ -1,5 +1,12 @@
 2016-05-10  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Minor.
+
+	* src/ftinspect.cpp, src/ftinspect.h: Rename `point indices' to
+	`point numbers'.
+
+2016-05-10  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Display glyph point numbers.
 
 	* src/ftinspect.cpp (GlyphPointNumbers::GlyphPointNumbers,
