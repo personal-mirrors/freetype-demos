@@ -2,6 +2,13 @@
 
 	[ftinspect] Minor.
 
+	* src/ftinspect.cpp, src/ftinspect.h: s/Instances/NamedInstances/.
+	Also display `Previous/Next Named Instance' on the buttons.
+
+2016-05-11  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Minor.
+
 	* src/ftinspect.cpp, src/ftinspect.h: s/fonts/fontList/.
 
 2016-05-11  Werner Lemberg  <wl@gnu.org>

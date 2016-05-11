@@ -79,7 +79,7 @@ struct Font
 
   // the number of instances per face;
   // the size of the list gives the number of faces
-  QList<int> numInstancesList;
+  QList<int> numNamedInstancesList;
 };
 
 
@@ -113,7 +113,7 @@ public:
   ~Engine();
 
   int numFaces(int);
-  int numInstances(int, int);
+  int numNamedInstances(int, int);
   int loadFont(int, int, int); // returns number of glyphs
   FT_Outline* loadOutline(int);
   void removeFont(int, int, int);

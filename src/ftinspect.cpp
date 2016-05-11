@@ -243,8 +243,8 @@ Engine::numFaces(int fontIndex)
   Font& font = gui->fontList[fontIndex];
 
   // value already available?
-  if (!font.numInstancesList.isEmpty())
-    return font.numInstancesList.size();
+  if (!font.numNamedInstancesList.isEmpty())
+    return font.numNamedInstancesList.size();
 
   FT_Error error;
   FT_Face face;
@@ -268,20 +268,20 @@ Engine::numFaces(int fontIndex)
 
 
 int
-Engine::numInstances(int fontIndex,
-                     int faceIndex)
+Engine::numNamedInstances(int fontIndex,
+                          int faceIndex)
 {
   if (fontIndex >= gui->fontList.size())
     return -1;
 
   Font& font = gui->fontList[fontIndex];
 
-  if (faceIndex >= font.numInstancesList.size())
+  if (faceIndex >= font.numNamedInstancesList.size())
     return -1;
 
   // value already available?
-  if (font.numInstancesList[faceIndex] >= 0)
-    return font.numInstancesList[faceIndex];
+  if (font.numNamedInstancesList[faceIndex] >= 0)
+    return font.numNamedInstancesList[faceIndex];
 
   FT_Error error;
   FT_Face face;
@@ -381,13 +381,13 @@ Engine::watchCurrentFont()
       FT_Done_Face(face);
 
       // remove all entries
-      for (int i = 0; i < font.numInstancesList.size(); i++)
-        for (int j = 0; j < font.numInstancesList[i]; j++)
+      for (int i = 0; i < font.numNamedInstancesList.size(); i++)
+        for (int j = 0; j < font.numNamedInstancesList[i]; j++)
         {
           removeFont(index, i, j);
           gui->faceIDHash.remove(FaceID(index, i, j));
         }
-      font.numInstancesList.clear();
+      font.numNamedInstancesList.clear();
 
       currentRetry = 0;
 
@@ -405,16 +405,16 @@ Engine::watchCurrentFont()
     }
 
     // font is no longer available, thus replace all entries...
-    for (int i = 0; i < font.numInstancesList.size(); i++)
-      for (int j = 0; j < font.numInstancesList[i]; j++)
+    for (int i = 0; i < font.numNamedInstancesList.size(); i++)
+      for (int j = 0; j < font.numNamedInstancesList[i]; j++)
       {
         removeFont(index, i, j);
         gui->faceIDHash.remove(FaceID(index, i, j));
       }
-    font.numInstancesList.clear();
+    font.numNamedInstancesList.clear();
 
     // ...with an invalid one
-    font.numInstancesList.append(0);
+    font.numNamedInstancesList.append(0);
 
     // XXX move this to MainGUI::watchCurrentFont
     gui->currentFaceIndex = -1;
@@ -1257,7 +1257,7 @@ MainGUI::closeFont()
 {
   if (currentFontIndex >= 0)
   {
-    QList<int>& list = fontList[currentFontIndex].numInstancesList;
+    QList<int>& list = fontList[currentFontIndex].numNamedInstancesList;
 
     for (int i = 0; i < list.size(); i++)
       for (int j = 0; j < list[i]; j++)
@@ -1272,8 +1272,8 @@ MainGUI::closeFont()
     currentFontIndex--;
 
   if (currentFontIndex < 0
-      || fontList[currentFontIndex].numInstancesList.isEmpty()
-      || fontList[currentFontIndex].numInstancesList[0] == 0)
+      || fontList[currentFontIndex].numNamedInstancesList.isEmpty()
+      || fontList[currentFontIndex].numNamedInstancesList[0] == 0)
   {
     currentFaceIndex = -1;
     currentInstanceIndex = -1;
@@ -1300,14 +1300,14 @@ MainGUI::showFont(bool preserveIndices)
     // if not yet available, extract the number of faces and indices
     // for the current font
 
-    if (font.numInstancesList.isEmpty())
+    if (font.numNamedInstancesList.isEmpty())
     {
       int numFaces = engine->numFaces(currentFontIndex);
 
       if (numFaces > 0)
       {
         for (int i = 0; i < numFaces; i++)
-          font.numInstancesList.append(-1);
+          font.numNamedInstancesList.append(-1);
 
         if (!preserveIndices)
         {
@@ -1317,31 +1317,31 @@ MainGUI::showFont(bool preserveIndices)
       }
       else
       {
-        // we use `numInstancesList' with a single element set to zero
+        // we use `numNamedInstancesList' with a single element set to zero
         // to indicate either a non-font or a font FreeType couldn't load;
-        font.numInstancesList.append(0);
+        font.numNamedInstancesList.append(0);
 
         currentFaceIndex = -1;
         currentInstanceIndex = -1;
       }
     }
 
-    // value -1 in `numInstancesList' means `not yet initialized'
+    // value -1 in `numNamedInstancesList' means `not yet initialized'
     if (currentFaceIndex >= 0
-        && font.numInstancesList[currentFaceIndex] < 0)
+        && font.numNamedInstancesList[currentFaceIndex] < 0)
     {
-      int numInstances = engine->numInstances(currentFontIndex,
-                                              currentFaceIndex);
+      int numNamedInstances = engine->numNamedInstances(currentFontIndex,
+                                                        currentFaceIndex);
 
       // XXX? we ignore errors
-      if (numInstances < 0)
-        numInstances = 1;
+      if (numNamedInstances < 0)
+        numNamedInstances = 1;
 
-      font.numInstancesList[currentFaceIndex] = numInstances;
+      font.numNamedInstancesList[currentFaceIndex] = numNamedInstances;
 
       // assign the (font,face,instance) triplet to a running ID;
       // we need this for the `faceRequester' function
-      for (int i = 0; i < numInstances; i++)
+      for (int i = 0; i < numNamedInstances; i++)
         faceIDHash.insert(FaceID(currentFontIndex, currentFaceIndex, i),
                           faceCounter++);
 
@@ -1353,10 +1353,10 @@ MainGUI::showFont(bool preserveIndices)
     }
 
     if (currentFontIndex >= 0
-        && fontList[currentFontIndex].numInstancesList[0] != 0)
+        && fontList[currentFontIndex].numNamedInstancesList[0] != 0)
     {
-      // up to now we only called for rudimentary font handling
-      // (via the `engine->numFaces' and `engine->numInstances' methods);
+      // up to now we only called for rudimentary font handling (via the
+      // `engine->numFaces' and `engine->numNamedInstances' methods);
       // `engine->loadFont', however, really parses a font
 
       // if the (font,face,instance) triplet is invalid,
@@ -1630,7 +1630,7 @@ MainGUI::checkCurrentFaceIndex()
   if (currentFontIndex < 0)
     numFaces = 0;
   else
-    numFaces = fontList[currentFontIndex].numInstancesList.size();
+    numFaces = fontList[currentFontIndex].numNamedInstancesList.size();
 
   if (numFaces < 2)
   {
@@ -1658,20 +1658,20 @@ MainGUI::checkCurrentFaceIndex()
 void
 MainGUI::checkCurrentInstanceIndex()
 {
-  int numInstances;
+  int numNamedInstances;
 
   if (currentFontIndex < 0)
-    numInstances = 0;
+    numNamedInstances = 0;
   else
   {
     if (currentFaceIndex < 0)
-      numInstances = 0;
+      numNamedInstances = 0;
     else
-      numInstances = fontList[currentFontIndex]
-                       .numInstancesList[currentFaceIndex];
+      numNamedInstances = fontList[currentFontIndex]
+                            .numNamedInstancesList[currentFaceIndex];
   }
 
-  if (numInstances < 2)
+  if (numNamedInstances < 2)
   {
     previousInstanceButton->setEnabled(false);
     nextInstanceButton->setEnabled(false);
@@ -1681,7 +1681,7 @@ MainGUI::checkCurrentInstanceIndex()
     previousInstanceButton->setEnabled(false);
     nextInstanceButton->setEnabled(true);
   }
-  else if (currentInstanceIndex == numInstances - 1)
+  else if (currentInstanceIndex == numNamedInstances - 1)
   {
     previousInstanceButton->setEnabled(true);
     nextInstanceButton->setEnabled(false);
@@ -1735,7 +1735,7 @@ MainGUI::previousFace()
 void
 MainGUI::nextFace()
 {
-  int numFaces = fontList[currentFontIndex].numInstancesList.size();
+  int numFaces = fontList[currentFontIndex].numNamedInstancesList.size();
 
   if (currentFaceIndex < numFaces - 1)
   {
@@ -1760,10 +1760,10 @@ MainGUI::previousInstance()
 void
 MainGUI::nextInstance()
 {
-  int numInstances = fontList[currentFontIndex]
-                       .numInstancesList[currentFaceIndex];
+  int numNamedInstances = fontList[currentFontIndex]
+                            .numNamedInstancesList[currentFaceIndex];
 
-  if (currentInstanceIndex < numInstances - 1)
+  if (currentInstanceIndex < numNamedInstances - 1)
   {
     currentInstanceIndex++;
     showFont();
@@ -2163,8 +2163,8 @@ MainGUI::createLayout()
   nextFontButton = new QPushButton(tr("Next Font"));
   previousFaceButton = new QPushButton(tr("Previous Face"));
   nextFaceButton = new QPushButton(tr("Next Face"));
-  previousInstanceButton = new QPushButton(tr("Previous Instance"));
-  nextInstanceButton = new QPushButton(tr("Next Instance"));
+  previousInstanceButton = new QPushButton(tr("Previous Named Instance"));
+  nextInstanceButton = new QPushButton(tr("Next Named Instance"));
 
   navigationLayout = new QHBoxLayout;
   navigationLayout->setSpacing(0);
