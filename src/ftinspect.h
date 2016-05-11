@@ -412,6 +412,8 @@ private:
   QHBoxLayout *gammaLayout;
   QHBoxLayout *hintingModeLayout;
   QHBoxLayout *horizontalHintingLayout;
+  QHBoxLayout *infoLeftLayout;
+  QHBoxLayout *infoRightLayout;
   QHBoxLayout *lcdFilterLayout;
   QHBoxLayout *navigationLayout;
   QHBoxLayout *pointNumbersLayout;
@@ -423,6 +425,7 @@ private:
   QLabel *antiAliasingLabel;
   QLabel *dpiLabel;
   QLabel *gammaLabel;
+  QLabel *glyphIndexLabel;
   QLabel *hintingModeLabel;
   QLabel *lcdFilterLabel;
   QLabel *sizeLabel;

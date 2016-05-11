@@ -1,5 +1,17 @@
 2016-05-11  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Display glyph index.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): Add `infoLeftLayout'
+	and `infoRightLayout' at the top of the window; add
+	`glyphIndexLabel' to the right.
+	(MainGUI::adjustGlyphIndex): Set text for `glyphIndexLabel'
+	(MainGUI::setDefaults): Call `adjustGlyphIndex'.
+
+	* src/ftinspect.h: Updated.
+
+2016-05-11  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Only use integer values for size if units are px.
 
 	* src/ftinspect.cpp (MainGUI::checkUnits): Implement it.

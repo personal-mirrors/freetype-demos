@@ -1576,14 +1576,19 @@ void
 MainGUI::adjustGlyphIndex(int delta)
 {
   // don't adjust current glyph index if we have an invalid font
-  if (currentFaceIndex < 0 || currentNumGlyphs < 0)
-    return;
+  if (currentFaceIndex >= 0 && currentNumGlyphs >= 0)
+  {
+    currentGlyphIndex += delta;
+    if (currentGlyphIndex < 0)
+      currentGlyphIndex = 0;
+    else if (currentGlyphIndex >= currentNumGlyphs)
+      currentGlyphIndex = currentNumGlyphs - 1;
+  }
 
-  currentGlyphIndex += delta;
-  if (currentGlyphIndex < 0)
-    currentGlyphIndex = 0;
-  else if (currentGlyphIndex >= currentNumGlyphs)
-    currentGlyphIndex = currentNumGlyphs - 1;
+  QString upperHex = QString::number(currentGlyphIndex, 16).toUpper();
+  glyphIndexLabel->setText(tr("Glyph Index %1 (0x%2)")
+                              .arg(currentGlyphIndex)
+                              .arg(upperHex));
 
   drawGlyph();
 }
@@ -1918,6 +1923,8 @@ void
 MainGUI::createLayout()
 {
   // left side
+  infoLeftLayout = new QHBoxLayout;
+
   hintingCheckBox = new QCheckBox(tr("Hinting"));
 
   hintingModeLabel = new QLabel(tr("Hinting Mode"));
@@ -2074,6 +2081,7 @@ MainGUI::createLayout()
   tabWidget->addTab(mmgxTabWidget, tr("MM/GX"));
 
   leftLayout = new QVBoxLayout;
+  leftLayout->addLayout(infoLeftLayout);
   leftLayout->addWidget(tabWidget);
 
   // we don't want to expand the left side horizontally;
@@ -2089,6 +2097,11 @@ MainGUI::createLayout()
   leftWidget->setSizePolicy(leftWidgetPolicy);
 
   // right side
+  glyphIndexLabel = new QLabel;
+
+  infoRightLayout = new QHBoxLayout;
+  infoRightLayout->addWidget(glyphIndexLabel);
+
   glyphScene = new QGraphicsScene;
   glyphScene->addItem(new Grid(gridPen, axisPen));
 
@@ -2192,6 +2205,7 @@ MainGUI::createLayout()
   fontLayout->setColumnStretch(6, 2);
 
   rightLayout = new QVBoxLayout;
+  rightLayout->addLayout(infoRightLayout);
   rightLayout->addWidget(glyphView);
   rightLayout->addLayout(navigationLayout);
   rightLayout->addSpacing(10); // XXX px
@@ -2437,6 +2451,7 @@ MainGUI::setDefaults()
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
   checkCurrentInstanceIndex();
+  adjustGlyphIndex(0);
   zoom();
 }
 
