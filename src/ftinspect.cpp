@@ -332,6 +332,12 @@ Engine::loadFont(int fontIndex,
     return -1;
   }
 
+  currentFontFileInfo.setFile(gui->fonts[fontIndex].filePathname);
+  currentFontFileInfo.setCaching(false);
+  currentFontDateTime = currentFontFileInfo.lastModified();
+  if (currentFontFileInfo.exists())
+    currentRetry = 0;
+
   FT_Module module = &ftSize->face->driver->root;
 
   // XXX cover all available modules
@@ -341,6 +347,83 @@ Engine::loadFont(int fontIndex,
     fontType = FontType_TrueType;
 
   return ftSize->face->num_glyphs;
+}
+
+
+// this function must be followed by `showFont'
+// to reload the font if necessary
+
+bool
+Engine::watchCurrentFont()
+{
+  int index = gui->currentFontIndex;
+
+  if (index < 0)
+    return false;
+
+  Font& font = gui->fonts[index];
+
+  if (currentFontFileInfo.exists()
+      && currentFontFileInfo.isReadable())
+  {
+    QDateTime modified = currentFontFileInfo.lastModified();
+    if (modified > currentFontDateTime)
+    {
+      // the font has changed on disk; check whether we can load it,
+      // otherwise we increase our retry counter
+      FT_Face face;
+      if (FT_New_Face(library,
+                      qPrintable(font.filePathname),
+                      -1,
+                      &face))
+        goto Retry;
+
+      FT_Done_Face(face);
+
+      // remove all entries
+      for (int i = 0; i < font.numInstancesList.size(); i++)
+        for (int j = 0; j < font.numInstancesList[i]; j++)
+        {
+          removeFont(index, i, j);
+          gui->faceIDHash.remove(FaceID(index, i, j));
+        }
+      font.numInstancesList.clear();
+
+      currentRetry = 0;
+
+      // current face and instance indices should be preserved
+      return true;
+    }
+  }
+  else
+  {
+  Retry:
+    if (currentRetry < maxRetries)
+    {
+      currentRetry++;
+      return false;
+    }
+
+    // font is no longer available, thus replace all entries...
+    for (int i = 0; i < font.numInstancesList.size(); i++)
+      for (int j = 0; j < font.numInstancesList[i]; j++)
+      {
+        removeFont(index, i, j);
+        gui->faceIDHash.remove(FaceID(index, i, j));
+      }
+    font.numInstancesList.clear();
+
+    // ...with an invalid one
+    font.numInstancesList.append(0);
+
+    // XXX move this to MainGUI::watchCurrentFont
+    gui->currentFaceIndex = -1;
+    gui->currentInstanceIndex = -1;
+
+    // XXX emit a warning message
+  }
+
+  return false;
 }
 
 
@@ -514,6 +597,9 @@ Engine::update()
     scaler.x_res = dpi;
     scaler.y_res = dpi;
   }
+
+  // XXX make this configurable
+  maxRetries = 10;
 }
 
 
@@ -1067,6 +1153,11 @@ MainGUI::MainGUI()
 {
   engine = NULL;
 
+  // we are going to watch the current font file once in a second
+  timer = new QTimer();
+  timer->setInterval(1000);
+  timer->start();
+
   setGraphicsDefaults();
   createLayout();
   createConnections();
@@ -1196,7 +1287,7 @@ MainGUI::closeFont()
 
 
 void
-MainGUI::showFont()
+MainGUI::showFont(bool preserveIndices)
 {
   if (currentFontIndex >= 0)
   {
@@ -1216,8 +1307,11 @@ MainGUI::showFont()
         for (int i = 0; i < numFaces; i++)
           font.numInstancesList.append(-1);
 
-        currentFaceIndex = 0;
-        currentInstanceIndex = 0;
+        if (!preserveIndices)
+        {
+          currentFaceIndex = 0;
+          currentInstanceIndex = 0;
+        }
       }
       else
       {
@@ -1252,7 +1346,8 @@ MainGUI::showFont()
       // instance index 0 represents a face without an instance;
       // consequently, `n' instances are enumerated from 1 to `n'
       // (instead of having indices 0 to `n-1')
-      currentInstanceIndex = 0;
+      if (!preserveIndices)
+        currentInstanceIndex = 0;
     }
 
     if (currentFontIndex >= 0
@@ -1685,6 +1780,16 @@ MainGUI::zoom()
 
 
 void
+MainGUI::watchCurrentFont()
+{
+  if (engine->watchCurrentFont())
+    showFont(true);
+  else
+    showFont(false);
+}
+
+
+void
 MainGUI::setGraphicsDefaults()
 {
   // color tables (with suitable opacity values) for converting
@@ -1893,8 +1998,6 @@ MainGUI::createLayout()
   showPointNumbersCheckBox = new QCheckBox(tr("Show Point Numbers"));
   showOutlinesCheckBox = new QCheckBox(tr("Show Outlines"));
 
-  watchButton = new QPushButton(tr("Watch"));
-
   hintingModeLayout = new QHBoxLayout;
   hintingModeLayout->addWidget(hintingModeLabel);
   hintingModeLayout->addWidget(hintingModeComboBoxx);
@@ -1963,19 +2066,12 @@ MainGUI::createLayout()
 
   mmgxTabWidget = new QWidget;
 
-  watchLayout = new QHBoxLayout;
-  watchLayout->addStretch(1);
-  watchLayout->addWidget(watchButton);
-  watchLayout->addStretch(1);
-
   tabWidget = new QTabWidget;
   tabWidget->addTab(generalTabWidget, tr("General"));
   tabWidget->addTab(mmgxTabWidget, tr("MM/GX"));
 
   leftLayout = new QVBoxLayout;
   leftLayout->addWidget(tabWidget);
-  leftLayout->addSpacing(10); // XXX px
-  leftLayout->addLayout(watchLayout);
 
   // we don't want to expand the left side horizontally;
   // to change the policy we have to use a widget wrapper
@@ -2199,6 +2295,9 @@ MainGUI::createConnections()
   glyphNavigationMapper->setMapping(toP100Buttonx, 100);
   glyphNavigationMapper->setMapping(toP1000Buttonx, 1000);
   glyphNavigationMapper->setMapping(toEndButtonx, 0x10000);
+
+  connect(timer, SIGNAL(timeout()),
+          SLOT(watchCurrentFont()));
 }
 
 

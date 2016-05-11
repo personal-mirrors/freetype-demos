@@ -23,10 +23,12 @@
 #include <QCloseEvent>
 #include <QColor>
 #include <QComboBox>
+#include <QDateTime>
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -51,6 +53,7 @@
 #include <QStandardItemModel>
 #include <QStatusBar>
 #include <QTabWidget>
+#include <QTimer>
 #include <QTransform>
 #include <QVariant>
 #include <QVector2D>
@@ -117,6 +120,7 @@ public:
   void setCFFHintingMode(int);
   void setTTInterpreterVersion(int);
   void update();
+  bool watchCurrentFont(); // returns `true' if we have to preserve indices
 
   friend class MainGUI;
 
@@ -131,6 +135,12 @@ public:
 private:
   MainGUI* gui;
 
+  QFileInfo currentFontFileInfo;
+  QDateTime currentFontDateTime;
+  int maxRetries; // how often we try to reload a font
+                  // if it suddenly disappears (because it is
+                  // in the process of being regenerated)
+  int currentRetry;
   FT_Library library;
   FTC_Manager cacheManager;
   FTC_ImageCache imageCache;
@@ -336,6 +346,7 @@ private slots:
   void previousFace();
   void previousFont();
   void previousInstance();
+  void watchCurrentFont();
   void zoom();
 
 private:
@@ -408,7 +419,6 @@ private:
   QHBoxLayout *sizeLayout;
   QHBoxLayout *verticalHintingLayout;
   QHBoxLayout *warpingLayout;
-  QHBoxLayout *watchLayout;
 
   QLabel *antiAliasingLabel;
   QLabel *dpiLabel;
@@ -439,7 +449,6 @@ private:
   QPushButton *previousFaceButton;
   QPushButton *previousFontButton;
   QPushButton *previousInstanceButton;
-  QPushButton *watchButton;
 
   QPushButtonx *toEndButtonx;
   QPushButtonx *toM1000Buttonx;
@@ -460,6 +469,8 @@ private:
   QSpinBox *zoomSpinBox;
 
   QTabWidget *tabWidget;
+
+  QTimer *timer;
 
   QVBoxLayout *generalTabLayout;
   QVBoxLayout *leftLayout;
@@ -513,7 +524,7 @@ private:
   void createStatusBar();
   void readSettings();
   void setGraphicsDefaults();
-  void showFont();
+  void showFont(bool = false);
   void writeSettings();
 };
 
