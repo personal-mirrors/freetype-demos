@@ -1558,11 +1558,14 @@ MainGUI::checkUnits()
   {
     dpiLabel->setEnabled(false);
     dpiSpinBox->setEnabled(false);
+    sizeDoubleSpinBox->setSingleStep(1);
+    sizeDoubleSpinBox->setValue(qRound(sizeDoubleSpinBox->value()));
   }
   else
   {
     dpiLabel->setEnabled(true);
     dpiSpinBox->setEnabled(true);
+    sizeDoubleSpinBox->setSingleStep(0.5);
   }
 
   drawGlyph();
@@ -2109,7 +2112,6 @@ MainGUI::createLayout()
   sizeDoubleSpinBox->setAlignment(Qt::AlignRight);
   sizeDoubleSpinBox->setDecimals(1);
   sizeDoubleSpinBox->setRange(1, 500);
-  sizeDoubleSpinBox->setSingleStep(0.5);
   sizeLabel->setBuddy(sizeDoubleSpinBox);
 
   unitsComboBox = new QComboBox;

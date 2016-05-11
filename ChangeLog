@@ -1,5 +1,12 @@
 2016-05-11  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Only use integer values for size if units are px.
+
+	* src/ftinspect.cpp (MainGUI::checkUnits): Implement it.
+	(MainGUI::createLayout): Updated.
+
+2016-05-11  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Add file watching; remove watch button.
 
 	* src/ftinspect.cpp (Engine::loadFont): Initialize file info.
