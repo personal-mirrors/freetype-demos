@@ -352,7 +352,7 @@ private slots:
 private:
   Engine* engine;
 
-  QList<Font> fonts;
+  QList<Font> fontList;
   int currentFontIndex;
   int currentFaceIndex;
   int currentInstanceIndex;

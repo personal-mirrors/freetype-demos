@@ -66,7 +66,7 @@ faceRequester(FTC_FaceID faceID,
   int val = static_cast<int>((char*)faceID - (char*)0);
   const FaceID& id = gui->faceIDHash.key(val);
 
-  Font& font = gui->fonts[id.fontIndex];
+  Font& font = gui->fontList[id.fontIndex];
   int faceIndex = id.faceIndex;
 
   if (id.instanceIndex >= 0)
@@ -237,10 +237,10 @@ Engine::~Engine()
 int
 Engine::numFaces(int fontIndex)
 {
-  if (fontIndex >= gui->fonts.size())
+  if (fontIndex >= gui->fontList.size())
     return -1;
 
-  Font& font = gui->fonts[fontIndex];
+  Font& font = gui->fontList[fontIndex];
 
   // value already available?
   if (!font.numInstancesList.isEmpty())
@@ -271,10 +271,10 @@ int
 Engine::numInstances(int fontIndex,
                      int faceIndex)
 {
-  if (fontIndex >= gui->fonts.size())
+  if (fontIndex >= gui->fontList.size())
     return -1;
 
-  Font& font = gui->fonts[fontIndex];
+  Font& font = gui->fontList[fontIndex];
 
   if (faceIndex >= font.numInstancesList.size())
     return -1;
@@ -332,7 +332,7 @@ Engine::loadFont(int fontIndex,
     return -1;
   }
 
-  currentFontFileInfo.setFile(gui->fonts[fontIndex].filePathname);
+  currentFontFileInfo.setFile(gui->fontList[fontIndex].filePathname);
   currentFontFileInfo.setCaching(false);
   currentFontDateTime = currentFontFileInfo.lastModified();
   if (currentFontFileInfo.exists())
@@ -361,7 +361,7 @@ Engine::watchCurrentFont()
   if (index < 0)
     return false;
 
-  Font& font = gui->fonts[index];
+  Font& font = gui->fontList[index];
 
   if (currentFontFileInfo.exists()
       && currentFontFileInfo.isReadable())
@@ -1227,7 +1227,7 @@ MainGUI::aboutQt()
 void
 MainGUI::loadFonts()
 {
-  int oldSize = fonts.size();
+  int oldSize = fontList.size();
 
   QStringList files = QFileDialog::getOpenFileNames(
                         this,
@@ -1241,11 +1241,11 @@ MainGUI::loadFonts()
   {
     Font font;
     font.filePathname = files[i];
-    fonts.append(font);
+    fontList.append(font);
   }
 
   // if we have new fonts, set the current index to the first new one
-  if (oldSize < fonts.size())
+  if (oldSize < fontList.size())
     currentFontIndex = oldSize;
 
   showFont();
@@ -1257,21 +1257,23 @@ MainGUI::closeFont()
 {
   if (currentFontIndex >= 0)
   {
-    for (int i = 0; i < fonts[currentFontIndex].numInstancesList.size(); i++)
-      for (int j = 0; j < fonts[currentFontIndex].numInstancesList[i]; j++)
+    QList<int>& list = fontList[currentFontIndex].numInstancesList;
+
+    for (int i = 0; i < list.size(); i++)
+      for (int j = 0; j < list[i]; j++)
       {
         engine->removeFont(currentFontIndex, i, j);
         faceIDHash.remove(FaceID(currentFontIndex, i, j));
       }
 
-    fonts.removeAt(currentFontIndex);
+    fontList.removeAt(currentFontIndex);
   }
-  if (currentFontIndex >= fonts.size())
+  if (currentFontIndex >= fontList.size())
     currentFontIndex--;
 
   if (currentFontIndex < 0
-      || fonts[currentFontIndex].numInstancesList.isEmpty()
-      || fonts[currentFontIndex].numInstancesList[0] == 0)
+      || fontList[currentFontIndex].numInstancesList.isEmpty()
+      || fontList[currentFontIndex].numInstancesList[0] == 0)
   {
     currentFaceIndex = -1;
     currentInstanceIndex = -1;
@@ -1293,7 +1295,7 @@ MainGUI::showFont(bool preserveIndices)
   {
     // we do lazy computation of FT_Face objects
 
-    Font& font = fonts[currentFontIndex];
+    Font& font = fontList[currentFontIndex];
 
     // if not yet available, extract the number of faces and indices
     // for the current font
@@ -1351,7 +1353,7 @@ MainGUI::showFont(bool preserveIndices)
     }
 
     if (currentFontIndex >= 0
-        && fonts[currentFontIndex].numInstancesList[0] != 0)
+        && fontList[currentFontIndex].numInstancesList[0] != 0)
     {
       // up to now we only called for rudimentary font handling
       // (via the `engine->numFaces' and `engine->numInstances' methods);
@@ -1597,7 +1599,7 @@ MainGUI::adjustGlyphIndex(int delta)
 void
 MainGUI::checkCurrentFontIndex()
 {
-  if (fonts.size() < 2)
+  if (fontList.size() < 2)
   {
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(false);
@@ -1607,7 +1609,7 @@ MainGUI::checkCurrentFontIndex()
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(true);
   }
-  else if (currentFontIndex == fonts.size() - 1)
+  else if (currentFontIndex == fontList.size() - 1)
   {
     previousFontButton->setEnabled(true);
     nextFontButton->setEnabled(false);
@@ -1628,7 +1630,7 @@ MainGUI::checkCurrentFaceIndex()
   if (currentFontIndex < 0)
     numFaces = 0;
   else
-    numFaces = fonts[currentFontIndex].numInstancesList.size();
+    numFaces = fontList[currentFontIndex].numInstancesList.size();
 
   if (numFaces < 2)
   {
@@ -1665,7 +1667,7 @@ MainGUI::checkCurrentInstanceIndex()
     if (currentFaceIndex < 0)
       numInstances = 0;
     else
-      numInstances = fonts[currentFontIndex]
+      numInstances = fontList[currentFontIndex]
                        .numInstancesList[currentFaceIndex];
   }
 
@@ -1708,7 +1710,7 @@ MainGUI::previousFont()
 void
 MainGUI::nextFont()
 {
-  if (currentFontIndex < fonts.size() - 1)
+  if (currentFontIndex < fontList.size() - 1)
   {
     currentFontIndex++;
     currentFaceIndex = 0;
@@ -1733,7 +1735,7 @@ MainGUI::previousFace()
 void
 MainGUI::nextFace()
 {
-  int numFaces = fonts[currentFontIndex].numInstancesList.size();
+  int numFaces = fontList[currentFontIndex].numInstancesList.size();
 
   if (currentFaceIndex < numFaces - 1)
   {
@@ -1758,7 +1760,7 @@ MainGUI::previousInstance()
 void
 MainGUI::nextInstance()
 {
-  int numInstances = fonts[currentFontIndex]
+  int numInstances = fontList[currentFontIndex]
                        .numInstancesList[currentFaceIndex];
 
   if (currentInstanceIndex < numInstances - 1)
