@@ -1,5 +1,24 @@
 2016-05-12  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Display more glyph and font information.
+
+	* src/ftinspect.cpp (Engine::loadFont): Update `curFamilyName' and
+	`curStyleName'.
+	(Engine::currentFamilyName, Engine::currentStyleName,
+	Engine::glyphName): New methods.
+
+	(MainGUI::closeFont, MainGUI::showFont, MainGUI::adjustGlyphIndex,
+	MainGUI::createLayout): Updated.
+
+	* src/ftinspect.h (Engine): New members `curFamilyName' and
+	`curStyleName'.
+	Updated.
+	(MainGUI): New `fontFilenameLabel', `fontNameLabel', and
+	`glyphNameLabel' members.
+	Use `QGridLayout' for `infoRightLayout'.
+
+2016-05-12  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Fix logical mistakes in font navigation.
 
 	* src/ftinspect.cpp (Engine::Engine): Initialize `ftSize'.

@@ -323,6 +323,10 @@ Engine::loadFont(int fontIndex,
   if (scaler.face_id == 0)
   {
     // an invalid font, missing in the hash
+    ftSize = NULL;
+    curFamilyName = QString();
+    curStyleName = QString();
+
     return -1;
   }
 
@@ -330,6 +334,10 @@ Engine::loadFont(int fontIndex,
   if (error)
   {
     // XXX error handling
+    ftSize = NULL;
+    curFamilyName = QString();
+    curStyleName = QString();
+
     return -1;
   }
 
@@ -338,6 +346,9 @@ Engine::loadFont(int fontIndex,
   currentFontDateTime = currentFontFileInfo.lastModified();
   if (currentFontFileInfo.exists())
     currentRetry = 0;
+
+  curFamilyName = QString(ftSize->face->family_name);
+  curStyleName = QString(ftSize->face->style_name);
 
   FT_Module module = &ftSize->face->driver->root;
 
@@ -439,6 +450,39 @@ Engine::removeFont(int fontIndex,
                                                        instanceIndex)));
   if (face_id)
     FTC_Manager_RemoveFaceID(cacheManager, face_id);
+}
+
+
+const QString&
+Engine::currentFamilyName()
+{
+  return curFamilyName;
+}
+
+
+const QString&
+Engine::currentStyleName()
+{
+  return curStyleName;
+}
+
+
+QString
+Engine::glyphName(int index)
+{
+  QString name;
+
+  if (ftSize && FT_HAS_GLYPH_NAMES(ftSize->face))
+  {
+    char buffer[256];
+    if (!FT_Get_Glyph_Name(ftSize->face,
+                           index,
+                           buffer,
+                           sizeof(buffer)))
+      name = QString(buffer);
+  }
+
+  return name;
 }
 
 
@@ -1157,7 +1201,7 @@ MainGUI::MainGUI()
   // we are going to watch the current font file once in a second
   timer = new QTimer();
   timer->setInterval(1000);
-  timer->start();
+//  timer->start();
 
   setGraphicsDefaults();
   createLayout();
@@ -1285,6 +1329,13 @@ MainGUI::closeFont()
     currentInstanceIndex = 0;
   }
 
+  if (currentFontIndex < 0)
+  {
+    fontFilenameLabel->clear();
+    fontNameLabel->clear();
+    glyphNameLabel->clear();
+  }
+
   showFont();
 }
 
@@ -1297,6 +1348,8 @@ MainGUI::showFont(bool preserveIndices)
     // we do lazy computation of FT_Face objects
 
     Font& font = fontList[currentFontIndex];
+
+    fontFilenameLabel->setText(QFileInfo(font.filePathname).fileName());
 
     // if not yet available, extract the number of faces and indices
     // for the current font
@@ -1374,6 +1427,10 @@ MainGUI::showFont(bool preserveIndices)
       currentInstanceIndex = -1;
       currentNumGlyphs = -1;
     }
+
+    fontNameLabel->setText(QString("%1 %2")
+                           .arg(engine->currentFamilyName())
+                           .arg(engine->currentStyleName()));
   }
   else
   {
@@ -1386,6 +1443,7 @@ MainGUI::showFont(bool preserveIndices)
   checkCurrentFaceIndex();
   checkCurrentInstanceIndex();
   checkHinting();
+  adjustGlyphIndex(0);
 
   drawGlyph();
 }
@@ -1594,9 +1652,10 @@ MainGUI::adjustGlyphIndex(int delta)
   }
 
   QString upperHex = QString::number(currentGlyphIndex, 16).toUpper();
-  glyphIndexLabel->setText(tr("Glyph Index %1 (0x%2)")
-                              .arg(currentGlyphIndex)
-                              .arg(upperHex));
+  glyphIndexLabel->setText(QString("%1 (0x%2)")
+                                   .arg(currentGlyphIndex)
+                                   .arg(upperHex));
+  glyphNameLabel->setText(engine->glyphName(currentGlyphIndex));
 
   drawGlyph();
 }
@@ -1931,7 +1990,7 @@ void
 MainGUI::createLayout()
 {
   // left side
-  infoLeftLayout = new QHBoxLayout;
+  fontFilenameLabel = new QLabel;
 
   hintingCheckBox = new QCheckBox(tr("Hinting"));
 
@@ -2015,6 +2074,9 @@ MainGUI::createLayout()
   showPointsCheckBox = new QCheckBox(tr("Show Points"));
   showPointNumbersCheckBox = new QCheckBox(tr("Show Point Numbers"));
   showOutlinesCheckBox = new QCheckBox(tr("Show Outlines"));
+
+  infoLeftLayout = new QHBoxLayout;
+  infoLeftLayout->addWidget(fontFilenameLabel);
 
   hintingModeLayout = new QHBoxLayout;
   hintingModeLayout->addWidget(hintingModeLabel);
@@ -2106,9 +2168,8 @@ MainGUI::createLayout()
 
   // right side
   glyphIndexLabel = new QLabel;
-
-  infoRightLayout = new QHBoxLayout;
-  infoRightLayout->addWidget(glyphIndexLabel);
+  glyphNameLabel = new QLabel;
+  fontNameLabel = new QLabel;
 
   glyphScene = new QGraphicsScene;
   glyphScene->addItem(new Grid(gridPen, axisPen));
@@ -2171,6 +2232,11 @@ MainGUI::createLayout()
   nextFaceButton = new QPushButton(tr("Next Face"));
   previousInstanceButton = new QPushButton(tr("Previous Named Instance"));
   nextInstanceButton = new QPushButton(tr("Next Named Instance"));
+
+  infoRightLayout = new QGridLayout;
+  infoRightLayout->addWidget(glyphIndexLabel, 0, 0);
+  infoRightLayout->addWidget(glyphNameLabel, 0, 1);
+  infoRightLayout->addWidget(fontNameLabel, 0, 2);
 
   navigationLayout = new QHBoxLayout;
   navigationLayout->setSpacing(0);

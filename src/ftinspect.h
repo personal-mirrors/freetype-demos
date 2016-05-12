@@ -112,6 +112,9 @@ public:
   Engine(MainGUI*);
   ~Engine();
 
+  const QString& currentFamilyName();
+  const QString& currentStyleName();
+  QString glyphName(int);
   int numFaces(int);
   int numNamedInstances(int, int);
   int loadFont(int, int, int); // returns number of glyphs
@@ -141,6 +144,10 @@ private:
                   // if it suddenly disappears (because it is
                   // in the process of being regenerated)
   int currentRetry;
+
+  QString curFamilyName;
+  QString curStyleName;
+
   FT_Library library;
   FTC_Manager cacheManager;
   FTC_ImageCache imageCache;
@@ -401,6 +408,7 @@ private:
   QGraphicsView *glyphView;
 
   QGridLayout *fontLayout;
+  QGridLayout *infoRightLayout;
 
   QHash<int, int> hintingModesTrueTypeHash;
   QHash<int, int> hintingModesCFFHash;
@@ -413,7 +421,6 @@ private:
   QHBoxLayout *hintingModeLayout;
   QHBoxLayout *horizontalHintingLayout;
   QHBoxLayout *infoLeftLayout;
-  QHBoxLayout *infoRightLayout;
   QHBoxLayout *lcdFilterLayout;
   QHBoxLayout *navigationLayout;
   QHBoxLayout *pointNumbersLayout;
@@ -424,8 +431,11 @@ private:
 
   QLabel *antiAliasingLabel;
   QLabel *dpiLabel;
+  QLabel *fontFilenameLabel;
+  QLabel *fontNameLabel;
   QLabel *gammaLabel;
   QLabel *glyphIndexLabel;
+  QLabel *glyphNameLabel;
   QLabel *hintingModeLabel;
   QLabel *lcdFilterLabel;
   QLabel *sizeLabel;
