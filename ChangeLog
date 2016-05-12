@@ -1,3 +1,13 @@
+2016-05-12  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Fix logical mistakes in font navigation.
+
+	* src/ftinspect.cpp (Engine::Engine): Initialize `ftSize'.
+	(MainGUI::showFont): Don't let exceed indices the number of
+	available index values if `preserveIndices' is active.
+	Always call `engine->loadFont' even for invalid fonts so that
+	various font-global variables are set correctly.
+
 2016-05-11  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Minor.

@@ -82,6 +82,7 @@ faceRequester(FTC_FaceID faceID,
 Engine::Engine(MainGUI* g)
 {
   gui = g;
+  ftSize = NULL;
 
   FT_Error error;
 
@@ -1309,18 +1310,16 @@ MainGUI::showFont(bool preserveIndices)
         for (int i = 0; i < numFaces; i++)
           font.numNamedInstancesList.append(-1);
 
-        if (!preserveIndices)
-        {
+        if (preserveIndices)
+          currentFaceIndex = qMin(currentFaceIndex, numFaces - 1);
+        else
           currentFaceIndex = 0;
-          currentInstanceIndex = 0;
-        }
       }
       else
       {
         // we use `numNamedInstancesList' with a single element set to zero
         // to indicate either a non-font or a font FreeType couldn't load;
         font.numNamedInstancesList.append(0);
-
         currentFaceIndex = -1;
         currentInstanceIndex = -1;
       }
@@ -1348,32 +1347,39 @@ MainGUI::showFont(bool preserveIndices)
       // instance index 0 represents a face without an instance;
       // consequently, `n' instances are enumerated from 1 to `n'
       // (instead of having indices 0 to `n-1')
-      if (!preserveIndices)
+      if (preserveIndices)
+        currentInstanceIndex = qMin(currentInstanceIndex,
+                                    numNamedInstances - 1);
+      else
         currentInstanceIndex = 0;
     }
 
-    if (currentFontIndex >= 0
-        && fontList[currentFontIndex].numNamedInstancesList[0] != 0)
-    {
-      // up to now we only called for rudimentary font handling (via the
-      // `engine->numFaces' and `engine->numNamedInstances' methods);
-      // `engine->loadFont', however, really parses a font
+    // up to now we only called for rudimentary font handling (via the
+    // `engine->numFaces' and `engine->numNamedInstances' methods);
+    // `engine->loadFont', however, really parses a font
 
-      // if the (font,face,instance) triplet is invalid,
-      // remove it from the hash
-      currentNumGlyphs = engine->loadFont(currentFontIndex,
-                                          currentFaceIndex,
-                                          currentInstanceIndex);
-      if (currentNumGlyphs < 0)
-        faceIDHash.remove(FaceID(currentFontIndex,
-                                 currentFaceIndex,
-                                 currentInstanceIndex));
-    }
-    else
+    // if the (font,face,instance) triplet is invalid,
+    // remove it from the hash
+    currentNumGlyphs = engine->loadFont(currentFontIndex,
+                                        currentFaceIndex,
+                                        currentInstanceIndex);
+    if (currentNumGlyphs < 0)
     {
+      faceIDHash.remove(FaceID(currentFontIndex,
+                               currentFaceIndex,
+                               currentInstanceIndex));
+
+      // XXX improve navigation for fonts with named instances
       currentFaceIndex = -1;
+      currentInstanceIndex = -1;
       currentNumGlyphs = -1;
     }
+  }
+  else
+  {
+    currentFaceIndex = -1;
+    currentInstanceIndex = -1;
+    currentNumGlyphs = -1;
   }
 
   checkCurrentFontIndex();
