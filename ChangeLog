@@ -1,5 +1,17 @@
 2016-05-12  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Variable renamings.
+
+	For consistency.
+
+	* src/ftinspect.cpp, src/ftinspect.h: s/numFaces/numberOfFaces/,
+	s/numNamedInstancesList/numberOfNamedInstancesList/,
+	s/numNamedInstances/numberOfNamedInstances/,
+	s/currentInstanceIndex/currentNamedInstanceIndex/.
+	s/currentNumGlyphs/currentNumberOfGlyphs/.
+
+2016-05-12  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Display more glyph and font information.
 
 	* src/ftinspect.cpp (Engine::loadFont): Update `curFamilyName' and

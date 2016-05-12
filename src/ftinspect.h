@@ -79,7 +79,7 @@ struct Font
 
   // the number of instances per face;
   // the size of the list gives the number of faces
-  QList<int> numNamedInstancesList;
+  QList<int> numberOfNamedInstancesList;
 };
 
 
@@ -115,8 +115,8 @@ public:
   const QString& currentFamilyName();
   const QString& currentStyleName();
   QString glyphName(int);
-  int numFaces(int);
-  int numNamedInstances(int, int);
+  int numberOfFaces(int);
+  int numberOfNamedInstances(int, int);
   int loadFont(int, int, int); // returns number of glyphs
   FT_Outline* loadOutline(int);
   void removeFont(int, int, int);
@@ -362,9 +362,9 @@ private:
   QList<Font> fontList;
   int currentFontIndex;
   int currentFaceIndex;
-  int currentInstanceIndex;
+  int currentNamedInstanceIndex;
 
-  int currentNumGlyphs;
+  int currentNumberOfGlyphs;
   int currentGlyphIndex;
 
   int faceCounter; // a running number used to initialize `faceIDHash'
