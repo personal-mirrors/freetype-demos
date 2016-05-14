@@ -94,7 +94,7 @@ struct FaceID
 {
   int fontIndex;
   int faceIndex;
-  int instanceIndex;
+  int namedInstanceIndex;
 
   FaceID();
   FaceID(int, int, int);

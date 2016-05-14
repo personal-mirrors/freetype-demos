@@ -11,7 +11,7 @@
 FaceID::FaceID()
 : fontIndex(-1),
   faceIndex(-1),
-  instanceIndex(-1)
+  namedInstanceIndex(-1)
 {
   // empty
 }
@@ -19,10 +19,10 @@ FaceID::FaceID()
 
 FaceID::FaceID(int fontIdx,
                int faceIdx,
-               int instanceIdx)
+               int namedInstanceIdx)
 : fontIndex(fontIdx),
   faceIndex(faceIdx),
-  instanceIndex(instanceIdx)
+  namedInstanceIndex(namedInstanceIdx)
 {
   // empty
 }
@@ -33,7 +33,7 @@ FaceID::operator==(const FaceID& other) const
 {
   return (fontIndex == other.fontIndex
           && faceIndex == other.faceIndex
-          && instanceIndex == other.instanceIndex);
+          && namedInstanceIndex == other.namedInstanceIndex);
 }
 
 
@@ -42,7 +42,7 @@ qHash(FaceID key)
 {
   return ((uint)key.fontIndex << 20)
          | ((uint)key.faceIndex << 10)
-         | (uint)key.instanceIndex;
+         | (uint)key.namedInstanceIndex;
 }
 
 
@@ -69,8 +69,8 @@ faceRequester(FTC_FaceID faceID,
   Font& font = gui->fontList[id.fontIndex];
   int faceIndex = id.faceIndex;
 
-  if (id.instanceIndex >= 0)
-    faceIndex += id.instanceIndex << 16;
+  if (id.namedInstanceIndex >= 0)
+    faceIndex += id.namedInstanceIndex << 16;
 
   return FT_New_Face(library,
                      qPrintable(font.filePathname),
