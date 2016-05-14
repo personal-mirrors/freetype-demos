@@ -53,7 +53,6 @@
 #include <QStandardItemModel>
 #include <QStatusBar>
 #include <QTabWidget>
-#include <QTimer>
 #include <QTransform>
 #include <QVariant>
 #include <QVector2D>
@@ -123,7 +122,6 @@ public:
   void setCFFHintingMode(int);
   void setTTInterpreterVersion(int);
   void update();
-  bool watchCurrentFont(); // returns `true' if we have to preserve indices
 
   friend class MainGUI;
 
@@ -137,13 +135,6 @@ public:
 
 private:
   MainGUI* gui;
-
-  QFileInfo currentFontFileInfo;
-  QDateTime currentFontDateTime;
-  int maxRetries; // how often we try to reload a font
-                  // if it suddenly disappears (because it is
-                  // in the process of being regenerated)
-  int currentRetry;
 
   QString curFamilyName;
   QString curStyleName;
@@ -353,7 +344,6 @@ private slots:
   void previousFace();
   void previousFont();
   void previousInstance();
-  void watchCurrentFont();
   void zoom();
 
 private:
@@ -482,8 +472,6 @@ private:
   QSpinBox *zoomSpinBox;
 
   QTabWidget *tabWidget;
-
-  QTimer *timer;
 
   QVBoxLayout *generalTabLayout;
   QVBoxLayout *leftLayout;

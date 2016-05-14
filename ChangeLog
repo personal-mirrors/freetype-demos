@@ -1,5 +1,24 @@
 2016-05-14  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Remove file watching.
+
+	This approach doesn't work well.  A new, improved implementation
+	will follow.
+
+	* src/ftinspect.h (Engine): Remove `currentFontFileInfo',
+	`currentFontFileDate', `maxRetries', and `currentRetry'.
+	Updated.
+	(MainGUI): Remove `timer'.
+	Updated.
+
+	* src/ftinspect.cpp (Engine::watchCurrentFont): Removed.
+	(Engine::loadFont, Engine::update): Updated.
+	(MainGUI::MainGUI): Updated.
+	(MainGUI::watchCurrentFont): Removed.
+	(MainGUI::createConnections): Updated.
+
+2016-05-14  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Variable renaming.
 
 	* src/ftinspect.cpp, src/ftinspect.h (FaceID):

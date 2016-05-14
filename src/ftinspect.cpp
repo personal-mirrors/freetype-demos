@@ -341,12 +341,6 @@ Engine::loadFont(int fontIndex,
     return -1;
   }
 
-  currentFontFileInfo.setFile(gui->fontList[fontIndex].filePathname);
-  currentFontFileInfo.setCaching(false);
-  currentFontDateTime = currentFontFileInfo.lastModified();
-  if (currentFontFileInfo.exists())
-    currentRetry = 0;
-
   curFamilyName = QString(ftSize->face->family_name);
   curStyleName = QString(ftSize->face->style_name);
 
@@ -359,83 +353,6 @@ Engine::loadFont(int fontIndex,
     fontType = FontType_TrueType;
 
   return ftSize->face->num_glyphs;
-}
-
-
-// this function must be followed by `showFont'
-// to reload the font if necessary
-
-bool
-Engine::watchCurrentFont()
-{
-  int index = gui->currentFontIndex;
-
-  if (index < 0)
-    return false;
-
-  Font& font = gui->fontList[index];
-
-  if (currentFontFileInfo.exists()
-      && currentFontFileInfo.isReadable())
-  {
-    QDateTime modified = currentFontFileInfo.lastModified();
-    if (modified > currentFontDateTime)
-    {
-      // the font has changed on disk; check whether we can load it,
-      // otherwise we increase our retry counter
-      FT_Face face;
-      if (FT_New_Face(library,
-                      qPrintable(font.filePathname),
-                      -1,
-                      &face))
-        goto Retry;
-
-      FT_Done_Face(face);
-
-      // remove all entries
-      for (int i = 0; i < font.numberOfNamedInstancesList.size(); i++)
-        for (int j = 0; j < font.numberOfNamedInstancesList[i]; j++)
-        {
-          removeFont(index, i, j);
-          gui->faceIDHash.remove(FaceID(index, i, j));
-        }
-      font.numberOfNamedInstancesList.clear();
-
-      currentRetry = 0;
-
-      // current face and instance indices should be preserved
-      return true;
-    }
-  }
-  else
-  {
-  Retry:
-    if (currentRetry < maxRetries)
-    {
-      currentRetry++;
-      return false;
-    }
-
-    // font is no longer available, thus replace all entries...
-    for (int i = 0; i < font.numberOfNamedInstancesList.size(); i++)
-      for (int j = 0; j < font.numberOfNamedInstancesList[i]; j++)
-      {
-        removeFont(index, i, j);
-        gui->faceIDHash.remove(FaceID(index, i, j));
-      }
-    font.numberOfNamedInstancesList.clear();
-
-    // ...with an invalid one
-    font.numberOfNamedInstancesList.append(0);
-
-    // XXX move this to MainGUI::watchCurrentFont
-    gui->currentFaceIndex = -1;
-    gui->currentNamedInstanceIndex = -1;
-
-    // XXX emit a warning message
-  }
-
-  return false;
 }
 
 
@@ -642,9 +559,6 @@ Engine::update()
     scaler.x_res = dpi;
     scaler.y_res = dpi;
   }
-
-  // XXX make this configurable
-  maxRetries = 10;
 }
 
 
@@ -1197,11 +1111,6 @@ GlyphBitmap::paint(QPainter* painter,
 MainGUI::MainGUI()
 {
   engine = NULL;
-
-  // we are going to watch the current font file once in a second
-  timer = new QTimer();
-  timer->setInterval(1000);
-//  timer->start();
 
   setGraphicsDefaults();
   createLayout();
@@ -1862,16 +1771,6 @@ MainGUI::zoom()
 
 
 void
-MainGUI::watchCurrentFont()
-{
-  if (engine->watchCurrentFont())
-    showFont(true);
-  else
-    showFont(false);
-}
-
-
-void
 MainGUI::setGraphicsDefaults()
 {
   // color tables (with suitable opacity values) for converting
@@ -2392,9 +2291,6 @@ MainGUI::createConnections()
   glyphNavigationMapper->setMapping(toP100Buttonx, 100);
   glyphNavigationMapper->setMapping(toP1000Buttonx, 1000);
   glyphNavigationMapper->setMapping(toEndButtonx, 0x10000);
-
-  connect(timer, SIGNAL(timeout()),
-          SLOT(watchCurrentFont()));
 }
 
 
