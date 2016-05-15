@@ -350,11 +350,12 @@ Engine::loadFont(int fontIndex,
   curStyleName = QString(ftSize->face->style_name);
 
   FT_Module module = &ftSize->face->driver->root;
+  const char*moduleName = module->clazz->module_name;
 
   // XXX cover all available modules
-  if (!strcmp(module->clazz->module_name, "cff"))
+  if (!strcmp(moduleName, "cff"))
     fontType = FontType_CFF;
-  else if (!strcmp(module->clazz->module_name, "truetype"))
+  else if (!strcmp(moduleName, "truetype"))
     fontType = FontType_TrueType;
 
   return ftSize->face->num_glyphs;
@@ -1255,7 +1256,7 @@ MainGUI::closeFont()
 
 
 void
-MainGUI::showFont(bool preserveIndices)
+MainGUI::showFont()
 {
   if (currentFontIndex >= 0)
   {
@@ -1277,10 +1278,7 @@ MainGUI::showFont(bool preserveIndices)
         for (int i = 0; i < currentNumberOfFaces; i++)
           font.numberOfNamedInstancesList.append(-1);
 
-        if (preserveIndices)
-          currentFaceIndex = qMin(currentFaceIndex, currentNumberOfFaces - 1);
-        else
-          currentFaceIndex = 0;
+        currentFaceIndex = 0;
       }
       else
       {
@@ -1317,11 +1315,7 @@ MainGUI::showFont(bool preserveIndices)
       // instance index 0 represents a face without an instance;
       // consequently, `n' instances are enumerated from 1 to `n'
       // (instead of having indices 0 to `n-1')
-      if (preserveIndices)
-        currentNamedInstanceIndex = qMin(currentNamedInstanceIndex,
-                                         currentNumberOfNamedInstances - 1);
-      else
-        currentNamedInstanceIndex = 0;
+      currentNamedInstanceIndex = 0;
     }
 
     // up to now we only called for rudimentary font handling (via the
@@ -1591,7 +1585,7 @@ MainGUI::checkCurrentFontIndex()
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(true);
   }
-  else if (currentFontIndex == fontList.size() - 1)
+  else if (currentFontIndex >= fontList.size() - 1)
   {
     previousFontButton->setEnabled(true);
     nextFontButton->setEnabled(false);
@@ -1625,7 +1619,7 @@ MainGUI::checkCurrentFaceIndex()
     previousFaceButton->setEnabled(false);
     nextFaceButton->setEnabled(true);
   }
-  else if (currentFaceIndex == currentNumberOfFaces - 1)
+  else if (currentFaceIndex >= currentNumberOfFaces - 1)
   {
     previousFaceButton->setEnabled(true);
     nextFaceButton->setEnabled(false);
@@ -1665,7 +1659,7 @@ MainGUI::checkCurrentNamedInstanceIndex()
     previousNamedInstanceButton->setEnabled(false);
     nextNamedInstanceButton->setEnabled(true);
   }
-  else if (currentNamedInstanceIndex == currentNumberOfNamedInstances - 1)
+  else if (currentNamedInstanceIndex >= currentNumberOfNamedInstances - 1)
   {
     previousNamedInstanceButton->setEnabled(true);
     nextNamedInstanceButton->setEnabled(false);

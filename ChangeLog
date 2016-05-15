@@ -1,5 +1,17 @@
 2016-05-15  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Minor issues.
+
+	* src/ftinspect.cpp (Engine::loadFont): More readable code.
+	(MainGUI::showFont): Remove no longer needed argument.
+	Updated.
+	(MainGUI::checkCurrentFontIndex, MainGUI::checkCurrentFaceIndex,
+	MainGUI::checkCurrentNamedInstanceIndex): Minor generalization.
+
+	* src/ftinspect.h (MainGUI): Updated.
+
+2016-05-15  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Replace face ID hash with a map.
 
 	We need this for later changes that will rely on ordered data.

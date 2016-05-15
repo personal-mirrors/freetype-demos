@@ -523,7 +523,7 @@ private:
   void createStatusBar();
   void readSettings();
   void setGraphicsDefaults();
-  void showFont(bool = false);
+  void showFont();
   void writeSettings();
 };
 
