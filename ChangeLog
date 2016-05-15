@@ -1,5 +1,36 @@
 2016-05-15  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Redesign file/face/instance navigation.
+
+	Instead no longer peek into a font with a negative argument to
+	`FT_Face_New', we now directly load appropriate (font, face,
+	instance) triplets.
+
+	The new code also tries a bit harder to separate the font stuff in
+	the `Engine' class from the GUI navigation control in `MainGUI'.
+
+	* src/ftinspect.h (Font): Removed.
+	(MainGUI): Make `fontList' a `QStringList'.
+	New members `currentNumberOfFaces' and
+	`currentNumberOfNamedInstances'.
+	Move `faceCounter' and `faceIDMap' members to...
+	(Engine): ...this class.
+	Make `faceRequester' a friend.
+
+	* src/ftinspect.cpp (faceRequester): Check font index.
+	Updated.
+	(Engine::Engine): Updated.
+	(Engine::numberOfFaces, Engine::numberOfNamedInstances,
+	Engine::loadFont, Engine::removeFont): Rewritten.
+	(MainGUI::loadFonts, MainGUI::closeFont, MainGUI::showFont,
+	MainGUI::adjustGlyphIndex, MainGUI::checkCurrentFaceIndex,
+	MainGUI::checkCurrentNamedInstanceIndex):
+	Simplified.
+	(MainGUI::nextFace, MainGUI::nextNamedInstance, MainGUI::drawGlyph,
+	MainGUI::setDefaults): Updated.
+
+2016-05-15  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Minor issues.
 
 	* src/ftinspect.cpp (Engine::loadFont): More readable code.

@@ -69,16 +69,23 @@ faceRequester(FTC_FaceID ftcFaceID,
   // in C++ it's tricky to convert a void pointer back to an integer
   // without warnings related to 32bit vs. 64bit pointer size
   int val = static_cast<int>((char*)ftcFaceID - (char*)0);
-  const FaceID& faceID = gui->faceIDMap.key(val);
+  const FaceID& faceID = gui->engine->faceIDMap.key(val);
 
-  Font& font = gui->fontList[faceID.fontIndex];
+  // this is the only place where we have to check the validity of the font
+  // index; note that the validity of both the face and named instance index
+  // is checked by FreeType itself
+  if (faceID.fontIndex < 0
+      || faceID.fontIndex >= gui->fontList.size())
+    return FT_Err_Invalid_Argument;
+
+  QString& font = gui->fontList[faceID.fontIndex];
   int faceIndex = faceID.faceIndex;
 
-  if (faceID.namedInstanceIndex >= 0)
+  if (faceID.namedInstanceIndex > 0)
     faceIndex += faceID.namedInstanceIndex << 16;
 
   return FT_New_Face(library,
-                     qPrintable(font.filePathname),
+                     qPrintable(font),
                      faceIndex,
                      faceP);
 }
@@ -88,6 +95,8 @@ Engine::Engine(MainGUI* g)
 {
   gui = g;
   ftSize = NULL;
+  // we reserve value 0 for the `invalid face ID'
+  faceCounter = 1;
 
   FT_Error error;
 
@@ -243,31 +252,35 @@ Engine::~Engine()
 int
 Engine::numberOfFaces(int fontIndex)
 {
-  if (fontIndex >= gui->fontList.size())
-    return -1;
-
-  Font& font = gui->fontList[fontIndex];
-
-  // value already available?
-  if (!font.numberOfNamedInstancesList.isEmpty())
-    return font.numberOfNamedInstancesList.size();
-
-  FT_Error error;
   FT_Face face;
+  int numFaces = -1;
 
-  error = FT_New_Face(library,
-                      qPrintable(font.filePathname),
-                      -1,
-                      &face);
-  if (error)
+  // search triplet (fontIndex, 0, 0)
+  FTC_FaceID ftcFaceID = reinterpret_cast<void*>
+                           (faceIDMap.value(FaceID(fontIndex,
+                                                   0,
+                                                   0)));
+  if (ftcFaceID)
   {
-    // XXX error handling
-    return -1;
+    // found
+    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+      numFaces = face->num_faces;
   }
+  else
+  {
+    // not found; try to load triplet (fontIndex, 0, 0)
+    ftcFaceID = reinterpret_cast<void*>(faceCounter);
+    faceIDMap.insert(FaceID(fontIndex, 0, 0),
+                     faceCounter++);
 
-  int numFaces = face->num_faces;
-
-  FT_Done_Face(face);
+    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+      numFaces = face->num_faces;
+    else
+    {
+      faceIDMap.remove(FaceID(fontIndex, 0, 0));
+      faceCounter--;
+    }
+  }
 
   return numFaces;
 }
@@ -277,36 +290,37 @@ int
 Engine::numberOfNamedInstances(int fontIndex,
                                int faceIndex)
 {
-  if (fontIndex >= gui->fontList.size())
-    return -1;
-
-  Font& font = gui->fontList[fontIndex];
-
-  if (faceIndex >= font.numberOfNamedInstancesList.size())
-    return -1;
-
-  // value already available?
-  if (font.numberOfNamedInstancesList[faceIndex] >= 0)
-    return font.numberOfNamedInstancesList[faceIndex];
-
-  FT_Error error;
   FT_Face face;
+  // we return `n' named instances plus one;
+  // instance index 0 represents a face without a named instance selected
+  int numNamedInstances = -1;
 
-  error = FT_New_Face(library,
-                      qPrintable(font.filePathname),
-                      -(faceIndex + 1),
-                      &face);
-  if (error)
+  // search triplet (fontIndex, faceIndex, 0)
+  FTC_FaceID ftcFaceID = reinterpret_cast<void*>
+                           (faceIDMap.value(FaceID(fontIndex,
+                                                   faceIndex,
+                                                   0)));
+  if (ftcFaceID)
   {
-    // XXX error handling
-    return -1;
+    // found
+    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+      numNamedInstances = (face->style_flags >> 16) + 1;
   }
+  else
+  {
+    // not found; try to load triplet (fontIndex, faceIndex, 0)
+    ftcFaceID = reinterpret_cast<void*>(faceCounter);
+    faceIDMap.insert(FaceID(fontIndex, faceIndex, 0),
+                     faceCounter++);
 
-  // we return `n' instances plus one,
-  // the latter representing a face without an instance selected
-  int numNamedInstances = (face->style_flags >> 16) + 1;
-
-  FT_Done_Face(face);
+    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+      numNamedInstances = (face->style_flags >> 16) + 1;
+    else
+    {
+      faceIDMap.remove(FaceID(fontIndex, faceIndex, 0));
+      faceCounter--;
+    }
+  }
 
   return numNamedInstances;
 }
@@ -317,62 +331,90 @@ Engine::loadFont(int fontIndex,
                  int faceIndex,
                  int namedInstanceIndex)
 {
-  update();
-
+  int numGlyphs = -1;
   fontType = FontType_Other;
 
+  update();
+
+  // search triplet (fontIndex, faceIndex, namedInstanceIndex)
   scaler.face_id = reinterpret_cast<void*>
-                     (gui->faceIDMap.value(FaceID(fontIndex,
-                                                  faceIndex,
-                                                  namedInstanceIndex)));
-  if (scaler.face_id == 0)
+                     (faceIDMap.value(FaceID(fontIndex,
+                                             faceIndex,
+                                             namedInstanceIndex)));
+  if (scaler.face_id)
   {
-    // an invalid font, missing in the map
+    // found
+    if (!FTC_Manager_LookupSize(cacheManager, &scaler, &ftSize))
+      numGlyphs = ftSize->face->num_glyphs;
+  }
+  else
+  {
+    // not found; try to load triplet
+    // (fontIndex, faceIndex, namedInstanceIndex)
+    scaler.face_id = reinterpret_cast<void*>(faceCounter);
+    faceIDMap.insert(FaceID(fontIndex,
+                            faceIndex,
+                            namedInstanceIndex),
+                     faceCounter++);
+
+    if (!FTC_Manager_LookupSize(cacheManager, &scaler, &ftSize))
+      numGlyphs = ftSize->face->num_glyphs;
+    else
+    {
+      faceIDMap.remove(FaceID(fontIndex,
+                              faceIndex,
+                              namedInstanceIndex));
+      faceCounter--;
+    }
+  }
+
+  if (numGlyphs < 0)
+  {
     ftSize = NULL;
     curFamilyName = QString();
     curStyleName = QString();
-
-    return -1;
   }
-
-  FT_Error error = FTC_Manager_LookupSize(cacheManager, &scaler, &ftSize);
-  if (error)
+  else
   {
-    // XXX error handling
-    ftSize = NULL;
-    curFamilyName = QString();
-    curStyleName = QString();
+    curFamilyName = QString(ftSize->face->family_name);
+    curStyleName = QString(ftSize->face->style_name);
 
-    return -1;
+    FT_Module module = &ftSize->face->driver->root;
+    const char* moduleName = module->clazz->module_name;
+
+    // XXX cover all available modules
+    if (!strcmp(moduleName, "cff"))
+      fontType = FontType_CFF;
+    else if (!strcmp(moduleName, "truetype"))
+      fontType = FontType_TrueType;
   }
 
-  curFamilyName = QString(ftSize->face->family_name);
-  curStyleName = QString(ftSize->face->style_name);
-
-  FT_Module module = &ftSize->face->driver->root;
-  const char*moduleName = module->clazz->module_name;
-
-  // XXX cover all available modules
-  if (!strcmp(moduleName, "cff"))
-    fontType = FontType_CFF;
-  else if (!strcmp(moduleName, "truetype"))
-    fontType = FontType_TrueType;
-
-  return ftSize->face->num_glyphs;
+  return numGlyphs;
 }
 
 
 void
-Engine::removeFont(int fontIndex,
-                   int faceIndex,
-                   int namedInstanceIndex)
+Engine::removeFont(int fontIndex)
 {
-  FTC_FaceID ftcFaceID = reinterpret_cast<void*>
-                           (gui->faceIDMap.value(FaceID(fontIndex,
-                                                        faceIndex,
-                                                        namedInstanceIndex)));
-  if (ftcFaceID)
+  // we iterate over all triplets that contain the given font index
+  // and remove them
+  QMap<FaceID, int>::iterator iter
+    = faceIDMap.lowerBound(FaceID(fontIndex, 0, 0));
+
+  for (;;)
+  {
+    if (iter == faceIDMap.end())
+      break;
+
+    FaceID faceID = iter.key();
+    if (faceID.fontIndex != fontIndex)
+      break;
+
+    FTC_FaceID ftcFaceID = reinterpret_cast<void*>(iter.value());
     FTC_Manager_RemoveFaceID(cacheManager, ftcFaceID);
+
+    iter = faceIDMap.erase(iter);
+  }
 }
 
 
@@ -1197,12 +1239,8 @@ MainGUI::loadFonts()
                         NULL,
                         QFileDialog::ReadOnly);
 
-  for (int i = 0; i < files.size(); i++)
-  {
-    Font font;
-    font.filePathname = files[i];
-    fontList.append(font);
-  }
+  // XXX sort data, uniquify elements
+  fontList.append(files);
 
   // if we have new fonts, set the current index to the first new one
   if (oldSize < fontList.size())
@@ -1215,41 +1253,20 @@ MainGUI::loadFonts()
 void
 MainGUI::closeFont()
 {
-  if (currentFontIndex >= 0)
+  if (currentFontIndex < fontList.size())
   {
-    QList<int>& list = fontList[currentFontIndex].numberOfNamedInstancesList;
-
-    for (int i = 0; i < list.size(); i++)
-      for (int j = 0; j < list[i]; j++)
-      {
-        engine->removeFont(currentFontIndex, i, j);
-        faceIDMap.remove(FaceID(currentFontIndex, i, j));
-      }
-
+    engine->removeFont(currentFontIndex);
     fontList.removeAt(currentFontIndex);
   }
-  if (currentFontIndex >= fontList.size())
-    currentFontIndex--;
 
-  if (currentFontIndex < 0
-      || fontList[currentFontIndex].numberOfNamedInstancesList.isEmpty()
-      || fontList[currentFontIndex].numberOfNamedInstancesList[0] == 0)
+  // show next font after deletion, i.e., retain index if possible
+  if (fontList.size())
   {
-    currentFaceIndex = -1;
-    currentNamedInstanceIndex = -1;
+    if (currentFontIndex >= fontList.size())
+      currentFontIndex = fontList.size() - 1;
   }
   else
-  {
-    currentFaceIndex = 0;
-    currentNamedInstanceIndex = 0;
-  }
-
-  if (currentFontIndex < 0)
-  {
-    fontFilenameLabel->clear();
-    fontNameLabel->clear();
-    glyphNameLabel->clear();
-  }
+    currentFontIndex = 0;
 
   showFont();
 }
@@ -1258,97 +1275,29 @@ MainGUI::closeFont()
 void
 MainGUI::showFont()
 {
-  if (currentFontIndex >= 0)
+  // we do lazy computation of FT_Face objects
+
+  if (currentFontIndex < fontList.size())
   {
-    // we do lazy computation of FT_Face objects
-
-    Font& font = fontList[currentFontIndex];
-
-    fontFilenameLabel->setText(QFileInfo(font.filePathname).fileName());
-
-    // if not yet available, extract the number of faces and indices
-    // for the current font
-
-    if (font.numberOfNamedInstancesList.isEmpty())
-    {
-      int currentNumberOfFaces = engine->numberOfFaces(currentFontIndex);
-
-      if (currentNumberOfFaces > 0)
-      {
-        for (int i = 0; i < currentNumberOfFaces; i++)
-          font.numberOfNamedInstancesList.append(-1);
-
-        currentFaceIndex = 0;
-      }
-      else
-      {
-        // we use `numberOfNamedInstancesList' with a single element set to
-        // zero to indicate either a non-font or a font FreeType couldn't
-        // load;
-        font.numberOfNamedInstancesList.append(0);
-        currentFaceIndex = -1;
-        currentNamedInstanceIndex = -1;
-      }
-    }
-
-    // value -1 in `numberOfNamedInstancesList' means `not yet initialized'
-    if (currentFaceIndex >= 0
-        && font.numberOfNamedInstancesList[currentFaceIndex] < 0)
-    {
-      int currentNumberOfNamedInstances
-            = engine->numberOfNamedInstances(currentFontIndex,
-                                             currentFaceIndex);
-
-      // XXX? we ignore errors
-      if (currentNumberOfNamedInstances < 0)
-        currentNumberOfNamedInstances = 1;
-
-      font.numberOfNamedInstancesList[currentFaceIndex]
-        = currentNumberOfNamedInstances;
-
-      // assign the (font,face,instance) triplet to a running ID;
-      // we need this for the `faceRequester' function
-      for (int i = 0; i < currentNumberOfNamedInstances; i++)
-        faceIDMap.insert(FaceID(currentFontIndex, currentFaceIndex, i),
-                         faceCounter++);
-
-      // instance index 0 represents a face without an instance;
-      // consequently, `n' instances are enumerated from 1 to `n'
-      // (instead of having indices 0 to `n-1')
-      currentNamedInstanceIndex = 0;
-    }
-
-    // up to now we only called for rudimentary font handling (via the
-    // `engine->numberOfFaces' and `engine->numberOfNamedInstances'
-    // methods); `engine->loadFont', however, really parses a font
-
-    // if the (font,face,instance) triplet is invalid,
-    // remove it from the map
-    currentNumberOfGlyphs = engine->loadFont(currentFontIndex,
-                                             currentFaceIndex,
-                                             currentNamedInstanceIndex);
-    if (currentNumberOfGlyphs < 0)
-    {
-      faceIDMap.remove(FaceID(currentFontIndex,
-                              currentFaceIndex,
-                              currentNamedInstanceIndex));
-
-      // XXX improve navigation for fonts with named instances
-      currentFaceIndex = -1;
-      currentNamedInstanceIndex = -1;
-      currentNumberOfGlyphs = -1;
-    }
-
-    fontNameLabel->setText(QString("%1 %2")
-                           .arg(engine->currentFamilyName())
-                           .arg(engine->currentStyleName()));
+    QString& font = fontList[currentFontIndex];
+    fontFilenameLabel->setText(QFileInfo(font).fileName());
   }
   else
-  {
-    currentFaceIndex = -1;
-    currentNamedInstanceIndex = -1;
-    currentNumberOfGlyphs = -1;
-  }
+    fontFilenameLabel->clear();
+
+  currentNumberOfFaces
+    = engine->numberOfFaces(currentFontIndex);
+  currentNumberOfNamedInstances
+    = engine->numberOfNamedInstances(currentFontIndex,
+                                     currentFaceIndex);
+  currentNumberOfGlyphs
+    = engine->loadFont(currentFontIndex,
+                       currentFaceIndex,
+                       currentNamedInstanceIndex);
+
+  fontNameLabel->setText(QString("%1 %2")
+                         .arg(engine->currentFamilyName())
+                         .arg(engine->currentStyleName()));
 
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
@@ -1552,14 +1501,13 @@ MainGUI::checkUnits()
 void
 MainGUI::adjustGlyphIndex(int delta)
 {
-  // don't adjust current glyph index if we have an invalid font
-  if (currentFaceIndex >= 0 && currentNumberOfGlyphs >= 0)
+  // only adjust current glyph index if we have a valid font
+  if (currentNumberOfGlyphs > 0)
   {
     currentGlyphIndex += delta;
-    if (currentGlyphIndex < 0)
-      currentGlyphIndex = 0;
-    else if (currentGlyphIndex >= currentNumberOfGlyphs)
-      currentGlyphIndex = currentNumberOfGlyphs - 1;
+    currentGlyphIndex = qBound(0,
+                               currentGlyphIndex,
+                               currentNumberOfGlyphs - 1);
   }
 
   QString upperHex = QString::number(currentGlyphIndex, 16).toUpper();
@@ -1601,14 +1549,6 @@ MainGUI::checkCurrentFontIndex()
 void
 MainGUI::checkCurrentFaceIndex()
 {
-  int currentNumberOfFaces;
-
-  if (currentFontIndex < 0)
-    currentNumberOfFaces = 0;
-  else
-    currentNumberOfFaces = fontList[currentFontIndex]
-                             .numberOfNamedInstancesList.size();
-
   if (currentNumberOfFaces < 2)
   {
     previousFaceButton->setEnabled(false);
@@ -1635,20 +1575,6 @@ MainGUI::checkCurrentFaceIndex()
 void
 MainGUI::checkCurrentNamedInstanceIndex()
 {
-  int currentNumberOfNamedInstances;
-
-  if (currentFontIndex < 0)
-    currentNumberOfNamedInstances = 0;
-  else
-  {
-    if (currentFaceIndex < 0)
-      currentNumberOfNamedInstances = 0;
-    else
-      currentNumberOfNamedInstances
-        = fontList[currentFontIndex]
-            .numberOfNamedInstancesList[currentFaceIndex];
-  }
-
   if (currentNumberOfNamedInstances < 2)
   {
     previousNamedInstanceButton->setEnabled(false);
@@ -1713,9 +1639,6 @@ MainGUI::previousFace()
 void
 MainGUI::nextFace()
 {
-  int currentNumberOfFaces = fontList[currentFontIndex]
-                               .numberOfNamedInstancesList.size();
-
   if (currentFaceIndex < currentNumberOfFaces - 1)
   {
     currentFaceIndex++;
@@ -1739,10 +1662,6 @@ MainGUI::previousNamedInstance()
 void
 MainGUI::nextNamedInstance()
 {
-  int currentNumberOfNamedInstances
-        = fontList[currentFontIndex]
-            .numberOfNamedInstancesList[currentFaceIndex];
-
   if (currentNamedInstanceIndex < currentNumberOfNamedInstances - 1)
   {
     currentNamedInstanceIndex++;
@@ -1842,45 +1761,41 @@ MainGUI::drawGlyph()
     currentGlyphPointNumbersItem = NULL;
   }
 
-  if (currentFontIndex >= 0
-      && currentFaceIndex >= 0)
+  FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
+  if (outline)
   {
-    FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
-    if (outline)
+    if (showBitmapCheckBox->isChecked())
     {
-      if (showBitmapCheckBox->isChecked())
+      // XXX support LCD
+      int pixelMode = FT_PIXEL_MODE_GRAY;
+      if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_None)
+        pixelMode = FT_PIXEL_MODE_MONO;
+
+      currentGlyphBitmapItem = new GlyphBitmap(outline,
+                                               engine->library,
+                                               pixelMode,
+                                               monoColorTable,
+                                               grayColorTable);
+      glyphScene->addItem(currentGlyphBitmapItem);
+    }
+
+    if (showOutlinesCheckBox->isChecked())
+    {
+      currentGlyphOutlineItem = new GlyphOutline(outlinePen, outline);
+      glyphScene->addItem(currentGlyphOutlineItem);
+    }
+
+    if (showPointsCheckBox->isChecked())
+    {
+      currentGlyphPointsItem = new GlyphPoints(onPen, offPen, outline);
+      glyphScene->addItem(currentGlyphPointsItem);
+
+      if (showPointNumbersCheckBox->isChecked())
       {
-        // XXX support LCD
-        int pixelMode = FT_PIXEL_MODE_GRAY;
-        if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_None)
-          pixelMode = FT_PIXEL_MODE_MONO;
-
-        currentGlyphBitmapItem = new GlyphBitmap(outline,
-                                                 engine->library,
-                                                 pixelMode,
-                                                 monoColorTable,
-                                                 grayColorTable);
-        glyphScene->addItem(currentGlyphBitmapItem);
-      }
-
-      if (showOutlinesCheckBox->isChecked())
-      {
-        currentGlyphOutlineItem = new GlyphOutline(outlinePen, outline);
-        glyphScene->addItem(currentGlyphOutlineItem);
-      }
-
-      if (showPointsCheckBox->isChecked())
-      {
-        currentGlyphPointsItem = new GlyphPoints(onPen, offPen, outline);
-        glyphScene->addItem(currentGlyphPointsItem);
-
-        if (showPointNumbersCheckBox->isChecked())
-        {
-          currentGlyphPointNumbersItem = new GlyphPointNumbers(onPen,
-                                                               offPen,
-                                                               outline);
-          glyphScene->addItem(currentGlyphPointNumbersItem);
-        }
+        currentGlyphPointNumbersItem = new GlyphPointNumbers(onPen,
+                                                             offPen,
+                                                             outline);
+        glyphScene->addItem(currentGlyphPointNumbersItem);
       }
     }
   }
@@ -2385,14 +2300,10 @@ MainGUI::setDefaults()
     hintingModeComboBoxx->setItemEnabled(hintingModesAlwaysDisabled[i],
                                          false);
 
-  // we reserve value 0 for the `invalid face ID'
-  faceCounter = 1;
-
-  currentFontIndex = -1;
-  currentFaceIndex = -1;
-  currentNamedInstanceIndex = -1;
-
-  currentNumberOfGlyphs = -1;
+  // the next four values always non-negative
+  currentFontIndex = 0;
+  currentFaceIndex = 0;
+  currentNamedInstanceIndex = 0;
   currentGlyphIndex = 0;
 
   currentCFFHintingMode
