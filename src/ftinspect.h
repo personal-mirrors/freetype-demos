@@ -329,7 +329,7 @@ private slots:
   void checkAutoHinting();
   void checkCurrentFaceIndex();
   void checkCurrentFontIndex();
-  void checkCurrentInstanceIndex();
+  void checkCurrentNamedInstanceIndex();
   void checkHinting();
   void checkHintingMode();
   void checkLcdFilter();
@@ -340,10 +340,10 @@ private slots:
   void loadFonts();
   void nextFace();
   void nextFont();
-  void nextInstance();
+  void nextNamedInstance();
   void previousFace();
   void previousFont();
-  void previousInstance();
+  void previousNamedInstance();
   void zoom();
 
 private:
@@ -448,10 +448,10 @@ private:
 
   QPushButton *nextFaceButton;
   QPushButton *nextFontButton;
-  QPushButton *nextInstanceButton;
+  QPushButton *nextNamedInstanceButton;
   QPushButton *previousFaceButton;
   QPushButton *previousFontButton;
-  QPushButton *previousInstanceButton;
+  QPushButton *previousNamedInstanceButton;
 
   QPushButtonx *toEndButtonx;
   QPushButtonx *toM1000Buttonx;

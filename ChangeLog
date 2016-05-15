@@ -1,3 +1,38 @@
+2016-05-15  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] More variable and function renamings.
+
+	Mainly for consistency.
+
+	* src/ftinspect.cpp (faceRequester): s/faceID/ftcFaceID/,
+	s/id/faceID/.
+	(Engine::numberOfFaces): s/result/numFaces/.
+	(Engine::numberOfNamedInstances): s/result/numNamedInstances/.
+	(Engine::loadFont): s/instanceIndex/namedInstanceIndex/.
+	(Engine::removeFont): s/face_id/ftcFaceID/,
+	s/instanceIndex/namedInstanceIndex/.
+	(MainGUI::showFont): s/numberOfFaces/currentNumberOfFaces/,
+	s/numberOfNamedInstances/currentNumberOfNamedInstances/.
+	Updated.
+	(MainGUI::checkCurrentFaceIndex):
+	s/numberOfFaces/currentNumberOfFaces/.
+	(MainGUI::checkCurrentInstanceIndex): Renamed to...
+	(MainGUI::checkCurrentNamedInstanceIndex): ...this.
+	s/numberOfNamedInstances/currentNumberOfNamedInstances/.
+	Updated.
+	(MainGUI::nextFace): s/numberOfFaces/currentNumberOfFaces/.
+	(MainGUI::nextInstance): Renamed to...
+	(MainGUI::nextNamedInstance): ... this.
+	s/numberOfNamedInstances/currentNumberOfNamedInstances/.
+	(MainGUI::previousInstance): Renamed to...
+	(MainGUI::previousNamedInstance): ...this.
+	(MainGUI::createLayout, MainGUI::createConnections,
+	MainGUI::setDefaults): Updated.
+
+	* src/ftinspect.h (Engine): Updated.
+	(MainGUI): s/nextInstanceButton/nextNamedInstanceButton/
+	s/previousInstanceButton/previousNamedInstanceButton/.
+
 2016-05-14  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Remove file watching.
