@@ -29,20 +29,24 @@ FaceID::FaceID(int fontIdx,
 
 
 bool
-FaceID::operator==(const FaceID& other) const
+FaceID::operator<(const FaceID& other) const
 {
-  return (fontIndex == other.fontIndex
-          && faceIndex == other.faceIndex
-          && namedInstanceIndex == other.namedInstanceIndex);
-}
+  bool ret = false;
 
+  if (fontIndex < other.fontIndex)
+    ret = true;
+  else if (fontIndex == other.fontIndex)
+  {
+    if (faceIndex < other.faceIndex)
+      ret = true;
+    else if (faceIndex == other.faceIndex)
+    {
+      if (namedInstanceIndex < other.namedInstanceIndex)
+        ret = true;
+    }
+  }
 
-uint
-qHash(FaceID key)
-{
-  return ((uint)key.fontIndex << 20)
-         | ((uint)key.faceIndex << 10)
-         | (uint)key.namedInstanceIndex;
+  return ret;
 }
 
 
@@ -50,9 +54,10 @@ qHash(FaceID key)
 // the cache manager to translate an `abstract' face ID into a real
 // `FT_Face' object.
 //
-// We use a hash: `faceID' is the value, and its associated key gives the
-// font, face, and instance indices.  Getting a key from a value is slow,
-// but this must be done only once.
+// We use a map: `faceID' is the value, and its associated key gives the
+// font, face, and named instance indices.  Getting a key from a value is
+// slow, but this must be done only once, since `faceRequester' is only
+// called if the font is not yet in the cache.
 
 FT_Error
 faceRequester(FTC_FaceID ftcFaceID,
@@ -64,7 +69,7 @@ faceRequester(FTC_FaceID ftcFaceID,
   // in C++ it's tricky to convert a void pointer back to an integer
   // without warnings related to 32bit vs. 64bit pointer size
   int val = static_cast<int>((char*)ftcFaceID - (char*)0);
-  const FaceID& faceID = gui->faceIDHash.key(val);
+  const FaceID& faceID = gui->faceIDMap.key(val);
 
   Font& font = gui->fontList[faceID.fontIndex];
   int faceIndex = faceID.faceIndex;
@@ -317,12 +322,12 @@ Engine::loadFont(int fontIndex,
   fontType = FontType_Other;
 
   scaler.face_id = reinterpret_cast<void*>
-                     (gui->faceIDHash.value(FaceID(fontIndex,
-                                                   faceIndex,
-                                                   namedInstanceIndex)));
+                     (gui->faceIDMap.value(FaceID(fontIndex,
+                                                  faceIndex,
+                                                  namedInstanceIndex)));
   if (scaler.face_id == 0)
   {
-    // an invalid font, missing in the hash
+    // an invalid font, missing in the map
     ftSize = NULL;
     curFamilyName = QString();
     curStyleName = QString();
@@ -362,9 +367,9 @@ Engine::removeFont(int fontIndex,
                    int namedInstanceIndex)
 {
   FTC_FaceID ftcFaceID = reinterpret_cast<void*>
-                           (gui->faceIDHash.value(FaceID(fontIndex,
-                                                         faceIndex,
-                                                         namedInstanceIndex)));
+                           (gui->faceIDMap.value(FaceID(fontIndex,
+                                                        faceIndex,
+                                                        namedInstanceIndex)));
   if (ftcFaceID)
     FTC_Manager_RemoveFaceID(cacheManager, ftcFaceID);
 }
@@ -1217,7 +1222,7 @@ MainGUI::closeFont()
       for (int j = 0; j < list[i]; j++)
       {
         engine->removeFont(currentFontIndex, i, j);
-        faceIDHash.remove(FaceID(currentFontIndex, i, j));
+        faceIDMap.remove(FaceID(currentFontIndex, i, j));
       }
 
     fontList.removeAt(currentFontIndex);
@@ -1306,8 +1311,8 @@ MainGUI::showFont(bool preserveIndices)
       // assign the (font,face,instance) triplet to a running ID;
       // we need this for the `faceRequester' function
       for (int i = 0; i < currentNumberOfNamedInstances; i++)
-        faceIDHash.insert(FaceID(currentFontIndex, currentFaceIndex, i),
-                          faceCounter++);
+        faceIDMap.insert(FaceID(currentFontIndex, currentFaceIndex, i),
+                         faceCounter++);
 
       // instance index 0 represents a face without an instance;
       // consequently, `n' instances are enumerated from 1 to `n'
@@ -1324,15 +1329,15 @@ MainGUI::showFont(bool preserveIndices)
     // methods); `engine->loadFont', however, really parses a font
 
     // if the (font,face,instance) triplet is invalid,
-    // remove it from the hash
+    // remove it from the map
     currentNumberOfGlyphs = engine->loadFont(currentFontIndex,
                                              currentFaceIndex,
                                              currentNamedInstanceIndex);
     if (currentNumberOfGlyphs < 0)
     {
-      faceIDHash.remove(FaceID(currentFontIndex,
-                               currentFaceIndex,
-                               currentNamedInstanceIndex));
+      faceIDMap.remove(FaceID(currentFontIndex,
+                              currentFaceIndex,
+                              currentNamedInstanceIndex));
 
       // XXX improve navigation for fonts with named instances
       currentFaceIndex = -1;

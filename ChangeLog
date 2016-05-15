@@ -1,5 +1,20 @@
 2016-05-15  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Replace face ID hash with a map.
+
+	We need this for later changes that will rely on ordered data.
+
+	* src/ftinspect.cpp (FaceID::operator==): Replace with...
+	(FaceID::operator<): ... this method.
+	(qHash): Removed.
+	(faceRequester, Engine::loadFont, Engine::removeFont,
+	MainGUI::closeFont, MainGUI::showFont): Updated.
+
+	* src/ftinspect.h (FaceID): Updated.
+	(Main): Rename member `faceIDHash' to `faceIDMap'.
+
+2016-05-15  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] More variable and function renamings.
 
 	Mainly for consistency.
