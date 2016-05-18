@@ -1160,6 +1160,11 @@ MainGUI::MainGUI()
 {
   engine = NULL;
 
+  fontWatcher = new QFileSystemWatcher;
+  // if the current input file is invalid we retry once a second to load it
+  timer = new QTimer;
+  timer->setInterval(1000);
+
   setGraphicsDefaults();
   createLayout();
   createConnections();
@@ -1256,6 +1261,7 @@ MainGUI::closeFont()
   if (currentFontIndex < fontList.size())
   {
     engine->removeFont(currentFontIndex);
+    fontWatcher->removePath(fontList[currentFontIndex]);
     fontList.removeAt(currentFontIndex);
   }
 
@@ -1273,6 +1279,14 @@ MainGUI::closeFont()
 
 
 void
+MainGUI::watchCurrentFont()
+{
+  timer->stop();
+  showFont();
+}
+
+
+void
 MainGUI::showFont()
 {
   // we do lazy computation of FT_Face objects
@@ -1280,7 +1294,32 @@ MainGUI::showFont()
   if (currentFontIndex < fontList.size())
   {
     QString& font = fontList[currentFontIndex];
-    fontFilenameLabel->setText(QFileInfo(font).fileName());
+    QFileInfo fileInfo(font);
+    QString fontName = fileInfo.fileName();
+
+    if (fileInfo.exists())
+    {
+      // Qt's file watcher doesn't handle symlinks;
+      // we thus fall back to polling
+      if (fileInfo.isSymLink())
+      {
+        fontName.prepend("<i>");
+        fontName.append("</i>");
+        timer->start();
+      }
+      else
+        fontWatcher->addPath(font);
+    }
+    else
+    {
+      // On Unix-like systems, the symlink's target gets opened; this
+      // implies that deletion of a symlink doesn't make `engine->loadFont'
+      // fail since it operates on a file handle pointing to the target.
+      // For this reason, we remove the font to enforce a reload.
+      engine->removeFont(currentFontIndex);
+    }
+
+    fontFilenameLabel->setText(fontName);
   }
   else
     fontFilenameLabel->clear();
@@ -1294,6 +1333,16 @@ MainGUI::showFont()
     = engine->loadFont(currentFontIndex,
                        currentFaceIndex,
                        currentNamedInstanceIndex);
+
+  if (currentNumberOfGlyphs < 0)
+  {
+    // there might be various reasons why the current
+    // (file, face, instance) triplet is invalid or missing;
+    // we thus start our timer to periodically test
+    // whether the font starts working
+    if (currentFontIndex < fontList.size())
+      timer->start();
+  }
 
   fontNameLabel->setText(QString("%1 %2")
                          .arg(engine->currentFamilyName())
@@ -2205,6 +2254,11 @@ MainGUI::createConnections()
   glyphNavigationMapper->setMapping(toP100Buttonx, 100);
   glyphNavigationMapper->setMapping(toP1000Buttonx, 1000);
   glyphNavigationMapper->setMapping(toEndButtonx, 0x10000);
+
+  connect(fontWatcher, SIGNAL(fileChanged(const QString&)),
+          SLOT(watchCurrentFont()));
+  connect(timer, SIGNAL(timeout()),
+          SLOT(watchCurrentFont()));
 }
 
 

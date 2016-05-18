@@ -1,8 +1,23 @@
 2016-05-15  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Re-implement file watching.
+
+	* src/ftinspect.cpp (MainGUI::MainGUI): Initialize file watcher and
+	timer.
+	(MainGUI::closeFont): Updated.
+	(MainGUI::watchCurrentFont): New method.
+	(MainGUI::showFont): Handle file watching for both real files and
+	softlinks.
+	Diplsy a softlink name as italic font.
+	(MainGUI::createConnections): Updated.
+
+	* src/ftinspect.h (MainGUI): Updated.
+
+2016-05-15  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Redesign file/face/instance navigation.
 
-	Instead no longer peek into a font with a negative argument to
+	Instead of peeking into a font with a negative argument to
 	`FT_Face_New', we now directly load appropriate (font, face,
 	instance) triplets.
 

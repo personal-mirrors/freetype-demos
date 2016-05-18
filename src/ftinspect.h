@@ -29,6 +29,7 @@
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFileSystemWatcher>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -54,6 +55,7 @@
 #include <QStandardItemModel>
 #include <QStatusBar>
 #include <QTabWidget>
+#include <QTimer>
 #include <QTransform>
 #include <QVariant>
 #include <QVector2D>
@@ -330,6 +332,7 @@ private slots:
   void previousFace();
   void previousFont();
   void previousNamedInstance();
+  void watchCurrentFont();
   void zoom();
 
 private:
@@ -380,6 +383,8 @@ private:
   QComboBox *unitsComboBox;
 
   QDoubleSpinBox *sizeDoubleSpinBox;
+
+  QFileSystemWatcher *fontWatcher;
 
   QGraphicsScene *glyphScene;
   QGraphicsView *glyphView;
@@ -459,6 +464,8 @@ private:
   QSpinBox *zoomSpinBox;
 
   QTabWidget *tabWidget;
+
+  QTimer *timer;
 
   QVBoxLayout *generalTabLayout;
   QVBoxLayout *leftLayout;
