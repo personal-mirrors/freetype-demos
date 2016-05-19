@@ -1,4 +1,20 @@
-2016-05-15  Werner Lemberg  <wl@gnu.org>
+2016-05-19  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Use bottom left as the viewport anchor for resizing.
+
+	We store the last bottom left corner point of the viewport rectangle
+	and adjust the verticalScrollBar value by the delta relative to the
+	current bottom left corner position.
+
+	* src/ftinspect.h (QGraphicsViewx): New class, derived from
+	`QGraphicsView'.
+	(MainGUI): Updated.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): Updated.
+	(QGraphicsViewx::QGraphicsViewx, QGraphicsViewx::scrollContentsBy,
+	QGraphicsView::resizeEvent): New methods.
+
+2016-05-18  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Re-implement file watching.
 

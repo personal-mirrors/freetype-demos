@@ -2049,7 +2049,7 @@ MainGUI::createLayout()
   currentGlyphPointNumbersItem = NULL;
   drawGlyph();
 
-  glyphView = new QGraphicsView;
+  glyphView = new QGraphicsViewx;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
   glyphView->setDragMode(QGraphicsView::ScrollHandDrag);
   glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -2414,6 +2414,43 @@ MainGUI::writeSettings()
   QSettings settings;
 //  settings.setValue("pos", pos());
 //  settings.setValue("size", size());
+}
+
+
+QGraphicsViewx::QGraphicsViewx()
+: lastBottomLeftPointInitialized(false)
+{
+  // empty
+}
+
+
+void
+QGraphicsViewx::scrollContentsBy(int dx,
+                                 int dy)
+{
+  QGraphicsView::scrollContentsBy(dx, dy);
+  lastBottomLeftPoint = viewport()->rect().bottomLeft();
+}
+
+
+void
+QGraphicsViewx::resizeEvent(QResizeEvent* event)
+{
+  QGraphicsView::resizeEvent(event);
+
+  // XXX I don't know how to properly initialize this value,
+  //     thus the hack with the boolean
+  if (!lastBottomLeftPointInitialized)
+  {
+    lastBottomLeftPoint = viewport()->rect().bottomLeft();
+    lastBottomLeftPointInitialized = true;
+  }
+
+  QPointF currentBottomLeftPoint = viewport()->rect().bottomLeft();
+  int verticalPosition = verticalScrollBar()->value();
+  verticalScrollBar()->setValue(verticalPosition
+                                - (currentBottomLeftPoint.y()
+                                   - lastBottomLeftPoint.y()));
 }
 
 

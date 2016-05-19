@@ -46,6 +46,7 @@
 #include <QPainterPath>
 #include <QPen>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSettings>
 #include <QSignalMapper>
 #include <QSizePolicy>
@@ -264,6 +265,26 @@ private:
 };
 
 
+// we want to anchor the view at the bottom left corner
+// while the windows gets resized
+class QGraphicsViewx
+: public QGraphicsView
+{
+  Q_OBJECT
+
+public:
+  QGraphicsViewx();
+
+protected:
+  void resizeEvent(QResizeEvent*);
+  void scrollContentsBy(int, int);
+
+private:
+  QPointF lastBottomLeftPoint;
+  bool lastBottomLeftPointInitialized;
+};
+
+
 // we want to grey out items in a combo box;
 // since Qt doesn't provide a function for this we derive a class
 class QComboBoxx
@@ -387,7 +408,7 @@ private:
   QFileSystemWatcher *fontWatcher;
 
   QGraphicsScene *glyphScene;
-  QGraphicsView *glyphView;
+  QGraphicsViewx *glyphView;
 
   QGridLayout *fontLayout;
   QGridLayout *infoRightLayout;
