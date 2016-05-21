@@ -831,7 +831,7 @@
   static int
   event_cff_hinting_engine_change( unsigned int  delta )
   {
-    unsigned int  new_cff_hinting_engine;
+    unsigned int  new_cff_hinting_engine = 0;
 
 
     if ( delta )
@@ -1304,7 +1304,8 @@
         case FT_LCD_FILTER_DEFAULT:
         case FT_LCD_FILTER_LIGHT:
         case FT_LCD_FILTER_LEGACY1:
-          FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
+          FT_Library_SetLcdFilter( handle->library,
+                                   (FT_LcdFilter)status.lcd_filter );
           break;
         default:
           FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
@@ -1340,7 +1341,7 @@
       if ( status.lcd_filter < 0 )
       {
         FTC_Manager_RemoveFaceID( handle->cache_manager,
-                                handle->scaler.face_id );
+                                  handle->scaler.face_id );
 
         status.filter_weights[status.fw_idx]--;
         FT_Library_SetLcdFilterWeights( handle->library,

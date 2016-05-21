@@ -17,8 +17,8 @@
 
   static FTDemo_Display*  display;
 
-  grBitmap   bit1 = { 300, 600, 600, gr_pixel_mode_gray, 256 };
-  grBitmap   bit2 = { 300, 600, 600, gr_pixel_mode_gray, 256 };
+  grBitmap   bit1 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
+  grBitmap   bit2 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
   grBitmap*  bit;
 
 
@@ -58,7 +58,9 @@
       line = bitmap->buffer + ( y + i ) * pitch + x;
       for ( j = 0, k = 0; j < w; j++ )
       {
-        line[j] = 0.5 + 255. * pow ( p[k], 1. / (1. + 2. * j / w ) );
+        line[j] = (unsigned char)( 0.5 +
+                                   255. * pow ( p[k],
+                                                1. / (1. + 2. * j / w ) ) );
         k++;
         if ( k == 4 )
           k = 0;
@@ -102,24 +104,24 @@
 
     if ( back == 0 || back == 255 )
       for ( i = 0; i < w; i++ )
-        line[i + ( i & 1 ) * pitch] = back;
+        line[i + ( i & 1 ) * pitch] = (unsigned char)back;
     else
       for ( b = back / 255., i = 0; i < w; i++ )
         line[i + ( i & 1 ) * pitch] =
-          0.5 + 255. * pow ( b, 1. / (1. + 2. * i / w ) );
+          (unsigned char)( 0.5 + 255. * pow ( b, 1. / (1. + 2. * i / w ) ) );
 
     if ( fore == 0 || fore == 255 )
       for ( i = 0; i < w; i++ )
-        line[i + ( ~i & 1 ) * pitch] = fore;
+        line[i + ( ~i & 1 ) * pitch] = (unsigned char)fore;
     else
       for ( f = fore / 255., i = 0; i < w; i++ )
         line[i + ( ~i & 1 ) * pitch] =
-          0.5 + 255. * pow ( f, 1. / (1. + 2. * i / w ) );
+          (unsigned char)( 0.5 + 255. * pow ( f, 1. / (1. + 2. * i / w ) ) );
 
     for ( i = 2; i < h; i += 2 )
     {
-      memcpy( line + i * pitch, line, w );
-      memcpy( line + i * pitch + pitch, line + pitch, w );
+      memcpy( line + i * pitch, line, (size_t)w );
+      memcpy( line + i * pitch + pitch, line + pitch, (size_t)w );
     }
   }
 
@@ -276,42 +278,44 @@
 
 
   static void
-  Render_Bitmap( grBitmap*  bitmap,
-                 grBitmap*  bit,
-                 int x,
-                 int y,
-                 grColor color )
+  Render_Bitmap( grBitmap*  out,
+                 grBitmap*  in,
+                 int        x,
+                 int        y,
+                 grColor    color )
   {
-    int     pitch = bitmap->pitch;
-    int     i, j;
+    int  pitch = out->pitch;
+    int  i, j;
 
     unsigned char*  src;
     unsigned char*  dst;
 
+
     if ( color.chroma[0] == 255 )
-      for ( src = bit->buffer, i = 0; i < bit->rows; i++ )
+      for ( src = in->buffer, i = 0; i < in->rows; i++ )
       {
-        dst = bitmap->buffer + ( y + i ) * pitch + 3 * x;
-        for ( j = 0; j < bit->width; j++, src++, dst += 3 )
+        dst = out->buffer + ( y + i ) * pitch + 3 * x;
+        for ( j = 0; j < in->width; j++, src++, dst += 3 )
           *dst = *src;
       }
 
     if ( color.chroma[1] == 255 )
-      for ( src = bit->buffer, i = 0; i < bit->rows; i++ )
+      for ( src = in->buffer, i = 0; i < in->rows; i++ )
       {
-        dst = bitmap->buffer + ( y + i ) * pitch + 3 * x + 1;
-        for ( j = 0; j < bit->width; j++, src++, dst += 3 )
+        dst = out->buffer + ( y + i ) * pitch + 3 * x + 1;
+        for ( j = 0; j < in->width; j++, src++, dst += 3 )
           *dst = *src;
       }
 
     if ( color.chroma[2] == 255 )
-      for ( src = bit->buffer, i = 0; i < bit->rows; i++ )
+      for ( src = in->buffer, i = 0; i < in->rows; i++ )
       {
-        dst = bitmap->buffer + ( y + i ) * pitch + 3 * x + 2;
-        for ( j = 0; j < bit->width; j++, src++, dst += 3 )
+        dst = out->buffer + ( y + i ) * pitch + 3 * x + 2;
+        for ( j = 0; j < in->width; j++, src++, dst += 3 )
           *dst = *src;
       }
   }
+
 
   static int
   Process_Event( grEvent*  event )

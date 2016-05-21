@@ -1,3 +1,38 @@
+2016-05-21  Werner Lemberg  <wl@gnu.org>
+
+	Make compilation work with clang++.
+
+	Also fix some warning messages.
+
+	* src/ftcommon.c (FTDemo_Display_Clear): Use proper cast.
+	(string_load): Replace shifts with multiplication.
+
+	* src/ftgamma.c: (bit1, bit2): Complete initializer.
+	(do_ptrn, do_fill): Use proper casts.
+	(Render_Bitmap): s/bitmap/out/, s/bit/in/, to avoid shadowing global
+	variable `bit'.
+
+	* src/ftgrid.c (GridStatus): Make `lcd_filter' of type
+	`FT_LcdFilter'.
+	(bitmap_scale): Use proper casts.
+	(grid_status_draw_outline): Fix int vs. short warnings.
+	(event_cff_hinting_engine_change): Add initializer.
+	(event_lcd_filter_change): Properly handle `status.lcd_filter'.
+
+	* src/ftmulti.c (requested_cnt, used_num_axis): Make them `unsigned
+	int'.
+	(Process_Event, main): Updated.
+
+	* src/ftstring.c (status): Complete initializer.
+
+	* src/ftvalid.c (ValidatorType): Fix enum syntax.
+
+	* src/ftview.c (event_cff_hinting_engine_change): Add initializer.
+	(Process_Event) <'L'>: Fix call to FT_Library_SetLcdFilter.
+
+	* src/output.c (put_ascii_string, put_unicode_be16_string): Add
+	casts.
+
 2016-05-19  Werner Lemberg  <wl@gnu.org>
 
 	[ftinspect] Use bottom left as the viewport anchor for resizing.

@@ -73,7 +73,7 @@
 
       default:
         if ( string[i] < 0x80 )
-          *out++ = string[i];
+          *out++ = (char)string[i];
         else
         {
           *out++ = '\\';
@@ -237,18 +237,18 @@
          */
 
         if ( ch < 0x80 )
-          *out++ = ch;
+          *out++ = (char)ch;
         else if ( ch < 0x800 )
         {
-          *out++ = 0xC0 | ( (FT_UInt)ch >> 6 );
-          *out++ = 0x80 | ( (FT_UInt)ch & 0x3F );
+          *out++ = (char)( 0xC0 | ( (FT_UInt)ch >> 6 ) );
+          *out++ = (char)( 0x80 | ( (FT_UInt)ch & 0x3F ) );
         }
         else
         {
           /* we don't handle surrogates */
-          *out++ = 0xE0 | ( (FT_UInt)ch >> 12 );
-          *out++ = 0x80 | ( ( (FT_UInt)ch >> 6 ) & 0x3F );
-          *out++ = 0x80 | ( (FT_UInt)ch & 0x3F );
+          *out++ = (char)( 0xE0 | ( (FT_UInt)ch >> 12 ) );
+          *out++ = (char)( 0x80 | ( ( (FT_UInt)ch >> 6 ) & 0x3F ) );
+          *out++ = (char)( 0x80 | ( (FT_UInt)ch & 0x3F ) );
         }
 
         continue;
@@ -286,7 +286,7 @@
 
       default:
         if ( ch < 128 )
-          *out++ = ch;
+          *out++ = (char)ch;
         else
         {
           *out++ = '\\';

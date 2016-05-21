@@ -75,11 +75,11 @@
 
   static int  render_mode = 1;
 
-  static FT_MM_Var  *multimaster   = NULL;
-  static FT_Fixed    design_pos   [MAX_MM_AXES];
-  static FT_Fixed    requested_pos[MAX_MM_AXES];
-  static int         requested_cnt = 0;
-  static int         used_num_axis = 0;
+  static FT_MM_Var    *multimaster   = NULL;
+  static FT_Fixed      design_pos   [MAX_MM_AXES];
+  static FT_Fixed      requested_pos[MAX_MM_AXES];
+  static unsigned int  requested_cnt = 0;
+  static unsigned int  used_num_axis = 0;
 
 
 #define DEBUGxxx
@@ -451,7 +451,8 @@
   static int
   Process_Event( grEvent*  event )
   {
-    int  i, axis;
+    int           i;
+    unsigned int  axis;
 
 
     switch ( event->key )
@@ -815,7 +816,7 @@
     /* if the user specified a position, use it, otherwise */
     /* set the current position to the median of each axis */
     {
-      int  n;
+      unsigned int  n;
 
 
       if ( multimaster->num_axis > MAX_MM_AXES )
@@ -825,7 +826,7 @@
         used_num_axis = MAX_MM_AXES;
       }
       else
-        used_num_axis = (int)multimaster->num_axis;
+        used_num_axis = multimaster->num_axis;
 
       for ( n = 0; n < used_num_axis; n++ )
       {
@@ -905,9 +906,10 @@
 
         sprintf( Header, "axes:" );
         {
-          int  n;
-          int  limit = used_num_axis > MAX_MM_AXES / 2 ? MAX_MM_AXES / 2
-                                                       : used_num_axis;
+          unsigned int  n;
+          unsigned int  limit = used_num_axis > MAX_MM_AXES / 2
+                                  ? MAX_MM_AXES / 2
+                                  : used_num_axis;
 
 
           for ( n = 0; n < limit; n++ )
@@ -926,8 +928,8 @@
 
         if ( used_num_axis > MAX_MM_AXES / 2 )
         {
-          int  n;
-          int  limit = used_num_axis;
+          unsigned int  n;
+          unsigned int  limit = used_num_axis;
 
 
           sprintf( Header, "     " );

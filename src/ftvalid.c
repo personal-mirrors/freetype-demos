@@ -47,7 +47,7 @@
     GX_VALIDATE,
     CKERN_VALIDATE,
 
-    LAST_VALIDATE,
+    LAST_VALIDATE
 
   } ValidatorType;
   static ValidatorType  validator;

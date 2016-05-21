@@ -164,7 +164,7 @@
       }
 
       for ( i = 1; i < bit->rows; i++, p += pitch )
-        memcpy( p, p - pitch, pitch );
+        memcpy( p, p - pitch, (size_t)pitch );
     }
   }
 
@@ -1107,9 +1107,9 @@
         glyph->vadvance.y = -metrics->vertAdvance;
 
         if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )
-          glyph->delta = -1 << 6;
+          glyph->delta = -1 * 64;
         else if ( prev_rsb_delta - face->glyph->lsb_delta < -32 )
-          glyph->delta = 1 << 6;
+          glyph->delta = 1 * 64;
         else
           glyph->delta = 0;
       }

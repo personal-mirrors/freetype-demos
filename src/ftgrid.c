@@ -130,7 +130,7 @@
     int          do_blue_hints;
     int          do_segment;
 
-    int          lcd_filter;
+    FT_LcdFilter lcd_filter;
     double       gamma;
     const char*  header;
     char         header_buffer[BUFSIZE];
@@ -540,7 +540,8 @@
     pitch = bit->pitch > 0 ?  bit->pitch
                            : -bit->pitch;
 
-    t = (unsigned char*)malloc( pitch * bit->rows * scale * scale );
+    t = (unsigned char*)malloc( (size_t)( pitch * bit->rows *
+                                          scale * scale ) );
     if ( !t )
       return;
 
@@ -558,7 +559,7 @@
               line[j / 8] &= ~( 0x80 >> ( j & 7 ) );
 
           for ( k = 1; k < scale; k++, line += pitch * scale )
-            memcpy( line + pitch * scale, line, pitch * scale );
+            memcpy( line + pitch * scale, line, (size_t)( pitch * scale ) );
           line += pitch * scale;
         }
         break;
@@ -567,10 +568,10 @@
         for ( i = 0; i < bit->rows; i++ )
         {
           for ( j = 0; j < pitch; j++ )
-            memset( line + j * scale, s[i * pitch + j], scale );
+            memset( line + j * scale, s[i * pitch + j], (size_t)scale );
 
           for ( k = 1; k < scale; k++, line += pitch * scale )
-            memcpy( line + pitch * scale, line, pitch * scale );
+            memcpy( line + pitch * scale, line, (size_t)( pitch * scale ) );
           line += pitch * scale;
         }
         break;
@@ -588,7 +589,7 @@
             }
 
           for ( k = 1; k < scale; k++, line += pitch * scale )
-            memcpy( line + pitch * scale, line, pitch * scale );
+            memcpy( line + pitch * scale, line, (size_t)( pitch * scale ) );
           line += pitch * scale;
         }
         break;
@@ -600,15 +601,17 @@
           for ( j = 0; j < pitch; j++ )
           {
             memset( line + j * scale,
-                    s[i * pitch +             j], scale );
+                    s[i * pitch +             j], (size_t)scale );
             memset( line + j * scale +     pitch * scale,
-                    s[i * pitch +     pitch + j], scale );
+                    s[i * pitch +     pitch + j], (size_t)scale );
             memset( line + j * scale + 2 * pitch * scale,
-                    s[i * pitch + 2 * pitch + j], scale );
+                    s[i * pitch + 2 * pitch + j], (size_t)scale );
           }
 
           for ( k = 1; k < scale; k++, line += 3 * pitch * scale )
-            memcpy( line + 3 * pitch * scale, line, 3 * pitch * scale );
+            memcpy( line + 3 * pitch * scale,
+                    line,
+                    (size_t)( 3 * pitch * scale ) );
           line += 3 * pitch * scale;
         }
         break;
@@ -760,7 +763,7 @@
         FT_Vector*  points   = gimage->points;
         FT_Short*   contours = gimage->contours;
         char*       tags     = gimage->tags;
-        int         cc;
+        short       c, n;
         char        number_string[10];
         size_t      number_string_len = sizeof ( number_string );
 
@@ -768,9 +771,9 @@
         FT_Long  octant_y[8] = { 0, 724, 1024, 724, 0, -724, -1024, -724 };
 
 
-        cc = 0;
-        nn = 0;
-        for ( ; cc < gimage->n_contours; cc++ )
+        c = 0;
+        n = 0;
+        for ( ; c < gimage->n_contours; c++ )
         {
           for (;;)
           {
@@ -781,36 +784,36 @@
 
 
             /* find previous and next point in outline */
-            if ( cc == 0 )
+            if ( c == 0 )
             {
-              if ( contours[cc] == 0 )
+              if ( contours[c] == 0 )
               {
                 prev = 0;
                 next = 0;
               }
               else
               {
-                prev = nn > 0 ? nn - 1
-                              : contours[cc];
-                next = nn < contours[cc] ? nn + 1
-                                         : 0;
+                prev = n > 0 ? n - 1
+                             : contours[c];
+                next = n < contours[c] ? n + 1
+                                       : 0;
               }
             }
             else
             {
-              prev = nn > ( contours[cc - 1] + 1 ) ? nn - 1
-                                                   : contours[cc];
-              next = nn < contours[cc] ? nn + 1
-                                       : contours[cc - 1] + 1;
+              prev = n > ( contours[c - 1] + 1 ) ? n - 1
+                                                 : contours[c];
+              next = n < contours[c] ? n + 1
+                                     : contours[c - 1] + 1;
             }
 
             /* get vectors to previous and next point and normalize them; */
             /* we use 16.16 format to improve the computation precision   */
-            in.x = ( points[prev].x - points[nn].x ) * 1024;
-            in.y = ( points[prev].y - points[nn].y ) * 1024;
+            in.x = ( points[prev].x - points[n].x ) * 1024;
+            in.y = ( points[prev].y - points[n].y ) * 1024;
 
-            out.x = ( points[next].x - points[nn].x ) * 1024;
-            out.y = ( points[next].y - points[nn].y ) * 1024;
+            out.x = ( points[next].x - points[n].x ) * 1024;
+            out.y = ( points[next].y - points[n].y ) * 1024;
 
             in_len  = FT_Vector_Length( &in );
             out_len = FT_Vector_Length( &out );
@@ -842,8 +845,8 @@
               {
                 /* use direction based on point index for the offset */
                 /* if we still don't have a good value               */
-                middle.x = octant_x[nn % 8];
-                middle.y = octant_y[nn % 8];
+                middle.x = octant_x[n % 8];
+                middle.y = octant_y[n % 8];
               }
             }
 
@@ -857,7 +860,7 @@
 
             num_digits = snprintf( number_string,
                                    number_string_len,
-                                   "%d", nn );
+                                   "%d", n );
 
             /* we now position the point number in the opposite       */
             /* direction of the `middle' vector, adding some offset   */
@@ -866,19 +869,19 @@
             /* pixels)                                                */
             grWriteCellString( display->bitmap,
                                st->x_origin +
-                                 ( ( points[nn].x - middle.x ) >> 6 ) -
+                                 ( ( points[n].x - middle.x ) >> 6 ) -
                                  ( middle.x > 0 ? ( num_digits - 1 ) * 8 + 2
                                                 : 2 ),
                                st->y_origin -
-                                 ( ( ( points[nn].y - middle.y ) >> 6 ) +
+                                 ( ( ( points[n].y - middle.y ) >> 6 ) +
                                    8 / 2 ),
                                number_string,
-                               ( tags[nn] & FT_CURVE_TAG_ON )
+                               ( tags[n] & FT_CURVE_TAG_ON )
                                  ? st->on_color
                                  : st->off_color );
 
-            nn++;
-            if ( nn > contours[cc] )
+            n++;
+            if ( n > contours[c] )
               break;
           }
         }
@@ -995,7 +998,7 @@
   static void
   event_cff_hinting_engine_change( int  delta )
   {
-    int  new_cff_hinting_engine;
+    int  new_cff_hinting_engine = 0;
 
 
     if ( delta )
@@ -1201,23 +1204,38 @@
       const char*  lcd_filter = NULL;
 
 
-      status.lcd_filter++;
+      switch( status.lcd_filter )
+      {
+      case FT_LCD_FILTER_DEFAULT:
+        status.lcd_filter = FT_LCD_FILTER_LIGHT;
+        break;
+      case FT_LCD_FILTER_LIGHT:
+        status.lcd_filter = FT_LCD_FILTER_LEGACY1;
+        break;
+      case FT_LCD_FILTER_LEGACY1:
+        status.lcd_filter = FT_LCD_FILTER_NONE;
+        break;
+      case FT_LCD_FILTER_NONE:
+      default:
+        status.lcd_filter = FT_LCD_FILTER_DEFAULT;
+        break;
+      }
 
       switch ( status.lcd_filter )
       {
-        case FT_LCD_FILTER_DEFAULT:
-          lcd_filter = "default";
-          break;
-        case FT_LCD_FILTER_LIGHT:
-          lcd_filter = "light";
-          break;
-        case FT_LCD_FILTER_LEGACY1:
-          lcd_filter = "legacy";
-          break;
-        case FT_LCD_FILTER_NONE:
-        default:
-          status.lcd_filter = 0;
-          lcd_filter = "none";
+      case FT_LCD_FILTER_DEFAULT:
+        lcd_filter = "default";
+        break;
+      case FT_LCD_FILTER_LIGHT:
+        lcd_filter = "light";
+        break;
+      case FT_LCD_FILTER_LEGACY1:
+        lcd_filter = "legacy";
+        break;
+      case FT_LCD_FILTER_NONE:
+      default:
+        lcd_filter = "none";
+        break;
       }
 
       sprintf( status.header_buffer, "LCD filter changed to %s",
