@@ -1,5 +1,15 @@
 2016-05-21  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Add support for third TrueType interpreter version.
+
+	* src/ftgrid.c (GridStatusRec): Replace `tt_interpreter_version'
+	with `tt_interpreter_versions' array.
+	Add `num_tt_interpreter_versions' and `tt_interpreter_version_idx'.
+	(event_tt_interpreter_version_change): Updated.
+	(main): Expand check for alternative TrueType interpreter versions.
+
+2016-05-21  Werner Lemberg  <wl@gnu.org>
+
 	[ftdiff] Add support for third TrueType interpreter version.
 
 	* src/ftdiff.c (ColumnStateRec):  Replace `tt_interpreter_version'

@@ -138,7 +138,9 @@
     FT_Stroker   stroker;
 
     unsigned int cff_hinting_engine;
-    unsigned int tt_interpreter_version;
+    unsigned int tt_interpreter_versions[3];
+    int          num_tt_interpreter_versions;
+    int          tt_interpreter_version_idx;
     FT_Bool      warping;
 
     FT_MM_Var*   mm;
@@ -1032,18 +1034,14 @@
   static void
   event_tt_interpreter_version_change( void )
   {
-    FT_UInt  new_interpreter_version;
-
-
-    if ( status.tt_interpreter_version == TT_INTERPRETER_VERSION_35 )
-      new_interpreter_version = TT_INTERPRETER_VERSION_38;
-    else
-      new_interpreter_version = TT_INTERPRETER_VERSION_35;
+    status.tt_interpreter_version_idx += 1;
+    status.tt_interpreter_version_idx %= status.num_tt_interpreter_versions;
 
     error = FT_Property_Set( handle->library,
                              "truetype",
                              "interpreter-version",
-                             &new_interpreter_version );
+                             &status.tt_interpreter_versions[
+                               status.tt_interpreter_version_idx] );
 
     if ( !error )
     {
@@ -1051,12 +1049,12 @@
       /* lazy to walk over all loaded fonts to check whether they */
       /* are of type TTF, then unloading them explicitly.         */
       FTC_Manager_Reset( handle->cache_manager );
-      status.tt_interpreter_version = new_interpreter_version;
     }
 
-    sprintf( status.header_buffer, "TrueType engine changed to version %s",
-             status.tt_interpreter_version == TT_INTERPRETER_VERSION_35
-               ? "35" : "38" );
+    sprintf( status.header_buffer,
+             "TrueType engine changed to version %d",
+             status.tt_interpreter_versions[
+               status.tt_interpreter_version_idx]);
 
     status.header = (const char *)status.header_buffer;
   }
@@ -1890,8 +1888,12 @@
   main( int    argc,
         char*  argv[] )
   {
-    grEvent  event;
-    int      n;
+    grEvent       event;
+    int           n;
+    unsigned int  dflt_tt_interpreter_version;
+    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
+                                  TT_INTERPRETER_VERSION_38,
+                                  TT_INTERPRETER_VERSION_40 };
 
 
     /* initialize engine */
@@ -1904,9 +1906,26 @@
     FT_Property_Get( handle->library,
                      "cff",
                      "hinting-engine", &status.cff_hinting_engine );
+
+    /* collect all available versions, then set again the default */
     FT_Property_Get( handle->library,
                      "truetype",
-                     "interpreter-version", &status.tt_interpreter_version );
+                     "interpreter-version", &dflt_tt_interpreter_version );
+    for ( n = 0; n < 3; n++ )
+    {
+      error = FT_Property_Set( handle->library,
+                               "truetype",
+                               "interpreter-version", &versions[n] );
+      if ( !error )
+        status.tt_interpreter_versions[
+          status.num_tt_interpreter_versions++] = versions[n];
+      if ( versions[n] == dflt_tt_interpreter_version )
+        status.tt_interpreter_version_idx = n;
+    }
+    FT_Property_Set( handle->library,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
+
     FT_Property_Get( handle->library,
                      "autofitter",
                      "warping", &status.warping );
