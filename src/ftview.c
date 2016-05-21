@@ -99,7 +99,9 @@
     double         slant;
 
     unsigned int   cff_hinting_engine;
-    unsigned int   tt_interpreter_version;
+    unsigned int   tt_interpreter_versions[3];
+    int            num_tt_interpreter_versions;
+    int            tt_interpreter_version_idx;
     FT_Bool        warping;
 
     int            font_idx;
@@ -115,7 +117,7 @@
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
                72, 48, -1, GAMMA, 0.04, 0.04, 0.02, 0.22,
-               0, 0, 0, /* default values are set at runtime */
+               0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
                FT_LCD_FILTER_DEFAULT, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
 
@@ -862,18 +864,14 @@
   static int
   event_tt_interpreter_version_change( void )
   {
-    FT_UInt  new_interpreter_version;
-
-
-    if ( status.tt_interpreter_version == TT_INTERPRETER_VERSION_35 )
-      new_interpreter_version = TT_INTERPRETER_VERSION_38;
-    else
-      new_interpreter_version = TT_INTERPRETER_VERSION_35;
+    status.tt_interpreter_version_idx += 1;
+    status.tt_interpreter_version_idx %= status.num_tt_interpreter_versions;
 
     error = FT_Property_Set( handle->library,
                              "truetype",
                              "interpreter-version",
-                             &new_interpreter_version );
+                             &status.tt_interpreter_versions[
+                               status.tt_interpreter_version_idx] );
 
     if ( !error )
     {
@@ -881,7 +879,6 @@
       /* lazy to walk over all loaded fonts to check whether they */
       /* are of type TTF, then unloading them explicitly.         */
       FTC_Manager_Reset( handle->cache_manager );
-      status.tt_interpreter_version = new_interpreter_version;
       return 1;
     }
 
@@ -1680,13 +1677,17 @@
 
       else if ( !strcmp( module->clazz->module_name, "truetype" ) )
       {
-        switch ( status.tt_interpreter_version )
+        switch ( status.tt_interpreter_versions[
+                   status.tt_interpreter_version_idx] )
         {
         case TT_INTERPRETER_VERSION_35:
           hinting_engine = "v35";
           break;
         case TT_INTERPRETER_VERSION_38:
           hinting_engine = "v38";
+          break;
+        case TT_INTERPRETER_VERSION_40:
+          hinting_engine = "v40";
           break;
         }
       }
@@ -1923,6 +1924,11 @@
         char*  argv[] )
   {
     grEvent  event;
+    unsigned int  dflt_tt_interpreter_version;
+    int           i;
+    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
+                                  TT_INTERPRETER_VERSION_38,
+                                  TT_INTERPRETER_VERSION_40 };
 
 
     /* Initialize engine */
@@ -1936,9 +1942,26 @@
     FT_Property_Get( handle->library,
                      "cff",
                      "hinting-engine", &status.cff_hinting_engine );
+
+    /* collect all available versions, then set again the default */
     FT_Property_Get( handle->library,
                      "truetype",
-                     "interpreter-version", &status.tt_interpreter_version );
+                     "interpreter-version", &dflt_tt_interpreter_version );
+    for ( i = 0; i < 3; i++ )
+    {
+      error = FT_Property_Set( handle->library,
+                               "truetype",
+                               "interpreter-version", &versions[i] );
+      if ( !error )
+        status.tt_interpreter_versions[
+          status.num_tt_interpreter_versions++] = versions[i];
+      if ( versions[i] == dflt_tt_interpreter_version )
+        status.tt_interpreter_version_idx = i;
+    }
+    FT_Property_Set( handle->library,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
+
     FT_Property_Get( handle->library,
                      "autofitter",
                      "warping", &status.warping );

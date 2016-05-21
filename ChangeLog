@@ -1,5 +1,15 @@
 2016-05-21  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Add support for third TrueType interpreter version.
+
+	* src/ftview.c (status): Replace `tt_interpreter_version' with
+	`tt_interpreter_versions' array.
+	Add `num_tt_interpreter_versions' and `tt_interpreter_version_idx'.
+	(event_tt_interpreter_version_change, write_header): Updated.
+	(main): Expand check for alternative TrueType interpreter versions.
+
+2016-05-21  Werner Lemberg  <wl@gnu.org>
+
 	Make compilation work with clang++.
 
 	Also fix some warning messages.
