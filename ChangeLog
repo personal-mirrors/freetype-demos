@@ -1,5 +1,17 @@
 2016-05-21  Werner Lemberg  <wl@gnu.org>
 
+	[ftdiff] Add support for third TrueType interpreter version.
+
+	* src/ftdiff.c (ColumnStateRec):  Replace `tt_interpreter_version'
+	with `tt_interpreter_versions' array.
+	Add `num_tt_interpreter_versions' and `tt_interpreter_version_idx'.
+	(render_state_init): Expand check for alternative TrueType
+	interpreter versions.
+	(render_state_draw): Updated.
+	(process_event) <'H'>: Updated.
+
+2016-05-21  Werner Lemberg  <wl@gnu.org>
+
 	[ftview] Add support for third TrueType interpreter version.
 
 	* src/ftview.c (status): Replace `tt_interpreter_version' with

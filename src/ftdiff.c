@@ -187,7 +187,9 @@
     int            fw_index;
 
     unsigned int   cff_hinting_engine;
-    unsigned int   tt_interpreter_version;
+    unsigned int   tt_interpreter_versions[3];
+    int            num_tt_interpreter_versions;
+    int            tt_interpreter_version_idx;
     FT_Bool        warping;
 
   } ColumnStateRec, *ColumnState;
@@ -231,8 +233,17 @@
                      FT_Library   library )
   {
     FT_UInt  cff_hinting_engine;
-    FT_UInt  tt_interpreter_version;
     FT_Bool  warping;
+
+    unsigned int  tt_interpreter_versions[3]  = { 0, 0, 0 };
+    int           num_tt_interpreter_versions = 0;
+    int           tt_interpreter_version_idx  = 0;
+
+    unsigned int  dflt_tt_interpreter_version;
+    int           i;
+    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
+                                  TT_INTERPRETER_VERSION_38,
+                                  TT_INTERPRETER_VERSION_40 };
 
 
     memset( state, 0, sizeof ( *state ) );
@@ -251,9 +262,25 @@
     FT_Property_Get( library,
                      "cff",
                      "hinting-engine", &cff_hinting_engine );
+
+    /* collect all available versions, then set again the default */
     FT_Property_Get( library,
                      "truetype",
-                     "interpreter-version", &tt_interpreter_version );
+                     "interpreter-version", &dflt_tt_interpreter_version );
+    for ( i = 0; i < 3; i++ )
+    {
+      error = FT_Property_Set( library,
+                               "truetype",
+                               "interpreter-version", &versions[i] );
+      if ( !error )
+        tt_interpreter_versions[num_tt_interpreter_versions++] = versions[i];
+      if ( versions[i] == dflt_tt_interpreter_version )
+        tt_interpreter_version_idx = i;
+    }
+    FT_Property_Set( library,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
+
     FT_Property_Get( library,
                      "autofitter",
                      "warping", &warping );
@@ -265,7 +292,18 @@
     state->columns[0].lcd_filter             = FT_LCD_FILTER_DEFAULT;
     state->columns[0].hint_mode              = HINT_MODE_BYTECODE;
     state->columns[0].cff_hinting_engine     = cff_hinting_engine;
-    state->columns[0].tt_interpreter_version = tt_interpreter_version;
+
+    state->columns[0].tt_interpreter_versions[0] =
+      tt_interpreter_versions[0];
+    state->columns[0].tt_interpreter_versions[1] =
+      tt_interpreter_versions[1];
+    state->columns[0].tt_interpreter_versions[2] =
+      tt_interpreter_versions[2];
+    state->columns[0].num_tt_interpreter_versions =
+      num_tt_interpreter_versions;
+    state->columns[0].tt_interpreter_version_idx =
+      tt_interpreter_version_idx;
+
     state->columns[0].warping                = warping;
     state->columns[0].use_custom_lcd_filter  = 0;
     state->columns[0].fw_index               = 2;
@@ -536,13 +574,17 @@
     /* no need to check for errors: the values used here are always valid */
     FT_Property_Set( state->library,
                      "cff",
-                     "hinting-engine", &column->cff_hinting_engine );
+                     "hinting-engine",
+                     &column->cff_hinting_engine );
     FT_Property_Set( state->library,
                      "truetype",
-                     "interpreter-version", &column->tt_interpreter_version );
+                     "interpreter-version",
+                     &column->tt_interpreter_versions
+                       [column->tt_interpreter_version_idx] );
     FT_Property_Set( state->library,
                      "autofitter",
-                     "warping", &column->warping );
+                     "warping",
+                     &column->warping );
 
     /* changing a property is in most cases a global operation; */
     /* we are on the safe side if we reload the face completely */
@@ -766,13 +808,17 @@
 
         else if ( !strcmp( module->clazz->module_name, "truetype" ) )
         {
-          switch ( column->tt_interpreter_version )
+          switch ( column->tt_interpreter_versions[
+                     column->tt_interpreter_version_idx] )
           {
           case TT_INTERPRETER_VERSION_35:
             extra = " (TT v35)";
             break;
           case TT_INTERPRETER_VERSION_38:
             extra = " (TT v38)";
+            break;
+          case TT_INTERPRETER_VERSION_40:
+            extra = " (TT v40)";
             break;
           }
         }
@@ -1236,20 +1282,15 @@
           }
           else if ( !strcmp( module->clazz->module_name, "truetype" ) )
           {
-            FT_UInt  new_interpreter_version;
+            column->tt_interpreter_version_idx += 1;
+            column->tt_interpreter_version_idx %=
+              column->num_tt_interpreter_versions;
 
-
-            if ( column->tt_interpreter_version == TT_INTERPRETER_VERSION_35 )
-              new_interpreter_version = TT_INTERPRETER_VERSION_38;
-            else
-              new_interpreter_version = TT_INTERPRETER_VERSION_35;
-
-            error = FT_Property_Set( state->library,
-                                     "truetype",
-                                     "interpreter-version",
-                                     &new_interpreter_version );
-            if ( !error )
-              column->tt_interpreter_version = new_interpreter_version;
+            FT_Property_Set( state->library,
+                             "truetype",
+                             "interpreter-version",
+                             &column->tt_interpreter_versions[
+                               column->tt_interpreter_version_idx] );
           }
         }
       }
