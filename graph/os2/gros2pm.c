@@ -502,7 +502,7 @@
 
     /* store the current surface pointer in "the_surface". It is a static */
     /* variable that is only used to retrieve the pointer in the client   */
-    /* window procedure the first time is is called..                     */
+    /* window procedure the first time it is called..                     */
     the_surface = surface;
 
     /* try to prevent the program from going on without the setup of thread 2 */
