@@ -1879,7 +1879,7 @@
       "  size      The size of the glyph in pixels (ppem).\n"
       "  font      The TrueType font file to debug.\n"
       "\n"
-      "  -H ver    Use hinting engine version VER.\n"
+      "  -I ver    Use TT interpreter version VER.\n"
       "            Available versions are %s; default is version %d.\n"
       "  -v        Show version.\n"
       "\n"
@@ -1960,19 +1960,19 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "H:v" );
+      option = getopt( argc, argv, "I:v" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
-      case 'H':
+      case 'I':
         version = atoi( optarg );
 
         if ( version < 0 )
         {
-          printf( "invalid TrueType version = %d\n", version );
+          printf( "invalid TrueType interpreter version = %d\n", version );
           Usage( execname );
         }
 
@@ -1989,7 +1989,7 @@
 
         if ( i == num_tt_interpreter_versions )
         {
-          printf( "invalid TrueType version = %d\n", version );
+          printf( "invalid TrueType interpreter version = %d\n", version );
           Usage( execname );
         }
         break;

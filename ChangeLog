@@ -1,5 +1,16 @@
 2016-05-26  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Rename option `-H' to `-I'.
+
+	This is for consistency with a forthcoming change to `ftbench'.
+
+	* src/ttdebug.c (main): Implement it.
+	(Usage): Updated.
+
+	* src/ttdebug.1: Updated.
+
+2016-05-26  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Add support for third TrueType interpreter version.
 
 	Option `-H' now takes an argument.
