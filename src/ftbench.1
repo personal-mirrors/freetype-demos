@@ -47,8 +47,22 @@ as load flags (see the
 macros in the FreeType reference).
 .
 .TP
-.B \-H
-Use alternative hinting engine (Adobe CFF or TTF v35).
+.BI "\-H " name
+Using CFF hinting engine
+.IR name .
+Available versions are depending on compilation options of FreeType;
+call
+.B ftbench
+without an argument to get the actual list.
+.
+.TP
+.BI "\-I " ver
+Using TT interpreter version
+.IR ver .
+Available versions are depending on compilation options of FreeType;
+call
+.B ftbench
+without an argument to get the actual list.
 .
 .TP
 .BI \-i \ idx

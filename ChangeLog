@@ -1,5 +1,26 @@
 2016-05-26  Werner Lemberg  <wl@gnu.org>
 
+	[ftbench] Add support for third TrueType interpreter version.
+
+	Option `-H' now takes an argument to select the CFF hinting engine,
+	and new option `-I' selects the TT interpreter version.
+
+	* src/ftbench.c (default_hinting_engine,
+	default_interpreter_version): Replaced with... 
+	(tt_interpreter_versions, num_tt_interpreter_versions,
+	dflt_tt_interpreter_version, cff_hinting_engines,
+	num_cff_hinting_engines, dflt_cff_hinting_engine,
+	cff_hinting_engine_names): ...  these new global variables.
+	(main): Expand check for alternative TrueType interpreter versions
+	and CFF hinting engines.
+	Add argument to option `-H'.
+	Add new option `-I'.
+	(usage): Updated.
+
+	* src/ftbench.1: Updated.
+
+2016-05-26  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Rename option `-H' to `-I'.
 
 	This is for consistency with a forthcoming change to `ftbench'.

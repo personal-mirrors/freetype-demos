@@ -127,8 +127,16 @@
   static FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
   static FT_Int32        load_flags  = FT_LOAD_DEFAULT;
 
-  static int  default_hinting_engine;
-  static int  default_interpreter_version;
+  static unsigned int  tt_interpreter_versions[3];
+  static int           num_tt_interpreter_versions;
+  static unsigned int  dflt_tt_interpreter_version;
+
+  static unsigned int  cff_hinting_engines[2];
+  static int           num_cff_hinting_engines;
+  static unsigned int  dflt_cff_hinting_engine;
+
+  static char  cff_hinting_engine_names[2][10] = { "freetype",
+                                                   "adobe" };
 
 
   /*
@@ -727,7 +735,34 @@
   static void
   usage( void )
   {
-    int  i;
+    int   i;
+    char  interpreter_versions[32];
+    char  hinting_engines[32];
+
+
+    /* we expect that at least one interpreter version is available */
+    if ( num_tt_interpreter_versions == 2 )
+      sprintf(interpreter_versions,
+              "%d and %d",
+              tt_interpreter_versions[0],
+              tt_interpreter_versions[1] );
+    else
+      sprintf(interpreter_versions,
+              "%d, %d, and %d",
+              tt_interpreter_versions[0],
+              tt_interpreter_versions[1],
+              tt_interpreter_versions[2] );
+
+    /* we expect that at least one hinting engine is available */
+    if ( num_cff_hinting_engines == 1 )
+      sprintf(hinting_engines,
+              "`%s'",
+              cff_hinting_engine_names[cff_hinting_engines[0]] );
+    else
+      sprintf(hinting_engines,
+              "`%s' and `%s'",
+              cff_hinting_engine_names[cff_hinting_engines[0]],
+              cff_hinting_engine_names[cff_hinting_engines[1]] );
 
 
     fprintf( stderr,
@@ -741,13 +776,16 @@
       "  -c N      Use at most N iterations for each test\n"
       "            (0 means time limited).\n"
       "  -f L      Use hex number L as load flags (see `FT_LOAD_XXX').\n"
-      "  -H        Use alternative hinting engine (%s CFF or TTF v%s).\n"
+      "  -H NAME   Use CFF hinting engine NAME.\n"
+      "            Available versions are %s; default is `%s'.\n"
+      "  -I VER    Use TT interpreter version VER.\n"
+      "            Available versions are %s; default is version %d.\n"
       "  -i IDX    Start with index IDX (default is 0).\n"
       "  -m M      Set maximum cache size to M KiByte (default is %d).\n",
-             default_hinting_engine == FT_CFF_HINTING_ADOBE ? "FreeType"
-                                                            : "Adobe",
-             default_interpreter_version == TT_INTERPRETER_VERSION_35 ? "38"
-                                                                      : "35",
+             hinting_engines,
+             cff_hinting_engine_names[dflt_cff_hinting_engine],
+             interpreter_versions,
+             dflt_tt_interpreter_version,
              CACHE_SIZE );
     fprintf( stderr,
       "  -p        Preload font file in memory.\n"
@@ -801,8 +839,14 @@
     int            compare_cached = 0;
     size_t         i;
     int            j;
-    int            hinting_engine;
-    int            interpreter_version;
+
+    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
+                                  TT_INTERPRETER_VERSION_38,
+                                  TT_INTERPRETER_VERSION_40 };
+    unsigned int  engines[2]  = { FT_CFF_HINTING_FREETYPE,
+                                  FT_CFF_HINTING_ADOBE };
+    int           version;
+    char         *engine;
 
 
     if ( FT_Init_FreeType( &lib ) )
@@ -812,21 +856,48 @@
       return 1;
     }
 
-    FT_Property_Get( lib, "cff", "hinting-engine",
-                     &hinting_engine );
 
-    FT_Property_Get( lib, "truetype", "interpreter-version",
-                     &interpreter_version );
+    /* collect all available versions, then set again the default */
+    FT_Property_Get( lib,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
+    for ( j = 0; j < 3; j++ )
+    {
+      error = FT_Property_Set( lib,
+                               "truetype",
+                               "interpreter-version", &versions[j] );
+      if ( !error )
+        tt_interpreter_versions[num_tt_interpreter_versions++] = versions[j];
+    }
+    FT_Property_Set( lib,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
 
-    default_hinting_engine      = hinting_engine;
-    default_interpreter_version = interpreter_version;
+    FT_Property_Get( lib,
+                     "cff",
+                     "hinting-engine", &dflt_cff_hinting_engine );
+    for ( j = 0; j < 2; j++ )
+    {
+      error = FT_Property_Set( lib,
+                               "cff",
+                               "hinting-engine", &engines[j] );
+      if ( !error )
+        cff_hinting_engines[num_cff_hinting_engines++] = engines[j];
+    }
+    FT_Property_Set( lib,
+                     "cff",
+                     "hinting-engine", &dflt_cff_hinting_engine );
+
+
+    version = dflt_tt_interpreter_version;
+    engine  = cff_hinting_engine_names[dflt_cff_hinting_engine];
 
     while ( 1 )
     {
       int  opt;
 
 
-      opt = getopt( argc, argv, "b:Cc:f:Hi:m:pr:s:t:v" );
+      opt = getopt( argc, argv, "b:Cc:f:H:I:i:m:pr:s:t:v" );
 
       if ( opt == -1 )
         break;
@@ -852,27 +923,41 @@
         break;
 
       case 'H':
-        if ( hinting_engine == FT_CFF_HINTING_ADOBE )
-          hinting_engine = FT_CFF_HINTING_FREETYPE;
-        else
-          hinting_engine = FT_CFF_HINTING_ADOBE;
+        engine = optarg;
 
-        error = FT_Property_Set( lib, "cff", "hinting-engine",
-                                 &hinting_engine );
-        if ( error )
+        for ( j = 0; j < num_cff_hinting_engines; j++ )
+        {
+          if ( !strcmp( engine, cff_hinting_engine_names[j] ) )
+          {
+            FT_Property_Set( lib,
+                             "cff",
+                             "hinting-engine", &j );
+            break;
+          }
+        }
+
+        if ( j == num_cff_hinting_engines )
           fprintf( stderr,
-                   "warning: couldn't change CFF hinting engine\n" );
+                   "warning: couldn't set CFF hinting engine\n" );
+        break;
 
-        if ( interpreter_version == TT_INTERPRETER_VERSION_35 )
-          interpreter_version = TT_INTERPRETER_VERSION_38;
-        else
-          interpreter_version = TT_INTERPRETER_VERSION_35;
+      case 'I':
+        version = atoi( optarg );
 
-        error = FT_Property_Set( lib, "truetype", "interpreter-version",
-                                 &interpreter_version );
-        if ( error )
+        for ( j = 0; j < num_tt_interpreter_versions; j++ )
+        {
+          if ( version == (int)tt_interpreter_versions[j] )
+          {
+            FT_Property_Set( lib,
+                             "truetype",
+                             "interpreter-version", &version );
+            break;
+          }
+        }
+
+        if ( j == num_tt_interpreter_versions )
           fprintf( stderr,
-                   "warning: couldn't change TT interpreter version\n" );
+                   "warning: couldn't set TT interpreter version\n" );
         break;
 
       case 'i':
@@ -1026,11 +1111,11 @@
             load_flags,
             render_mode );
     printf( "\n"
-            "CFF engine set to %s\n"
-            "TrueType engine set to version %s\n"
+            "CFF hinting engine set to `%s'\n"
+            "TrueType interpreter set to version %d\n"
             "maximum cache size: %ldKiByte\n",
-            hinting_engine == FT_CFF_HINTING_ADOBE ? "Adobe" : "FreeType",
-            interpreter_version == TT_INTERPRETER_VERSION_35 ? "35" : "38",
+            engine,
+            version,
             max_bytes / 1024 );
 
     printf( "\n"
