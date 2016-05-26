@@ -73,8 +73,9 @@
   static TT_Size       size;       /* truetype size       */
   static TT_GlyphSlot  glyph;      /* truetype glyph slot */
 
-  static int  default_version;     /* default TrueType engine version     */
-  static int  alternative_version; /* alternative TrueType engine version */
+  static unsigned int  tt_interpreter_versions[3];
+  static int           num_tt_interpreter_versions;
+  static unsigned int  dflt_tt_interpreter_version;
 
   static FT_Bool  use_float = 0;     /* number format */
 
@@ -1851,6 +1852,20 @@
   static void
   Usage( char*  execname )
   {
+    char  versions[32];
+
+
+    /* we expect that at least one interpreter version is available */
+    if ( num_tt_interpreter_versions == 2 )
+      sprintf(versions, "%d and %d",
+                        tt_interpreter_versions[0],
+                        tt_interpreter_versions[1] );
+    else
+      sprintf(versions, "%d, %d, and %d",
+                        tt_interpreter_versions[0],
+                        tt_interpreter_versions[1],
+                        tt_interpreter_versions[2] );
+
     fprintf( stderr,
       "\n"
       "ttdebug: simple TTF debugger -- part of the FreeType project\n"
@@ -1864,12 +1879,14 @@
       "  size      The size of the glyph in pixels (ppem).\n"
       "  font      The TrueType font file to debug.\n"
       "\n"
-      "  -H        Use hinting engine version %d (default is version %d).\n"
+      "  -H ver    Use hinting engine version VER.\n"
+      "            Available versions are %s; default is version %d.\n"
       "  -v        Show version.\n"
       "\n"
       "While running, press the `?' key for help.\n"
       "\n",
-      alternative_version, default_version );
+      versions,
+      dflt_tt_interpreter_version );
 
     exit( 1 );
   }
@@ -1888,7 +1905,11 @@
     int    option;
     char   version_string[64];
 
-    int  change_interpreter_version = 0;
+    int           i;
+    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
+                                  TT_INTERPRETER_VERSION_38,
+                                  TT_INTERPRETER_VERSION_40 };
+    int           version;
 
     int  tmp;
 
@@ -1919,18 +1940,27 @@
                            patch );
     }
 
+    /* collect all available versions, then set again the default */
     FT_Property_Get( library,
                      "truetype",
-                     "interpreter-version", &default_version );
-    alternative_version = default_version == TT_INTERPRETER_VERSION_35
-                          ? TT_INTERPRETER_VERSION_38
-                          : TT_INTERPRETER_VERSION_35;
+                     "interpreter-version", &dflt_tt_interpreter_version );
+    for ( i = 0; i < 3; i++ )
+    {
+      error = FT_Property_Set( library,
+                               "truetype",
+                               "interpreter-version", &versions[i] );
+      if ( !error )
+        tt_interpreter_versions[num_tt_interpreter_versions++] = versions[i];
+    }
+    FT_Property_Set( library,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
 
     execname = ft_basename( argv[0] );
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "Hv" );
+      option = getopt( argc, argv, "H:v" );
 
       if ( option == -1 )
         break;
@@ -1938,7 +1968,30 @@
       switch ( option )
       {
       case 'H':
-        change_interpreter_version = 1;
+        version = atoi( optarg );
+
+        if ( version < 0 )
+        {
+          printf( "invalid TrueType version = %d\n", version );
+          Usage( execname );
+        }
+
+        for ( i = 0; i < num_tt_interpreter_versions; i++ )
+        {
+          if ( (unsigned int)version == tt_interpreter_versions[i] )
+          {
+            FT_Property_Set( library,
+                             "truetype",
+                             "interpreter-version", &version );
+            break;
+          }
+        }
+
+        if ( i == num_tt_interpreter_versions )
+        {
+          printf( "invalid TrueType version = %d\n", version );
+          Usage( execname );
+        }
         break;
 
       case 'v':
@@ -1977,15 +2030,6 @@
     file_name = argv[2];
 
     Init_Keyboard();
-
-    if ( change_interpreter_version )
-    {
-      error = FT_Property_Set( library,
-                               "truetype",
-                               "interpreter-version", &alternative_version );
-      if ( error )
-        Abort( "could not select alternative TrueType engine version" );
-    }
 
     FT_Set_Debug_Hook( library,
                        FT_DEBUG_HOOK_TRUETYPE,

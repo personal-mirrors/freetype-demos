@@ -36,9 +36,12 @@ This program is part of the FreeType demos package.
 .SH OPTIONS
 .
 .TP
-.BI \-H
-Using hinting engine version 35 (default is version 38).
-It essentially means to deactivate subpixel hinting similar to ClearType.
+.BI "\-H " ver
+Using hinting engine version VER.
+Available versions are depending on compilation options of FreeType;
+call
+.B ttdebug
+without an argument to get the actual list.
 .
 .TP
 .B \-v
