@@ -1,5 +1,11 @@
 2016-05-29  Werner Lemberg  <wl@gnu.org>
 
+	[ftinspect] Mark pixel centers in the grid with a cross.
+
+	* src/ftinspect.c (Grid::paint): Implement it.
+
+2016-05-29  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Prepare zoom for drawing pixel center.
 
 	This change makes the zoom use only even values larger than a given
