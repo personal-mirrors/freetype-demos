@@ -1,3 +1,16 @@
+2016-05-29  Werner Lemberg  <wl@gnu.org>
+
+	[ftinspect] Prepare zoom for drawing pixel center.
+
+	This change makes the zoom use only even values larger than a given
+	threshold; it also implements (kind of) logarithmic zooming.
+
+	* src/ftinspect.h (QSpinBoxx): New class, derived from `QSpinBox'.
+	(MainGUI): Updated.
+
+	* src/ftinspect.cpp (MainGUI::createLayout): Updated.
+	(QSpinBoxx::valueFromText, QSpinBoxx::stepBy): New methods.
+
 2016-05-26  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] Add support for third TrueType interpreter version.

@@ -285,6 +285,18 @@ private:
 };
 
 
+// we want to have our own `stepBy' function for the zoom spin box
+class QSpinBoxx
+: public QSpinBox
+{
+  Q_OBJECT
+
+public:
+  void stepBy(int);
+  int valueFromText(const QString&) const;
+};
+
+
 // we want to grey out items in a combo box;
 // since Qt doesn't provide a function for this we derive a class
 class QComboBoxx
@@ -482,7 +494,7 @@ private:
   QSlider *gammaSlider;
 
   QSpinBox *dpiSpinBox;
-  QSpinBox *zoomSpinBox;
+  QSpinBoxx *zoomSpinBox;
 
   QTabWidget *tabWidget;
 
