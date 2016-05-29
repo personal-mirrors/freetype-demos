@@ -1,5 +1,9 @@
 2016-05-29  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftbench.c (main): Add cast to remove compiler warning.
+
+2016-05-29  Werner Lemberg  <wl@gnu.org>
+
 	[ftinspect] Mark pixel centers in the grid with a cross.
 
 	* src/ftinspect.c (Grid::paint): Implement it.

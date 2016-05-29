@@ -889,7 +889,7 @@
                      "hinting-engine", &dflt_cff_hinting_engine );
 
 
-    version = dflt_tt_interpreter_version;
+    version = (int)dflt_tt_interpreter_version;
     engine  = cff_hinting_engine_names[dflt_cff_hinting_engine];
 
     while ( 1 )
