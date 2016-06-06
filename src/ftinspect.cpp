@@ -1182,7 +1182,7 @@ GlyphBitmap::boundingRect() const
 
 void
 GlyphBitmap::paint(QPainter* painter,
-                   const QStyleOptionGraphicsItem*,
+                   const QStyleOptionGraphicsItem* option,
                    QWidget*)
 {
   FT_Bitmap bitmap;
@@ -1219,9 +1219,34 @@ GlyphBitmap::paint(QPainter* painter,
     return;
   }
 
+  // `drawImage' doesn't work as expected:
+  // the larger the zoom, the more the pixel rectangle positions
+  // deviate from the grid lines
+#if 0
   painter->drawImage(QPoint(bRect.left(), bRect.top()),
                      image.convertToFormat(
                        QImage::Format_ARGB32_Premultiplied));
+#else
+  const qreal lod = option->levelOfDetailFromTransform(
+                              painter->worldTransform());
+
+  painter->setPen(Qt::NoPen);
+
+  for (int x = 0; x < image.width(); x++)
+    for (int y = 0; y < image.height(); y++)
+    {
+      // be careful not to lose the alpha channel
+      QRgb p = image.pixel(x, y);
+      painter->fillRect(QRectF(x + bRect.left() - 1 / lod / 2,
+                               y + bRect.top() - 1 / lod / 2,
+                               1 + 1 / lod,
+                               1 + 1 / lod),
+                        QColor(qRed(p),
+                               qGreen(p),
+                               qBlue(p),
+                               qAlpha(p)));
+    }
+#endif
 }
 
 
