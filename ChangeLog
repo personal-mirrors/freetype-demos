@@ -29,7 +29,7 @@
 	and new option `-I' selects the TT interpreter version.
 
 	* src/ftbench.c (default_hinting_engine,
-	default_interpreter_version): Replaced with... 
+	default_interpreter_version): Replaced with...
 	(tt_interpreter_versions, num_tt_interpreter_versions,
 	dflt_tt_interpreter_version, cff_hinting_engines,
 	num_cff_hinting_engines, dflt_cff_hinting_engine,
@@ -806,7 +806,7 @@
 	At this early stage, it's not always clear to me how to do things
 	correctly, so here's another try.
 
-	* src/ftinspect.h (Font): Redesigned, using a list of 
+	* src/ftinspect.h (Font): Redesigned, using a list of
 	instance numbers.
 	(FaceID): New structure, for communication with the face requester.
 	(Engine): We need the `MainGUI' structure for initializing the face
@@ -1391,7 +1391,7 @@
 
 2015-11-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[ftstring, ftview] Small clean-ups,
+	[ftstring, ftview] Small clean-ups.
 
 	* src/ftstring.c (event_lcdmode_change): Robustify the switch.
 	* src/ftview.c (write_header): Ditto.
@@ -1402,7 +1402,7 @@
 
 2015-11-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[ftstring] Enable sub-pixel rendering,
+	[ftstring] Enable sub-pixel rendering.
 
 	* src/ftstring.c (event_lcdmode_change): New function.
 	(Process_Event): New event to change LCD mode.
@@ -2339,7 +2339,7 @@
 
 	MSVC disables this by default, and compilation would fail otherwise.
 
-2013-09-28  Dave Arnold <darnold@adobe.com>
+2013-09-28  Dave Arnold  <darnold@adobe.com>
 
 	* src/ftdiff.c (Process_Event) <'H'>: Fix typo.
 
@@ -4145,7 +4145,7 @@
 	(test_embolden): New function.
 	(main): Add it.
 
-2006-10-23  David Turner   <david@freetype.org>
+2006-10-23  David Turner  <david@freetype.org>
 
 	* src/ftgrid.c: Make the file compile again.
 
@@ -4334,7 +4334,7 @@
 
 	* src/ftdump.c (main): Fix compiler warning.
 
-2006-05-02  David Turner <david@freetype.org>
+2006-05-02  David Turner  <david@freetype.org>
 
 	Add support for font preloading with the `-p' flag, simulating
 	memory-mapped file access.
@@ -4358,7 +4358,7 @@
 
 	* src/ftdump.c (main): Add glyph count dump.
 
-2006-04-26  David Turner <david@freetype.org>
+2006-04-26  David Turner  <david@freetype.org>
 
 
 	* Version 2.2 released.
@@ -4559,7 +4559,7 @@
 	* src/ftvalid.c (run_ot_validator, run_gx_validator,
 	run_ckern_validator): Remove unused variable `memory'.
 
-2005-11-18  suzuki toshiya <mpsuzuki@hiroshima-u.ac.jp>
+2005-11-18  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
 
 	* src/ftvalid.c: Use FT_TrueTypeGX_Validate, FT_ClassicKern_Validate
 	and FT_OpenType_Validate instead of FT_FREE (it calls FT_Free_Debug
@@ -4587,7 +4587,7 @@
 	* src/ftcommon.c (FT_Demo_Update_Current_Flags): Fix variable
 	shadowing.
 
-2004-09-27  David Turner <david@freetype.org>
+2004-09-27  David Turner  <david@freetype.org>
 
 	Fix gamma handling, mainly for LCD modes.
 
@@ -4765,7 +4765,7 @@
 
 	* graph/grblit.c (blit_mono_to_rgb32): Advance read buffer properly.
 
-2004-11-26  Jouk Jansen <joukj@hrem.stm.tudelft.nl>
+2004-11-26  Jouk Jansen  <joukj@hrem.stm.tudelft.nl>
 
 	* vms_make.com: Don't assume that the ft2demos package is a
 	subdirectory of freetype2.
@@ -4788,7 +4788,7 @@
 
 	* graph/gblblit.c (gblender_blit_init): Fix blit test.
 
-2004-09-08  Jouk Jansen <joukj@hrem.stm.tudelft.nl>
+2004-09-08  Jouk Jansen  <joukj@hrem.stm.tudelft.nl>
 
 	* graph/x11/grx11.c [__VMS]: Include vms_x_fix.h.
 
