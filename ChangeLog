@@ -1,5 +1,17 @@
 2016-07-14  Werner Lemberg  <wl@gnu.org>
 
+	Prepare suppression of named instances.
+
+	No functional change.
+
+	* src/ftcommon.c (FTDemo_Install_Font): Add boolean parameter to
+	avoid loading of instances.
+	* src/ftcommon.h: Updated.
+	* src/ftgrid.c (main), src/ftstring.c (main), src/ftview.c (main):
+	Updated.
+
+2016-07-14  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Properly handle named instances.
 
 	* src/ftgrid.c (event_font_change): Properly initialize the design

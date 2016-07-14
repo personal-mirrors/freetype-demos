@@ -222,7 +222,8 @@
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,
                        const char*     filepath,
-                       FT_Bool         outline_only );
+                       FT_Bool         outline_only,
+                       FT_Bool         no_instances );
 
 
   void

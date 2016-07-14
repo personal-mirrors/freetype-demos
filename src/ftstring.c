@@ -665,7 +665,7 @@
 
     for ( ; argc > 0; argc--, argv++ )
     {
-      error = FTDemo_Install_Font( handle, argv[0], 0 );
+      error = FTDemo_Install_Font( handle, argv[0], 0, 0 );
 
       if ( error )
       {

@@ -352,7 +352,8 @@
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,
                        const char*     filepath,
-                       FT_Bool         outline_only )
+                       FT_Bool         outline_only,
+                       FT_Bool         no_instances )
   {
     static char   filename[1024 + 5];
     long          i, num_faces;
@@ -390,7 +391,7 @@
       error = FT_New_Face( handle->library, filename, -( i + 1 ), &face );
       if ( error )
         continue;
-      instance_count = face->style_flags >> 16;
+      instance_count = no_instances ? 0 : face->style_flags >> 16;
       FT_Done_Face( face );
 
       /* load face with and without named instances */
