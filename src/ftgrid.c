@@ -1322,6 +1322,7 @@
     FT_Error         err;
     FT_Size          size;
     FT_UInt          n, num_names;
+    FT_Int           instance_index;
     FT_Multi_Master  dummy;
     int              num_indices, is_GX;
 
@@ -1364,6 +1365,9 @@
 
     num_names = FT_Get_Sfnt_Name_Count( size->face );
 
+    /* in `face_index', the instance index starts with value 1 */
+    instance_index = ( size->face->face_index >> 16 ) - 1;
+
     for ( n = 0; n < MAX_MM_AXES; n++ )
     {
       free( status.axis_name[n] );
@@ -1372,7 +1376,11 @@
 
     for ( n = 0; n < status.used_num_axis; n++ )
     {
-      status.design_pos[n] = status.mm->axis[n].def;
+      if ( FT_IS_NAMED_INSTANCE( size->face ) )
+        status.design_pos[n] = status.mm->namedstyle[instance_index].
+                                          coords[n];
+      else
+        status.design_pos[n] = status.mm->axis[n].def;
 
       if ( is_GX )
       {

@@ -1,3 +1,10 @@
+2016-07-14  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Properly handle named instances.
+
+	* src/ftgrid.c (event_font_change): Properly initialize the design
+	positions with the named instance's value, if appropriate.
+
 2016-07-12  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.6.5 released.
