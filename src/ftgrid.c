@@ -16,6 +16,7 @@
 #include "ftcommon.h"
 #include "common.h"
 #include "output.h"
+#include <stdlib.h>
 
   /* the following header shouldn't be used in normal programs */
 #include FT_INTERNAL_DEBUG_H
@@ -146,6 +147,8 @@
     FT_MM_Var*   mm;
     char*        axis_name[MAX_MM_AXES];
     FT_Fixed     design_pos[MAX_MM_AXES];
+    FT_Fixed     requested_pos[MAX_MM_AXES];
+    FT_UInt      requested_cnt;
     FT_UInt      current_axis;
     FT_UInt      used_num_axis;
 
@@ -203,7 +206,7 @@
                                FTDemo_Handle*  handle )
   {
     FT_Size     size;
-    FT_Error    err = FTDemo_Get_Size( handle, &size );
+    FT_Error    err    = FTDemo_Get_Size( handle, &size );
     FT_F26Dot6  margin = 4;
 
 
@@ -1376,7 +1379,17 @@
 
     for ( n = 0; n < status.used_num_axis; n++ )
     {
-      if ( FT_IS_NAMED_INSTANCE( size->face ) )
+      if ( status.requested_cnt )
+      {
+        status.design_pos[n] = n < status.requested_cnt
+                                 ? status.requested_pos[n]
+                                 : status.mm->axis[n].def;
+        if ( status.design_pos[n] < status.mm->axis[n].minimum )
+          status.design_pos[n] = status.mm->axis[n].minimum;
+        else if ( status.design_pos[n] > status.mm->axis[n].maximum )
+          status.design_pos[n] = status.mm->axis[n].maximum;
+      }
+      else if ( FT_IS_NAMED_INSTANCE( size->face ) )
         status.design_pos[n] = status.mm->namedstyle[instance_index].
                                           coords[n];
       else
@@ -1804,6 +1817,9 @@
     fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
+      "  -d \"axis1 axis2 ...\"\n"
+      "            Specify the design coordinates for each\n"
+      "            Multiple Master axis at start-up.\n"
       "\n"
       "  -v        Show version."
       "\n" );
@@ -1824,13 +1840,32 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "f:h:r:vw:" );
+      option = getopt( *argc, *argv, "d:f:h:r:vw:" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
+      case 'd':
+        {
+          FT_UInt    cnt;
+          FT_Fixed*  pos = status.requested_pos;
+          char*      s   = optarg;
+
+
+          for ( cnt = 0; cnt < MAX_MM_AXES && *s; cnt++ )
+          {
+            pos[cnt] = (FT_Fixed)( strtod( s, &s ) * 65536.0 );
+
+            while ( *s == ' ' )
+              ++s;
+          }
+
+          status.requested_cnt = cnt;
+        }
+        break;
+
       case 'f':
         status.Num = atoi( optarg );
         break;
@@ -1952,7 +1987,8 @@
 
     for ( ; argc > 0; argc--, argv++ )
     {
-      error = FTDemo_Install_Font( handle, argv[0], 1, 0 );
+      error = FTDemo_Install_Font( handle, argv[0], 1,
+                                   status.requested_cnt ? 1 : 0 );
       if ( error == FT_Err_Invalid_Argument )
         fprintf( stderr, "skipping font `%s' without outlines\n",
                          argv[0] );

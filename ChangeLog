@@ -1,5 +1,22 @@
 2016-07-14  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] New option `-d' to give start-up design coordinates.
+
+	This code is similar to the one from `ftmulti'.
+
+	* src/ftgrid.c: Include `stdlib.h'.
+	(GridStatusRec): Add `requested_pos' and `reqested_cnt' to hold the
+	design coordinate data from the command line.
+	(event_font_change): Handle them.
+	(parse_cmdline): Handle option `-d'.
+	(usage): Document `-d'.
+	(main): Don't load named instances if we have start-up design
+	coordinates.
+
+	* src/ftgrid.1: Updated.
+
+2016-07-14  Werner Lemberg  <wl@gnu.org>
+
 	Prepare suppression of named instances.
 
 	No functional change.
