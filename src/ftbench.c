@@ -30,8 +30,8 @@
 #include FT_CFF_DRIVER_H
 #include FT_TRUETYPE_DRIVER_H
 
-#ifdef UNIX
-#include <sys/time.h>
+#ifdef __unix__
+#include <unistd.h>
 #endif
 
 #include "common.h"
@@ -159,21 +159,27 @@
 
 
   /*
-   * timer
+   * timer in milliseconds
    */
 
   static double
   get_time( void )
   {
-#ifdef UNIX
-    struct timeval  tv;
+#if _POSIX_CPUTIME > 0
+    struct timespec  tv;
 
 
-    gettimeofday( &tv, NULL );
-    return (double)tv.tv_sec + (double)tv.tv_usec / 1E6;
+    clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &tv );
+    return 1E6 * (double)tv.tv_sec + 1E-3 * (double)tv.tv_nsec;
+#elif _POSIX_TIMERS > 0
+    struct timespec  tv;
+
+
+    clock_gettime( CLOCK_REALTIME, &tv );
+    return 1E6 * (double)tv.tv_sec + 1E-3 * (double)tv.tv_nsec;
 #else
-    /* clock() has an awful precision (~10ms) under Linux 2.4 + glibc 2.2 */
-    return (double)clock() / (double)CLOCKS_PER_SEC;
+    /* clock() accuracy has improved since glibc 2.18 */
+    return 1E6 * (double)clock() / (double)CLOCKS_PER_SEC;
 #endif
   }
 
@@ -225,12 +231,12 @@
 
       TIMER_STOP( &elapsed );
 
-      if ( TIMER_GET( &elapsed ) > max_time )
+      if ( TIMER_GET( &elapsed ) > 1E6 * max_time )
         break;
     }
 
     if ( done )
-      printf( "%5.3f us/op\n", TIMER_GET( &timer ) * 1E6 / (double)done );
+      printf( "%5.3f us/op\n", TIMER_GET( &timer ) / (double)done );
     else
       printf( "no error-free calls\n" );
   }

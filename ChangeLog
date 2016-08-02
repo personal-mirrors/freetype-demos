@@ -1,3 +1,11 @@
+2016-08-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftbench] Use POSIX timers when available.
+
+	* src/ftbench.c (get_time): Use `clock_gettime' instead of obsolete
+	and less accurate `gettimeofday'.
+	(benchmark): Updated. 
+
 2016-07-14  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] New option `-d' to give start-up design coordinates.
