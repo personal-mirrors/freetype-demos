@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2002-2006, 2009, 2010, 2013, 2014 by                          */
+/*  Copyright 2002-2016 by                                                  */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  ftbench: bench some common FreeType call paths                          */
@@ -30,7 +30,7 @@
 #include FT_CFF_DRIVER_H
 #include FT_TRUETYPE_DRIVER_H
 
-#ifdef __unix__
+#ifdef UNIX
 #include <unistd.h>
 #endif
 
@@ -165,22 +165,21 @@
   static double
   get_time( void )
   {
-#if _POSIX_CPUTIME > 0
+#if defined _POSIX_TIMERS && _POSIX_TIMERS > 0
     struct timespec  tv;
 
 
+#ifdef _POSIX_CPUTIME
     clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &tv );
-    return 1E6 * (double)tv.tv_sec + 1E-3 * (double)tv.tv_nsec;
-#elif _POSIX_TIMERS > 0
-    struct timespec  tv;
-
-
+#else
     clock_gettime( CLOCK_REALTIME, &tv );
+#endif /* _POSIX_CPUTIME */
+
     return 1E6 * (double)tv.tv_sec + 1E-3 * (double)tv.tv_nsec;
 #else
     /* clock() accuracy has improved since glibc 2.18 */
     return 1E6 * (double)clock() / (double)CLOCKS_PER_SEC;
-#endif
+#endif /* _POSIX_TIMERS */
   }
 
 #define TIMER_START( timer )  ( timer )->t0 = get_time()
@@ -219,11 +218,10 @@
     printf( "  %-25s ", test->title );
     fflush( stdout );
 
-    n = done = 0;
     TIMER_RESET( &timer );
     TIMER_RESET( &elapsed );
 
-    for ( n = 0; !max_iter || n < max_iter; n++ )
+    for ( n = 0, done = 0; !max_iter || n < max_iter; n++ )
     {
       TIMER_START( &elapsed );
 
