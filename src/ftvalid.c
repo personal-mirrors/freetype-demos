@@ -32,6 +32,7 @@
 #include FT_INTERNAL_OBJECTS_H
 
 #include "common.h"
+#include "mlgetopt.h"
 
 
 #include <stdio.h>

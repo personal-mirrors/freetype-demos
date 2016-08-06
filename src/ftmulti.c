@@ -17,6 +17,7 @@
 #include FT_MULTIPLE_MASTERS_H
 
 #include "common.h"
+#include "mlgetopt.h"
 
 #include <stdio.h>
 #include <stdlib.h>

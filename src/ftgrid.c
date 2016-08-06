@@ -16,6 +16,7 @@
 #include "ftcommon.h"
 #include "common.h"
 #include "output.h"
+#include "mlgetopt.h"
 #include <stdlib.h>
 
   /* the following header shouldn't be used in normal programs */

@@ -32,6 +32,8 @@
 
 #ifdef UNIX
 #include <unistd.h>
+#else
+#include "mlgetopt.h"
 #endif
 
 #include "common.h"

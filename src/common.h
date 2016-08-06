@@ -1,66 +1,30 @@
-/*
- *  This is a cheap replacement for getopt() because that routine is not
- *  available on some platforms and behaves differently on other platforms.
- *
- *  This code is hereby expressly placed in the public domain.
- *  mleisher@crl.nmsu.edu (Mark Leisher)
- *  10 October 1997
- */
-
 #ifndef COMMON_H_
 #define COMMON_H_
 
-/* Note that by default, both functions are implemented in common.c */
-
-#ifdef VMS
-#define getopt local_getopt
-#define optind local_optind
-#define opterr local_opterr
-#endif
 
 #ifdef __cplusplus
   extern "C" {
 #endif
 
-  extern int    opterr;
-  extern int    optind;
-  extern char*  optarg;
-
-  extern int  getopt(
-#ifdef __STDC__
-    int           argc,
-    char* const*  argv,
-    const char*   pattern
-#endif
-  );
-
-
-  extern char*  ft_basename(
-#ifdef __STDC__
-    const char*  name
-#endif
-  );
+  extern char*
+  ft_basename( const char*  name );
 
   /* print a message and exit */
-  extern void  Panic(
-#ifdef __STDC__
-    const char*  fmt, ...
-#endif
-  );
+  extern void
+  Panic( const char*  fmt,
+         ... );
 
-  /* read the next UTF-8 code from `*pcursor' and
+  /*
+   * Read the next UTF-8 code from `*pcursor' and
    * returns its value. `end' is the limit of the
    * input string.
    *
-   * return -1 if the end of the input string is
-   * reached, or in case of malformed data
+   * Return -1 if the end of the input string is
+   * reached, or in case of malformed data.
    */
-  extern int  utf8_next(
-#ifdef __STDC__
-    const char** pcursor,
-    const char*  end
-#endif
-  );
+  extern int
+  utf8_next( const char**  pcursor,
+             const char*   end );
 
 #ifdef __cplusplus
   }

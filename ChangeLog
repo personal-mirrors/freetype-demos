@@ -1,3 +1,19 @@
+2016-08-06  Werner Lemberg  <wl@gnu.org>
+
+	Move Mark Leisher's `getopt' implementation to a separate file.
+
+	We need this since `ftbench.c' now includes `unistd.h', which in
+	turn declares `getopt'.
+
+	* src/common.c, src/common.h: Move `getopt' stuff to...
+	* src/mlgetopt.c, src/mlgetopt.h: ... these new files.
+	Update all callers.
+
+	* src/common.c, src/common.h: Use standard C only.
+	Replace `CONST' with `const'.
+
+	* Makefile (COMMON_OBJ): Add `mlgetopt'.
+
 2016-08-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftbench.c (get_time, benchmark): Clean up timers.

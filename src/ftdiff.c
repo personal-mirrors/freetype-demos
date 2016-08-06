@@ -15,6 +15,7 @@
 
 #include "ftcommon.h"
 #include "common.h"
+#include "mlgetopt.h"
 
 #include FT_OUTLINE_H
 #include FT_LCD_FILTER_H

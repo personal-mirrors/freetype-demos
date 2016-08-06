@@ -25,6 +25,7 @@
 
 #include "common.h"
 #include "output.h"
+#include "mlgetopt.h"
 
 #include <stdio.h>
 #include <stdlib.h>

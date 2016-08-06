@@ -13,6 +13,7 @@
 
 #include "ftcommon.h"
 #include "common.h"
+#include "mlgetopt.h"
 
 #include <stdio.h>
 #include <stdlib.h>
