@@ -1,3 +1,16 @@
+2016-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdump] Implement hexdump of TrueType instructions.
+
+	This is useful when searching for interesting instructions. Pushed
+	values come with underscore prefix to distinguish them from actual
+	opcodes.
+
+	* src/ftdump.c (Print_Bytecode, Print_Programs): Implement this.
+	(usage): New option `-p' described.
+	(main): Updated.
+	* src/ftdump.1: Updated.
+
 2016-08-06  Werner Lemberg  <wl@gnu.org>
 
 	Move Mark Leisher's `getopt' implementation to a separate file.

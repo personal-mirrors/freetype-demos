@@ -13,6 +13,7 @@
 #include FT_SFNT_NAMES_H
 #include FT_TRUETYPE_IDS_H
 #include FT_TRUETYPE_TABLES_H
+#include FT_TRUETYPE_TAGS_H
 #include FT_MULTIPLE_MASTERS_H
 
   /* the following header shouldn't be used in normal programs */
@@ -37,6 +38,7 @@
   static int  comma_flag  = 0;
   static int  verbose     = 0;
   static int  name_tables = 0;
+  static int  bytecode    = 0;
   static int  utf8        = 0;
 
 
@@ -74,6 +76,7 @@
 
     fprintf( stderr,
       "  -n        Print SFNT name tables.\n"
+      "  -p        Print TrueType programs.\n"
       "  -u        Emit UTF8.\n"
       "  -V        Be verbose.\n"
       "\n"
@@ -522,6 +525,169 @@
   }
 
 
+  static void
+  Print_Bytecode( FT_Byte*   buffer,
+                  FT_UShort  length,
+                  char*      tag )
+  {
+    FT_UShort  i;
+    int        j = 0;  /* status counter */
+
+
+    for ( i = 0; i < length; i++ )
+    {
+      if ( ( i & 15 ) == 0 )
+        printf( "\n%s:%04hx ", tag, i );
+
+      if ( j == 0 )
+      {
+        printf( " %02hx", buffer[i] );
+
+        if ( buffer[i] == 0x41 )
+          j = -2;
+        else if ( buffer[i] == 0x40 )
+          j = -1;
+        else if ( 0xB8 <= buffer[i] && buffer[i] <= 0xBF )
+          j = 2 * ( buffer[i] - 0xB7 );
+        else if ( 0xB0 <= buffer[i] && buffer[i] <= 0xB7 )
+          j = buffer[i] - 0xAF;
+      }
+      else
+      {
+        printf( "_%02hx", buffer[i] );
+
+        if ( j == -2 )
+          j = 2 * buffer[i];
+        else if ( j == -1 )
+          j = buffer[i];
+        else
+          j--;
+      }
+    }
+    printf( "\n" );
+  }
+
+
+  static void
+  Print_Programs( FT_Face face )
+  {
+    FT_ULong    length = 0;
+    FT_UShort   i;
+    FT_Byte*    buffer = NULL;
+    FT_Byte*    offset = NULL;
+
+    TT_Header*      head;
+    TT_MaxProfile*  maxp;
+
+
+    error = FT_Load_Sfnt_Table( face, TTAG_fpgm, 0, NULL, &length );
+    if ( error || length == 0 )
+      goto Prep;
+
+    buffer = (FT_Byte*)malloc( length );
+    if ( buffer == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_fpgm, 0, buffer, &length );
+    if ( error )
+      goto Exit;
+
+    printf( "font program" );
+    Print_Bytecode( buffer, (FT_UShort)length, "fpgm" );
+
+  Prep:
+    length = 0;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_prep, 0, NULL, &length );
+    if ( error || length == 0 )
+      goto Glyf;
+
+    buffer = (FT_Byte*)realloc( buffer, length );
+    if ( buffer == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_prep, 0, buffer, &length );
+    if ( error )
+      goto Exit;
+
+    printf( "\ncontrol value program" );
+    Print_Bytecode( buffer, (FT_UShort)length, "prep" );
+
+  Glyf:
+    length = 0;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, NULL, &length );
+    if ( error || length == 0 )
+      goto Exit;
+
+    buffer = (FT_Byte*)realloc( buffer, length );
+    if ( buffer == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, buffer, &length );
+    if ( error )
+      goto Exit;
+
+    length = 0;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, NULL, &length );
+    if ( error || length == 0 )
+      goto Exit;
+
+    offset = (FT_Byte*)malloc( length );
+    if ( offset == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &length );
+    if ( error )
+      goto Exit;
+
+    head =     (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
+    maxp = (TT_MaxProfile*)FT_Get_Sfnt_Table( face, FT_SFNT_MAXP );
+
+    for ( i = 0; i < maxp->numGlyphs; i++ )
+    {
+      FT_UInt32  loc;
+      FT_UInt16  len;
+      char       tag[5];
+
+
+      if ( head->Index_To_Loc_Format )
+        loc = (FT_UInt32)offset[4 * i    ] << 24 |
+              (FT_UInt32)offset[4 * i + 1] << 16 |
+              (FT_UInt32)offset[4 * i + 2] << 8  |
+              (FT_UInt32)offset[4 * i + 3];
+      else
+        loc = (FT_UInt32)offset[2 * i    ] << 9 |
+              (FT_UInt32)offset[2 * i + 1] << 1;
+
+      len = (FT_UInt16)buffer[loc    ] << 8 |
+            (FT_UInt16)buffer[loc + 1];
+
+      if ( (FT_Int16)len < 0 ) /* composite */
+        continue;
+
+      loc += 2 * len + 10;
+
+      len = (FT_UInt16)buffer[loc    ] << 8 |
+            (FT_UInt16)buffer[loc + 1];
+
+      if ( len == 0 )
+        continue;
+
+      loc += 2;
+
+      sprintf( tag, "%04hx", i );
+      printf("\nglyf program %hd (%.4s)", i, tag );
+      Print_Bytecode( buffer + loc, len, tag );
+    }
+
+  Exit:
+    free( buffer );
+    free( offset );
+  }
+
+
   int
   main( int    argc,
         char*  argv[] )
@@ -546,7 +712,7 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "nuvV" );
+      option = getopt( argc, argv, "npuvV" );
 
       if ( option == -1 )
         break;
@@ -555,6 +721,10 @@
       {
       case 'n':
         name_tables = 1;
+        break;
+
+      case 'p':
+        bytecode = 1;
         break;
 
       case 'u':
@@ -652,6 +822,12 @@
       {
         printf( "\n" );
         Print_Sfnt_Names( face );
+      }
+
+      if ( bytecode && FT_IS_SFNT( face ) )
+      {
+        printf( "\n" );
+        Print_Programs( face );
       }
 
       if ( face->num_fixed_sizes )
