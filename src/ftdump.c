@@ -543,23 +543,23 @@
       {
         printf( " %02hx", buffer[i] );
 
-        if ( buffer[i] == 0x41 )
-          j = -2;
-        else if ( buffer[i] == 0x40 )
+        if ( buffer[i] == 0x40 )
           j = -1;
-        else if ( 0xB8 <= buffer[i] && buffer[i] <= 0xBF )
-          j = 2 * ( buffer[i] - 0xB7 );
+        else if ( buffer[i] == 0x41 )
+          j = -2;
         else if ( 0xB0 <= buffer[i] && buffer[i] <= 0xB7 )
           j = buffer[i] - 0xAF;
+        else if ( 0xB8 <= buffer[i] && buffer[i] <= 0xBF )
+          j = 2 * ( buffer[i] - 0xB7 );
       }
       else
       {
         printf( "_%02hx", buffer[i] );
 
-        if ( j == -2 )
-          j = 2 * buffer[i];
-        else if ( j == -1 )
+        if ( j == -1 )
           j = buffer[i];
+        else if ( j == -2 )
+          j = 2 * buffer[i];
         else
           j--;
       }
@@ -664,10 +664,32 @@
       len = (FT_UInt16)buffer[loc    ] << 8 |
             (FT_UInt16)buffer[loc + 1];
 
-      if ( (FT_Int16)len < 0 ) /* composite */
-        continue;
+      loc += 10;
 
-      loc += 2 * len + 10;
+      if ( (FT_Int16)len < 0 )  /* composite */
+      {
+        FT_UShort  flags;
+
+
+        do
+        {
+          flags = (FT_UInt16)buffer[loc    ] << 8 |
+                  (FT_UInt16)buffer[loc + 1];
+
+          loc += 4;
+
+          loc += flags & FT_SUBGLYPH_FLAG_ARGS_ARE_WORDS ? 4 : 2;
+
+          loc += flags & FT_SUBGLYPH_FLAG_SCALE ? 2
+                   : flags & FT_SUBGLYPH_FLAG_XY_SCALE ? 4
+                       : flags & FT_SUBGLYPH_FLAG_2X2 ? 8 : 0;
+        } while ( flags & 0x20 );  /* more components */
+
+        if ( ( flags & 0x100 ) == 0 )
+          continue;
+      }
+      else
+        loc += 2 * len;
 
       len = (FT_UInt16)buffer[loc    ] << 8 |
             (FT_UInt16)buffer[loc + 1];

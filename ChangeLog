@@ -1,5 +1,12 @@
 2016-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftdump] Hexdump composite glyf instructions too.
+
+	* src/ftdump.c (Print_Programs): Updated.
+	(Print_Bytecode): Cleaned up.
+
+2016-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftdump] Implement hexdump of TrueType instructions.
 
 	This is useful when searching for interesting instructions. Pushed
