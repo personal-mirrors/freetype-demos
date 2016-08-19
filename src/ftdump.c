@@ -541,7 +541,7 @@
 
       if ( j == 0 )
       {
-        printf( " %02hx", buffer[i] );
+        printf( " %02x", (FT_UInt)buffer[i] );
 
         if ( buffer[i] == 0x40 )
           j = -1;
@@ -554,7 +554,7 @@
       }
       else
       {
-        printf( "_%02hx", buffer[i] );
+        printf( "_%02x", (FT_UInt)buffer[i] );
 
         if ( j == -1 )
           j = buffer[i];
@@ -593,7 +593,7 @@
       goto Exit;
 
     printf( "font program" );
-    Print_Bytecode( buffer, (FT_UShort)length, "fpgm" );
+    Print_Bytecode( buffer, (FT_UShort)length, (char*)"fpgm" );
 
   Prep:
     length = 0;
@@ -611,7 +611,7 @@
       goto Exit;
 
     printf( "\ncontrol value program" );
-    Print_Bytecode( buffer, (FT_UShort)length, "prep" );
+    Print_Bytecode( buffer, (FT_UShort)length, (char*)"prep" );
 
   Glyf:
     length = 0;
@@ -661,8 +661,8 @@
         loc = (FT_UInt32)offset[2 * i    ] << 9 |
               (FT_UInt32)offset[2 * i + 1] << 1;
 
-      len = (FT_UInt16)buffer[loc    ] << 8 |
-            (FT_UInt16)buffer[loc + 1];
+      len = (FT_UInt16)( (FT_UInt16)buffer[loc    ] << 8 |
+                         (FT_UInt16)buffer[loc + 1]      );
 
       loc += 10;
 
@@ -673,8 +673,8 @@
 
         do
         {
-          flags = (FT_UInt16)buffer[loc    ] << 8 |
-                  (FT_UInt16)buffer[loc + 1];
+          flags = (FT_UInt16)( (FT_UInt16)buffer[loc    ] << 8 |
+                               (FT_UInt16)buffer[loc + 1]      );
 
           loc += 4;
 
@@ -691,8 +691,8 @@
       else
         loc += 2 * len;
 
-      len = (FT_UInt16)buffer[loc    ] << 8 |
-            (FT_UInt16)buffer[loc + 1];
+      len = (FT_UInt16)( (FT_UInt16)buffer[loc    ] << 8 |
+                         (FT_UInt16)buffer[loc + 1]      );
 
       if ( len == 0 )
         continue;

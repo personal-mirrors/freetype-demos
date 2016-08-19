@@ -1,5 +1,14 @@
 2018-08-19  Werner Lemberg  <wl@gnu.org>
 
+	[ftdump] Fix clang compiler warnings.
+
+	* src/ftdump.c (Print_Bytecode): Use cast instead of printf length
+	modifier – we would need `hh', which only glibc offers.
+	(Print_Programs): Use proper casts for constant strings and 16bit
+	integer types.
+
+2018-08-19  Werner Lemberg  <wl@gnu.org>
+
 	[ftgamma] Fix compiler warnings.
 
 	* src/ftgamma.c (bit1, bit2, bit): Make them static.
