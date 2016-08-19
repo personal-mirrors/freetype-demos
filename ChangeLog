@@ -1,3 +1,9 @@
+2018-08-19  Werner Lemberg  <wl@gnu.org>
+
+	[ftgamma] Fix compiler warnings.
+
+	* src/ftgamma.c (bit1, bit2, bit): Make them static.
+
 2016-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdump] Hexdump composite glyf instructions too.

@@ -17,9 +17,9 @@
 
   static FTDemo_Display*  display;
 
-  grBitmap   bit1 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
-  grBitmap   bit2 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
-  grBitmap*  bit;
+  static grBitmap   bit1 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
+  static grBitmap   bit2 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
+  static grBitmap*  bit;
 
 
   static void
