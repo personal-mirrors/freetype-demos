@@ -661,8 +661,7 @@
         loc = (FT_UInt32)offset[2 * i    ] << 9 |
               (FT_UInt32)offset[2 * i + 1] << 1;
 
-      len = (FT_UInt16)( (FT_UInt16)buffer[loc    ] << 8 |
-                         (FT_UInt16)buffer[loc + 1]      );
+      len = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
 
       loc += 10;
 
@@ -673,8 +672,7 @@
 
         do
         {
-          flags = (FT_UInt16)( (FT_UInt16)buffer[loc    ] << 8 |
-                               (FT_UInt16)buffer[loc + 1]      );
+          flags = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
 
           loc += 4;
 
@@ -691,8 +689,7 @@
       else
         loc += 2 * len;
 
-      len = (FT_UInt16)( (FT_UInt16)buffer[loc    ] << 8 |
-                         (FT_UInt16)buffer[loc + 1]      );
+      len = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
 
       if ( len == 0 )
         continue;

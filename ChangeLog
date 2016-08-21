@@ -1,3 +1,7 @@
+2016-08-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftdump.c (Print_Programs): Use fewer casts.
+
 2018-08-19  Werner Lemberg  <wl@gnu.org>
 
 	[ftdump] Fix clang compiler warnings.
