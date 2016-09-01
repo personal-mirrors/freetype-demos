@@ -49,6 +49,14 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
     If  you don't  have X11  at all,  fix the  definition of  the EXES
     variable as described in the top-level Makefile.
 
+    Recent versions of Mac OS X no longer deliver X11 by default;  you
+    have to install XQuartz, see
+
+      https://support.apple.com/en-us/HT201341
+
+    for more details.
+
+
     Using a different build directory
     ---------------------------------
 
