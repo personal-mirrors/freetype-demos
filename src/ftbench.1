@@ -66,9 +66,9 @@ without an argument to get the actual list.
 .
 .TP
 .BI \-i \ idx
-Start with index
+Start with glyph index
 .I idx
-(default is 0).
+(default is 0, which means to process all glyphs).
 .
 .TP
 .BI \-m \ m
@@ -78,7 +78,10 @@ KiByte (default is 1024).
 .
 .TP
 .B \-p
-Preload font file in memory.
+Preload font file in memory (this is, testing
+.B FT_New_Memory_Face
+instead of
+.BR FT_New_Face ).
 .
 .TP
 .BI \-r \ n
@@ -129,16 +132,16 @@ Perform chosen tests:
 .TS
 tab (@);
 rB l.
-a@load a glyph (FT_Load_Glyph)
+a@load glyphs (FT_Load_Glyph)
 b@load advance widths (FT_Get_Advances)
-c@render a glyph (FT_Render_Glyph)
-d@load a glyph (FT_Get_Glyph)
-e@get glyph cbox (FT_Glyph_Get_CBox)
+c@render glyphs (FT_Render_Glyph)
+d@load glyphs (FT_Get_Glyph)
+e@get glyph cboxes (FT_Glyph_Get_CBox)
 f@get glyph indices (FT_Get_Char_Index)
 g@iterate CMap (FT_Get_{First,Next}_Char)
-h@open a new face (FT_New_Face)
-i@embolden (FT_GlyphSlot_Embolden)
-j@get glyph bbox (FT_Outline_Get_BBox)
+h@open a new face (FT_New_Face or FT_New_Memory_Face)
+i@embolden glyphs (FT_GlyphSlot_Embolden)
+j@get glyph bboxes (FT_Outline_Get_BBox)
 .TE
 .RE
 .
@@ -146,6 +149,11 @@ j@get glyph bbox (FT_Outline_Get_BBox)
 (default is
 .BR abcdefghij ,
 this is, all tests).
+.
+.IP
+The number of used glyphs per test (within a single iteration) is given by
+option
+.BR \-i .
 .
 .TP
 .B \-v
