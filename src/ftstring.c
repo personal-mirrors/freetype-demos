@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2007, 2009-2015 by                                       */
+/*  Copyright 1996-2007, 2009-2016 by                                       */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -27,7 +27,39 @@
 #define MAXPTSIZE          500   /* dtp */
 
 
-  static char*  Text = (char *)"The quick brown fox jumps over the lazy dog";
+  static char*  Sample[] =
+  {
+    "The quick brown fox jumps over the lazy dog",
+
+    "Lu\u00EDs arg\u00FCia \u00E0 J\u00FAlia que \u00ABbra\u00E7\u00F5es, "
+    "f\u00E9, ch\u00E1, \u00F3xido, p\u00F4r, z\u00E2ng\u00E3o\u00BB eram "
+    "palavras do portugu\u00EAs",
+
+    "\u039F \u03BA\u03B1\u03BB\u03CD\u03BC\u03BD\u03B9\u03BF\u03C2 \u03C3"
+    "\u03C6\u03BF\u03C5\u03B3\u03B3\u03B1\u03C1\u03AC\u03C2 \u03C8\u03B9"
+    "\u03B8\u03CD\u03C1\u03B9\u03C3\u03B5 \u03C0\u03C9\u03C2 \u03B8\u03B1 "
+    "\u03B2\u03BF\u03C5\u03C4\u03AE\u03BE\u03B5\u03B9 \u03C7\u03C9\u03C1"
+    "\u03AF\u03C2 \u03BD\u03B1 \u03B4\u03B9\u03C3\u03C4\u03AC\u03B6\u03B5"
+    "\u03B9",
+
+    "\u0421\u044A\u0435\u0448\u044C \u0435\u0449\u0451 \u044D\u0442\u0438"
+    "\u0445 \u043C\u044F\u0433\u043A\u0438\u0445 \u0444\u0440\u0430\u043D"
+    "\u0446\u0443\u0437\u0441\u043A\u0438\u0445 \u0431\u0443\u043B\u043E"
+    "\u043A \u0434\u0430 \u0432\u044B\u043F\u0435\u0439 \u0436\u0435 "
+    "\u0447\u0430\u044E",
+
+    "\u5929\u5730\u7384\u9EC3\uFF0C\u5B87\u5B99\u6D2A\u8352\u3002\u65E5"
+    "\u6708\u76C8\u6603\uFF0C\u8FB0\u5BBF\u5217\u5F35\u3002\u5BD2\u4F86"
+    "\u6691\u5F80\uFF0C\u79CB\u6536\u51AC\u85CF\u3002\u958F\u9918\u6210"
+    "\u6B72\uFF0C\u5F8B\u5442\u8ABF\u967D\u3002",
+
+    "\u611B\u306E\u3042\u308B\u30E6\u30CB\u30FC\u30AF\u3067\u8C4A\u304B"
+    "\u306A\u66F8\u4F53",
+
+    "\uD0A4\uC2A4\uC758 \uACE0\uC720\uC870\uAC74\uC740 \uC785\uC220\uB07C"
+    "\uB9AC \uB9CC\uB098\uC57C \uD558\uACE0 \uD2B9\uBCC4\uD55C \uAE30"
+    "\uC220\uC740 \uD544\uC694\uCE58 \uC54A\uB2E4"
+  };
 
   enum
   {
@@ -47,6 +79,7 @@
     int          ptsize;            /* current point size */
     double       gamma;
     int          angle;
+    char*        text;
 
     FTDemo_String_Context  sc;
 
@@ -57,7 +90,7 @@
     char         header_buffer[256];
 
   } status = { DIM_X, DIM_Y,
-               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, GAMMA, 0,
+               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, GAMMA, 0, NULL,
                { 0, 0, 0, 0, NULL },
                { 0 }, { 0, 0, 0, 0 }, 0, NULL, { 0 } };
 
@@ -120,7 +153,8 @@
     grWriteln( "  l         : cycle through LCD modes" );
     grWriteln( "  k         : cycle through kerning modes" );
     grWriteln( "  t         : cycle through kerning degrees" );
-    grWriteln( "  space     : cycle through color" );
+    grWriteln( "  Space     : cycle through color" );
+    grWriteln( "  Tab       : cycle through sample strings" );
     grWriteln( "  V         : toggle vertical rendering" );
     grLn();
     grWriteln( "  g         : increase gamma by 0.1" );
@@ -159,7 +193,7 @@
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
     FTDemo_Update_Current_Flags( handle );
 
-    FTDemo_String_Set( handle, Text );
+    FTDemo_String_Set( handle, status.text );
   }
 
 
@@ -248,6 +282,18 @@
     i++;
   }
 
+
+  static void
+  event_text_change( void )
+  {
+    static int  i = 0;
+
+    status.text = Sample[i];
+
+    i++;
+    if ( i >= (int)( sizeof( Sample ) / sizeof( Sample[0] ) ) )
+      i = 0;
+  }
 
   static void
   event_gamma_change( double  delta )
@@ -404,6 +450,11 @@
 
     case grKeySpace:
       event_color_change();
+      break;
+
+    case grKeyTab:
+      event_text_change();
+      FTDemo_String_Set( handle, status.text );
       break;
 
     case grKEY( 'V' ):
@@ -595,7 +646,7 @@
       case 'm':
         if ( *argc < 3 )
           usage( execname );
-        Text = optarg;
+        status.text = optarg;
         break;
 
       case 'r':
@@ -690,10 +741,14 @@
     grSetTitle( display->surface,
                 "FreeType String Viewer - press ? for help" );
 
+    status.header = NULL;
+
+    if ( !status.text )
+      event_text_change();
+
     event_color_change();
     event_gamma_change( 0 );
     event_font_change( 0 );
-    status.header = 0;
 
     do
     {
