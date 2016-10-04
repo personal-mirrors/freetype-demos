@@ -54,7 +54,7 @@
     grKeyExclam     = '!',
     grKeyPercent    = '%',
     grKeyLeftParen  = '(',
-    grKeyRightParen = '(',
+    grKeyRightParen = ')',
     grKeyAt         = '@',
 
     grKey_A = 'A',

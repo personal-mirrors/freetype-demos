@@ -1,4 +1,8 @@
-2016-10-01 İsmail Dönmez  <idonmez@suse.com>
+2016-10-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grevents.h (grKey): Typo.
+
+2016-10-01  İsmail Dönmez  <idonmez@suse.com>
 
 	* src/ftinspect.pro (LIBS): Fix default value.
 
