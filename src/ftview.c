@@ -200,7 +200,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( handle->encoding == FT_ENCODING_NONE )
+      if ( status.encoding == FT_ENCODING_NONE )
         glyph_idx = (FT_UInt)i;
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
@@ -308,7 +308,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( handle->encoding == FT_ENCODING_NONE )
+      if ( status.encoding == FT_ENCODING_NONE )
         glyph_idx = (FT_UInt)i;
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
@@ -385,7 +385,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( handle->encoding == FT_ENCODING_NONE )
+      if ( status.encoding == FT_ENCODING_NONE )
         glyph_idx = (FT_UInt)i;
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
@@ -489,7 +489,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( handle->encoding == FT_ENCODING_NONE )
+      if ( status.encoding == FT_ENCODING_NONE )
         glyph_idx = (FT_UInt)i;
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
@@ -808,19 +808,19 @@
     grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 4)            " );
     grWriteln( "                                                                            " );
     grWriteln( "Left, Right adjust index by 1           L           cycle through           " );
-    grWriteln( "F7, F8      adjust index by 10                       LCD filtering          " );
-    grWriteln( "F9, F10     adjust index by 100         [, ]        select custom LCD       " );
-    grWriteln( "F11, F12    adjust index by 1000                      filter weight         " );
+    grWriteln( "F7, F8      adjust index by 16                       LCD filtering          " );
+    grWriteln( "F9, F10     adjust index by 256         [, ]        select custom LCD       " );
+    grWriteln( "F11, F12    adjust index by 4096                      filter weight         " );
     grWriteln( "                                                      (if custom filtering) " );
     grWriteln( "h           toggle hinting              -, +(=)     adjust selected custom  " );
     grWriteln( "H           cycle through hinting                    LCD filter weight      " );
     grWriteln( "             engines (if available)                                         " );
     grWriteln( "f           toggle forced auto-         g, v        adjust gamma value      " );
     grWriteln( "             hinting (if hinting)                                           " );
-    grWriteln( "w           toggle warping (in light                                        " );
-    grWriteln( "             AA mode, if available)     q, ESC      quit ftview             " );
+    grWriteln( "w           toggle warping (in light    Tab         cycle through charmaps  " );
+    grWriteln( "             AA mode, if available)                                         " );
     grWriteln( "                                                                            " );
-    grWriteln( "a           toggle anti-aliasing                                            " );
+    grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -1037,6 +1037,36 @@
 
 
   static int
+  event_encoding_change( void )
+  {
+    FT_Face     face;
+    static int  i = 0;
+
+    error = FTC_Manager_LookupFace( handle->cache_manager,
+                                    handle->scaler.face_id, &face );
+
+    if ( i < face->num_charmaps )
+    {
+      status.encoding = face->charmaps[i]->encoding;
+      status.offset   = 0x20;
+
+      FT_Set_Charmap( face, face->charmaps[i] );
+
+      i++;
+    }
+    else
+    {
+      status.encoding = 0;
+      status.offset   = 0;
+
+      i = 0;
+    }
+
+    return 1;
+  }
+
+
+  static int
   event_font_change( int  delta )
   {
     int  num_indices;
@@ -1195,6 +1225,10 @@
       status.update = 1;
       break;
 
+    case grKeyTab:
+      status.update = event_encoding_change();
+      break;
+
     case grKEY( 's' ):
       if ( status.render_mode == RENDER_MODE_SLANTED )
         status.update = event_slant_change( 0.02 );
@@ -1273,22 +1307,22 @@
       status.update = event_index_change( 1 );
       break;
     case grKeyF7:
-      status.update = event_index_change( -10 );
+      status.update = event_index_change( -0x10 );
       break;
     case grKeyF8:
-      status.update = event_index_change( 10 );
+      status.update = event_index_change( 0x10 );
       break;
     case grKeyF9:
-      status.update = event_index_change( -100 );
+      status.update = event_index_change( -0x100 );
       break;
     case grKeyF10:
-      status.update = event_index_change( 100 );
+      status.update = event_index_change( 0x100 );
       break;
     case grKeyF11:
-      status.update = event_index_change( -1000 );
+      status.update = event_index_change( -0x1000 );
       break;
     case grKeyF12:
-      status.update = event_index_change( 1000 );
+      status.update = event_index_change( 0x1000 );
       break;
 
     case grKEY( 'L' ):

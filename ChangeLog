@@ -1,3 +1,12 @@
+2016-10-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Implement cycling through available charmaps.
+
+	* src/ftview.c (event_change_encoding): New function.
+	(Process_Event): New [Tab] event to cycle through available charmaps,
+	also increase index steps to 16, 256, and 4096.
+	(event_help): Updated.
+
 2016-10-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grevents.h (grKey): Typo.
