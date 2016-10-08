@@ -1039,27 +1039,51 @@
   static int
   event_encoding_change( void )
   {
-    FT_Face     face;
-    static int  i = 0;
+    PFont    font = handle->fonts[status.font_idx];
+    FT_Face  face;
+
+
+    if ( status.encoding != FT_ENCODING_NONE )
+      font->cmap_index++;
+    else
+      font->cmap_index = 0;
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
                                     handle->scaler.face_id, &face );
 
-    if ( i < face->num_charmaps )
+    if ( font->cmap_index < face->num_charmaps )
     {
-      status.encoding = face->charmaps[i]->encoding;
-      status.offset   = 0x20;
-
-      FT_Set_Charmap( face, face->charmaps[i] );
-
-      i++;
+      status.encoding  = face->charmaps[font->cmap_index]->encoding;
+      status.offset    = 0x20;
     }
     else
     {
-      status.encoding = 0;
-      status.offset   = 0;
+      status.encoding  = FT_ENCODING_NONE;
+      status.offset    = 0;
+    }
 
-      i = 0;
+    switch ( status.encoding )
+    {
+    case FT_ENCODING_NONE:
+      font->num_indices = face->num_glyphs;
+      break;
+
+    case FT_ENCODING_UNICODE:
+      font->num_indices = 0x110000L;
+      break;
+
+    case FT_ENCODING_ADOBE_LATIN_1:
+    case FT_ENCODING_ADOBE_STANDARD:
+    case FT_ENCODING_ADOBE_EXPERT:
+    case FT_ENCODING_ADOBE_CUSTOM:
+    case FT_ENCODING_APPLE_ROMAN:
+      font->num_indices = 0x100L;
+      break;
+
+    /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
+    case FT_ENCODING_MS_SYMBOL:
+    default:
+      font->num_indices = 0x10000L;
     }
 
     return 1;

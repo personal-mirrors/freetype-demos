@@ -1,3 +1,10 @@
+2016-10-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Fix charmap cycling.
+
+	* src/ftview.c (event_change_encoding): Reimplement relying on
+	`cmap_index' field in TFont structure.
+
 2016-10-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Implement cycling through available charmaps.
