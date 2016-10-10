@@ -1,3 +1,11 @@
+2016-10-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Recognize other charmaps.
+
+	* src/smooth/ftgrays.c (event_change_encoding): Recognize when
+	FT_ENCODING_NONE has special other meaning.
+	(write_header): Default case for `status.encoding'.
+
 2016-10-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Fix charmap cycling.

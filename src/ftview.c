@@ -126,6 +126,8 @@
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;
 
+  static int FT_ENC_TAG( FT_ENCODING_OTHER, 'o', 't', 'h', 'e' );
+
 
   /*
      In UTF-8 encoding:
@@ -1055,6 +1057,9 @@
     {
       status.encoding  = face->charmaps[font->cmap_index]->encoding;
       status.offset    = 0x20;
+
+      if ( status.encoding == FT_ENCODING_NONE )  /* OTHER, really */
+        status.encoding = FT_ENCODING_OTHER;
     }
     else
     {
@@ -1572,6 +1577,8 @@
       case FT_ENCODING_APPLE_ROMAN:
         encoding = "Apple Roman";
         break;
+      default:
+        encoding = "Other";
       }
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          encoding, display->fore_color );
