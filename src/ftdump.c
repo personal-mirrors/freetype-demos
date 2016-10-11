@@ -407,11 +407,13 @@
 
     for( i = 0; i < face->num_charmaps; i++ )
     {
+      FT_Long   format  = FT_Get_CMap_Format( face->charmaps[i] );
       FT_ULong  lang_id = FT_Get_CMap_Language_ID( face->charmaps[i] );
 
 
-      printf( "   %d: platform %u, encoding %2u",
+      printf( "   %d: format %ld, platform %u, encoding %2u",
               i,
+              format,
               face->charmaps[i]->platform_id,
               face->charmaps[i]->encoding_id );
 
