@@ -1535,7 +1535,7 @@
             dg  = _write[1];
             dg += (sg-dg)*val1 >> 8;
 
-            db  = _write[1];
+            db  = _write[2];
             db += (sb-db)*val2 >> 8;
 
             _write[0] = (unsigned char)dr;

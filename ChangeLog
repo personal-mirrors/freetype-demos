@@ -1,3 +1,7 @@
+2016-10-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grblit.c (blit_lcd28_to_24): Typo.
+
 2016-10-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftdump.c (Print_Charmaps): Dump format info.
