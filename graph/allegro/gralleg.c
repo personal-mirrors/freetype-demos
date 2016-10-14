@@ -7,8 +7,8 @@
  *  graphics, timers, etc., and is available on 32-bit DOS, Windows,
  *  UNIX (X11, DGA, DGA2), Linux (svgalib, framebuffer) and BeOS.
  *
- *    http://www.talula.demon.co.uk/allegro/
- *    http://sourceforge.net/projects/alleg/
+ *    http://liballeg.org/
+ *    https://github.com/liballeg
  *
  ******************************************************************/
 
