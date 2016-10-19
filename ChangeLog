@@ -1,3 +1,13 @@
+2016-10-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Untested legacy 15/16-bit color fixes.
+
+	Our tools do not use the legacy 15/16-bit color modes. This is mostly
+	for the sake of correctness. We might also remove the code.
+
+	* graph/grblit.c (blit_gray{8,}_to_{555,565}): Updated.
+	* graph/x11/grx11.c (gr_x11_format_{bgr565,rgb555,bgr555}): Updated.
+
 2016-10-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grblit.c (blit_lcd28_to_24): Typo.

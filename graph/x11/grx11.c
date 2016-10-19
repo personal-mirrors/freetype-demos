@@ -362,7 +362,7 @@ typedef  unsigned long   uint32;
 
   static const grX11Format  gr_x11_format_bgr565 =
   {
-    16, 16, 0x001F, 0x7E00, 0xF800U,
+    16, 16, 0x001F, 0x07E0, 0xF800U,
     gr_x11_convert_rgb_to_bgr565,
     gr_x11_convert_gray_to_rgb565  /* the same for bgr565! */
   };
@@ -442,7 +442,7 @@ typedef  unsigned long   uint32;
 
   static const grX11Format  gr_x11_format_rgb555 =
   {
-    15, 16, 0x7C00, 0x3E00, 0x001F,
+    15, 16, 0x7C00, 0x03E0, 0x001F,
     gr_x11_convert_rgb_to_rgb555,
     gr_x11_convert_gray_to_rgb555
   };
@@ -491,7 +491,7 @@ typedef  unsigned long   uint32;
 
   static const grX11Format gr_x11_format_bgr555 =
   {
-    15, 16, 0x1F00, 0x3E00, 0x7C00,
+    15, 16, 0x001F, 0x03E0, 0x7C00,
     gr_x11_convert_rgb_to_bgr555,
     gr_x11_convert_gray_to_rgb555  /* the same for bgr555! */
   };

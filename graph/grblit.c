@@ -865,18 +865,14 @@
                            grColor     color )
   {
     int             y;
-    int             sr = (color.chroma[0] << 8) & 0x7C00;
+    int             sr = (color.chroma[0] << 7) & 0x7C00;
     int             sg = (color.chroma[1] << 2) & 0x03E0;
-    int             sb = (color.chroma[2]     ) & 0x001F;
+    int             sb = (color.chroma[2] >> 3) & 0x001F;
     unsigned char*  read;
     unsigned char*  write;
-    long            color2;
 
     read   = blit->read  + blit->xread;
     write  = blit->write + 2*blit->xwrite;
-
-    color2 = color.value;
-    extract565( color2, color );
 
     y = blit->height;
     do
@@ -895,9 +891,7 @@
           unsigned short* pixel = (unsigned short*)_write;
 
           if (val >= 254 )
-          {
-            pixel[0] = (unsigned short)color2;
-          }
+            *pixel = (unsigned short)( sr | sg | sb );
           else if ( val >= 2 )
           {
             /* compose gray value */
@@ -906,17 +900,14 @@
             int   dg  = pix & 0x03E0;
             int   db  = pix & 0x001F;
 
-            dr  = pix & 0x7C00;
             dr += ((sr-dr)*val) >> 8;
-            dr &= 0xF800;
+            dr &= 0x7C00;
 
-            dg  = pix & 0x03E0;
             dg += ((sg-dg)*val) >> 8;
-            dg &= 0x7E0;
+            dg &= 0x03E0;
 
-            db  = pix & 0x001F;
             db += ((sb-db)*val) >> 8;
-            db += 0x001F;
+            db &= 0x001F;
 
             *pixel = (unsigned short)( dr | dg | db );
           }
@@ -943,14 +934,14 @@
     int             y;
     unsigned char*  read;
     unsigned char*  write;
-    long            color2;
 
     read   = blit->read  + blit->xread;
     write  = blit->write + 2*blit->xwrite;
 
-    /* convert color to R:G:B triplet */
-    color2 = color.value;
-    extract555( color2, color );
+    /* scale down R:G:B triplet */
+    color.chroma[0] >>= 3;
+    color.chroma[1] >>= 3;
+    color.chroma[2] >>= 3;
 
     y = blit->height;
     do
@@ -969,7 +960,7 @@
           unsigned short* pixel = (unsigned short*)_write;
 
           if (val == max)
-            pixel[0] = (unsigned short)color2;
+            *pixel = (unsigned short)(inject555( color ));
           else
           {
             /* compose gray value */
@@ -979,7 +970,7 @@
             extract555( pix16, pix );
 
             compose_pixel( pix, color, val, max );
-            *pixel = (unsigned short)(inject555(pix));
+            *pixel = (unsigned short)(inject555( pix ));
           }
         }
         _write += 2;
@@ -1008,17 +999,13 @@
   {
     int             y;
     int             sr = (color.chroma[0] << 8) & 0xF800;
-    int             sg = (color.chroma[1] << 2) & 0x07E0;
-    int             sb = (color.chroma[2]     ) & 0x001F;
+    int             sg = (color.chroma[1] << 3) & 0x07E0;
+    int             sb = (color.chroma[2] >> 3) & 0x001F;
     unsigned char*  read;
     unsigned char*  write;
-    long            color2;
 
     read   = blit->read  + blit->xread;
     write  = blit->write + 2*blit->xwrite;
-
-    color2 = color.value;
-    extract565( color2, color );
 
     y = blit->height;
     do
@@ -1037,7 +1024,7 @@
           unsigned short* pixel = (unsigned short*)_write;
 
           if (val >= 254 )
-            pixel[0] = (unsigned short)color2;
+            *pixel = (unsigned short)( sr | sg | sb );
           else if ( val >= 2 )
           {
             /* compose gray value */
@@ -1046,17 +1033,14 @@
             int   dg  = pix & 0x07E0;
             int   db  = pix & 0x001F;
 
-            dr  = pix & 0xF800;
             dr += ((sr-dr)*val) >> 8;
             dr &= 0xF800;
 
-            dg  = pix & 0x07E0;
             dg += ((sg-dg)*val) >> 8;
-            dg &= 0x7E0;
+            dg &= 0x07E0;
 
-            db  = pix & 0x001F;
             db += ((sb-db)*val) >> 8;
-            db += 0x001F;
+            db &= 0x001F;
 
             *pixel = (unsigned short)( dr | dg | db );
           }
@@ -1082,13 +1066,14 @@
     int             y;
     unsigned char*  read;
     unsigned char*  write;
-    long            color2;
 
     read   = blit->read  + blit->xread;
     write  = blit->write + 2*blit->xwrite;
 
-    color2 = color.value;
-    extract565( color2, color );
+    /* scale down R:G:B triplet */
+    color.chroma[0] >>= 3;
+    color.chroma[1] >>= 2;
+    color.chroma[2] >>= 3;
 
     y = blit->height;
     do
@@ -1107,7 +1092,7 @@
           unsigned short* pixel = (unsigned short*)_write;
 
           if (val == max)
-            pixel[0] = (unsigned short)color2;
+            *pixel = (unsigned short)inject565( color );
           else
           {
             /* compose gray value */
@@ -1867,7 +1852,7 @@
       static double         gblender_gamma = -100.0;
 
       if ( glyph->grays != 256 )
-        goto DefaultBlit;
+        goto LegacyBlit;
 
       switch ( glyph->mode )
       {
@@ -1879,7 +1864,7 @@
       case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;  break;
 
       default:
-          goto DefaultBlit;
+          goto LegacyBlit;
       }
 
       width  = glyph->width;
@@ -1899,7 +1884,7 @@
       case gr_pixel_mode_rgb24: dst_format  = GBLENDER_TARGET_RGB24; break;
       case gr_pixel_mode_rgb565: dst_format = GBLENDER_TARGET_RGB565; break;
       default:
-          goto DefaultBlit;
+          goto LegacyBlit;
       }
 
      /* initialize blender when needed, i.e. when gamma changes
@@ -1935,7 +1920,7 @@
       return 1;
     }
 
-  DefaultBlit:
+  LegacyBlit:      /* no gamma correction, no caching */
 
     /* set up blitter and compute clipping.  Return immediately if needed */
     blit.source = *glyph;
