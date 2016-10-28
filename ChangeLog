@@ -1,3 +1,24 @@
+2016-10-29  Werner Lemberg  <wl@gnu.org>
+
+	Fix clang warnings.
+
+	We now have a new `FT_ENCODING_OTHER' tag used for internal
+	purposes.  Since it is not possible to extend an enumeration after
+	its definition, replace `FT_Encoding' types with `unsigned long'.
+
+	* src/ftcommon.c (FTDemo_Make_Encoding_Tag): Updated.
+	* src/ftcommon.h (FTDemo_Handle): Ditto.
+
+	* src/ftmulti.c (encoding): Use `unsigned long'.
+	(main): Updated.
+
+	* src/ftstring.c (Sample): Make array of type `const char*'.
+	(status): Use `unsigned long' for `encoding' field.
+	Use `const char*' for `text' field.
+
+	* src/ftview.c (status): Use `unsigned long' for `encoding'.
+	(FT_ENCODING_OTHER): Use `unsigned long'.
+
 2016-10-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Untested legacy 15/16-bit color fixes.

@@ -27,7 +27,7 @@
 #define MAXPTSIZE          500   /* dtp */
 
 
-  static char*  Sample[] =
+  static const char*  Sample[] =
   {
     "The quick brown fox jumps over the lazy dog",
 
@@ -80,24 +80,24 @@
 
   static struct  status_
   {
-    int          width;
-    int          height;
+    int  width;
+    int  height;
 
-    int          render_mode;
-    FT_Encoding  encoding;
-    int          res;
-    int          ptsize;            /* current point size */
-    double       gamma;
-    int          angle;
-    char*        text;
+    int            render_mode;
+    unsigned long  encoding;
+    int            res;
+    int            ptsize;            /* current point size */
+    double         gamma;
+    int            angle;
+    const char*    text;
 
     FTDemo_String_Context  sc;
 
-    FT_Byte      gamma_ramp[256];   /* for show only */
-    FT_Matrix    trans_matrix;
-    int          font_index;
-    char*        header;
-    char         header_buffer[256];
+    FT_Byte    gamma_ramp[256];   /* for show only */
+    FT_Matrix  trans_matrix;
+    int        font_index;
+    char*      header;
+    char       header_buffer[256];
 
   } status = { DIM_X, DIM_Y,
                RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, GAMMA, 0, NULL,

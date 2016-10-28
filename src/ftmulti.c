@@ -48,7 +48,7 @@
   static FT_Size       size;         /* the font size               */
   static FT_GlyphSlot  glyph;        /* the glyph slot              */
 
-  static FT_Encoding   encoding = FT_ENCODING_NONE;
+  static unsigned long  encoding = FT_ENCODING_NONE;
 
   static FT_Error      error;        /* error returned by FreeType? */
 
@@ -729,7 +729,7 @@
         break;
 
       case 'e':
-        encoding = (FT_Encoding)make_tag( optarg );
+        encoding = make_tag( optarg );
         break;
 
       case 'f':

@@ -1387,7 +1387,7 @@
   }
 
 
-  FT_Encoding
+  unsigned long
   FTDemo_Make_Encoding_Tag( const char*  s )
   {
     int            i;
@@ -1402,7 +1402,7 @@
       l  += (unsigned long)s[i];
     }
 
-    return (FT_Encoding)l;
+    return l;
   }
 
 

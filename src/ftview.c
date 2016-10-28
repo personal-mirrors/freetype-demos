@@ -88,7 +88,7 @@
     int            width;
     int            height;
     int            render_mode;
-    FT_Encoding    encoding;
+    unsigned long  encoding;
 
     int            res;
     int            ptsize;            /* current point size, 26.6 format */
@@ -126,7 +126,7 @@
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;
 
-  static int FT_ENC_TAG( FT_ENCODING_OTHER, 'o', 't', 'h', 'e' );
+  static unsigned long  FT_ENC_TAG( FT_ENCODING_OTHER, 'o', 't', 'h', 'e' );
 
 
   /*

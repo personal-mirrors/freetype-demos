@@ -203,7 +203,7 @@
     int             string_length;
     int             string_reload;
 
-    FT_Encoding     encoding;
+    unsigned long   encoding;
     FT_Stroker      stroker;
     FT_Bitmap       bitmap;            /* used as bitmap conversion buffer */
 
@@ -335,7 +335,7 @@
 
 
   /* make a FT_Encoding tag from a string */
-  FT_Encoding
+  unsigned long
   FTDemo_Make_Encoding_Tag( const char*  s );
 
 
