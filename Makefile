@@ -129,8 +129,14 @@ else
 
   COMPILE = $(CC) $(CPPFLAGS) \
                   $(CFLAGS) \
+                  $(ANSIFLAGS) \
                   $(INCLUDES:%=$I%) \
                   $DFT_CONFIG_MODULES_H="<ftmodule.h>"
+
+  # Enable C99 for gcc and g++ to avoid warnings.
+  ifneq ($(findstring -pedantic,$(COMPILE)),)
+    COMPILE += -std=c99
+  endif
 
   FTLIB := $(LIB_DIR)/$(LIBRARY).$A
 

@@ -1,5 +1,14 @@
 2016-10-29  Werner Lemberg  <wl@gnu.org>
 
+	Minor compilation issues.
+
+	* Makefile: Use ANSIFLAGS and select C99 for GNU-like compilers.
+
+	* src/ftbench.c, src/ftcommon.c (_GNU_SOURCE): Define.  We use
+	functionality not covered by ANSI.
+
+2016-10-29  Werner Lemberg  <wl@gnu.org>
+
 	Fix clang warnings.
 
 	We now have a new `FT_ENCODING_OTHER' tag used for internal

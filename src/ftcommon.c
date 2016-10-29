@@ -11,6 +11,8 @@
 /****************************************************************************/
 
 
+#define _GNU_SOURCE /* we use `strcasecmp' */
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 

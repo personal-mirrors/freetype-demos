@@ -10,6 +10,8 @@
 /****************************************************************************/
 
 
+#define _GNU_SOURCE /* we want to use extensions to `time.h' if available */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
