@@ -1067,7 +1067,12 @@
         }
       }
       else
-        size = (unsigned int)face->available_sizes[0].width;
+      {
+        size = (unsigned int)face->available_sizes[0].size >> 6;
+        fprintf( stderr,
+                 "using size of first bitmap strike (%dpx)\n", size );
+        FT_Select_Size( face, 0 );
+      }
     }
 
     FTC_Manager_New( lib,

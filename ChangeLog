@@ -1,3 +1,11 @@
+2016-11-06  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftbench.c (main): Adjust size argument for bitmap strikes.
+
+	For bitmap-only fonts we enforce the selection of the first bitmap
+	strike size.
+	This commit also fixes the `size' value itself.
+
 2016-10-29  Werner Lemberg  <wl@gnu.org>
 
 	Minor compilation issues.
