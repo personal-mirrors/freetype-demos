@@ -1,3 +1,24 @@
+2016-12-19  Werner Lemberg  <wl@gnu.org>
+
+	[ftmulti] Support multiple engines.
+
+	Similar to other programs, use the `H' key to cycle through engines
+	(if available).
+
+	* src/ftmulti.c: Include FT_FONT_FORMATS_H, FT_MODULE_H,
+	FT_TRUETYPE_DRIVER_H, FT_CFF_DRIVER_H.
+	(N_CFF_HINTING_ENGINES): New macro.
+	(cff_hinting_engine, tt_interpreter_versions,
+	num_tt_interpreter_versions, tt_interpreter_version_idx,
+	font_format): New global variables.
+	(Help): Updated.
+	(cff_hinting_engine_change, tt_interpreter_version_change): New
+	functions.
+	(Process_Event): Handle key `H'.
+	(main): Set up selection of CFF and TrueType engine versions.
+	Display selected engine.
+	Force redisplay of current font if `H' key was pressed.
+
 2016-11-06  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftbench.c (main): Adjust size argument for bitmap strikes.

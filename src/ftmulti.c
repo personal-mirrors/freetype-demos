@@ -14,6 +14,10 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_FONT_FORMATS_H
+#include FT_MODULE_H
+#include FT_TRUETYPE_DRIVER_H
+#include FT_CFF_DRIVER_H
 #include FT_MULTIPLE_MASTERS_H
 
 #include "common.h"
@@ -33,9 +37,11 @@
 #define  MAXPTSIZE    500               /* dtp */
 #define  MAX_MM_AXES    6
 
+#define N_CFF_HINTING_ENGINES  2
 
-  static char  Header[256];
-  static char* new_header = 0;
+
+  static char   Header[256];
+  static char*  new_header = NULL;
 
   static const unsigned char*  Text = (unsigned char*)
     "The quick brown fox jumps over the lazy dog 0123456789 "
@@ -49,6 +55,13 @@
   static FT_GlyphSlot  glyph;        /* the glyph slot              */
 
   static unsigned long  encoding = FT_ENCODING_NONE;
+
+  static unsigned int  cff_hinting_engine;
+  static unsigned int  tt_interpreter_versions[3];
+  static int           num_tt_interpreter_versions;
+  static int           tt_interpreter_version_idx;
+
+  const char*  font_format;
 
   static FT_Error      error;        /* error returned by FreeType? */
 
@@ -426,6 +439,8 @@
     grLn();
     grWriteln( "p, n        previous/next font" );
     grLn();
+    grWriteln( "H           cycle through hinting engines (if available)" );
+    grLn();
     grWriteln( "Up, Down    change pointsize by 1 unit" );
     grWriteln( "PgUp, PgDn  change pointsize by 10 units" );
     grLn();
@@ -449,6 +464,40 @@
   }
 
 
+  static void
+  cff_hinting_engine_change( int  delta )
+  {
+    int  new_cff_hinting_engine = 0;
+
+
+    if ( delta )
+      new_cff_hinting_engine =
+        ( (int)cff_hinting_engine +
+          delta                   +
+          N_CFF_HINTING_ENGINES   ) % N_CFF_HINTING_ENGINES;
+
+    error = FT_Property_Set( library,
+                             "cff",
+                             "hinting-engine",
+                             &new_cff_hinting_engine );
+    if ( !error )
+      cff_hinting_engine = (FT_UInt)new_cff_hinting_engine;
+  }
+
+
+  static void
+  tt_interpreter_version_change( void )
+  {
+    tt_interpreter_version_idx += 1;
+    tt_interpreter_version_idx %= num_tt_interpreter_versions;
+
+    FT_Property_Set( library,
+                     "truetype",
+                     "interpreter-version",
+                     &tt_interpreter_versions[tt_interpreter_version_idx] );
+  }
+
+
   static int
   Process_Event( grEvent*  event )
   {
@@ -469,7 +518,7 @@
     /* mode keys */
 
     case grKEY( 'a' ):
-      antialias = !antialias;
+      antialias  = !antialias;
       new_header = antialias ? (char *)"anti-aliasing is now on"
                              : (char *)"anti-aliasing is now off";
       return 1;
@@ -486,7 +535,7 @@
       return (int)event->key;
 
     case grKEY( 'h' ):
-      hinted = !hinted;
+      hinted     = !hinted;
       new_header = hinted ? (char *)"glyph hinting is now active"
                           : (char *)"glyph hinting is now ignored";
       break;
@@ -495,6 +544,13 @@
       render_mode ^= 1;
       new_header   = render_mode ? (char *)"rendering all glyphs in font"
                                  : (char *)"rendering test text string";
+      break;
+
+    case grKEY( 'H' ):
+      if ( !strcmp( font_format, "CFF" ) )
+        cff_hinting_engine_change( 1 );
+      else if ( !strcmp( font_format, "TrueType" ) )
+        tt_interpreter_version_change();
       break;
 
     /* MM related keys */
@@ -630,8 +686,10 @@
        * for optical size even in PS.
        */
       pos += FT_MulDiv( i, a->maximum - a->minimum, 1000 );
-      if ( pos < a->minimum ) pos = a->minimum;
-      if ( pos > a->maximum ) pos = a->maximum;
+      if ( pos < a->minimum )
+        pos = a->minimum;
+      if ( pos > a->maximum )
+        pos = a->maximum;
 
       design_pos[axis] = pos;
 
@@ -641,14 +699,18 @@
 
   Do_Scale:
     ptsize += i;
-    if ( ptsize < 1 )         ptsize = 1;
-    if ( ptsize > MAXPTSIZE ) ptsize = MAXPTSIZE;
+    if ( ptsize < 1 )
+      ptsize = 1;
+    if ( ptsize > MAXPTSIZE )
+      ptsize = MAXPTSIZE;
     return 1;
 
   Do_Glyph:
     Num += i;
-    if ( Num < 0 )           Num = 0;
-    if ( Num >= num_glyphs ) Num = num_glyphs - 1;
+    if ( Num < 0 )
+      Num = 0;
+    if ( Num >= num_glyphs )
+      Num = num_glyphs - 1;
     return 1;
   }
 
@@ -705,7 +767,14 @@
     int    option;
     int    file_loaded;
 
+    unsigned int  n;
+
     grEvent  event;
+
+    unsigned int  dflt_tt_interpreter_version;
+    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
+                                  TT_INTERPRETER_VERSION_38,
+                                  TT_INTERPRETER_VERSION_40 };
 
 
     execname = ft_basename( argv[0] );
@@ -714,6 +783,30 @@
     error = FT_Init_FreeType( &library );
     if ( error )
       PanicZ( "Could not initialize FreeType library" );
+
+    /* get the default value as compiled into FreeType */
+    FT_Property_Get( library,
+                     "cff",
+                     "hinting-engine", &cff_hinting_engine );
+
+    /* collect all available versions, then set again the default */
+    FT_Property_Get( library,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
+    for ( n = 0; n < 3; n++ )
+    {
+      error = FT_Property_Set( library,
+                               "truetype",
+                               "interpreter-version", &versions[n] );
+      if ( !error )
+        tt_interpreter_versions[
+          num_tt_interpreter_versions++] = versions[n];
+      if ( versions[n] == dflt_tt_interpreter_version )
+        tt_interpreter_version_idx = n;
+    }
+    FT_Property_Set( library,
+                     "truetype",
+                     "interpreter-version", &dflt_tt_interpreter_version );
 
     while ( 1 )
     {
@@ -799,6 +892,8 @@
       goto Display_Font;
     }
 
+    font_format = FT_Get_Font_Format( face );
+
     if ( encoding != FT_ENCODING_NONE )
     {
       error = FT_Select_Charmap( face, encoding );
@@ -817,9 +912,6 @@
     /* if the user specified a position, use it, otherwise */
     /* set the current position to the median of each axis */
     {
-      unsigned int  n;
-
-
       if ( multimaster->num_axis > MAX_MM_AXES )
       {
         fprintf( stderr, "only handling first %d GX axes (of %d)\n",
@@ -903,11 +995,10 @@
           new_header = Header;
 
         grWriteCellString( &bit, 0, 0, new_header, fore_color );
-        new_header = 0;
+        new_header = NULL;
 
         sprintf( Header, "axes:" );
         {
-          unsigned int  n;
           unsigned int  limit = used_num_axis > MAX_MM_AXES / 2
                                   ? MAX_MM_AXES / 2
                                   : used_num_axis;
@@ -929,7 +1020,6 @@
 
         if ( used_num_axis > MAX_MM_AXES / 2 )
         {
-          unsigned int  n;
           unsigned int  limit = used_num_axis;
 
 
@@ -950,9 +1040,24 @@
           grWriteCellString( &bit, 0, 24, Header, fore_color );
         }
 
-        sprintf( Header, "at %d points, first glyph = %d",
-                         ptsize,
-                         Num );
+        {
+          unsigned int  tt_ver = tt_interpreter_versions[
+                                   tt_interpreter_version_idx];
+
+
+          sprintf( Header, "at %d points, first glyph = %d, format = %s",
+                           ptsize,
+                           Num,
+                           strcmp( font_format, "CFF" )
+                             ? ( tt_ver == TT_INTERPRETER_VERSION_35
+                                   ? "TrueType (v35)"
+                                   : ( tt_ver == TT_INTERPRETER_VERSION_38
+                                       ? "TrueType (v38)"
+                                       : "TrueType (v40)" ) )
+                             : ( cff_hinting_engine == FT_CFF_HINTING_FREETYPE
+                                   ? "CFF (FreeType)"
+                                   : "CFF (Adobe)" ) );
+        }
       }
       else
       {
@@ -985,6 +1090,15 @@
 
         if ( file > 1 )
           file--;
+
+        goto NewFile;
+      }
+
+      if ( key == 'H' )
+      {
+        /* enforce reloading */
+        if ( file_loaded >= 1 )
+          FT_Done_Face( face );
 
         goto NewFile;
       }
