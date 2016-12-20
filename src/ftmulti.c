@@ -58,10 +58,10 @@
 
   static unsigned int  cff_hinting_engine;
   static unsigned int  tt_interpreter_versions[3];
-  static int           num_tt_interpreter_versions;
-  static int           tt_interpreter_version_idx;
+  static unsigned int  num_tt_interpreter_versions;
+  static unsigned int  tt_interpreter_version_idx;
 
-  const char*  font_format;
+  static const char*  font_format;
 
   static FT_Error      error;        /* error returned by FreeType? */
 
