@@ -896,7 +896,7 @@
 
     if ( encoding != FT_ENCODING_NONE )
     {
-      error = FT_Select_Charmap( face, encoding );
+      error = FT_Select_Charmap( face, (FT_Encoding)encoding );
       if ( error )
         goto Display_Font;
     }

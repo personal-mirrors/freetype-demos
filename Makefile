@@ -133,9 +133,13 @@ else
                   $(INCLUDES:%=$I%) \
                   $DFT_CONFIG_MODULES_H="<ftmodule.h>"
 
-  # Enable C99 for gcc and g++ to avoid warnings.
+  # Enable C99 for gcc to avoid warnings.
+  # Note that clang++ aborts with an error if we use `-std=C99',
+  # so check for `++' in $(CC) also.
   ifneq ($(findstring -pedantic,$(COMPILE)),)
-    COMPILE += -std=c99
+    ifeq ($(findstring ++,$(CC)),)
+      COMPILE += -std=c99
+    endif
   endif
 
   FTLIB := $(LIB_DIR)/$(LIBRARY).$A

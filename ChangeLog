@@ -1,3 +1,16 @@
+2016-12-25  Werner Lemberg  <wl@gnu.org>
+
+	Fixes for clang++.
+
+	* Makefile (COMPILE): Don't add `-std=c99' if using a C++ compiler.
+
+	* src/ftbench.c (_GNU_SOURCE): Declare only if not already defined.
+
+	* src/ftcommon.c (_GNU_SOURCE): Declare only if not already defined.
+	(FTDemo_Install_Font): Use proper case for `FT_Select_Charmap'.
+
+	* src/ftmulti.c (main): Use proper case for `FT_Select_Charmap'.
+
 2016-12-20  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftmulti.c: Minor clang fixes.

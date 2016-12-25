@@ -10,7 +10,9 @@
 /****************************************************************************/
 
 
-#define _GNU_SOURCE /* we want to use extensions to `time.h' if available */
+#ifndef  _GNU_SOURCE
+#define  _GNU_SOURCE /* we want to use extensions to `time.h' if available */
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -11,7 +11,9 @@
 /****************************************************************************/
 
 
-#define _GNU_SOURCE /* we use `strcasecmp' */
+#ifndef  _GNU_SOURCE
+#define  _GNU_SOURCE /* we use `strcasecmp' */
+#endif
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -414,7 +416,7 @@
 
         if ( handle->encoding != FT_ENCODING_NONE )
         {
-          error = FT_Select_Charmap( face, handle->encoding );
+          error = FT_Select_Charmap( face, (FT_Encoding)handle->encoding );
           if ( error )
           {
             FT_Done_Face( face );
