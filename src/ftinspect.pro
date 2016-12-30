@@ -11,7 +11,7 @@ unix|macx {
   PKGCONFIG += libpng harfbuzz zlib bzip2
 }
 win32 {
-  LIBS += ../../freetyp2/objs/vc2010/freetype27.lib
+  LIBS += ../../freetyp2/objs/vc2010/freetype271.lib
   LIBS += -lpng -lharfbuzz -lz -lbz2 -lm
 }
 
