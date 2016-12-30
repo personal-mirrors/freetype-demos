@@ -1,3 +1,10 @@
+2016-12-27  Werner Lemberg  <wl@gnu.org>
+
+	[ftmulti] Minor.
+
+	* src/ftmulti.c (Process_Event, main): If MM, round design
+	coordinates.
+
 2016-12-25  Werner Lemberg  <wl@gnu.org>
 
 	Fixes for clang++.

@@ -693,6 +693,10 @@
 
       design_pos[axis] = pos;
 
+      /* for MM fonts, round the design coordinates to integers */
+      if ( !FT_IS_SFNT( face ) )
+        design_pos[axis] &= (FT_Fixed)0xFFFF0000L;
+
       FT_Set_Var_Design_Coordinates( face, used_num_axis, design_pos );
     }
     return 1;
@@ -911,25 +915,27 @@
 
     /* if the user specified a position, use it, otherwise */
     /* set the current position to the median of each axis */
+    if ( multimaster->num_axis > MAX_MM_AXES )
     {
-      if ( multimaster->num_axis > MAX_MM_AXES )
-      {
-        fprintf( stderr, "only handling first %d GX axes (of %d)\n",
-                         MAX_MM_AXES, multimaster->num_axis );
-        used_num_axis = MAX_MM_AXES;
-      }
-      else
-        used_num_axis = multimaster->num_axis;
+      fprintf( stderr, "only handling first %d GX axes (of %d)\n",
+                       MAX_MM_AXES, multimaster->num_axis );
+      used_num_axis = MAX_MM_AXES;
+    }
+    else
+      used_num_axis = multimaster->num_axis;
 
-      for ( n = 0; n < used_num_axis; n++ )
-      {
-        design_pos[n] = n < requested_cnt ? requested_pos[n]
-                                          : multimaster->axis[n].def;
-        if ( design_pos[n] < multimaster->axis[n].minimum )
-          design_pos[n] = multimaster->axis[n].minimum;
-        else if ( design_pos[n] > multimaster->axis[n].maximum )
-          design_pos[n] = multimaster->axis[n].maximum;
-      }
+    for ( n = 0; n < used_num_axis; n++ )
+    {
+      design_pos[n] = n < requested_cnt ? requested_pos[n]
+                                        : multimaster->axis[n].def;
+      if ( design_pos[n] < multimaster->axis[n].minimum )
+        design_pos[n] = multimaster->axis[n].minimum;
+      else if ( design_pos[n] > multimaster->axis[n].maximum )
+        design_pos[n] = multimaster->axis[n].maximum;
+
+      /* for MM fonts, round the design coordinates to integers */
+      if ( !FT_IS_SFNT( face ) )
+        design_pos[n] &= (FT_Fixed)0xFFFF0000L;
     }
 
     error = FT_Set_Var_Design_Coordinates( face, used_num_axis, design_pos );
