@@ -242,7 +242,7 @@
 	This code is similar to the one from `ftmulti'.
 
 	* src/ftgrid.c: Include `stdlib.h'.
-	(GridStatusRec): Add `requested_pos' and `reqested_cnt' to hold the
+	(GridStatusRec): Add `requested_pos' and `requested_cnt' to hold the
 	design coordinate data from the command line.
 	(event_font_change): Handle them.
 	(parse_cmdline): Handle option `-d'.
@@ -1247,7 +1247,7 @@
 	we add one method `setItemEnabled' to enable (or disable) an item
 	with a given index.
 	(MainGUI): Use `QComboBoxx' for `antiAliasingComboBoxx' (was:
-	`antiAliasingCombBox') and `hintingModeComboBoxx' (was:
+	`antiAliasingComboBox') and `hintingModeComboBoxx' (was:
 	`hintingModeComboBox').
 	Update all users.
 
@@ -3628,7 +3628,7 @@
 	Fix printf specifications and parameters.
 
 	* src/ttdebug.c (Cur_U_Line, RunIns): Use "%hu" for FT_UShort,
-	"&ld" for FT_Pos; drop the "h" in "%hx" for FT_Byte parameters
+	"%ld" for FT_Pos; drop the "h" in "%hx" for FT_Byte parameters
 	and cast the parameters to (unsigned) ("%hhx" is C99 only, and
 	often unimplemented). Noticed by clang.
 
@@ -4917,7 +4917,7 @@
 	(gblender_use_channels): New declaration.
 
 	* src/Jamfile: Include ftcommon.c.
-	Fix oder of link libraries.
+	Fix order of link libraries.
 
 2004-09-22  David Turner  <david@freetype.org>
 
