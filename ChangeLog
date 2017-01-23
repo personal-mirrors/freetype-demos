@@ -470,7 +470,7 @@
 	(MainGUI::watchCurrentFont): New method.
 	(MainGUI::showFont): Handle file watching for both real files and
 	softlinks.
-	Diplsy a softlink name as italic font.
+	Display a softlink name as italic font.
 	(MainGUI::createConnections): Updated.
 
 	* src/ftinspect.h (MainGUI): Updated.
@@ -832,7 +832,7 @@
 	(MainGUI::closeFont): First remove the font, then the face ID.
 	Handle invalid font also.
 	(MainGUI::showFont): Handle invalid font also.
-	(MainGUI::setGraphicsDefault): Set width of outline pen.
+	(MainGUI::setGraphicsDefaults): Set width of outline pen.
 
 2016-05-08  Werner Lemberg  <wl@gnu.org>
 
@@ -5927,9 +5927,9 @@
 
 2001-10-26  Leonard Rosenthol  <leonardr@lazerware.com>
 
-	* mac/codewarror/carbonprefix.h: New file to define building
+	* mac/codewarrior/carbonprefix.h: New file to define building
 	the demos Carbonized.
-	* mac/codewarror/ftview.prj: Updated for CW7 and to build a
+	* mac/codewarrior/ftview.prj: Updated for CW7 and to build a
 	Carbonized version.
 	* mac/getargv.c: Updated to build Carbonized.
 	* mac/ftview_m.c: Updated to build Carbonized.
