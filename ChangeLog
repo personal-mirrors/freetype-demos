@@ -1,3 +1,11 @@
+2017-01-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Align with current FreeType.
+
+	* src/ftview.c (write_header): s/GB2312/PRC/.
+	(Process_Event): `FT_Library_SetLcdFilterWeights' now enables
+	filtering without `FT_Library_SetLcdFilter'.
+
 2016-12-30  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.7.1 released.

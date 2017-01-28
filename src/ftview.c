@@ -1369,7 +1369,6 @@
                                    (FT_LcdFilter)status.lcd_filter );
           break;
         default:
-          FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
           FT_Library_SetLcdFilterWeights( handle->library,
                                           status.filter_weights );
           status.lcd_filter = -1;
@@ -1547,11 +1546,11 @@
       case FT_ENCODING_SJIS:
         encoding = "SJIS";
         break;
-      case FT_ENCODING_GB2312:
-        encoding = "GB 2312";
+      case FT_ENCODING_PRC:
+        encoding = "PRC";
         break;
       case FT_ENCODING_BIG5:
-        encoding = "Big 5";
+        encoding = "Big5";
         break;
       case FT_ENCODING_WANSUNG:
         encoding = "Wansung";
