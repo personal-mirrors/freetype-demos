@@ -44,8 +44,11 @@
 
   /* PanicZ */
   static void
-  PanicZ( const char*  message )
+  PanicZ( FT_Library   library,
+          const char*  message )
   {
+    FT_Done_FreeType( library );
+
     fprintf( stderr, "%s\n  error = 0x%04x\n", message, error );
     exit( 1 );
   }
@@ -63,8 +66,11 @@
 
 
   static void
-  usage( char*  execname )
+  usage( FT_Library  library,
+         char*       execname )
   {
+    FT_Done_FreeType( library );
+
     fprintf( stderr,
       "\n"
       "ftdump: simple font dumper -- part of the FreeType project\n"
@@ -738,7 +744,7 @@
     /* Initialize engine */
     error = FT_Init_FreeType( &library );
     if ( error )
-      PanicZ( "Could not initialize FreeType library" );
+      PanicZ( library, "Could not initialize FreeType library" );
 
     while ( 1 )
     {
@@ -781,7 +787,7 @@
         break;
 
       default:
-        usage( execname );
+        usage( library, execname );
         break;
       }
     }
@@ -790,7 +796,7 @@
     argv += optind;
 
     if ( argc != 1 )
-      usage( execname );
+      usage( library, execname );
 
     file = 0;
 
@@ -824,7 +830,7 @@
     /* Load face */
     error = FT_New_Face( library, filename, 0, &face );
     if ( error )
-      PanicZ( "Could not open face." );
+      PanicZ( library, "Could not open face." );
 
   Success:
     num_faces = face->num_faces;
@@ -839,7 +845,7 @@
     {
       error = FT_New_Face( library, filename, i, &face );
       if ( error )
-        PanicZ( "Could not open face." );
+        PanicZ( library, "Could not open face." );
 
       printf( "\n----- Face number: %d -----\n\n", i );
       Print_Name( face );

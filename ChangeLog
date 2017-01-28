@@ -1,5 +1,13 @@
 2017-01-28  Werner Lemberg  <wl@gnu.org>
 
+	[ftdump] Always finalize FreeType.
+
+	* src/ftdump.c (PanicZ, usage): Add `library' argument so that we
+	can call `FT_Done_FreeType'.
+	(main): Updated.
+
+2017-01-28  Werner Lemberg  <wl@gnu.org>
+
 	[ftdump] Sync with current FreeType.
 
 	* src/ftdump.c (name_id): Use updated ID macros.
