@@ -1,3 +1,10 @@
+2017-01-28  Werner Lemberg  <wl@gnu.org>
+
+	[ftdump] Sync with current FreeType.
+
+	* src/ftdump.c (name_id): Use updated ID macros.
+	Add new ID macros.
+
 2017-01-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Align with current FreeType.

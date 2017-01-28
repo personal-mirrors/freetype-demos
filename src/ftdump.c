@@ -227,10 +227,10 @@
     case TT_NAME_ID_LICENSE_URL:
       return "license URL";
     /* number 15 is reserved */
-    case TT_NAME_ID_PREFERRED_FAMILY:
-      return "preferred family";
-    case TT_NAME_ID_PREFERRED_SUBFAMILY:
-      return "preferred subfamily";
+    case TT_NAME_ID_TYPOGRAPHIC_FAMILY:
+      return "typographic family";
+    case TT_NAME_ID_TYPOGRAPHIC_SUBFAMILY:
+      return "typographic subfamily";
     case TT_NAME_ID_MAC_FULL_NAME:
       return "Mac full name";
 
@@ -247,6 +247,16 @@
       return "WWS family name";
     case TT_NAME_ID_WWS_SUBFAMILY:
       return "WWS subfamily name";
+
+    /* this is new in OpenType 1.7 */
+    case TT_NAME_ID_LIGHT_BACKGROUND:
+      return "light background palette";
+    case TT_NAME_ID_DARK_BACKGROUND:
+      return "dark background palette";
+
+    /* this is new in OpenType 1.8 */
+    case TT_NAME_ID_VARIATIONS_PREFIX:
+      return "variations PostScript name prefix";
 
     default:
       return NULL;
@@ -344,8 +354,7 @@
 
           switch ( name.encoding_id )
           {
-            /* TT_MS_ID_SYMBOL_CS is supposed to be Unicode, according to */
-            /* information from the MS font development team              */
+            /* TT_MS_ID_SYMBOL_CS is Unicode, similar to PID/EID=3/1 */
           case TT_MS_ID_SYMBOL_CS:
           case TT_MS_ID_UNICODE_CS:
             put_unicode_be16( name.string, name.string_len, 6, utf8 );
