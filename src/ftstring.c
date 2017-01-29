@@ -309,7 +309,6 @@
   event_gamma_change( double  delta )
   {
     int     i;
-    double  gamma_inv;
 
 
     status.gamma += delta;
@@ -321,10 +320,8 @@
 
     grSetGlyphGamma( status.gamma );
 
-    gamma_inv = 1. / status.gamma;
-
     for ( i = 0; i < 256; i++ )
-      status.gamma_ramp[i] = (FT_Byte)( pow( (double)i / 255., gamma_inv )
+      status.gamma_ramp[i] = (FT_Byte)( pow( (double)i / 255., status.gamma )
                                         * 255. + 0.5 );
   }
 
@@ -524,7 +521,7 @@
     y = ( bitmap->rows + 256 ) / 2;
 
     for (i = 0; i < 256; i++)
-      p[bitmap->pitch * ( y - gamma_ramp[i] ) + bpp * ( x + i )] ^= 0xFF;
+      p[bitmap->pitch * ( y - i ) + bpp * ( x + gamma_ramp[i] )] ^= 0xFF;
   }
 
 

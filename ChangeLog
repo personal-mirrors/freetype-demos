@@ -1,3 +1,9 @@
+2017-01-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Improve gamma ramp appearance.
+
+	* src/ftstring.c (event_gamma_change, gamma_ramp_draw): Updated.
+
 2017-01-28  Werner Lemberg  <wl@gnu.org>
 
 	[ftdump] Always finalize FreeType.
