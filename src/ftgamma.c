@@ -18,8 +18,8 @@
   static FTDemo_Display*  display;
 
   static grBitmap   bit1 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
-  static grBitmap   bit2 = { 300, 600, 600, gr_pixel_mode_gray, 256, NULL };
-  static grBitmap*  bit;
+  static grBitmap   bit2 = { 288, 600, 600, gr_pixel_mode_gray, 256, NULL };
+  static int        status = 0;
 
 
   static void
@@ -74,12 +74,11 @@
   {
     int  x = 0;
     int  y = 0;
-    int  h = ( bitmap->rows - 2 * y ) / 3;
+    int  h = ( bitmap->rows - 2 * y ) / 2;
     int  w = bitmap->width - 2 * x;
 
 
     do_ptrn( bitmap, x,    y, w, h );
-    do_ptrn( bitmap, x, y+=h, w, h );
     do_ptrn( bitmap, x, y+=h, w, h );
 
     return 0;
@@ -177,7 +176,7 @@
     grWriteln( "F1, ?       display this help screen" );
     grLn();
     grWriteln( "space       cycle through color");
-    grWriteln( "tab         alternate pattern");
+    grWriteln( "tab         alternate patterns");
     grWriteln( "G           show gamma ramp" );
     grLn();
     grLn();
@@ -282,10 +281,11 @@
                  grBitmap*  in,
                  int        x,
                  int        y,
-                 grColor    color )
+                 grColor    color,
+		 int        lcd )
   {
     int  pitch = out->pitch;
-    int  i, j;
+    int  i, ii, j;
 
     unsigned char*  src;
     unsigned char*  dst;
@@ -294,7 +294,8 @@
     if ( color.chroma[0] == 255 )
       for ( src = in->buffer, i = 0; i < in->rows; i++ )
       {
-        dst = out->buffer + ( y + i ) * pitch + 3 * x;
+        ii = ( i + 24 * lcd ) % in->rows;
+        dst = out->buffer + ( y + ii ) * pitch + 3 * x;
         for ( j = 0; j < in->width; j++, src++, dst += 3 )
           *dst = *src;
       }
@@ -302,7 +303,8 @@
     if ( color.chroma[1] == 255 )
       for ( src = in->buffer, i = 0; i < in->rows; i++ )
       {
-        dst = out->buffer + ( y + i ) * pitch + 3 * x + 1;
+        ii = ( i + 12 * lcd ) % in->rows;
+        dst = out->buffer + ( y + ii ) * pitch + 3 * x + 1;
         for ( j = 0; j < in->width; j++, src++, dst += 3 )
           *dst = *src;
       }
@@ -310,7 +312,8 @@
     if ( color.chroma[2] == 255 )
       for ( src = in->buffer, i = 0; i < in->rows; i++ )
       {
-        dst = out->buffer + ( y + i ) * pitch + 3 * x + 2;
+        ii = ( i +  0 * lcd ) % in->rows;
+        dst = out->buffer + ( y + ii ) * pitch + 3 * x + 2;
         for ( j = 0; j < in->width; j++, src++, dst += 3 )
           *dst = *src;
       }
@@ -339,8 +342,9 @@
       break;
 
     case grKeyTab:
-      bit = bit == &bit1 ? &bit2
-                         : &bit1;
+      status++;
+      if ( status > 2 )
+        status = 0;
       break;
 
     case grKEY( 'G' ):
@@ -376,14 +380,24 @@
     grNewBitmap( bit2.mode, bit2.grays, bit2.width, bit2.rows, &bit2 );
     GammaPtrn( &bit2 );
 
-    bit = &bit1;
     event_color_change();
 
     do
     {
       FTDemo_Display_Clear( display );
 
-      Render_Bitmap( display->bitmap, bit, 20, 90, display->fore_color );
+      switch ( status )
+      {
+      case 0:
+        Render_Bitmap( display->bitmap, &bit1, 20, 90, display->fore_color, 0 );
+        break;
+      case 1:
+        Render_Bitmap( display->bitmap, &bit2, 20, 96, display->fore_color, 0 );
+        break;
+      case 2:
+        Render_Bitmap( display->bitmap, &bit2, 20, 96, display->fore_color, 1 );
+        break;
+      }
 
       for ( i = 0; i <= 10; i++ )
       {

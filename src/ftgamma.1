@@ -15,7 +15,7 @@ ftgamma \- screen gamma calibration helper
 .
 The
 .B ftgamma
-demo program opens a window showing series of grey stripes filled with
+demo program opens a window showing series of gray stripes filled with
 solid color and checkered pattern of pixels.  Your monitor's gamma value
 roughly corresponds to the horizontal position where the solid and checkered
 stripes are equally bright when seen from some distance.  Three brightness
@@ -25,10 +25,13 @@ slightly different gamma values at different brightness levels.  It is also
 possible to examine gamma values for basic colors.
 .
 .PP
-An alternative pattern of slightly slanted anti-aliased lines is provided
-to calibrate gamma for uniform perceived thickness of the lines.  The gamma
-value that corresponds to vanishing moiré pattern is ideal for anti-aliased
-font rendering.
+Two alternative patterns relevant to font rendering are also provided,
+where slightly slanted lines are rendered using grayscale and subpixel
+anti-aliasing.  In the grayscale case, the correct gamma helps to achieve
+uniform perceived thickness of the lines.  The gamma value that corresponds
+to vanishing moiré pattern is ideal for anti-aliased font rendering.
+In the subpixel case, the correct gamma removes color fringes that remain
+even after LCD filtering.
 .
 .PP
 This program does not have any options.

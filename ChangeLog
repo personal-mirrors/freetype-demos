@@ -1,3 +1,18 @@
+2017-02-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgamma] Add box-filtered subpixel pattern.
+
+	Two alternative patterns now demonstrate the importance of correct
+	gamma for both grayscale and subpixel anti-aliasing, where it helps
+	normalize thickness in the former and remove color fringes in the
+	latter.
+
+	* src/ftgamma.*: Updated.
+
+2017-01-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Improve gamma ramp appearance.
+
 2017-01-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Improve gamma ramp appearance.
