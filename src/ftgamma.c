@@ -282,7 +282,7 @@
                  int        x,
                  int        y,
                  grColor    color,
-		 int        lcd )
+                 int        lcd )
   {
     int  pitch = out->pitch;
     int  i, ii, j;
@@ -389,12 +389,18 @@
       switch ( status )
       {
       case 0:
+        grWriteCellString( display->bitmap, 236, 75, "Solid-Checkered Pattern",
+                           display->fore_color );
         Render_Bitmap( display->bitmap, &bit1, 20, 90, display->fore_color, 0 );
         break;
       case 1:
+        grWriteCellString( display->bitmap, 236, 75, "Grayscale Anti-Aliasing",
+                           display->fore_color );
         Render_Bitmap( display->bitmap, &bit2, 20, 96, display->fore_color, 0 );
         break;
       case 2:
+        grWriteCellString( display->bitmap, 236, 75, "Subpixel  Anti-Aliasing",
+                           display->fore_color );
         Render_Bitmap( display->bitmap, &bit2, 20, 96, display->fore_color, 1 );
         break;
       }
@@ -405,6 +411,9 @@
         grWriteCellString( display->bitmap, 9 + i * 60, 395, buf,
                            display->fore_color );
       }
+
+      grWriteCellString( display->bitmap, DIM_X / 2 - 20, 410, "Gamma",
+                         display->fore_color );
 
       grRefreshSurface( display->surface );
       grListenSurface( display->surface, 0, &event );
