@@ -195,74 +195,57 @@
   }
 
 
+#define XEXPAND( x )  #x
+#define EXPAND( x )   XEXPAND( x )
+
+#define NAME_ID( tag, description ) \
+          case TT_NAME_ID_ ## tag: \
+            return description " (ID " EXPAND( TT_NAME_ID_ ## tag ) ")"
+
+
   static const char*
   name_id( int  id )
   {
     switch ( id )
     {
-    case TT_NAME_ID_COPYRIGHT:
-      return "copyright";
-    case TT_NAME_ID_FONT_FAMILY:
-      return "font family";
-    case TT_NAME_ID_FONT_SUBFAMILY:
-      return "font subfamily";
-    case TT_NAME_ID_UNIQUE_ID:
-      return "unique ID";
-    case TT_NAME_ID_FULL_NAME:
-      return "full name";
-    case TT_NAME_ID_VERSION_STRING:
-      return "version string";
-    case TT_NAME_ID_PS_NAME:
-      return "PostScript name";
-    case TT_NAME_ID_TRADEMARK:
-      return "trademark";
+      NAME_ID( COPYRIGHT, "copyright" );
+      NAME_ID( FONT_FAMILY, "font family" );
+      NAME_ID( FONT_SUBFAMILY, "font subfamily" );
+      NAME_ID( UNIQUE_ID, "unique font identifier" );
+      NAME_ID( FULL_NAME, "full name" );
+      NAME_ID( VERSION_STRING, "version string" );
+      NAME_ID( PS_NAME, "PostScript name" );
+      NAME_ID( TRADEMARK, "trademark" );
 
-    /* the following values are from the OpenType spec */
-    case TT_NAME_ID_MANUFACTURER:
-      return "manufacturer";
-    case TT_NAME_ID_DESIGNER:
-      return "designer";
-    case TT_NAME_ID_DESCRIPTION:
-      return "description";
-    case TT_NAME_ID_VENDOR_URL:
-      return "vendor URL";
-    case TT_NAME_ID_DESIGNER_URL:
-      return "designer URL";
-    case TT_NAME_ID_LICENSE:
-      return "license";
-    case TT_NAME_ID_LICENSE_URL:
-      return "license URL";
-    /* number 15 is reserved */
-    case TT_NAME_ID_TYPOGRAPHIC_FAMILY:
-      return "typographic family";
-    case TT_NAME_ID_TYPOGRAPHIC_SUBFAMILY:
-      return "typographic subfamily";
-    case TT_NAME_ID_MAC_FULL_NAME:
-      return "Mac full name";
+      /* the following values are from the OpenType spec */
+      NAME_ID( MANUFACTURER, "manufacturer" );
+      NAME_ID( DESIGNER, "designer" );
+      NAME_ID( DESCRIPTION, "description" );
+      NAME_ID( VENDOR_URL, "vendor URL" );
+      NAME_ID( DESIGNER_URL, "designer URL" );
+      NAME_ID( LICENSE, "license" );
+      NAME_ID( LICENSE_URL, "license URL" );
+      /* number 15 is reserved */
+      NAME_ID( TYPOGRAPHIC_FAMILY, "typographic family" );
+      NAME_ID( TYPOGRAPHIC_SUBFAMILY, "typographic subfamily" );
+      NAME_ID( MAC_FULL_NAME, "Mac full name" );
 
-    /* the following code is new as of 2000-01-21 */
-    case TT_NAME_ID_SAMPLE_TEXT:
-      return "sample text";
+      /* the following code is new as of 2000-01-21 */
+      NAME_ID( SAMPLE_TEXT, "sample text" );
 
-    /* this is new in OpenType 1.3 */
-    case TT_NAME_ID_CID_FINDFONT_NAME:
-      return "CID `findfont' name";
+      /* this is new in OpenType 1.3 */
+      NAME_ID( CID_FINDFONT_NAME, "CID `findfont' name" );
 
-    /* this is new in OpenType 1.5 */
-    case TT_NAME_ID_WWS_FAMILY:
-      return "WWS family name";
-    case TT_NAME_ID_WWS_SUBFAMILY:
-      return "WWS subfamily name";
+      /* this is new in OpenType 1.5 */
+      NAME_ID( WWS_FAMILY, "WWS family name" );
+      NAME_ID( WWS_SUBFAMILY, "WWS subfamily name" );
 
-    /* this is new in OpenType 1.7 */
-    case TT_NAME_ID_LIGHT_BACKGROUND:
-      return "light background palette";
-    case TT_NAME_ID_DARK_BACKGROUND:
-      return "dark background palette";
+      /* this is new in OpenType 1.7 */
+      NAME_ID( LIGHT_BACKGROUND, "light background palette" );
+      NAME_ID( DARK_BACKGROUND, "dark background palette" );
 
-    /* this is new in OpenType 1.8 */
-    case TT_NAME_ID_VARIATIONS_PREFIX:
-      return "variations PostScript name prefix";
+      /* this is new in OpenType 1.8 */
+      NAME_ID( VARIATIONS_PREFIX, "variations PostScript name prefix" );
 
     default:
       return NULL;

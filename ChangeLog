@@ -1,3 +1,10 @@
+2017-03-13  Werner Lemberg  <wl@gnu.org>
+
+	[ftdump] Show ID numbers for standard `name' table entries.
+
+	* src/ftdump.c (EXPAND, XEXPAND, NAME_ID): New macros.
+	(name_id): Use new macros.
+
 2017-02-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgamma.c (main): Label images.
