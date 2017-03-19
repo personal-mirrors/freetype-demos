@@ -430,18 +430,20 @@ gr_win32_surface_init( grWin32Surface*  surface,
   surface->window_height = bitmap->rows;
 
   {
-    RECT  WndRect;
+    DWORD  style = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+    RECT   WndRect;
 
     WndRect.left   = 0;
     WndRect.top    = 0;
     WndRect.right  = bitmap->width;
     WndRect.bottom = bitmap->rows;
-    AdjustWindowRect(&WndRect, WS_SYSMENU | WS_CAPTION, FALSE);
+
+    AdjustWindowRect( &WndRect, style, FALSE );
 
     surface->window = CreateWindow(
             /* LPCSTR lpszClassName;    */ "FreeTypeTestGraphicDriver",
             /* LPCSTR lpszWindowName;   */ "FreeType Test Graphic Driver",
-            /* DWORD dwStyle;           */  WS_OVERLAPPED | WS_SYSMENU,
+            /* DWORD dwStyle;           */  style,
             /* int x;                   */  CW_USEDEFAULT,
             /* int y;                   */  CW_USEDEFAULT,
             /* int nWidth;              */  WndRect.right - WndRect.left,
