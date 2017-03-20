@@ -1,3 +1,19 @@
+2017-03-20  Brian Nixon  <nixonb@yahoo.com>
+
+	* graph/win32/grwin32.c(syskey_translators): Fix F10 key (#50585).
+
+	`F10' does not work as advertised in the demos because the
+	message-handling code expects it to arrive as a `normal' key but
+	Windows sends it as a `system' key (because it is reserved for
+	activating the menu bar, per the IBM Common User Access standard).
+
+	Fix this by adding `F10' to the ‛syskey_translators’ table.
+
+	(We also remove the existing handling of `F1' as a `system' key,
+	because this does not appear to be necessary.  `F1' is sent as a
+	`normal' key and is correctly handled by the ‛key_translators’
+	table.)
+
 2017-03-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftbench.c (main, usage): Add optional LCD filtering.

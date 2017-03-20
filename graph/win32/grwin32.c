@@ -104,7 +104,7 @@
   static
   Translator  syskey_translators[] =
   {
-    { VK_F1,        grKeyF1        }
+    { VK_F10,       grKeyF10       }
   };
 
   static ATOM  ourAtom;
