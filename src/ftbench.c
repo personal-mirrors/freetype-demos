@@ -33,6 +33,7 @@
 #include FT_MODULE_H
 #include FT_CFF_DRIVER_H
 #include FT_TRUETYPE_DRIVER_H
+#include FT_LCD_FILTER_H
 
 #ifdef UNIX
 #include <unistd.h>
@@ -791,6 +792,8 @@
       "  -I VER    Use TT interpreter version VER.\n"
       "            Available versions are %s; default is version %d.\n"
       "  -i IDX    Start with index IDX (default is 0).\n"
+      "  -l N      Set LCD filter to N\n"
+      "              0: none, 1: default, 2: light, 16: legacy\n"
       "  -m M      Set maximum cache size to M KiByte (default is %d).\n",
              hinting_engines,
              cff_hinting_engine_names[dflt_cff_hinting_engine],
@@ -907,7 +910,7 @@
       int  opt;
 
 
-      opt = getopt( argc, argv, "b:Cc:f:H:I:i:m:pr:s:t:v" );
+      opt = getopt( argc, argv, "b:Cc:f:H:I:i:l:m:pr:s:t:v" );
 
       if ( opt == -1 )
         break;
@@ -977,6 +980,23 @@
 
           if ( fi > 0 )
             first_index = (unsigned int)fi;
+        }
+        break;
+
+      case 'l':
+        {
+          int  filter = atoi( optarg );
+
+
+	  switch ( filter )
+          {
+          case FT_LCD_FILTER_NONE:
+          case FT_LCD_FILTER_DEFAULT:
+          case FT_LCD_FILTER_LIGHT:
+          case FT_LCD_FILTER_LEGACY1:
+          case FT_LCD_FILTER_LEGACY:
+            FT_Library_SetLcdFilter( lib, filter );
+	  }
         }
         break;
 

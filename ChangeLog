@@ -1,3 +1,7 @@
+2017-03-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftbench.c (main, usage): Add optional LCD filtering.
+
 2017-03-19  Brian Nixon  <nixonb@yahoo.com>
 
 	[graph] Make demo windows minimise-able on Win32 (#50582).
