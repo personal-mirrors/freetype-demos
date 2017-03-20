@@ -706,13 +706,8 @@
         ch   = utf8_next( &p, pEnd );
         if ( ch < 0 )
         {
-          p    = Text;
-          oldp = p;
-          ch   = utf8_next( &p, pEnd );
-
-          /* not a single character of the text string could be displayed */
-          if ( !have_topleft )
-            return error;
+          /* end of the text (or invalid UTF-8); continue to next size */
+          break;
         }
 
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)ch );
