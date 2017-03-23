@@ -276,7 +276,7 @@
 
 
     start_x = 4;
-    start_y = pt_size + ( used_num_axis > MAX_MM_AXES / 2 ? 44 : 36 );
+    start_y = pt_size + ( used_num_axis > MAX_MM_AXES / 2 ? 52 : 44 );
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -330,7 +330,8 @@
 
 
   static FT_Error
-  Render_Text( unsigned int  first_glyph )
+  Render_Text( unsigned int  first_glyph,
+               int           pt_size )
   {
     FT_F26Dot6    start_x, start_y, step_y, x, y;
     unsigned int  i;
@@ -339,7 +340,7 @@
 
 
     start_x = 4;
-    start_y = 32 + size->metrics.y_ppem;
+    start_y = pt_size + ( used_num_axis > MAX_MM_AXES / 2 ? 52 : 44 );
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -693,9 +694,23 @@
 
       design_pos[axis] = pos;
 
-      /* for MM fonts, round the design coordinates to integers */
+      /* for MM fonts, round the design coordinates to integers,         */
+      /* otherwise round to two decimal digits to make the PS name short */
       if ( !FT_IS_SFNT( face ) )
-        design_pos[axis] &= (FT_Fixed)0xFFFF0000L;
+        design_pos[axis] = ( design_pos[axis] + 0x8000 ) & 0xFFFF0000L;
+      else
+      {
+        double  x;
+
+
+        x  = design_pos[axis] / 65536.0 * 100.0;
+        x += x < 0.0 ? -0.5 : 0.5;
+        x  = (int)x;
+        x  = x / 100.0 * 65536.0;
+        x += x < 0.0 ? -0.5 : 0.5;
+
+        design_pos[axis] = (int)x;
+      }
 
       FT_Set_Var_Design_Coordinates( face, used_num_axis, design_pos );
     }
@@ -985,7 +1000,7 @@
         switch ( render_mode )
         {
         case 0:
-          Render_Text( (unsigned int)Num );
+          Render_Text( (unsigned int)Num, ptsize );
           break;
 
         default:
@@ -1002,6 +1017,10 @@
 
         grWriteCellString( &bit, 0, 0, new_header, fore_color );
         new_header = NULL;
+
+        sprintf( Header, "PS name: %s",
+                         FT_Get_Postscript_Name( face ) );
+        grWriteCellString( &bit, 0, 16, Header, fore_color );
 
         sprintf( Header, "axes:" );
         {
@@ -1022,7 +1041,7 @@
                      sizeof ( Header ) - strlen( Header ) - 1 );
           }
         }
-        grWriteCellString( &bit, 0, 16, Header, fore_color );
+        grWriteCellString( &bit, 0, 24, Header, fore_color );
 
         if ( used_num_axis > MAX_MM_AXES / 2 )
         {
@@ -1043,7 +1062,7 @@
                      sizeof ( Header ) - strlen( Header ) - 1 );
           }
 
-          grWriteCellString( &bit, 0, 24, Header, fore_color );
+          grWriteCellString( &bit, 0, 32, Header, fore_color );
         }
 
         {

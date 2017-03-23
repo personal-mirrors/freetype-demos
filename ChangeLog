@@ -1,6 +1,17 @@
+2017-03-23  Werner Lemberg  <wl@gnu.org>
+
+	[ftmulti] Show PS name.
+
+	* src/ftmulti.c (Render_All): Adjust vertical start position.
+	(Render_Text): Make arguments similar to `Render_All'.
+	Adjust vertical start position.
+	(main): Updated.
+	Print PostScript name.
+	Round non-integer axis values to two decimal digits.
+
 2017-03-20  Brian Nixon  <nixonb@yahoo.com>
 
-	[ftview] Improve waterfall mode.
+	[ftview] Improve waterfall mode (#50586).
 
 	* src/ftview.c (Render_Waterfall): Stop repeating of the default
 	glyph to the end of each line after the display text.
