@@ -1,13 +1,18 @@
 2017-03-23  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftmulti.c (Process_Event, main): Fix rounding.
+
+2017-03-23  Werner Lemberg  <wl@gnu.org>
+
 	[ftmulti] Show PS name.
 
 	* src/ftmulti.c (Render_All): Adjust vertical start position.
 	(Render_Text): Make arguments similar to `Render_All'.
 	Adjust vertical start position.
+	(Process_Event): Round non-integer axis values to two decimal
+	digits.
 	(main): Updated.
 	Print PostScript name.
-	Round non-integer axis values to two decimal digits.
 
 2017-03-20  Brian Nixon  <nixonb@yahoo.com>
 
