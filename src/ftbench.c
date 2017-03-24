@@ -988,7 +988,7 @@
           int  filter = atoi( optarg );
 
 
-	  switch ( filter )
+          switch ( filter )
           {
           case FT_LCD_FILTER_NONE:
           case FT_LCD_FILTER_DEFAULT:
@@ -996,7 +996,7 @@
           case FT_LCD_FILTER_LEGACY1:
           case FT_LCD_FILTER_LEGACY:
             FT_Library_SetLcdFilter( lib, filter );
-	  }
+          }
         }
         break;
 

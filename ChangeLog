@@ -1,3 +1,7 @@
+2017-03-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftmulti.c (Process_Event, main): Use `FT_RoundFix'.
+
 2017-03-23  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftmulti.c (Process_Event, main): Fix rounding.
@@ -333,7 +337,7 @@
 
 	* src/ftbench.c (get_time): Use `clock_gettime' instead of obsolete
 	and less accurate `gettimeofday'.
-	(benchmark): Updated. 
+	(benchmark): Updated.
 
 2016-07-14  Werner Lemberg  <wl@gnu.org>
 

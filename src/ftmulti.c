@@ -697,10 +697,7 @@
       /* for MM fonts, round the design coordinates to integers,         */
       /* otherwise round to two decimal digits to make the PS name short */
       if ( !FT_IS_SFNT( face ) )
-      {
-        design_pos[axis] += design_pos[axis] < 0 ? -0x8000 : 0x8000;
-        design_pos[axis] &= 0xFFFF0000L;
-      }
+        design_pos[axis] = FT_RoundFix( design_pos[axis] );
       else
       {
         double  x;
@@ -953,10 +950,7 @@
 
       /* for MM fonts, round the design coordinates to integers */
       if ( !FT_IS_SFNT( face ) )
-      {
-        design_pos[n] += design_pos[n] < 0 ? -0x8000 : 0x8000;
-        design_pos[n] &= 0xFFFF0000L;
-      }
+        design_pos[n] = FT_RoundFix( design_pos[n] );
     }
 
     error = FT_Set_Var_Design_Coordinates( face, used_num_axis, design_pos );
