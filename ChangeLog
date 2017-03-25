@@ -1,3 +1,12 @@
+2017-03-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Consolidate emboldening and slanting modes.
+
+	* src/ftview.c (Render_Slanted, Render_Embolden): Merged into...
+	(Render_Fancy): ... this new function.
+	(event_help, Process_Event, write_header, main): Updated.
+	* src/ftview.1: Updated.
+
 2017-03-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftmulti.c (Process_Event, main): Use `FT_RoundFix'.

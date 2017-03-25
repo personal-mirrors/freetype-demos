@@ -73,8 +73,7 @@
   enum
   {
     RENDER_MODE_ALL = 0,
-    RENDER_MODE_EMBOLDEN,
-    RENDER_MODE_SLANTED,
+    RENDER_MODE_FANCY,
     RENDER_MODE_STROKE,
     RENDER_MODE_TEXT,
     RENDER_MODE_WATERFALL,
@@ -260,8 +259,8 @@
 
 
   static FT_Error
-  Render_Slanted( int  num_indices,
-                  int  offset )
+  Render_Fancy( int  num_indices,
+                   int  offset )
   {
     int           start_x, start_y, step_y, x, y;
     int           i, have_topleft;
@@ -270,6 +269,7 @@
     FT_GlyphSlot  slot;
 
     FT_Matrix  shear;
+    FT_Pos     xstr, ystr;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -303,79 +303,6 @@
     shear.yx = 0;
     shear.yy = 1 << 16;
 
-    have_topleft = 0;
-
-    for ( i = offset; i < num_indices; i++ )
-    {
-      FT_UInt  glyph_idx;
-
-
-      if ( status.encoding == FT_ENCODING_NONE )
-        glyph_idx = (FT_UInt)i;
-      else
-        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
-
-      error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
-      if ( !error )
-      {
-        FT_Outline_Transform( &slot->outline, &shear );
-
-        error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
-
-        if ( !error )
-        {
-          if ( !have_topleft )
-          {
-            have_topleft   = 1;
-            status.topleft = i;
-          }
-        }
-
-        if ( error )
-          goto Next;
-        else if ( X_TOO_LONG( x, size, display ) )
-        {
-          x  = start_x;
-          y += step_y;
-
-          if ( Y_TOO_LONG( y, size, display ) )
-            break;
-        }
-      }
-      else
-    Next:
-        status.num_fails++;
-    }
-
-    return error;
-  }
-
-
-  static FT_Error
-  Render_Embolden( int  num_indices,
-                   int  offset )
-  {
-    int           start_x, start_y, step_y, x, y;
-    int           i, have_topleft;
-    FT_Size       size;
-    FT_Face       face;
-    FT_GlyphSlot  slot;
-
-    FT_Pos  xstr, ystr;
-
-
-    error = FTDemo_Get_Size( handle, &size );
-
-    if ( error )
-    {
-      /* probably a non-existent bitmap font size */
-      return error;
-    }
-
-    INIT_SIZE( size, start_x, start_y, step_y, x, y );
-    face = size->face;
-    slot = face->glyph;
-
     ystr = status.ptsize * status.res / 72;
     xstr = (FT_Pos)( status.xbold_factor * ystr );
     ystr = (FT_Pos)( status.ybold_factor * ystr );
@@ -400,6 +327,8 @@
 
         if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
         {
+          FT_Outline_Transform( &slot->outline, &shear );
+
           error = FT_Outline_EmboldenXY( &slot->outline, xstr, ystr );
           /* ignore error */
         }
@@ -787,11 +716,11 @@
     grWriteln( "                                                                            " );
     grWriteln( "render modes:                           anti-aliasing modes:                " );
     grWriteln( "  1         all glyphs                    A         normal                  " );
-    grWriteln( "  2         all glyphs emboldened         B         light                   " );
-    grWriteln( "  3         all glyphs slanted            C         horizontal RGB (LCD)    " );
-    grWriteln( "  4         all glyphs stroked            D         horizontal BGR (LCD)    " );
-    grWriteln( "  5         text string                   E         vertical RGB (LCD)      " );
-    grWriteln( "  6         waterfall                     F         vertical BGR (LCD)      " );
+    grWriteln( "  2         all glyphs fancy              B         light                   " );
+    grWriteln( "             (emboldened / slanted)       C         horizontal RGB (LCD)    " );
+    grWriteln( "  3         all glyphs stroked            D         horizontal BGR (LCD)    " );
+    grWriteln( "  4         text string                   E         vertical RGB (LCD)      " );
+    grWriteln( "  5         waterfall                     F         vertical BGR (LCD)      " );
     grWriteln( "  space     cycle forwards                k         cycle forwards          " );
     grWriteln( "  backspace cycle backwards               l         cycle backwards         " );
     grWriteln( "                                                                            " );
@@ -800,9 +729,9 @@
     grWriteln( "K           toggle cache modes          y, Y        adjust vertical         " );
     grWriteln( "                                                     emboldening (in mode 2)" );
     grWriteln( "p, n        previous/next font          s, S        adjust slanting         " );
-    grWriteln( "                                                     (in mode 3)            " );
+    grWriteln( "                                                     (in mode 2)            " );
     grWriteln( "Up, Down    adjust size by 1 unit       r, R        adjust stroking radius  " );
-    grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 4)            " );
+    grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 3)            " );
     grWriteln( "                                                                            " );
     grWriteln( "Left, Right adjust index by 1           L           cycle through           " );
     grWriteln( "F7, F8      adjust index by 16                       LCD filtering          " );
@@ -1254,12 +1183,12 @@
       break;
 
     case grKEY( 's' ):
-      if ( status.render_mode == RENDER_MODE_SLANTED )
+      if ( status.render_mode == RENDER_MODE_FANCY )
         status.update = event_slant_change( 0.02 );
       break;
 
     case grKEY( 'S' ):
-      if ( status.render_mode == RENDER_MODE_SLANTED )
+      if ( status.render_mode == RENDER_MODE_FANCY )
         status.update = event_slant_change( -0.02 );
       break;
 
@@ -1274,22 +1203,22 @@
       break;
 
     case grKEY( 'x' ):
-      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+      if ( status.render_mode == RENDER_MODE_FANCY )
         status.update = event_bold_change( 0.005, 0.0 );
       break;
 
     case grKEY( 'X' ):
-      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+      if ( status.render_mode == RENDER_MODE_FANCY )
         status.update = event_bold_change( -0.005, 0.0 );
       break;
 
     case grKEY( 'y' ):
-      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+      if ( status.render_mode == RENDER_MODE_FANCY )
         status.update = event_bold_change( 0.0, 0.005 );
       break;
 
     case grKEY( 'Y' ):
-      if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+      if ( status.render_mode == RENDER_MODE_FANCY )
         status.update = event_bold_change( 0.0, -0.005 );
       break;
 
@@ -1603,11 +1532,8 @@
       case RENDER_MODE_ALL:
         render_mode = "all glyphs";
         break;
-      case RENDER_MODE_EMBOLDEN:
-        render_mode = "emboldened";
-        break;
-      case RENDER_MODE_SLANTED:
-        render_mode = "slanted";
+      case RENDER_MODE_FANCY:
+        render_mode = "fancy";
         break;
       case RENDER_MODE_STROKE:
         render_mode = "stroked";
@@ -1626,17 +1552,23 @@
                          buf, display->fore_color );
     }
 
-    if ( status.render_mode == RENDER_MODE_EMBOLDEN )
+    if ( status.render_mode == RENDER_MODE_FANCY )
     {
       /* x emboldening */
-      sprintf( buf, " x: %.3f",
+      sprintf( buf, " x: % .3f",
                     status.xbold_factor );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
 
       /* y emboldening */
-      sprintf( buf, " y: %.3f",
+      sprintf( buf, " y: % .3f",
                     status.ybold_factor );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+
+      /* slanting */
+      sprintf( buf, " s: % .3f",
+                    status.slant );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
@@ -1646,15 +1578,6 @@
       /* stroking radius */
       sprintf( buf, " radius: %.3f",
                     status.radius );
-      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                         buf, display->fore_color );
-    }
-
-    if ( status.render_mode == RENDER_MODE_SLANTED )
-    {
-      /* slanting */
-      sprintf( buf, " value: %.3f",
-                    status.slant );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
@@ -2068,14 +1991,9 @@
                             status.offset );
         break;
 
-      case RENDER_MODE_EMBOLDEN:
-        error = Render_Embolden( handle->current_font->num_indices,
+      case RENDER_MODE_FANCY:
+        error = Render_Fancy( handle->current_font->num_indices,
                                  status.offset );
-        break;
-
-      case RENDER_MODE_SLANTED:
-        error = Render_Slanted( handle->current_font->num_indices,
-                                status.offset );
         break;
 
       case RENDER_MODE_STROKE:
