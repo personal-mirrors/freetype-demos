@@ -1,5 +1,9 @@
 2017-03-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftview.c (Render_*): Improve readability.
+
+2017-03-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftview] Consolidate emboldening and slanting modes.
 
 	* src/ftview.c (Render_Slanted, Render_Embolden): Merged into...

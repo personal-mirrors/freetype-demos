@@ -227,20 +227,18 @@
 
         error = FTDemo_Draw_Glyph( handle, display, glyph, &x, &y );
 
-        if ( !error )
-        {
-          FT_Done_Glyph( glyph );
-
-          if ( !have_topleft )
-          {
-            have_topleft   = 1;
-            status.topleft = i;
-          }
-        }
+        FT_Done_Glyph( glyph );
 
         if ( error )
           goto Next;
-        else if ( X_TOO_LONG( x, size, display ) )
+
+        if ( !have_topleft )
+        {
+          have_topleft   = 1;
+          status.topleft = i;
+        }
+
+        if ( X_TOO_LONG( x, size, display ) )
         {
           x  = start_x;
           y += step_y;
@@ -251,7 +249,7 @@
       }
       else
     Next:
-        status.num_fails++;
+      status.num_fails++;
     }
 
     return error;
@@ -260,7 +258,7 @@
 
   static FT_Error
   Render_Fancy( int  num_indices,
-                   int  offset )
+                int  offset )
   {
     int           start_x, start_y, step_y, x, y;
     int           i, have_topleft;
@@ -320,74 +318,75 @@
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
-      if ( !error )
+      if ( error )
+        goto Next;
+
+      /* this is essentially the code of function */
+      /* `FT_GlyphSlot_Embolden'                  */
+
+      if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
       {
-        /* this is essentially the code of function */
-        /* `FT_GlyphSlot_Embolden'                  */
+        FT_Outline_Transform( &slot->outline, &shear );
 
-        if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
-        {
-          FT_Outline_Transform( &slot->outline, &shear );
+        error = FT_Outline_EmboldenXY( &slot->outline, xstr, ystr );
+        /* ignore error */
+      }
+      else if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
+      {
+        /* round to full pixels */
+        xstr &= ~63;
+        ystr &= ~63;
 
-          error = FT_Outline_EmboldenXY( &slot->outline, xstr, ystr );
-          /* ignore error */
-        }
-        else if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
-        {
-          /* round to full pixels */
-          xstr &= ~63;
-          ystr &= ~63;
-
-          error = FT_GlyphSlot_Own_Bitmap( slot );
-          if ( error )
-            goto Next;
-
-          error = FT_Bitmap_Embolden( slot->library, &slot->bitmap,
-                                      xstr, ystr );
-          if ( error )
-            goto Next;
-        } else
-          goto Next;
-
-        if ( slot->advance.x )
-          slot->advance.x += xstr;
-
-        if ( slot->advance.y )
-          slot->advance.y += ystr;
-
-        slot->metrics.width        += xstr;
-        slot->metrics.height       += ystr;
-        slot->metrics.horiAdvance  += xstr;
-        slot->metrics.vertAdvance  += ystr;
-
-        if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
-          slot->bitmap_top += ystr >> 6;
-
-        error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
-
-        if ( !error )
-        {
-          if ( !have_topleft )
-          {
-            have_topleft   = 1;
-            status.topleft = i;
-          }
-        }
-
+        error = FT_GlyphSlot_Own_Bitmap( slot );
         if ( error )
           goto Next;
-        else if ( X_TOO_LONG( x, size, display ) )
-        {
-          x  = start_x;
-          y += step_y;
 
-          if ( Y_TOO_LONG( y, size, display ) )
-            break;
-        }
+        error = FT_Bitmap_Embolden( slot->library, &slot->bitmap,
+                                    xstr, ystr );
+        if ( error )
+          goto Next;
       }
       else
+        goto Next;
+
+      if ( slot->advance.x )
+        slot->advance.x += xstr;
+
+      if ( slot->advance.y )
+        slot->advance.y += ystr;
+
+      slot->metrics.width        += xstr;
+      slot->metrics.height       += ystr;
+      slot->metrics.horiAdvance  += xstr;
+      slot->metrics.vertAdvance  += ystr;
+
+      if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
+        slot->bitmap_top += ystr >> 6;
+
+      error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
+
+      if ( error )
+        goto Next;
+
+      if ( !have_topleft )
+      {
+        have_topleft   = 1;
+        status.topleft = i;
+      }
+
+      if ( X_TOO_LONG( x, size, display ) )
+      {
+        x  = start_x;
+        y += step_y;
+
+        if ( Y_TOO_LONG( y, size, display ) )
+          break;
+      }
+
+      continue;
+
     Next:
-        status.num_fails++;
+      status.num_fails++;
     }
 
     return error;
@@ -427,18 +426,16 @@
 
       error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
 
-      if ( !error )
+      if ( error )
+        goto Next;
+
+      if ( !have_topleft )
       {
-        if ( !have_topleft )
-        {
-          have_topleft   = 1;
-          status.topleft = i;
-        }
+        have_topleft   = 1;
+        status.topleft = i;
       }
 
-      if ( error )
-        status.num_fails++;
-      else if ( X_TOO_LONG( x, size, display ) )
+      if ( X_TOO_LONG( x, size, display ) )
       {
         x = start_x;
         y += step_y;
@@ -446,6 +443,11 @@
         if ( Y_TOO_LONG( y, size, display ) )
           break;
       }
+
+      continue;
+
+    Next:
+      status.num_fails++;
     }
 
     return FT_Err_Ok;
@@ -509,31 +511,31 @@
 
       error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
 
-      if ( !error )
-      {
-        if ( !have_topleft )
-        {
-          have_topleft   = 1;
-          status.topleft = ch;
-        }
-      }
-
       if ( error )
-        status.num_fails++;
-      else
+        goto Next;
+
+      if ( !have_topleft )
       {
-        /* Draw_Index adds one pixel space */
-        x--;
-
-        if ( X_TOO_LONG( x, size, display ) )
-        {
-          x  = start_x;
-          y += step_y;
-
-          if ( Y_TOO_LONG( y, size, display ) )
-            break;
-        }
+        have_topleft   = 1;
+        status.topleft = ch;
       }
+
+      /* Draw_Index adds one pixel space */
+      x--;
+
+      if ( X_TOO_LONG( x, size, display ) )
+      {
+        x  = start_x;
+        y += step_y;
+
+        if ( Y_TOO_LONG( y, size, display ) )
+          break;
+      }
+
+      continue;
+
+    Next:
+      status.num_fails++;
     }
 
     return FT_Err_Ok;
@@ -643,26 +645,26 @@
 
         error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
 
-        if ( !error )
-        {
-          /* `topleft' should be the first character after the size string */
-          if ( oldp - text == start && !have_topleft )
-          {
-            have_topleft   = 1;
-            status.topleft = ch;
-          }
-        }
-
         if ( error )
-          status.num_fails++;
-        else
-        {
-          /* Draw_Index adds one pixel space */
-          x--;
+          goto Next;
 
-          if ( X_TOO_LONG( x, size, display ) )
-            break;
+        /* `topleft' should be the first character after the size string */
+        if ( oldp - text == start && !have_topleft )
+        {
+          have_topleft   = 1;
+          status.topleft = ch;
         }
+
+        /* Draw_Index adds one pixel space */
+        x--;
+
+        if ( X_TOO_LONG( x, size, display ) )
+          break;
+
+        continue;
+
+      Next:
+        status.num_fails++;
       }
     }
 
@@ -1993,7 +1995,7 @@
 
       case RENDER_MODE_FANCY:
         error = Render_Fancy( handle->current_font->num_indices,
-                                 status.offset );
+                              status.offset );
         break;
 
       case RENDER_MODE_STROKE:
