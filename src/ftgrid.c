@@ -984,7 +984,7 @@
     grWriteln( "f           toggle forced auto-         d           toggle dot display      " );
     grWriteln( "             hinting (if hinting)       o           toggle outline display  " );
     grWriteln( "                                        D           toggle dotnumber display" );
-    grWriteln( "a           toggle anti-aliasing                                            " );
+    grWriteln( "                                                                            " );
     grWriteln( "F5, F6      cycle through               if Multiple Master or GX font:      " );
     grWriteln( "             anti-aliasing modes          F2        cycle through axes      " );
     grWriteln( "L           cycle through LCD             F3, F4    adjust current axis by  " );
@@ -1156,52 +1156,50 @@
   static void
   event_lcd_mode_change( int  delta )
   {
-    if ( handle->antialias )
+    const char*  lcd_mode = NULL;
+
+
+    handle->lcd_mode = ( handle->lcd_mode +
+                         delta            +
+                         N_LCD_MODES      ) % N_LCD_MODES;
+
+    switch ( handle->lcd_mode )
     {
-      const char*  lcd_mode = NULL;
-
-
-      handle->lcd_mode = ( handle->lcd_mode +
-                           delta            +
-                           N_LCD_MODES      ) % N_LCD_MODES;
-
-      switch ( handle->lcd_mode )
-      {
-      case LCD_MODE_AA:
-        lcd_mode = "normal AA";
-        break;
-      case LCD_MODE_LIGHT:
-        lcd_mode = "light AA";
-        break;
-      case LCD_MODE_RGB:
-        lcd_mode = "LCD (horiz. RGB)";
-        break;
-      case LCD_MODE_BGR:
-        lcd_mode = "LCD (horiz. BGR)";
-        break;
-      case LCD_MODE_VRGB:
-        lcd_mode = "LCD (vert. RGB)";
-        break;
-      case LCD_MODE_VBGR:
-        lcd_mode = "LCD (vert. BGR)";
-        break;
-      }
-      sprintf( status.header_buffer, "rendering mode changed to %s",
-               lcd_mode );
-
-      status.header = (const char *)status.header_buffer;
-
-      FTDemo_Update_Current_Flags( handle );
+    case LCD_MODE_MONO:
+      lcd_mode = "monochrome";
+      break;
+    case LCD_MODE_AA:
+      lcd_mode = "normal AA";
+      break;
+    case LCD_MODE_LIGHT:
+      lcd_mode = "light AA";
+      break;
+    case LCD_MODE_RGB:
+      lcd_mode = "LCD (horiz. RGB)";
+      break;
+    case LCD_MODE_BGR:
+      lcd_mode = "LCD (horiz. BGR)";
+      break;
+    case LCD_MODE_VRGB:
+      lcd_mode = "LCD (vert. RGB)";
+      break;
+    case LCD_MODE_VBGR:
+      lcd_mode = "LCD (vert. BGR)";
+      break;
     }
-    else
-      status.header = "need anti-aliasing to change rendering mode";
+    sprintf( status.header_buffer, "rendering mode changed to %s",
+             lcd_mode );
+
+    status.header = (const char *)status.header_buffer;
+
+    FTDemo_Update_Current_Flags( handle );
   }
 
 
   static void
   event_lcd_filter_change( void )
   {
-    if ( handle->antialias && handle->lcd_mode > 1 )
+    if ( handle->lcd_mode > 2 )
     {
       const char*  lcd_filter = NULL;
 
@@ -1488,14 +1486,6 @@
     case grKeyF1:
     case grKEY( '?' ):
       event_help();
-      break;
-
-    case grKEY( 'a' ):
-      handle->antialias = !handle->antialias;
-      status.header     = handle->antialias ? "anti-aliasing is now on"
-                                            : "anti-aliasing is now off";
-
-      FTDemo_Update_Current_Flags( handle );
       break;
 
     case grKEY( 'f' ):

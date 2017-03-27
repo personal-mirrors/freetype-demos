@@ -134,7 +134,8 @@
   } TFont, *PFont;
 
   enum {
-    LCD_MODE_AA = 0,
+    LCD_MODE_MONO = 0,
+    LCD_MODE_AA,
     LCD_MODE_LIGHT,
     LCD_MODE_RGB,
     LCD_MODE_BGR,
@@ -189,10 +190,9 @@
 
     /* call FTDemo_Update_Current_Flags after setting any of the following fields */
     int             hinted;            /* is glyph hinting active?    */
-    int             antialias;         /* is anti-aliasing active?    */
     int             use_sbits;         /* do we use embedded bitmaps? */
     int             autohint;          /* force auto-hinting          */
-    int             lcd_mode;
+    int             lcd_mode;          /* mono, aa, light, vrgb, ...  */
     int             preload;           /* force font file preloading  */
     int             color;             /* load color bitmaps          */
 

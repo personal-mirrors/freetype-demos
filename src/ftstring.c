@@ -154,13 +154,12 @@
     grLn();
     grWriteln( "  F1 or ?   : display this help screen" );
     grLn();
-    grWriteln( "  a         : toggle anti-aliasing" );
     grWriteln( "  b         : toggle embedded bitmaps (and disable rotation)" );
     grWriteln( "  f         : toggle forced auto-hinting" );
     grWriteln( "  h         : toggle outline hinting" );
     grLn();
     grWriteln( "  1-2       : select rendering mode" );
-    grWriteln( "  l         : cycle through LCD modes" );
+    grWriteln( "  l         : cycle through anti-aliasing modes" );
     grWriteln( "  k         : cycle through kerning modes" );
     grWriteln( "  t         : cycle through kerning degrees" );
     grWriteln( "  Space     : cycle through color" );
@@ -252,6 +251,9 @@
 
     switch ( handle->lcd_mode )
     {
+    case LCD_MODE_AA:
+      lcd_mode = " normal AA";
+      break;
     case LCD_MODE_LIGHT:
       lcd_mode = " light AA";
       break;
@@ -269,7 +271,7 @@
       break;
     default:
       handle->lcd_mode = 0;
-      lcd_mode = " normal AA";
+      lcd_mode = " monochrome";
     }
 
     sprintf( status.header_buffer, "mode changed to %s", lcd_mode );
@@ -389,15 +391,6 @@
     case grKeyF1:
     case grKEY( '?' ):
       event_help();
-      break;
-
-    case grKEY( 'a' ):
-      handle->antialias = !handle->antialias;
-      status.header     = handle->antialias
-                          ? (char *)"anti-aliasing is now on"
-                          : (char *)"anti-aliasing is now off";
-
-      FTDemo_Update_Current_Flags( handle );
       break;
 
     case grKEY( 'b' ):

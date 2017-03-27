@@ -717,14 +717,14 @@
     grWriteln( "F1, ?       display this help screen                                        " );
     grWriteln( "                                                                            " );
     grWriteln( "render modes:                           anti-aliasing modes:                " );
-    grWriteln( "  1         all glyphs                    A         normal                  " );
-    grWriteln( "  2         all glyphs fancy              B         light                   " );
-    grWriteln( "             (emboldened / slanted)       C         horizontal RGB (LCD)    " );
-    grWriteln( "  3         all glyphs stroked            D         horizontal BGR (LCD)    " );
-    grWriteln( "  4         text string                   E         vertical RGB (LCD)      " );
-    grWriteln( "  5         waterfall                     F         vertical BGR (LCD)      " );
-    grWriteln( "  space     cycle forwards                k         cycle forwards          " );
-    grWriteln( "  backspace cycle backwards               l         cycle backwards         " );
+    grWriteln( "  1         all glyphs                    A         monochrome              " );
+    grWriteln( "  2         all glyphs fancy              B         normal                  " );
+    grWriteln( "             (emboldened / slanted)       C         light                   " );
+    grWriteln( "  3         all glyphs stroked            D         horizontal RGB (LCD)    " );
+    grWriteln( "  4         text string                   E         horizontal BGR (LCD)    " );
+    grWriteln( "  5         waterfall                     F         vertical RGB (LCD)      " );
+    grWriteln( "  space     cycle forwards                G         vertical BGR (LCD)      " );
+    grWriteln( "  backspace cycle backwards             k, l        cycle back and forth    " );
     grWriteln( "                                                                            " );
     grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
     grWriteln( "c           toggle color glyphs                      emboldening (in mode 2)" );
@@ -748,7 +748,7 @@
     grWriteln( "w           toggle warping (in light    Tab         cycle through charmaps  " );
     grWriteln( "             AA mode, if available)                                         " );
     grWriteln( "                                                                            " );
-    grWriteln( "a           toggle anti-aliasing        q, ESC      quit ftview             " );
+    grWriteln( "                                        q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -1064,17 +1064,14 @@
       return ret;
     }
 
-    if ( handle->antialias )
+    if ( handle->lcd_mode == (int)( event->key - 'A' ) )
+      return ret;
+    if ( event->key >= 'A' && event->key < 'A' + N_LCD_MODES )
     {
-      if ( handle->lcd_mode == (int)( event->key - 'A' ) )
-        return ret;
-      if ( event->key >= 'A' && event->key < 'A' + N_LCD_MODES )
-      {
-        handle->lcd_mode = event->key - 'A';
-        FTDemo_Update_Current_Flags( handle );
-        status.update = 1;
-        return ret;
-      }
+      handle->lcd_mode = event->key - 'A';
+      FTDemo_Update_Current_Flags( handle );
+      status.update = 1;
+      return ret;
     }
 
     switch ( event->key )
@@ -1087,12 +1084,6 @@
     case grKeyF1:
     case grKEY( '?' ):
       event_help();
-      status.update = 1;
-      break;
-
-    case grKEY( 'a' ):
-      handle->antialias = !handle->antialias;
-      FTDemo_Update_Current_Flags( handle );
       status.update = 1;
       break;
 
@@ -1152,18 +1143,15 @@
 
     case grKEY( 'l' ):
     case grKEY( 'k' ):
-      if ( handle->antialias )
-      {
-        handle->lcd_mode = ( event->key == grKEY( 'l' ) )
-                           ? ( ( handle->lcd_mode == ( N_LCD_MODES - 1 ) )
-                               ? 0
-                               : handle->lcd_mode + 1 )
-                           : ( ( handle->lcd_mode == 0 )
-                               ? ( N_LCD_MODES - 1 )
-                               : handle->lcd_mode - 1 );
-        FTDemo_Update_Current_Flags( handle );
-        status.update = 1;
-      }
+      handle->lcd_mode = ( event->key == grKEY( 'l' ) )
+                         ? ( ( handle->lcd_mode == ( N_LCD_MODES - 1 ) )
+                             ? 0
+                             : handle->lcd_mode + 1 )
+                         : ( ( handle->lcd_mode == 0 )
+                             ? ( N_LCD_MODES - 1 )
+                             : handle->lcd_mode - 1 );
+      FTDemo_Update_Current_Flags( handle );
+      status.update = 1;
       break;
 
     case grKEY( 'w' ):
@@ -1587,36 +1575,33 @@
     line++;
 
     /* anti-aliasing */
-    sprintf( buf, "anti-alias: %s",
-                  handle->antialias ? "on" : "off" );
-    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                       buf, display->fore_color );
-
-    if ( handle->antialias )
     {
       const char*  lcd_mode;
 
 
       switch ( handle->lcd_mode )
       {
+      case LCD_MODE_AA:
+        lcd_mode = "normal AA";
+        break;
       case LCD_MODE_LIGHT:
-        lcd_mode = " light AA";
+        lcd_mode = "light AA";
         break;
       case LCD_MODE_RGB:
-        lcd_mode = " LCD (horiz. RGB)";
+        lcd_mode = "LCD (horiz. RGB)";
         break;
       case LCD_MODE_BGR:
-        lcd_mode = " LCD (horiz. BGR)";
+        lcd_mode = "LCD (horiz. BGR)";
         break;
       case LCD_MODE_VRGB:
-        lcd_mode = " LCD (vert. RGB)";
+        lcd_mode = "LCD (vert. RGB)";
         break;
       case LCD_MODE_VBGR:
-        lcd_mode = " LCD (vert. BGR)";
+        lcd_mode = "LCD (vert. BGR)";
         break;
       default:
         handle->lcd_mode = 0;
-        lcd_mode = " normal AA";
+        lcd_mode = "monochrome";
       }
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          lcd_mode, display->fore_color );

@@ -1,3 +1,17 @@
+2017-03-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview, ftstring, ftgrid] Remove anti-aliasing toggle.
+
+	* src/ftcommon.h (FTDemo_Handle): Replace `antialias' field with
+	`LCD_MODE_MONO' enumerator.
+	* src/ftcommon.c (FTDemo_Update_Current_Flags, FTDemo_Glyph_To_Bitmap,
+	FTDemo_Index_To_Bitmap): Updated.
+	* src/ftgrid.c (Process_Event, event_help, event_lcd_mode_change,
+	event_lcd_filter_change): Ditto.
+	* src/ftstring.c (Process_Event, event_help, event_lcdmode_change):
+	Ditto.
+	* src/ftview.c (Process_Event, event_help, write_header): Ditto.
+
 2017-03-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftview.c (Render_*): Improve readability.

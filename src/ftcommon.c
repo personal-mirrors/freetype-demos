@@ -297,10 +297,9 @@
     handle->encoding = FT_ENCODING_NONE;
 
     handle->hinted    = 1;
-    handle->antialias = 1;
     handle->use_sbits = 1;
     handle->autohint  = 0;
-    handle->lcd_mode  = 0;
+    handle->lcd_mode  = 1;
     handle->color     = 1;
 
     handle->use_sbits_cache = 1;
@@ -613,30 +612,29 @@
     {
       target = 0;
 
-      if ( handle->antialias )
+      switch ( handle->lcd_mode )
       {
-        switch ( handle->lcd_mode )
-        {
-        case LCD_MODE_LIGHT:
-          target = FT_LOAD_TARGET_LIGHT;
-          break;
-
-        case LCD_MODE_RGB:
-        case LCD_MODE_BGR:
-          target = FT_LOAD_TARGET_LCD;
-          break;
-
-        case LCD_MODE_VRGB:
-        case LCD_MODE_VBGR:
-          target = FT_LOAD_TARGET_LCD_V;
-          break;
-
-        default:
-          target = FT_LOAD_TARGET_NORMAL;
-        }
-      }
-      else
+      case LCD_MODE_MONO:
         target = FT_LOAD_TARGET_MONO;
+        break;
+
+      case LCD_MODE_LIGHT:
+        target = FT_LOAD_TARGET_LIGHT;
+        break;
+
+      case LCD_MODE_RGB:
+      case LCD_MODE_BGR:
+        target = FT_LOAD_TARGET_LCD;
+        break;
+
+      case LCD_MODE_VRGB:
+      case LCD_MODE_VBGR:
+        target = FT_LOAD_TARGET_LCD_V;
+        break;
+
+      default:
+        target = FT_LOAD_TARGET_NORMAL;
+      }
 
       flags |= target;
     }
@@ -644,7 +642,7 @@
     {
       flags |= FT_LOAD_NO_HINTING;
 
-      if ( !handle->antialias )
+      if ( handle->lcd_mode == 0 )
         flags |= FT_LOAD_MONOCHROME;
     }
 
@@ -707,19 +705,31 @@
 
     if ( glyf->format == FT_GLYPH_FORMAT_OUTLINE )
     {
-      FT_Render_Mode  render_mode = FT_RENDER_MODE_MONO;
+      FT_Render_Mode  render_mode;
 
 
-      if ( handle->antialias )
+      switch ( handle->lcd_mode )
       {
-        if ( handle->lcd_mode == 0 )
-          render_mode = FT_RENDER_MODE_NORMAL;
-        else if ( handle->lcd_mode == 1 )
-          render_mode = FT_RENDER_MODE_LIGHT;
-        else if ( handle->lcd_mode <= 3 )
-          render_mode = FT_RENDER_MODE_LCD;
-        else
-          render_mode = FT_RENDER_MODE_LCD_V;
+      case LCD_MODE_MONO:
+        render_mode = FT_RENDER_MODE_MONO;
+        break;
+
+      case LCD_MODE_LIGHT:
+        render_mode = FT_RENDER_MODE_LIGHT;
+        break;
+
+      case LCD_MODE_RGB:
+      case LCD_MODE_BGR:
+        render_mode = FT_RENDER_MODE_LCD;
+        break;
+
+      case LCD_MODE_VRGB:
+      case LCD_MODE_VBGR:
+        render_mode = FT_RENDER_MODE_LCD_V;
+        break;
+
+      default:
+        render_mode = FT_RENDER_MODE_NORMAL;
       }
 
       /* render the glyph to a bitmap, don't destroy original */
@@ -763,13 +773,13 @@
       break;
 
     case FT_PIXEL_MODE_LCD:
-      target->mode  = handle->lcd_mode == 2 ? gr_pixel_mode_lcd
+      target->mode  = handle->lcd_mode == 3 ? gr_pixel_mode_lcd
                                             : gr_pixel_mode_lcd2;
       target->grays = source->num_grays;
       break;
 
     case FT_PIXEL_MODE_LCD_V:
-      target->mode  = handle->lcd_mode == 4 ? gr_pixel_mode_lcdv
+      target->mode  = handle->lcd_mode == 5 ? gr_pixel_mode_lcdv
                                             : gr_pixel_mode_lcdv2;
       target->grays = source->num_grays;
       break;
@@ -872,12 +882,12 @@
           break;
 
         case FT_PIXEL_MODE_LCD:
-          target->mode  = handle->lcd_mode == 2 ? gr_pixel_mode_lcd
+          target->mode  = handle->lcd_mode == 3 ? gr_pixel_mode_lcd
                                                 : gr_pixel_mode_lcd2;
           break;
 
         case FT_PIXEL_MODE_LCD_V:
-          target->mode  = handle->lcd_mode == 4 ? gr_pixel_mode_lcdv
+          target->mode  = handle->lcd_mode == 5 ? gr_pixel_mode_lcdv
                                                 : gr_pixel_mode_lcdv2;
           break;
 
