@@ -1268,6 +1268,15 @@
       status.update = event_index_change( 0x1000 );
       break;
 
+    default:
+      break;
+    }
+
+    if ( handle->lcd_mode < LCD_MODE_RGB )
+      return ret;
+
+    switch ( event->key )
+    {
     case grKEY( 'L' ):
       FTC_Manager_RemoveFaceID( handle->cache_manager,
                                 handle->scaler.face_id );
@@ -1710,31 +1719,34 @@
     line++;
 
     /* LCD filtering */
-    sprintf( buf, "LCD filter: %s",
-                  status.lcd_filter == 0 ? "none" :
-                  status.lcd_filter == 1 ? "default" :
-                  status.lcd_filter == 2 ? "light" :
-                  status.lcd_filter == 3 ? "legacy" : "custom" );
-    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                       buf, display->fore_color );
-
-    /* custom LCD filter settings */
-    if ( status.lcd_filter < 0 )
+    if ( handle->lcd_mode >= LCD_MODE_RGB )
     {
-      int             fwi = status.fw_idx;
-      unsigned char*  fw  = status.filter_weights;
-      int             i;
+      sprintf( buf, "filter: %s",
+                    status.lcd_filter == 0 ? "none" :
+                    status.lcd_filter == 1 ? "default" :
+                    status.lcd_filter == 2 ? "light" :
+                    status.lcd_filter == 3 ? "legacy" : "custom" );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
 
-
-      for ( i = 0; i < 5; i++ )
+      /* custom LCD filter settings */
+      if ( status.lcd_filter < 0 )
       {
-        sprintf( buf,
-                 " %s0x%02X%s",
-                 fwi == i ? "[" : " ",
-                 fw[i],
-                 fwi == i ? "]" : " " );
-        grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                           buf, display->fore_color );
+        int             fwi = status.fw_idx;
+        unsigned char*  fw  = status.filter_weights;
+        int             i;
+
+
+        for ( i = 0; i < 5; i++ )
+        {
+          sprintf( buf,
+                   " %s0x%02X%s",
+                   fwi == i ? "[" : " ",
+                   fw[i],
+                   fwi == i ? "]" : " " );
+          grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                             buf, display->fore_color );
+        }
       }
     }
 

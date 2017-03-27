@@ -1,5 +1,12 @@
 2017-03-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftview] Hide LCD filter from grayscale modes.
+
+	* src/ftview.c (Process_Event, write_header): Check the LCD mode
+	before adjusting or reporting the LCD filter.
+
+2017-03-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftview, ftstring, ftgrid] Remove anti-aliasing toggle.
 
 	* src/ftcommon.h (FTDemo_Handle): Replace `antialias' field with
