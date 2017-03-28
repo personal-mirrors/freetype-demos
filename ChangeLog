@@ -1,3 +1,11 @@
+2017-03-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Stuff right margin.
+
+	* src/ftview.c (X_TOO_LONG): Rely on `horiAdvance' when available.
+	(Render_All): Use `FTDemo_Draw_Slot' so that updated X_TOO_LONG works.
+	(Render_Stroke, Render_Fancy): Updated.
+
 2017-03-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Hide LCD filter from grayscale modes.

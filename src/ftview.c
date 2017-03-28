@@ -43,7 +43,7 @@
 #endif
 #define CEIL( x )  ( ( (x) + 63 ) >> 6 )
 
-#define START_X  19 * 8
+#define START_X  18 * 8
 #define START_Y  4 * HEADER_HEIGHT
 
 #define INIT_SIZE( size, start_x, start_y, step_y, x, y )     \
@@ -56,9 +56,9 @@
             y = start_y;                                      \
           } while ( 0 )
 
-#define X_TOO_LONG( x, size, display )                   \
-          ( (x) + ( (size)->metrics.max_advance >> 6 ) > \
-            (display)->bitmap->width )
+#define X_TOO_LONG( x, slot, display )                   \
+          ( (x) + ( (slot)->metrics.horiAdvance >> 6 ) > \
+            (display)->bitmap->width - 3 )
 #define Y_TOO_LONG( y, size, display )       \
           ( (y) >= (display)->bitmap->rows )
 
@@ -225,6 +225,15 @@
           goto Next;
         }
 
+        if ( X_TOO_LONG( x, slot, display ) )
+        {
+          x  = start_x;
+          y += step_y;
+
+          if ( Y_TOO_LONG( y, size, display ) )
+            break;
+        }
+
         error = FTDemo_Draw_Glyph( handle, display, glyph, &x, &y );
 
         FT_Done_Glyph( glyph );
@@ -236,15 +245,6 @@
         {
           have_topleft   = 1;
           status.topleft = i;
-        }
-
-        if ( X_TOO_LONG( x, size, display ) )
-        {
-          x  = start_x;
-          y += step_y;
-
-          if ( Y_TOO_LONG( y, size, display ) )
-            break;
         }
       }
       else
@@ -363,6 +363,15 @@
       if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
         slot->bitmap_top += ystr >> 6;
 
+      if ( X_TOO_LONG( x, slot, display ) )
+      {
+        x  = start_x;
+        y += step_y;
+
+        if ( Y_TOO_LONG( y, size, display ) )
+          break;
+      }
+
       error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
 
       if ( error )
@@ -372,15 +381,6 @@
       {
         have_topleft   = 1;
         status.topleft = i;
-      }
-
-      if ( X_TOO_LONG( x, size, display ) )
-      {
-        x  = start_x;
-        y += step_y;
-
-        if ( Y_TOO_LONG( y, size, display ) )
-          break;
       }
 
       continue;
@@ -397,9 +397,11 @@
   Render_All( int  num_indices,
               int  offset )
   {
-    int      start_x, start_y, step_y, x, y;
-    int      i, have_topleft;
-    FT_Size  size;
+    int           start_x, start_y, step_y, x, y;
+    int           i, have_topleft;
+    FT_Size       size;
+    FT_Face       face;
+    FT_GlyphSlot  slot;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -411,6 +413,8 @@
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
+    face = size->face;
+    slot = face->glyph;
 
     have_topleft = 0;
 
@@ -424,7 +428,20 @@
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
-      error = FTDemo_Draw_Index( handle, display, glyph_idx, &x, &y );
+      error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
+      if ( error )
+        goto Next;
+
+      if ( X_TOO_LONG( x, slot, display ) )
+      {
+        x = start_x;
+        y += step_y;
+
+        if ( Y_TOO_LONG( y, size, display ) )
+          break;
+      }
+
+      error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
 
       if ( error )
         goto Next;
@@ -435,15 +452,6 @@
         status.topleft = i;
       }
 
-      if ( X_TOO_LONG( x, size, display ) )
-      {
-        x = start_x;
-        y += step_y;
-
-        if ( Y_TOO_LONG( y, size, display ) )
-          break;
-      }
-
       continue;
 
     Next:
@@ -452,6 +460,12 @@
 
     return FT_Err_Ok;
   }
+
+
+#undef  X_TOO_LONG
+#define X_TOO_LONG( x, size, display )                   \
+          ( (x) + ( (size)->metrics.max_advance >> 6 ) > \
+            (display)->bitmap->width )
 
 
   static FT_Error
