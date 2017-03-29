@@ -46,14 +46,15 @@
 #define START_X  18 * 8
 #define START_Y  4 * HEADER_HEIGHT
 
-#define INIT_SIZE( size, start_x, start_y, step_y, x, y )     \
-          do {                                                \
-            start_x = START_X;                                \
-            start_y = CEIL( size->metrics.height ) + START_Y; \
-            step_y  = CEIL( size->metrics.height ) + 4;       \
-                                                              \
-            x = start_x;                                      \
-            y = start_y;                                      \
+#define INIT_SIZE( size, start_x, start_y, step_y, x, y )        \
+          do {                                                   \
+            start_x = START_X;                                   \
+            start_y = CEIL( size->metrics.ascender -             \
+                            size->metrics.descender ) + START_Y; \
+            step_y  = CEIL( size->metrics.height ) + 4;          \
+                                                                 \
+            x = start_x;                                         \
+            y = start_y;                                         \
           } while ( 0 )
 
 #define X_TOO_LONG( x, slot, display )                   \

@@ -1,3 +1,7 @@
+2017-03-29  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftview.c (INIT_SIZE): Improve vertical start position.
+
 2017-03-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Stuff right margin.
