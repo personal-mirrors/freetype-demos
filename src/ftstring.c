@@ -270,7 +270,7 @@
       lcd_mode = " LCD (vert. BGR)";
       break;
     default:
-      handle->lcd_mode = 0;
+      handle->lcd_mode = LCD_MODE_MONO;
       lcd_mode = " monochrome";
     }
 

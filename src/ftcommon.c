@@ -299,7 +299,7 @@
     handle->hinted    = 1;
     handle->use_sbits = 1;
     handle->autohint  = 0;
-    handle->lcd_mode  = 1;
+    handle->lcd_mode  = LCD_MODE_AA;
     handle->color     = 1;
 
     handle->use_sbits_cache = 1;
@@ -642,7 +642,7 @@
     {
       flags |= FT_LOAD_NO_HINTING;
 
-      if ( handle->lcd_mode == 0 )
+      if ( handle->lcd_mode == LCD_MODE_MONO )
         flags |= FT_LOAD_MONOCHROME;
     }
 
@@ -773,14 +773,16 @@
       break;
 
     case FT_PIXEL_MODE_LCD:
-      target->mode  = handle->lcd_mode == 3 ? gr_pixel_mode_lcd
-                                            : gr_pixel_mode_lcd2;
+      target->mode  = handle->lcd_mode == LCD_MODE_RGB
+                      ? gr_pixel_mode_lcd
+                      : gr_pixel_mode_lcd2;
       target->grays = source->num_grays;
       break;
 
     case FT_PIXEL_MODE_LCD_V:
-      target->mode  = handle->lcd_mode == 5 ? gr_pixel_mode_lcdv
-                                            : gr_pixel_mode_lcdv2;
+      target->mode  = handle->lcd_mode == LCD_MODE_VRGB
+                      ? gr_pixel_mode_lcdv
+                      : gr_pixel_mode_lcdv2;
       target->grays = source->num_grays;
       break;
 
@@ -882,13 +884,15 @@
           break;
 
         case FT_PIXEL_MODE_LCD:
-          target->mode  = handle->lcd_mode == 3 ? gr_pixel_mode_lcd
-                                                : gr_pixel_mode_lcd2;
+          target->mode  = handle->lcd_mode == LCD_MODE_RGB
+                          ? gr_pixel_mode_lcd
+                          : gr_pixel_mode_lcd2;
           break;
 
         case FT_PIXEL_MODE_LCD_V:
-          target->mode  = handle->lcd_mode == 5 ? gr_pixel_mode_lcdv
-                                                : gr_pixel_mode_lcdv2;
+          target->mode  = handle->lcd_mode == LCD_MODE_VRGB
+                          ? gr_pixel_mode_lcdv
+                          : gr_pixel_mode_lcdv2;
           break;
 
         case FT_PIXEL_MODE_BGRA:

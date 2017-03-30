@@ -1199,7 +1199,7 @@
   static void
   event_lcd_filter_change( void )
   {
-    if ( handle->lcd_mode > 2 )
+    if ( handle->lcd_mode >= LCD_MODE_RGB )
     {
       const char*  lcd_filter = NULL;
 
