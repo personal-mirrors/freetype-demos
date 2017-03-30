@@ -1,3 +1,7 @@
+2017-03-30  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftview.c (write_header): Show current instance index.
+
 2017-03-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	Use `LCD_MODE_XXX' enum values.

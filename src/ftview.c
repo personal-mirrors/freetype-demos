@@ -1463,6 +1463,20 @@
 
     line++;
 
+    if ( face->face_index >> 16 )
+    {
+      sprintf( buf, "instance %ld/%ld",
+                    face->face_index >> 16,
+                    face->style_flags >> 16 );
+
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+    }
+    else
+      line++;
+
+    line++;
+
     /* encoding */
     if ( !( status.render_mode == RENDER_MODE_TEXT      ||
             status.render_mode == RENDER_MODE_WATERFALL ) )
