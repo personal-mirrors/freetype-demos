@@ -1,3 +1,9 @@
+2017-04-09  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftmulti.c (Render_All, Render_Text): Round advance widths.
+
+	Problem spotted by Nikolaus.
+
 2017-03-30  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftview.c (write_header): Show current instance index.

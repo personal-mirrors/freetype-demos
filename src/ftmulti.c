@@ -308,7 +308,7 @@
 
         Render_Glyph( x, y );
 
-        x += ( glyph->metrics.horiAdvance >> 6 ) + 1;
+        x += ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
 
         if ( x + size->metrics.x_ppem > bit.width )
         {
@@ -376,7 +376,7 @@
 
         Render_Glyph( x, y );
 
-        x += ( glyph->metrics.horiAdvance >> 6 ) + 1;
+        x += ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
 
         if ( x + size->metrics.x_ppem > bit.width )
         {
