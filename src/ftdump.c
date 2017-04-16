@@ -409,11 +409,17 @@
       FT_ULong  lang_id = FT_Get_CMap_Language_ID( face->charmaps[i] );
 
 
-      printf( "   %d: format %ld, platform %u, encoding %2u",
-              i,
-              format,
-              face->charmaps[i]->platform_id,
-              face->charmaps[i]->encoding_id );
+      if ( format >= 0 )
+        printf( "   %d: format %2ld, platform %u, encoding %2u",
+                i,
+                format,
+                face->charmaps[i]->platform_id,
+                face->charmaps[i]->encoding_id );
+      else
+        printf( "   %d: synthetic, platform %u, encoding %2u",
+                i,
+                face->charmaps[i]->platform_id,
+                face->charmaps[i]->encoding_id );
 
       if ( lang_id == 0xFFFFFFFFUL )
         printf( "   (Unicode Variation Sequences)" );

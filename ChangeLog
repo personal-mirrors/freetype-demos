@@ -1,3 +1,7 @@
+2017-04-16  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftdump.c (Print_Charmaps): Better show synthetic cmaps.
+
 2017-04-09  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftmulti.c (Render_All, Render_Text): Round advance widths.
