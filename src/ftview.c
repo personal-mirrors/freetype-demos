@@ -1542,9 +1542,9 @@
                        buf, display->fore_color );
 
     /* pt and ppem */
-    sprintf( buf, "%gpt (%dppem)",
+    sprintf( buf, "%gpt (%.4gppem)",
                   status.ptsize / 64.0,
-                  ( status.ptsize * status.res / 72 + 32 ) >> 6 );
+                  status.ptsize * status.res / ( 72 * 64.0 ) );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 

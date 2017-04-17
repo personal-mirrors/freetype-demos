@@ -1,3 +1,7 @@
+2017-04-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftview.c (write_header): Report fractional ppem.
+
 2017-04-16  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftdump.c (Print_Charmaps): Better show synthetic cmaps.
