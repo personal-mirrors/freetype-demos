@@ -5067,12 +5067,12 @@
 	iteration count.  Useful for repeat profiling.
 	(usage): Updated.
 
-2004-09-29  Werner Lemberg  <wl@gnu.org>
+2005-09-29  Werner Lemberg  <wl@gnu.org>
 
-	* src/ftcommon.c (FT_Demo_Update_Current_Flags): Fix variable
+	* src/ftcommon.c (FTDemo_Update_Current_Flags): Fix variable
 	shadowing.
 
-2004-09-27  David Turner  <david@freetype.org>
+2005-09-27  David Turner  <david@freetype.org>
 
 	Fix gamma handling, mainly for LCD modes.
 
@@ -5096,7 +5096,7 @@
 	* src/Jamfile: Include ftcommon.c.
 	Fix order of link libraries.
 
-2004-09-22  David Turner  <david@freetype.org>
+2005-09-22  David Turner  <david@freetype.org>
 
 	* src/ftcommon.c (FTDemo_Update_Current_Flags): Fix load flags
 	computation to mimic libXft's behaviour.
