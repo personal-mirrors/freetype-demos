@@ -1,3 +1,9 @@
+2017-04-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftview.c (write_header): Report fractional ppem differently.
+
+	To convince Werner.
+
 2017-04-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftview.c (write_header): Report fractional ppem.
