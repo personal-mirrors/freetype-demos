@@ -541,10 +541,12 @@
     unsigned char*  t;
     unsigned char*  line;
     int             pitch;
+    int             width;
     int             i, j, k;
 
     pitch = bit->pitch > 0 ?  bit->pitch
                            : -bit->pitch;
+    width = bit->width;
 
     t = (unsigned char*)malloc( (size_t)( pitch * bit->rows *
                                           scale * scale ) );
@@ -586,7 +588,7 @@
       case gr_pixel_mode_lcd2:
         for ( i = 0; i < bit->rows; i++ )
         {
-          for ( j = 0; j < pitch; j += 3 )
+          for ( j = 0; j < width; j += 3 )
             for ( k = 0; k < scale; k++ )
             {
               line[j * scale + 3 * k    ] = s[i * pitch + j    ];

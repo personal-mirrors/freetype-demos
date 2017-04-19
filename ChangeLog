@@ -1,3 +1,11 @@
+2014-04-19  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Fix out-of-array memory access.
+
+	* src/ftgrid.c (bitmap_scale) [gr_pixel_mode_lcd]: We handle input
+	pixel by pixel, not the full line; consequently, we have to use
+	`width', not `pitch'.
+
 2017-04-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftview.c (write_header): Report fractional ppem differently.
