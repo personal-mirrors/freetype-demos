@@ -257,6 +257,9 @@
     case LCD_MODE_LIGHT:
       lcd_mode = " light AA";
       break;
+    case LCD_MODE_SLIGHT:
+      lcd_mode = " slight AA";
+      break;
     case LCD_MODE_RGB:
       lcd_mode = " LCD (horiz. RGB)";
       break;

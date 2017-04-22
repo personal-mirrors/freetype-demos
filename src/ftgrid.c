@@ -1176,6 +1176,9 @@
     case LCD_MODE_LIGHT:
       lcd_mode = "light AA";
       break;
+    case LCD_MODE_SLIGHT:
+      lcd_mode = "slight AA";
+      break;
     case LCD_MODE_RGB:
       lcd_mode = "LCD (horiz. RGB)";
       break;
@@ -1189,6 +1192,10 @@
       lcd_mode = "LCD (vert. BGR)";
       break;
     }
+
+    if ( delta )
+      FTC_Manager_Reset( handle->cache_manager );
+
     sprintf( status.header_buffer, "rendering mode changed to %s",
              lcd_mode );
 
@@ -1500,8 +1507,10 @@
 
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( '1' ):
-      if ( handle->hinted                                             &&
-           ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
+      if ( handle->hinted                          &&
+           ( handle->autohint                    ||
+             handle->lcd_mode == LCD_MODE_LIGHT  ||
+             handle->lcd_mode == LCD_MODE_SLIGHT ) )
       {
         status.header = "dumping glyph edges to stdout";
         af_glyph_hints_dump_edges( _af_debug_hints, 1 );
@@ -1509,8 +1518,10 @@
       break;
 
     case grKEY( '2' ):
-      if ( handle->hinted                                             &&
-           ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
+      if ( handle->hinted                          &&
+           ( handle->autohint                    ||
+             handle->lcd_mode == LCD_MODE_LIGHT  ||
+             handle->lcd_mode == LCD_MODE_SLIGHT ) )
       {
         status.header = "dumping glyph segments to stdout";
         af_glyph_hints_dump_segments( _af_debug_hints, 1 );
@@ -1518,8 +1529,10 @@
       break;
 
     case grKEY( '3' ):
-      if ( handle->hinted                                             &&
-           ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
+      if ( handle->hinted                          &&
+           ( handle->autohint                    ||
+             handle->lcd_mode == LCD_MODE_LIGHT  ||
+             handle->lcd_mode == LCD_MODE_SLIGHT ) )
       {
         status.header = "dumping glyph points to stdout";
         af_glyph_hints_dump_points( _af_debug_hints, 1 );
@@ -1548,6 +1561,7 @@
       status.header  = handle->hinted ? "glyph hinting is now active"
                                       : "glyph hinting is now ignored";
 
+      FTC_Manager_Reset( handle->cache_manager );
       FTDemo_Update_Current_Flags( handle );
       break;
 
@@ -1572,7 +1586,9 @@
       break;
 
     case grKEY( 'H' ):
-      if ( !( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT ) )
+      if ( !( handle->autohint                    ||
+              handle->lcd_mode == LCD_MODE_LIGHT  ||
+              handle->lcd_mode == LCD_MODE_SLIGHT ) )
       {
         FT_Face    face;
         FT_Module  module;
@@ -1606,7 +1622,9 @@
 
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'V' ):
-      if ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT )
+      if ( handle->autohint                    ||
+           handle->lcd_mode == LCD_MODE_LIGHT  ||
+           handle->lcd_mode == LCD_MODE_SLIGHT )
       {
         status.do_vert_hints = !status.do_vert_hints;
         status.header = status.do_vert_hints ? "vertical hinting enabled"
@@ -1617,7 +1635,9 @@
       break;
 
     case grKEY( 'B' ):
-      if ( handle->autohint || handle->lcd_mode == LCD_MODE_LIGHT )
+      if ( handle->autohint                    ||
+           handle->lcd_mode == LCD_MODE_LIGHT  ||
+           handle->lcd_mode == LCD_MODE_SLIGHT )
       {
         status.do_blue_hints = !status.do_blue_hints;
         status.header = status.do_blue_hints ? "blue zone hinting enabled"

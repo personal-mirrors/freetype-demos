@@ -517,6 +517,7 @@ private:
   {
     AntiAliasing_None,
     AntiAliasing_Normal,
+    AntiAliasing_Light,
     AntiAliasing_Slight,
     AntiAliasing_LCD,
     AntiAliasing_LCD_BGR,

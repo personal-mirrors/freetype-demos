@@ -1,3 +1,36 @@
+2017-04-19  Werner Lemberg  <wl@gnu.org>
+
+	Support new `slight' auto-hinting mode.
+
+	Note that currently only `ftdiff' shows what the new mode really can
+	do – `ftview' uses integer advance values, which doesn't work well
+	with the `slight' mode.
+
+	* src/ftcommon.h (LCD_MODE_SLIGHT): New enumeration.
+
+	* src/ftcommon.c (FTDemo_Update_Current_Flags,
+	FTDemo_Glyph_To_Bitmap): Handle `LCD_MODE_SLIGHT'.
+
+	* src/ftdiff.c (HintMode): Add `HINT_MODE_AUTOHINT_SLIGHT'.
+	(render_mode_names): Updated.
+	(render_state_draw): Handle `HINT_MODE_AUTOHINT_SLIGHT'.
+
+	* src/ftgrid.c (event_lcd_mode_change): Handle `LCD_MODE_SLIGHT'.
+	(Process_Event): Updated.
+
+	* src/ftstring.c (event_lcdmode_change): Handle `LCD_MODE_SLIGHT'.
+
+	* src/ftview.c (event_help): Updated; we now have keys A-H to
+	directly select rendering modes.
+	(Process_Event, write_header): Updated.
+
+	* src/ftinspect.h (AntiAliasing): Add `AntiAliasing_Light'.
+
+	* src/ftinspect.cpp (Engine::update): Handle `AntiAliasing_Light',
+	update `AntiAliasing_Slight'.
+	(MainGUI::checkHinting, MainGUI::checkAutoHinting,
+	MainGUI::checkAntiAliasing, MainGUI::createLayout): Updated.
+
 2014-04-19  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Fix out-of-array memory access.

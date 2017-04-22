@@ -622,6 +622,10 @@
         target = FT_LOAD_TARGET_LIGHT;
         break;
 
+      case LCD_MODE_SLIGHT:
+        target = FT_LOAD_TARGET_SLIGHT;
+        break;
+
       case LCD_MODE_RGB:
       case LCD_MODE_BGR:
         target = FT_LOAD_TARGET_LCD;
@@ -716,6 +720,10 @@
 
       case LCD_MODE_LIGHT:
         render_mode = FT_RENDER_MODE_LIGHT;
+        break;
+
+      case LCD_MODE_SLIGHT:
+        render_mode = FT_RENDER_MODE_SLIGHT;
         break;
 
       case LCD_MODE_RGB:

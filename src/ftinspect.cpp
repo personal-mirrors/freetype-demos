@@ -572,8 +572,12 @@ Engine::update()
     {
       switch (index)
       {
-      case MainGUI::AntiAliasing_Slight:
+      case MainGUI::AntiAliasing_Light:
         target = FT_LOAD_TARGET_LIGHT;
+        break;
+
+      case MainGUI::AntiAliasing_Slight:
+        target = FT_LOAD_TARGET_SLIGHT;
         break;
 
       case MainGUI::AntiAliasing_LCD:
@@ -1513,6 +1517,7 @@ MainGUI::checkHinting()
     segmentDrawingCheckBox->setEnabled(false);
     warpingCheckBox->setEnabled(false);
 
+    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
   }
 
@@ -1556,6 +1561,7 @@ MainGUI::checkAutoHinting()
     if (engine->haveWarping)
       warpingCheckBox->setEnabled(true);
 
+    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, true);
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, true);
   }
   else
@@ -1573,9 +1579,11 @@ MainGUI::checkAutoHinting()
     segmentDrawingCheckBox->setEnabled(false);
     warpingCheckBox->setEnabled(false);
 
+    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
 
-    if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_Slight)
+    if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_Light
+        || antiAliasingComboBoxx->currentIndex() == AntiAliasing_Slight)
       antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
   }
 
@@ -1590,6 +1598,7 @@ MainGUI::checkAntiAliasing()
 
   if (index == AntiAliasing_None
       || index == AntiAliasing_Normal
+      || index == AntiAliasing_Light
       || index == AntiAliasing_Slight)
   {
     lcdFilterLabel->setEnabled(false);
@@ -1993,6 +2002,8 @@ MainGUI::createLayout()
                                     tr("None"));
   antiAliasingComboBoxx->insertItem(AntiAliasing_Normal,
                                     tr("Normal"));
+  antiAliasingComboBoxx->insertItem(AntiAliasing_Light,
+                                    tr("Light"));
   antiAliasingComboBoxx->insertItem(AntiAliasing_Slight,
                                     tr("Slight"));
   antiAliasingComboBoxx->insertItem(AntiAliasing_LCD,

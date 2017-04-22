@@ -735,33 +735,33 @@
     grWriteln( "  1         all glyphs                    A         monochrome              " );
     grWriteln( "  2         all glyphs fancy              B         normal                  " );
     grWriteln( "             (emboldened / slanted)       C         light                   " );
-    grWriteln( "  3         all glyphs stroked            D         horizontal RGB (LCD)    " );
-    grWriteln( "  4         text string                   E         horizontal BGR (LCD)    " );
-    grWriteln( "  5         waterfall                     F         vertical RGB (LCD)      " );
-    grWriteln( "  space     cycle forwards                G         vertical BGR (LCD)      " );
-    grWriteln( "  backspace cycle backwards             k, l        cycle back and forth    " );
-    grWriteln( "                                                                            " );
-    grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
-    grWriteln( "c           toggle color glyphs                      emboldening (in mode 2)" );
-    grWriteln( "K           toggle cache modes          y, Y        adjust vertical         " );
-    grWriteln( "                                                     emboldening (in mode 2)" );
-    grWriteln( "p, n        previous/next font          s, S        adjust slanting         " );
-    grWriteln( "                                                     (in mode 2)            " );
-    grWriteln( "Up, Down    adjust size by 1 unit       r, R        adjust stroking radius  " );
-    grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 3)            " );
-    grWriteln( "                                                                            " );
-    grWriteln( "Left, Right adjust index by 1           L           cycle through           " );
-    grWriteln( "F7, F8      adjust index by 16                       LCD filtering          " );
-    grWriteln( "F9, F10     adjust index by 256         [, ]        select custom LCD       " );
-    grWriteln( "F11, F12    adjust index by 4096                      filter weight         " );
-    grWriteln( "                                                      (if custom filtering) " );
-    grWriteln( "h           toggle hinting              -, +(=)     adjust selected custom  " );
-    grWriteln( "H           cycle through hinting                    LCD filter weight      " );
-    grWriteln( "             engines (if available)                                         " );
-    grWriteln( "f           toggle forced auto-         g, v        adjust gamma value      " );
-    grWriteln( "             hinting (if hinting)                                           " );
-    grWriteln( "w           toggle warping (in light    Tab         cycle through charmaps  " );
-    grWriteln( "             AA mode, if available)                                         " );
+    grWriteln( "  3         all glyphs stroked            D         slight                  " );
+    grWriteln( "  4         text string                   E         horizontal RGB (LCD)    " );
+    grWriteln( "  5         waterfall                     F         horizontal BGR (LCD)    " );
+    grWriteln( "  space     cycle forwards                G         vertical RGB (LCD)      " );
+    grWriteln( "  backspace cycle backwards               H         vertical BGR (LCD)      " );
+    grWriteln( "                                        k, l        cycle back and forth    " );
+    grWriteln( "b           toggle embedded bitmaps                                         " );
+    grWriteln( "c           toggle color glyphs         x, X        adjust horizontal       " );
+    grWriteln( "K           toggle cache modes                       emboldening (in mode 2)" );
+    grWriteln( "                                        y, Y        adjust vertical         " );
+    grWriteln( "p, n        previous/next font                       emboldening (in mode 2)" );
+    grWriteln( "                                        s, S        adjust slanting         " );
+    grWriteln( "Up, Down    adjust size by 1 unit                    (in mode 2)            " );
+    grWriteln( "PgUp, PgDn  adjust size by 10 units     r, R        adjust stroking radius  " );
+    grWriteln( "                                                     (in mode 3)            " );
+    grWriteln( "Left, Right adjust index by 1                                               " );
+    grWriteln( "F7, F8      adjust index by 16          L           cycle through           " );
+    grWriteln( "F9, F10     adjust index by 256                      LCD filtering          " );
+    grWriteln( "F11, F12    adjust index by 4096        [, ]        select custom LCD       " );
+    grWriteln( "                                                      filter weight         " );
+    grWriteln( "h           toggle hinting                            (if custom filtering) " );
+    grWriteln( "H           cycle through hinting       -, +(=)     adjust selected custom  " );
+    grWriteln( "             engines (if available)                  LCD filter weight      " );
+    grWriteln( "f           toggle forced auto-                                             " );
+    grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
+    grWriteln( "w           toggle warping (in light                                        " );
+    grWriteln( "             AA mode, if available)     Tab         cycle through charmaps  " );
     grWriteln( "                                                                            " );
     grWriteln( "                                        q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
@@ -1135,8 +1135,9 @@
       break;
 
     case grKEY( 'H' ):
-      if ( !handle->autohint                  &&
-           handle->lcd_mode != LCD_MODE_LIGHT )
+      if ( !handle->autohint                   &&
+           handle->lcd_mode != LCD_MODE_LIGHT  &&
+           handle->lcd_mode != LCD_MODE_SLIGHT )
       {
         FT_Face    face;
         FT_Module  module;
@@ -1626,6 +1627,9 @@
       case LCD_MODE_LIGHT:
         lcd_mode = "light AA";
         break;
+      case LCD_MODE_SLIGHT:
+        lcd_mode = "slight AA";
+        break;
       case LCD_MODE_RGB:
         lcd_mode = "LCD (horiz. RGB)";
         break;
@@ -1656,14 +1660,16 @@
     {
       /* auto-hinting */
       sprintf( buf, " forced auto: %s",
-                    ( handle->autohint                   ||
-                      handle->lcd_mode == LCD_MODE_LIGHT ) ? "on" : "off" );
+                    ( handle->autohint                    ||
+                      handle->lcd_mode == LCD_MODE_LIGHT  ||
+                      handle->lcd_mode == LCD_MODE_SLIGHT ) ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
 
-    if ( !handle->autohint                  &&
-         handle->lcd_mode != LCD_MODE_LIGHT )
+    if ( !handle->autohint                   &&
+         handle->lcd_mode != LCD_MODE_LIGHT  &&
+         handle->lcd_mode != LCD_MODE_SLIGHT )
     {
       /* hinting engine */
 
