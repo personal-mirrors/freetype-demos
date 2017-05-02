@@ -576,10 +576,6 @@ Engine::update()
         target = FT_LOAD_TARGET_LIGHT;
         break;
 
-      case MainGUI::AntiAliasing_Slight:
-        target = FT_LOAD_TARGET_SLIGHT;
-        break;
-
       case MainGUI::AntiAliasing_LCD:
       case MainGUI::AntiAliasing_LCD_BGR:
         target = FT_LOAD_TARGET_LCD;
@@ -1518,7 +1514,6 @@ MainGUI::checkHinting()
     warpingCheckBox->setEnabled(false);
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
-    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
   }
 
   drawGlyph();
@@ -1562,7 +1557,6 @@ MainGUI::checkAutoHinting()
       warpingCheckBox->setEnabled(true);
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, true);
-    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, true);
   }
   else
   {
@@ -1580,10 +1574,8 @@ MainGUI::checkAutoHinting()
     warpingCheckBox->setEnabled(false);
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
-    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Slight, false);
 
-    if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_Light
-        || antiAliasingComboBoxx->currentIndex() == AntiAliasing_Slight)
+    if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_Light)
       antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
   }
 
@@ -1598,8 +1590,7 @@ MainGUI::checkAntiAliasing()
 
   if (index == AntiAliasing_None
       || index == AntiAliasing_Normal
-      || index == AntiAliasing_Light
-      || index == AntiAliasing_Slight)
+      || index == AntiAliasing_Light)
   {
     lcdFilterLabel->setEnabled(false);
     lcdFilterComboBox->setEnabled(false);
@@ -2004,8 +1995,6 @@ MainGUI::createLayout()
                                     tr("Normal"));
   antiAliasingComboBoxx->insertItem(AntiAliasing_Light,
                                     tr("Light"));
-  antiAliasingComboBoxx->insertItem(AntiAliasing_Slight,
-                                    tr("Slight"));
   antiAliasingComboBoxx->insertItem(AntiAliasing_LCD,
                                     tr("LCD (RGB)"));
   antiAliasingComboBoxx->insertItem(AntiAliasing_LCD_BGR,

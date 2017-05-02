@@ -619,11 +619,8 @@
         break;
 
       case LCD_MODE_LIGHT:
+      case LCD_MODE_LIGHT_SUBPIXEL:
         target = FT_LOAD_TARGET_LIGHT;
-        break;
-
-      case LCD_MODE_SLIGHT:
-        target = FT_LOAD_TARGET_SLIGHT;
         break;
 
       case LCD_MODE_RGB:
@@ -719,11 +716,8 @@
         break;
 
       case LCD_MODE_LIGHT:
+      case LCD_MODE_LIGHT_SUBPIXEL:
         render_mode = FT_RENDER_MODE_LIGHT;
-        break;
-
-      case LCD_MODE_SLIGHT:
-        render_mode = FT_RENDER_MODE_SLIGHT;
         break;
 
       case LCD_MODE_RGB:
@@ -1133,12 +1127,19 @@
         glyph->vadvance.x = 0;
         glyph->vadvance.y = -metrics->vertAdvance;
 
-        if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )
-          glyph->delta = -1 * 64;
-        else if ( prev_rsb_delta - face->glyph->lsb_delta < -32 )
-          glyph->delta = 1 * 64;
+        if ( handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
+          glyph->delta = face->glyph->lsb_delta - face->glyph->rsb_delta;
         else
-          glyph->delta = 0;
+        {
+          if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )
+            glyph->delta = -1 * 64;
+          else if ( prev_rsb_delta - face->glyph->lsb_delta < -32 )
+            glyph->delta = 1 * 64;
+          else
+            glyph->delta = 0;
+
+          prev_rsb_delta = face->glyph->rsb_delta;
+        }
       }
     }
 
@@ -1196,6 +1197,9 @@
         advances[i].x >>= 10;
         advances[i].y >>= 10;
 
+        if ( handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
+          advances[i].x += glyph->delta;
+
         if ( prev_advance )
         {
           prev_advance->x += track_kern;
@@ -1211,7 +1215,8 @@
             prev_advance->x += kern.x;
             prev_advance->y += kern.y;
 
-            if ( sc->kerning_mode > KERNING_MODE_NORMAL )
+            if ( handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL &&
+                 sc->kerning_mode > KERNING_MODE_NORMAL      )
               prev_advance->x += glyph->delta;
           }
         }
@@ -1219,7 +1224,8 @@
 
       if ( prev_advance )
       {
-        if ( handle->hinted )
+        if ( handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL &&
+             handle->hinted                              )
         {
           prev_advance->x = ROUND( prev_advance->x );
           prev_advance->y = ROUND( prev_advance->y );
@@ -1235,7 +1241,8 @@
 
     if ( prev_advance )
     {
-      if ( handle->hinted )
+      if ( handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL &&
+           handle->hinted                              )
       {
         prev_advance->x = ROUND( prev_advance->x );
         prev_advance->y = ROUND( prev_advance->y );

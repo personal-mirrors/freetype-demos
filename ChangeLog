@@ -1,3 +1,42 @@
+2017-05-02  Werner Lemberg  <wl@gnu.org>
+
+	Remove `slight' auto-hinting mode.  Add sub-pixel `light' mode.
+
+	* src/ftcommon.h (LCD_MODE_SLIGHT): Replace with...
+	(LCD_MODE_LIGHT_SUBPIXEL): ...this new enum value.
+
+	* src/ftcommon.c (FTDemo_Update_Current_Flags,
+	FTDemo_Glyph_To_Bitmap): Updated.
+	(string_load): Handle `LCD_MODE_LIGHT_SUBPIXEL'.
+	Make integer delta support actually work.
+	(string_render_prepare): Support `LCD_MODE_LIGHT_SUBPIXEL'.
+
+	* src/ftdiff.c (HintMode): Replace HINT_MODE_AUTOHINT_SLIGHT with
+	HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL.
+	(render_mode_names, render_state_draw, event_help): Updated.
+
+	* src/ftgrid.c (grid_status_draw_outline): Show fractional advance
+	width.
+	(event_lcd_mode_change, Process_Event): Updated.
+
+	* src/ftstring.c (event_lcdmode_change): Updated.
+
+	* src/ftview.c (lcd_modes): New array to map indices (as produced by
+	key presses) to LCD modes; we omit LCD_MODE_LIGHT_SUBPIXEL, which
+	doesn't make much sense within ftview.
+	(N_LCD_IDXS): New macro.
+	(status): Replace `lcd_mode' with `lcd_idx'.
+	(event_help): Revert change from 2017-04-19.
+	(Process_Event): Updated to use `lcd_modes' array.
+	Remove references to LCD_MODE_LIGHT.
+	(write_header, usage, parse_cmdline, main): Updated.
+
+	* src/ftinspect.h (AntiAliasing): Remove `AntiAliasing_Slight'.
+
+	* src/ftinspect.cpp (Engine::update, MainGUI::checkHinting,
+	MainGUI::checkAutoHinting, MainGUI::checkAntiAliasing,
+	MainGUI::createLayout): Updated.
+
 2017-04-19  Werner Lemberg  <wl@gnu.org>
 
 	Support new `slight' auto-hinting mode.
@@ -3937,7 +3976,7 @@
 	Render_Embolden, Render_All, Render_Text, Render_Waterfall): Ditto.
 
 2011-05-01  Just Fill Bugs  <mozbugbox@yahoo.com.au>
-            Werner Lemberg  <wl@gnu.org>
+	    Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Show autohinter segments.  Toggle with key `s'.
 

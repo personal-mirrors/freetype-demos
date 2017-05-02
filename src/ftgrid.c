@@ -685,7 +685,10 @@
     /* show advance width */
     grFillVLine( st->disp_bitmap,
                  st->x_origin +
-                   ( size->face->glyph->metrics.horiAdvance * st->scale >> 6 ),
+                   ( ( size->face->glyph->metrics.horiAdvance +
+                       size->face->glyph->lsb_delta           -
+                       size->face->glyph->rsb_delta           ) *
+                     st->scale >> 6 ),
                  0,
                  st->disp_height,
                  st->axis_color );
@@ -1176,8 +1179,8 @@
     case LCD_MODE_LIGHT:
       lcd_mode = "light AA";
       break;
-    case LCD_MODE_SLIGHT:
-      lcd_mode = "slight AA";
+    case LCD_MODE_LIGHT_SUBPIXEL:
+      lcd_mode = "light AA (subpixel positioning)";
       break;
     case LCD_MODE_RGB:
       lcd_mode = "LCD (horiz. RGB)";
@@ -1507,10 +1510,10 @@
 
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( '1' ):
-      if ( handle->hinted                          &&
-           ( handle->autohint                    ||
-             handle->lcd_mode == LCD_MODE_LIGHT  ||
-             handle->lcd_mode == LCD_MODE_SLIGHT ) )
+      if ( handle->hinted                                  &&
+           ( handle->autohint                            ||
+             handle->lcd_mode == LCD_MODE_LIGHT          ||
+             handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
         status.header = "dumping glyph edges to stdout";
         af_glyph_hints_dump_edges( _af_debug_hints, 1 );
@@ -1518,10 +1521,10 @@
       break;
 
     case grKEY( '2' ):
-      if ( handle->hinted                          &&
-           ( handle->autohint                    ||
-             handle->lcd_mode == LCD_MODE_LIGHT  ||
-             handle->lcd_mode == LCD_MODE_SLIGHT ) )
+      if ( handle->hinted                                  &&
+           ( handle->autohint                            ||
+             handle->lcd_mode == LCD_MODE_LIGHT          ||
+             handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
         status.header = "dumping glyph segments to stdout";
         af_glyph_hints_dump_segments( _af_debug_hints, 1 );
@@ -1529,10 +1532,10 @@
       break;
 
     case grKEY( '3' ):
-      if ( handle->hinted                          &&
-           ( handle->autohint                    ||
-             handle->lcd_mode == LCD_MODE_LIGHT  ||
-             handle->lcd_mode == LCD_MODE_SLIGHT ) )
+      if ( handle->hinted                                  &&
+           ( handle->autohint                            ||
+             handle->lcd_mode == LCD_MODE_LIGHT          ||
+             handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
         status.header = "dumping glyph points to stdout";
         af_glyph_hints_dump_points( _af_debug_hints, 1 );
@@ -1586,9 +1589,9 @@
       break;
 
     case grKEY( 'H' ):
-      if ( !( handle->autohint                    ||
-              handle->lcd_mode == LCD_MODE_LIGHT  ||
-              handle->lcd_mode == LCD_MODE_SLIGHT ) )
+      if ( !( handle->autohint                            ||
+              handle->lcd_mode == LCD_MODE_LIGHT          ||
+              handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
         FT_Face    face;
         FT_Module  module;
@@ -1622,9 +1625,9 @@
 
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( 'V' ):
-      if ( handle->autohint                    ||
-           handle->lcd_mode == LCD_MODE_LIGHT  ||
-           handle->lcd_mode == LCD_MODE_SLIGHT )
+      if ( handle->autohint                            ||
+           handle->lcd_mode == LCD_MODE_LIGHT          ||
+           handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
       {
         status.do_vert_hints = !status.do_vert_hints;
         status.header = status.do_vert_hints ? "vertical hinting enabled"
@@ -1635,9 +1638,9 @@
       break;
 
     case grKEY( 'B' ):
-      if ( handle->autohint                    ||
-           handle->lcd_mode == LCD_MODE_LIGHT  ||
-           handle->lcd_mode == LCD_MODE_SLIGHT )
+      if ( handle->autohint                            ||
+           handle->lcd_mode == LCD_MODE_LIGHT          ||
+           handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
       {
         status.do_blue_hints = !status.do_blue_hints;
         status.header = status.do_blue_hints ? "blue zone hinting enabled"

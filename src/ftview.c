@@ -71,6 +71,21 @@
 #define N_CFF_HINTING_ENGINES  2
 
 
+  /* omit LCD_MODE_LIGHT_SUBPIXEL; we don't need it in this application */
+  static int  lcd_modes[] =
+  {
+    LCD_MODE_MONO,
+    LCD_MODE_AA,
+    LCD_MODE_LIGHT,
+    LCD_MODE_RGB,
+    LCD_MODE_BGR,
+    LCD_MODE_VRGB,
+    LCD_MODE_VBGR
+  };
+
+#define N_LCD_IDXS  ( sizeof ( lcd_modes ) / sizeof ( int ) )
+
+
   enum
   {
     RENDER_MODE_ALL = 0,
@@ -92,7 +107,7 @@
 
     int            res;
     int            ptsize;            /* current point size, 26.6 format */
-    int            lcd_mode;
+    int            lcd_idx;
     double         gamma;
     double         xbold_factor;
     double         ybold_factor;
@@ -117,7 +132,7 @@
 
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
-               72, 48, -1, GAMMA, 0.04, 0.04, 0.02, 0.22,
+               72, 48, 1, GAMMA, 0.04, 0.04, 0.02, 0.22,
                0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
                FT_LCD_FILTER_DEFAULT, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
@@ -735,33 +750,33 @@
     grWriteln( "  1         all glyphs                    A         monochrome              " );
     grWriteln( "  2         all glyphs fancy              B         normal                  " );
     grWriteln( "             (emboldened / slanted)       C         light                   " );
-    grWriteln( "  3         all glyphs stroked            D         slight                  " );
-    grWriteln( "  4         text string                   E         horizontal RGB (LCD)    " );
-    grWriteln( "  5         waterfall                     F         horizontal BGR (LCD)    " );
-    grWriteln( "  space     cycle forwards                G         vertical RGB (LCD)      " );
-    grWriteln( "  backspace cycle backwards               H         vertical BGR (LCD)      " );
-    grWriteln( "                                        k, l        cycle back and forth    " );
-    grWriteln( "b           toggle embedded bitmaps                                         " );
-    grWriteln( "c           toggle color glyphs         x, X        adjust horizontal       " );
-    grWriteln( "K           toggle cache modes                       emboldening (in mode 2)" );
-    grWriteln( "                                        y, Y        adjust vertical         " );
-    grWriteln( "p, n        previous/next font                       emboldening (in mode 2)" );
-    grWriteln( "                                        s, S        adjust slanting         " );
-    grWriteln( "Up, Down    adjust size by 1 unit                    (in mode 2)            " );
-    grWriteln( "PgUp, PgDn  adjust size by 10 units     r, R        adjust stroking radius  " );
-    grWriteln( "                                                     (in mode 3)            " );
-    grWriteln( "Left, Right adjust index by 1                                               " );
-    grWriteln( "F7, F8      adjust index by 16          L           cycle through           " );
-    grWriteln( "F9, F10     adjust index by 256                      LCD filtering          " );
-    grWriteln( "F11, F12    adjust index by 4096        [, ]        select custom LCD       " );
-    grWriteln( "                                                      filter weight         " );
-    grWriteln( "h           toggle hinting                            (if custom filtering) " );
-    grWriteln( "H           cycle through hinting       -, +(=)     adjust selected custom  " );
-    grWriteln( "             engines (if available)                  LCD filter weight      " );
-    grWriteln( "f           toggle forced auto-                                             " );
-    grWriteln( "             hinting (if hinting)       g, v        adjust gamma value      " );
-    grWriteln( "w           toggle warping (in light                                        " );
-    grWriteln( "             AA mode, if available)     Tab         cycle through charmaps  " );
+    grWriteln( "  3         all glyphs stroked            D         horizontal RGB (LCD)    " );
+    grWriteln( "  4         text string                   E         horizontal BGR (LCD)    " );
+    grWriteln( "  5         waterfall                     F         vertical RGB (LCD)      " );
+    grWriteln( "  space     cycle forwards                G         vertical BGR (LCD)      " );
+    grWriteln( "  backspace cycle backwards             k, l        cycle back and forth    " );
+    grWriteln( "                                                                            " );
+    grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
+    grWriteln( "c           toggle color glyphs                      emboldening (in mode 2)" );
+    grWriteln( "K           toggle cache modes          y, Y        adjust vertical         " );
+    grWriteln( "                                                     emboldening (in mode 2)" );
+    grWriteln( "p, n        previous/next font          s, S        adjust slanting         " );
+    grWriteln( "                                                     (in mode 2)            " );
+    grWriteln( "Up, Down    adjust size by 1 unit       r, R        adjust stroking radius  " );
+    grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 3)            " );
+    grWriteln( "                                                                            " );
+    grWriteln( "Left, Right adjust index by 1           L           cycle through           " );
+    grWriteln( "F7, F8      adjust index by 16                       LCD filtering          " );
+    grWriteln( "F9, F10     adjust index by 256         [, ]        select custom LCD       " );
+    grWriteln( "F11, F12    adjust index by 4096                      filter weight         " );
+    grWriteln( "                                                      (if custom filtering) " );
+    grWriteln( "h           toggle hinting              -, +(=)     adjust selected custom  " );
+    grWriteln( "H           cycle through hinting                    LCD filter weight      " );
+    grWriteln( "             engines (if available)                                         " );
+    grWriteln( "f           toggle forced auto-         g, v        adjust gamma value      " );
+    grWriteln( "             hinting (if hinting)                                           " );
+    grWriteln( "w           toggle warping (in light    Tab         cycle through charmaps  " );
+    grWriteln( "             AA mode, if available)                                         " );
     grWriteln( "                                                                            " );
     grWriteln( "                                        q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
@@ -1079,13 +1094,19 @@
       return ret;
     }
 
-    if ( handle->lcd_mode == (int)( event->key - 'A' ) )
-      return ret;
-    if ( event->key >= 'A' && event->key < 'A' + N_LCD_MODES )
+    if ( event->key >= 'A'             &&
+         event->key < 'A' + N_LCD_IDXS )
     {
-      handle->lcd_mode = event->key - 'A';
+      int  lcd_idx = (int)( event->key - 'A' );
+
+
+      if ( status.lcd_idx == lcd_idx )
+        return ret;
+
+      handle->lcd_mode = lcd_modes[lcd_idx];
       FTDemo_Update_Current_Flags( handle );
-      status.update = 1;
+      status.update  = 1;
+      status.lcd_idx = lcd_idx;
       return ret;
     }
 
@@ -1135,9 +1156,8 @@
       break;
 
     case grKEY( 'H' ):
-      if ( !handle->autohint                   &&
-           handle->lcd_mode != LCD_MODE_LIGHT  &&
-           handle->lcd_mode != LCD_MODE_SLIGHT )
+      if ( !handle->autohint                  &&
+           handle->lcd_mode != LCD_MODE_LIGHT )
       {
         FT_Face    face;
         FT_Module  module;
@@ -1159,13 +1179,12 @@
 
     case grKEY( 'l' ):
     case grKEY( 'k' ):
-      handle->lcd_mode = ( event->key == grKEY( 'l' ) )
-                         ? ( ( handle->lcd_mode == ( N_LCD_MODES - 1 ) )
-                             ? 0
-                             : handle->lcd_mode + 1 )
-                         : ( ( handle->lcd_mode == 0 )
-                             ? ( N_LCD_MODES - 1 )
-                             : handle->lcd_mode - 1 );
+      status.lcd_idx =
+        ( status.lcd_idx                          +
+          ( event->key == grKEY( 'l' ) ? 1 : -1 ) +
+          N_LCD_IDXS                              ) % N_LCD_IDXS;
+
+      handle->lcd_mode = lcd_modes[status.lcd_idx];
       FTDemo_Update_Current_Flags( handle );
       status.update = 1;
       break;
@@ -1627,9 +1646,6 @@
       case LCD_MODE_LIGHT:
         lcd_mode = "light AA";
         break;
-      case LCD_MODE_SLIGHT:
-        lcd_mode = "slight AA";
-        break;
       case LCD_MODE_RGB:
         lcd_mode = "LCD (horiz. RGB)";
         break;
@@ -1660,16 +1676,14 @@
     {
       /* auto-hinting */
       sprintf( buf, " forced auto: %s",
-                    ( handle->autohint                    ||
-                      handle->lcd_mode == LCD_MODE_LIGHT  ||
-                      handle->lcd_mode == LCD_MODE_SLIGHT ) ? "on" : "off" );
+                    ( handle->autohint                   ||
+                      handle->lcd_mode == LCD_MODE_LIGHT ) ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
 
-    if ( !handle->autohint                   &&
-         handle->lcd_mode != LCD_MODE_LIGHT  &&
-         handle->lcd_mode != LCD_MODE_SLIGHT )
+    if ( !handle->autohint                  &&
+         handle->lcd_mode != LCD_MODE_LIGHT )
     {
       /* hinting engine */
 
@@ -1825,8 +1839,8 @@
       "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -m text   Use `text' for rendering.\n" );
     fprintf( stderr,
-      "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
-             N_LCD_MODES );
+      "  -l mode   Set start-up rendering mode (0 <= mode <= %ld).\n",
+             N_LCD_IDXS );
     fprintf( stderr,
       "  -p        Preload file in memory to simulate memory-mapping.\n"
       "\n"
@@ -1871,11 +1885,11 @@
         break;
 
       case 'l':
-        status.lcd_mode = atoi( optarg );
-        if ( status.lcd_mode < 0 || status.lcd_mode > N_LCD_MODES )
+        status.lcd_idx = atoi( optarg );
+        if ( status.lcd_idx < 0 || status.lcd_idx > (int)N_LCD_IDXS )
         {
-          fprintf( stderr, "argument to `l' must be between 0 and %d\n",
-                   N_LCD_MODES );
+          fprintf( stderr, "argument to `l' must be between 0 and %ld\n",
+                   N_LCD_IDXS );
           exit( 3 );
         }
         break;
@@ -2007,8 +2021,7 @@
 
     event_font_change( 0 );
 
-    if ( status.lcd_mode >= 0 )
-      handle->lcd_mode = status.lcd_mode;
+    handle->lcd_mode = lcd_modes[status.lcd_idx];
 
     FTDemo_Update_Current_Flags( handle );
 

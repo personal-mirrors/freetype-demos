@@ -156,7 +156,7 @@
     HINT_MODE_UNHINTED,
     HINT_MODE_AUTOHINT,
     HINT_MODE_AUTOHINT_LIGHT,
-    HINT_MODE_AUTOHINT_SLIGHT,
+    HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL,
     HINT_MODE_BYTECODE,
     HINT_MODE_MAX
 
@@ -167,7 +167,7 @@
     "unhinted",
     "auto-hinter",
     "light auto-hinter",
-    "slight auto-hinter",
+    "light auto-hinter (subp.)",
     "native hinter"
   };
 
@@ -610,11 +610,9 @@
     if ( rmode == HINT_MODE_AUTOHINT )
       load_flags = FT_LOAD_FORCE_AUTOHINT;
 
-    if ( rmode == HINT_MODE_AUTOHINT_LIGHT )
+    if ( rmode == HINT_MODE_AUTOHINT_LIGHT          ||
+         rmode == HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL )
       load_flags = FT_LOAD_TARGET_LIGHT;
-
-    if ( rmode == HINT_MODE_AUTOHINT_SLIGHT )
-      load_flags = FT_LOAD_TARGET_SLIGHT;
 
     if ( rmode == HINT_MODE_UNHINTED )
       load_flags |= FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
@@ -702,8 +700,8 @@
         x_origin += vec.x;
       }
 
-      if ( rmode != HINT_MODE_AUTOHINT_SLIGHT &&
-           column->use_deltas                 )
+      if ( rmode != HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL &&
+           column->use_deltas                         )
       {
         if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )
           x_origin -= 64;
@@ -712,11 +710,11 @@
       }
       prev_rsb_delta = face->glyph->rsb_delta;
 
-      /* implement sub-pixel positioning for */
-      /* un-hinted and slight hinting mode   */
-      if ( ( rmode == HINT_MODE_UNHINTED        ||
-             rmode == HINT_MODE_AUTOHINT_SLIGHT )  &&
-           slot->format == FT_GLYPH_FORMAT_OUTLINE )
+      /* implement sub-pixel positioning for       */
+      /* un-hinted and (second) light hinting mode */
+      if ( ( rmode == HINT_MODE_UNHINTED                ||
+             rmode == HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL ) &&
+           slot->format == FT_GLYPH_FORMAT_OUTLINE        )
       {
         FT_Pos  shift = x_origin & 63;
 
@@ -740,8 +738,8 @@
       }
       else
       {
-        if ( rmode == HINT_MODE_UNHINTED        ||
-             rmode == HINT_MODE_AUTOHINT_SLIGHT )
+        if ( rmode == HINT_MODE_UNHINTED                ||
+             rmode == HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL )
           xmax = slot->linearHoriAdvance >> 10;
         else
           xmax = slot->advance.x;
@@ -782,8 +780,8 @@
                                   (int)map->width, (int)map->rows,
                                   map->pitch, map->buffer );
       }
-      if ( rmode == HINT_MODE_UNHINTED        ||
-           rmode == HINT_MODE_AUTOHINT_SLIGHT )
+      if ( rmode == HINT_MODE_UNHINTED                ||
+           rmode == HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL )
         x_origin += slot->linearHoriAdvance >> 10;
       else
         x_origin += slot->advance.x;
@@ -1138,7 +1136,7 @@
     grWriteln( " per-column parameters:" );
     grLn();
     grWriteln( "  d            toggle lsb/rsb deltas" );
-    grWriteln( "  h            toggle hinting mode" );
+    grWriteln( "  h            cycle hinting mode" );
     grWriteln( "  H            cycle hinting engine (if CFF or TTF)" );
     grWriteln( "  w            toggle warping (if light auto-hinting" );
     grWriteln( "  k            toggle kerning (only from `kern' table)" );
