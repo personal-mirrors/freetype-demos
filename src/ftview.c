@@ -1562,10 +1562,9 @@
                        buf, display->fore_color );
 
     /* pt and ppem */
-    sprintf( buf, "%gpt (%.4gppem)",
+    sprintf( buf, "%gpt (%dppem)",
                   status.ptsize / 64.0,
-                  FT_MulFix( face->units_per_EM, face->size->metrics.y_scale )
-                  / 64.0 );
+                  ( status.ptsize * status.res / 72 + 32 ) >> 6 );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 

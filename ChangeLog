@@ -1,3 +1,7 @@
+2017-05-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftview.c (write_header): Revert due to segmentation fault.
+
 2017-05-02  Werner Lemberg  <wl@gnu.org>
 
 	Remove `slight' auto-hinting mode.  Add sub-pixel `light' mode.
