@@ -1,3 +1,9 @@
+2017-05-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Report fractional ppem for scalable fonts.
+
+	* src/ftview.c (write_header): Updated, ppem and errors consolidated.
+
 2017-05-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftview.c (write_header): Revert due to segmentation fault.
