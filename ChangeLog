@@ -1,5 +1,11 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Check glyph index before discarding sign.
+
+	* src/ftinspect.cpp (Engine:glyphName, Engine::loadOutline): Do it.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	* src/ftinspect.cpp (GlyphPointNumbers::paint): Fix `ptIdx' type.
 
 2017-05-11  Philipp Kerling  <pkerling@casix.org>

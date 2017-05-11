@@ -462,6 +462,9 @@ Engine::glyphName(int index)
 {
   QString name;
 
+  if (index < 0)
+    throw std::runtime_error("Invalid glyph index");
+
   if (ftSize && FT_HAS_GLYPH_NAMES(ftSize->face))
   {
     char buffer[256];
@@ -480,6 +483,9 @@ FT_Outline*
 Engine::loadOutline(int glyphIndex)
 {
   update();
+
+  if (glyphIndex < 0)
+    throw std::runtime_error("Invalid glyph index");
 
   FT_Glyph glyph;
 
