@@ -329,7 +329,7 @@ Engine::numberOfNamedInstances(int fontIndex,
   {
     // found
     if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
-      numNamedInstances = (face->style_flags >> 16) + 1;
+      numNamedInstances = static_cast<int>((face->style_flags >> 16) + 1);
   }
   else
   {
@@ -339,7 +339,7 @@ Engine::numberOfNamedInstances(int fontIndex,
                      faceCounter++);
 
     if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
-      numNamedInstances = (face->style_flags >> 16) + 1;
+      numNamedInstances = static_cast<int>((face->style_flags >> 16) + 1);
     else
     {
       faceIDMap.remove(FaceID(fontIndex, faceIndex, 0));
@@ -466,7 +466,7 @@ Engine::glyphName(int index)
   {
     char buffer[256];
     if (!FT_Get_Glyph_Name(ftSize->face,
-                           index,
+                           static_cast<unsigned int>(index),
                            buffer,
                            sizeof(buffer)))
       name = QString(buffer);
@@ -490,7 +490,7 @@ Engine::loadOutline(int glyphIndex)
   if (FTC_ImageCache_LookupScaler(imageCache,
                                   &scaler,
                                   loadFlags | FT_LOAD_NO_BITMAP,
-                                  glyphIndex,
+                                  static_cast<unsigned int>(glyphIndex),
                                   &glyph,
                                   NULL))
   {
@@ -1166,7 +1166,7 @@ GlyphBitmap::GlyphBitmap(FT_Outline* outline,
 {
   // make a copy of the outline since we are going to manipulate it
   FT_Outline_New(library,
-                 outline->n_points,
+                 static_cast<unsigned int>(outline->n_points),
                  outline->n_contours,
                  &transformed);
   FT_Outline_Copy(outline, &transformed);
@@ -1207,8 +1207,8 @@ GlyphBitmap::paint(QPainter* painter,
 {
   FT_Bitmap bitmap;
 
-  int height = bRect.height();
-  int width = bRect.width();
+  int height = static_cast<int>(ceil(bRect.height()));
+  int width = static_cast<int>(ceil(bRect.width()));
   QImage::Format format = QImage::Format_Indexed8;
 
   // XXX cover LCD and color
@@ -1224,8 +1224,8 @@ GlyphBitmap::paint(QPainter* painter,
 
   image.fill(0);
 
-  bitmap.rows = height;
-  bitmap.width = width;
+  bitmap.rows = static_cast<unsigned int>(height);
+  bitmap.width = static_cast<unsigned int>(width);
   bitmap.buffer = image.bits();
   bitmap.pitch = image.bytesPerLine();
   bitmap.pixel_mode = pixelMode;
@@ -2571,9 +2571,10 @@ QGraphicsViewx::resizeEvent(QResizeEvent* event)
 
   QPointF currentBottomLeftPoint = viewport()->rect().bottomLeft();
   int verticalPosition = verticalScrollBar()->value();
-  verticalScrollBar()->setValue(verticalPosition
-                                - (currentBottomLeftPoint.y()
-                                   - lastBottomLeftPoint.y()));
+  verticalScrollBar()->setValue(static_cast<int>(
+                                  verticalPosition
+                                  - (currentBottomLeftPoint.y()
+                                     - lastBottomLeftPoint.y())));
 }
 
 

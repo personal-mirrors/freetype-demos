@@ -1,5 +1,15 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Insert explicit casts where warranted.
+
+	This avoids compiler warnings.
+
+	* src/ftinspect.cpp (Engine::numberOfNamedInstances,
+	Engine::glyphName, Engine::loadOutline, GlyphBitmap::GlyphBitmap,
+	GlyphBitmap::paint, QGraphicsViewx::resizeEvent): Do it.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Replace old-style casts with C++ casts.
 
 	* src/ftinspect.cpp (Engine::update, GlyphPointNumbers::paint): Do
