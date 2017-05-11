@@ -995,7 +995,7 @@
           case FT_LCD_FILTER_LIGHT:
           case FT_LCD_FILTER_LEGACY1:
           case FT_LCD_FILTER_LEGACY:
-            FT_Library_SetLcdFilter( lib, filter );
+            FT_Library_SetLcdFilter( lib, (FT_LcdFilter)filter );
           }
         }
         break;

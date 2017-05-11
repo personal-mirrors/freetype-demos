@@ -83,7 +83,7 @@
     LCD_MODE_VBGR
   };
 
-#define N_LCD_IDXS  ( sizeof ( lcd_modes ) / sizeof ( int ) )
+#define N_LCD_IDXS  ( (int)( sizeof ( lcd_modes ) / sizeof ( int ) ) )
 
 
   enum
@@ -1836,7 +1836,7 @@
       "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -m text   Use `text' for rendering.\n" );
     fprintf( stderr,
-      "  -l mode   Set start-up rendering mode (0 <= mode <= %ld).\n",
+      "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
              N_LCD_IDXS );
     fprintf( stderr,
       "  -p        Preload file in memory to simulate memory-mapping.\n"
@@ -1883,9 +1883,9 @@
 
       case 'l':
         status.lcd_idx = atoi( optarg );
-        if ( status.lcd_idx < 0 || status.lcd_idx > (int)N_LCD_IDXS )
+        if ( status.lcd_idx < 0 || status.lcd_idx > N_LCD_IDXS )
         {
-          fprintf( stderr, "argument to `l' must be between 0 and %ld\n",
+          fprintf( stderr, "argument to `l' must be between 0 and %d\n",
                    N_LCD_IDXS );
           exit( 3 );
         }
