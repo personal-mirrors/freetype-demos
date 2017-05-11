@@ -1,5 +1,12 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Make color tables and settings more readable.
+
+	* src/ftinspect.cpp (MainGUI::setGraphicsDefaults): Use Qt
+	constants and `qRgba'.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Use symbolic constant for TrueType interpreter v40.
 
 	v40 is implemented meanwhile.
