@@ -1,5 +1,11 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Remove unneeded explicit array sizes.
+
+	* src/ftinspect.cpp (Engine::Engine): Do it.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Make `ftcFaceID' conversion safe.
 
 	* src/ftinspect.cpp: Include `stdint.h'.

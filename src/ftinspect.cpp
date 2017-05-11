@@ -165,7 +165,7 @@ Engine::Engine(MainGUI* g)
   }
   else
   {
-    int engines[2] =
+    int engines[] =
     {
       FT_CFF_HINTING_FREETYPE,
       FT_CFF_HINTING_ADOBE
@@ -206,7 +206,7 @@ Engine::Engine(MainGUI* g)
   }
   else
   {
-    int interpreters[3] =
+    int interpreters[] =
     {
       TT_INTERPRETER_VERSION_35,
       TT_INTERPRETER_VERSION_38,
