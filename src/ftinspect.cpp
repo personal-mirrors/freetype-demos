@@ -5,7 +5,6 @@
 #include "ftinspect.h"
 
 #include <stdint.h>
-#include <cstdint>
 #include <cmath>
 #include <limits>
 #include <stdexcept>

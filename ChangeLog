@@ -1,3 +1,10 @@
+2017-05-11  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftinspect.cpp: Don't include `cstdint', which is C++11.
+
+	Right now, we still want to be able to compile with older C++
+	compilers.
+
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
 	[ftinspect] Check glyph index before discarding sign.
