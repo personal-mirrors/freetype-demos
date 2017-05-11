@@ -1,4 +1,4 @@
-INCLUDEPATH += ../../freetype2/include
+QMAKE_CXXFLAGS += -isystem ../../freetype2/include
 
 # To avoid conflicts with the FreeType version compiled into or used by Qt,
 # we use the static library.

@@ -1,5 +1,13 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Change freetype2 include path to system include path.
+
+	This avoids warnings.
+
+	* src/ftinspect.pro: Do it.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Remove `const_cast'.
 
 	* src/ftinspect.cpp (GlyphBitmap::paint): `const_cast' is
