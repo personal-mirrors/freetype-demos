@@ -1025,7 +1025,7 @@ GlyphPointNumbers::paint(QPainter* painter,
                              QVector2D(0.707f, 0.707f) };
 
 
-    int ptIdx = 0;
+    short ptIdx = 0;
     for (int contIdx = 0; contIdx < outline->n_contours; contIdx++ )
     {
       for (;;)

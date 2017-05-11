@@ -1,5 +1,9 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	* src/ftinspect.cpp (GlyphPointNumbers::paint): Fix `ptIdx' type.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Mark float literals as float.
 
 	* src/ftinspect.cpp (GlyphPointNumbers::paint): Do it.
