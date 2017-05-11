@@ -1,5 +1,12 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Replace old-style casts with C++ casts.
+
+	* src/ftinspect.cpp (Engine::update, GlyphPointNumbers::paint): Do
+	it.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Make color tables and settings more readable.
 
 	* src/ftinspect.cpp (MainGUI::setGraphicsDefaults): Use Qt

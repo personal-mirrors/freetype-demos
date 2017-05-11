@@ -621,15 +621,15 @@ Engine::update()
 
   if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
   {
-    scaler.width = int(pixelSize * 64.0);
-    scaler.height = int(pixelSize * 64.0);
+    scaler.width = static_cast<unsigned int>(pixelSize * 64.0);
+    scaler.height = static_cast<unsigned int>(pixelSize * 64.0);
     scaler.x_res = 0;
     scaler.y_res = 0;
   }
   else
   {
-    scaler.width = int(pointSize * 64.0);
-    scaler.height = int(pointSize * 64.0);
+    scaler.width = static_cast<unsigned int>(pointSize * 64.0);
+    scaler.height = static_cast<unsigned int>(pointSize * 64.0);
     scaler.x_res = dpi;
     scaler.y_res = dpi;
   }
@@ -1057,10 +1057,14 @@ GlyphPointNumbers::paint(QPainter* painter,
         }
 
         // get vectors to previous and next point and normalize them;
-        QVector2D in(qreal(points[prevIdx].x - points[ptIdx].x) / 64,
-                     -qreal(points[prevIdx].y - points[ptIdx].y) / 64);
-        QVector2D out(qreal(points[nextIdx].x - points[ptIdx].x) / 64,
-                      -qreal(points[nextIdx].y - points[ptIdx].y) / 64);
+        QVector2D in(static_cast<float>(points[prevIdx].x
+                                        - points[ptIdx].x) / 64,
+                     -static_cast<float>(points[prevIdx].y
+                                         - points[ptIdx].y) / 64);
+        QVector2D out(static_cast<float>(points[nextIdx].x
+                                         - points[ptIdx].x) / 64,
+                      -static_cast<float>(points[nextIdx].y
+                                          - points[ptIdx].y) / 64);
 
         in = in.normalized();
         out = out.normalized();
@@ -1117,8 +1121,10 @@ GlyphPointNumbers::paint(QPainter* painter,
         path.addText(QPointF(0, 0), font, number);
         QRectF ctrlPtRect = path.controlPointRect();
 
-        qreal x = qreal(points[ptIdx].x) / 64 * lod - middle.x();
-        qreal y = -qreal(points[ptIdx].y) / 64 * lod - middle.y();
+        qreal x = static_cast<qreal>(points[ptIdx].x) / 64 * lod
+                  - static_cast<qreal>(middle.x());
+        qreal y = -static_cast<qreal>(points[ptIdx].y) / 64 * lod
+                  - static_cast<qreal>(middle.y());
 
         qreal heuristicOffset = 2;
         if (middle.x() > 0)
