@@ -1,5 +1,11 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Mark float literals as float.
+
+	* src/ftinspect.cpp (GlyphPointNumbers::paint): Do it.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Insert explicit casts where warranted.
 
 	This avoids compiler warnings.

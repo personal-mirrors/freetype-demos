@@ -1016,13 +1016,13 @@ GlyphPointNumbers::paint(QPainter* painter,
     char* tags = outline->tags;
 
     QVector2D octants[8] = { QVector2D(1, 0),
-                             QVector2D(0.707, -0.707),
+                             QVector2D(0.707f, -0.707f),
                              QVector2D(0, -1),
-                             QVector2D(-0.707, -0.707),
+                             QVector2D(-0.707f, -0.707f),
                              QVector2D(-1, 0),
-                             QVector2D(-0.707, 0.707),
+                             QVector2D(-0.707f, 0.707f),
                              QVector2D(0, 1),
-                             QVector2D(0.707, 0.707) };
+                             QVector2D(0.707f, 0.707f) };
 
 
     int ptIdx = 0;
@@ -1071,16 +1071,16 @@ GlyphPointNumbers::paint(QPainter* painter,
 
         QVector2D middle = in + out;
         // check whether vector is very small, using a threshold of 1/8px
-        if (qAbs(middle.x()) < 1.0 / 8
-            && qAbs(middle.y()) < 1.0 / 8)
+        if (qAbs(middle.x()) < 1.0f / 8
+            && qAbs(middle.y()) < 1.0f / 8)
         {
           // in case of vectors in almost exactly opposite directions,
           // use a vector orthogonal to them
           middle.setX(out.y());
           middle.setY(-out.x());
 
-          if (qAbs(middle.x()) < 1.0 / 8
-              && qAbs(middle.y()) < 1.0 / 8)
+          if (qAbs(middle.x()) < 1.0f / 8
+              && qAbs(middle.y()) < 1.0f / 8)
           {
             // use direction based on point index for the offset
             // if we still don't have a good value
