@@ -1,5 +1,12 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Make `ftcFaceID' conversion safe.
+
+	* src/ftinspect.cpp: Include `stdint.h'.
+	(faceRequester): Implement it.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Synchronize dpi, target, pxlMode types with FreeType.
 
 	* src/ftinspect.h (Engine): Make `dpi' unsigned int.

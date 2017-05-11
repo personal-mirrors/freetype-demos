@@ -4,6 +4,7 @@
 
 #include "ftinspect.h"
 
+#include <stdint.h>
 #include <cstdint>
 #include <cmath>
 #include <limits>
@@ -76,9 +77,17 @@ faceRequester(FTC_FaceID ftcFaceID,
               FT_Face* faceP)
 {
   MainGUI* gui = static_cast<MainGUI*>(requestData);
-  // in C++ it's tricky to convert a void pointer back to an integer
-  // without warnings related to 32bit vs. 64bit pointer size
-  int val = static_cast<int>((char*)ftcFaceID - (char*)0);
+
+  // `ftcFaceID' is actually an integer
+  // -> first convert pointer to same-width integer, then discard superfluous
+  //    bits (e.g., on x86_64 where pointers are wider than int)
+  int val = static_cast<int>(reinterpret_cast<intptr_t>(ftcFaceID));
+  // make sure this does not cause information loss
+  Q_ASSERT_X(sizeof(void*) >= sizeof(int),
+             "faceRequester",
+             "Pointer size must be at least the size of int"
+             " in order to treat FTC_FaceID correctly");
+
   const FaceID& faceID = gui->engine->faceIDMap.key(val);
 
   // this is the only place where we have to check the validity of the font
@@ -536,7 +545,7 @@ void
 Engine::update()
 {
   // Spinbox value cannot become negative
-  dpi = static_cast<unsigned int> (gui->dpiSpinBox->value());
+  dpi = static_cast<unsigned int>(gui->dpiSpinBox->value());
 
   if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
   {
