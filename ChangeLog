@@ -1,3 +1,11 @@
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
+	[ftinspect] Remove `const_cast'.
+
+	* src/ftinspect.cpp (GlyphBitmap::paint): `const_cast' is
+	potentially dangerous and should only be used as a last resort.
+	Here, the mutable data can just be accessed with `.bits()' instead.
+
 2017-05-11  Werner Lemberg  <wl@gnu.org>
 
 	Fix clang warnings.

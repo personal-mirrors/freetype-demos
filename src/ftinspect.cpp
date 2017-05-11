@@ -1206,7 +1206,7 @@ GlyphBitmap::paint(QPainter* painter,
 
   bitmap.rows = height;
   bitmap.width = width;
-  bitmap.buffer = const_cast<uchar*>(image.constBits());
+  bitmap.buffer = image.bits();
   bitmap.pitch = image.bytesPerLine();
   bitmap.pixel_mode = pixelMode;
 
