@@ -210,7 +210,7 @@ Engine::Engine(MainGUI* g)
     {
       TT_INTERPRETER_VERSION_35,
       TT_INTERPRETER_VERSION_38,
-      40, // TT_INTERPRETER_VERSION_40, not yet implemented
+      TT_INTERPRETER_VERSION_40
     };
 
     int i;
@@ -2435,8 +2435,7 @@ MainGUI::setDefaults()
   // set up mappings between property values and combo box indices
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_38] = HintingMode_TrueType_v38;
-  // TT_INTERPRETER_VERSION_40, not yet implemented
-  hintingModesTrueTypeHash[40] = HintingMode_TrueType_v40;
+  hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_40] = HintingMode_TrueType_v40;
 
   hintingModesCFFHash[FT_CFF_HINTING_FREETYPE] = HintingMode_CFF_FreeType;
   hintingModesCFFHash[FT_CFF_HINTING_ADOBE] = HintingMode_CFF_Adobe;

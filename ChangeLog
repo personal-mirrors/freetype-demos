@@ -1,5 +1,14 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Use symbolic constant for TrueType interpreter v40.
+
+	v40 is implemented meanwhile.
+
+	* src/ftinspect.cpp (Engine::Engine, MainGUI::setDefaults): Use
+	`TT_INTERPRETER_VERSION_40'.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Remove unneeded explicit array sizes.
 
 	* src/ftinspect.cpp (Engine::Engine): Do it.
