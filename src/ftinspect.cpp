@@ -4,6 +4,10 @@
 
 #include "ftinspect.h"
 
+#include <cstdint>
+#include <cmath>
+#include <limits>
+#include <stdexcept>
 
 #define VERSION "X.Y.Z"
 
@@ -531,7 +535,8 @@ Engine::setTTInterpreterVersion(int mode)
 void
 Engine::update()
 {
-  dpi = gui->dpiSpinBox->value();
+  // Spinbox value cannot become negative
+  dpi = static_cast<unsigned int> (gui->dpiSpinBox->value());
 
   if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
   {
@@ -564,7 +569,7 @@ Engine::update()
 
   if (doHinting)
   {
-    int target;
+    unsigned long target;
 
     if (index == MainGUI::AntiAliasing_None)
       target = FT_LOAD_TARGET_MONO;
@@ -1136,7 +1141,7 @@ GlyphPointNumbers::paint(QPainter* painter,
 
 GlyphBitmap::GlyphBitmap(FT_Outline* outline,
                          FT_Library lib,
-                         int pxlMode,
+                         FT_Pixel_Mode pxlMode,
                          const QVector<QRgb>& monoColorTbl,
                          const QVector<QRgb>& grayColorTbl)
 : library(lib),
@@ -1917,7 +1922,7 @@ MainGUI::drawGlyph()
     if (showBitmapCheckBox->isChecked())
     {
       // XXX support LCD
-      int pixelMode = FT_PIXEL_MODE_GRAY;
+      FT_Pixel_Mode pixelMode = FT_PIXEL_MODE_GRAY;
       if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_None)
         pixelMode = FT_PIXEL_MODE_MONO;
 

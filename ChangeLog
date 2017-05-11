@@ -1,5 +1,18 @@
 2017-05-11  Philipp Kerling  <pkerling@casix.org>
 
+	[ftinspect] Synchronize dpi, target, pxlMode types with FreeType.
+
+	* src/ftinspect.h (Engine): Make `dpi' unsigned int.
+	Make `loadFlags' unsigned long.
+	(GlyphBitmap): Use `FT_Pixel_Mode' for `pixelMode' and constructor.
+
+	* src/ftinspect.c: Include `cstdint', `cmath', `limits',
+	`stdexcept', needed by forthcoming commits.
+	(Engine::update, GlyphBitmap::GlyphBitmap, MainGUI::drawGlyph):
+	Updated.
+
+2017-05-11  Philipp Kerling  <pkerling@casix.org>
+
 	[ftinspect] Change freetype2 include path to system include path.
 
 	This avoids warnings.

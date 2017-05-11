@@ -149,7 +149,7 @@ private:
 
   double pointSize;
   double pixelSize;
-  int dpi;
+  unsigned int dpi;
 
   bool doHinting;
   bool doAutoHinting;
@@ -161,7 +161,7 @@ private:
 
   double gamma;
 
-  int loadFlags;
+  unsigned long loadFlags;
 };
 
 
@@ -246,7 +246,7 @@ class GlyphBitmap
 public:
   GlyphBitmap(FT_Outline*,
               FT_Library,
-              int,
+              FT_Pixel_Mode,
               const QVector<QRgb>&,
               const QVector<QRgb>&);
   ~GlyphBitmap();
@@ -258,7 +258,7 @@ public:
 private:
   FT_Outline transformed;
   FT_Library library;
-  int pixelMode;
+  unsigned char pixelMode;
   const QVector<QRgb>& monoColorTable;
   const QVector<QRgb>& grayColorTable;
   QRectF bRect;
