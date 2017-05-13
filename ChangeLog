@@ -1,3 +1,15 @@
+2017-05-13  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.8 released.
+	=======================
+
+
+	Tag sources with `VER-2-8.
+
+	* README: Updated.
+	* src/*.1: Updated.
+	* src/ftinspect.pro: Updated.
+
 2017-05-11  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftinspect.cpp: Don't include `cstdint', which is C++11.
