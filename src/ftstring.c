@@ -526,6 +526,7 @@
   {
     FT_Face      face;
     const char*  basename;
+    double       ppem = 0.0;
 
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
@@ -543,6 +544,13 @@
         sprintf( status.header_buffer,
                  "%.50s %.50s (file `%.100s')", face->family_name,
                  face->style_name, basename );
+
+	if ( FT_IS_SCALABLE( face ) )
+          ppem = FT_MulFix( face->units_per_EM,
+                            face->size->metrics.y_scale ) / 64.0;
+        else
+          ppem = (double)face->size->metrics.y_ppem;
+
         break;
 
       case FT_Err_Invalid_Pixel_Size:
@@ -567,8 +575,9 @@
     grWriteCellString( display->bitmap, 0, 0,
                        status.header, display->fore_color );
 
-    sprintf( status.header_buffer, "at %g points, angle = %d, gamma = %g",
-             status.ptsize / 64.0, status.angle, status.gamma );
+    sprintf( status.header_buffer,
+             "at %g points (%.4g ppem), angle = %d, gamma = %g",
+             status.ptsize / 64.0, ppem, status.angle, status.gamma );
     grWriteCellString( display->bitmap, 0, CELLSTRING_HEIGHT,
                        status.header_buffer, display->fore_color );
 

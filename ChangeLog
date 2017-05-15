@@ -1,5 +1,18 @@
 2017-05-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftstring, ftview] Loosely match bitmap font sizes.
+
+	* src/ftcommon.c (FTDemo_Set_Current_Size,
+	FTDemo_Set_Current_Charsize): Round requested size to the closest
+	available ppem for bitmap fonts.
+
+	* src/ftview.c (Render_Waterfall): Simplify accordingly.
+	(write_header): Highlight ppem that does not match the point size.
+
+	* src/ftstring.c (write_header): Report ppem.
+
+2017-05-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftview.c (Render_Stroke): Fix segmentation fault.
 
 2017-05-13  Werner Lemberg  <wl@gnu.org>

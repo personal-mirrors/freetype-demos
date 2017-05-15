@@ -554,8 +554,34 @@
   FTDemo_Set_Current_Size( FTDemo_Handle*  handle,
                            int             pixel_size )
   {
+    FT_Face  face;
+
+
     if ( pixel_size > 0xFFFF )
       pixel_size = 0xFFFF;
+
+    error = FTC_Manager_LookupFace( handle->cache_manager,
+                                    handle->scaler.face_id, &face );
+
+    if ( !error && !FT_IS_SCALABLE ( face ) )
+    {
+      int  i, j = 0;
+      int  c, d = abs( (int)face->available_sizes[j].y_ppem - pixel_size * 64 );
+
+
+      for ( i = 1; i < face->num_fixed_sizes; i++ )
+      {
+        c = abs( (int)face->available_sizes[i].y_ppem - pixel_size * 64 );
+
+        if ( c < d )
+        {
+          d = c;
+          j = i;
+        }
+      }
+
+      pixel_size = face->available_sizes[j].y_ppem / 64 ;
+    }
 
     handle->scaler.width  = (FT_UInt)pixel_size;
     handle->scaler.height = (FT_UInt)pixel_size;
@@ -572,9 +598,36 @@
                                int             char_size,
                                int             resolution )
   {
+    FT_Face  face;
+
+
     /* in 26.6 format, corresponding to (almost) 0x4000ppem */
     if ( char_size > 0xFFFFF )
       char_size = 0xFFFFF;
+
+    error = FTC_Manager_LookupFace( handle->cache_manager,
+                                    handle->scaler.face_id, &face );
+
+    if ( !error && !FT_IS_SCALABLE ( face ) )
+    {
+      int  pixel_size = char_size * resolution / 72;
+      int  i, j = 0;
+      int  c, d = abs( (int)face->available_sizes[j].y_ppem - pixel_size );
+
+
+      for ( i = 1; i < face->num_fixed_sizes; i++ )
+      {
+        c = abs( (int)face->available_sizes[i].y_ppem - pixel_size );
+
+        if ( c < d )
+        {
+          d = c;
+          j = i;
+        }
+      }
+
+      char_size = face->available_sizes[j].y_ppem * 72 / resolution;
+    }
 
     handle->scaler.width  = (FT_UInt)char_size;
     handle->scaler.height = (FT_UInt)char_size;

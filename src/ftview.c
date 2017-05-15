@@ -579,34 +579,12 @@
     int      start_x, start_y, step_y, x, y;
     int      pt_size, max_size = 100000;
     FT_Size  size;
-    FT_Face  face;
     int      have_topleft, start;
 
     char         text[256];
     const char*  p;
     const char*  pEnd;
 
-
-    error = FTC_Manager_LookupFace( handle->cache_manager,
-                                    handle->scaler.face_id, &face );
-    if ( error )
-    {
-      /* can't access the font file: do not render anything */
-      fprintf( stderr, "can't access font file %p\n",
-               (void*)handle->scaler.face_id );
-      return 0;
-    }
-
-    if ( !FT_IS_SCALABLE( face ) )
-    {
-      int  i;
-
-
-      max_size = 0;
-      for ( i = 0; i < face->num_fixed_sizes; i++ )
-        if ( face->available_sizes[i].height >= max_size / 64 )
-          max_size = face->available_sizes[i].height * 64;
-    }
 
     start_x = START_X;
     start_y = START_Y;
@@ -699,6 +677,7 @@
     }
 
     FTDemo_Set_Current_Charsize( handle, first_size, status.res );
+    FTDemo_Get_Size( handle, &size );
 
     return FT_Err_Ok;
   }
@@ -1421,8 +1400,14 @@
 
     if ( error_code == FT_Err_Ok )
     {
+      int  highlight;
+
+
+      highlight = abs( status.ptsize * status.res -
+                       face->size->metrics.y_ppem * 72 * 64 ) > 36 * 64;
+
       /* ppem */
-      if ( face->face_flags & FT_FACE_FLAG_SCALABLE )
+      if ( FT_IS_SCALABLE( face ) )
         sprintf( buf, "(%.4gppem)",
                       FT_MulFix( face->units_per_EM,
                                  face->size->metrics.y_scale ) / 64.0 );
@@ -1430,7 +1415,8 @@
         sprintf( buf, "(%dppem)",
                       face->size->metrics.y_ppem );
       grWriteCellString( display->bitmap, 8 * x , (line++) * HEADER_HEIGHT,
-                         buf, display->fore_color );
+                         buf, highlight ? display->warn_color
+                                        : display->fore_color );
     }
     else
     {
