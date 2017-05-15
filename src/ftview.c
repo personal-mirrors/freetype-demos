@@ -252,10 +252,10 @@
 
         error = FTDemo_Draw_Glyph( handle, display, glyph, &x, &y );
 
-        FT_Done_Glyph( glyph );
-
         if ( error )
           goto Next;
+
+        FT_Done_Glyph( glyph );
 
         if ( !have_topleft )
         {
