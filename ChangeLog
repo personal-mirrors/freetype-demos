@@ -1,3 +1,12 @@
+2017-05-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdiff, ftgrid, ftview] Make autohint warping NORMAL option.
+
+	* src/ftdiff.c (render_state_draw, event_help): Updated.
+	* src/ftgrid.c (event_help, event_warping_change): Updated.
+	* src/ftview.c (event_help, event_warping_change, write_header):
+	Updated.
+
 2017-05-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring, ftview] Loosely match bitmap font sizes.

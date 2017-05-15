@@ -981,7 +981,7 @@
     grWriteln( "Up, Down    adjust size by 0.5pt        if not auto-hinting:                " );
     grWriteln( "                                          H         cycle through hinting   " );
     grWriteln( "Left, Right adjust index by 1                        engines (if available) " );
-    grWriteln( "F7, F8      adjust index by 10          if light auto-hinting:              " );
+    grWriteln( "F7, F8      adjust index by 10          if normal auto-hinting:             " );
     grWriteln( "F9, F10     adjust index by 100           w         toggle warping          " );
     grWriteln( "F11, F12    adjust index by 1000                      (if available)        " );
     grWriteln( "                                                                            " );
@@ -1072,7 +1072,7 @@
   static void
   event_warping_change( void )
   {
-    if ( handle->lcd_mode == LCD_MODE_LIGHT )
+    if ( handle->lcd_mode == LCD_MODE_AA && handle->autohint )
     {
       FT_Bool  new_warping_state = !status.warping;
 
@@ -1095,7 +1095,7 @@
                                      : "warping disabled";
     }
     else
-      status.header = "need light anti-aliasing mode to toggle warping";
+      status.header = "need normal anti-aliasing mode to toggle warping";
   }
 
 

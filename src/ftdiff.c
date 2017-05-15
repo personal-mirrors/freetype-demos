@@ -832,7 +832,7 @@
           }
         }
       }
-      else if ( rmode == HINT_MODE_AUTOHINT_LIGHT )
+      else if ( rmode == HINT_MODE_AUTOHINT )
         extra = warping ? " (+warp)" : " (-warp)";
 
       sprintf( temp, "%s%s",
@@ -1138,7 +1138,7 @@
     grWriteln( "  d            toggle lsb/rsb deltas" );
     grWriteln( "  h            cycle hinting mode" );
     grWriteln( "  H            cycle hinting engine (if CFF or TTF)" );
-    grWriteln( "  w            toggle warping (if light auto-hinting" );
+    grWriteln( "  w            toggle warping (if normal auto-hinting" );
     grWriteln( "  k            toggle kerning (only from `kern' table)" );
     grWriteln( "  r            toggle rendering mode" );
     grWriteln( "  x            toggle layout mode" );

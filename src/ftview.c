@@ -754,8 +754,8 @@
     grWriteln( "             engines (if available)                                         " );
     grWriteln( "f           toggle forced auto-         g, v        adjust gamma value      " );
     grWriteln( "             hinting (if hinting)                                           " );
-    grWriteln( "w           toggle warping (in light    Tab         cycle through charmaps  " );
-    grWriteln( "             AA mode, if available)                                         " );
+    grWriteln( "w           toggle warping              Tab         cycle through charmaps  " );
+    grWriteln( "             (if available)                                                 " );
     grWriteln( "                                                                            " );
     grWriteln( "                                        q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
@@ -827,7 +827,7 @@
   static int
   event_warping_change( void )
   {
-    if ( handle->lcd_mode == LCD_MODE_LIGHT )
+    if ( handle->lcd_mode == LCD_MODE_AA && handle->autohint )
     {
       FT_Bool  new_warping_state = !status.warping;
 
@@ -1713,7 +1713,7 @@
       }
     }
 
-    if ( handle->lcd_mode == LCD_MODE_LIGHT )
+    if ( handle->lcd_mode == LCD_MODE_AA && handle->autohint )
     {
       sprintf( buf, "warping: %s",
                     status.warping ? "on" : "off" );
