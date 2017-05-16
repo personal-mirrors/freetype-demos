@@ -2014,8 +2014,6 @@
       Fatal( "could not find/open any font file" );
 
     printf( "ptsize =%g\n", status.ptsize / 64.0 );
-    FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
-    FTDemo_Update_Current_Flags( handle );
 
     event_font_change( 0 );
 
