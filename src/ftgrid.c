@@ -1110,13 +1110,6 @@
       status.gamma = 0.0;
 
     grSetGlyphGamma( status.gamma );
-
-    if ( status.gamma == 0.0 )
-      sprintf( status.header_buffer, "gamma changed to sRGB mode" );
-    else
-      sprintf( status.header_buffer, "gamma changed to %.1f", status.gamma );
-
-    status.header = (const char *)status.header_buffer;
   }
 
 
@@ -1710,64 +1703,35 @@
   write_header( FT_Error  error_code )
   {
     FT_Face      face;
-    const char*  basename;
     const char*  format;
 
+
+    FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
+                        status.gamma, error_code );
+
+    if ( status.header )
+      grWriteCellString( display->bitmap, 0, 3 * HEADER_HEIGHT,
+                         status.header, display->fore_color );
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
                                     handle->scaler.face_id, &face );
     if ( error )
       Fatal( "can't access font file" );
 
-    if ( !status.header )
-    {
-      basename = ft_basename( handle->current_font->filepathname );
-
-      switch ( error_code )
-      {
-      case FT_Err_Ok:
-        sprintf( status.header_buffer, "%.50s %.50s (file `%.100s')",
-                 face->family_name, face->style_name, basename );
-        break;
-
-      case FT_Err_Invalid_Pixel_Size:
-        sprintf( status.header_buffer, "Invalid pixel size (file `%.100s')",
-                 basename );
-        break;
-
-      case FT_Err_Invalid_PPem:
-        sprintf( status.header_buffer, "Invalid ppem value (file `%.100s')",
-                 basename );
-        break;
-
-      default:
-        sprintf( status.header_buffer, "File `%.100s': error 0x%04x",
-                 basename, (FT_UShort)error_code );
-        break;
-      }
-
-      status.header = (const char *)status.header_buffer;
-    }
-
-    grWriteCellString( display->bitmap, 0, 0, status.header,
-                       display->fore_color );
-
     if ( status.mm )
     {
-      format = " %s axis: %.02f, %gpt, glyph %d";
+      format = "%s axis: %.02f, glyph %d";
       snprintf( status.header_buffer, BUFSIZE, format,
                 status.axis_name[status.current_axis]
                   ? status.axis_name[status.current_axis]
                   : status.mm->axis[status.current_axis].name,
                 status.design_pos[status.current_axis] / 65536.0,
-                status.ptsize / 64.0,
                 status.Num );
     }
     else
     {
-      format = " %gpt, glyph %d";
+      format = "glyph %d";
       snprintf( status.header_buffer, BUFSIZE, format,
-                status.ptsize / 64.0,
                 status.Num );
     }
 
@@ -1796,8 +1760,8 @@
     }
 
     status.header = (const char *)status.header_buffer;
-    grWriteCellString( display->bitmap, 0, HEADER_HEIGHT,
-                       status.header_buffer, display->fore_color );
+    grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT,
+                       status.header, display->fore_color );
 
     grRefreshSurface( display->surface );
   }

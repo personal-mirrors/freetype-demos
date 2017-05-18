@@ -739,6 +739,95 @@
   }
 
 
+  void
+  FTDemo_Draw_Header( FTDemo_Handle*   handle,
+                      FTDemo_Display*  display,
+                      int              ptsize,
+                      int              res,
+                      double           gamma,
+                      int              error_code )
+  {
+    FT_Face      face;
+    char         buf[256];
+    const char*  basename;
+
+    int          line = 0;
+    int          x1, x2;
+
+
+    error = FTC_Manager_LookupFace( handle->cache_manager,
+                                    handle->scaler.face_id, &face );
+    if ( error )
+    {
+      FTDemo_Display_Done( display );
+      FTDemo_Done( handle );
+      PanicZ( "can't access font file" );
+    }
+
+
+    /* font and file name */
+    basename = ft_basename( handle->current_font->filepathname );
+    sprintf( buf, "%.50s %.50s (file `%.100s')",
+             face->family_name, face->style_name, basename );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* pt and dpi */
+    x1 = sprintf( buf, "%gpt at %ddpi ",
+                       ptsize / 64.0, res );
+    grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    if ( error_code == FT_Err_Ok )
+    {
+      int  highlight;
+
+
+      highlight = abs( ptsize * res - face->size->metrics.y_ppem * 72 * 64 )
+                  > 36 * 64;
+
+      /* ppem */
+      if ( FT_IS_SCALABLE( face ) )
+        x2 = sprintf( buf, "(%.4gppem)",
+                      FT_MulFix( face->units_per_EM,
+                                 face->size->metrics.y_scale ) / 64.0 );
+      else
+        x2 = sprintf( buf, "(%dppem)",
+                      face->size->metrics.y_ppem );
+      grWriteCellString( display->bitmap, 8 * x1, line * HEADER_HEIGHT,
+                         buf, highlight ? display->warn_color
+                                        : display->fore_color );
+    }
+    else
+    {
+      /* errors */
+      switch ( error_code )
+      {
+      case FT_Err_Invalid_Pixel_Size:
+        x2 = sprintf( buf, "Invalid pixel size" );
+        break;
+      case FT_Err_Invalid_PPem:
+        x2 = sprintf( buf, "Invalid ppem value" );
+        break;
+      default:
+        x2 = sprintf( buf, "error 0x%04x",
+                      (FT_UShort)error_code );
+      }
+      grWriteCellString( display->bitmap, 8 * x1, line++ * HEADER_HEIGHT,
+                         buf, display->warn_color );
+    }
+
+    /* gamma */
+    if ( gamma == 0.0 )
+      sprintf( buf, ", gamma: sRGB mode" );
+    else
+      sprintf( buf, ", gamma: %.1f", gamma );
+    grWriteCellString( display->bitmap, 8 * ( x1 + x2 ),
+                       (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+  }
+
+
   FT_Error
   FTDemo_Glyph_To_Bitmap( FTDemo_Handle*  handle,
                           FT_Glyph        glyf,

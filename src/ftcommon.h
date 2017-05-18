@@ -260,6 +260,16 @@
                    FT_Size*        asize );
 
 
+  /* draw common header */
+  void
+  FTDemo_Draw_Header( FTDemo_Handle*   handle,
+                      FTDemo_Display*  display,
+                      int              ptsize,
+                      int              res,
+                      double           gamma,
+                      int              error_code );
+
+
   /* convert a FT_Glyph to a grBitmap (don't free target->buffer) */
   /* if aglyf != NULL, you should FT_Glyph_Done the aglyf */
   FT_Error

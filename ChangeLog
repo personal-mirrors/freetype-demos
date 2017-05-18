@@ -1,3 +1,15 @@
+2017-05-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid, ftstring, ftview] Unify top header lines.
+
+	* src/ftcommon.[ch] (FTDemo_Draw_Header): New function that displays
+	information about face, size, resolution, and gamma to be used in...
+
+	* src/ftview.c (write_header): ... here.
+	* src/ftstring.c (write_header): ... here.
+	* src/ftgrid.c (write_header): ... and here.
+	(event_gamma_change): Updated.
+
 2017-05-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (main): Fix segmentation fault.
