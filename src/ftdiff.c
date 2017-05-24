@@ -1550,10 +1550,15 @@
         fseek( tfile, 0, SEEK_SET );
         text = (char*)malloc( (unsigned int)( tsize + 1 ) );
 
-        if ( text != NULL )
+        if ( text )
         {
-          fread( text, (unsigned int)tsize, 1, tfile );
-          text[tsize] = 0;
+          if ( !fread( text, (unsigned int)tsize, 1, tfile ) )
+          {
+            fprintf( stderr, "read error\n" );
+            text = (char *)default_text;
+          }
+          else
+            text[tsize] = '\0';
         }
         else
         {

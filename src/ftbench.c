@@ -717,7 +717,7 @@
           return 1;
         }
 
-        if ( fread( memory_file, 1, memory_size, file ) != memory_size )
+        if ( !fread( memory_file, memory_size, 1, file ) )
         {
           fprintf( stderr, "read error\n" );
           free( memory_file );

@@ -1,3 +1,15 @@
+2017-05-24  Werner Lemberg  <wl@gnu.org>
+
+	Minor `fread' coding issues.
+
+	* src/ftbench.c (get_face), src/ftcommon.c (FTDemo_Install_Font):
+	Make `nmemb' argument of `fread' equal 1; this allows a
+	simplification of the return value test (you get either 0 or 1).
+
+	* src/ftdiff.c (main): Handle `fread' errors.
+	Problem reported by Kushal K S V S (కుషల్ కే ఎస్ వీ ఎస్)
+	<kkushal32@gmail.com>.
+
 2017-05-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid, ftstring, ftview] Unify top header lines.

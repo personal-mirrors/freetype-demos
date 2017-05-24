@@ -466,7 +466,7 @@
             return FT_Err_Out_Of_Memory;
           }
 
-          if ( fread( font->file_address, 1, file_size, file ) != file_size )
+          if ( !fread( font->file_address, file_size, 1, file ) )
           {
             free( font->file_address );
             free( font );
