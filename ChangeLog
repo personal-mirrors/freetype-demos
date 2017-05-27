@@ -1,3 +1,13 @@
+2017-05-27  Philipp Kerling  <pkerling@casix.org>
+
+	[ftinspect] Split sources; change face index type to `long'.
+
+	* src/ftinspect.cpp, src/ftinspect.h: Split into...
+	* src/ftinspect/*: ...these new files.
+	Do face index type change.
+
+	* src/ftinspect/.gitignore: New file.
+
 2017-05-24  Werner Lemberg  <wl@gnu.org>
 
 	Minor `fread' coding issues.
