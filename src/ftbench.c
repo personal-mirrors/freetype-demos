@@ -83,7 +83,7 @@
    */
 
 #define CACHE_SIZE  1024
-#define BENCH_TIME  2.0f
+#define BENCH_TIME  2.0
 #define FACE_SIZE   10
 
 

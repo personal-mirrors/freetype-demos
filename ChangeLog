@@ -1,3 +1,7 @@
+2017-05-28  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftbench.c (BENCH_TIME): Use `double' literal.
+
 2017-05-27  Philipp Kerling  <pkerling@casix.org>
 
 	[ftinspect] Split sources; change face index type to `long'.
