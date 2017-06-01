@@ -1,3 +1,20 @@
+2017-05-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid, ftstring, ftview] Migrate gamma to `FTDemo_Display'.
+
+	* src/ftcommon.h (FTDemo_Display): Add new field `gamma'.
+	* src/ftcommon.c (FTDemo_Display_New): Initialize it.
+	(FTDemo_Draw_Header): Updated.
+
+	* src/ftgrid.c (GridStatusRec): Remove field `gamma'.
+	(event_gamma_change): Updated.
+
+	* src/ftstring.c (status): Remove field `gamma'.
+	(event_gamma_change): Updated.
+
+	* src/ftgrid.c (status): Remove field `gamma'.
+	(event_gamma_change): Updated.
+
 2017-05-28  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftbench.c (BENCH_TIME): Use `double' literal.

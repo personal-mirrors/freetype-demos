@@ -133,7 +133,6 @@
     int          do_segment;
 
     FT_LcdFilter lcd_filter;
-    double       gamma;
     const char*  header;
     char         header_buffer[BUFSIZE];
 
@@ -176,7 +175,6 @@
 
     st->Num           = 0;
     st->lcd_filter    = FT_LCD_FILTER_DEFAULT;
-    st->gamma         = GAMMA;
     st->header        = NULL;
 
     st->mm            = NULL;
@@ -1102,14 +1100,14 @@
   static void
   event_gamma_change( double  delta )
   {
-    status.gamma += delta;
+    display->gamma += delta;
 
-    if ( status.gamma > 3.0 )
-      status.gamma = 3.0;
-    else if ( status.gamma < 0.0 )
-      status.gamma = 0.0;
+    if ( display->gamma > 3.0 )
+      display->gamma = 3.0;
+    else if ( display->gamma < 0.0 )
+      display->gamma = 0.0;
 
-    grSetGlyphGamma( status.gamma );
+    grSetGlyphGamma( display->gamma );
   }
 
 
@@ -1707,7 +1705,7 @@
 
 
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
-                        status.gamma, error_code );
+                        error_code );
 
     if ( status.header )
       grWriteCellString( display->bitmap, 0, 3 * HEADER_HEIGHT,

@@ -87,7 +87,6 @@
     unsigned long  encoding;
     int            res;
     int            ptsize;            /* current point size */
-    double         gamma;
     int            angle;
     const char*    text;
 
@@ -100,7 +99,7 @@
     char       header_buffer[256];
 
   } status = { DIM_X, DIM_Y,
-               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, GAMMA, 0, NULL,
+               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 0, NULL,
                { 0, 0, 0, 0, NULL },
                { 0 }, { 0, 0, 0, 0 }, 0, NULL, { 0 } };
 
@@ -316,17 +315,17 @@
     int     i;
 
 
-    status.gamma += delta;
+    display->gamma += delta;
 
-    if ( status.gamma > 3.0 )
-      status.gamma = 3.0;
-    else if ( status.gamma < 0.1 )
-      status.gamma = 0.1;
+    if ( display->gamma > 3.0 )
+      display->gamma = 3.0;
+    else if ( display->gamma < 0.1 )
+      display->gamma = 0.1;
 
-    grSetGlyphGamma( status.gamma );
+    grSetGlyphGamma( display->gamma );
 
     for ( i = 0; i < 256; i++ )
-      status.gamma_ramp[i] = (FT_Byte)( pow( (double)i / 255., status.gamma )
+      status.gamma_ramp[i] = (FT_Byte)( pow( (double)i / 255., display->gamma )
                                         * 255. + 0.5 );
   }
 
@@ -525,7 +524,7 @@
   write_header( FT_Error  error_code )
   {
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
-                        status.gamma, error_code );
+                        error_code );
 
     if ( status.header )
       grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT,

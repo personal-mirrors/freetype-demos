@@ -121,6 +121,8 @@
     display->warn_color = grFindColor( display->bitmap,
                                        0xff, 0x00, 0x00, 0xff );
 
+    display->gamma = GAMMA;
+
     return display;
   }
 
@@ -744,7 +746,6 @@
                       FTDemo_Display*  display,
                       int              ptsize,
                       int              res,
-                      double           gamma,
                       int              error_code )
   {
     FT_Face      face;
@@ -752,7 +753,7 @@
     const char*  basename;
 
     int          line = 0;
-    int          x1, x2;
+    int          x;
 
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
@@ -773,8 +774,8 @@
                        buf, display->fore_color );
 
     /* pt and dpi */
-    x1 = sprintf( buf, "%gpt at %ddpi ",
-                       ptsize / 64.0, res );
+    x = sprintf( buf, "%gpt at %ddpi ",
+                      ptsize / 64.0, res );
     grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
                        buf, display->fore_color );
 
@@ -788,13 +789,13 @@
 
       /* ppem */
       if ( FT_IS_SCALABLE( face ) )
-        x2 = sprintf( buf, "(%.4gppem)",
+        sprintf( buf, "(%.4gppem)",
                       FT_MulFix( face->units_per_EM,
                                  face->size->metrics.y_scale ) / 64.0 );
       else
-        x2 = sprintf( buf, "(%dppem)",
+        sprintf( buf, "(%dppem)",
                       face->size->metrics.y_ppem );
-      grWriteCellString( display->bitmap, 8 * x1, line * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 8 * x, line * HEADER_HEIGHT,
                          buf, highlight ? display->warn_color
                                         : display->fore_color );
     }
@@ -804,26 +805,25 @@
       switch ( error_code )
       {
       case FT_Err_Invalid_Pixel_Size:
-        x2 = sprintf( buf, "Invalid pixel size" );
+        sprintf( buf, "Invalid pixel size" );
         break;
       case FT_Err_Invalid_PPem:
-        x2 = sprintf( buf, "Invalid ppem value" );
+        sprintf( buf, "Invalid ppem value" );
         break;
       default:
-        x2 = sprintf( buf, "error 0x%04x",
+        sprintf( buf, "error 0x%04x",
                       (FT_UShort)error_code );
       }
-      grWriteCellString( display->bitmap, 8 * x1, line++ * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 8 * x, line++ * HEADER_HEIGHT,
                          buf, display->warn_color );
     }
 
     /* gamma */
-    if ( gamma == 0.0 )
-      sprintf( buf, ", gamma: sRGB mode" );
+    if ( display->gamma == 0.0 )
+      sprintf( buf, "gamma: sRGB" );
     else
-      sprintf( buf, ", gamma: %.1f", gamma );
-    grWriteCellString( display->bitmap, 8 * ( x1 + x2 ),
-                       (line++) * HEADER_HEIGHT,
+      sprintf( buf, "gamma = %.1f", display->gamma );
+    grWriteCellString( display->bitmap, DIM_X - 8 * 11, 0,
                        buf, display->fore_color );
   }
 

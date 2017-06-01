@@ -108,7 +108,6 @@
     int            res;
     int            ptsize;            /* current point size, 26.6 format */
     int            lcd_idx;
-    double         gamma;
     double         xbold_factor;
     double         ybold_factor;
     double         radius;
@@ -132,7 +131,7 @@
 
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
-               72, 48, 1, GAMMA, 0.04, 0.04, 0.02, 0.22,
+               72, 48, 1, 0.04, 0.04, 0.02, 0.22,
                0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
                FT_LCD_FILTER_DEFAULT, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
@@ -855,14 +854,14 @@
   static void
   event_gamma_change( double  delta )
   {
-    status.gamma += delta;
+    display->gamma += delta;
 
-    if ( status.gamma > 3.0 )
-      status.gamma = 3.0;
-    else if ( status.gamma < 0.0 )
-      status.gamma = 0.0;
+    if ( display->gamma > 3.0 )
+      display->gamma = 3.0;
+    else if ( display->gamma < 0.0 )
+      display->gamma = 0.0;
 
-    grSetGlyphGamma( status.gamma );
+    grSetGlyphGamma( display->gamma );
   }
 
 
@@ -1380,7 +1379,7 @@
 
 
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
-                        status.gamma, error_code );
+                        error_code );
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
                                     handle->scaler.face_id, &face );

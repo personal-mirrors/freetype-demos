@@ -79,6 +79,7 @@
     grColor     fore_color;
     grColor     back_color;
     grColor     warn_color;
+    double      gamma;
 
   } FTDemo_Display;
 
@@ -266,7 +267,6 @@
                       FTDemo_Display*  display,
                       int              ptsize,
                       int              res,
-                      double           gamma,
                       int              error_code );
 
 
