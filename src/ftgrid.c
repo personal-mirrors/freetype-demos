@@ -1700,66 +1700,28 @@
   static void
   write_header( FT_Error  error_code )
   {
-    FT_Face      face;
-    const char*  format;
-
-
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
-                        error_code );
+                        status.Num, error_code );
 
     if ( status.header )
       grWriteCellString( display->bitmap, 0, 3 * HEADER_HEIGHT,
                          status.header, display->fore_color );
 
-    error = FTC_Manager_LookupFace( handle->cache_manager,
-                                    handle->scaler.face_id, &face );
-    if ( error )
-      Fatal( "can't access font file" );
-
     if ( status.mm )
     {
-      format = "%s axis: %.02f, glyph %d";
+      const char*  format = "%s axis: %.02f";
+
+
       snprintf( status.header_buffer, BUFSIZE, format,
                 status.axis_name[status.current_axis]
                   ? status.axis_name[status.current_axis]
                   : status.mm->axis[status.current_axis].name,
-                status.design_pos[status.current_axis] / 65536.0,
-                status.Num );
+                status.design_pos[status.current_axis] / 65536.0 );
+
+      status.header = (const char *)status.header_buffer;
+      grWriteCellString( display->bitmap, 0, 4 * HEADER_HEIGHT,
+                         status.header, display->fore_color );
     }
-    else
-    {
-      format = "glyph %d";
-      snprintf( status.header_buffer, BUFSIZE, format,
-                status.Num );
-    }
-
-    if ( FT_HAS_GLYPH_NAMES( face ) )
-    {
-      char*         p;
-      unsigned int  format_len, gindex, size;
-
-
-      size = strlen( status.header_buffer );
-      p    = status.header_buffer + size;
-      size = BUFSIZE - size;
-
-      format     = ": ";
-      format_len = strlen( format );
-
-      if ( size >= format_len + 2 )
-      {
-        gindex = (unsigned int)status.Num;
-
-        strcpy( p, format );
-        if ( FT_Get_Glyph_Name( face, gindex,
-                                p + format_len, size - format_len ) )
-          *p = '\0';
-      }
-    }
-
-    status.header = (const char *)status.header_buffer;
-    grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT,
-                       status.header, display->fore_color );
 
     grRefreshSurface( display->surface );
   }

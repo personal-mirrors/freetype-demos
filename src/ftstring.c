@@ -524,7 +524,7 @@
   write_header( FT_Error  error_code )
   {
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
-                        error_code );
+                        -1, error_code );
 
     if ( status.header )
       grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT,

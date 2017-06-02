@@ -1,3 +1,15 @@
+2017-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid, ftstring, ftview] Further top header consolidation.
+
+	* src/ftview.c (event_encoding_change): Update `handle'.
+	(write_header): Move instance, encoding, and the first glyph code
+	reporting from here...
+	* src/ftgrid.c (write_header): ... and from here...
+	* src/ftcommon.c (FTDemo_Draw_Header): ... to here.
+	* src/ftcommon.h (FTDemo_Draw_Header): Update prototype.
+	* src/ftstring.c (write_header): Updated.
+
 2017-05-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid, ftstring, ftview] Migrate gamma to `FTDemo_Display'.

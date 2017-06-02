@@ -746,6 +746,7 @@
                       FTDemo_Display*  display,
                       int              ptsize,
                       int              res,
+                      int              idx,
                       int              error_code )
   {
     FT_Face      face;
@@ -773,9 +774,16 @@
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
-    /* pt and dpi */
-    x = sprintf( buf, "%gpt at %ddpi ",
-                      ptsize / 64.0, res );
+    /* instance, pt and dpi */
+    if ( face->face_index >> 16 )
+      x = sprintf( buf, "instance %ld/%ld, %gpt at %ddpi ",
+                        face->face_index >> 16,
+                        face->style_flags >> 16,
+		        ptsize / 64.0, res );
+    else
+      x = sprintf( buf, "%gpt at %ddpi ",
+                        ptsize / 64.0, res );
+
     grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
                        buf, display->fore_color );
 
@@ -795,7 +803,7 @@
       else
         sprintf( buf, "(%dppem)",
                       face->size->metrics.y_ppem );
-      grWriteCellString( display->bitmap, 8 * x, line * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 8 * x, line++ * HEADER_HEIGHT,
                          buf, highlight ? display->warn_color
                                         : display->fore_color );
     }
@@ -816,6 +824,100 @@
       }
       grWriteCellString( display->bitmap, 8 * x, line++ * HEADER_HEIGHT,
                          buf, display->warn_color );
+    }
+
+    /* encoding charcode or glyph index, glyph name */
+    if ( idx >= 0 )
+    {
+      const char*  encoding = NULL;
+
+
+      switch ( handle->encoding )
+      {
+      case FT_ENCODING_NONE:
+        encoding = "glyph order";
+        break;
+      case FT_ENCODING_MS_SYMBOL:
+        encoding = "MS Symbol";
+        break;
+      case FT_ENCODING_UNICODE:
+        encoding = "Unicode";
+        break;
+      case FT_ENCODING_SJIS:
+        encoding = "SJIS";
+        break;
+      case FT_ENCODING_PRC:
+        encoding = "PRC";
+        break;
+      case FT_ENCODING_BIG5:
+        encoding = "Big5";
+        break;
+      case FT_ENCODING_WANSUNG:
+        encoding = "Wansung";
+        break;
+      case FT_ENCODING_JOHAB:
+        encoding = "Johab";
+        break;
+      case FT_ENCODING_ADOBE_STANDARD:
+        encoding = "Adobe Standard";
+        break;
+      case FT_ENCODING_ADOBE_EXPERT:
+        encoding = "Adobe Expert";
+        break;
+      case FT_ENCODING_ADOBE_CUSTOM:
+        encoding = "Adobe Custom";
+        break;
+      case FT_ENCODING_ADOBE_LATIN_1:
+        encoding = "Latin 1";
+        break;
+      case FT_ENCODING_OLD_LATIN_2:
+        encoding = "Latin 2";
+        break;
+      case FT_ENCODING_APPLE_ROMAN:
+        encoding = "Apple Roman";
+        break;
+      default:
+        encoding = "Other";
+      }
+
+      if ( handle->encoding == FT_ENCODING_NONE )
+        x = sprintf( buf, "%s idx: %d",
+                          encoding, idx );
+      else if ( handle->encoding == FT_ENCODING_UNICODE )
+        x = sprintf( buf, "%s charcode: U+%04X (glyph idx %d)",
+                          encoding, idx,
+                          FTDemo_Get_Index( handle, (FT_UInt32)idx ) );
+      else
+        x = sprintf( buf, "%s charcode: 0x%X (glyph idx %d)",
+                          encoding, idx,
+                          FTDemo_Get_Index( handle, (FT_UInt32)idx ) );
+
+      if ( FT_HAS_GLYPH_NAMES( face ) )
+      {
+        char*         p;
+	const char*   format = ", name: ";
+        unsigned int  format_len, glyph_idx;
+
+
+        p = buf + x;
+        x = 256 - x;
+
+        format_len = strlen( format );
+
+        if ( x >= format_len + 2 )
+        {
+          glyph_idx = (unsigned int)idx;
+          if ( handle->encoding != FT_ENCODING_NONE )
+            glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
+
+          strcpy( p, format );
+          if ( FT_Get_Glyph_Name( face, glyph_idx,
+                                  p + format_len, x - format_len ) )
+            *p = '\0';
+        }
+      }
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
     }
 
     /* gamma */

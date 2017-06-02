@@ -267,6 +267,7 @@
                       FTDemo_Display*  display,
                       int              ptsize,
                       int              res,
+                      int              idx,
                       int              error_code );
 
 
