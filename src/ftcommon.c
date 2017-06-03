@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 2005-2009, 2011-2013 by                                       */
+/*  Copyright 2005-2017 by                                                  */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*                                                                          */
@@ -779,7 +779,7 @@
       x = sprintf( buf, "instance %ld/%ld, %gpt at %ddpi ",
                         face->face_index >> 16,
                         face->style_flags >> 16,
-		        ptsize / 64.0, res );
+                        ptsize / 64.0, res );
     else
       x = sprintf( buf, "%gpt at %ddpi ",
                         ptsize / 64.0, res );
@@ -895,7 +895,7 @@
       if ( FT_HAS_GLYPH_NAMES( face ) )
       {
         char*         p;
-	const char*   format = ", name: ";
+        const char*   format = ", name: ";
         unsigned int  format_len, glyph_idx;
 
 
