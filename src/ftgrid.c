@@ -640,6 +640,7 @@
   {
     FT_Size       size;
     FT_GlyphSlot  slot;
+    FT_UInt       glyph_idx;
     FT_F26Dot6    scale = st->scale;
     int           ox    = st->x_origin;
     int           oy    = st->y_origin;
@@ -668,7 +669,13 @@
     _af_debug_disable_blue_hints = !st->do_blue_hints;
 #endif
 
-    if ( FT_Load_Glyph( size->face, (FT_UInt)st->Num,
+    if ( handle->encoding == FT_ENCODING_ORDER )
+      glyph_idx = (FT_UInt)st->Num;
+    else
+      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)st->Num );
+
+
+    if ( FT_Load_Glyph( size->face, glyph_idx,
                         handle->load_flags | FT_LOAD_NO_BITMAP ) )
       return;
 
@@ -1640,14 +1647,14 @@
       break;
 #endif /* FT_DEBUG_AUTOFIT */
 
-    case grKeyLeft:     event_index_change(    -1 ); break;
-    case grKeyRight:    event_index_change(     1 ); break;
-    case grKeyF7:       event_index_change(   -10 ); break;
-    case grKeyF8:       event_index_change(    10 ); break;
-    case grKeyF9:       event_index_change(  -100 ); break;
-    case grKeyF10:      event_index_change(   100 ); break;
-    case grKeyF11:      event_index_change( -1000 ); break;
-    case grKeyF12:      event_index_change(  1000 ); break;
+    case grKeyLeft:     event_index_change(      -1 ); break;
+    case grKeyRight:    event_index_change(       1 ); break;
+    case grKeyF7:       event_index_change(   -0x10 ); break;
+    case grKeyF8:       event_index_change(    0x10 ); break;
+    case grKeyF9:       event_index_change(  -0x100 ); break;
+    case grKeyF10:      event_index_change(   0x100 ); break;
+    case grKeyF11:      event_index_change( -0x1000 ); break;
+    case grKeyF12:      event_index_change(  0x1000 ); break;
 
     case grKeyUp:       event_size_change(  32 ); break;
     case grKeyDown:     event_size_change( -32 ); break;
@@ -1749,6 +1756,9 @@
     fprintf( stderr,
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
+      "  -e enc    Specify encoding tag (default: no encoding).\n"
+      "            Common values: `unic' (Unicode), `symb' (symbol),\n"
+      "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -d \"axis1 axis2 ...\"\n"
       "            Specify the design coordinates for each\n"
       "            Multiple Master axis at start-up.\n"
@@ -1772,7 +1782,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "d:f:h:r:vw:" );
+      option = getopt( *argc, *argv, "d:e:f:h:r:vw:" );
 
       if ( option == -1 )
         break;
@@ -1796,6 +1806,11 @@
 
           status.requested_cnt = cnt;
         }
+        break;
+
+      case 'e':
+        handle->encoding = FTDemo_Make_Encoding_Tag( optarg );
+        status.Num       = 0x20;
         break;
 
       case 'f':

@@ -1,5 +1,13 @@
 2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid] Teach encodings.
+
+	* src/ftgrid.c (grid_status_draw_outline): Use encoding.
+	(parse_cmdline, usage): New option to specify encoding.
+	(Process_Event): Use hexadecimal steps through index.
+
+2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid] Minor.
 
 	* src/ftgrid.c (grid_status_draw_outline): Move the stroker
