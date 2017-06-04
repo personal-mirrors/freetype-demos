@@ -1,3 +1,17 @@
+2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Clean up charmap handling.
+
+	* src/ftcommon.h (FT_ENCODING_ORDER): Introduce this special encoding
+	for glyph order because `FT_ENCODING_NONE' has other meanings.
+	* src/ftcommon.c (FTDemo_Install_Font): Fall back to
+	`FT_ENCODING_ORDER' if encoding is not recognized.
+	(FTDemo_Draw_Header): Updated.
+
+	* src/ftview.c (status): Remove redundant `encoding' field and update
+	all references.
+	(FT_ENCODING_OTHER): Removed in favor of `FT_ENCODING_NONE'.
+
 2017-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid, ftstring, ftview] Further top header consolidation.

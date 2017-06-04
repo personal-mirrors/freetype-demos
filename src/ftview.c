@@ -103,7 +103,6 @@
     int            width;
     int            height;
     int            render_mode;
-    unsigned long  encoding;
 
     int            res;
     int            ptsize;            /* current point size, 26.6 format */
@@ -130,7 +129,7 @@
     int            fw_idx;
 
   } status = { 1,
-               DIM_X, DIM_Y, RENDER_MODE_ALL, FT_ENCODING_NONE,
+               DIM_X, DIM_Y, RENDER_MODE_ALL,
                72, 48, 1, 0.04, 0.04, 0.02, 0.22,
                0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
@@ -139,8 +138,6 @@
 
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;
-
-  static unsigned long  FT_ENC_TAG( FT_ENCODING_OTHER, 'o', 't', 'h', 'e' );
 
 
   /*
@@ -216,7 +213,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( status.encoding == FT_ENCODING_NONE )
+      if ( handle->encoding == FT_ENCODING_ORDER )
         glyph_idx = (FT_UInt)i;
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
@@ -327,7 +324,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( status.encoding == FT_ENCODING_NONE )
+      if ( handle->encoding == FT_ENCODING_ORDER )
         glyph_idx = (FT_UInt)i;
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
@@ -438,7 +435,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( status.encoding == FT_ENCODING_NONE )
+      if ( handle->encoding == FT_ENCODING_ORDER )
         glyph_idx = (FT_UInt)i;
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
@@ -979,7 +976,7 @@
     FT_Face  face;
 
 
-    if ( status.encoding != FT_ENCODING_NONE )
+    if ( handle->encoding != FT_ENCODING_ORDER )
       font->cmap_index++;
     else
       font->cmap_index = 0;
@@ -989,21 +986,18 @@
 
     if ( font->cmap_index < face->num_charmaps )
     {
-      status.encoding  = face->charmaps[font->cmap_index]->encoding;
+      handle->encoding = face->charmaps[font->cmap_index]->encoding;
       status.offset    = 0x20;
-
-      if ( status.encoding == FT_ENCODING_NONE )  /* OTHER, really */
-        status.encoding = FT_ENCODING_OTHER;
     }
     else
     {
-      status.encoding  = FT_ENCODING_NONE;
+      handle->encoding = FT_ENCODING_ORDER;
       status.offset    = 0;
     }
 
-    switch ( status.encoding )
+    switch ( handle->encoding )
     {
-    case FT_ENCODING_NONE:
+    case FT_ENCODING_ORDER:
       font->num_indices = face->num_glyphs;
       break;
 
@@ -1024,8 +1018,6 @@
     default:
       font->num_indices = 0x10000L;
     }
-
-    handle->encoding = status.encoding;
 
     return 1;
   }
@@ -1678,11 +1670,11 @@
       switch ( option )
       {
       case 'e':
-        status.encoding = FTDemo_Make_Encoding_Tag( optarg );
+        handle->encoding = FTDemo_Make_Encoding_Tag( optarg );
         break;
 
       case 'f':
-        status.offset  = atoi( optarg );
+        status.offset = atoi( optarg );
         break;
 
       case 'h':
@@ -1804,8 +1796,6 @@
     FT_Property_Get( handle->library,
                      "autofitter",
                      "warping", &status.warping );
-
-    handle->encoding = status.encoding;
 
     if ( status.preload )
       FTDemo_Set_Preload( handle, 1 );

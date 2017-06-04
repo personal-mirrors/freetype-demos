@@ -296,7 +296,7 @@
 
     FT_Stroker_New( handle->library, &handle->stroker );
 
-    handle->encoding = FT_ENCODING_NONE;
+    handle->encoding = FT_ENCODING_ORDER;
 
     handle->hinted    = 1;
     handle->use_sbits = 1;
@@ -415,14 +415,11 @@
           continue;
         }
 
-        if ( handle->encoding != FT_ENCODING_NONE )
+        if ( handle->encoding != FT_ENCODING_ORDER )
         {
           error = FT_Select_Charmap( face, (FT_Encoding)handle->encoding );
           if ( error )
-          {
-            FT_Done_Face( face );
-            continue;
-          }
+            handle->encoding = FT_ENCODING_ORDER;
         }
 
         font = (PFont)malloc( sizeof ( *font ) );
@@ -488,7 +485,7 @@
 
         switch ( handle->encoding )
         {
-        case FT_ENCODING_NONE:
+        case FT_ENCODING_ORDER:
           font->num_indices = face->num_glyphs;
           break;
 
@@ -834,7 +831,7 @@
 
       switch ( handle->encoding )
       {
-      case FT_ENCODING_NONE:
+      case FT_ENCODING_ORDER:
         encoding = "glyph order";
         break;
       case FT_ENCODING_MS_SYMBOL:
@@ -880,7 +877,7 @@
         encoding = "Other";
       }
 
-      if ( handle->encoding == FT_ENCODING_NONE )
+      if ( handle->encoding == FT_ENCODING_ORDER )
         x = sprintf( buf, "%s idx: %d",
                           encoding, idx );
       else if ( handle->encoding == FT_ENCODING_UNICODE )
@@ -907,7 +904,7 @@
         if ( x >= format_len + 2 )
         {
           glyph_idx = (unsigned int)idx;
-          if ( handle->encoding != FT_ENCODING_NONE )
+          if ( handle->encoding != FT_ENCODING_ORDER )
             glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
 
           strcpy( p, format );
@@ -1312,7 +1309,7 @@
 
       codepoint = (unsigned long)ch;
 
-      if ( handle->encoding != FT_ENCODING_NONE )
+      if ( handle->encoding != FT_ENCODING_ORDER )
         glyph->glyph_index = FTDemo_Get_Index( handle, codepoint );
       else
         glyph->glyph_index = codepoint;

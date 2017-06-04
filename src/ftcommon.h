@@ -68,6 +68,9 @@
   /* default gamma setting */
 #define GAMMA  1.8
 
+  /* special encoding to display glyphs in order */
+#define FT_ENCODING_ORDER  0xFFFF
+
 #include "graph.h"
 #include "grobjs.h"
 #include "grfont.h"
