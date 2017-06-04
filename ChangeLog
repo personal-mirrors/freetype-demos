@@ -1,5 +1,13 @@
 2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid] Minor.
+
+	* src/ftgrid.c (grid_status_draw_outline): Move the stroker
+	initialization from here...
+	(main): ... to here.
+
+2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftview] Clean up charmap handling.
 
 	* src/ftcommon.h (FT_ENCODING_ORDER): Introduce this special encoding

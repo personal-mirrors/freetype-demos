@@ -645,14 +645,6 @@
     int           oy    = st->y_origin;
 
 
-    if ( st->stroker == NULL )
-    {
-      FT_Stroker_New( handle->library, &st->stroker );
-
-      FT_Stroker_Set( st->stroker, 32, FT_STROKER_LINECAP_BUTT,
-                      FT_STROKER_LINEJOIN_BEVEL, 0x20000 );
-    }
-
     FTDemo_Get_Size( handle, &size );
 
 #ifdef FT_DEBUG_AUTOFIT
@@ -1914,6 +1906,11 @@
                      "warping", &status.warping );
 
     FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
+
+    FT_Stroker_New( handle->library, &status.stroker );
+
+    FT_Stroker_Set( status.stroker, 32, FT_STROKER_LINECAP_BUTT,
+                      FT_STROKER_LINEJOIN_BEVEL, 0x20000 );
 
     display = FTDemo_Display_New( gr_pixel_mode_rgb24,
                                   status.width, status.height );
