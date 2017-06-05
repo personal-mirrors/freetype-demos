@@ -299,10 +299,9 @@
     handle->encoding = FT_ENCODING_ORDER;
 
     handle->hinted    = 1;
-    handle->use_sbits = 1;
+    handle->use_sbits = 2;  /* including color bitmaps */
     handle->autohint  = 0;
     handle->lcd_mode  = LCD_MODE_AA;
-    handle->color     = 1;
 
     handle->use_sbits_cache = 1;
 
@@ -657,8 +656,10 @@
     if ( handle->autohint )
       flags |= FT_LOAD_FORCE_AUTOHINT;
 
-    if ( !handle->use_sbits )
+    if ( handle->use_sbits == 0 )
       flags |= FT_LOAD_NO_BITMAP;
+    else if ( handle->use_sbits == 2 )
+      flags |= FT_LOAD_COLOR;
 
     if ( handle->hinted )
     {
@@ -698,9 +699,6 @@
       if ( handle->lcd_mode == LCD_MODE_MONO )
         flags |= FT_LOAD_MONOCHROME;
     }
-
-    if ( handle->color )
-      flags |= FT_LOAD_COLOR;
 
     handle->load_flags    = flags;
     handle->string_reload = 1;

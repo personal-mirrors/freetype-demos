@@ -1,5 +1,13 @@
 2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftview] Merge gray and color sbits controls.
+
+	* src/ftcommon.h (FTDemo_Handle): Merge `color' into `use_sbits'.
+	* src/ftcommon.c (FTDemo_New, FTDemo_Update_Current_Flags): Updated.
+	* src/ftview.c (Process_Event, event_help, write_header): Updated.
+
+2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid] Teach encodings.
 
 	* src/ftgrid.c (grid_status_draw_outline): Use encoding.

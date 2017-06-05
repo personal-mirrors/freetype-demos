@@ -732,7 +732,7 @@
     grWriteln( "  backspace cycle backwards             k, l        cycle back and forth    " );
     grWriteln( "                                                                            " );
     grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
-    grWriteln( "c           toggle color glyphs                      emboldening (in mode 2)" );
+    grWriteln( "                                                     emboldening (in mode 2)" );
     grWriteln( "K           toggle cache modes          y, Y        adjust vertical         " );
     grWriteln( "                                                     emboldening (in mode 2)" );
     grWriteln( "p, n        previous/next font          s, S        adjust slanting         " );
@@ -1096,13 +1096,9 @@
       break;
 
     case grKEY( 'b' ):
-      handle->use_sbits = !handle->use_sbits;
-      FTDemo_Update_Current_Flags( handle );
-      status.update = 1;
-      break;
-
-    case grKEY( 'c' ):
-      handle->color = !handle->color;
+      handle->use_sbits++;
+      if ( handle->use_sbits > 2)
+        handle->use_sbits = 0;
       FTDemo_Update_Current_Flags( handle );
       status.update = 1;
       break;
@@ -1549,13 +1545,8 @@
 
     /* embedded bitmaps */
     sprintf( buf, "bitmaps: %s",
-                  handle->use_sbits ? "on" : "off" );
-    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                       buf, display->fore_color );
-
-    /* embedded color bitmaps */
-    sprintf( buf, "color bitmaps: %s",
-                  handle->color ? "on" : "off" );
+                  handle->use_sbits == 2 ? "color" :
+                  handle->use_sbits == 1 ? "gray" : "off" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
