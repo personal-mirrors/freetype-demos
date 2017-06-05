@@ -978,9 +978,9 @@
     grWriteln( "Up, Down    adjust size by 0.5pt        if not auto-hinting:                " );
     grWriteln( "                                          H         cycle through hinting   " );
     grWriteln( "Left, Right adjust index by 1                        engines (if available) " );
-    grWriteln( "F7, F8      adjust index by 10          if normal auto-hinting:             " );
-    grWriteln( "F9, F10     adjust index by 100           w         toggle warping          " );
-    grWriteln( "F11, F12    adjust index by 1000                      (if available)        " );
+    grWriteln( "F7, F8      adjust index by 16          if normal auto-hinting:             " );
+    grWriteln( "F9, F10     adjust index by 256           w         toggle warping          " );
+    grWriteln( "F11, F12    adjust index by 4096                      (if available)        " );
     grWriteln( "                                                                            " );
     grWriteln( "h           toggle hinting              b           toggle bitmap           " );
     grWriteln( "f           toggle forced auto-         d           toggle dot display      " );
