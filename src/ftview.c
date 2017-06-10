@@ -972,7 +972,7 @@
   static int
   event_encoding_change( void )
   {
-    PFont    font = handle->fonts[status.font_idx];
+    PFont    font = handle->current_font;
     FT_Face  face;
 
 
@@ -1808,10 +1808,6 @@
     status.num_fails = 0;
 
     event_font_change( 0 );
-
-    handle->lcd_mode = lcd_modes[status.lcd_idx];
-
-    FTDemo_Update_Current_Flags( handle );
 
     do
     {

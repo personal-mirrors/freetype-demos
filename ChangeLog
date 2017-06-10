@@ -1,3 +1,7 @@
+2017-06-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftview.c (event_encoding_change, main): Minor updates.
+
 2017-06-10  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftcommon.c (FTDemo_Draw_Header): Show gamma in second line.
