@@ -909,7 +909,7 @@
 
         format_len = strlen( format );
 
-        if ( x >= format_len + 2 )
+        if ( x >= (signed int)format_len + 2 )
         {
           glyph_idx = (unsigned int)idx;
           if ( handle->encoding != FT_ENCODING_ORDER )
