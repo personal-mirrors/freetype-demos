@@ -1,3 +1,9 @@
+2017-06-10  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftcommon.c (FTDemo_Draw_Header): Show gamma in second line.
+
+	Otherwise it clashes with long file names.
+
 2017-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Merge gray and color sbits controls.

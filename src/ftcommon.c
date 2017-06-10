@@ -798,7 +798,7 @@
       else
         sprintf( buf, "(%dppem)",
                       face->size->metrics.y_ppem );
-      grWriteCellString( display->bitmap, 8 * x, line++ * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 8 * x, line * HEADER_HEIGHT,
                          buf, highlight ? display->warn_color
                                         : display->fore_color );
     }
@@ -817,9 +817,19 @@
         sprintf( buf, "error 0x%04x",
                       (FT_UShort)error_code );
       }
-      grWriteCellString( display->bitmap, 8 * x, line++ * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 8 * x, line * HEADER_HEIGHT,
                          buf, display->warn_color );
     }
+
+    /* gamma */
+    if ( display->gamma == 0.0 )
+      sprintf( buf, "gamma: sRGB" );
+    else
+      sprintf( buf, "gamma = %.1f", display->gamma );
+    grWriteCellString( display->bitmap, DIM_X - 8 * 11, line * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    line++;
 
     /* encoding charcode or glyph index, glyph name */
     if ( idx >= 0 )
@@ -915,13 +925,6 @@
                          buf, display->fore_color );
     }
 
-    /* gamma */
-    if ( display->gamma == 0.0 )
-      sprintf( buf, "gamma: sRGB" );
-    else
-      sprintf( buf, "gamma = %.1f", display->gamma );
-    grWriteCellString( display->bitmap, DIM_X - 8 * 11, 0,
-                       buf, display->fore_color );
   }
 
 
