@@ -1,3 +1,12 @@
+2017-06-22  Werner Lemberg  <wl@gnu.org>
+
+	[compos] Make it compile.
+
+	* src/compos.c (FT2_BUILD_LIBRARY): Define; we need access to
+	FT_SubGlyphRec.
+	Include FT_INTERNAL_GLYPH_LOADER_H.
+	(main): Updated.
+
 2017-06-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftcommon.c (FTDemo_Draw_Header): Simplify.

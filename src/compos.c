@@ -13,8 +13,11 @@
 /*                                                                          */
 /****************************************************************************/
 
+#define FT2_BUILD_LIBRARY
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_INTERNAL_GLYPH_LOADER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,8 +144,8 @@
           error = FT_Load_Glyph( face, id, FT_LOAD_NO_RECURSE );
           if ( !error && slot->format == FT_GLYPH_FORMAT_COMPOSITE )
           {
-            int           n;
-            FT_SubGlyph*  subg = slot->subglyphs;
+            unsigned int  n;
+            FT_SubGlyph   subg = slot->subglyphs;
 
             printf( "%4d:", id );
             for ( n = 0; n < slot->num_subglyphs; n++, subg++ )
