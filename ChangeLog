@@ -1,3 +1,13 @@
+2017-06-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdump] List SFNT tables.
+
+	* src/ftdump.c (Print_Sfnt_Tables): New feature, list SFNT tables with
+	their first 4 bytes with version for some tables.
+	(usage, main): Updated.
+
+	* src/ftdump.1: Updated
+
 2017-06-22  Werner Lemberg  <wl@gnu.org>
 
 	[compos] Make it compile.

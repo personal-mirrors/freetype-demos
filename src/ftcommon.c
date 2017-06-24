@@ -899,18 +899,28 @@
 
       if ( FT_HAS_GLYPH_NAMES( face ) )
       {
-        unsigned int  glyph_idx;
+        char*         p;
+        const char*   format = ", name: ";
+        unsigned int  format_len, glyph_idx;
 
 
-        x += sprintf( buf + x, ", name: " );
+        p = buf + x;
+        x = 256 - x;
 
-        glyph_idx = (unsigned int)idx;
-        if ( handle->encoding != FT_ENCODING_ORDER )
-          glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
+        format_len = strlen( format );
 
-        FT_Get_Glyph_Name( face, glyph_idx, buf + x, 256 - x );
+        if ( x >= (signed int)format_len + 2 )
+        {
+          glyph_idx = (unsigned int)idx;
+          if ( handle->encoding != FT_ENCODING_ORDER )
+            glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
+
+          strcpy( p, format );
+          if ( FT_Get_Glyph_Name( face, glyph_idx,
+                                  p + format_len, x - format_len ) )
+            *p = '\0';
+        }
       }
-
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }

@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright 1996-2000, 2003-2007, 2010, 2012-2013                         */
+/*  Copyright 1996-2017                                                     */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /****************************************************************************/
@@ -39,6 +39,7 @@
   static int  verbose     = 0;
   static int  name_tables = 0;
   static int  bytecode    = 0;
+  static int  tables      = 0;
   static int  utf8        = 0;
 
 
@@ -83,6 +84,7 @@
     fprintf( stderr,
       "  -n        Print SFNT name tables.\n"
       "  -p        Print TrueType programs.\n"
+      "  -t        Print SFNT table list.\n"
       "  -u        Emit UTF8.\n"
       "  -V        Be verbose.\n"
       "\n"
@@ -368,6 +370,43 @@
 
 
   static void
+  Print_Sfnt_Tables( FT_Face  face )
+  {
+    FT_ULong  num_tables, i;
+    FT_ULong  tag, length;
+    FT_Byte   buffer[4];
+
+
+    FT_Sfnt_Table_Info( face, 0, NULL, &num_tables );
+
+    printf( "font tables (%lu)\n", num_tables );
+
+    for ( i = 0; i < num_tables; i++ )
+    {
+      FT_Sfnt_Table_Info( face, (FT_UInt)i, &tag, &length );
+
+      if ( length >= 4 )
+      {
+        length = 4;
+        FT_Load_Sfnt_Table( face, tag, 0, buffer, &length );
+      }
+      else
+        continue;
+
+      printf( "  %2lu: %c%c%c%c %02X%02X%02X%02X...\n", i,
+                                   (FT_Char)( tag >> 24 ),
+                                   (FT_Char)( tag >> 16 ),
+                                   (FT_Char)( tag >>  8 ),
+                                   (FT_Char)( tag ),
+                                       (FT_UInt)buffer[0],
+                                       (FT_UInt)buffer[1],
+                                       (FT_UInt)buffer[2],
+                                       (FT_UInt)buffer[3] );
+    }
+  }
+
+
+  static void
   Print_Fixed( FT_Face  face )
   {
     int  i;
@@ -401,7 +440,7 @@
       active = FT_Get_Charmap_Index( face->charmap );
 
     /* CharMaps */
-    printf( "charmaps\n" );
+    printf( "charmaps (%d)\n", face->num_charmaps );
 
     for( i = 0; i < face->num_charmaps; i++ )
     {
@@ -410,13 +449,13 @@
 
 
       if ( format >= 0 )
-        printf( "   %d: format %2ld, platform %u, encoding %2u",
+        printf( "  %2d: format %2ld, platform %u, encoding %2u",
                 i,
                 format,
                 face->charmaps[i]->platform_id,
                 face->charmaps[i]->encoding_id );
       else
-        printf( "   %d: synthetic, platform %u, encoding %2u",
+        printf( "  %2d: synthetic, platform %u, encoding %2u",
                 i,
                 face->charmaps[i]->platform_id,
                 face->charmaps[i]->encoding_id );
@@ -737,7 +776,7 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "npuvV" );
+      option = getopt( argc, argv, "nptuvV" );
 
       if ( option == -1 )
         break;
@@ -750,6 +789,10 @@
 
       case 'p':
         bytecode = 1;
+        break;
+
+      case 't':
+        tables = 1;
         break;
 
       case 'u':
@@ -847,6 +890,12 @@
       {
         printf( "\n" );
         Print_Sfnt_Names( face );
+      }
+
+      if ( tables && FT_IS_SFNT( face ) )
+      {
+        printf( "\n" );
+        Print_Sfnt_Tables( face );
       }
 
       if ( bytecode && FT_IS_SFNT( face ) )
