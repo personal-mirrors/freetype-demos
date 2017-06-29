@@ -1,3 +1,7 @@
+2017-06-29  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftview.c (Render_Stroke): Avoid memory leaks.
+
 2017-06-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdump] List SFNT tables.
