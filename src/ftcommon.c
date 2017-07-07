@@ -1363,9 +1363,9 @@
           glyph->delta = face->glyph->lsb_delta - face->glyph->rsb_delta;
         else
         {
-          if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )
+          if ( prev_rsb_delta - face->glyph->lsb_delta > 32 )
             glyph->delta = -1 * 64;
-          else if ( prev_rsb_delta - face->glyph->lsb_delta < -32 )
+          else if ( prev_rsb_delta - face->glyph->lsb_delta < -31 )
             glyph->delta = 1 * 64;
           else
             glyph->delta = 0;

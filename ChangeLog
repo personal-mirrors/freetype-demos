@@ -1,3 +1,13 @@
+2017-07-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Tweak adjustment of spacing.
+
+	The advance width rounding in light hinting is reflected in
+	`rsb_delta' and ranges from -31 to 32. These conventional limits
+	should also define when the spacing adjustment is warranted.
+
+	* src/ftcommon.c (string_load): Tweak conditionals.
+
 2017-06-29  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftview.c (Render_Stroke): Avoid memory leaks.
