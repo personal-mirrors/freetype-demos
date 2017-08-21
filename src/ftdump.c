@@ -473,8 +473,9 @@
 
       if ( verbose )
       {
-        FT_ULong  charcode;
-        FT_UInt   gindex;
+        FT_ULong   charcode;
+        FT_UInt    gindex;
+        FT_String  buf[32];
 
 
         FT_Set_Charmap( face, face->charmaps[i] );
@@ -482,7 +483,12 @@
         charcode = FT_Get_First_Char( face, &gindex );
         while ( gindex )
         {
-          printf( "      0x%04lx => %d\n", charcode, gindex );
+          if ( FT_HAS_GLYPH_NAMES ( face ) )
+            FT_Get_Glyph_Name( face, gindex, buf, 32 );
+          else
+            buf[0] = '\0';
+
+          printf( "      0x%04lx => %d %s\n", charcode, gindex, buf );
           charcode = FT_Get_Next_Char( face, charcode, &gindex );
         }
         printf( "\n" );
