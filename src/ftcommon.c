@@ -24,6 +24,12 @@
 #include FT_BITMAP_H
 #include FT_FONT_FORMATS_H
 
+  /* error messages */
+#undef FTERRORS_H_
+#define FT_ERROR_START_LIST     {
+#define FT_ERRORDEF( e, v, s )  case v: str = s; break;
+#define FT_ERROR_END_LIST       default: str = "unknown error"; }
+
 #include "common.h"
 #include "ftcommon.h"
 
@@ -64,7 +70,13 @@
   void
   PanicZ( const char*  message )
   {
-    fprintf( stderr, "%s\n  error = 0x%04x\n", message, error );
+    FT_String  *str;
+
+
+    switch( error )
+    #include FT_ERRORS_H
+
+    fprintf( stderr, "%s\n  error = 0x%04x, %s\n", message, error, str );
     exit( 1 );
   }
 

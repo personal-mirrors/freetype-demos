@@ -1,3 +1,7 @@
+2017-09-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/{ftdump.c,ftcommon.c} (PanicZ): Handle error messages.
+
 2017-08-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftdump.c (Print_Charmaps): Decorate with glyph names.
