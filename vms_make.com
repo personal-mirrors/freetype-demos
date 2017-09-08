@@ -1,5 +1,5 @@
-$!---------------vms_make.com for Freetype2 demos ------------------------------
-$! make Freetype2 under OpenVMS
+$!---------------vms_make.com for FreeType 2 demos -----------------------------
+$! make FreeType 2 under OpenVMS
 $!
 $! In case of problems with the build you might want to contact me at
 $! zinser@zinser.no-ip.info (preferred) or
@@ -54,7 +54,7 @@ $ERR_LIB:
 $ write sys$output "Error reading config file [-.freetype2]vmslib.dat"
 $ goto err_exit
 $FT2_ERR:
-$ write sys$output "Could not locate Freetype 2 include files"
+$ write sys$output "Could not locate FreeType 2 include files"
 $ goto err_exit
 $ERR_EXIT:
 $ set message/facil/ident/sever/text
@@ -211,14 +211,14 @@ $! 0.01 20040220 First version to receive a number
 $! 0.02 20040229 Echo current procedure name; use general error exit handler
 $!               Remove xpm hack -> Replaced by more general dnsrl handling
 $! ---> Attention slightly changed version to take into account special
-$!      Situation for Freetype2 demos
+$!      situation for FreeType 2 demos
 $CHECK_CREATE_VMSLIB:
 $!
 $ if f$search("[-.freetype2]VMSLIB.DAT") .eqs. ""
 $ then
-$   write sys$output "Freetype2 driver file [-.freetype2]vmslib.dat not found."
+$   write sys$output "FreeType 2 driver file [-.freetype2]vmslib.dat not found."
 $   write sys$output "Either Ft2demos have been installed in the wrong location"
-$   write sys$output "or Freetype2 has not yet been configured."
+$   write sys$output "or FreeType 2 has not yet been configured."
 $   write sys$output "Exiting..."
 $   goto err_exit
 $ endif
@@ -270,7 +270,7 @@ $ if f$locate("EXE",libtype) .lt. f$length(libtype) then lqual = "/share"
 $ write optf libloc , lqual
 $ if (f$trnlnm("topt") .nes. "") then write topt libloc , lqual
 $!
-$! Nasty hack to get the freetype includes to work
+$! Nasty hack to get the FreeType includes to work
 $!
 $ ft2def = false
 $ if ((libname .eqs. "FREETYPE") .and. -
@@ -279,7 +279,7 @@ $ then
 $   if ((f$search("freetype:freetype.h") .nes. "") .and. -
         (f$search("freetype:[internal]ftobjs.h") .nes. ""))
 $   then
-$     write sys$output "Will use local definition of freetype logical"
+$     write sys$output "Will use local definition of FreeType logical"
 $   else
 $     ft2elem = 0
 $FT2_LOOP:

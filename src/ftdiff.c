@@ -310,7 +310,7 @@
     state->columns[0].warping                = warping;
     state->columns[0].use_custom_lcd_filter  = 0;
     state->columns[0].fw_index               = 2;
-    /* freetype default filter weights */
+    /* FreeType default filter weights */
     memcpy( state->columns[0].filter_weights, "\x08\x4D\x56\x4D\x08", 5 );
 
     state->columns[1]                        = state->columns[0];
