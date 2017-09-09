@@ -1,3 +1,17 @@
+2017-09-09  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Fix display of segment lines.
+
+	`af_glyph_hints_get_segment_offset' now returns values in font
+	units.  Previously, values were scaled to the device resolution but
+	with x height correction applied, which caused a mismatch to the
+	displayed unhinted outlines.
+
+	* src/ftgrid.c (grid_hint_draw_segment): Add new argument for
+	`FT_Size' object.
+	Scale return values of `af_glyph_hints_get_segment_offset' manually.
+	(grid_status_draw_outline): Updated.
+
 2017-09-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/{ftdump.c,ftcommon.c} (PanicZ): Handle error messages.

@@ -302,8 +302,12 @@
 
   static void
   grid_hint_draw_segment( GridStatus     st,
+                          FT_Size        size,
                           AF_GlyphHints  hints )
   {
+    FT_Fixed  x_scale = size->metrics.x_scale;
+    FT_Fixed  y_scale = size->metrics.y_scale;
+
     FT_Int  dimension;
     int     x_org = st->x_origin;
     int     y_org = st->y_origin;
@@ -331,18 +335,23 @@
 
         if ( dimension == 0 ) /* AF_DIMENSION_HORZ is 0 */
         {
-          pos = x_org + ( ( offset * st->scale ) >> 6 );
+          offset = FT_MulFix( offset, x_scale );
+          pos    = x_org + ( ( offset * st->scale ) >> 6 );
           grFillVLine( st->disp_bitmap, pos, 0,
                        st->disp_height, st->segment_color );
         }
         else
         {
-          pos = y_org - ( ( offset * st->scale ) >> 6 );
+          offset = FT_MulFix( offset, y_scale );
+          pos    = y_org - ( ( offset * st->scale ) >> 6 );
 
           if ( is_blue )
           {
-            int  blue_pos = y_org - ( ( blue_offset * st->scale ) >> 6 );
+            int  blue_pos;
 
+
+            blue_offset = FT_MulFix( blue_offset, y_scale );
+            blue_pos    = y_org - ( ( blue_offset * st->scale ) >> 6 );
 
             if ( blue_pos == pos )
               grFillHLine( st->disp_bitmap, 0, blue_pos,
@@ -661,7 +670,7 @@
                            FT_LOAD_NO_BITMAP      |
                            FT_LOAD_FORCE_AUTOHINT |
                            FT_LOAD_TARGET_NORMAL ) )
-        grid_hint_draw_segment( &status, _af_debug_hints );
+        grid_hint_draw_segment( &status, size, _af_debug_hints );
     }
 
     _af_debug_disable_horz_hints = !st->do_horz_hints;
