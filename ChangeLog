@@ -1,5 +1,14 @@
 2017-09-09  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Key `G' now toggles the display of grid lines.
+
+	* src/ftgrid.c (GridStatus): New member `do_grid'.
+	(grid_status_init, event_help): Updated.
+	(grid_status_draw_outline, main): Use `do_grid'.
+	(Process_Event): Handle key `G'.
+
+2017-09-09  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Fix display of segment lines.
 
 	`af_glyph_hints_get_segment_offset' now returns values in font

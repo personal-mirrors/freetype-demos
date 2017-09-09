@@ -131,6 +131,7 @@
     int          do_vert_hints;
     int          do_blue_hints;
     int          do_segment;
+    int          do_grid;
 
     FT_LcdFilter lcd_filter;
     const char*  header;
@@ -172,6 +173,7 @@
     st->do_vert_hints = 1;
     st->do_blue_hints = 1;
     st->do_segment    = 0;
+    st->do_grid       = 1;
 
     st->Num           = 0;
     st->lcd_filter    = FT_LCD_FILTER_DEFAULT;
@@ -688,17 +690,19 @@
                         handle->load_flags | FT_LOAD_NO_BITMAP ) )
       return;
 
-    /* show advance width */
-    grFillVLine( st->disp_bitmap,
-                 st->x_origin +
-                   ( ( size->face->glyph->metrics.horiAdvance +
-                       size->face->glyph->lsb_delta           -
-                       size->face->glyph->rsb_delta           ) *
-                     st->scale >> 6 ),
-                 0,
-                 st->disp_height,
-                 st->axis_color );
-
+    if ( st->do_grid )
+    {
+      /* show advance width */
+      grFillVLine( st->disp_bitmap,
+                   st->x_origin +
+                     ( ( size->face->glyph->metrics.horiAdvance +
+                         size->face->glyph->lsb_delta           -
+                         size->face->glyph->rsb_delta           ) *
+                       st->scale >> 6 ),
+                   0,
+                   st->disp_height,
+                   st->axis_color );
+    }
 
     slot = size->face->glyph;
     if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
@@ -994,7 +998,7 @@
     grWriteln( "h           toggle hinting              b           toggle bitmap           " );
     grWriteln( "f           toggle forced auto-         d           toggle dot display      " );
     grWriteln( "             hinting (if hinting)       o           toggle outline display  " );
-    grWriteln( "                                        D           toggle dotnumber display" );
+    grWriteln( "G           toggle grid display         D           toggle dotnumber display" );
     grWriteln( "                                                                            " );
     grWriteln( "F5, F6      cycle through               if Multiple Master or GX font:      " );
     grWriteln( "             anti-aliasing modes          F2        cycle through axes      " );
@@ -1567,6 +1571,12 @@
       FTDemo_Update_Current_Flags( handle );
       break;
 
+    case grKEY( 'G' ):
+      status.do_grid = !status.do_grid;
+      status.header = status.do_grid ? "grid drawing enabled"
+                                     : "grif drawing disabled";
+      break;
+
     case grKEY( 'd' ):
       status.work ^= DO_DOTS;
       break;
@@ -1968,7 +1978,8 @@
     {
       FTDemo_Display_Clear( display );
 
-      grid_status_draw_grid( &status );
+      if ( status.do_grid )
+        grid_status_draw_grid( &status );
 
       if ( status.work )
         grid_status_draw_outline( &status, handle, display );
