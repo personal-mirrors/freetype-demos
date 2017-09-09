@@ -70,7 +70,7 @@
   void
   PanicZ( const char*  message )
   {
-    FT_String  *str;
+    const FT_String  *str;
 
 
     switch( error )
@@ -920,7 +920,7 @@
         if ( handle->encoding != FT_ENCODING_ORDER )
           glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
 
-        FT_Get_Glyph_Name( face, glyph_idx, buf + x, 256 - x );
+        FT_Get_Glyph_Name( face, glyph_idx, buf + x, (FT_UInt)( 256 - x ) );
       }
 
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,

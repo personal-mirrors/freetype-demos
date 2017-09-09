@@ -54,7 +54,7 @@
   PanicZ( FT_Library   library,
           const char*  message )
   {
-    FT_String  *str;
+    const FT_String  *str;
 
 
     FT_Done_FreeType( library );

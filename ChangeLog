@@ -1,5 +1,14 @@
 2017-09-09  Werner Lemberg  <wl@gnu.org>
 
+	Fix clang compiler warnings.
+
+	* src/ftcommon.c (PanicZ): Use `const'.
+	(FTDemo_Draw_Header): Add a cast.
+
+	* src/ftdump.c (PanicZ): Use `const'.
+
+2017-09-09  Werner Lemberg  <wl@gnu.org>
+
 	[ftgrid] Key `G' now toggles the display of grid lines.
 
 	* src/ftgrid.c (GridStatus): New member `do_grid'.
