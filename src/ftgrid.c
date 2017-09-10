@@ -132,6 +132,7 @@
     int          do_blue_hints;
     int          do_segment;
     int          do_grid;
+    int          do_alt_colors;
 
     FT_LcdFilter lcd_filter;
     const char*  header;
@@ -174,6 +175,7 @@
     st->do_blue_hints = 1;
     st->do_segment    = 0;
     st->do_grid       = 1;
+    st->do_alt_colors = 0;
 
     st->Num           = 0;
     st->lcd_filter    = FT_LCD_FILTER_DEFAULT;
@@ -191,7 +193,13 @@
     st->disp_width    = display->bitmap->width;
     st->disp_height   = display->bitmap->rows;
     st->disp_bitmap   = display->bitmap;
+  }
 
+
+  static void
+  grid_status_colors( GridStatus       st,
+                      FTDemo_Display*  display )
+  {
     st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 ); /* black       */
     st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 ); /* gray        */
     st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 ); /* red         */
@@ -199,6 +207,22 @@
     st->off_color     = grFindColor( display->bitmap,   0, 128,   0, 255 ); /* dark green  */
     st->segment_color = grFindColor( display->bitmap,  64, 255, 128,  64 ); /* light green */
     st->blue_color    = grFindColor( display->bitmap,  64,  64, 255,  64 ); /* light blue  */
+  }
+
+
+  static void
+  grid_status_alt_colors( GridStatus       st,
+                          FTDemo_Display*  display )
+  {
+    /* colours are adjusted for color-blind people, */
+    /* cf. http://jfly.iam.u-tokyo.ac.jp/color      */
+    st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 ); /* black          */
+    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 ); /* gray           */
+    st->outline_color = grFindColor( display->bitmap, 230, 159,   0, 255 ); /* orange         */
+    st->on_color      = grFindColor( display->bitmap, 230, 159,   0, 255 ); /* orange         */
+    st->off_color     = grFindColor( display->bitmap,  86, 180, 233, 255 ); /* sky blue       */
+    st->segment_color = grFindColor( display->bitmap, 204, 121, 167,  64 ); /* reddish purple */
+    st->blue_color    = grFindColor( display->bitmap,   0, 114, 178,  64 ); /* blue           */
   }
 
 
@@ -999,13 +1023,13 @@
     grWriteln( "f           toggle forced auto-         d           toggle dot display      " );
     grWriteln( "             hinting (if hinting)       o           toggle outline display  " );
     grWriteln( "G           toggle grid display         D           toggle dotnumber display" );
-    grWriteln( "                                                                            " );
-    grWriteln( "F5, F6      cycle through               if Multiple Master or GX font:      " );
-    grWriteln( "             anti-aliasing modes          F2        cycle through axes      " );
-    grWriteln( "L           cycle through LCD             F3, F4    adjust current axis by  " );
-    grWriteln( "             filters                                 1/50th of its range    " );
-    grWriteln( "g, v        adjust gamma value                                              " );
-    grWriteln( "                                        q, ESC      quit ftgrid             " );
+    grWriteln( "C           change color palette                                            " );
+    grWriteln( "                                        if Multiple Master or GX font:      " );
+    grWriteln( "F5, F6      cycle through                 F2        cycle through axes      " );
+    grWriteln( "             anti-aliasing modes          F3, F4    adjust current axis by  " );
+    grWriteln( "L           cycle through LCD                        1/50th of its range    " );
+    grWriteln( "             filters                                                        " );
+    grWriteln( "g, v        adjust gamma value          q, ESC      quit ftgrid             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -1546,6 +1570,20 @@
       break;
 #endif /* FT_DEBUG_AUTOFIT */
 
+    case grKEY( 'C' ):
+      status.do_alt_colors = !status.do_alt_colors;
+      if ( status.do_alt_colors )
+      {
+        status.header = "use alternative colors";
+        grid_status_alt_colors( &status, display );
+      }
+      else
+      {
+        status.header = "use default colors";
+        grid_status_colors( &status, display );
+      }
+      break;
+
     case grKEY( 'L' ):
       event_lcd_filter_change();
       break;
@@ -1952,6 +1990,7 @@
       Fatal( "could not allocate display surface" );
 
     grid_status_display( &status, display );
+    grid_status_colors(  &status, display );
 
     grSetTitle( display->surface,
                 "FreeType Glyph Grid Viewer - press ? for help" );

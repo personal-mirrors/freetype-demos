@@ -1,3 +1,17 @@
+2017-09-10  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Key `C' now changes to a different color palette.
+
+	This gives better support for color-blind people.
+
+	* src/ftgrid.c (GridStatus): New member `do_alt_colors'.
+	(grid_status_init, event_help): Updated.
+	(grid_status_display): Move color code to...
+	(grid_status_colors): ... this new function.
+	(grof_status_alt_colors): New function.
+	(Process_Event): Handle key `C'.
+	(main): Updated.
+
 2017-09-09  Werner Lemberg  <wl@gnu.org>
 
 	Fix clang compiler warnings.
