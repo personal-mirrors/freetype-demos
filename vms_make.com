@@ -279,7 +279,7 @@ $ then
 $   if ((f$search("freetype:freetype.h") .nes. "") .and. -
         (f$search("freetype:[internal]ftobjs.h") .nes. ""))
 $   then
-$     write sys$output "Will use local definition of FreeType logical"
+$     write sys$output "Will use local definition of freetype logical"
 $   else
 $     ft2elem = 0
 $FT2_LOOP:

@@ -1574,7 +1574,7 @@
     case grKEY( 'G' ):
       status.do_grid = !status.do_grid;
       status.header = status.do_grid ? "grid drawing enabled"
-                                     : "grif drawing disabled";
+                                     : "grid drawing disabled";
       break;
 
     case grKEY( 'd' ):
