@@ -2007,8 +2007,6 @@
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );
 
-    printf( "ptsize =%g\n", status.ptsize / 64.0 );
-
     event_font_change( 0 );
 
     grid_status_rescale_initial( &status, handle );
