@@ -1,4 +1,4 @@
-.TH FTGRID 1 "May 2017" "Freetype 2.8"
+.TH FTGRID 1 "September 2017" "Freetype 2.8.1"
 .
 .
 .SH NAME
@@ -64,9 +64,22 @@ dpi (default: 72dpi).
 Specify first index to display (default: 0).
 .
 .TP
+.BI \-e \ enc
+Specify encoding tag (default: no encoding).
+Common values:
+.B unic
+(Unicode),
+.B symb
+(symbol),
+.B ADOB
+(Adobe standard),
+.B ADBC
+(Adobe custom).
+.
+.TP
 .BI "\-d\ \(dq" "axis1\ axis2\ .\|.\|." \(dq
-For Multiple Master or GX fonts, specify design coordinates for each axis at
-start-up.
+For Multiple Master, GX, or OpenType variation fonts, specify design
+coordinates for each axis at start-up.
 If this option is given, no named instances are shown.
 Ignored for all other font formats.
 .
