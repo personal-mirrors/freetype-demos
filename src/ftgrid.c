@@ -154,6 +154,8 @@
     FT_UInt      current_axis;
     FT_UInt      used_num_axis;
 
+    int          no_named_instances;
+
   } GridStatusRec, *GridStatus;
 
   static GridStatusRec  status;
@@ -183,6 +185,8 @@
 
     st->mm            = NULL;
     st->current_axis  = 0;
+
+    st->no_named_instances = 0;
   }
 
 
@@ -1820,7 +1824,8 @@
       "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -d \"axis1 axis2 ...\"\n"
       "            Specify the design coordinates for each\n"
-      "            Multiple Master axis at start-up.\n"
+      "            Multiple Master axis at start-up.  Implies `-n'.\n"
+      "  -n        Don't display named instances of variation fonts.\n"
       "\n"
       "  -v        Show version."
       "\n" );
@@ -1841,7 +1846,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "d:e:f:h:r:vw:" );
+      option = getopt( *argc, *argv, "d:e:f:h:nr:vw:" );
 
       if ( option == -1 )
         break;
@@ -1863,7 +1868,8 @@
               ++s;
           }
 
-          status.requested_cnt = cnt;
+          status.requested_cnt      = cnt;
+          status.no_named_instances = 1;
         }
         break;
 
@@ -1880,6 +1886,10 @@
         status.height = atoi( optarg );
         if ( status.height < 1 )
           usage( execname );
+        break;
+
+      case 'n':
+        status.no_named_instances = 1;
         break;
 
       case 'r':
@@ -2000,7 +2010,7 @@
     for ( ; argc > 0; argc--, argv++ )
     {
       error = FTDemo_Install_Font( handle, argv[0], 1,
-                                   status.requested_cnt ? 1 : 0 );
+                                   status.no_named_instances ? 1 : 0 );
       if ( error == FT_Err_Invalid_Argument )
         fprintf( stderr, "skipping font `%s' without outlines\n",
                          argv[0] );

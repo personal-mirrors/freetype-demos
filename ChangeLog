@@ -1,3 +1,14 @@
+2017-09-18  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] New option `-n' suppresses display of named instances.
+
+	* src/ftgrid.c (GridStatus): New field `no_named_instances'.
+	(grid_status_init, usage): Updated.
+	(parse_cmdline): Handle `-n'.
+	(main): Use `no_named_instances'.
+
+	* src/ftgrid.1: Document it.
+
 2017-09-17  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Fix crash if MM and non-MM fonts are viewed together.
