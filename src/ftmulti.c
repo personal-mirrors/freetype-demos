@@ -921,6 +921,7 @@
     }
 
     /* retrieve multiple master information */
+    free( multimaster );
     error = FT_Get_MM_Var( face, &multimaster );
     if ( error )
     {

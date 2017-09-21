@@ -1,3 +1,7 @@
+2017-09-21  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftmulti.c (main): Fix memory leak.
+
 2017-09-18  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] New option `-n' suppresses display of named instances.
