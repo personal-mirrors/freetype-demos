@@ -1,3 +1,10 @@
+2017-10-03  Werner Lemberg  <wl@gnu.org>
+
+	Correctly handle Type1 font names without extension.
+
+	* src/ftcommon.c (my_face_requester): Unset the suffix if the font
+	file doesn't have an extension.
+
 2017-09-21  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftmulti.c (main): Fix memory leak.

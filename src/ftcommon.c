@@ -261,6 +261,8 @@
 
         if ( has_extension )
           memcpy( suffix, orig, 5 );
+        else
+          *suffix = '\0';
       }
 
       if ( (*aface)->charmaps )
