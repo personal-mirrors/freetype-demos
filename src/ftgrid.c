@@ -677,6 +677,7 @@
                             FTDemo_Handle*   handle,
                             FTDemo_Display*  display )
   {
+    FT_Error      err;
     FT_Size       size;
     FT_GlyphSlot  slot;
     FT_UInt       glyph_idx;
@@ -685,7 +686,9 @@
     int           oy    = st->y_origin;
 
 
-    FTDemo_Get_Size( handle, &size );
+    err = FTDemo_Get_Size( handle, &size );
+    if ( err )
+      return;
 
 #ifdef FT_DEBUG_AUTOFIT
     /* Draw segment before drawing glyph. */

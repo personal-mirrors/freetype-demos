@@ -1,5 +1,12 @@
 2017-10-03  Werner Lemberg  <wl@gnu.org>
 
+	[ftgrid] Fix crash.
+
+	* src/ftgrid.c (grid_status_draw_outline): Avoid a crash if a font
+	can no longer be opened.
+
+2017-10-03  Werner Lemberg  <wl@gnu.org>
+
 	Correctly handle Type1 font names without extension.
 
 	* src/ftcommon.c (my_face_requester): Unset the suffix if the font
