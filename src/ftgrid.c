@@ -1048,323 +1048,6 @@
 
 
   static void
-  event_cff_hinting_engine_change( int  delta )
-  {
-    int  new_cff_hinting_engine = 0;
-
-
-    if ( delta )
-      new_cff_hinting_engine =
-        ( (int)status.cff_hinting_engine +
-          delta                          +
-          N_CFF_HINTING_ENGINES          ) % N_CFF_HINTING_ENGINES;
-
-    error = FT_Property_Set( handle->library,
-                             "cff",
-                             "hinting-engine",
-                             &new_cff_hinting_engine );
-
-    if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type CFF, then unloading them explicitly.         */
-      FTC_Manager_Reset( handle->cache_manager );
-      status.cff_hinting_engine = (FT_UInt)new_cff_hinting_engine;
-    }
-
-    sprintf( status.header_buffer, "CFF engine changed to %s",
-             status.cff_hinting_engine == FT_CFF_HINTING_FREETYPE
-               ? "FreeType" : "Adobe" );
-
-    status.header = (const char *)status.header_buffer;
-  }
-
-
-  static void
-  event_tt_interpreter_version_change( void )
-  {
-    status.tt_interpreter_version_idx += 1;
-    status.tt_interpreter_version_idx %= status.num_tt_interpreter_versions;
-
-    error = FT_Property_Set( handle->library,
-                             "truetype",
-                             "interpreter-version",
-                             &status.tt_interpreter_versions[
-                               status.tt_interpreter_version_idx] );
-
-    if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type TTF, then unloading them explicitly.         */
-      FTC_Manager_Reset( handle->cache_manager );
-    }
-
-    sprintf( status.header_buffer,
-             "TrueType engine changed to version %d",
-             status.tt_interpreter_versions[
-               status.tt_interpreter_version_idx]);
-
-    status.header = (const char *)status.header_buffer;
-  }
-
-
-  static void
-  event_warping_change( void )
-  {
-    if ( handle->lcd_mode == LCD_MODE_AA && handle->autohint )
-    {
-      FT_Bool  new_warping_state = !status.warping;
-
-
-      error = FT_Property_Set( handle->library,
-                               "autofitter",
-                               "warping",
-                               &new_warping_state );
-
-      if ( !error )
-      {
-        /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-        /* lazy to walk over all loaded fonts to check whether they */
-        /* are auto-hinted, then unloading them explicitly.         */
-        FTC_Manager_Reset( handle->cache_manager );
-        status.warping = new_warping_state;
-      }
-
-      status.header = status.warping ? "warping enabled"
-                                     : "warping disabled";
-    }
-    else
-      status.header = "need normal anti-aliasing mode to toggle warping";
-  }
-
-
-  static void
-  event_gamma_change( double  delta )
-  {
-    display->gamma += delta;
-
-    if ( display->gamma > 3.0 )
-      display->gamma = 3.0;
-    else if ( display->gamma < 0.0 )
-      display->gamma = 0.0;
-
-    grSetGlyphGamma( display->gamma );
-  }
-
-
-  static void
-  event_grid_reset( GridStatus  st )
-  {
-    st->x_origin = st->x_origin_0;
-    st->y_origin = st->y_origin_0;
-    st->scale    = st->scale_0;
-  }
-
-
-  static void
-  event_grid_translate( int  dx,
-                        int  dy )
-  {
-    status.x_origin += 32 * dx;
-    status.y_origin += 32 * dy;
-  }
-
-
-  static void
-  event_grid_zoom( double  zoom )
-  {
-    FT_F26Dot6  scale_old = status.scale;
-
-
-    status.scale *= zoom;
-
-    /* avoid same zoom value due to truncation */
-    /* to integer in above multiplication      */
-    if ( status.scale == scale_old && zoom > 1.0 )
-      status.scale++;
-
-    sprintf( status.header_buffer, "zoom level %.0f%%",
-             status.scale * 100.0 / status.scale_0 );
-
-    status.header = (const char *)status.header_buffer;
-  }
-
-
-  static void
-  event_lcd_mode_change( int  delta )
-  {
-    const char*  lcd_mode = NULL;
-
-
-    handle->lcd_mode = ( handle->lcd_mode +
-                         delta            +
-                         N_LCD_MODES      ) % N_LCD_MODES;
-
-    switch ( handle->lcd_mode )
-    {
-    case LCD_MODE_MONO:
-      lcd_mode = "monochrome";
-      break;
-    case LCD_MODE_AA:
-      lcd_mode = "normal AA";
-      break;
-    case LCD_MODE_LIGHT:
-      lcd_mode = "light AA";
-      break;
-    case LCD_MODE_LIGHT_SUBPIXEL:
-      lcd_mode = "light AA (subpixel positioning)";
-      break;
-    case LCD_MODE_RGB:
-      lcd_mode = "LCD (horiz. RGB)";
-      break;
-    case LCD_MODE_BGR:
-      lcd_mode = "LCD (horiz. BGR)";
-      break;
-    case LCD_MODE_VRGB:
-      lcd_mode = "LCD (vert. RGB)";
-      break;
-    case LCD_MODE_VBGR:
-      lcd_mode = "LCD (vert. BGR)";
-      break;
-    }
-
-    if ( delta )
-      FTC_Manager_Reset( handle->cache_manager );
-
-    sprintf( status.header_buffer, "rendering mode changed to %s",
-             lcd_mode );
-
-    status.header = (const char *)status.header_buffer;
-
-    FTDemo_Update_Current_Flags( handle );
-  }
-
-
-  static void
-  event_lcd_filter_change( void )
-  {
-    if ( handle->lcd_mode >= LCD_MODE_RGB )
-    {
-      const char*  lcd_filter = NULL;
-
-
-      switch( status.lcd_filter )
-      {
-      case FT_LCD_FILTER_DEFAULT:
-        status.lcd_filter = FT_LCD_FILTER_LIGHT;
-        break;
-      case FT_LCD_FILTER_LIGHT:
-        status.lcd_filter = FT_LCD_FILTER_LEGACY1;
-        break;
-      case FT_LCD_FILTER_LEGACY1:
-        status.lcd_filter = FT_LCD_FILTER_NONE;
-        break;
-      case FT_LCD_FILTER_NONE:
-      default:
-        status.lcd_filter = FT_LCD_FILTER_DEFAULT;
-        break;
-      }
-
-      switch ( status.lcd_filter )
-      {
-      case FT_LCD_FILTER_DEFAULT:
-        lcd_filter = "default";
-        break;
-      case FT_LCD_FILTER_LIGHT:
-        lcd_filter = "light";
-        break;
-      case FT_LCD_FILTER_LEGACY1:
-        lcd_filter = "legacy";
-        break;
-      case FT_LCD_FILTER_NONE:
-      default:
-        lcd_filter = "none";
-        break;
-      }
-
-      sprintf( status.header_buffer, "LCD filter changed to %s",
-               lcd_filter );
-
-      status.header = (const char *)status.header_buffer;
-
-      FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
-    }
-    else
-      status.header = "need LCD mode to change filter";
-  }
-
-
-  static void
-  event_size_change( int  delta )
-  {
-    status.ptsize += delta;
-
-    if ( status.ptsize < 1 * 64 )
-      status.ptsize = 1 * 64;
-    else if ( status.ptsize > MAXPTSIZE * 64 )
-      status.ptsize = MAXPTSIZE * 64;
-
-    FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
-  }
-
-
-  static void
-  event_index_change( int  delta )
-  {
-    int  num_indices = handle->current_font->num_indices;
-
-
-    status.Num += delta;
-
-    if ( status.Num < 0 )
-      status.Num = 0;
-    else if ( status.Num >= num_indices )
-      status.Num = num_indices - 1;
-  }
-
-
-  static void
-  event_axis_change( int  delta )
-  {
-    FT_Error      err;
-    FT_Size       size;
-    FT_Var_Axis*  a;
-    FT_Fixed      pos;
-
-
-    err = FTDemo_Get_Size( handle, &size );
-    if ( err )
-      return;
-
-    if ( !status.mm )
-      return;
-
-    a   = status.mm->axis + status.current_axis;
-    pos = status.design_pos[status.current_axis];
-
-    /*
-     * Normalize i.  Changing by 20 is all very well for PostScript fonts,
-     * which tend to have a range of ~1000 per axis, but it's not useful
-     * for mac fonts, which have a range of ~3.  And it's rather extreme
-     * for optical size even in PS.
-     */
-    pos += FT_MulDiv( delta, a->maximum - a->minimum, 1000 );
-    if ( pos < a->minimum )
-      pos = a->minimum;
-    if ( pos > a->maximum )
-      pos = a->maximum;
-
-    status.design_pos[status.current_axis] = pos;
-
-    (void)FT_Set_Var_Design_Coordinates( size->face,
-                                         status.used_num_axis,
-                                         status.design_pos );
-  }
-
-
-  static void
   event_font_change( int  delta )
   {
     FT_Error         err;
@@ -1516,6 +1199,329 @@
   }
 
 
+  static void
+  event_cff_hinting_engine_change( int  delta )
+  {
+    int  new_cff_hinting_engine = 0;
+
+
+    if ( delta )
+      new_cff_hinting_engine =
+        ( (int)status.cff_hinting_engine +
+          delta                          +
+          N_CFF_HINTING_ENGINES          ) % N_CFF_HINTING_ENGINES;
+
+    error = FT_Property_Set( handle->library,
+                             "cff",
+                             "hinting-engine",
+                             &new_cff_hinting_engine );
+
+    if ( !error )
+    {
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type CFF, then unloading them explicitly.         */
+      FTC_Manager_Reset( handle->cache_manager );
+      status.cff_hinting_engine = (FT_UInt)new_cff_hinting_engine;
+      event_font_change( 0 );
+    }
+
+    sprintf( status.header_buffer, "CFF engine changed to %s",
+             status.cff_hinting_engine == FT_CFF_HINTING_FREETYPE
+               ? "FreeType" : "Adobe" );
+
+    status.header = (const char *)status.header_buffer;
+  }
+
+
+  static void
+  event_tt_interpreter_version_change( void )
+  {
+    status.tt_interpreter_version_idx += 1;
+    status.tt_interpreter_version_idx %= status.num_tt_interpreter_versions;
+
+    error = FT_Property_Set( handle->library,
+                             "truetype",
+                             "interpreter-version",
+                             &status.tt_interpreter_versions[
+                               status.tt_interpreter_version_idx] );
+
+    if ( !error )
+    {
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type TTF, then unloading them explicitly.         */
+      FTC_Manager_Reset( handle->cache_manager );
+      event_font_change( 0 );
+    }
+
+    sprintf( status.header_buffer,
+             "TrueType engine changed to version %d",
+             status.tt_interpreter_versions[
+               status.tt_interpreter_version_idx]);
+
+    status.header = (const char *)status.header_buffer;
+  }
+
+
+  static void
+  event_warping_change( void )
+  {
+    if ( handle->lcd_mode == LCD_MODE_AA && handle->autohint )
+    {
+      FT_Bool  new_warping_state = !status.warping;
+
+
+      error = FT_Property_Set( handle->library,
+                               "autofitter",
+                               "warping",
+                               &new_warping_state );
+
+      if ( !error )
+      {
+        /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+        /* lazy to walk over all loaded fonts to check whether they */
+        /* are auto-hinted, then unloading them explicitly.         */
+        FTC_Manager_Reset( handle->cache_manager );
+        status.warping = new_warping_state;
+        event_font_change( 0 );
+      }
+
+      status.header = status.warping ? "warping enabled"
+                                     : "warping disabled";
+    }
+    else
+      status.header = "need normal anti-aliasing mode to toggle warping";
+  }
+
+
+  static void
+  event_gamma_change( double  delta )
+  {
+    display->gamma += delta;
+
+    if ( display->gamma > 3.0 )
+      display->gamma = 3.0;
+    else if ( display->gamma < 0.0 )
+      display->gamma = 0.0;
+
+    grSetGlyphGamma( display->gamma );
+  }
+
+
+  static void
+  event_grid_reset( GridStatus  st )
+  {
+    st->x_origin = st->x_origin_0;
+    st->y_origin = st->y_origin_0;
+    st->scale    = st->scale_0;
+  }
+
+
+  static void
+  event_grid_translate( int  dx,
+                        int  dy )
+  {
+    status.x_origin += 32 * dx;
+    status.y_origin += 32 * dy;
+  }
+
+
+  static void
+  event_grid_zoom( double  zoom )
+  {
+    FT_F26Dot6  scale_old = status.scale;
+
+
+    status.scale *= zoom;
+
+    /* avoid same zoom value due to truncation */
+    /* to integer in above multiplication      */
+    if ( status.scale == scale_old && zoom > 1.0 )
+      status.scale++;
+
+    sprintf( status.header_buffer, "zoom level %.0f%%",
+             status.scale * 100.0 / status.scale_0 );
+
+    status.header = (const char *)status.header_buffer;
+  }
+
+
+  static void
+  event_lcd_mode_change( int  delta )
+  {
+    const char*  lcd_mode = NULL;
+
+
+    handle->lcd_mode = ( handle->lcd_mode +
+                         delta            +
+                         N_LCD_MODES      ) % N_LCD_MODES;
+
+    switch ( handle->lcd_mode )
+    {
+    case LCD_MODE_MONO:
+      lcd_mode = "monochrome";
+      break;
+    case LCD_MODE_AA:
+      lcd_mode = "normal AA";
+      break;
+    case LCD_MODE_LIGHT:
+      lcd_mode = "light AA";
+      break;
+    case LCD_MODE_LIGHT_SUBPIXEL:
+      lcd_mode = "light AA (subpixel positioning)";
+      break;
+    case LCD_MODE_RGB:
+      lcd_mode = "LCD (horiz. RGB)";
+      break;
+    case LCD_MODE_BGR:
+      lcd_mode = "LCD (horiz. BGR)";
+      break;
+    case LCD_MODE_VRGB:
+      lcd_mode = "LCD (vert. RGB)";
+      break;
+    case LCD_MODE_VBGR:
+      lcd_mode = "LCD (vert. BGR)";
+      break;
+    }
+
+    if ( delta )
+    {
+      FTC_Manager_Reset( handle->cache_manager );
+      event_font_change( 0 );
+    }
+
+    sprintf( status.header_buffer, "rendering mode changed to %s",
+             lcd_mode );
+
+    status.header = (const char *)status.header_buffer;
+
+    FTDemo_Update_Current_Flags( handle );
+  }
+
+
+  static void
+  event_lcd_filter_change( void )
+  {
+    if ( handle->lcd_mode >= LCD_MODE_RGB )
+    {
+      const char*  lcd_filter = NULL;
+
+
+      switch( status.lcd_filter )
+      {
+      case FT_LCD_FILTER_DEFAULT:
+        status.lcd_filter = FT_LCD_FILTER_LIGHT;
+        break;
+      case FT_LCD_FILTER_LIGHT:
+        status.lcd_filter = FT_LCD_FILTER_LEGACY1;
+        break;
+      case FT_LCD_FILTER_LEGACY1:
+        status.lcd_filter = FT_LCD_FILTER_NONE;
+        break;
+      case FT_LCD_FILTER_NONE:
+      default:
+        status.lcd_filter = FT_LCD_FILTER_DEFAULT;
+        break;
+      }
+
+      switch ( status.lcd_filter )
+      {
+      case FT_LCD_FILTER_DEFAULT:
+        lcd_filter = "default";
+        break;
+      case FT_LCD_FILTER_LIGHT:
+        lcd_filter = "light";
+        break;
+      case FT_LCD_FILTER_LEGACY1:
+        lcd_filter = "legacy";
+        break;
+      case FT_LCD_FILTER_NONE:
+      default:
+        lcd_filter = "none";
+        break;
+      }
+
+      sprintf( status.header_buffer, "LCD filter changed to %s",
+               lcd_filter );
+
+      status.header = (const char *)status.header_buffer;
+
+      FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
+    }
+    else
+      status.header = "need LCD mode to change filter";
+  }
+
+
+  static void
+  event_size_change( int  delta )
+  {
+    status.ptsize += delta;
+
+    if ( status.ptsize < 1 * 64 )
+      status.ptsize = 1 * 64;
+    else if ( status.ptsize > MAXPTSIZE * 64 )
+      status.ptsize = MAXPTSIZE * 64;
+
+    FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
+  }
+
+
+  static void
+  event_index_change( int  delta )
+  {
+    int  num_indices = handle->current_font->num_indices;
+
+
+    status.Num += delta;
+
+    if ( status.Num < 0 )
+      status.Num = 0;
+    else if ( status.Num >= num_indices )
+      status.Num = num_indices - 1;
+  }
+
+
+  static void
+  event_axis_change( int  delta )
+  {
+    FT_Error      err;
+    FT_Size       size;
+    FT_Var_Axis*  a;
+    FT_Fixed      pos;
+
+
+    err = FTDemo_Get_Size( handle, &size );
+    if ( err )
+      return;
+
+    if ( !status.mm )
+      return;
+
+    a   = status.mm->axis + status.current_axis;
+    pos = status.design_pos[status.current_axis];
+
+    /*
+     * Normalize i.  Changing by 20 is all very well for PostScript fonts,
+     * which tend to have a range of ~1000 per axis, but it's not useful
+     * for mac fonts, which have a range of ~3.  And it's rather extreme
+     * for optical size even in PS.
+     */
+    pos += FT_MulDiv( delta, a->maximum - a->minimum, 1000 );
+    if ( pos < a->minimum )
+      pos = a->minimum;
+    if ( pos > a->maximum )
+      pos = a->maximum;
+
+    status.design_pos[status.current_axis] = pos;
+
+    (void)FT_Set_Var_Design_Coordinates( size->face,
+                                         status.used_num_axis,
+                                         status.design_pos );
+  }
+
+
   static int
   Process_Event( grEvent*  event )
   {
@@ -1615,7 +1621,7 @@
                                       : "glyph hinting is now ignored";
 
       FTC_Manager_Reset( handle->cache_manager );
-      FTDemo_Update_Current_Flags( handle );
+      event_font_change( 0 );
       break;
 
     case grKEY( 'G' ):

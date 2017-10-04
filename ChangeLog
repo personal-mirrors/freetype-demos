@@ -1,3 +1,15 @@
+2017-10-04  Werner Lemberg  <wl@gnu.org>
+
+	[ftgrid] Correctly handle MM data.
+
+	We have to reload the MM data after the cache gets reset.
+
+	* src/ftgrid.c (event_font_change): Move source code up in file.
+	(event_cff_hinting_engine_change,
+	event_tt_interpreter_version_change, event_warping_change,
+	event_lcd_mode_change, Process_Event <'h'>): Call
+	`event_font_change'.
+
 2017-10-03  Werner Lemberg  <wl@gnu.org>
 
 	[ftgrid] Fix crash.
