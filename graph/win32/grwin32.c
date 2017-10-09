@@ -284,7 +284,7 @@ gr_win32_surface_set_title( grWin32Surface*  surface,
 {
   /* the title will be set on the next listen_event, just */
   /* record it there..                                    */
-  surface->title_set = 1;
+  surface->title_set = 0;
   surface->the_title = title;
 }
 
