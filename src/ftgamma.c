@@ -284,7 +284,7 @@
                  grColor    color,
                  int        lcd )
   {
-    int  pitch = out->pitch;
+    int  pitch = abs( out->pitch );
     int  i, ii, j;
 
     unsigned char*  src;

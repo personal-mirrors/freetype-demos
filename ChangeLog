@@ -1,5 +1,9 @@
 2017-10-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftgamma.c (Render_Bitmap): Ignore target flow.
+
+2017-10-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/win32/grwin32.c (gr_win32_surface_set_title): Small fix.
 
 2017-10-04  Werner Lemberg  <wl@gnu.org>
