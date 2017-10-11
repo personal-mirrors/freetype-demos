@@ -733,6 +733,20 @@
                    0,
                    st->disp_height,
                    st->axis_color );
+
+      /* show ascender and descender */
+      grFillHLine( st->disp_bitmap,
+                   0,
+                   st->y_origin -
+                     ( size->face->size->metrics.ascender  * st->scale >> 6 ),
+                   st->disp_width,
+                   st->axis_color );
+      grFillHLine( st->disp_bitmap,
+                   0,
+                   st->y_origin -
+                     ( size->face->size->metrics.descender * st->scale >> 6 ),
+                   st->disp_width,
+                   st->axis_color );
     }
 
     slot = size->face->glyph;
