@@ -27,6 +27,40 @@ This program is part of the FreeType demos package.
 .SH OPTIONS
 .
 .TP
+.BI \-b \ tests
+Perform chosen tests:
+.
+.RS
+.TS
+tab (@);
+rB l.
+a@load glyphs (FT_Load_Glyph)
+b@load advance widths (FT_Get_Advances)
+c@render glyphs (FT_Render_Glyph)
+d@load glyphs (FT_Get_Glyph)
+e@get glyph cboxes (FT_Glyph_Get_CBox)
+f@get glyph indices (FT_Get_Char_Index)
+g@iterate CMap (FT_Get_{First,Next}_Char)
+h@open a new face (FT_New_Face or FT_New_Memory_Face)
+i@embolden glyphs (FT_GlyphSlot_Embolden)
+j@get glyph bboxes (FT_Outline_Get_BBox)
+k@open a new face and load glyphs
+.TE
+.RE
+.
+.IP
+(default is
+.BR abcdefghijk ,
+this is, all tests).
+.
+.IP
+The number of used glyphs per test (within a single iteration) is given by
+options
+.B \-i
+and
+.BR \-j .
+.
+.TP
 .B \-C
 Compare with cached version if available.
 .
@@ -68,7 +102,13 @@ without an argument to get the actual list.
 .BI \-i \ idx
 Start with glyph index
 .I idx
-(default is 0, which means to process all glyphs).
+(default is 0).
+.
+.TP
+.BI \-j \ idx
+End with glyph index
+.I idx
+(default is the number of glyphs minus one).
 .
 .TP
 .BI \-m \ m
@@ -123,37 +163,6 @@ otherwise errors will show up.
 Use at most
 .I t
 seconds per test (default is 2).
-.
-.TP
-.BI \-b \ tests
-Perform chosen tests:
-.
-.RS
-.TS
-tab (@);
-rB l.
-a@load glyphs (FT_Load_Glyph)
-b@load advance widths (FT_Get_Advances)
-c@render glyphs (FT_Render_Glyph)
-d@load glyphs (FT_Get_Glyph)
-e@get glyph cboxes (FT_Glyph_Get_CBox)
-f@get glyph indices (FT_Get_Char_Index)
-g@iterate CMap (FT_Get_{First,Next}_Char)
-h@open a new face (FT_New_Face or FT_New_Memory_Face)
-i@embolden glyphs (FT_GlyphSlot_Embolden)
-j@get glyph bboxes (FT_Outline_Get_BBox)
-.TE
-.RE
-.
-.IP
-(default is
-.BR abcdefghij ,
-this is, all tests).
-.
-.IP
-The number of used glyphs per test (within a single iteration) is given by
-option
-.BR \-i .
 .
 .TP
 .B \-v

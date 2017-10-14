@@ -106,6 +106,7 @@
     FT_BENCH_NEW_FACE,
     FT_BENCH_EMBOLDEN,
     FT_BENCH_GET_BBOX,
+    FT_BENCH_NEW_FACE_AND_LOAD_GLYPH,
     N_FT_BENCH
   };
 
@@ -122,6 +123,8 @@
     "open a new face     (FT_New_Face)",
     "embolden            (FT_GlyphSlot_Embolden)",
     "get glyph bbox      (FT_Outline_Get_BBox)",
+
+    "open face and load glyph",
     NULL
   };
 
@@ -525,6 +528,7 @@
     unsigned int  i;
     int           done = 0;
 
+    FT_UNUSED( face );
     FT_UNUSED( user_data );
 
 
@@ -561,6 +565,7 @@
     unsigned int  i;
     int           done = 0;
 
+    FT_UNUSED( face );
     FT_UNUSED( user_data );
 
 
@@ -630,6 +635,39 @@
     TIMER_STOP( timer );
 
     return 1;
+  }
+
+
+  static int
+  test_new_face_and_load_glyph( btimer_t*  timer,
+                                FT_Face    face,
+                                void*      user_data )
+  {
+    FT_Face  bench_face;
+
+    unsigned int  i;
+    int           done = 0;
+
+    FT_UNUSED( face );
+    FT_UNUSED( user_data );
+
+
+    TIMER_START( timer );
+
+    if ( !get_face( &bench_face ) )
+    {
+      for ( i = first_index; i <= last_index; i++ )
+      {
+        if ( !FT_Load_Glyph( bench_face, i, load_flags ) )
+          done++;
+      }
+
+      FT_Done_Face( bench_face );
+    }
+
+    TIMER_STOP( timer );
+
+    return done;
   }
 
 
@@ -1306,6 +1344,12 @@
           benchmark( face, &test, max_iter, max_time );
         else
           printf( "  %-25s disabled (size = 0)\n", test.title );
+        break;
+
+      case FT_BENCH_NEW_FACE_AND_LOAD_GLYPH:
+        test.title = "Create face & load glyph(s)";
+        test.bench = test_new_face_and_load_glyph;
+        benchmark( face, &test, max_iter, max_time );
         break;
       }
     }
