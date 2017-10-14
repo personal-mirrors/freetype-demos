@@ -129,7 +129,8 @@
   static int    preload;
   static char*  filename;
 
-  static unsigned int  first_index;
+  static unsigned int  first_index = 0U;
+  static unsigned int  last_index  = ~0U;
 
   static FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
   static FT_Int32        load_flags  = FT_LOAD_DEFAULT;
@@ -264,7 +265,7 @@
 
     TIMER_START( timer );
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       if ( !FT_Load_Glyph( face, i, load_flags ) )
         done++;
@@ -293,10 +294,10 @@
 
     FT_Get_Advances( face,
                      first_index,
-                     (unsigned int)face->num_glyphs - first_index,
+                     last_index - first_index + 1,
                      (FT_Int32)flags,
                      advances );
-    done += face->num_glyphs - (int)first_index;
+    done += (int)( last_index - first_index ) + 1;
 
     TIMER_STOP( timer );
 
@@ -317,7 +318,7 @@
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -343,7 +344,7 @@
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -370,7 +371,7 @@
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -401,7 +402,7 @@
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       if ( FT_Load_Glyph( face, i, load_flags ) )
         continue;
@@ -434,7 +435,7 @@
     FT_UNUSED( user_data );
 
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       FT_Outline*  outline;
 
@@ -535,7 +536,7 @@
 
     TIMER_START( timer );
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       if ( !FTC_ImageCache_Lookup( image_cache,
                                    &font_type,
@@ -571,7 +572,7 @@
 
     TIMER_START( timer );
 
-    for ( i = first_index; i < (unsigned int)face->num_glyphs; i++ )
+    for ( i = first_index; i <= last_index; i++ )
     {
       if ( !FTC_SBitCache_Lookup( sbit_cache,
                                   &font_type,
@@ -660,7 +661,7 @@
       /*                                                                */
       while ( gindex && i < face->num_glyphs )
       {
-        if ( gindex >= first_index )
+        if ( gindex >= first_index && gindex <= last_index )
           charset->code[i++] = charcode;
         charcode = FT_Get_Next_Char( face, charcode, &gindex );
       }
@@ -671,9 +672,7 @@
 
 
       /* no charmap, do an identity mapping */
-      for ( i = 0, j = first_index;
-            j < (unsigned int)face->num_glyphs;
-            i++, j++ )
+      for ( i = 0, j = first_index; j <= last_index; i++, j++ )
         charset->code[i] = j;
     }
 
@@ -792,6 +791,7 @@
       "  -I VER    Use TT interpreter version VER.\n"
       "            Available versions are %s; default is version %d.\n"
       "  -i IDX    Start with index IDX (default is 0).\n"
+      "  -j IDX    End with index IDX (default is number of glyphs minus one).\n"
       "  -l N      Set LCD filter to N\n"
       "              0: none, 1: default, 2: light, 16: legacy\n"
       "  -m M      Set maximum cache size to M KiByte (default is %d).\n",
@@ -910,7 +910,7 @@
       int  opt;
 
 
-      opt = getopt( argc, argv, "b:Cc:f:H:I:i:l:m:pr:s:t:v" );
+      opt = getopt( argc, argv, "b:Cc:f:H:I:i:j:l:m:pr:s:t:v" );
 
       if ( opt == -1 )
         break;
@@ -980,6 +980,16 @@
 
           if ( fi > 0 )
             first_index = (unsigned int)fi;
+        }
+        break;
+
+      case 'j':
+        {
+          int  li = atoi( optarg );
+
+
+          if ( li > 0 )
+            last_index = (unsigned int)li;
         }
         break;
 
@@ -1077,6 +1087,11 @@
     if ( get_face( &face ) )
       goto Exit;
 
+    if ( last_index >= (unsigned int)face->num_glyphs )
+      last_index = (unsigned int)face->num_glyphs - 1;
+    if ( last_index < first_index )
+      last_index = first_index;
+
     if ( size )
     {
       if ( FT_IS_SCALABLE( face ) )
@@ -1133,10 +1148,12 @@
              max_time );
 
     printf( "\n"
-            "starting glyph index: %d\n"
+            "first glyph index: %d\n"
+            "last glyph index: %d\n"
             "face size: %dppem\n"
             "font preloading into memory: %s\n",
             first_index,
+            last_index,
             size,
             preload ? "yes" : "no" );
 

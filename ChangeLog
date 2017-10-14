@@ -1,3 +1,16 @@
+2017-10-14  Werner Lemberg  <wl@gnu.org>
+
+	[ftbench] New option `-j' to specify last glyph index.
+
+	* src/ftbench.c (last_index): New global variable.
+	(test_load, test_load_advances, test_render, test_embolden,
+	test_get_glyph, test_get_cbox, test_get_bbox, test_image_cache,
+	test_sbit_cache, get_charset): Use it.
+	(usage): Updated.
+	(main): Handle `-j'.
+	Initialize `last_index'.
+	Update test output.
+
 2017-10-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (grid_status_draw_outline): Show ascender and descender.
