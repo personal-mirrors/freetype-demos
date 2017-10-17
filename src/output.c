@@ -292,10 +292,10 @@
           *out++ = '\\';
           *out++ = 'U';
           *out++ = '+';
-          *out++ = hexdigit[( string[i] >> 12 ) & 0xF];
-          *out++ = hexdigit[( string[i] >> 8  ) & 0xF];
-          *out++ = hexdigit[( string[i] >> 4  ) & 0xF];
-          *out++ = hexdigit[  string[i]         & 0xF];
+          *out++ = hexdigit[( ch >> 12 ) & 0xF];
+          *out++ = hexdigit[( ch >> 8  ) & 0xF];
+          *out++ = hexdigit[( ch >> 4  ) & 0xF];
+          *out++ = hexdigit[  ch         & 0xF];
         }
         continue;
       }

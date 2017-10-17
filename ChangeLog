@@ -1,3 +1,7 @@
+2017-10-16  Colin Fahey  <cpfahey@gmail.com>
+
+	* src/output.c (put_unicode_be16_string): Fix UTF16 default.
+
 2017-10-14  Werner Lemberg  <wl@gnu.org>
 
 	[ftbench] Add new test for creating face and loading glyph together.
