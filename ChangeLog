@@ -1,3 +1,7 @@
+2017-10-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftgrid.c: Use integer for `scale'. Other tweaks.
+
 2017-10-16  Colin Fahey  <cpfahey@gmail.com>
 
 	* src/output.c (put_unicode_be16_string): Fix UTF16 default.

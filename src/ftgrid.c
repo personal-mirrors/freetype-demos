@@ -106,11 +106,11 @@
     int          Num;  /* glyph index */
     int          font_index;
 
-    FT_F26Dot6   scale;
+    int          scale;
     int          x_origin;
     int          y_origin;
 
-    FT_F26Dot6   scale_0;
+    int          scale_0;
     int          x_origin_0;
     int          y_origin_0;
 
@@ -293,9 +293,9 @@
   static void
   grid_status_draw_grid( GridStatus  st )
   {
-    int         x_org   = st->x_origin;
-    int         y_org   = st->y_origin;
-    FT_F26Dot6  xy_incr = st->scale;
+    int  x_org   = st->x_origin;
+    int  y_org   = st->y_origin;
+    int  xy_incr = st->scale;
 
 
     if ( xy_incr >= 2 )
@@ -571,8 +571,8 @@
 
 
   static void
-  bitmap_scale( grBitmap*   bit,
-                FT_F26Dot6  scale )
+  bitmap_scale( grBitmap*  bit,
+                int        scale )
   {
     unsigned char*  s = bit->buffer;
     unsigned char*  t;
@@ -681,7 +681,7 @@
     FT_Size       size;
     FT_GlyphSlot  slot;
     FT_UInt       glyph_idx;
-    FT_F26Dot6    scale = st->scale;
+    int           scale = st->scale;
     int           ox    = st->x_origin;
     int           oy    = st->y_origin;
 
@@ -729,7 +729,7 @@
                      ( ( size->face->glyph->metrics.horiAdvance +
                          size->face->glyph->lsb_delta           -
                          size->face->glyph->rsb_delta           ) *
-                       st->scale >> 6 ),
+                       scale >> 6 ),
                    0,
                    st->disp_height,
                    st->axis_color );
@@ -737,14 +737,12 @@
       /* show ascender and descender */
       grFillHLine( st->disp_bitmap,
                    0,
-                   st->y_origin -
-                     ( size->face->size->metrics.ascender  * st->scale >> 6 ),
+                   st->y_origin - ( size->metrics.ascender  * scale >> 6 ),
                    st->disp_width,
                    st->axis_color );
       grFillHLine( st->disp_bitmap,
                    0,
-                   st->y_origin -
-                     ( size->face->size->metrics.descender * st->scale >> 6 ),
+                   st->y_origin - ( size->metrics.descender * scale >> 6 ),
                    st->disp_width,
                    st->axis_color );
     }
@@ -1344,7 +1342,7 @@
   static void
   event_grid_zoom( double  zoom )
   {
-    FT_F26Dot6  scale_old = status.scale;
+    int  scale_old = status.scale;
 
 
     status.scale *= zoom;
@@ -1354,8 +1352,7 @@
     if ( status.scale == scale_old && zoom > 1.0 )
       status.scale++;
 
-    sprintf( status.header_buffer, "zoom level %.0f%%",
-             status.scale * 100.0 / status.scale_0 );
+    sprintf( status.header_buffer, "zoom scale %d:1", status.scale );
 
     status.header = (const char *)status.header_buffer;
   }
