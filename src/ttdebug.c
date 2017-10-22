@@ -41,10 +41,12 @@
   /* Define the `getch()' function.  On Unix systems, it is an alias  */
   /* for `getchar()', and the debugger front end must ensure that the */
   /* `stdin' file descriptor is not in line-by-line input mode.       */
-#ifndef UNIX
+#ifdef _WIN32
 #include <conio.h>
+#define snprintf  _snprintf
+#define getch     _getch
 #else
-#define getch  getchar
+#define getch     getchar
 #endif
 
 

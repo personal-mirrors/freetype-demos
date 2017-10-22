@@ -1,4 +1,8 @@
-2017-10-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2017-10-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ttdebug.c: Fix compilation on Windows.
+
+2017-10-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c: Use integer for `scale'. Other tweaks.
 
