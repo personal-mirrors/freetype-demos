@@ -1633,7 +1633,7 @@
       "  -m text   Use `text' for rendering.\n" );
     fprintf( stderr,
       "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
-             N_LCD_IDXS );
+             N_LCD_IDXS - 1 );
     fprintf( stderr,
       "  -p        Preload file in memory to simulate memory-mapping.\n"
       "\n"
@@ -1679,12 +1679,13 @@
 
       case 'l':
         status.lcd_idx = atoi( optarg );
-        if ( status.lcd_idx < 0 || status.lcd_idx > N_LCD_IDXS )
+        if ( status.lcd_idx < 0 || status.lcd_idx >= N_LCD_IDXS )
         {
-          fprintf( stderr, "argument to `l' must be between 0 and %d\n",
-                   N_LCD_IDXS );
+          fprintf( stderr, "argument to `l' must be in the range [0;%d]\n",
+                   N_LCD_IDXS - 1 );
           exit( 3 );
         }
+        handle->lcd_mode = lcd_modes[status.lcd_idx];
         break;
 
       case 'm':
