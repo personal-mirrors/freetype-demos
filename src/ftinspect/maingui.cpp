@@ -12,8 +12,7 @@
 #include <QMessageBox>
 #include <QSettings>
 
-#include FT_CFF_DRIVER_H
-#include FT_TRUETYPE_DRIVER_H
+#include FT_DRIVER_H
 
 
 MainGUI::MainGUI()
@@ -1180,8 +1179,8 @@ MainGUI::setDefaults()
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_38] = HintingMode_TrueType_v38;
   hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_40] = HintingMode_TrueType_v40;
 
-  hintingModesCFFHash[FT_CFF_HINTING_FREETYPE] = HintingMode_CFF_FreeType;
-  hintingModesCFFHash[FT_CFF_HINTING_ADOBE] = HintingMode_CFF_Adobe;
+  hintingModesCFFHash[FT_HINTING_FREETYPE] = HintingMode_CFF_FreeType;
+  hintingModesCFFHash[FT_HINTING_ADOBE] = HintingMode_CFF_Adobe;
 
   lcdFilterHash[FT_LCD_FILTER_DEFAULT] = LCDFilter_Default;
   lcdFilterHash[FT_LCD_FILTER_LIGHT] = LCDFilter_Light;

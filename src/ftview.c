@@ -32,8 +32,7 @@
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 #include FT_LCD_FILTER_H
-#include FT_CFF_DRIVER_H
-#include FT_TRUETYPE_DRIVER_H
+#include FT_DRIVER_H
 
 
 #define MAXPTSIZE  500                 /* dtp */
@@ -68,7 +67,7 @@
 #endif
 
 
-#define N_CFF_HINTING_ENGINES  2
+#define N_HINTING_ENGINES  2
 
 
   /* omit LCD_MODE_LIGHT_SUBPIXEL; we don't need it in this application */
@@ -777,7 +776,7 @@
       new_cff_hinting_engine =
         ( status.cff_hinting_engine +
           delta                     +
-          N_CFF_HINTING_ENGINES     ) % N_CFF_HINTING_ENGINES;
+          N_HINTING_ENGINES         ) % N_HINTING_ENGINES;
 
     error = FT_Property_Set( handle->library,
                              "cff",
@@ -1501,10 +1500,10 @@
       {
         switch ( status.cff_hinting_engine )
         {
-        case FT_CFF_HINTING_FREETYPE:
+        case FT_HINTING_FREETYPE:
           hinting_engine = "FreeType";
           break;
-        case FT_CFF_HINTING_ADOBE:
+        case FT_HINTING_ADOBE:
           hinting_engine = "Adobe";
           break;
         }

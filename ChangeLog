@@ -1,3 +1,11 @@
+2017-12-08  Werner Lemberg  <wl@gnu.org>
+
+	Update to Freetype changes from 2017-12-08.
+
+	* src/*.c: s/FT_{CFF,TRUETYPE}_DRIVER_H/FT_DRIVER_H/.
+	s/FT_CFF_HINTING_/FT_HINTING_/.
+	s/N_CFF_HINTING_ENGINES/N_HINTING_ENGINES/.
+
 2017-12-02  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Fix `-l' option.

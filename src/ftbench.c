@@ -31,8 +31,7 @@
 #include FT_OUTLINE_H
 #include FT_BBOX_H
 #include FT_MODULE_H
-#include FT_CFF_DRIVER_H
-#include FT_TRUETYPE_DRIVER_H
+#include FT_DRIVER_H
 #include FT_LCD_FILTER_H
 
 #ifdef UNIX
@@ -894,8 +893,8 @@
     unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
                                   TT_INTERPRETER_VERSION_38,
                                   TT_INTERPRETER_VERSION_40 };
-    unsigned int  engines[2]  = { FT_CFF_HINTING_FREETYPE,
-                                  FT_CFF_HINTING_ADOBE };
+    unsigned int  engines[2]  = { FT_HINTING_FREETYPE,
+                                  FT_HINTING_ADOBE };
     int           version;
     char         *engine;
 

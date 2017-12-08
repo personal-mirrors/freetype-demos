@@ -16,8 +16,7 @@
 #include FT_FREETYPE_H
 #include FT_FONT_FORMATS_H
 #include FT_MODULE_H
-#include FT_TRUETYPE_DRIVER_H
-#include FT_CFF_DRIVER_H
+#include FT_DRIVER_H
 #include FT_MULTIPLE_MASTERS_H
 
 #include "common.h"
@@ -37,7 +36,7 @@
 #define  MAXPTSIZE    500               /* dtp */
 #define  MAX_MM_AXES    6
 
-#define N_CFF_HINTING_ENGINES  2
+#define N_HINTING_ENGINES  2
 
 
   static char   Header[256];
@@ -475,7 +474,7 @@
       new_cff_hinting_engine =
         ( (int)cff_hinting_engine +
           delta                   +
-          N_CFF_HINTING_ENGINES   ) % N_CFF_HINTING_ENGINES;
+          N_HINTING_ENGINES       ) % N_HINTING_ENGINES;
 
     error = FT_Property_Set( library,
                              "cff",
@@ -1080,7 +1079,7 @@
                                    : ( tt_ver == TT_INTERPRETER_VERSION_38
                                        ? "TrueType (v38)"
                                        : "TrueType (v40)" ) )
-                             : ( cff_hinting_engine == FT_CFF_HINTING_FREETYPE
+                             : ( cff_hinting_engine == FT_HINTING_FREETYPE
                                    ? "CFF (FreeType)"
                                    : "CFF (Adobe)" ) );
         }

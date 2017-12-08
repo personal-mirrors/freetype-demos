@@ -9,9 +9,8 @@
 #include <stdexcept>
 #include <stdint.h>
 
-#include FT_CFF_DRIVER_H
+#include FT_DRIVER_H
 #include FT_LCD_FILTER_H
-#include FT_TRUETYPE_DRIVER_H
 
 // internal FreeType header files; only available in the source code bundle
 #include FT_INTERNAL_DRIVER_H
@@ -171,8 +170,8 @@ Engine::Engine(MainGUI* g)
   {
     int engines[] =
     {
-      FT_CFF_HINTING_FREETYPE,
-      FT_CFF_HINTING_ADOBE
+      FT_HINTING_FREETYPE,
+      FT_HINTING_ADOBE
     };
 
     int i;

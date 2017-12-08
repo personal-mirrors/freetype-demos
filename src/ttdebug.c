@@ -55,7 +55,7 @@
 #include "common.h"
 #include "mlgetopt.h"
 
-#include FT_TRUETYPE_DRIVER_H
+#include FT_DRIVER_H
 
   /* The following header shouldn't be used in normal programs.    */
   /* `freetype2/src/truetype' must be in the current include path. */

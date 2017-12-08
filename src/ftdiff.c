@@ -19,8 +19,7 @@
 
 #include FT_OUTLINE_H
 #include FT_LCD_FILTER_H
-#include FT_CFF_DRIVER_H
-#include FT_TRUETYPE_DRIVER_H
+#include FT_DRIVER_H
 
   /* showing driver name -- the two internal header files */
   /* shouldn't be used in normal programs                 */
@@ -806,10 +805,10 @@
         {
           switch ( column->cff_hinting_engine )
           {
-          case FT_CFF_HINTING_FREETYPE:
+          case FT_HINTING_FREETYPE:
             extra = " (CFF FT)";
             break;
-          case FT_CFF_HINTING_ADOBE:
+          case FT_HINTING_ADOBE:
             extra = " (CFF Adobe)";
             break;
           }

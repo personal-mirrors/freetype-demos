@@ -30,8 +30,7 @@
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 #include FT_LCD_FILTER_H
-#include FT_CFF_DRIVER_H
-#include FT_TRUETYPE_DRIVER_H
+#include FT_DRIVER_H
 #include FT_MULTIPLE_MASTERS_H
 #include FT_SFNT_NAMES_H
 #include FT_TRUETYPE_IDS_H
@@ -44,7 +43,7 @@
 #define snprintf  _snprintf
 #endif
 
-#define N_CFF_HINTING_ENGINES  2
+#define N_HINTING_ENGINES  2
 
 
 #ifdef FT_DEBUG_AUTOFIT
@@ -1221,7 +1220,7 @@
       new_cff_hinting_engine =
         ( (int)status.cff_hinting_engine +
           delta                          +
-          N_CFF_HINTING_ENGINES          ) % N_CFF_HINTING_ENGINES;
+          N_HINTING_ENGINES              ) % N_HINTING_ENGINES;
 
     error = FT_Property_Set( handle->library,
                              "cff",
@@ -1239,7 +1238,7 @@
     }
 
     sprintf( status.header_buffer, "CFF engine changed to %s",
-             status.cff_hinting_engine == FT_CFF_HINTING_FREETYPE
+             status.cff_hinting_engine == FT_HINTING_FREETYPE
                ? "FreeType" : "Adobe" );
 
     status.header = (const char *)status.header_buffer;
