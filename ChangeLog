@@ -1,5 +1,17 @@
 2017-12-08  Werner Lemberg  <wl@gnu.org>
 
+	[ftview] Allow hinting engine selection for Type 1 and CID fonts.
+
+	* src/ftview.c (status): New fields `type1_hinting_engine' and
+	`t1cid_hinting_engine'.
+	(main): Initialize new fields.
+	(event_type1_hinting_engine_change,
+	event_t1cid_hinting_engine_change): New functions.
+	(Process_Event) <'H'>: Use them.
+	(write_header): Updated.
+
+2017-12-08  Werner Lemberg  <wl@gnu.org>
+
 	Update to Freetype changes from 2017-12-08.
 
 	* src/*.c: s/FT_{CFF,TRUETYPE}_DRIVER_H/FT_DRIVER_H/.

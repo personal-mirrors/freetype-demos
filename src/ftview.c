@@ -112,6 +112,8 @@
     double         slant;
 
     unsigned int   cff_hinting_engine;
+    unsigned int   type1_hinting_engine;
+    unsigned int   t1cid_hinting_engine;
     unsigned int   tt_interpreter_versions[3];
     int            num_tt_interpreter_versions;
     int            tt_interpreter_version_idx;
@@ -130,7 +132,7 @@
   } status = { 1,
                DIM_X, DIM_Y, RENDER_MODE_ALL,
                72, 48, 1, 0.04, 0.04, 0.02, 0.22,
-               0, { 0 }, 0, 0, 0, /* default values are set at runtime */
+               0, 0, 0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
                FT_LCD_FILTER_DEFAULT, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
 
@@ -798,6 +800,68 @@
 
 
   static int
+  event_type1_hinting_engine_change( unsigned int  delta )
+  {
+    unsigned int  new_type1_hinting_engine = 0;
+
+
+    if ( delta )
+      new_type1_hinting_engine =
+        ( status.type1_hinting_engine +
+          delta                       +
+          N_HINTING_ENGINES           ) % N_HINTING_ENGINES;
+
+    error = FT_Property_Set( handle->library,
+                             "type1",
+                             "hinting-engine",
+                             &new_type1_hinting_engine );
+
+    if ( !error )
+    {
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type Type1, then unloading them explicitly.       */
+      FTC_Manager_Reset( handle->cache_manager );
+      status.type1_hinting_engine = new_type1_hinting_engine;
+      return 1;
+    }
+
+    return 0;
+  }
+
+
+  static int
+  event_t1cid_hinting_engine_change( unsigned int  delta )
+  {
+    unsigned int  new_t1cid_hinting_engine = 0;
+
+
+    if ( delta )
+      new_t1cid_hinting_engine =
+        ( status.t1cid_hinting_engine +
+          delta                       +
+          N_HINTING_ENGINES           ) % N_HINTING_ENGINES;
+
+    error = FT_Property_Set( handle->library,
+                             "t1cid",
+                             "hinting-engine",
+                             &new_t1cid_hinting_engine );
+
+    if ( !error )
+    {
+      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+      /* lazy to walk over all loaded fonts to check whether they */
+      /* are of type t1cid, then unloading them explicitly.       */
+      FTC_Manager_Reset( handle->cache_manager );
+      status.t1cid_hinting_engine = new_t1cid_hinting_engine;
+      return 1;
+    }
+
+    return 0;
+  }
+
+
+  static int
   event_tt_interpreter_version_change( void )
   {
     status.tt_interpreter_version_idx += 1;
@@ -1141,6 +1205,10 @@
 
           if ( !strcmp( module->clazz->module_name, "cff" ) )
             status.update = event_cff_hinting_engine_change( 1 );
+          else if ( !strcmp( module->clazz->module_name, "type1" ) )
+            status.update = event_type1_hinting_engine_change( 1 );
+          else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+            status.update = event_t1cid_hinting_engine_change( 1 );
           else if ( !strcmp( module->clazz->module_name, "truetype" ) )
             status.update = event_tt_interpreter_version_change();
         }
@@ -1509,6 +1577,32 @@
         }
       }
 
+      else if ( !strcmp( module->clazz->module_name, "type1" ) )
+      {
+        switch ( status.type1_hinting_engine )
+        {
+        case FT_HINTING_FREETYPE:
+          hinting_engine = "FreeType";
+          break;
+        case FT_HINTING_ADOBE:
+          hinting_engine = "Adobe";
+          break;
+        }
+      }
+
+      else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+      {
+        switch ( status.t1cid_hinting_engine )
+        {
+        case FT_HINTING_FREETYPE:
+          hinting_engine = "FreeType";
+          break;
+        case FT_HINTING_ADOBE:
+          hinting_engine = "Adobe";
+          break;
+        }
+      }
+
       else if ( !strcmp( module->clazz->module_name, "truetype" ) )
       {
         switch ( status.tt_interpreter_versions[
@@ -1763,10 +1857,16 @@
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
 
-    /* get the default value as compiled into FreeType */
+    /* get the default values as compiled into FreeType */
     FT_Property_Get( handle->library,
                      "cff",
                      "hinting-engine", &status.cff_hinting_engine );
+    FT_Property_Get( handle->library,
+                     "type1",
+                     "hinting-engine", &status.type1_hinting_engine );
+    FT_Property_Get( handle->library,
+                     "t1cid",
+                     "hinting-engine", &status.t1cid_hinting_engine );
 
     /* collect all available versions, then set again the default */
     FT_Property_Get( handle->library,
