@@ -534,8 +534,8 @@ else
 	  $(LINK_NEW)
 
   $(BIN_DIR_2)/ftmulti$E: $(OBJ_DIR_2)/ftmulti.$(SO) $(FTLIB) \
-                          $(GRAPH_LIB) $(COMMON_OBJ)
-	  $(LINK_GRAPH)
+                          $(GRAPH_LIB) $(COMMON_OBJ) $(FTCOMMON_OBJ)
+	  $(LINK_NEW)
 
   $(BIN_DIR_2)/ftstring$E: $(OBJ_DIR_2)/ftstring.$(SO) $(FTLIB) \
                            $(GRAPH_LIB) $(COMMON_OBJ) $(FTCOMMON_OBJ)

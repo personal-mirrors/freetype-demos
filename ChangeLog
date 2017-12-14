@@ -1,3 +1,49 @@
+2017-12-14  Ewald Hew  <ewaldhew@gmail.com>
+	    Werner Lemberg  <wl@gnu.org>
+
+	Finish hinting engine selection code for Type 1 and CID fonts.
+
+	* src/ftview.c (event_cff_hinting_engine_change,
+	event_type1_hinting_engine_change,
+	event_t1cid_hinting_engine_change): Moved and renamed to...
+
+	* src/ftcommon.c (FTDemo_Event_Cff_Hinting_Engine_Change,
+	FTDemo_Event_Type1_Hinting_Engine_Change,
+	FTDemo_Event_T1cid_Hinting_Engine_Change): ...these.
+	Include FT_MODULE_H.
+
+	* src/ftcommon.h: Declarations.
+	* src/ftmulti.c: Forward declarations.
+
+	* Makefile: Updated to link above.
+
+	* src/ftview.c (event_tt_interpreter_version_change): Updated.
+	(Process_Event)	<'H'>: Updated.
+
+	* src/ftbench.c: s/cff_hinting_/ps_hinting_/.
+	(main): Set `hinting-engine' property for all PostScript format
+	drivers.
+
+	* src/ftdiff.c (ColumnStateRec): New fields `type1_hinting_engine'
+	and `t1cid_hinting_engine'.
+	(render_state_init): Initialize new fields.
+	(render_state_draw): Use new fields.
+	Update footer string.
+	(process_event) <'H'>: Updated.
+
+	* src/ftgrid.c (GridStatusRec): New fields `type1_hinting_engine'
+	and `t1cid_hinting_engine'.
+	(main): Initialize new fields.
+	(event_cff_hinting_engine_change): Removed.
+	(Process_Event) <'H'>: Updated.
+
+	* src/ftmulti.c (type1_hinting_engine, t1cid_hinting_engine): New
+	fields.
+	(main): Initialize new fields.
+	Update header string.
+	(cff_hinting_engine_change): Removed.
+	(Process_Event) <'H'>: Updated.
+
 2017-12-08  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Allow hinting engine selection for Type 1 and CID fonts.

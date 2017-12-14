@@ -141,12 +141,12 @@
   static int           num_tt_interpreter_versions;
   static unsigned int  dflt_tt_interpreter_version;
 
-  static unsigned int  cff_hinting_engines[2];
-  static int           num_cff_hinting_engines;
-  static unsigned int  dflt_cff_hinting_engine;
+  static unsigned int  ps_hinting_engines[2];
+  static int           num_ps_hinting_engines;
+  static unsigned int  dflt_ps_hinting_engine;
 
-  static char  cff_hinting_engine_names[2][10] = { "freetype",
-                                                   "adobe" };
+  static char  ps_hinting_engine_names[2][10] = { "freetype",
+                                                  "adobe" };
 
 
   /*
@@ -801,15 +801,15 @@
               tt_interpreter_versions[2] );
 
     /* we expect that at least one hinting engine is available */
-    if ( num_cff_hinting_engines == 1 )
+    if ( num_ps_hinting_engines == 1 )
       sprintf(hinting_engines,
               "`%s'",
-              cff_hinting_engine_names[cff_hinting_engines[0]] );
+              ps_hinting_engine_names[ps_hinting_engines[0]] );
     else
       sprintf(hinting_engines,
               "`%s' and `%s'",
-              cff_hinting_engine_names[cff_hinting_engines[0]],
-              cff_hinting_engine_names[cff_hinting_engines[1]] );
+              ps_hinting_engine_names[ps_hinting_engines[0]],
+              ps_hinting_engine_names[ps_hinting_engines[1]] );
 
 
     fprintf( stderr,
@@ -823,7 +823,7 @@
       "  -c N      Use at most N iterations for each test\n"
       "            (0 means time limited).\n"
       "  -f L      Use hex number L as load flags (see `FT_LOAD_XXX').\n"
-      "  -H NAME   Use CFF hinting engine NAME.\n"
+      "  -H NAME   Use PS hinting engine NAME.\n"
       "            Available versions are %s; default is `%s'.\n"
       "  -I VER    Use TT interpreter version VER.\n"
       "            Available versions are %s; default is version %d.\n"
@@ -833,7 +833,7 @@
       "              0: none, 1: default, 2: light, 16: legacy\n"
       "  -m M      Set maximum cache size to M KiByte (default is %d).\n",
              hinting_engines,
-             cff_hinting_engine_names[dflt_cff_hinting_engine],
+             ps_hinting_engine_names[dflt_ps_hinting_engine],
              interpreter_versions,
              dflt_tt_interpreter_version,
              CACHE_SIZE );
@@ -925,22 +925,28 @@
 
     FT_Property_Get( lib,
                      "cff",
-                     "hinting-engine", &dflt_cff_hinting_engine );
+                     "hinting-engine", &dflt_ps_hinting_engine );
     for ( j = 0; j < 2; j++ )
     {
       error = FT_Property_Set( lib,
                                "cff",
                                "hinting-engine", &engines[j] );
       if ( !error )
-        cff_hinting_engines[num_cff_hinting_engines++] = engines[j];
+        ps_hinting_engines[num_ps_hinting_engines++] = engines[j];
     }
     FT_Property_Set( lib,
                      "cff",
-                     "hinting-engine", &dflt_cff_hinting_engine );
+                     "hinting-engine", &dflt_ps_hinting_engine );
+    FT_Property_Set( lib,
+                     "type1",
+                     "hinting-engine", &dflt_ps_hinting_engine );
+    FT_Property_Set( lib,
+                     "t1cid",
+                     "hinting-engine", &dflt_ps_hinting_engine );
 
 
     version = (int)dflt_tt_interpreter_version;
-    engine  = cff_hinting_engine_names[dflt_cff_hinting_engine];
+    engine  = ps_hinting_engine_names[dflt_ps_hinting_engine];
 
     while ( 1 )
     {
@@ -975,20 +981,26 @@
       case 'H':
         engine = optarg;
 
-        for ( j = 0; j < num_cff_hinting_engines; j++ )
+        for ( j = 0; j < num_ps_hinting_engines; j++ )
         {
-          if ( !strcmp( engine, cff_hinting_engine_names[j] ) )
+          if ( !strcmp( engine, ps_hinting_engine_names[j] ) )
           {
             FT_Property_Set( lib,
                              "cff",
+                             "hinting-engine", &j );
+            FT_Property_Set( lib,
+                             "type1",
+                             "hinting-engine", &j );
+            FT_Property_Set( lib,
+                             "t1cid",
                              "hinting-engine", &j );
             break;
           }
         }
 
-        if ( j == num_cff_hinting_engines )
+        if ( j == num_ps_hinting_engines )
           fprintf( stderr,
-                   "warning: couldn't set CFF hinting engine\n" );
+                   "warning: couldn't set hinting engine\n" );
         break;
 
       case 'I':

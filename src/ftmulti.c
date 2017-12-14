@@ -38,6 +38,20 @@
 
 #define N_HINTING_ENGINES  2
 
+  /* definitions in ftcommon.c */
+  unsigned int
+  FTDemo_Event_Cff_Hinting_Engine_Change( FT_Library     library,
+                                          unsigned int*  current,
+                                          unsigned int   delta );
+  unsigned int
+  FTDemo_Event_Type1_Hinting_Engine_Change( FT_Library     library,
+                                            unsigned int*  current,
+                                            unsigned int   delta );
+  unsigned int
+  FTDemo_Event_T1cid_Hinting_Engine_Change( FT_Library     library,
+                                            unsigned int*  current,
+                                            unsigned int   delta );
+
 
   static char   Header[256];
   static char*  new_header = NULL;
@@ -56,6 +70,8 @@
   static unsigned long  encoding = FT_ENCODING_NONE;
 
   static unsigned int  cff_hinting_engine;
+  static unsigned int  type1_hinting_engine;
+  static unsigned int  t1cid_hinting_engine;
   static unsigned int  tt_interpreter_versions[3];
   static unsigned int  num_tt_interpreter_versions;
   static unsigned int  tt_interpreter_version_idx;
@@ -465,27 +481,6 @@
 
 
   static void
-  cff_hinting_engine_change( int  delta )
-  {
-    int  new_cff_hinting_engine = 0;
-
-
-    if ( delta )
-      new_cff_hinting_engine =
-        ( (int)cff_hinting_engine +
-          delta                   +
-          N_HINTING_ENGINES       ) % N_HINTING_ENGINES;
-
-    error = FT_Property_Set( library,
-                             "cff",
-                             "hinting-engine",
-                             &new_cff_hinting_engine );
-    if ( !error )
-      cff_hinting_engine = (FT_UInt)new_cff_hinting_engine;
-  }
-
-
-  static void
   tt_interpreter_version_change( void )
   {
     tt_interpreter_version_idx += 1;
@@ -548,7 +543,17 @@
 
     case grKEY( 'H' ):
       if ( !strcmp( font_format, "CFF" ) )
-        cff_hinting_engine_change( 1 );
+        FTDemo_Event_Cff_Hinting_Engine_Change( library,
+                                                &cff_hinting_engine,
+                                                1);
+      else if ( !strcmp( font_format, "Type 1" ) )
+        FTDemo_Event_Type1_Hinting_Engine_Change( library,
+                                                  &type1_hinting_engine,
+                                                  1);
+      else if ( !strcmp( font_format, "CID Type 1" ) )
+        FTDemo_Event_T1cid_Hinting_Engine_Change( library,
+                                                  &t1cid_hinting_engine,
+                                                  1);
       else if ( !strcmp( font_format, "TrueType" ) )
         tt_interpreter_version_change();
       break;
@@ -806,6 +811,12 @@
     FT_Property_Get( library,
                      "cff",
                      "hinting-engine", &cff_hinting_engine );
+    FT_Property_Get( library,
+                     "type1",
+                     "hinting-engine", &type1_hinting_engine );
+    FT_Property_Get( library,
+                     "t1cid",
+                     "hinting-engine", &t1cid_hinting_engine );
 
     /* collect all available versions, then set again the default */
     FT_Property_Get( library,
@@ -1069,19 +1080,31 @@
           unsigned int  tt_ver = tt_interpreter_versions[
                                    tt_interpreter_version_idx];
 
+          const char*  format_str = NULL;
+
+          if ( !strcmp( font_format, "CFF" ) )
+            format_str = ( cff_hinting_engine == FT_HINTING_FREETYPE
+                         ? "CFF (FreeType)"
+                         : "CFF (Adobe)" );
+          else if ( !strcmp( font_format, "Type 1" ) )
+            format_str = ( type1_hinting_engine == FT_HINTING_FREETYPE
+                         ? "Type 1 (FreeType)"
+                         : "Type 1 (Adobe)" );
+          else if ( !strcmp( font_format, "CID Type 1" ) )
+            format_str = ( t1cid_hinting_engine == FT_HINTING_FREETYPE
+                         ? "CID Type 1 (FreeType)"
+                         : "CID Type 1 (Adobe)" );
+          else if ( !strcmp( font_format, "TrueType" ) )
+            format_str = ( tt_ver == TT_INTERPRETER_VERSION_35
+                                   ? "TrueType (v35)"
+                                   : ( tt_ver == TT_INTERPRETER_VERSION_38
+                                       ? "TrueType (v38)"
+                                       : "TrueType (v40)" ) );
 
           sprintf( Header, "at %d points, first glyph = %d, format = %s",
                            ptsize,
                            Num,
-                           strcmp( font_format, "CFF" )
-                             ? ( tt_ver == TT_INTERPRETER_VERSION_35
-                                   ? "TrueType (v35)"
-                                   : ( tt_ver == TT_INTERPRETER_VERSION_38
-                                       ? "TrueType (v38)"
-                                       : "TrueType (v40)" ) )
-                             : ( cff_hinting_engine == FT_HINTING_FREETYPE
-                                   ? "CFF (FreeType)"
-                                   : "CFF (Adobe)" ) );
+                           format_str );
         }
       }
       else

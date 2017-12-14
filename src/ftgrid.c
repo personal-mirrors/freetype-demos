@@ -140,6 +140,8 @@
     FT_Stroker   stroker;
 
     unsigned int cff_hinting_engine;
+    unsigned int type1_hinting_engine;
+    unsigned int t1cid_hinting_engine;
     unsigned int tt_interpreter_versions[3];
     int          num_tt_interpreter_versions;
     int          tt_interpreter_version_idx;
@@ -1211,41 +1213,6 @@
 
 
   static void
-  event_cff_hinting_engine_change( int  delta )
-  {
-    int  new_cff_hinting_engine = 0;
-
-
-    if ( delta )
-      new_cff_hinting_engine =
-        ( (int)status.cff_hinting_engine +
-          delta                          +
-          N_HINTING_ENGINES              ) % N_HINTING_ENGINES;
-
-    error = FT_Property_Set( handle->library,
-                             "cff",
-                             "hinting-engine",
-                             &new_cff_hinting_engine );
-
-    if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type CFF, then unloading them explicitly.         */
-      FTC_Manager_Reset( handle->cache_manager );
-      status.cff_hinting_engine = (FT_UInt)new_cff_hinting_engine;
-      event_font_change( 0 );
-    }
-
-    sprintf( status.header_buffer, "CFF engine changed to %s",
-             status.cff_hinting_engine == FT_HINTING_FREETYPE
-               ? "FreeType" : "Adobe" );
-
-    status.header = (const char *)status.header_buffer;
-  }
-
-
-  static void
   event_tt_interpreter_version_change( void )
   {
     status.tt_interpreter_version_idx += 1;
@@ -1676,7 +1643,65 @@
           module = &face->driver->root;
 
           if ( !strcmp( module->clazz->module_name, "cff" ) )
-            event_cff_hinting_engine_change( 1 );
+          {
+            if ( FTDemo_Event_Cff_Hinting_Engine_Change(
+                   handle->library,
+                   &status.cff_hinting_engine,
+                   1 ) )
+            {
+              /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+              /* lazy to walk over all loaded fonts to check whether they */
+              /* are of type CFF, then unloading them explicitly.         */
+              FTC_Manager_Reset( handle->cache_manager );
+              event_font_change( 0 );
+            }
+
+            sprintf( status.header_buffer, "CFF engine changed to %s",
+                     status.cff_hinting_engine == FT_HINTING_FREETYPE
+                       ? "FreeType" : "Adobe" );
+
+            status.header = (const char *)status.header_buffer;
+          }
+          else if ( !strcmp( module->clazz->module_name, "type1" ) )
+          {
+            if ( FTDemo_Event_Type1_Hinting_Engine_Change(
+                   handle->library,
+                   &status.type1_hinting_engine,
+                   1 ) )
+            {
+              /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+              /* lazy to walk over all loaded fonts to check whether they */
+              /* are of type Type1, then unloading them explicitly.       */
+              FTC_Manager_Reset( handle->cache_manager );
+              event_font_change( 0 );
+            }
+
+            sprintf( status.header_buffer, "Type 1 engine changed to %s",
+                     status.type1_hinting_engine == FT_HINTING_FREETYPE
+                       ? "FreeType" : "Adobe" );
+
+            status.header = (const char *)status.header_buffer;
+          }
+          else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+          {
+            if ( FTDemo_Event_T1cid_Hinting_Engine_Change(
+                   handle->library,
+                   &status.t1cid_hinting_engine,
+                   1 ) )
+            {
+              /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+              /* lazy to walk over all loaded fonts to check whether they */
+              /* are of type CID, then unloading them explicitly.         */
+              FTC_Manager_Reset( handle->cache_manager );
+              event_font_change( 0 );
+            }
+
+            sprintf( status.header_buffer, "CID engine changed to %s",
+                     status.t1cid_hinting_engine == FT_HINTING_FREETYPE
+                       ? "FreeType" : "Adobe" );
+
+            status.header = (const char *)status.header_buffer;
+          }
           else if ( !strcmp( module->clazz->module_name, "truetype" ) )
             event_tt_interpreter_version_change();
         }
@@ -1984,6 +2009,13 @@
     FT_Property_Get( handle->library,
                      "cff",
                      "hinting-engine", &status.cff_hinting_engine );
+    FT_Property_Get( handle->library,
+                     "type1",
+                     "hinting-engine", &status.type1_hinting_engine );
+    FT_Property_Get( handle->library,
+                     "t1cid",
+                     "hinting-engine", &status.t1cid_hinting_engine );
+
 
     /* collect all available versions, then set again the default */
     FT_Property_Get( handle->library,

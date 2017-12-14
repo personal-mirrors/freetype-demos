@@ -189,6 +189,8 @@
     int            fw_index;
 
     unsigned int   cff_hinting_engine;
+    unsigned int   type1_hinting_engine;
+    unsigned int   t1cid_hinting_engine;
     unsigned int   tt_interpreter_versions[3];
     int            num_tt_interpreter_versions;
     int            tt_interpreter_version_idx;
@@ -235,6 +237,8 @@
                      FT_Library   library )
   {
     FT_UInt  cff_hinting_engine;
+    FT_UInt  type1_hinting_engine;
+    FT_UInt  t1cid_hinting_engine;
     FT_Bool  warping;
 
     unsigned int  tt_interpreter_versions[3]  = { 0, 0, 0 };
@@ -264,6 +268,12 @@
     FT_Property_Get( library,
                      "cff",
                      "hinting-engine", &cff_hinting_engine );
+    FT_Property_Get( library,
+                     "type1",
+                     "hinting-engine", &type1_hinting_engine );
+    FT_Property_Get( library,
+                     "t1cid",
+                     "hinting-engine", &t1cid_hinting_engine );
 
     /* collect all available versions, then set again the default */
     FT_Property_Get( library,
@@ -294,6 +304,8 @@
     state->columns[0].lcd_filter             = FT_LCD_FILTER_DEFAULT;
     state->columns[0].hint_mode              = HINT_MODE_BYTECODE;
     state->columns[0].cff_hinting_engine     = cff_hinting_engine;
+    state->columns[0].type1_hinting_engine   = type1_hinting_engine;
+    state->columns[0].t1cid_hinting_engine   = t1cid_hinting_engine;
 
     state->columns[0].tt_interpreter_versions[0] =
       tt_interpreter_versions[0];
@@ -579,6 +591,15 @@
                      "hinting-engine",
                      &column->cff_hinting_engine );
     FT_Property_Set( state->library,
+                     "type1",
+                     "hinting-engine",
+                     &column->type1_hinting_engine );
+    FT_Property_Set( state->library,
+                     "t1cid",
+                     "hinting-engine",
+                     &column->t1cid_hinting_engine );
+
+    FT_Property_Set( state->library,
                      "truetype",
                      "interpreter-version",
                      &column->tt_interpreter_versions
@@ -810,6 +831,32 @@
             break;
           case FT_HINTING_ADOBE:
             extra = " (CFF Adobe)";
+            break;
+          }
+        }
+
+        else if ( !strcmp( module->clazz->module_name, "type1" ) )
+        {
+          switch ( column->type1_hinting_engine )
+          {
+          case FT_HINTING_FREETYPE:
+            extra = " (T1 FT)";
+            break;
+          case FT_HINTING_ADOBE:
+            extra = " (T1 Adobe)";
+            break;
+          }
+        }
+
+        else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+        {
+          switch ( column->t1cid_hinting_engine )
+          {
+          case FT_HINTING_FREETYPE:
+            extra = " (CID FT)";
+            break;
+          case FT_HINTING_ADOBE:
+            extra = " (CID Adobe)";
             break;
           }
         }
@@ -1275,18 +1322,24 @@
         {
           if ( !strcmp( module->clazz->module_name, "cff" ) )
           {
-            FT_UInt  new_cff_hinting_engine;
-
-
-            new_cff_hinting_engine =
-              ( column->cff_hinting_engine + 1 ) % HINTING_ENGINE_MAX;
-
-            error = FT_Property_Set( state->library,
-                                     "cff",
-                                     "hinting-engine",
-                                     &new_cff_hinting_engine );
-            if ( !error )
-              column->cff_hinting_engine = new_cff_hinting_engine;
+            FTDemo_Event_Cff_Hinting_Engine_Change(
+              state->library,
+              &column->cff_hinting_engine,
+              1 );
+          }
+          else if ( !strcmp( module->clazz->module_name, "type1" ) )
+          {
+            FTDemo_Event_Type1_Hinting_Engine_Change(
+              state->library,
+              &column->type1_hinting_engine,
+              1 );
+          }
+          else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+          {
+            FTDemo_Event_T1cid_Hinting_Engine_Change(
+              state->library,
+              &column->t1cid_hinting_engine,
+              1 );
           }
           else if ( !strcmp( module->clazz->module_name, "truetype" ) )
           {

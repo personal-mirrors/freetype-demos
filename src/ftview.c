@@ -769,99 +769,6 @@
 
 
   static int
-  event_cff_hinting_engine_change( unsigned int  delta )
-  {
-    unsigned int  new_cff_hinting_engine = 0;
-
-
-    if ( delta )
-      new_cff_hinting_engine =
-        ( status.cff_hinting_engine +
-          delta                     +
-          N_HINTING_ENGINES         ) % N_HINTING_ENGINES;
-
-    error = FT_Property_Set( handle->library,
-                             "cff",
-                             "hinting-engine",
-                             &new_cff_hinting_engine );
-
-    if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type CFF, then unloading them explicitly.         */
-      FTC_Manager_Reset( handle->cache_manager );
-      status.cff_hinting_engine = new_cff_hinting_engine;
-      return 1;
-    }
-
-    return 0;
-  }
-
-
-  static int
-  event_type1_hinting_engine_change( unsigned int  delta )
-  {
-    unsigned int  new_type1_hinting_engine = 0;
-
-
-    if ( delta )
-      new_type1_hinting_engine =
-        ( status.type1_hinting_engine +
-          delta                       +
-          N_HINTING_ENGINES           ) % N_HINTING_ENGINES;
-
-    error = FT_Property_Set( handle->library,
-                             "type1",
-                             "hinting-engine",
-                             &new_type1_hinting_engine );
-
-    if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type Type1, then unloading them explicitly.       */
-      FTC_Manager_Reset( handle->cache_manager );
-      status.type1_hinting_engine = new_type1_hinting_engine;
-      return 1;
-    }
-
-    return 0;
-  }
-
-
-  static int
-  event_t1cid_hinting_engine_change( unsigned int  delta )
-  {
-    unsigned int  new_t1cid_hinting_engine = 0;
-
-
-    if ( delta )
-      new_t1cid_hinting_engine =
-        ( status.t1cid_hinting_engine +
-          delta                       +
-          N_HINTING_ENGINES           ) % N_HINTING_ENGINES;
-
-    error = FT_Property_Set( handle->library,
-                             "t1cid",
-                             "hinting-engine",
-                             &new_t1cid_hinting_engine );
-
-    if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type t1cid, then unloading them explicitly.       */
-      FTC_Manager_Reset( handle->cache_manager );
-      status.t1cid_hinting_engine = new_t1cid_hinting_engine;
-      return 1;
-    }
-
-    return 0;
-  }
-
-
-  static int
   event_tt_interpreter_version_change( void )
   {
     status.tt_interpreter_version_idx += 1;
@@ -874,13 +781,7 @@
                                status.tt_interpreter_version_idx] );
 
     if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type TTF, then unloading them explicitly.         */
-      FTC_Manager_Reset( handle->cache_manager );
       return 1;
-    }
 
     return 0;
   }
@@ -1204,13 +1105,30 @@
           module = &face->driver->root;
 
           if ( !strcmp( module->clazz->module_name, "cff" ) )
-            status.update = event_cff_hinting_engine_change( 1 );
+            status.update = FTDemo_Event_Cff_Hinting_Engine_Change(
+                              handle->library,
+                              &status.cff_hinting_engine,
+                              1 );
           else if ( !strcmp( module->clazz->module_name, "type1" ) )
-            status.update = event_type1_hinting_engine_change( 1 );
+            status.update = FTDemo_Event_Type1_Hinting_Engine_Change(
+                              handle->library,
+                              &status.type1_hinting_engine,
+                              1 );
           else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
-            status.update = event_t1cid_hinting_engine_change( 1 );
+            status.update = FTDemo_Event_T1cid_Hinting_Engine_Change(
+                              handle->library,
+                              &status.t1cid_hinting_engine,
+                              1 );
           else if ( !strcmp( module->clazz->module_name, "truetype" ) )
             status.update = event_tt_interpreter_version_change();
+
+          if ( status.update )
+          {
+            /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+            /* lazy to walk over all loaded fonts to check whether they */
+            /* are of type TTF, then unloading them explicitly.         */
+            FTC_Manager_Reset( handle->cache_manager );
+          }
         }
       }
       break;

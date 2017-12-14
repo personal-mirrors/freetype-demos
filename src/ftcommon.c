@@ -17,6 +17,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_MODULE_H
 
 #include FT_CACHE_H
 #include FT_CACHE_MANAGER_H
@@ -42,6 +43,9 @@
 #ifdef _WIN32
 #define strcasecmp  _stricmp
 #endif
+
+
+#define N_HINTING_ENGINES  2
 
 
   FT_Error  error;
@@ -1682,6 +1686,90 @@
     }
 
     return l;
+  }
+
+
+  unsigned int
+  FTDemo_Event_Cff_Hinting_Engine_Change( FT_Library     library,
+                                          unsigned int*  current,
+                                          unsigned int   delta )
+  {
+    unsigned int  new_cff_hinting_engine = 0;
+
+
+    if ( delta )
+      new_cff_hinting_engine = ( *current          +
+                                 delta             +
+                                 N_HINTING_ENGINES ) % N_HINTING_ENGINES;
+
+    error = FT_Property_Set( library,
+                             "cff",
+                             "hinting-engine",
+                             &new_cff_hinting_engine );
+
+    if ( !error )
+    {
+      *current = new_cff_hinting_engine;
+      return 1;
+    }
+
+    return 0;
+  }
+
+
+  unsigned int
+  FTDemo_Event_Type1_Hinting_Engine_Change( FT_Library     library,
+                                            unsigned int*  current,
+                                            unsigned int   delta )
+  {
+    unsigned int  new_type1_hinting_engine = 0;
+
+
+    if ( delta )
+      new_type1_hinting_engine = ( *current          +
+                                   delta             +
+                                   N_HINTING_ENGINES ) % N_HINTING_ENGINES;
+
+    error = FT_Property_Set( library,
+                             "type1",
+                             "hinting-engine",
+                             &new_type1_hinting_engine );
+
+    if ( !error )
+    {
+      *current = new_type1_hinting_engine;
+      return 1;
+    }
+
+    return 0;
+  }
+
+
+  unsigned int
+  FTDemo_Event_T1cid_Hinting_Engine_Change( FT_Library     library,
+                                            unsigned int*  current,
+                                            unsigned int   delta )
+  {
+    unsigned int  new_t1cid_hinting_engine = 0;
+
+
+    if ( delta )
+      new_t1cid_hinting_engine = ( *current          +
+                                   delta             +
+                                   N_HINTING_ENGINES ) % N_HINTING_ENGINES;
+
+    error = FT_Property_Set( library,
+                             "t1cid",
+                             "hinting-engine",
+                             &new_t1cid_hinting_engine );
+
+    if ( !error )
+    {
+      *current = new_t1cid_hinting_engine;
+      return 1;
+    }
+
+    return 0;
   }
 
 
