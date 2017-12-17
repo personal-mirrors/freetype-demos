@@ -1,3 +1,7 @@
+2017-12-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* bin/.gitignore: Ignore almost everything.
+
 2017-12-14  Ewald Hew  <ewaldhew@gmail.com>
 	    Werner Lemberg  <wl@gnu.org>
 
