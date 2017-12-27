@@ -36,8 +36,6 @@
 #define  MAXPTSIZE    500               /* dtp */
 #define  MAX_MM_AXES    6
 
-#define N_HINTING_ENGINES  2
-
   /* definitions in ftcommon.c */
   unsigned int
   FTDemo_Event_Cff_Hinting_Engine_Change( FT_Library     library,

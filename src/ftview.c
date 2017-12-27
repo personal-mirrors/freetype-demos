@@ -67,9 +67,6 @@
 #endif
 
 
-#define N_HINTING_ENGINES  2
-
-
   /* omit LCD_MODE_LIGHT_SUBPIXEL; we don't need it in this application */
   static int  lcd_modes[] =
   {

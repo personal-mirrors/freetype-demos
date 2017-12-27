@@ -170,8 +170,6 @@
     "native hinter"
   };
 
-#define HINTING_ENGINE_MAX  2
-
   /** RENDER STATE **/
 
   typedef struct  ColumnStateRec_

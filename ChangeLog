@@ -1,3 +1,15 @@
+2017-12-27  Werner Lemberg  <wl@gnu.org>
+
+	Fix compiler warnings.
+
+	* src/ftcommon.c, src/ftcommon.h
+	(FTDemo_Event_{Cff,Type1,T1cid}_Hinting_Engine_Change): Change
+	return type to `int'.
+
+	* src/ftdiff.c (HINTING_ENGINE_MAX): Removed.
+	* src/ftgrid.c, src/ftmulti.c, src/ftview.c (N_HINTING_ENGINES):
+	Removed.
+
 2017-12-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* bin/.gitignore: Ignore almost everything.

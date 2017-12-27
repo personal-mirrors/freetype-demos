@@ -43,8 +43,6 @@
 #define snprintf  _snprintf
 #endif
 
-#define N_HINTING_ENGINES  2
-
 
 #ifdef FT_DEBUG_AUTOFIT
   /* these variables, structures, and declarations are for  */

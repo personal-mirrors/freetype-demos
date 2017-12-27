@@ -353,15 +353,15 @@
   FTDemo_Make_Encoding_Tag( const char*  s );
 
 
-  unsigned int
+  int
   FTDemo_Event_Cff_Hinting_Engine_Change( FT_Library     library,
                                           unsigned int*  current,
                                           unsigned int   delta );
-  unsigned int
+  int
   FTDemo_Event_Type1_Hinting_Engine_Change( FT_Library     library,
                                             unsigned int*  current,
                                             unsigned int   delta );
-  unsigned int
+  int
   FTDemo_Event_T1cid_Hinting_Engine_Change( FT_Library     library,
                                             unsigned int*  current,
                                             unsigned int   delta );
