@@ -1,3 +1,13 @@
+2017-12-30  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug]: Key 'I' toggles hexadecimal/decimal numbers display.
+
+	* src/ttdebug.c (use_hex): New global variable.
+	(Cur_U_Line): Use it.
+	(RunIns): Use it.
+	Update help display.
+	Handle key `I'.
+
 2017-12-27  Werner Lemberg  <wl@gnu.org>
 
 	Fix compiler warnings.

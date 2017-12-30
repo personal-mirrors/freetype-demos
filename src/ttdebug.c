@@ -80,7 +80,9 @@
   static int           num_tt_interpreter_versions;
   static unsigned int  dflt_tt_interpreter_version;
 
-  static FT_Bool  use_float = 0;     /* number format */
+  /* number formats */
+  static FT_Bool  use_float = 0; /* for points                   */
+  static FT_Bool  use_hex   = 1; /* for integers (except points) */
 
   static FT_Error  error;
 
@@ -835,7 +837,11 @@
 
       for ( i = 0; i < n; i++ )
       {
-        sprintf( s, " $%02x", (unsigned)CUR.code[CUR.IP + i + 2] );
+        const FT_String*  temp;
+
+
+        temp = use_hex ? " $%02x" : " %d";
+        sprintf( s, temp, (unsigned)CUR.code[CUR.IP + i + 2] );
         strncat( tempStr, s, 8 );
       }
     }
@@ -851,9 +857,20 @@
 
       for ( i = 0; i < n; i++ )
       {
-        sprintf( s, " $%02x%02x",
-                    (unsigned)CUR.code[CUR.IP + i * 2 + 2],
-                    (unsigned)CUR.code[CUR.IP + i * 2 + 3] );
+        if ( use_hex )
+          sprintf( s, " $%02x%02x",
+                      (unsigned)CUR.code[CUR.IP + i * 2 + 2],
+                      (unsigned)CUR.code[CUR.IP + i * 2 + 3] );
+        else
+        {
+          unsigned short  temp;
+
+
+          temp = ( (unsigned)CUR.code[CUR.IP + i * 2 + 2] << 8 ) +
+                   (unsigned)CUR.code[CUR.IP + i * 2 + 3];
+          sprintf( s, " %d",
+                      (signed short)temp );
+        }
         strncat( tempStr, s, 8 );
       }
     }
@@ -863,7 +880,11 @@
 
       for ( i = 0; i <= n; i++ )
       {
-        sprintf( s, " $%02x", (unsigned)CUR.code[CUR.IP + i + 1] );
+        const FT_String*  temp;
+
+
+        temp = use_hex ? " $%02x" : " %d";
+        sprintf( s, temp, (unsigned)CUR.code[CUR.IP + i + 1] );
         strncat( tempStr, s, 8 );
       }
     }
@@ -873,9 +894,20 @@
 
       for ( i = 0; i <= n; i++ )
       {
-        sprintf( s, " $%02x%02x",
-                    (unsigned)CUR.code[CUR.IP + i * 2 + 1],
-                    (unsigned)CUR.code[CUR.IP + i * 2 + 2] );
+        if ( use_hex )
+          sprintf( s, " $%02x%02x",
+                      (unsigned)CUR.code[CUR.IP + i * 2 + 1],
+                      (unsigned)CUR.code[CUR.IP + i * 2 + 2] );
+        else
+        {
+          unsigned short  temp;
+
+
+          temp = ( (unsigned)CUR.code[CUR.IP + i * 2 + 1] << 8 ) +
+                   (unsigned)CUR.code[CUR.IP + i * 2 + 2];
+          sprintf( s, " %d",
+                      (signed short)temp );
+        }
         strncat( tempStr, s, 8 );
       }
     }
@@ -1256,14 +1288,21 @@
 
             if ( args < CUR.top && args >= 0 )
             {
-              /* we display signed hexadecimal numbers, which */
-              /* is easier to read and needs less space       */
               long  val = (signed long)CUR.stack[args];
 
 
-              num_chars = sprintf( temp + col, "%s%04lx",
-                                               val < 0 ? "-" : "",
-                                               val < 0 ? -val : val );
+              if ( use_hex )
+              {
+                /* we display signed hexadecimal numbers, which */
+                /* is easier to read and needs less space       */
+                num_chars = sprintf( temp + col, "%s%04lx",
+                                                 val < 0 ? "-" : "",
+                                                 val < 0 ? -val : val );
+              }
+              else
+                num_chars = sprintf( temp + col, "%ld",
+                                                 val );
+
               if ( col + num_chars >= 78 )
                 break;
             }
@@ -1353,7 +1392,9 @@
             "f   finish current function             C   show CVT data\n"
             "l   show last bytecode instruction      F   toggle floating/fixed\n"
             "b   toggle breakpoint at curr. pos.         point format\n"
-            "p   toggle breakpoint at prev. pos.     B   show backtrace\n"
+            "p   toggle breakpoint at prev. pos.     I   toggle hexadecimal/\n"
+            "                                            decimal int. format\n"
+            "                                        B   show backtrace\n"
             "\n"
             "\n"
             "  Format of point changes:\n"
@@ -1376,8 +1417,16 @@
         /* Toggle between floating and fixed point format */
         case 'F':
           use_float = !use_float;
-          printf( "Use %s point format for displaying values.\n",
+          printf( "Use %s point format for displaying non-integer values.\n",
                   use_float ? "floating" : "fixed" );
+          printf( "\n" );
+          break;
+
+        /* Toggle between decimal and hexadimal integer format */
+        case 'I':
+          use_hex = !use_hex;
+          printf( "Use %s format for displaying integers.\n",
+                  use_hex ? "hexadecimal" : "decimal" );
           printf( "\n" );
           break;
 
