@@ -1242,7 +1242,7 @@
         {
           char  temp[90];
           int   n, col, pop;
-          int   args = CUR.args;
+          int   args;
 
 
           sprintf( temp, "%78c\n", ' ' );
@@ -1286,7 +1286,7 @@
             if ( pop == 0 )
               temp[col - 1] = temp[col - 1] == '(' ? ' ' : ')';
 
-            if ( args < CUR.top && args >= 0 )
+            if ( args >= 0 )
             {
               long  val = (signed long)CUR.stack[args];
 
@@ -1390,9 +1390,10 @@
             "n   skip to next instruction            T   show twilight zone\n"
             "s   step into                           S   show storage area\n"
             "f   finish current function             C   show CVT data\n"
-            "l   show last bytecode instruction      F   toggle floating/fixed\n"
-            "b   toggle breakpoint at curr. pos.         point format\n"
-            "p   toggle breakpoint at prev. pos.     I   toggle hexadecimal/\n"
+            "l   show last bytecode instruction      K   show full stack\n"
+            "b   toggle breakpoint at curr. pos.     F   toggle floating/fixed\n"
+            "p   toggle breakpoint at prev. pos.         point format\n"
+            "                                        I   toggle hexadecimal/\n"
             "                                            decimal int. format\n"
             "                                        B   show backtrace\n"
             "\n"
@@ -1405,9 +1406,10 @@
             "  the second line the changes after the instruction,\n"
             "  indicated by parentheses and brackets for emphasis.\n"
             "\n"
-            "  A `T', `F', `S', or `C' appended to the index indicates\n"
+            "  `T', `F', `S', `s', or `C' appended to the index indicates\n"
             "  a twilight point, a phantom point, a storage location,\n"
-            "  or data from the Control Value Table (CVT), respectively.\n"
+            "  a stack value, or data from the Control Value Table (CVT),\n"
+            "  respectively.\n"
             "\n"
             "  Possible tag values are `P' (on curve), `C' (control point),\n"
             "  `X' (touched horizontally), and `Y' (touched vertically).\n"
@@ -1550,6 +1552,36 @@
               }
               printf( "\n" );
             }
+          }
+          break;
+
+        /* Show full stack */
+        case 'K':
+          {
+            int  args = CUR.top - 1;
+
+
+            if ( args >= 0 )
+            {
+              printf( "Stack\n"
+                      "\n" );
+              printf( " idx         value       \n"
+                      "-------------------------\n" );
+
+              for ( ; args >= 0; args-- )
+              {
+                long  val = (signed long)CUR.stack[args];
+
+
+                printf( "%3lds  %8ld (%8.2f)\n",
+                        CUR.top - args,
+                        val,
+                        val / 64.0 );
+              }
+              printf( "\n" );
+            }
+            else
+              printf( "Stack empty\n" );
           }
           break;
 
