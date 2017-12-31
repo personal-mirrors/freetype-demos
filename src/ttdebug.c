@@ -841,7 +841,7 @@
 
 
         temp = use_hex ? " $%02x" : " %d";
-        sprintf( s, temp, (unsigned)CUR.code[CUR.IP + i + 2] );
+        sprintf( s, temp, CUR.code[CUR.IP + i + 2] );
         strncat( tempStr, s, 8 );
       }
     }
@@ -859,15 +859,15 @@
       {
         if ( use_hex )
           sprintf( s, " $%02x%02x",
-                      (unsigned)CUR.code[CUR.IP + i * 2 + 2],
-                      (unsigned)CUR.code[CUR.IP + i * 2 + 3] );
+                      CUR.code[CUR.IP + i * 2 + 2],
+                      CUR.code[CUR.IP + i * 2 + 3] );
         else
         {
           unsigned short  temp;
 
 
-          temp = ( (unsigned)CUR.code[CUR.IP + i * 2 + 2] << 8 ) +
-                   (unsigned)CUR.code[CUR.IP + i * 2 + 3];
+          temp = (unsigned short)( ( CUR.code[CUR.IP + i * 2 + 2] << 8 ) +
+                                     CUR.code[CUR.IP + i * 2 + 3]        );
           sprintf( s, " %d",
                       (signed short)temp );
         }
@@ -884,7 +884,7 @@
 
 
         temp = use_hex ? " $%02x" : " %d";
-        sprintf( s, temp, (unsigned)CUR.code[CUR.IP + i + 1] );
+        sprintf( s, temp, CUR.code[CUR.IP + i + 1] );
         strncat( tempStr, s, 8 );
       }
     }
@@ -896,15 +896,15 @@
       {
         if ( use_hex )
           sprintf( s, " $%02x%02x",
-                      (unsigned)CUR.code[CUR.IP + i * 2 + 1],
-                      (unsigned)CUR.code[CUR.IP + i * 2 + 2] );
+                      CUR.code[CUR.IP + i * 2 + 1],
+                      CUR.code[CUR.IP + i * 2 + 2] );
         else
         {
           unsigned short  temp;
 
 
-          temp = ( (unsigned)CUR.code[CUR.IP + i * 2 + 1] << 8 ) +
-                   (unsigned)CUR.code[CUR.IP + i * 2 + 2];
+          temp = (unsigned short)( ( CUR.code[CUR.IP + i * 2 + 1] << 8 ) +
+                                     CUR.code[CUR.IP + i * 2 + 2]        );
           sprintf( s, " %d",
                       (signed short)temp );
         }
@@ -1635,33 +1635,41 @@
         }
       } while ( !key );
 
-      FT_MEM_COPY( save_pts.org,
-                   pts.org,
-                   pts.n_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( save_pts.cur,
-                   pts.cur,
-                   pts.n_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( save_pts.tags,
-                   pts.tags,
-                   pts.n_points );
+      if ( pts.n_points )
+      {
+        FT_MEM_COPY( save_pts.org,
+                     pts.org,
+                     pts.n_points * sizeof ( FT_Vector ) );
+        FT_MEM_COPY( save_pts.cur,
+                     pts.cur,
+                     pts.n_points * sizeof ( FT_Vector ) );
+        FT_MEM_COPY( save_pts.tags,
+                     pts.tags,
+                     pts.n_points );
+      }
 
-      FT_MEM_COPY( save_twilight.org,
-                   twilight.org,
-                   twilight.n_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( save_twilight.cur,
-                   twilight.cur,
-                   twilight.n_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( save_twilight.tags,
-                   twilight.tags,
-                   twilight.n_points );
+      if ( twilight.n_points )
+      {
+        FT_MEM_COPY( save_twilight.org,
+                     twilight.org,
+                     twilight.n_points * sizeof ( FT_Vector ) );
+        FT_MEM_COPY( save_twilight.cur,
+                     twilight.cur,
+                     twilight.n_points * sizeof ( FT_Vector ) );
+        FT_MEM_COPY( save_twilight.tags,
+                     twilight.tags,
+                     twilight.n_points );
+      }
 
-      FT_MEM_COPY( save_cvt,
-                   CUR.cvt,
-                   CUR.cvtSize * sizeof ( FT_Long ) );
+      if ( CUR.cvtSize )
+        FT_MEM_COPY( save_cvt,
+                     CUR.cvt,
+                     CUR.cvtSize * sizeof ( FT_Long ) );
 
-      FT_MEM_COPY( save_storage,
-                   storage,
-                   CUR.storeSize * sizeof ( Storage ) );
+      if ( CUR.storeSize )
+        FT_MEM_COPY( save_storage,
+                     storage,
+                     CUR.storeSize * sizeof ( Storage ) );
 
       /* a return indicates the last command */
       if ( ch == '\r' || ch == '\n' )

@@ -1,13 +1,21 @@
+2017-12-31  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Fix compiler warnings and run-time errors.
+
+	* src/ttdebug.c (Cur_U_Line): Remove useless casts to `unsigned' and fix
+	the necessary ones.
+	(RunIns): Protect `FT_MEM_COPY' calls.
+
 2017-12-30  Werner Lemberg  <wl@gnu.org>
 
-	[ttdebug]: Key `K' shows full stack.
+	[ttdebug] Key `K' shows full stack.
 
 	* src/ttdebug.c (RunIns): Update help display.
 	Handle key `K'.
 
 2017-12-30  Werner Lemberg  <wl@gnu.org>
 
-	[ttdebug]: Key `I' toggles hexadecimal/decimal numbers display.
+	[ttdebug] Key `I' toggles hexadecimal/decimal numbers display.
 
 	* src/ttdebug.c (use_hex): New global variable.
 	(Cur_U_Line): Use it.
