@@ -5,8 +5,8 @@
  *  This is the driver for displaying inside a window under X11,
  *  used by the graphics utility of the FreeType test suite.
  *
- *  Copyright 1999-2002, 2005, 2006, 2013 by Antoine Leca,
- *  David Turner, Robert Wilhelm, and Werner Lemberg.
+ *  Copyright 1999-2018 by
+ *  Antoine Leca, David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  *  This file is part of the FreeType project, and may only be used
  *  modified and distributed under the terms of the FreeType project
