@@ -584,7 +584,7 @@
               mm->axis[i].def / 65536.0 );
     }
 
-    free( mm );
+    FT_Done_MM_Var( face->glyph->library, mm );
   }
 
 

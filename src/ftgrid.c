@@ -2093,7 +2093,7 @@
 
     for ( n = 0; n < MAX_MM_AXES; n++ )
       free( status.axis_name[n] );
-    free( status.mm );
+    FT_Done_MM_Var( handle->library, status.mm );
 
     FT_Stroker_Done( status.stroker );
     FTDemo_Display_Done( display );
