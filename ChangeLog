@@ -1,3 +1,15 @@
+2018-01-08  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.9 released.
+	=======================
+
+
+	Tag sources with `VER-2-9.
+
+	* README: Updated.
+	* src/*.1: Updated.
+	* src/ftinspect/ftinspect.pro: Updated.
+
 2018-01-07  Werner Lemberg  <wl@gnu.org>
 
 	* Makefile (LINK_LIBS): Add `LIB_CLOCK_GETTIME' (#52824).
