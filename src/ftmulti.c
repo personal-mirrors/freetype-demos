@@ -112,7 +112,7 @@
 #define DEBUGxxx
 
 #ifdef DEBUG
-#define LOG( x )  LogMessage##x
+#define LOG( x )  LogMessage x
 #else
 #define LOG( x )  /* empty */
 #endif
