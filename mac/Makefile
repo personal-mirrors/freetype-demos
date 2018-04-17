@@ -16,7 +16,7 @@ space := $(empty) $(empty)
 TOP_DIR       ?= ../../freetype2
 OBJ_DIR       ?= $(TOP_DIR)/objs
 TOP_DIR_2     ?= ..
-OBJ_DIR_2     ?= $(TOP_DIR_2)/obj
+OBJ_DIR_2     ?= $(TOP_DIR_2)/objs
 TOP_DIR_2_MAC ?= $(TOP_DIR_2)/mac
 
 ifndef CONFIG_MK
@@ -40,7 +40,7 @@ else
   TOP_DIR_2 := $(shell cd $(TOP_DIR_2); pwd)
   ifneq ($(have_makefile),)
     BIN_DIR_2 ?= $(TOP_DIR_2)/bin
-    OBJ_DIR_2 ?= $(TOP_DIR_2)/obj
+    OBJ_DIR_2 ?= $(TOP_DIR_2)/objs
   else
     BIN_DIR_2 ?= ..
     OBJ_DIR_2 ?= ..

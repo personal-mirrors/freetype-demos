@@ -98,7 +98,7 @@ else
     TOP_DIR_2 := $(shell cd $(TOP_DIR_2); pwd)
     ifneq ($(have_makefile),)
       BIN_DIR_2 ?= $(TOP_DIR_2)/bin
-      OBJ_DIR_2 ?= $(TOP_DIR_2)/obj
+      OBJ_DIR_2 ?= $(TOP_DIR_2)/objs
     else
       BIN_DIR_2 ?= .
       OBJ_DIR_2 ?= .
@@ -106,7 +106,7 @@ else
   else
     ifneq ($(have_makefile),)
       BIN_DIR_2 ?= bin
-      OBJ_DIR_2 ?= obj
+      OBJ_DIR_2 ?= objs
     else
       BIN_DIR_2 ?= .
       OBJ_DIR_2 ?= .
@@ -221,11 +221,11 @@ else
   ifdef DOSLIKE
 
     clean_demo:
-	    -del obj\*.$(SO) 2> nul
+	    -del objs\*.$(SO) 2> nul
 	    -del $(subst /,\,$(TOP_DIR_2)/src/*.bak) 2> nul
 
     distclean_demo: clean_demo
-	    -del obj\*.lib 2> nul
+	    -del objs\*.lib 2> nul
 	    -del bin\*.exe 2> nul
 
   else

@@ -7,7 +7,7 @@ MAKEFILE        = ftoldmac.ppc_classic.make
 \xA5MondoBuild\xA5    = {MAKEFILE}  # Make blank to avoid rebuilds when makefile is modified
 
 FT2Dir          = ::freetype2:
-ObjDir          = :obj:
+ObjDir          = :objs:
 Includes        =  \xB6
 				  -i "{FT2Dir}include:" \xB6
 				  -i "{FT2Dir}src:" \xB6

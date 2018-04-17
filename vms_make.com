@@ -94,7 +94,7 @@ CC = cc
 SRCDIR = [.src]
 GRAPHSRC = [.graph]
 GRX11SRC = [.graph.x11]
-OBJDIR = [.obj]
+OBJDIR = [.objs]
 
 # include paths
 INCLUDES = /include=([-.freetype2.include],[.graph])
@@ -153,11 +153,11 @@ $(OBJDIR)gblender.obj  : $(GRAPHSRC)gblender.c
 $(OBJDIR)gblblit.obj   : $(GRAPHSRC)gblblit.c
 $(OBJDIR)grinit.obj    : $(GRAPHSRC)grinit.c
         set def $(GRAPHSRC)
-        $(CC)$(CCOPT)/include=([.x11],[])/define=(DEVICE_X11)/obj=[-.obj] grinit.c
+        $(CC)$(CCOPT)/include=([.x11],[])/define=(DEVICE_X11)/obj=[-.objs] grinit.c
         set def [-]
 $(OBJDIR)grx11.obj     : $(GRX11SRC)grx11.c
         set def $(GRX11SRC)
-        $(CC)$(CCOPT)/obj=[--.obj]/include=([-]) grx11.c
+        $(CC)$(CCOPT)/obj=[--.objs]/include=([-]) grx11.c
         set def [--]
 $(OBJDIR)grdevice.obj  : $(GRAPHSRC)grdevice.c
 $(OBJDIR)ftmulti.obj   : $(SRCDIR)ftmulti.c

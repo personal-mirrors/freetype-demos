@@ -1,3 +1,15 @@
+2018-04-17  Werner Lemberg  <wl@gnu.org>
+
+	Move `obj' directory to `objs'.
+
+	This is both for consistency with the FreeType library tree and
+	better jam support.
+
+	* Makefile (OBJ_DIR_2, clean_demo, distclean_demo), mac/Makefile
+	(OBJ_DIR_2), mac/ftoldmac.m68k_far.make.txt (ObjDir),
+	mac/ftoldmac.ppc_classic.make.txt (ObjDir), vms_make.com (OBJDIR,
+	grinit.obj, grx11.obj): Updated.
+
 2018-01-26  Ben Wagner  <bungeman@google.com>
 
 	* src/ftmulti.c (LOG) [DEBUG]: Modernize.
