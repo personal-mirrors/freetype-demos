@@ -29,7 +29,7 @@ FT2_INCLUDE ?= [ FDirName $(FT2_TOP) include ] ;
 
 # FT2_LIB contains the path to the FreeType 2 library object
 #
-FT2_LIB ?= [ FDirName $(FT2_TOP) objs $(LIBPREFIX)freetype$(SUFLIB) ] ;
+FT2_LIB ?= [ FDirName $(FT2_TOP) objs $(LIBPREFIX)freetype ] ;
 
 # X11_LINKLIBS is only used when compiling the X11 graphics back-end
 # this should be generated from a "configure" script on Unix

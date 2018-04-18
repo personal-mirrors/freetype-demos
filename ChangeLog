@@ -1,3 +1,9 @@
+2018-04-18  Werner Lemberg  <wl@gnu.org>
+
+	* Jamrules (FT2_LIB), src/Jamfile (COMMON_LIB): Don't use $(SUFLIB).
+
+	Jam automatically uses them.
+
 2018-04-17  Werner Lemberg  <wl@gnu.org>
 
 	Move `obj' directory to `objs'.
