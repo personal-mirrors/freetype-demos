@@ -60,10 +60,10 @@ endif
 ifdef no_config_mk
 
   exes:
-	  @echo Please compile the library before the demo programs!
+	  $(info Please compile the library before the demo programs!)
   clean distclean:
-	  @echo "I need a path to FreeType 2's \`config.mk' to do that!"
-	  @echo "Set the \`TOP_DIR' variable to the correct value."
+	  $(info I need a path to FreeType 2's `config.mk' to do that!)
+	  $(info Set the `TOP_DIR' variable to the correct value.)
 
 else
 

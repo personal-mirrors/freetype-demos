@@ -1,5 +1,9 @@
 2018-04-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* Makefile: Use `info' function of make 3.81.
+
+2018-04-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/gbench.c: Missing variable types.
 
 2018-04-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
