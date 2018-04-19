@@ -1,3 +1,8 @@
+2018-04-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/Jamfile: Mention `output.c'.
+	* objs/.gitignore: Ignore almost everything.
+
 2018-04-18  Werner Lemberg  <wl@gnu.org>
 
 	* Jamrules (FT2_LIB), src/Jamfile (COMMON_LIB): Don't use $(SUFLIB).

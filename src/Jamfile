@@ -9,7 +9,7 @@ SubDirHdrs  [ FT2DEMO_SubDir  graph ] ;
 
 COMMON_LIB = $(LIBPREFIX)ft2common ;
 
-Library  $(COMMON_LIB) : ftcommon.c common.c ;
+Library  $(COMMON_LIB) : ftcommon.c common.c output.c ;
 
 
 if $(UNIX)
