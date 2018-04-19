@@ -71,6 +71,12 @@
         *out++ = '"';
         break;
 
+      case 0xA9:
+        *out++ = '(';
+        *out++ = 'c';
+        *out++ = ')';
+        break;
+
       default:
         if ( string[i] < 0x80 )
           *out++ = (char)string[i];
@@ -124,6 +130,10 @@
       case '\\':
       case '"':
         len += 2;
+        break;
+
+      case 0xA9:
+        len += 3;
         break;
 
       default:
