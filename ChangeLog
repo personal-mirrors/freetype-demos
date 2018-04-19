@@ -1,5 +1,9 @@
 2018-04-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/gbench.c: Missing variable types.
+
+2018-04-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/Jamfile: Mention `output.c'.
 	* objs/.gitignore: Ignore almost everything.
 
