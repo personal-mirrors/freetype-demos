@@ -162,32 +162,9 @@
   FTDemo_Display_Clear( FTDemo_Display*  display )
   {
     grBitmap*  bit   = display->bitmap;
-    int        pitch = bit->pitch;
 
 
-    if ( pitch < 0 )
-      pitch = -pitch;
-
-    if ( bit->mode == gr_pixel_mode_gray )
-      memset( bit->buffer,
-              display->back_color.value,
-              (unsigned int)( pitch * bit->rows ) );
-    else
-    {
-      unsigned char*  p = bit->buffer;
-      int             i;
-
-
-      for ( i = 0; i < pitch; i += 3, p += 3 )
-      {
-        p[0] = display->back_color.chroma[0];
-        p[1] = display->back_color.chroma[1];
-        p[2] = display->back_color.chroma[2];
-      }
-
-      for ( i = 1; i < bit->rows; i++, p += pitch )
-        memcpy( p, p - pitch, (size_t)pitch );
-    }
+    grFillRect( bit, 0, 0, bit->width, bit->rows, display->back_color );
   }
 
 

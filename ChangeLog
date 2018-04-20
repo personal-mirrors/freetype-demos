@@ -1,3 +1,10 @@
+2018-04-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Recycle some code.
+
+	* graph/grfill.c (grFillRect): Call `memcpy' to speed it up.
+	* src/ftcommon.c (FTDemo_Display_Clear): Call `grFillRect'.
+
 2018-04-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdump] Special case for copyright sign.

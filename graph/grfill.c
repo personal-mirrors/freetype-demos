@@ -231,6 +231,7 @@ grFillRect( grBitmap*   target,
   int              delta;
   unsigned char*   line;
   grFillHLineFunc  hline_func;
+  size_t           size = 0;
 
   if ( x < 0 )
   {
@@ -253,14 +254,36 @@ grFillRect( grBitmap*   target,
   if ( width <= 0 || height <= 0 )
     return;
 
-  hline_func = gr_fill_hline_funcs[ target->mode ];
-  if ( hline_func )
-  {
-    line = target->buffer + y*target->pitch;
-    if ( target->pitch < 0 )
-      line -= target->pitch*(target->rows-1);
+  line = target->buffer + y*target->pitch;
+  if ( target->pitch < 0 )
+    line -= target->pitch*(target->rows-1);
 
-    for ( ; height > 0; height--, line += target->pitch )
+  hline_func = gr_fill_hline_funcs[ target->mode ];
+
+  switch ( target->mode )
+  {
+  case gr_pixel_mode_rgb32:
+    size += width;
+  case gr_pixel_mode_rgb24:
+    size += width;
+  case gr_pixel_mode_rgb565:
+  case gr_pixel_mode_rgb555:
+    size += width;
+  case gr_pixel_mode_gray:
+  case gr_pixel_mode_pal8:
+    size += width;
+    hline_func( line, x, width, color );
+    for ( ; --height > 0; line += target->pitch )
+      memcpy( line + target->pitch, line, size );
+    break;
+
+  case gr_pixel_mode_pal4:
+  case gr_pixel_mode_mono:
+    for ( ; height-- > 0; line += target->pitch )
       hline_func( line, x, width, color );
+    break;
+
+  default:
+    break;
   }
 }
