@@ -1,5 +1,9 @@
 2018-04-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/grobjs.c (grFindColor): Missing case added.
+
+2018-04-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Recycle some code.
 
 	* graph/grfill.c (grFillRect): Call `memcpy' to speed it up.

@@ -28,8 +28,16 @@
         color.value = (3*red + 6*green + blue)/10;
         break;
 
+      case gr_pixel_mode_rgb555:
+        color.value = ((red   & 0xF8) << 7) |
+                      ((green & 0xF8) << 2) |
+                      ((blue  & 0xF8) >> 3);
+        break;
+
       case gr_pixel_mode_rgb565:
-        color.value = ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | ((blue & 0xF8) >> 3);
+        color.value = ((red   & 0xF8) << 8) |
+                      ((green & 0xFC) << 3) |
+                      ((blue  & 0xF8) >> 3);
         break;
 
       case gr_pixel_mode_rgb24:
