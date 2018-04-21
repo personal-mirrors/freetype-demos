@@ -570,11 +570,11 @@
 
 
   static FT_Error
-  Render_Waterfall( int  first_size,
+  Render_Waterfall( int  mid_size,
                     int  offset )
   {
     int      start_x, start_y, step_y, x, y;
-    int      pt_size, max_size = 100000;
+    int      pt_size, step, pt_height;
     FT_Size  size;
     int      have_topleft, start;
 
@@ -588,11 +588,17 @@
 
     have_topleft = 0;
 
-    for ( pt_size = first_size; pt_size < max_size; pt_size += 64 )
+    pt_height = 64 * 72 * status.height / status.res;
+    step      = 64 * ( mid_size * mid_size / ( 64 * pt_height ) + 1 );
+    pt_size   = mid_size - step * ( mid_size / step );  /* remainder */
+
+    while ( 1 )
     {
       int first = offset;
       int ch;
 
+
+      pt_size += step;
 
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
 
@@ -673,7 +679,7 @@
       }
     }
 
-    FTDemo_Set_Current_Charsize( handle, first_size, status.res );
+    FTDemo_Set_Current_Charsize( handle, mid_size, status.res );
     FTDemo_Get_Size( handle, &size );
 
     return FT_Err_Ok;
