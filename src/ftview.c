@@ -589,7 +589,7 @@
     have_topleft = 0;
 
     pt_height = 64 * 72 * status.height / status.res;
-    step      = 64 * ( mid_size * mid_size / ( 64 * pt_height ) + 1 );
+    step      = ( mid_size * mid_size / pt_height + 64 ) & ~63;
     pt_size   = mid_size - step * ( mid_size / step );  /* remainder */
 
     while ( 1 )

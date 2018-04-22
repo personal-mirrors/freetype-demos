@@ -1,3 +1,7 @@
+2018-04-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftview.c (Render_Waterfall): Reformulate the step.
+
 2018-04-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Display more dramatic waterfalls.
