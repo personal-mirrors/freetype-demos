@@ -742,6 +742,7 @@
     FT_Face      face;
     char         buf[256];
     const char*  basename;
+    int          ppem;
 
     int          line = 0;
     int          x;
@@ -764,44 +765,33 @@
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
-    /* instance, pt and dpi */
-    if ( face->face_index >> 16 )
-      x = sprintf( buf, "instance %ld/%ld, %gpt at %ddpi ",
-                        face->face_index >> 16,
-                        face->style_flags >> 16,
-                        ptsize / 64.0, res );
+    /* ppem, pt and dpi, instance */
+    ppem = FT_IS_SCALABLE( face ) ? FT_MulFix( face->units_per_EM,
+                                               face->size->metrics.y_scale )
+                                  : face->size->metrics.y_ppem * 64;
+
+    if ( res == 72 )
+      x  = sprintf( buf, "%.4g ppem", ppem / 64.0 );
     else
-      x = sprintf( buf, "%gpt at %ddpi ",
-                        ptsize / 64.0, res );
+      x  = sprintf( buf, "%g pt at %d dpi, %.4g ppem",
+                         ptsize / 64.0, res, ppem / 64.0 );
+
+    if ( face->face_index >> 16 )
+      x += sprintf( buf + x, ", instance %ld/%ld",
+                             face->face_index >> 16,
+                             face->style_flags >> 16 );
 
     grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
                        buf, display->fore_color );
 
-    if ( error_code == FT_Err_Ok )
+    if ( abs( ptsize * res / 64 - face->size->metrics.y_ppem * 72 ) > 36 ||
+         error_code                                                      )
     {
-      int  highlight;
-
-
-      highlight = abs( ptsize * res - face->size->metrics.y_ppem * 72 * 64 )
-                  > 36 * 64;
-
-      /* ppem */
-      if ( FT_IS_SCALABLE( face ) )
-        sprintf( buf, "(%.4gppem)",
-                      FT_MulFix( face->units_per_EM,
-                                 face->size->metrics.y_scale ) / 64.0 );
-      else
-        sprintf( buf, "(%dppem)",
-                      face->size->metrics.y_ppem );
-      grWriteCellString( display->bitmap, 8 * x, line * HEADER_HEIGHT,
-                         buf, highlight ? display->warn_color
-                                        : display->fore_color );
-    }
-    else
-    {
-      /* errors */
       switch ( error_code )
       {
+      case FT_Err_Ok:
+        sprintf( buf, "Available size shown" );
+        break;
       case FT_Err_Invalid_Pixel_Size:
         sprintf( buf, "Invalid pixel size" );
         break;
@@ -809,10 +799,9 @@
         sprintf( buf, "Invalid ppem value" );
         break;
       default:
-        sprintf( buf, "error 0x%04x",
-                      (FT_UShort)error_code );
+        sprintf( buf, "Error 0x%04x", (FT_UShort)error_code );
       }
-      grWriteCellString( display->bitmap, 8 * x, line * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 8 * x + 16, line * HEADER_HEIGHT,
                          buf, display->warn_color );
     }
 
