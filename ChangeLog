@@ -1,5 +1,10 @@
 2018-04-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftstring.c (main): Use size metrics instead of resolution.
+	* src/ftview.c (Render_Fancy, Render_Stroke): Ditto.
+
+2018-04-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftgrid.c (gitd_status_init): Set default resolution here...
 	(parse_cmdline): ... instead of here.
 

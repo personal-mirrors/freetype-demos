@@ -729,6 +729,7 @@
 
       case RENDER_MODE_KERNCMP:
         {
+          FT_Size                size;
           FTDemo_String_Context  sc = status.sc;
           FT_Int                 x, y;
           FT_Int                 height;
@@ -736,7 +737,8 @@
 
           x = 55;
 
-          height = ( status.ptsize * status.res / 72 + 32 ) >> 6;
+          FTDemo_Get_Size( handle, &size );
+          height = size->metrics.y_ppem;
           if ( height < CELLSTRING_HEIGHT )
             height = CELLSTRING_HEIGHT;
 

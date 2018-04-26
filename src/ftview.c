@@ -196,8 +196,7 @@
     face = size->face;
     slot = face->glyph;
 
-    radius = (FT_Fixed)(
-               status.radius * ( status.ptsize * status.res / 72 ) );
+    radius = (FT_Fixed)( size->metrics.y_ppem * 64 * status.radius );
 
     FT_Stroker_Set( handle->stroker, radius,
                     FT_STROKER_LINECAP_ROUND,
@@ -314,9 +313,8 @@
     shear.yx = 0;
     shear.yy = 1 << 16;
 
-    ystr = status.ptsize * status.res / 72;
-    xstr = (FT_Pos)( status.xbold_factor * ystr );
-    ystr = (FT_Pos)( status.ybold_factor * ystr );
+    xstr = (FT_Pos)( size->metrics.y_ppem * 64 * status.xbold_factor );
+    ystr = (FT_Pos)( size->metrics.y_ppem * 64 * status.ybold_factor );
 
     have_topleft = 0;
 
