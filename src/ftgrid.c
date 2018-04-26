@@ -165,6 +165,7 @@
   {
     st->width         = DIM_X;
     st->height        = DIM_Y;
+    st->res           = 72;
 
     st->scale         = 64;
     st->x_origin      = 0;
@@ -1976,9 +1977,6 @@
     status.ptsize = (int)( atof( *argv[0] ) * 64.0 );
     if ( status.ptsize == 0 )
       status.ptsize = 64 * 10;
-
-    if ( status.res <= 0 )
-      status.res = 72;
 
     (*argc)--;
     (*argv)++;
