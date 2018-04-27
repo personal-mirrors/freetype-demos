@@ -100,7 +100,7 @@
 
   } status = { DIM_X, DIM_Y,
                RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 0, NULL,
-               { 0, 0, 0, 0, NULL },
+               { 0, 0, 0x8000, 0, NULL },
                { 0 }, { 0, 0, 0, 0 }, 0, NULL, { 0 } };
 
   static FTDemo_Display*  display;
@@ -720,7 +720,6 @@
       switch ( status.render_mode )
       {
       case RENDER_MODE_STRING:
-        status.sc.center = 1L << 15;
         error = FTDemo_String_Draw( handle, display,
                                     &status.sc,
                                     display->bitmap->width / 2,
@@ -730,7 +729,7 @@
       case RENDER_MODE_KERNCMP:
         {
           FT_Size                size;
-          FTDemo_String_Context  sc = status.sc;
+          FTDemo_String_Context  sc = { 0, 0, 0, 0, NULL };
           FT_Int                 x, y;
           FT_Int                 height;
 
@@ -743,12 +742,6 @@
             height = CELLSTRING_HEIGHT;
 
           /* First line: none */
-          sc.center         = 0;
-          sc.kerning_mode   = 0;
-          sc.kerning_degree = 0;
-          sc.vertical       = 0;
-          sc.matrix         = NULL;
-
           y = CELLSTRING_HEIGHT * 2 + display->bitmap->rows / 4 + height;
           grWriteCellString( display->bitmap, 5,
                              y - ( height + CELLSTRING_HEIGHT ) / 2,
