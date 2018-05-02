@@ -1647,6 +1647,7 @@
       "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
              N_LCD_IDXS - 1 );
     fprintf( stderr,
+      "  -L N,...  Specify LCD geometry by 6 comma-sepatated values.\n"
       "  -p        Preload file in memory to simulate memory-mapping.\n"
       "\n"
       "  -v        Show version.\n"
@@ -1668,7 +1669,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "e:f:h:l:m:pr:vw:" );
+      option = getopt( *argc, *argv, "e:f:h:L:l:m:pr:vw:" );
 
       if ( option == -1 )
         break;
@@ -1698,6 +1699,27 @@
           exit( 3 );
         }
         handle->lcd_mode = lcd_modes[status.lcd_idx];
+        break;
+
+      case 'L':
+        {
+          int i, buf[6];
+
+
+          i = sscanf( optarg, "%d,%d,%d,%d,%d,%d",
+                      buf, buf + 1, buf + 2, buf + 3, buf + 4, buf + 5 );
+          if ( i == 6                                     &&
+               FT_Library_SetLcdGeometry( NULL, NULL ) !=
+                          FT_Err_Unimplemented_Feature    )
+          {
+            FT_Vector  sub[3] = { { buf[0], buf[1] },
+                                  { buf[2], buf[3] },
+                                  { buf[4], buf[5] } };
+
+
+            FT_Library_SetLcdGeometry( handle->library, sub );
+          }
+        }
         break;
 
       case 'm':
