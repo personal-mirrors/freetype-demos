@@ -236,25 +236,18 @@
   {
     FT_Size     size;
     FT_Error    err    = FTDemo_Get_Size( handle, &size );
-    FT_F26Dot6  margin = 4;
+    FT_F26Dot6  margin = 6;
 
 
     if ( !err )
     {
-      FT_Face  face = size->face;
-
-      int  xmin = FT_MulFix( face->bbox.xMin, size->metrics.x_scale );
-      int  ymin = FT_MulFix( face->bbox.yMin, size->metrics.y_scale );
-      int  xmax = FT_MulFix( face->bbox.xMax, size->metrics.x_scale );
-      int  ymax = FT_MulFix( face->bbox.yMax, size->metrics.y_scale );
+      int  xmin = 0;
+      int  ymin = size->metrics.descender;
+      int  xmax = size->metrics.max_advance;
+      int  ymax = size->metrics.ascender;
 
       FT_F26Dot6  x_scale, y_scale;
 
-
-      xmin &= ~63;
-      ymin &= ~63;
-      xmax  = ( xmax + 63 ) & ~63;
-      ymax  = ( ymax + 63 ) & ~63;
 
       if ( xmax - xmin )
         x_scale = st->disp_width  * ( 64 - 2 * margin ) / ( xmax - xmin );
@@ -271,8 +264,8 @@
       else
         st->scale = y_scale;
 
-      st->x_origin = st->disp_width  * margin          - xmin * st->scale;
-      st->y_origin = st->disp_height * ( 64 - margin ) + ymin * st->scale;
+      st->x_origin = 32 * st->disp_width  - ( xmax + xmin ) * st->scale / 2;
+      st->y_origin = 32 * st->disp_height + ( ymax + ymin ) * st->scale / 2;
     }
     else
     {
@@ -721,6 +714,8 @@
                         handle->load_flags | FT_LOAD_NO_BITMAP ) )
       return;
 
+    slot = size->face->glyph;
+
     if ( st->do_grid )
     {
       /* show advance width */
@@ -747,42 +742,41 @@
                    st->axis_color );
     }
 
-    slot = size->face->glyph;
+    /* render scaled bitmap */
+    if ( st->work & DO_BITMAP )
+    {
+      FT_Glyph        glyph, glyf;
+      int             left, top, x_advance, y_advance;
+      grBitmap        bitg;
+
+
+      FT_Get_Glyph( slot, &glyph );
+      error  = FTDemo_Glyph_To_Bitmap( handle, glyph, &bitg, &left, &top,
+                                       &x_advance, &y_advance, &glyf);
+
+      if ( !error )
+      {
+        bitmap_scale( &bitg, scale );
+
+        grBlitGlyphToBitmap( display->bitmap, &bitg,
+                             ox + left * scale, oy - top * scale,
+                             st->axis_color );
+
+        free( bitg.buffer );
+
+        if ( glyf )
+          FT_Done_Glyph( glyf );
+      }
+
+      FT_Done_Glyph( glyph );
+    }
+
     if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
     {
       FT_Glyph     glyph;
       FT_Outline*  gimage = &slot->outline;
       int          nn;
 
-
-      /* render scaled bitmap */
-      if ( st->work & DO_BITMAP )
-      {
-        int             left, top, x_advance, y_advance;
-        grBitmap        bitg;
-        FT_Glyph        glyf;
-
-
-        FT_Get_Glyph( slot, &glyph );
-        error  = FTDemo_Glyph_To_Bitmap( handle, glyph, &bitg, &left, &top,
-                                         &x_advance, &y_advance, &glyf);
-
-        if ( !error )
-        {
-          bitmap_scale( &bitg, scale );
-
-          grBlitGlyphToBitmap( display->bitmap, &bitg,
-                               ox + left * scale, oy - top * scale,
-                               st->axis_color );
-
-          free( bitg.buffer );
-
-          if ( glyf )
-            FT_Done_Glyph( glyf );
-        }
-
-        FT_Done_Glyph( glyph );
-      }
 
       /* scale the outline */
       for ( nn = 0; nn < gimage->n_points; nn++ )
@@ -2044,13 +2038,8 @@
                       FT_STROKER_LINEJOIN_BEVEL, 0x20000 );
 
     for ( ; argc > 0; argc--, argv++ )
-    {
-      error = FTDemo_Install_Font( handle, argv[0], 1,
-                                   status.no_named_instances ? 1 : 0 );
-      if ( error == FT_Err_Invalid_Argument )
-        fprintf( stderr, "skipping font `%s' without outlines\n",
-                         argv[0] );
-    }
+      FTDemo_Install_Font( handle, argv[0], 0,
+                           status.no_named_instances ? 1 : 0 );
 
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );

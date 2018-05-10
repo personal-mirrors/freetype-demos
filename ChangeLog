@@ -1,3 +1,11 @@
+2018-05-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Accept bitmap fonts.
+
+	* src/ftgrid.c (main): Accept bitmap fonts.
+	(grid_status_draw_outline): Do bitmap for any font.
+	(grid_status_rescale_initial): Bitmap-compatible improved layout.
+
 2018-05-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (main): Fail to open font earlier.
