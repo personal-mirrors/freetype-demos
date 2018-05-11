@@ -1,3 +1,10 @@
+2018-05-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Update FT_DEBUG_AUTOFIT mode.
+
+	* src/ftgrid.c (grid_status_draw_outline) [FT_DEBUG_AUTOFIT]:
+	Show active segments only when autohinter is forced. Minor tweaks.
+
 2018-05-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid] Accept bitmap fonts.

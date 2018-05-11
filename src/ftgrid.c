@@ -683,32 +683,16 @@
     if ( err )
       return;
 
-#ifdef FT_DEBUG_AUTOFIT
-    /* Draw segment before drawing glyph. */
-    if ( status.do_segment )
-    {
-      /* Force hinting first in order to collect segment info. */
-      _af_debug_disable_horz_hints = 0;
-      _af_debug_disable_vert_hints = 0;
-
-      if ( !FT_Load_Glyph( size->face, (FT_UInt)st->Num,
-                           FT_LOAD_DEFAULT        |
-                           FT_LOAD_NO_BITMAP      |
-                           FT_LOAD_FORCE_AUTOHINT |
-                           FT_LOAD_TARGET_NORMAL ) )
-        grid_hint_draw_segment( &status, size, _af_debug_hints );
-    }
-
-    _af_debug_disable_horz_hints = !st->do_horz_hints;
-    _af_debug_disable_vert_hints = !st->do_vert_hints;
-    _af_debug_disable_blue_hints = !st->do_blue_hints;
-#endif
-
     if ( handle->encoding == FT_ENCODING_ORDER )
       glyph_idx = (FT_UInt)st->Num;
     else
       glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)st->Num );
 
+#ifdef FT_DEBUG_AUTOFIT
+    _af_debug_disable_horz_hints = !st->do_horz_hints;
+    _af_debug_disable_vert_hints = !st->do_vert_hints;
+    _af_debug_disable_blue_hints = !st->do_blue_hints;
+#endif
 
     if ( FT_Load_Glyph( size->face, glyph_idx,
                         handle->load_flags | FT_LOAD_NO_BITMAP ) )
@@ -721,10 +705,9 @@
       /* show advance width */
       grFillVLine( st->disp_bitmap,
                    st->x_origin +
-                     ( ( size->face->glyph->metrics.horiAdvance +
-                         size->face->glyph->lsb_delta           -
-                         size->face->glyph->rsb_delta           ) *
-                       scale >> 6 ),
+                     ( ( slot->metrics.horiAdvance +
+                         slot->lsb_delta           -
+                         slot->rsb_delta           ) * scale >> 6 ),
                    0,
                    st->disp_height,
                    st->axis_color );
@@ -777,6 +760,12 @@
       FT_Outline*  gimage = &slot->outline;
       int          nn;
 
+
+#ifdef FT_DEBUG_AUTOFIT
+      /* Draw segment before drawing glyph. */
+      if ( status.do_segment && handle->load_flags & FT_LOAD_FORCE_AUTOHINT )
+        grid_hint_draw_segment( &status, size, _af_debug_hints );
+#endif
 
       /* scale the outline */
       for ( nn = 0; nn < gimage->n_points; nn++ )
