@@ -1,3 +1,7 @@
+2018-05-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grfill.c (grFillRect): Thinko.
+
 2018-05-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid] Update FT_DEBUG_AUTOFIT mode.

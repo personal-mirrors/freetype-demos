@@ -263,20 +263,19 @@ grFillRect( grBitmap*   target,
   switch ( target->mode )
   {
   case gr_pixel_mode_rgb32:
-    size += width;
+    size++;
   case gr_pixel_mode_rgb24:
-    size += width;
+    size++;
   case gr_pixel_mode_rgb565:
   case gr_pixel_mode_rgb555:
-    size += width;
-  case gr_pixel_mode_gray:
-  case gr_pixel_mode_pal8:
-    size += width;
+    size += 2;
     hline_func( line, x, width, color );
-    for ( ; --height > 0; line += target->pitch )
-      memcpy( line + target->pitch, line, size );
+    for ( line += size * x; --height > 0; line += target->pitch )
+      memcpy( line + target->pitch, line, size * width );
     break;
 
+  case gr_pixel_mode_gray:
+  case gr_pixel_mode_pal8:
   case gr_pixel_mode_pal4:
   case gr_pixel_mode_mono:
     for ( ; height-- > 0; line += target->pitch )
