@@ -1,3 +1,7 @@
+2018-05-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftgrid.c (bitmap_scale): Mark centers of mono pixels.
+
 2018-05-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grfill.c (grFillRect): Thinko.

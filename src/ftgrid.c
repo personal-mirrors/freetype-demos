@@ -599,6 +599,11 @@
           for ( k = 1; k < scale; k++, line += pitch * scale )
             memcpy( line + pitch * scale, line, (size_t)( pitch * scale ) );
           line += pitch * scale;
+
+          /* center specks */
+          if ( scale > 8 )
+            for ( j = scale / 2; j < width * scale; j += scale )
+              line[j / 8 - scale / 2 * pitch * scale] ^= 0x80 >> ( j & 7 );
         }
         break;
 
