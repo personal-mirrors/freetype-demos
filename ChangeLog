@@ -1,3 +1,15 @@
+2018-05-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Fast "powerless" gamma ramps.
+
+	We calculate the lookup tables for the power function using finite
+	differences. This is 10 times faster and accurate enough for gamma
+	correction.
+
+	* graph/gblender.c (gblender_set_gamma_table): Reimplement using
+	finite differences.
+	* src/ftstring.c (event_gamma_change): Ditto for the decoration ramp.
+
 2018-05-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (bitmap_scale): Mark centers of mono pixels.

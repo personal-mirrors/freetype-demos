@@ -313,6 +313,7 @@
   event_gamma_change( double  delta )
   {
     int     i;
+    double  p;
 
 
     display->gamma += delta;
@@ -324,9 +325,13 @@
 
     grSetGlyphGamma( display->gamma );
 
-    for ( i = 0; i < 256; i++ )
-      status.gamma_ramp[i] = (FT_Byte)( pow( (double)i / 255., display->gamma )
-                                        * 255. + 0.5 );
+    /* power function calculated using finite differences */
+    for ( p = 1.0, i = 255; i > 0; i-- )
+    {
+      status.gamma_ramp[i] = (FT_Byte)( p * 255. + 0.5 );
+      p -= display->gamma * p / i;
+    }
+    status.gamma_ramp[i] = 0;
   }
 
 
