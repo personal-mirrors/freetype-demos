@@ -1,3 +1,7 @@
+2018-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/gblbgra.h: Make it wotk for all destination targets.
+
 2018-05-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Fast "powerless" gamma ramps.
