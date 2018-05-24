@@ -171,7 +171,8 @@ else
     LINK_CMD = $(CC) $(subst /,$(COMPILER_SEP),$(LDFLAGS))
     ifeq ($(PLATFORM),unixdev)
       LINK_LIBS = $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) -lm -lrt -lz -lbz2
-      LINK_LIBS += $(shell pkg-config --libs libpng harfbuzz)
+      LINK_LIBS += $(shell pkg-config --libs libpng)
+      LINK_LIBS += $(shell pkg-config --libs harfbuzz)
     else
       LINK_LIBS = $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE))
     endif

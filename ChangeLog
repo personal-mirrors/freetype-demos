@@ -1,3 +1,7 @@
+2018-05-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* Makefile [unixdev]: Uncouple harfbuzz and libpng.
+
 2018-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/gblbgra.h: Gamma-corrected variant (disabled).
