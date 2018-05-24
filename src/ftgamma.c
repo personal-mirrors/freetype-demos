@@ -366,7 +366,7 @@
     char             buf[4];
     int              i;
 
-    display = FTDemo_Display_New( gr_pixel_mode_rgb24, DIM_X, DIM_Y );
+    display = FTDemo_Display_New( DIM );
     if ( !display )
     {
       PanicZ( "could not allocate display surface" );
@@ -412,8 +412,9 @@
                            display->fore_color );
       }
 
-      grWriteCellString( display->bitmap, DIM_X / 2 - 20, 410, "Gamma",
-                         display->fore_color );
+      grWriteCellString( display->bitmap,
+                         display->bitmap->width / 2 - 20, 410,
+                         "Gamma", display->fore_color );
 
       grRefreshSurface( display->surface );
       grListenSurface( display->surface, 0, &event );

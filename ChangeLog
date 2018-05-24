@@ -1,5 +1,20 @@
 2018-05-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftview, ftstring, ftgrid] Change dimension options.
+
+	* src/ftcommon.[hc] (FTDemo_Dispay_New): Use single dimension string as
+	an argument, parse it, and initialize accordingly.
+
+	* src/ftgrid.c (usage, parse_cmdline, status): Use single dimension
+	string option.
+	* src/ftstring.c (usage, parse_cmdline, status): Ditto.
+	* src/ftview.c (usage, parse_cmdline, status): Ditto, rename variable
+	axis option.
+
+	* src/ftdiff.c, src/ftgamma.c: Updated.
+
+2018-05-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* Makefile [unixdev]: Uncouple harfbuzz and libpng.
 
 2018-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>

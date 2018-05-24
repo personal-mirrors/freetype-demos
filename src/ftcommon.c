@@ -95,21 +95,39 @@
 
 
   FTDemo_Display*
-  FTDemo_Display_New( grPixelMode  mode,
-                      int          width,
-                      int          height )
+  FTDemo_Display_New( const char*  dims )
   {
     FTDemo_Display*  display;
+    grPixelMode      mode;
     grSurface*       surface;
     grBitmap         bit;
+    int              width, height, depth = 24;
 
+
+    if ( sscanf( dims, "%dx%dx%d", &width, &height, &depth ) < 2 )
+      return NULL;
+
+    switch ( depth )
+    {
+    case 8:
+      mode = gr_pixel_mode_gray;
+      break;
+    case 15:
+      mode = gr_pixel_mode_rgb555;
+      break;
+    case 16:
+      mode = gr_pixel_mode_rgb565;
+      break;
+    case 32:
+      mode = gr_pixel_mode_rgb32;
+      break;
+    default:
+      mode = gr_pixel_mode_rgb24;
+      break;
+    }
 
     display = (FTDemo_Display *)malloc( sizeof ( FTDemo_Display ) );
     if ( !display )
-      return NULL;
-
-    if ( mode != gr_pixel_mode_gray  &&
-         mode != gr_pixel_mode_rgb24 )
       return NULL;
 
     grInitDevices();
@@ -810,7 +828,8 @@
       sprintf( buf, "gamma: sRGB" );
     else
       sprintf( buf, "gamma = %.1f", display->gamma );
-    grWriteCellString( display->bitmap, DIM_X - 8 * 11, line * HEADER_HEIGHT,
+    grWriteCellString( display->bitmap,
+                       display->bitmap->width - 8 * 11, line * HEADER_HEIGHT,
                        buf, display->fore_color );
 
     line++;

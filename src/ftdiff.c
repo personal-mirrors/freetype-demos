@@ -52,11 +52,8 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W         Set the window width to W pixels (default: %dpx).\n"
-      "  -h H         Set the window height to H pixels (default: %dpx).\n"
-      "\n",
-             DIM_X, DIM_Y );
-    fprintf( stderr,
+      "  -w W         Set the window width to W pixels (default: 640px).\n"
+      "  -h H         Set the window height to H pixels (default: 480px).\n"
       "  -r R         Use resolution R dpi (default: 72dpi).\n"
       "  -s S         Set character size to S points (default: 16pt).\n"
       "  -f TEXTFILE  Change displayed text, using text in TEXTFILE\n"
@@ -1505,8 +1502,8 @@
     ADisplayRec     adisplay[1];
     RenderStateRec  state[1];
     DisplayRec      display[1];
-    int             width      = DIM_X;
-    int             height     = DIM_Y;
+    int             width      = 640;
+    int             height     = 480;
     int             resolution = -1;
     double          size       = -1;
     const char*     textfile   = NULL;

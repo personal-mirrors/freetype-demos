@@ -95,8 +95,7 @@
 
   typedef struct  GridStatusRec_
   {
-    int          width;
-    int          height;
+    const char*  dims;
 
     int          ptsize;
     int          res;
@@ -163,8 +162,7 @@
   static void
   grid_status_init( GridStatus  st )
   {
-    st->width         = DIM_X;
-    st->height        = DIM_Y;
+    st->dims          = DIM;
     st->res           = 72;
 
     st->scale         = 64;
@@ -1843,17 +1841,13 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W      Set the window width to W pixels (default: %dpx).\n"
-      "  -h H      Set the window height to H pixels (default: %dpx).\n"
-      "\n",
-             DIM_X, DIM_Y );
-    fprintf( stderr,
+      "  -d WxHxD  Set the window width, height, and color depth.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
       "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
-      "  -d \"axis1 axis2 ...\"\n"
+      "  -a \"axis1 axis2 ...\"\n"
       "            Specify the design coordinates for each\n"
       "            Multiple Master axis at start-up.  Implies `-n'.\n"
       "  -n        Don't display named instances of variation fonts.\n"
@@ -1877,14 +1871,14 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "d:e:f:h:nr:vw:" );
+      option = getopt( *argc, *argv, "a:d:e:f:nr:v" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
-      case 'd':
+      case 'a':
         {
           FT_UInt    cnt;
           FT_Fixed*  pos = status.requested_pos;
@@ -1904,6 +1898,10 @@
         }
         break;
 
+      case 'd':
+        status.dims = optarg;
+        break;
+
       case 'e':
         handle->encoding = FTDemo_Make_Encoding_Tag( optarg );
         status.Num       = 0x20;
@@ -1911,12 +1909,6 @@
 
       case 'f':
         status.Num = atoi( optarg );
-        break;
-
-      case 'h':
-        status.height = atoi( optarg );
-        if ( status.height < 1 )
-          usage( execname );
         break;
 
       case 'n':
@@ -1943,12 +1935,6 @@
           exit( 0 );
         }
         /* break; */
-
-      case 'w':
-        status.width = atoi( optarg );
-        if ( status.width < 1 )
-          usage( execname );
-        break;
 
       default:
         usage( execname );
@@ -2038,8 +2024,7 @@
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );
 
-    display = FTDemo_Display_New( gr_pixel_mode_rgb24,
-                                  status.width, status.height );
+    display = FTDemo_Display_New( status.dims );
     if ( !display )
       Fatal( "could not allocate display surface" );
 

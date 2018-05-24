@@ -59,8 +59,7 @@
 
 
   /* default window dimensions */
-#define DIM_X  640
-#define DIM_Y  480
+#define DIM  "640x480"
 
   /* baseline distance between header lines */
 #define HEADER_HEIGHT  12
@@ -88,9 +87,7 @@
 
 
   FTDemo_Display*
-  FTDemo_Display_New( grPixelMode  mode,
-                      int          width,
-                      int          height );
+  FTDemo_Display_New( const char*  dims );
 
 
   void

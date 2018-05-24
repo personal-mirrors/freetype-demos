@@ -80,8 +80,7 @@
 
   static struct  status_
   {
-    int  width;
-    int  height;
+    const char*    dims;
 
     int            render_mode;
     unsigned long  encoding;
@@ -98,8 +97,7 @@
     char*      header;
     char       header_buffer[256];
 
-  } status = { DIM_X, DIM_Y,
-               RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 0, NULL,
+  } status = { DIM, RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 0, NULL,
                { 0, 0, 0x8000, 0, NULL },
                { 0 }, { 0, 0, 0, 0 }, 0, NULL, { 0 } };
 
@@ -562,11 +560,7 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W      Set the window width to W pixels (default: %dpx).\n"
-      "  -h H      Set the window height to H pixels (default: %dpx).\n"
-      "\n",
-             DIM_X, DIM_Y );
-    fprintf( stderr,
+      "  -d WxHxD  Set the window width, height, and color depth.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
@@ -592,21 +586,19 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "e:h:m:r:vw:" );
+      option = getopt( *argc, *argv, "d:e:h:m:r:v" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
-      case 'e':
-        status.encoding = FTDemo_Make_Encoding_Tag( optarg );
+      case 'd':
+        status.dims = optarg;
         break;
 
-      case 'h':
-        status.height = atoi( optarg );
-        if ( status.height < 1 )
-          usage( execname );
+      case 'e':
+        status.encoding = FTDemo_Make_Encoding_Tag( optarg );
         break;
 
       case 'm':
@@ -635,12 +627,6 @@
           exit( 0 );
         }
         /* break; */
-
-      case 'w':
-        status.width = atoi( optarg );
-        if ( status.width < 1 )
-          usage( execname );
-        break;
 
       default:
         usage( execname );
@@ -698,8 +684,7 @@
     if ( handle->num_fonts == 0 )
       PanicZ( "could not open any font file" );
 
-    display = FTDemo_Display_New( gr_pixel_mode_rgb24,
-                                  status.width, status.height );
+    display = FTDemo_Display_New( status.dims );
 
     if ( !display )
       PanicZ( "could not allocate display surface" );

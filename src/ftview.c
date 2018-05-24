@@ -96,8 +96,7 @@
   {
     int            update;
 
-    int            width;
-    int            height;
+    const char*    dims;
     int            render_mode;
 
     int            res;
@@ -127,7 +126,7 @@
     int            fw_idx;
 
   } status = { 1,
-               DIM_X, DIM_Y, RENDER_MODE_ALL,
+               DIM, RENDER_MODE_ALL,
                72, 48, 1, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
@@ -586,7 +585,7 @@
 
     have_topleft = 0;
 
-    pt_height = 64 * 72 * status.height / status.res;
+    pt_height = 64 * 72 * display->bitmap->rows / status.res;
     step      = ( mid_size * mid_size / pt_height + 64 ) & ~63;
     pt_size   = mid_size - step * ( mid_size / step );  /* remainder */
 
@@ -1632,11 +1631,7 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -w W      Set the window width to W pixels (default: %dpx).\n"
-      "  -h H      Set the window height to H pixels (default: %dpx).\n"
-      "\n",
-             DIM_X, DIM_Y );
-    fprintf( stderr,
+      "  -d WxHxD  Set the window width, height, and color depth.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
@@ -1668,25 +1663,23 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "e:f:h:l:m:pr:vw:" );
+      option = getopt( *argc, *argv, "d:e:f:l:m:pr:v" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
+      case 'd':
+        status.dims = optarg;
+        break;
+
       case 'e':
         handle->encoding = FTDemo_Make_Encoding_Tag( optarg );
         break;
 
       case 'f':
         status.offset = atoi( optarg );
-        break;
-
-      case 'h':
-        status.height = atoi( optarg );
-        if ( status.height < 1 )
-          usage( execname );
         break;
 
       case 'l':
@@ -1729,12 +1722,6 @@
           exit( 0 );
         }
         /* break; */
-
-      case 'w':
-        status.width = atoi( optarg );
-        if ( status.width < 1 )
-          usage( execname );
-        break;
 
       default:
         usage( execname );
@@ -1819,8 +1806,7 @@
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );
 
-    display = FTDemo_Display_New( gr_pixel_mode_rgb24,
-                                  status.width, status.height );
+    display = FTDemo_Display_New( status.dims );
     if ( !display )
       Fatal( "could not allocate display surface" );
 
