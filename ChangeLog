@@ -1,3 +1,11 @@
+2018-05-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Implement grayscale target surface.
+
+	* graph/grblit.c (grBlitGlyphToBitmap): Enable gray target.
+	* graph/gblblit.c (gblender_blit_init, GRGB_TO_GRAY, GRGB24_TO_GRAY):
+	Implement gray target.
+
 2018-05-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview, ftstring, ftgrid] Change dimension options.
