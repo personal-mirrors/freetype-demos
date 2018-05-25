@@ -42,16 +42,9 @@ This program is part of the FreeType demos package.
 .SH OPTIONS
 .
 .TP
-.BI \-w \ w
-Set the window width to
-.I w
-pixels (default: 640px).
-.
-.TP
-.BI \-h \ h
-Set the window height to
-.I h
-pixels (default: 480px).
+.BI \-d \ width x height x depth
+Set the window width (in pixels), height (in pixels), and depth (in bpp) to
+the given values (default: 640x480x24).
 .
 .TP
 .BI \-r \ r
@@ -77,7 +70,7 @@ Common values:
 (Adobe custom).
 .
 .TP
-.BI "\-d\ \(dq" "axis1\ axis2\ .\|.\|." \(dq
+.BI "\-a\ \(dq" "axis1\ axis2\ .\|.\|." \(dq
 For Multiple Master, GX, or OpenType variation fonts, specify design
 coordinates for each axis at start-up.
 This option implies option

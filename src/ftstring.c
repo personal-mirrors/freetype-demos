@@ -586,7 +586,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "d:e:h:m:r:v" );
+      option = getopt( *argc, *argv, "d:e:m:r:v" );
 
       if ( option == -1 )
         break;

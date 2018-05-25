@@ -1,3 +1,9 @@
+2018-05-25  Werner Lemberg  <wl@gnu.org>
+
+	Update manpages.
+
+	* src/ftgrid.1, src/ftstring.1, stc/ftview: Document option `-d'.
+
 2018-05-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Implement grayscale target surface.
