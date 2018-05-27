@@ -737,27 +737,27 @@
     grWriteln( "                                                                            " );
     grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
     grWriteln( "                                                     emboldening (in mode 2)" );
-    grWriteln( "K           toggle cache modes          y, Y        adjust vertical         " );
+    grWriteln( "c           toggle coloured glyphs      y, Y        adjust vertical         " );
     grWriteln( "                                                     emboldening (in mode 2)" );
-    grWriteln( "p, n        previous/next font          s, S        adjust slanting         " );
+    grWriteln( "K           toggle cache modes          s, S        adjust slanting         " );
     grWriteln( "                                                     (in mode 2)            " );
-    grWriteln( "Up, Down    adjust size by 1 unit       r, R        adjust stroking radius  " );
-    grWriteln( "PgUp, PgDn  adjust size by 10 units                  (in mode 3)            " );
-    grWriteln( "                                                                            " );
-    grWriteln( "Left, Right adjust index by 1           L           cycle through           " );
-    grWriteln( "F7, F8      adjust index by 16                       LCD filtering          " );
-    grWriteln( "F9, F10     adjust index by 256         [, ]        select custom LCD       " );
-    grWriteln( "F11, F12    adjust index by 4096                      filter weight         " );
-    grWriteln( "                                                      (if custom filtering) " );
-    grWriteln( "h           toggle hinting              -, +(=)     adjust selected custom  " );
-    grWriteln( "H           cycle through hinting                    LCD filter weight      " );
+    grWriteln( "p, n        previous/next font          r, R        adjust stroking radius  " );
+    grWriteln( "                                                     (in mode 3)            " );
+    grWriteln( "Up, Down    adjust size by 1 unit                                           " );
+    grWriteln( "PgUp, PgDn  adjust size by 10 units     L           cycle through           " );
+    grWriteln( "                                                     LCD filtering          " );
+    grWriteln( "Left, Right adjust index by 1           [, ]        select custom LCD       " );
+    grWriteln( "F7, F8      adjust index by 16                        filter weight         " );
+    grWriteln( "F9, F10     adjust index by 256                       (if custom filtering) " );
+    grWriteln( "F11, F12    adjust index by 4096        -, +(=)     adjust selected custom  " );
+    grWriteln( "                                                     LCD filter weight      " );
+    grWriteln( "h           toggle hinting                                                  " );
+    grWriteln( "H           cycle through hinting       g, v        adjust gamma value      " );
     grWriteln( "             engines (if available)                                         " );
-    grWriteln( "f           toggle forced auto-         g, v        adjust gamma value      " );
+    grWriteln( "f           toggle forced auto-         Tab         cycle through charmaps  " );
     grWriteln( "             hinting (if hinting)                                           " );
-    grWriteln( "w           toggle warping              Tab         cycle through charmaps  " );
-    grWriteln( "             (if available)                                                 " );
-    grWriteln( "                                                                            " );
-    grWriteln( "                                        q, ESC      quit ftview             " );
+    grWriteln( "w           toggle warping                                                  " );
+    grWriteln( "             (if available)             q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
     grLn();
@@ -1063,9 +1063,13 @@
       break;
 
     case grKEY( 'b' ):
-      handle->use_sbits++;
-      if ( handle->use_sbits > 2)
-        handle->use_sbits = 0;
+      handle->use_sbits = !handle->use_sbits;
+      FTDemo_Update_Current_Flags( handle );
+      status.update = 1;
+      break;
+
+    case grKEY( 'c' ):
+      handle->use_color = !handle->use_color;
       FTDemo_Update_Current_Flags( handle );
       status.update = 1;
       break;
@@ -1559,8 +1563,13 @@
 
     /* embedded bitmaps */
     sprintf( buf, "bitmaps: %s",
-                  handle->use_sbits == 2 ? "color" :
-                  handle->use_sbits == 1 ? "gray" : "off" );
+                  handle->use_sbits ? "on" : "off" );
+    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                       buf, display->fore_color );
+
+    /* color */
+    sprintf( buf, "color: %s",
+                  handle->use_color ? "on" : "off" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 

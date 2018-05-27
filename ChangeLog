@@ -1,3 +1,14 @@
+2018-05-27  Werner Lemberg  <wl@gnu.org>
+
+	Separate color support from sbit handling.
+
+	* src/ftcommon.h (FTDemo_Handle): New boolean field `use_color'.
+
+	* src/ftcommon.c (FTDemo_New, FTDemo_Update_Current_Flags): Updated.
+
+	* src/ftview.c (Process_Event): Use key `c' to toggle color support.
+	(write_header, event_help): Updated.
+
 2018-05-25  Werner Lemberg  <wl@gnu.org>
 
 	Update manpages.

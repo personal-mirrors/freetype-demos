@@ -193,6 +193,7 @@
     /* call FTDemo_Update_Current_Flags after setting any of the following fields */
     int             hinted;            /* is glyph hinting active?    */
     int             use_sbits;         /* do we use embedded bitmaps? */
+    int             use_color;         /* do we use coloured glyphs?  */
     int             autohint;          /* force auto-hinting          */
     int             lcd_mode;          /* mono, aa, light, vrgb, ...  */
     int             preload;           /* force font file preloading  */
