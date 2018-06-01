@@ -27,6 +27,16 @@
 
 #ifdef TEST
 #include "grfont.h"
+#define LOG(x)  printf x
+#define visualClass(x)  ( x == StaticGray  ? "StaticGray"  : \
+                          x == GrayScale   ? "GrayScale"   : \
+                          x == StaticColor ? "StaticColor" : \
+                          x == PseudoColor ? "PseudoColor" : \
+                          x == TrueColor   ? "TrueColor"   : \
+                          x == DirectColor ? "DirectColor" : "unknown" )
+#define grAlloc  malloc
+#else
+#define LOG(x)  /* nothing */
 #endif
 
 #include <stdio.h>
@@ -122,11 +132,6 @@ typedef  unsigned long   uint32;
   };
 
   typedef XPixmapFormatValues  XDepth;
-
-
-#ifdef TEST
-#define grAlloc  malloc
-#endif
 
 
   /************************************************************************/
@@ -941,19 +946,15 @@ typedef  unsigned long   uint32;
       templ.screen = DefaultScreen( x11dev.display );
       formats      = XListPixmapFormats( x11dev.display, &count );
 
-#ifdef TEST
-      printf( "available pixmap formats\n" );
-      printf( "depth  pixbits  scanpad\n" );
-#endif /* TEST */
+      LOG(( "available pixmap formats\n" ));
+      LOG(( "depth  pixbits  scanpad\n" ));
 
       for ( format = formats; count > 0; count--, format++ )
       {
-#ifdef TEST
-        printf( " %3d     %3d      %3d\n",
+        LOG(( " %3d      %3d      %3d\n",
                 format->depth,
                 format->bits_per_pixel,
-                format->scanline_pad );
-#endif /* TEST */
+                format->scanline_pad ));
 
         /* note, the 32-bit modes return a depth of 24, */
         /* and 32 bits per pixel                        */
@@ -975,41 +976,13 @@ typedef  unsigned long   uint32;
 
             for ( visual = visuals; count2 > 0; count2--, visual++ )
             {
-#ifdef TEST
-              const char*  visualClass;
-
-              switch ( visual->Class )
-              {
-              case TrueColor:
-                visualClass = "TrueColor";
-                break;
-              case DirectColor:
-                visualClass = "DirectColor";
-                break;
-              case PseudoColor:
-                visualClass = "PseudoColor";
-                break;
-              case StaticGray:
-                visualClass = "StaticGray";
-                break;
-              case StaticColor:
-                visualClass = "StaticColor";
-                break;
-              case GrayScale:
-                visualClass = "GrayScale";
-                break;
-              default:
-                visualClass = "unknown";
-              }
-
-              printf( ">   RGB %04lx:%04lx:%04lx, colors %3d, bits %2d  %s\n",
-                      visual->red_mask,
-                      visual->green_mask,
-                      visual->blue_mask,
-                      visual->colormap_size,
-                      visual->bits_per_rgb,
-                      visualClass );
-#endif /* TEST */
+              LOG(( "> R:G:B %0*lx:%0*lx:%0*lx, colors %3d, bits %2d, %s\n",
+                     format->bits_per_pixel/4, visual->red_mask,
+                     format->bits_per_pixel/4, visual->green_mask,
+                     format->bits_per_pixel/4, visual->blue_mask,
+                                               visual->colormap_size,
+                                               visual->bits_per_rgb,
+                                  visualClass( visual->Class ) ));
 
               /* compare to the list of supported formats */
               {

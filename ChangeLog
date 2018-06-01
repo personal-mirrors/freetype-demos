@@ -1,3 +1,7 @@
+2018-05-31  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/x11/grx11.c (gr_x11_device_init): Organize logging.
+
 2018-05-27  Werner Lemberg  <wl@gnu.org>
 
 	Separate color support from sbit handling.
