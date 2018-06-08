@@ -1,5 +1,16 @@
 2018-06-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftview] Control subpixel rendering from command line.
+
+	* src/ftview.c (parse_cmdline): New `-L' option to set subpixel filter
+	weights or geometry depending on the implemented method.
+	(write_header, Process_Event): Hide filtering if not implemented.
+	(main): Set default filter only if command line is not used.
+	(usage): Document it.
+	* src/ftview.1: Document it.
+
+2018-06-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftbench.c (benchmark): Output formatting.
 
 2018-05-31  Alexei Podtelezhnikov  <apodtele@gmail.com>

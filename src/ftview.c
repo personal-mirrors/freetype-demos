@@ -1267,7 +1267,9 @@
       break;
     }
 
-    if ( handle->lcd_mode < LCD_MODE_RGB )
+    if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) ==
+                         FT_Err_Unimplemented_Feature    ||
+         handle->lcd_mode < LCD_MODE_RGB                 )
       return ret;
 
     switch ( event->key )
@@ -1279,17 +1281,17 @@
       status.lcd_filter++;
       switch ( status.lcd_filter )
       {
-        case FT_LCD_FILTER_NONE:
-        case FT_LCD_FILTER_DEFAULT:
-        case FT_LCD_FILTER_LIGHT:
-        case FT_LCD_FILTER_LEGACY1:
-          FT_Library_SetLcdFilter( handle->library,
-                                   (FT_LcdFilter)status.lcd_filter );
-          break;
-        default:
-          FT_Library_SetLcdFilterWeights( handle->library,
-                                          status.filter_weights );
-          status.lcd_filter = -1;
+      case FT_LCD_FILTER_NONE:
+      case FT_LCD_FILTER_DEFAULT:
+      case FT_LCD_FILTER_LIGHT:
+      case FT_LCD_FILTER_LEGACY1:
+        FT_Library_SetLcdFilter( handle->library,
+                                 (FT_LcdFilter)status.lcd_filter );
+        break;
+      default:
+        FT_Library_SetLcdFilterWeights( handle->library,
+                                        status.filter_weights );
+        status.lcd_filter = -1;
       }
 
       status.update = 1;
@@ -1582,7 +1584,9 @@
     line++;
 
     /* LCD filtering */
-    if ( handle->lcd_mode >= LCD_MODE_RGB )
+    if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
+                         FT_Err_Unimplemented_Feature    &&
+         handle->lcd_mode >= LCD_MODE_RGB                )
     {
       sprintf( buf, "filter: %s",
                     status.lcd_filter == 0 ? "none" :
@@ -1651,6 +1655,7 @@
       "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",
              N_LCD_IDXS - 1 );
     fprintf( stderr,
+      "  -L N,...  Set LCD filter or geometry by comma-separated values.\n"
       "  -p        Preload file in memory to simulate memory-mapping.\n"
       "\n"
       "  -v        Show version.\n"
@@ -1672,7 +1677,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "d:e:f:l:m:pr:v" );
+      option = getopt( *argc, *argv, "d:e:f:L:l:m:pr:v" );
 
       if ( option == -1 )
         break;
@@ -1700,6 +1705,42 @@
           exit( 3 );
         }
         handle->lcd_mode = lcd_modes[status.lcd_idx];
+        break;
+
+      case 'L':
+        {
+          int i, buf[6];
+
+
+          i = sscanf( optarg, "%d,%d,%d,%d,%d,%d",
+                      buf, buf + 1, buf + 2, buf + 3, buf + 4, buf + 5 );
+          if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
+                               FT_Err_Unimplemented_Feature    &&
+               i == 5                                          )
+          {
+            status.filter_weights[0] = buf[0];
+            status.filter_weights[1] = buf[1];
+            status.filter_weights[2] = buf[2];
+            status.filter_weights[3] = buf[3];
+            status.filter_weights[4] = buf[4];
+
+            FT_Library_SetLcdFilterWeights( handle->library,
+                                            status.filter_weights );
+
+            status.lcd_filter = -1;
+          }
+          else if ( FT_Library_SetLcdGeometry( NULL, NULL ) !=
+                               FT_Err_Unimplemented_Feature    &&
+                    i == 6                                     )
+          {
+            FT_Vector  sub[3] = { { buf[0], buf[1] },
+                                  { buf[2], buf[3] },
+                                  { buf[4], buf[5] } };
+
+
+            FT_Library_SetLcdGeometry( handle->library, sub );
+          }
+        }
         break;
 
       case 'm':
@@ -1770,7 +1811,8 @@
 
     parse_cmdline( &argc, &argv );
 
-    FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_DEFAULT );
+    if ( status.lcd_filter != -1 )
+      FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
 
     /* get the default values as compiled into FreeType */
     FT_Property_Get( handle->library,
