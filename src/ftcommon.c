@@ -305,7 +305,7 @@
     if ( error )
       PanicZ( "could not initialize charmap cache" );
 
-    FT_Bitmap_New( &handle->bitmap );
+    FT_Bitmap_Init( &handle->bitmap );
 
     FT_Stroker_New( handle->library, &handle->stroker );
 
