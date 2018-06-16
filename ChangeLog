@@ -1,3 +1,17 @@
+2018-06-16  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] First shot at colored glyph layer support.
+
+	This is basically a proof of concept.  Still missing: Switching off
+	color layers and controlling palette selection.  Additionally, only
+	`Render_All' handles color layers.
+
+	Some code should be moved to `ftcommon' so that other demo programs
+	can show colored glyph layers also.
+
+	* src/ftview: Include FT_COLOR_H and FT_BITMAP_H.
+	(Render_All): Handle colored glyph layers.
+
 2018-06-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Control subpixel rendering from command line.

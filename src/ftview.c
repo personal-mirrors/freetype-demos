@@ -34,6 +34,9 @@
 #include FT_LCD_FILTER_H
 #include FT_DRIVER_H
 
+#include FT_COLOR_H
+#include FT_BITMAP_H
+
 
 #define MAXPTSIZE  500                 /* dtp */
 
@@ -412,10 +415,10 @@
     FT_Size       size;
     FT_Face       face;
     FT_GlyphSlot  slot;
+    FT_Color*     palette;
 
 
     error = FTDemo_Get_Size( handle, &size );
-
     if ( error )
     {
       /* probably a non-existent bitmap font size */
@@ -426,11 +429,20 @@
     face = size->face;
     slot = face->glyph;
 
+    /* XXX handle palette index */
+    error = FT_Palette_Select( face, 0, &palette );
+    if ( error )
+      palette = NULL;
+
     have_topleft = 0;
 
     for ( i = offset; i < num_indices; i++ )
     {
-      FT_UInt  glyph_idx;
+      FT_LayerIterator  iterator;
+      FT_UInt           glyph_idx;
+
+      FT_UInt  layer_glyph_idx;
+      FT_UInt  layer_color_idx;
 
 
       if ( handle->encoding == FT_ENCODING_ORDER )
@@ -438,9 +450,74 @@
       else
         glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
-      error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
-      if ( error )
-        goto Next;
+      /* check whether we have glyph color layers */
+      iterator.p       = NULL;
+      layer_glyph_idx  = FT_Get_Color_Glyph_Layer( face,
+                                                   glyph_idx,
+                                                   &layer_color_idx,
+                                                   &iterator );
+
+      if ( palette && layer_glyph_idx /* && XXX handle->use_layers */ )
+      {
+        FT_Int32  load_flags = handle->load_flags;
+
+        FT_Bitmap  bitmap;
+        FT_Vector  bitmap_offset = { 0, 0 };
+
+
+        /* we want to handle glyph layers manually, */
+        /* thus switching off `FT_LOAD_COLOR'       */
+        load_flags &= ~FT_LOAD_COLOR;
+        load_flags |=  FT_LOAD_RENDER;
+
+        FT_Bitmap_Init( &bitmap );
+
+        do
+        {
+          FT_Vector  slot_offset;
+
+
+          error = FT_Load_Glyph( face, layer_glyph_idx, load_flags );
+          if ( error )
+            break;
+
+          slot_offset.x = slot->bitmap_left * 64;
+          slot_offset.y = slot->bitmap_top * 64;
+
+          error = FT_Bitmap_Blend( handle->library,
+                                   &slot->bitmap,
+                                   slot_offset,
+                                   &bitmap,
+                                   &bitmap_offset,
+                                   palette[layer_color_idx] );
+
+        } while ( ( layer_glyph_idx =
+                    FT_Get_Color_Glyph_Layer( face,
+                                              glyph_idx,
+                                              &layer_color_idx,
+                                              &iterator ) ) != 0 );
+
+        if ( error )
+        {
+          FT_Bitmap_Done( handle->library, &bitmap );
+          goto Next;
+        }
+        else
+        {
+          FT_Bitmap_Done( handle->library, &slot->bitmap );
+
+          slot->bitmap      = bitmap;
+          slot->bitmap_left = bitmap_offset.x / 64;
+          slot->bitmap_top  = bitmap_offset.y / 64;
+        }
+      }
+      else
+      {
+        error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
+        if ( error )
+          goto Next;
+      }
+
 
       if ( X_TOO_LONG( x, slot, display ) )
       {
@@ -452,7 +529,6 @@
       }
 
       error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
-
       if ( error )
         goto Next;
 
