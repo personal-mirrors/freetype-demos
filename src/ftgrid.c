@@ -158,6 +158,8 @@
 
   static GridStatusRec  status;
 
+  static FT_Glyph  circle;
+
 
   static void
   grid_status_init( GridStatus  st )
@@ -397,128 +399,20 @@
 
 
   static void
-  ft_bitmap_draw( FT_Bitmap*       bitmap,
-                  int              x,
-                  int              y,
-                  FTDemo_Display*  display,
-                  grColor          color )
+  circle_init( FTDemo_Handle*  handle,
+               FT_F26Dot6      radius )
   {
-    grBitmap  gbit;
-
-
-    gbit.width  = (int)bitmap->width;
-    gbit.rows   = (int)bitmap->rows;
-    gbit.pitch  = bitmap->pitch;
-    gbit.buffer = bitmap->buffer;
-
-    switch ( bitmap->pixel_mode )
-    {
-    case FT_PIXEL_MODE_GRAY:
-      gbit.mode  = gr_pixel_mode_gray;
-      gbit.grays = 256;
-      break;
-
-    case FT_PIXEL_MODE_MONO:
-      gbit.mode  = gr_pixel_mode_mono;
-      gbit.grays = 2;
-      break;
-
-    case FT_PIXEL_MODE_LCD:
-      gbit.mode  = gr_pixel_mode_lcd;
-      gbit.grays = 256;
-      break;
-
-    case FT_PIXEL_MODE_LCD_V:
-      gbit.mode  = gr_pixel_mode_lcdv;
-      gbit.grays = 256;
-      break;
-
-    default:
-      return;
-    }
-
-    grBlitGlyphToBitmap( display->bitmap, &gbit, x, y, color );
-  }
-
-
-  static void
-  ft_outline_draw( FT_Outline*      outline,
-                   double           scale,
-                   int              pen_x,
-                   int              pen_y,
-                   FTDemo_Handle*   handle,
-                   FTDemo_Display*  display,
-                   grColor          color )
-  {
-    FT_Outline  transformed;
-    FT_BBox     cbox;
-    FT_Bitmap   bitm;
-
-
-    FT_Outline_New( handle->library,
-                    (FT_UInt)outline->n_points,
-                    outline->n_contours,
-                    &transformed );
-
-    FT_Outline_Copy( outline, &transformed );
-
-    if ( scale != 1. )
-    {
-      int  nn;
-
-
-      for ( nn = 0; nn < transformed.n_points; nn++ )
-      {
-        FT_Vector*  vec = &transformed.points[nn];
-
-
-        vec->x = (FT_F26Dot6)( vec->x * scale );
-        vec->y = (FT_F26Dot6)( vec->y * scale );
-      }
-    }
-
-    FT_Outline_Get_CBox( &transformed, &cbox );
-    cbox.xMin &= ~63;
-    cbox.yMin &= ~63;
-    cbox.xMax  = ( cbox.xMax + 63 ) & ~63;
-    cbox.yMax  = ( cbox.yMax + 63 ) & ~63;
-
-    bitm.width      = (unsigned int)( ( cbox.xMax - cbox.xMin ) >> 6 );
-    bitm.rows       = (unsigned int)( ( cbox.yMax - cbox.yMin ) >> 6 );
-    bitm.pitch      = (int)bitm.width;
-    bitm.num_grays  = 256;
-    bitm.pixel_mode = FT_PIXEL_MODE_GRAY;
-    bitm.buffer     = (unsigned char*)calloc( (unsigned int)bitm.pitch,
-                                              bitm.rows );
-
-    FT_Outline_Translate( &transformed, -cbox.xMin, -cbox.yMin );
-    FT_Outline_Get_Bitmap( handle->library, &transformed, &bitm );
-
-    ft_bitmap_draw( &bitm,
-                    pen_x + ( cbox.xMin >> 6 ),
-                    pen_y - ( cbox.yMax >> 6 ),
-                    display,
-                    color );
-
-    free( bitm.buffer );
-    FT_Outline_Done( handle->library, &transformed );
-  }
-
-
-  static void
-  ft_outline_new_circle( FT_Outline*     outline,
-                         FT_F26Dot6      radius,
-                         FTDemo_Handle*  handle )
-  {
-    char*       tag;
-    FT_Vector*  vec;
-    FT_F26Dot6  disp = (FT_F26Dot6)( radius * 0.5523 );
+    FT_Outline*  outline;
+    char*        tag;
+    FT_Vector*   vec;
+    FT_F26Dot6   disp = (FT_F26Dot6)( radius * 0.5523 );
     /* so that Bézier curve touches circle at 0, 45, and 90 degrees */
 
 
+    FT_New_Glyph( handle->library, FT_GLYPH_FORMAT_OUTLINE, &circle );
+
+    outline = &((FT_OutlineGlyph)circle)->outline;
     FT_Outline_New( handle->library, 12, 1, outline );
-    outline->n_points    = 12;
-    outline->n_contours  = 1;
     outline->contours[0] = outline->n_points - 1;
 
     vec = outline->points;
@@ -542,22 +436,21 @@
   static void
   circle_draw( FT_F26Dot6       center_x,
                FT_F26Dot6       center_y,
-               FT_F26Dot6       radius,
                FTDemo_Handle*   handle,
                FTDemo_Display*  display,
                grColor          color )
   {
-    FT_Outline  outline;
+    FT_Outline*  outline = &((FT_OutlineGlyph)circle)->outline;
+    int  x = center_x >> 6;
+    int  y = center_y >> 6;
 
 
-    ft_outline_new_circle( &outline, radius, handle );
     /* subpixel adjustment considering downward direction of y-axis */
-    FT_Outline_Translate( &outline, center_x & 63, -( center_y & 63 ) );
+    FT_Outline_Translate( outline, center_x & 63, -( center_y & 63 ) );
 
-    ft_outline_draw( &outline, 1., ( center_x >> 6 ), ( center_y >> 6 ),
-                     handle, display, color );
+    FTDemo_Draw_Glyph_Color( handle, display, circle, &x, &y, color );
 
-    FT_Outline_Done( handle->library, &outline );
+    FT_Outline_Translate( outline, -( center_x & 63 ), center_y & 63 );
   }
 
 
@@ -800,7 +693,6 @@
           circle_draw(
             st->x_origin * 64 + gimage->points[nn].x,
             st->y_origin * 64 - gimage->points[nn].y,
-            128,
             handle,
             display,
             ( gimage->tags[nn] & FT_CURVE_TAG_ON ) ? st->on_color
@@ -1973,6 +1865,7 @@
     handle = FTDemo_New();
 
     grid_status_init( &status );
+    circle_init( handle, 128 );
     parse_cmdline( &argc, &argv );
 
     /* get the default value as compiled into FreeType */

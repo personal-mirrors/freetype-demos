@@ -1,3 +1,11 @@
+2018-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Draw dots using `FT_New_Glyph'.
+
+	* src/ftgrid.c (circle_init): Make a custom glyph with a circle.
+	(circle_draw): Render it using `FTDemo_Draw_Glyph_Color'.
+	(ft_bitmap_draw, ft_outline_draw, ft_outline_new_circle): Removed.
+
 2018-06-16  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] First shot at colored glyph layer support.
