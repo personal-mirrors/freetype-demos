@@ -104,6 +104,108 @@
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;
 
+  static FT_Glyph  wheel, daisy, aster;  /* stress test glyphs */
+
+
+  static void
+  wheel_init( FT_Glyph*   glyph,
+              FT_F26Dot6  radius,
+              int         reflect )
+  {
+    FT_Outline*  outline;
+    FT_Vector*   vec;
+    char*        tag;
+    FT_Pos       b, d, p = 0, q = radius;
+    int          i = 25;
+
+
+    FT_New_Glyph( handle->library, FT_GLYPH_FORMAT_OUTLINE, glyph );
+
+    outline = &((FT_OutlineGlyph)*glyph)->outline;
+
+    FT_Outline_New( handle->library, 6 * i, 1, outline );
+    outline->contours[0] = outline->n_points - 1;
+
+    for ( vec = outline->points, tag = outline->tags;
+          i--;
+          vec += 6,              tag += 6 )
+    {
+       b = p + ( q >> 6 );
+       d = q - ( p >> 6 );
+       vec[0].x = vec[3].y = 0;
+       vec[0].y = vec[3].x = 0;
+       tag[0]   = tag[3]   = FT_CURVE_TAG_ON;
+       vec[1].x = vec[5].y = p;
+       vec[1].y = vec[5].x = q;
+       tag[1]   = tag[5]   = FT_CURVE_TAG_ON;
+       vec[2].x = vec[4].y = b;
+       vec[2].y = vec[4].x = d;
+       tag[2]   = tag[4]   = FT_CURVE_TAG_ON;
+       p = b + ( d >> 6 );
+       q = d - ( b >> 6 );
+    }
+
+    if ( reflect & 1 )
+      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
+        vec->x = -vec->x;
+
+    if ( reflect & 2 )
+      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
+        vec->y = -vec->y;
+  }
+
+
+  static void
+  flower_init( FT_Glyph*   glyph,
+               FT_F26Dot6  radius,
+               int         reflect,
+               char        order )
+  {
+    FT_Outline*  outline;
+    FT_Vector*   vec;
+    char*        tag;
+    FT_Pos       b, d, p = 0, q = radius;
+    int          i = 25;
+
+
+    FT_New_Glyph( handle->library, FT_GLYPH_FORMAT_OUTLINE, glyph );
+
+    outline = &((FT_OutlineGlyph)*glyph)->outline;
+
+    FT_Outline_New( handle->library, 6 * i, 1, outline );
+    outline->contours[0] = outline->n_points - 1;
+
+    if ( order == FT_CURVE_TAG_CUBIC )
+      q += q / 3;
+
+    for ( vec = outline->points, tag = outline->tags;
+          i--;
+          vec += 6,              tag += 6 )
+    {
+       b = p + ( q >> 5 );
+       d = q - ( p >> 5 );
+       vec[0].x = vec[3].y = 0;
+       vec[0].y = vec[3].x = 0;
+       tag[0]   = tag[3]   = FT_CURVE_TAG_ON;
+       vec[1].x = vec[5].y = p;
+       vec[1].y = vec[5].x = q;
+       tag[1]   = tag[5]   = order;
+       vec[2].x = vec[4].y = b;
+       vec[2].y = vec[4].x = d;
+       tag[2]   = tag[4]   = order;
+       p = b;
+       q = d;
+    }
+
+    if ( reflect & 1 )
+      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
+        vec->x = -vec->x;
+
+    if ( reflect & 2 )
+      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
+        vec->y = -vec->y;
+  }
+
 
   /*************************************************************************/
   /*************************************************************************/
@@ -661,6 +763,10 @@
 
     parse_cmdline( &argc, &argv );
 
+    wheel_init( &wheel, 8192, 0 );
+    flower_init( &daisy, 8192, 0, FT_CURVE_TAG_CONIC );
+    flower_init( &aster, 8192, 1, FT_CURVE_TAG_CUBIC );
+
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_LIGHT );
 
     handle->encoding  = status.encoding;
@@ -710,6 +816,17 @@
       switch ( status.render_mode )
       {
       case RENDER_MODE_STRING:
+        {
+          int x, y = display->bitmap->rows - 4;
+
+
+          x = 4;
+          FTDemo_Draw_Glyph( handle, display, daisy, &x, &y );
+
+          x = display->bitmap->width - 4;
+          FTDemo_Draw_Glyph( handle, display, aster, &x, &y );
+        }
+
         error = FTDemo_String_Draw( handle, display,
                                     &status.sc,
                                     display->bitmap->width / 2,

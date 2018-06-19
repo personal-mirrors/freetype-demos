@@ -1,5 +1,13 @@
 2018-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftstring] Display glyphs to stress test rendering.
+
+	* src/ftstring.c (wheel_init, flower_init): New functions to
+	initialize stress test glyphs.
+	(main): Display them.
+
+2018-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid] Draw dots using `FT_New_Glyph'.
 
 	* src/ftgrid.c (circle_init): Make a custom glyph with a circle.
