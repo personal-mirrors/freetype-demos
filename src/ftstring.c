@@ -22,6 +22,7 @@
 #include <math.h>
 
 #include FT_LCD_FILTER_H
+#include FT_TRIGONOMETRY_H
 
 #define CELLSTRING_HEIGHT  8
 #define MAXPTSIZE          500   /* dtp */
@@ -108,64 +109,19 @@
 
 
   static void
-  wheel_init( FT_Glyph*   glyph,
-              FT_F26Dot6  radius,
-              int         reflect )
-  {
-    FT_Outline*  outline;
-    FT_Vector*   vec;
-    char*        tag;
-    FT_Pos       b, d, p = 0, q = radius;
-    int          i = 25;
-
-
-    FT_New_Glyph( handle->library, FT_GLYPH_FORMAT_OUTLINE, glyph );
-
-    outline = &((FT_OutlineGlyph)*glyph)->outline;
-
-    FT_Outline_New( handle->library, 6 * i, 1, outline );
-    outline->contours[0] = outline->n_points - 1;
-
-    for ( vec = outline->points, tag = outline->tags;
-          i--;
-          vec += 6,              tag += 6 )
-    {
-       b = p + ( q >> 6 );
-       d = q - ( p >> 6 );
-       vec[0].x = vec[3].y = 0;
-       vec[0].y = vec[3].x = 0;
-       tag[0]   = tag[3]   = FT_CURVE_TAG_ON;
-       vec[1].x = vec[5].y = p;
-       vec[1].y = vec[5].x = q;
-       tag[1]   = tag[5]   = FT_CURVE_TAG_ON;
-       vec[2].x = vec[4].y = b;
-       vec[2].y = vec[4].x = d;
-       tag[2]   = tag[4]   = FT_CURVE_TAG_ON;
-       p = b + ( d >> 6 );
-       q = d - ( b >> 6 );
-    }
-
-    if ( reflect & 1 )
-      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
-        vec->x = -vec->x;
-
-    if ( reflect & 2 )
-      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
-        vec->y = -vec->y;
-  }
-
-
-  static void
   flower_init( FT_Glyph*   glyph,
                FT_F26Dot6  radius,
+               int         i,
+               int         v,
+               int         w,
                int         reflect,
                char        order )
   {
     FT_Outline*  outline;
     FT_Vector*   vec;
     char*        tag;
+    FT_Fixed     s = FT_Sin( FT_ANGLE_PI4 / i );
     FT_Pos       b, d, p = 0, q = radius;
-    int          i = 25;
 
 
     FT_New_Glyph( handle->library, FT_GLYPH_FORMAT_OUTLINE, glyph );
@@ -182,16 +138,16 @@
           i--;
           vec += 6,              tag += 6 )
     {
-       b = p + ( q >> 5 );
-       d = q - ( p >> 5 );
+       b = p + FT_MulFix( q, s );
+       d = q - FT_MulFix( p, s );
        vec[0].x = vec[3].y = 0;
        vec[0].y = vec[3].x = 0;
        tag[0]   = tag[3]   = FT_CURVE_TAG_ON;
-       vec[1].x = vec[5].y = p;
-       vec[1].y = vec[5].x = q;
+       vec[1].x = vec[5].y = ( v * p + w * b ) / ( v + w );
+       vec[1].y = vec[5].x = ( v * q + w * d ) / ( v + w );
        tag[1]   = tag[5]   = order;
-       vec[2].x = vec[4].y = b;
-       vec[2].y = vec[4].x = d;
+       vec[2].x = vec[4].y = ( v * b + w * p ) / ( v + w );
+       vec[2].y = vec[4].x = ( v * d + w * q ) / ( v + w );
        tag[2]   = tag[4]   = order;
        p = b;
        q = d;
@@ -763,9 +719,9 @@
 
     parse_cmdline( &argc, &argv );
 
-    wheel_init( &wheel, 8192, 0 );
-    flower_init( &daisy, 8192, 0, FT_CURVE_TAG_CONIC );
-    flower_init( &aster, 8192, 1, FT_CURVE_TAG_CUBIC );
+    flower_init( &wheel, 8192, 20, 3, 1, 0, FT_CURVE_TAG_ON    );
+    flower_init( &daisy, 8192, 20, 4, 1, 0, FT_CURVE_TAG_CONIC );
+    flower_init( &aster, 8192, 20, 5, 1, 1, FT_CURVE_TAG_CUBIC );
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_LIGHT );
 

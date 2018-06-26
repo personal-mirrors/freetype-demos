@@ -1,3 +1,11 @@
+2018-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Improve stress test glyphs.
+
+	* src/ftstring.c (wheel_init): Integrate into...
+	(flower_init): ...this function.
+	(main): Improve appearance of stress test glyphs.
+
 2018-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Display glyphs to stress test rendering.
