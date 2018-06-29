@@ -1,3 +1,16 @@
+2018-06-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid, ftview, ftstring] Update font and encoding handling.
+
+	* src/ftcommon.c (my_face_requester): Check `cmap_index' range.
+	(FTDemo_Install_Font): `cmap_index' obeys `handle->encoding' here,
+	and postpone setting `num_indices'.
+	(FTDemo_Set_Current_Font): `handle->encoding' obeys `cmap_index' here,
+	also set `num_indices' accordingly.
+
+	* src/ftview.c (event_encoding_change): Simplify by calling
+	`FTDemo_Set_Current_Font'.
+
 2018-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Improve stress test glyphs.

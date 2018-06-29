@@ -1024,43 +1024,9 @@
     else
       font->cmap_index = 0;
 
-    error = FTC_Manager_LookupFace( handle->cache_manager,
-                                    handle->scaler.face_id, &face );
+    FTDemo_Set_Current_Font( handle, font );
 
-    if ( font->cmap_index < face->num_charmaps )
-    {
-      handle->encoding = face->charmaps[font->cmap_index]->encoding;
-      status.offset    = 0x20;
-    }
-    else
-    {
-      handle->encoding = FT_ENCODING_ORDER;
-      status.offset    = 0;
-    }
-
-    switch ( handle->encoding )
-    {
-    case FT_ENCODING_ORDER:
-      font->num_indices = face->num_glyphs;
-      break;
-
-    case FT_ENCODING_UNICODE:
-      font->num_indices = 0x110000L;
-      break;
-
-    case FT_ENCODING_ADOBE_LATIN_1:
-    case FT_ENCODING_ADOBE_STANDARD:
-    case FT_ENCODING_ADOBE_EXPERT:
-    case FT_ENCODING_ADOBE_CUSTOM:
-    case FT_ENCODING_APPLE_ROMAN:
-      font->num_indices = 0x100L;
-      break;
-
-    /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
-    case FT_ENCODING_MS_SYMBOL:
-    default:
-      font->num_indices = 0x10000L;
-    }
+    status.offset = handle->encoding == FT_ENCODING_ORDER ? 0 : 0x20;
 
     return 1;
   }

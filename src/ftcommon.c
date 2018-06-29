@@ -264,7 +264,7 @@
           *suffix = '\0';
       }
 
-      if ( (*aface)->charmaps )
+      if ( (*aface)->charmaps && font->cmap_index < (*aface)->num_charmaps )
         (*aface)->charmap = (*aface)->charmaps[font->cmap_index];
     }
 
@@ -428,13 +428,6 @@
           continue;
         }
 
-        if ( handle->encoding != FT_ENCODING_ORDER )
-        {
-          error = FT_Select_Charmap( face, (FT_Encoding)handle->encoding );
-          if ( error )
-            handle->encoding = FT_ENCODING_ORDER;
-        }
-
         font = (PFont)malloc( sizeof ( *font ) );
 
         /* We allocate four more bytes since we want to attach an AFM */
@@ -444,8 +437,13 @@
         strcpy( (char*)font->filepathname, filename );
 
         font->face_index = ( j << 16 ) + i;
-        font->cmap_index = face->charmap ? FT_Get_Charmap_Index( face->charmap )
-                                         : 0;
+
+        if ( handle-> encoding != FT_ENCODING_ORDER                      &&
+             FT_Select_Charmap( face, (FT_Encoding)handle->encoding ) ==
+                                                               FT_Err_Ok )
+          font->cmap_index = FT_Get_Charmap_Index( face->charmap );
+        else
+          font->cmap_index = face->num_charmaps;  /* FT_ENCODING_ORDER */
 
         if ( handle->preload )
         {
@@ -496,32 +494,6 @@
           font->file_size    = 0;
         }
 
-        switch ( handle->encoding )
-        {
-        case FT_ENCODING_ORDER:
-          font->num_indices = face->num_glyphs;
-          break;
-
-        case FT_ENCODING_UNICODE:
-          font->num_indices = 0x110000L;
-          break;
-
-        case FT_ENCODING_ADOBE_LATIN_1:
-        case FT_ENCODING_ADOBE_STANDARD:
-        case FT_ENCODING_ADOBE_EXPERT:
-        case FT_ENCODING_ADOBE_CUSTOM:
-        case FT_ENCODING_APPLE_ROMAN:
-          font->num_indices = 0x100L;
-          break;
-
-          /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
-        case FT_ENCODING_MS_SYMBOL:
-          font->num_indices = 0x10000L;
-
-        default:
-          font->num_indices = 0x10000L;
-        }
-
         FT_Done_Face( face );
         face = NULL;
 
@@ -555,8 +527,45 @@
   FTDemo_Set_Current_Font( FTDemo_Handle*  handle,
                            PFont           font )
   {
+    FT_Face  face;
+
+
     handle->current_font   = font;
     handle->scaler.face_id = (FTC_FaceID)font;
+
+    error = FTC_Manager_LookupFace( handle->cache_manager,
+                                    handle->scaler.face_id, &face );
+
+    if ( font->cmap_index < face->num_charmaps )
+      handle->encoding = face->charmaps[font->cmap_index]->encoding;
+    else
+      handle->encoding = FT_ENCODING_ORDER;
+
+    switch ( handle->encoding )
+    {
+    case FT_ENCODING_ORDER:
+      font->num_indices = face->num_glyphs;
+      break;
+
+    case FT_ENCODING_UNICODE:
+      font->num_indices = 0x110000L;
+      break;
+
+    case FT_ENCODING_ADOBE_LATIN_1:
+    case FT_ENCODING_ADOBE_STANDARD:
+    case FT_ENCODING_ADOBE_EXPERT:
+    case FT_ENCODING_ADOBE_CUSTOM:
+    case FT_ENCODING_APPLE_ROMAN:
+      font->num_indices = 0x100L;
+      break;
+
+    /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
+    case FT_ENCODING_MS_SYMBOL:
+      font->num_indices = 0x10000L;
+
+    default:
+      font->num_indices = 0x10000L;
+    }
 
     handle->string_reload = 1;
   }
