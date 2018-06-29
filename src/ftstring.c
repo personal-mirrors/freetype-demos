@@ -92,7 +92,6 @@
 
     FTDemo_String_Context  sc;
 
-    FT_Byte    gamma_ramp[256];   /* for show only */
     FT_Matrix  trans_matrix;
     int        font_index;
     char*      header;
@@ -100,7 +99,7 @@
 
   } status = { DIM, RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 0, NULL,
                { 0, 0, 0x8000, 0, NULL },
-               { 0 }, { 0, 0, 0, 0 }, 0, NULL, { 0 } };
+               { 0, 0, 0, 0 }, 0, NULL, { 0 } };
 
   static FTDemo_Display*  display;
   static FTDemo_Handle*   handle;
@@ -368,10 +367,6 @@
   static void
   event_gamma_change( double  delta )
   {
-    int     i;
-    double  p;
-
-
     display->gamma += delta;
 
     if ( display->gamma > 3.0 )
@@ -380,14 +375,6 @@
       display->gamma = 0.1;
 
     grSetGlyphGamma( display->gamma );
-
-    /* power function calculated using finite differences */
-    for ( p = 1.0, i = 255; i > 0; i-- )
-    {
-      status.gamma_ramp[i] = (FT_Byte)( p * 255. + 0.5 );
-      p -= display->gamma * p / i;
-    }
-    status.gamma_ramp[i] = 0;
   }
 
 
@@ -558,26 +545,6 @@
     }
 
     return ret;
-  }
-
-
-  static void
-  gamma_ramp_draw( FT_Byte    gamma_ramp[256],
-                   grBitmap*  bitmap )
-  {
-    int       i, x, y;
-    int       bpp = bitmap->pitch / bitmap->width;
-    FT_Byte*  p = (FT_Byte*)bitmap->buffer;
-
-
-    if ( bitmap->pitch < 0 )
-      p += -bitmap->pitch * ( bitmap->rows - 1 );
-
-    x = ( bitmap->width - 256 ) / 2;
-    y = ( bitmap->rows + 256 ) / 2;
-
-    for (i = 0; i < 256; i++)
-      p[bitmap->pitch * ( y - i ) + bpp * ( x + gamma_ramp[i] )] ^= 0xFF;
   }
 
 
@@ -766,8 +733,6 @@
     do
     {
       FTDemo_Display_Clear( display );
-
-      gamma_ramp_draw( status.gamma_ramp, display->bitmap );
 
       switch ( status.render_mode )
       {

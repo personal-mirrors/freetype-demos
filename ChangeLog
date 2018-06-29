@@ -1,5 +1,14 @@
 2018-06-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftstring] Ditch gamma ramp.
+
+	* src/ftstring.c (status): `gamma_ramp' removed.
+	(gamma_ramp_draw): Remove.
+	(event_gamma_change): Remove setting `gamma_ramp'.
+	* src/ftstring.1: Mention stress test glyphs.
+
+2018-06-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid, ftview, ftstring] Update font and encoding handling.
 
 	* src/ftcommon.c (my_face_requester): Check `cmap_index' range.
