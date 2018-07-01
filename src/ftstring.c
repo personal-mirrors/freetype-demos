@@ -231,8 +231,11 @@
     grWriteln( "  Page Up   : increase pointsize by 10 units" );
     grWriteln( "  Page Down : decrease pointsize by 10 units" );
     grLn();
-    grWriteln( "  Right     : rotate counter-clockwise" );
-    grWriteln( "  Left      : rotate clockwise" );
+    grWriteln( "  Left      : move left" );
+    grWriteln( "  Right     : move right" );
+    grLn();
+    grWriteln( "  F5        : rotate counter-clockwise" );
+    grWriteln( "  F6        : rotate clockwise" );
     grWriteln( "  F7        : big rotate counter-clockwise" );
     grWriteln( "  F8        : big rotate clockwise" );
     grLn();
@@ -257,6 +260,18 @@
     FTDemo_Update_Current_Flags( handle );
 
     FTDemo_String_Set( handle, status.text );
+  }
+
+
+  static void
+  event_center_change( FT_Fixed  delta )
+  {
+    status.sc.center += delta;
+
+    if ( status.sc.center > 0x10000 )
+      status.sc.center = 0x10000;
+    else if ( status.sc.center < 0 )
+      status.sc.center = 0;
   }
 
 
@@ -535,10 +550,13 @@
     case grKeyPageUp:   event_size_change(  640 ); break;
     case grKeyPageDown: event_size_change( -640 ); break;
 
-    case grKeyLeft:  event_angle_change(    -3 ); break;
-    case grKeyRight: event_angle_change(     3 ); break;
-    case grKeyF7:    event_angle_change(   -30 ); break;
-    case grKeyF8:    event_angle_change(    30 ); break;
+    case grKeyLeft:  event_center_change(  0x800 ); break;
+    case grKeyRight: event_center_change( -0x800 ); break;
+
+    case grKeyF5: event_angle_change(  -3 ); break;
+    case grKeyF6: event_angle_change(   3 ); break;
+    case grKeyF7: event_angle_change( -30 ); break;
+    case grKeyF8: event_angle_change(  30 ); break;
 
     default:
       break;

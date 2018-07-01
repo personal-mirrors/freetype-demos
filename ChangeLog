@@ -1,4 +1,13 @@
-2018-06-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2018-06-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Implement string shifts.
+
+	* src/ftstring.c (event_center_change): New function.
+	(Process_Event): Shift the string with left-right arrows, rotate it
+	with F5-F6.
+	(event_help): Document it.
+
+2018-06-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftcommon.c (FTDemo_Get_Index): Handle `FT_ENCODING_ORDER'.
 
