@@ -733,12 +733,17 @@
   FTDemo_Get_Index( FTDemo_Handle*  handle,
                     FT_UInt32       charcode )
   {
-    FTC_FaceID  face_id = handle->scaler.face_id;
-    PFont       font    = handle->current_font;
+    if ( handle->encoding != FT_ENCODING_ORDER )
+    {
+      FTC_FaceID  face_id = handle->scaler.face_id;
+      PFont       font    = handle->current_font;
 
 
-    return FTC_CMapCache_Lookup( handle->cmap_cache, face_id,
-                                 font->cmap_index, charcode );
+      return FTC_CMapCache_Lookup( handle->cmap_cache, face_id,
+                                   font->cmap_index, charcode );
+    }
+    else
+      return (FT_UInt)charcode;
   }
 
 
@@ -849,6 +854,7 @@
     if ( idx >= 0 )
     {
       const char*  encoding = NULL;
+      FT_UInt      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
 
 
       switch ( handle->encoding )
@@ -904,23 +910,14 @@
                           encoding, idx );
       else if ( handle->encoding == FT_ENCODING_UNICODE )
         x = sprintf( buf, "%s charcode: U+%04X (glyph idx %d)",
-                          encoding, idx,
-                          FTDemo_Get_Index( handle, (FT_UInt32)idx ) );
+                          encoding, idx, glyph_idx );
       else
         x = sprintf( buf, "%s charcode: 0x%X (glyph idx %d)",
-                          encoding, idx,
-                          FTDemo_Get_Index( handle, (FT_UInt32)idx ) );
+                          encoding, idx, glyph_idx );
 
       if ( FT_HAS_GLYPH_NAMES( face ) )
       {
-        unsigned int  glyph_idx;
-
-
         x += sprintf( buf + x, ", name: " );
-
-        glyph_idx = (unsigned int)idx;
-        if ( handle->encoding != FT_ENCODING_ORDER )
-          glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
 
         FT_Get_Glyph_Name( face, glyph_idx, buf + x, (FT_UInt)( 256 - x ) );
       }
@@ -1314,10 +1311,7 @@
 
       codepoint = (unsigned long)ch;
 
-      if ( handle->encoding != FT_ENCODING_ORDER )
-        glyph->glyph_index = FTDemo_Get_Index( handle, codepoint );
-      else
-        glyph->glyph_index = codepoint;
+      glyph->glyph_index = FTDemo_Get_Index( handle, codepoint );
 
       glyph++;
       handle->string_length++;

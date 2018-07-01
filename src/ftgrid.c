@@ -579,10 +579,7 @@
     if ( err )
       return;
 
-    if ( handle->encoding == FT_ENCODING_ORDER )
-      glyph_idx = (FT_UInt)st->Num;
-    else
-      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)st->Num );
+    glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)st->Num );
 
 #ifdef FT_DEBUG_AUTOFIT
     _af_debug_disable_horz_hints = !st->do_horz_hints;

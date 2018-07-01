@@ -212,10 +212,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( handle->encoding == FT_ENCODING_ORDER )
-        glyph_idx = (FT_UInt)i;
-      else
-        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
+      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FT_Load_Glyph( face, glyph_idx,
                              handle->load_flags | FT_LOAD_NO_BITMAP );
@@ -325,10 +322,7 @@
       FT_UInt  glyph_idx;
 
 
-      if ( handle->encoding == FT_ENCODING_ORDER )
-        glyph_idx = (FT_UInt)i;
-      else
-        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
+      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FT_Load_Glyph( face, glyph_idx, handle->load_flags );
       if ( error )
@@ -445,10 +439,7 @@
       FT_UInt  layer_color_idx;
 
 
-      if ( handle->encoding == FT_ENCODING_ORDER )
-        glyph_idx = (FT_UInt)i;
-      else
-        glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
+      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       /* check whether we have glyph color layers */
       iterator.p       = NULL;
@@ -1016,7 +1007,6 @@
   event_encoding_change( void )
   {
     PFont    font = handle->current_font;
-    FT_Face  face;
 
 
     if ( handle->encoding != FT_ENCODING_ORDER )

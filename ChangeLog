@@ -1,10 +1,19 @@
 2018-06-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftcommon.c (FTDemo_Get_Index): Handle `FT_ENCODING_ORDER'.
+
+	* src/ftcommon.c (FTDemo_Draw_Header, FTDemo_String_Set),
+	src/ftview.c (Render_{All,Stroke,Fancy}),
+	src/ftgrid.c (grid_status_draw_outline): Simplified accordingly.
+
+2018-06-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftstring] Ditch gamma ramp.
 
 	* src/ftstring.c (status): `gamma_ramp' removed.
 	(gamma_ramp_draw): Remove.
 	(event_gamma_change): Remove setting `gamma_ramp'.
+
 	* src/ftstring.1: Mention stress test glyphs.
 
 2018-06-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
