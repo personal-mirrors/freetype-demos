@@ -1,3 +1,10 @@
+2018-07-02  Hugh McMaster  <hugh.mcmaster@outlook.com>
+
+	Fix memory leak (patch #9666).
+
+	* src/ftcommon.c (FTDemo_Install_Font): Always free
+	`font->filepathname'.
+
 2018-07-02  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftview.c (Render_All): Update `FT_Get_Color_Glyph_Layer' call.

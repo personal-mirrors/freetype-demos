@@ -453,6 +453,7 @@
 
           if ( file == NULL )  /* shouldn't happen */
           {
+            free( (void*)font->filepathname );
             free( font );
             return FT_Err_Invalid_Argument;
           }
