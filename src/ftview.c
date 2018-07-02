@@ -435,6 +435,7 @@
       FT_LayerIterator  iterator;
       FT_UInt           glyph_idx;
 
+      FT_Bool  have_layers;
       FT_UInt  layer_glyph_idx;
       FT_UInt  layer_color_idx;
 
@@ -442,13 +443,14 @@
       glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       /* check whether we have glyph color layers */
-      iterator.p       = NULL;
-      layer_glyph_idx  = FT_Get_Color_Glyph_Layer( face,
-                                                   glyph_idx,
-                                                   &layer_color_idx,
-                                                   &iterator );
+      iterator.p  = NULL;
+      have_layers = FT_Get_Color_Glyph_Layer( face,
+                                              glyph_idx,
+                                              &layer_glyph_idx,
+                                              &layer_color_idx,
+                                              &iterator );
 
-      if ( palette && layer_glyph_idx /* && XXX handle->use_layers */ )
+      if ( palette && have_layers /* && XXX handle->use_layers */ )
       {
         FT_Int32  load_flags = handle->load_flags;
 
@@ -482,11 +484,11 @@
                                    &bitmap_offset,
                                    palette[layer_color_idx] );
 
-        } while ( ( layer_glyph_idx =
-                    FT_Get_Color_Glyph_Layer( face,
-                                              glyph_idx,
-                                              &layer_color_idx,
-                                              &iterator ) ) != 0 );
+        } while ( FT_Get_Color_Glyph_Layer( face,
+                                            glyph_idx,
+                                            &layer_glyph_idx,
+                                            &layer_color_idx,
+                                            &iterator ) );
 
         if ( error )
         {

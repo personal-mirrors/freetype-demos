@@ -1,3 +1,9 @@
+2018-07-02  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftview.c (Render_All): Update `FT_Get_Color_Glyph_Layer' call.
+
+	The function's signature was changed on 2018-07-02.
+
 2018-06-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Implement string shifts.
