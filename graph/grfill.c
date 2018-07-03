@@ -231,7 +231,7 @@ grFillRect( grBitmap*   target,
   int              delta;
   unsigned char*   line;
   grFillHLineFunc  hline_func;
-  size_t           size = 0;
+  int              size = 0;
 
   if ( x < 0 )
   {
@@ -271,7 +271,7 @@ grFillRect( grBitmap*   target,
     size += 2;
     hline_func( line, x, width, color );
     for ( line += size * x; --height > 0; line += target->pitch )
-      memcpy( line + target->pitch, line, size * width );
+      memcpy( line + target->pitch, line, (size_t)size * (size_t)width );
     break;
 
   case gr_pixel_mode_gray:

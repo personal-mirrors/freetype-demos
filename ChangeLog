@@ -1,3 +1,15 @@
+2018-07-03  Werner Lemberg  <wl@gnu.org>
+
+	Fix some clang warnings.
+
+	* graph/grfill.c (grFillRect): Use `int' for `size'.
+
+	* src/ftstring.c (flower_init): Use `unsigned int' for `i'.
+	Simplify some loops.
+
+	* src/ftview.c (parse_cmdline) <'L'>: Use `unsigned char' casts.
+	(main): Add `FT_LcdFilter' cast.
+
 2018-07-02  Hugh McMaster  <hugh.mcmaster@outlook.com>
 
 	Fix memory leak (patch #9666).

@@ -1752,11 +1752,11 @@
                                FT_Err_Unimplemented_Feature    &&
                i == 5                                          )
           {
-            status.filter_weights[0] = buf[0];
-            status.filter_weights[1] = buf[1];
-            status.filter_weights[2] = buf[2];
-            status.filter_weights[3] = buf[3];
-            status.filter_weights[4] = buf[4];
+            status.filter_weights[0] = (unsigned char)buf[0];
+            status.filter_weights[1] = (unsigned char)buf[1];
+            status.filter_weights[2] = (unsigned char)buf[2];
+            status.filter_weights[3] = (unsigned char)buf[3];
+            status.filter_weights[4] = (unsigned char)buf[4];
 
             FT_Library_SetLcdFilterWeights( handle->library,
                                             status.filter_weights );
@@ -1846,7 +1846,8 @@
     parse_cmdline( &argc, &argv );
 
     if ( status.lcd_filter != -1 )
-      FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
+      FT_Library_SetLcdFilter( handle->library,
+                               (FT_LcdFilter)status.lcd_filter );
 
     /* get the default values as compiled into FreeType */
     FT_Property_Get( handle->library,

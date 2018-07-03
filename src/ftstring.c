@@ -108,16 +108,17 @@
 
 
   static void
-  flower_init( FT_Glyph*   glyph,
-               FT_F26Dot6  radius,
-               int         i,
-               int         v,
-               int         w,
-               int         reflect,
-               char        order )
+  flower_init( FT_Glyph*     glyph,
+               FT_F26Dot6    radius,
+               unsigned int  i,
+               int           v,
+               int           w,
+               int           reflect,
+               char          order )
   {
     FT_Outline*  outline;
     FT_Vector*   vec;
+    FT_Vector*   limit;
     char*        tag;
     FT_Fixed     s = FT_Sin( FT_ANGLE_PI4 / i );
     FT_Pos       b, d, p = 0, q = radius;
@@ -152,12 +153,14 @@
        q = d;
     }
 
+    limit = outline->points + outline->n_points;
+
     if ( reflect & 1 )
-      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
+      for( vec = outline->points; vec < limit; vec++ )
         vec->x = -vec->x;
 
     if ( reflect & 2 )
-      for( vec = outline->points, i = 0; i < outline->n_points; i++, vec++ )
+      for( vec = outline->points; vec < limit; vec++ )
         vec->y = -vec->y;
   }
 
