@@ -1,3 +1,12 @@
+2018-07-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Implement waterfall as mode 2.
+
+	* src/ftstring.c (Render_String, Render_KernCmp): Extracted from ...
+	(main): ... here.
+	(Render_Waterfall): New mode function based on ftview.
+	(event_help): Updated.
+
 2018-07-03  Werner Lemberg  <wl@gnu.org>
 
 	Fix some clang warnings.

@@ -75,6 +75,7 @@
   enum
   {
     RENDER_MODE_STRING,
+    RENDER_MODE_WATERFALL,
     RENDER_MODE_KERNCMP,
     N_RENDER_MODES
   };
@@ -215,7 +216,7 @@
     grWriteln( "  f         : toggle forced auto-hinting" );
     grWriteln( "  h         : toggle outline hinting" );
     grLn();
-    grWriteln( "  1-2       : select rendering mode" );
+    grWriteln( "  1-3       : select rendering mode" );
     grWriteln( "  l         : cycle through anti-aliasing modes" );
     grWriteln( "  k         : cycle through kerning modes" );
     grWriteln( "  t         : cycle through kerning degrees" );
@@ -424,6 +425,7 @@
     switch ( status.render_mode )
     {
     case RENDER_MODE_STRING:
+    case RENDER_MODE_WATERFALL:
       status.header = NULL;
       break;
 
@@ -695,6 +697,119 @@
   }
 
 
+  static FT_Error
+  Render_String( void )
+  {
+    int x, y = display->bitmap->rows - 4;
+
+
+    x = 4;
+    FTDemo_Draw_Glyph( handle, display, daisy, &x, &y );
+
+    x = display->bitmap->width - 4;
+    FTDemo_Draw_Glyph( handle, display, aster, &x, &y );
+
+    FTDemo_String_Draw( handle, display,
+                        &status.sc,
+                        FT_MulFix( display->bitmap->width, status.sc.center),
+                        display->bitmap->rows / 2 );
+
+    return FT_Err_Ok;
+  }
+
+
+  static FT_Error
+  Render_Waterfall( void )
+  {
+    int      pt_size = status.ptsize, step, pt_height;
+    int      start_y = 40, step_y, y;
+    FT_Size  size;
+
+
+    pt_height = 64 * 72 * display->bitmap->rows / status.res;
+    step      = ( pt_size * pt_size / pt_height + 64 ) & ~63;
+    pt_size   = pt_size - step * ( pt_size / step ); /* remainder */
+
+    while ( 1 )
+    {
+      pt_size += step;
+
+      FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
+
+      error = FTDemo_Get_Size( handle, &size );
+      if ( error )
+      {
+        /* probably a non-existent bitmap font size */
+        continue;
+      }
+
+      step_y = ( size->metrics.height >> 6 ) + 1;
+
+      y = start_y + ( size->metrics.ascender >> 6 );
+
+      start_y += step_y;
+
+      if ( y >= display->bitmap->rows )
+        break;
+
+      FTDemo_String_Draw( handle, display,
+                          &status.sc,
+                          FT_MulFix( display->bitmap->width, status.sc.center),
+                          y );
+    }
+
+    FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
+    FTDemo_Get_Size( handle, &size );
+
+    return FT_Err_Ok;
+  }
+
+
+  static FT_Error
+  Render_KernCmp( void )
+  {
+    FT_Size                size;
+    FTDemo_String_Context  sc = { 0, 0, 0, 0, NULL };
+    FT_Int                 x, y;
+    FT_Int                 height;
+
+
+    x = 55;
+
+    FTDemo_Get_Size( handle, &size );
+    height = size->metrics.y_ppem;
+    if ( height < CELLSTRING_HEIGHT )
+      height = CELLSTRING_HEIGHT;
+
+    /* First line: none */
+    y = CELLSTRING_HEIGHT * 2 + display->bitmap->rows / 4 + height;
+    grWriteCellString( display->bitmap, 5,
+                       y - ( height + CELLSTRING_HEIGHT ) / 2,
+                       "none", display->fore_color );
+    error = FTDemo_String_Draw( handle, display, &sc, x, y );
+
+    /* Second line: track kern only */
+    sc.kerning_degree = status.sc.kerning_degree;
+
+    y += height;
+    grWriteCellString( display->bitmap, 5,
+                       y - ( height + CELLSTRING_HEIGHT ) / 2,
+                       "track", display->fore_color );
+    error = FTDemo_String_Draw( handle, display, &sc, x, y );
+
+    /* Third line: track kern + pair kern */
+    sc.kerning_mode = status.sc.kerning_mode;
+
+    y += height;
+    grWriteCellString( display->bitmap, 5,
+                       y - ( height + CELLSTRING_HEIGHT ) / 2,
+                       "both", display->fore_color );
+    error = FTDemo_String_Draw( handle, display, &sc, x, y );
+
+    return error;
+  }
+
+
   int
   main( int     argc,
         char**  argv )
@@ -758,63 +873,15 @@
       switch ( status.render_mode )
       {
       case RENDER_MODE_STRING:
-        {
-          int x, y = display->bitmap->rows - 4;
+        error = Render_String();
+        break;
 
-
-          x = 4;
-          FTDemo_Draw_Glyph( handle, display, daisy, &x, &y );
-
-          x = display->bitmap->width - 4;
-          FTDemo_Draw_Glyph( handle, display, aster, &x, &y );
-        }
-
-        error = FTDemo_String_Draw( handle, display,
-                                    &status.sc,
-                                    display->bitmap->width / 2,
-                                    display->bitmap->rows / 2 );
+      case RENDER_MODE_WATERFALL:
+        error = Render_Waterfall();
         break;
 
       case RENDER_MODE_KERNCMP:
-        {
-          FT_Size                size;
-          FTDemo_String_Context  sc = { 0, 0, 0, 0, NULL };
-          FT_Int                 x, y;
-          FT_Int                 height;
-
-
-          x = 55;
-
-          FTDemo_Get_Size( handle, &size );
-          height = size->metrics.y_ppem;
-          if ( height < CELLSTRING_HEIGHT )
-            height = CELLSTRING_HEIGHT;
-
-          /* First line: none */
-          y = CELLSTRING_HEIGHT * 2 + display->bitmap->rows / 4 + height;
-          grWriteCellString( display->bitmap, 5,
-                             y - ( height + CELLSTRING_HEIGHT ) / 2,
-                             "none", display->fore_color );
-          error = FTDemo_String_Draw( handle, display, &sc, x, y );
-
-          /* Second line: track kern only */
-          sc.kerning_degree = status.sc.kerning_degree;
-
-          y += height;
-          grWriteCellString( display->bitmap, 5,
-                             y - ( height + CELLSTRING_HEIGHT ) / 2,
-                             "track", display->fore_color );
-          error = FTDemo_String_Draw( handle, display, &sc, x, y );
-
-          /* Third line: track kern + pair kern */
-          sc.kerning_mode = status.sc.kerning_mode;
-
-          y += height;
-          grWriteCellString( display->bitmap, 5,
-                             y - ( height + CELLSTRING_HEIGHT ) / 2,
-                             "both", display->fore_color );
-          error = FTDemo_String_Draw( handle, display, &sc, x, y );
-        }
+        error = Render_KernCmp();
         break;
       }
 
