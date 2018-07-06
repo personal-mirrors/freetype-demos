@@ -1,3 +1,8 @@
+2018-07-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grfont.c (grGotobitmap): Initialize color here...
+	(grWrite): ... instead of here.
+
 2018-07-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Implement waterfall as mode 2.
