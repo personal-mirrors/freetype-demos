@@ -618,9 +618,9 @@
     "MDRP[mrB]",     /*                                     */
     "MDRP[mrW]",     /*                                     */
     "MDRP[mr?]",     /*                                     */
+
     "MDRP[pG]",      /*                                     */
     "MDRP[pB]",      /*                                     */
-
     "MDRP[pW]",      /*                                     */
     "MDRP[p?]",      /*                                     */
     "MDRP[prG]",     /*                                     */
@@ -652,9 +652,9 @@
     "MIRP[mrB]",     /*                                     */
     "MIRP[mrW]",     /*                                     */
     "MIRP[mr?]",     /*                                     */
+
     "MIRP[pG]",      /*                                     */
     "MIRP[pB]",      /*                                     */
-
     "MIRP[pW]",      /*                                     */
     "MIRP[p?]",      /*                                     */
     "MIRP[prG]",     /*                                     */
