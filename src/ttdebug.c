@@ -1973,6 +1973,7 @@
       "\n"
       "  -I ver    Use TT interpreter version VER.\n"
       "            Available versions are %s; default is version %d.\n"
+      "  -f idx    Access font IDX if input file is a TTC (default: 0).\n"
       "  -v        Show version.\n"
       "\n"
       "While running, press the `?' key for help.\n"
@@ -2002,6 +2003,7 @@
                                   TT_INTERPRETER_VERSION_38,
                                   TT_INTERPRETER_VERSION_40 };
     int           version;
+    int           face_index = 0;
 
     int  tmp;
 
@@ -2052,7 +2054,7 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "I:v" );
+      option = getopt( argc, argv, "I:f:v" );
 
       if ( option == -1 )
         break;
@@ -2084,6 +2086,10 @@
           printf( "invalid TrueType interpreter version = %d\n", version );
           Usage( execname );
         }
+        break;
+
+      case 'f':
+        face_index = atoi( optarg );
         break;
 
       case 'v':
@@ -2133,7 +2139,7 @@
 
     while ( !error )
     {
-      error = FT_New_Face( library, file_name, 0, (FT_Face*)&face );
+      error = FT_New_Face( library, file_name, face_index, (FT_Face*)&face );
       if ( error )
         Abort( "could not open input font file" );
 

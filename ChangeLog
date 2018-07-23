@@ -1,3 +1,10 @@
+2018-07-23  Hin-Tak Leung <htl10@users.sourceforge.net>
+
+	[ttdebug] Add option `-f' to access non-first member of TTC.
+
+	* src/ttdebug.1, src/ttdebug.c: Add a `-f face_index' switch to
+	access non-first member of a TTC, plus updating the man page.
+
 2018-07-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grfont.c (grGotobitmap): Initialize color here...
