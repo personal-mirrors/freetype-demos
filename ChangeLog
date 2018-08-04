@@ -1,3 +1,10 @@
+2018-08-04  Werner Lemberg  <wl@gnu.org>
+
+	Fix clang warnings.
+
+	* src/ftstring.c (Process_Event), src/ftview.c (Process_Event): Add
+	cast.
+
 2018-07-23  Hin-Tak Leung <htl10@users.sourceforge.net>
 
 	[ttdebug] Add option `-f' to access non-first member of TTC.

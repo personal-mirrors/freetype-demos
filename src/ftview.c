@@ -1061,7 +1061,7 @@
       return ret;
     if ( event->key >= '1' && event->key < '1' + N_RENDER_MODES )
     {
-      status.render_mode = event->key - '1';
+      status.render_mode = (int)( event->key - '1' );
       event_render_mode_change( 0 );
       status.update = 1;
       return ret;
