@@ -236,14 +236,15 @@
       const char*  format = FT_Get_Font_Format( *aface );
 
 
-      if ( !strcmp( format, "Type 1" ) )
+      if ( !strcmp( format, "Type 1" ) || !strcmp( format, "GF" ) || !strcmp( format, "PK" ) )
       {
         char   orig[5];
         char*  suffix        = (char*)strrchr( font->filepathname, '.' );
         int    has_extension = suffix                                &&
                                ( strcasecmp( suffix, ".pfa" ) == 0 ||
-                                 strcasecmp( suffix, ".pfb" ) == 0 );
-
+                                 strcasecmp( suffix, ".pfb" ) == 0 ||
+                                 strcasecmp( suffix, ".600gf" ) == 0  ||
+                                 strcasecmp( suffix, ".600pk" ) == 0 );
 
         if ( has_extension )
           memcpy( orig, suffix, 5 );
@@ -251,10 +252,23 @@
           /* we have already allocated four more bytes */
           suffix = (char*)font->filepathname + strlen( font->filepathname );
 
-        memcpy( suffix, ".afm", 5 );
-        if ( FT_Attach_File( *aface, font->filepathname ) )
+        if( !strcmp( format, "Type 1" ) )
         {
-          memcpy( suffix, ".pfm", 5 );
+          memcpy( suffix, ".afm", 5 );
+          if ( FT_Attach_File( *aface, font->filepathname ) )
+          {
+            memcpy( suffix, ".pfm", 5 );
+            FT_Attach_File( *aface, font->filepathname );
+          }
+        }
+        else if( !strcmp( format, "GF" ) )
+        {
+          memcpy( suffix, ".tfm", 5 );
+          FT_Attach_File( *aface, font->filepathname );
+        }
+        else if( !strcmp( format, "PK" ) )
+        {
+          memcpy( suffix, ".tfm", 5 );
           FT_Attach_File( *aface, font->filepathname );
         }
 
