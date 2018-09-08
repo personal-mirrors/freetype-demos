@@ -235,6 +235,8 @@
 
         /* extra space between glyphs */
         x++;
+        if ( slot->advance.x == 0 )
+          x += size->metrics.y_ppem / 2;
 
         if ( X_TOO_LONG( x, slot, display ) )
         {
@@ -375,6 +377,8 @@
 
       /* extra space between glyphs */
       x++;
+      if ( slot->advance.x == 0 )
+        x += size->metrics.y_ppem / 2;
 
       if ( X_TOO_LONG( x, slot, display ) )
       {
@@ -519,6 +523,8 @@
 
       /* extra space between glyphs */
       x++;
+      if ( slot->advance.x == 0 )
+        x += size->metrics.y_ppem / 2;
 
       if ( X_TOO_LONG( x, slot, display ) )
       {

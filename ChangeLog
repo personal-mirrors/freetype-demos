@@ -1,5 +1,12 @@
 2018-09-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftview] Extra space for zero-width glyphs.
+
+	* src/ftview.c (Render_{Stroke,Fancy,All}): Add half ppem to
+	zero-width glyphs.
+
+2018-09-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftview] Handle extra space differently.
 
 	* src/ftcommon.c (FTDemo_Draw_{Index,Glyph_Color}): Move extra pixel
