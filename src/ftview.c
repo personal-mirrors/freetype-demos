@@ -233,6 +233,9 @@
           goto Next;
         }
 
+        /* extra space between glyphs */
+        x++;
+
         if ( X_TOO_LONG( x, slot, display ) )
         {
           x  = start_x;
@@ -369,6 +372,9 @@
 
       if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
         slot->bitmap_top += ystr >> 6;
+
+      /* extra space between glyphs */
+      x++;
 
       if ( X_TOO_LONG( x, slot, display ) )
       {
@@ -511,6 +517,8 @@
           goto Next;
       }
 
+      /* extra space between glyphs */
+      x++;
 
       if ( X_TOO_LONG( x, slot, display ) )
       {
@@ -612,9 +620,6 @@
         have_topleft   = 1;
         status.topleft = ch;
       }
-
-      /* Draw_Index adds one pixel space */
-      x--;
 
       if ( X_TOO_LONG( x, size, display ) )
       {
@@ -731,9 +736,6 @@
           have_topleft   = 1;
           status.topleft = ch;
         }
-
-        /* Draw_Index adds one pixel space */
-        x--;
 
         if ( X_TOO_LONG( x, size, display ) )
           break;

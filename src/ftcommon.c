@@ -1213,7 +1213,7 @@
     if ( glyf )
       FT_Done_Glyph( glyf );
 
-    *pen_x += x_advance + 1;
+    *pen_x += x_advance;
 
     return FT_Err_Ok;
   }
@@ -1248,7 +1248,7 @@
     if ( glyf )
       FT_Done_Glyph( glyf );
 
-    *pen_x += x_advance + 1;
+    *pen_x += x_advance;
 
     return FT_Err_Ok;
   }

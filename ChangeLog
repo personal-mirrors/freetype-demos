@@ -1,3 +1,12 @@
+2018-09-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Handle extra space differently.
+
+	* src/ftcommon.c (FTDemo_Draw_{Index,Glyph_Color}): Move extra pixel
+	from here...
+	* src/ftview.c (Render_{Stroke,Fancy,All}): ... to here.
+	(Render_{Waterfall,Text}): Do not compensate.
+
 2018-08-23  Werner Lemberg  <wl@gnu.org>
 
 	[ftdiff] New keys `A' to `E' to select hinting mode directly.
