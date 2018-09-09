@@ -1,3 +1,12 @@
+2018-09-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview] Draw warning box for zero-width glyphs.
+
+	* src/ftview.c ({X,Y}_TOO_LONG): Reworked the macros.
+	(Render_{Stroke,Fancy,All}): Fill the added space with a warning box
+	for zero-width glyphs.
+	(Render_{Waterfall,Text}): Updated accordingly.
+
 2018-09-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Extra space for zero-width glyphs.
