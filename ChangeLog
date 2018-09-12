@@ -1,3 +1,12 @@
+2018-09-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Keep all advances together.
+
+	* src/ftcommon.h (TGlyph): New `hadvance' field for kerned advance.
+	* src/ftcommon.c (string_load): Initialize it here.
+	(string_render_prepare): Modify it here.
+	(FTDemo_String_Draw): Use it here.
+
 2018-09-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Draw warning box for zero-width glyphs.

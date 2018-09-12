@@ -117,6 +117,7 @@
     FT_Glyph   image;    /* the glyph image */
 
     FT_Pos     delta;    /* delta caused by hinting */
+    FT_Vector  hadvance; /* kerned horizontal advance */
     FT_Vector  vvector;  /* vert. origin => hori. origin */
     FT_Vector  vadvance; /* vertical advance */
 

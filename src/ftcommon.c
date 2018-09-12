@@ -1368,6 +1368,9 @@
         glyph->vadvance.x = 0;
         glyph->vadvance.y = -metrics->vertAdvance;
 
+        glyph->hadvance.x = metrics->horiAdvance;
+        glyph->hadvance.y = 0;
+
         if ( handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
           glyph->delta = face->glyph->lsb_delta - face->glyph->rsb_delta;
         else
@@ -1390,16 +1393,13 @@
 
   static FT_Error
   string_render_prepare( FTDemo_Handle*          handle,
-                         FTDemo_String_Context*  sc,
-                         FT_Vector*              advances )
+                         FTDemo_String_Context*  sc )
   {
     FT_Face     face;
     FT_Size     size;
-    PGlyph      glyph;
+    PGlyph      glyph = handle->string;
+    PGlyph      prev  = handle->string + handle->string_length;
     FT_Pos      track_kern   = 0;
-    FT_UInt     prev_index   = 0;
-    FT_Vector*  prev_advance = NULL;
-    FT_Vector   extent       = { 0, 0 };
     FT_Int      i;
 
 
@@ -1425,77 +1425,43 @@
 
     for ( i = 0; i < handle->string_length; i++ )
     {
-      glyph = handle->string + i;
-
       if ( !glyph->image )
         continue;
 
-      if ( sc->vertical )
-        advances[i] = glyph->vadvance;
-      else
+      if ( !sc->vertical )
       {
-        advances[i]     = glyph->image->advance;
-        advances[i].x >>= 10;
-        advances[i].y >>= 10;
-
         if ( handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
-          advances[i].x += glyph->delta;
+          glyph->hadvance.x += glyph->delta;
 
-        if ( prev_advance )
+        prev->hadvance.x += track_kern;
+
+        if ( sc->kerning_mode )
         {
-          prev_advance->x += track_kern;
-
-          if ( sc->kerning_mode )
-          {
-            FT_Vector  kern;
+          FT_Vector  kern;
 
 
-            FT_Get_Kerning( face, prev_index, glyph->glyph_index,
-                FT_KERNING_UNFITTED, &kern );
+          FT_Get_Kerning( face, prev->glyph_index, glyph->glyph_index,
+                          FT_KERNING_UNFITTED, &kern );
 
-            prev_advance->x += kern.x;
-            prev_advance->y += kern.y;
+          prev->hadvance.x += kern.x;
+          prev->hadvance.y += kern.y;
 
-            if ( handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL &&
-                 sc->kerning_mode > KERNING_MODE_NORMAL      )
-              prev_advance->x += glyph->delta;
-          }
+          if ( handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL &&
+               sc->kerning_mode > KERNING_MODE_NORMAL      )
+            prev->hadvance.x += glyph->delta;
         }
       }
 
-      if ( prev_advance )
-      {
-        if ( handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL &&
-             handle->hinted                              )
-        {
-          prev_advance->x = ROUND( prev_advance->x );
-          prev_advance->y = ROUND( prev_advance->y );
-        }
-
-        extent.x += prev_advance->x;
-        extent.y += prev_advance->y;
-      }
-
-      prev_index   = glyph->glyph_index;
-      prev_advance = advances + i;
-    }
-
-    if ( prev_advance )
-    {
       if ( handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL &&
            handle->hinted                              )
       {
-        prev_advance->x = ROUND( prev_advance->x );
-        prev_advance->y = ROUND( prev_advance->y );
+        prev->hadvance.x = ROUND( prev->hadvance.x );
+        prev->hadvance.y = ROUND( prev->hadvance.y );
       }
 
-      extent.x += prev_advance->x;
-      extent.y += prev_advance->y;
+      prev = glyph;
+      glyph++;;
     }
-
-    /* store the extent in the last slot */
-    i = handle->string_length - 1;
-    advances[i] = extent;
 
     return FT_Err_Ok;
   }
@@ -1509,7 +1475,8 @@
                       int                     y )
   {
     int        n;
-    FT_Vector  pen, advances[MAX_GLYPHS];
+    FT_Vector  pen = { 0, 0};
+    FT_Vector  advance;
     FT_Size    size;
     FT_Face    face;
 
@@ -1536,15 +1503,26 @@
       handle->string_reload = 0;
     }
 
-    error = string_render_prepare( handle, sc, advances );
+    error = string_render_prepare( handle, sc );
     if ( error )
       return error;
 
     /* change to Cartesian coordinates */
     y = display->bitmap->rows - y;
 
-    /* get the extent, which we store in the last slot */
-    pen = advances[handle->string_length - 1];
+    /* calculate the extent */
+    if ( sc->vertical )
+      for ( n = 0; n < handle->string_length; n++ )
+      {
+        pen.x += handle->string[n].vadvance.x;
+        pen.y += handle->string[n].vadvance.y;
+      }
+    else
+      for ( n = 0; n < handle->string_length; n++ )
+      {
+        pen.x += handle->string[n].hadvance.x;
+        pen.y += handle->string[n].hadvance.y;
+      }
 
     pen.x = FT_MulFix( pen.x, sc->center );
     pen.y = FT_MulFix( pen.y, sc->center );
@@ -1610,11 +1588,13 @@
         }
       }
 
-      if ( sc->matrix )
-        FT_Vector_Transform( advances + n, sc->matrix );
+      advance = sc->vertical ? glyph->vadvance : glyph->hadvance;
 
-      pen.x += advances[n].x;
-      pen.y += advances[n].y;
+      if ( sc->matrix )
+        FT_Vector_Transform( &advance, sc->matrix );
+
+      pen.x += advance.x;
+      pen.y += advance.y;
 
       FT_Glyph_Get_CBox( image, FT_GLYPH_BBOX_PIXELS, &bbox );
 
