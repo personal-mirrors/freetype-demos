@@ -261,9 +261,6 @@
 
     FTDemo_Set_Current_Font( handle, handle->fonts[status.font_index] );
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
-    FTDemo_Update_Current_Flags( handle );
-
-    FTDemo_String_Set( handle, status.text );
   }
 
 
@@ -456,45 +453,37 @@
     case grKeyEsc:
     case grKEY( 'q' ):
       ret = 1;
-      break;
+      goto Exit;;
 
     case grKeyF1:
     case grKEY( '?' ):
       event_help();
-      break;
+      goto Exit;
 
     case grKEY( 'b' ):
       handle->use_sbits = !handle->use_sbits;
       status.header     = handle->use_sbits
                           ? (char *)"embedded bitmaps are now used when available"
                           : (char *)"embedded bitmaps are now ignored";
-
-      FTDemo_Update_Current_Flags( handle );
-      break;
+      goto Flags;
 
     case grKEY( 'f' ):
       handle->autohint = !handle->autohint;
       status.header     = handle->autohint
                           ? (char *)"forced auto-hinting is now on"
                           : (char *)"forced auto-hinting is now off";
-
-      FTDemo_Update_Current_Flags( handle );
-      break;
+      goto Flags;
 
     case grKEY( 'h' ):
       handle->hinted = !handle->hinted;
       status.header   = handle->hinted
                         ? (char *)"glyph hinting is now active"
                         : (char *)"glyph hinting is now ignored";
-
-      FTDemo_Update_Current_Flags( handle );
-      break;
+      goto Flags;
 
     case grKEY( 'l' ):
       event_lcdmode_change();
-
-      FTDemo_Update_Current_Flags( handle );
-      break;
+      goto Flags;
 
     case grKEY( 'k' ):
       sc->kerning_mode = ( sc->kerning_mode + 1 ) % N_KERNING_MODES;
@@ -504,7 +493,7 @@
         : sc->kerning_mode == KERNING_MODE_NORMAL
           ? (char *)"pair kerning is now active"
           : (char *)"pair kerning is now ignored";
-      break;
+      goto String;
 
     case grKEY( 't' ):
       sc->kerning_degree = ( sc->kerning_degree + 1 ) % N_KERNING_DEGREES;
@@ -516,57 +505,66 @@
           : sc->kerning_degree == KERNING_DEGREE_MEDIUM
             ? (char *)"medium track kerning active"
             : (char *)"tight track kerning active";
-      break;
+      goto String;
 
     case grKeySpace:
       event_color_change();
-      break;
+      goto Exit;
 
     case grKeyTab:
       event_text_change();
       FTDemo_String_Set( handle, status.text );
-      break;
+      goto String;
 
     case grKEY( 'V' ):
       sc->vertical  = !sc->vertical;
       status.header = sc->vertical
                       ? (char *)"using vertical layout"
                       : (char *)"using horizontal layout";
-      break;
+      goto Exit;
 
     case grKEY( 'g' ):
       event_gamma_change( 0.1 );
-      break;
+      goto Exit;
 
     case grKEY( 'v' ):
       event_gamma_change( -0.1 );
-      break;
+      goto Exit;
 
     case grKEY( 'n' ):
       event_font_change( 1 );
-      break;
+      FTDemo_String_Set( handle, status.text );
+      goto Flags;
 
     case grKEY( 'p' ):
       event_font_change( -1 );
-      break;
+      FTDemo_String_Set( handle, status.text );
+      goto Flags;
 
-    case grKeyUp:       event_size_change(   64 ); break;
-    case grKeyDown:     event_size_change(  -64 ); break;
-    case grKeyPageUp:   event_size_change(  640 ); break;
-    case grKeyPageDown: event_size_change( -640 ); break;
+    case grKeyUp:       event_size_change(   64 ); goto String;
+    case grKeyDown:     event_size_change(  -64 ); goto String;
+    case grKeyPageUp:   event_size_change(  640 ); goto String;
+    case grKeyPageDown: event_size_change( -640 ); goto String;
 
-    case grKeyLeft:  event_center_change(  0x800 ); break;
-    case grKeyRight: event_center_change( -0x800 ); break;
+    case grKeyLeft:  event_center_change(  0x800 ); goto Exit;
+    case grKeyRight: event_center_change( -0x800 ); goto Exit;
 
-    case grKeyF5: event_angle_change(  -3 ); break;
-    case grKeyF6: event_angle_change(   3 ); break;
-    case grKeyF7: event_angle_change( -30 ); break;
-    case grKeyF8: event_angle_change(  30 ); break;
+    case grKeyF5: event_angle_change(  -3 ); goto Exit;
+    case grKeyF6: event_angle_change(   3 ); goto Exit;
+    case grKeyF7: event_angle_change( -30 ); goto Exit;
+    case grKeyF8: event_angle_change(  30 ); goto Exit;
 
     default:
       break;
     }
 
+  Flags:
+    FTDemo_Update_Current_Flags( handle );
+
+  String:
+    FTDemo_String_Load( handle, &status.sc );
+
+  Exit:
     return ret;
   }
 
@@ -735,6 +733,7 @@
       pt_size += step;
 
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
+      FTDemo_String_Load( handle, &status.sc );
 
       error = FTDemo_Get_Size( handle, &size );
       if ( error )
@@ -759,7 +758,7 @@
     }
 
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
-    FTDemo_Get_Size( handle, &size );
+    FTDemo_String_Load( handle, &status.sc );
 
     return FT_Err_Ok;
   }
@@ -782,6 +781,8 @@
       height = CELLSTRING_HEIGHT;
 
     /* First line: none */
+    FTDemo_String_Load( handle, &sc );
+
     y = CELLSTRING_HEIGHT * 2 + display->bitmap->rows / 4 + height;
     grWriteCellString( display->bitmap, 5,
                        y - ( height + CELLSTRING_HEIGHT ) / 2,
@@ -790,6 +791,7 @@
 
     /* Second line: track kern only */
     sc.kerning_degree = status.sc.kerning_degree;
+    FTDemo_String_Load( handle, &sc );
 
     y += height;
     grWriteCellString( display->bitmap, 5,
@@ -799,6 +801,7 @@
 
     /* Third line: track kern + pair kern */
     sc.kerning_mode = status.sc.kerning_mode;
+    FTDemo_String_Load( handle, &sc );
 
     y += height;
     grWriteCellString( display->bitmap, 5,
@@ -830,7 +833,6 @@
 
     handle->encoding  = status.encoding;
     handle->use_sbits = 0;
-    FTDemo_Update_Current_Flags( handle );
 
     for ( ; argc > 0; argc--, argv++ )
     {
@@ -864,7 +866,11 @@
 
     event_color_change();
     event_gamma_change( 0 );
+
     event_font_change( 0 );
+    FTDemo_String_Set( handle, status.text );
+    FTDemo_Update_Current_Flags( handle );
+    FTDemo_String_Load( handle, &status.sc );
 
     do
     {

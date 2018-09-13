@@ -116,10 +116,12 @@
     FT_UInt    glyph_index;
     FT_Glyph   image;    /* the glyph image */
 
-    FT_Pos     delta;    /* delta caused by hinting */
-    FT_Vector  hadvance; /* kerned horizontal advance */
-    FT_Vector  vvector;  /* vert. origin => hori. origin */
-    FT_Vector  vadvance; /* vertical advance */
+    FT_Pos     lsb_delta; /* delta caused by hinting */
+    FT_Pos     rsb_delta; /* delta caused by hinting */
+    FT_Vector  hadvance;  /* kerned horizontal advance */
+
+    FT_Vector  vvector;   /* vert. origin => hori. origin */
+    FT_Vector  vadvance;  /* vertical advance */
 
   } TGlyph, *PGlyph;
 
@@ -204,7 +206,6 @@
     /* used for string rendering */
     TGlyph          string[MAX_GLYPHS];
     int             string_length;
-    int             string_reload;
 
     unsigned long   encoding;
     FT_Stroker      stroker;
@@ -335,6 +336,12 @@
   void
   FTDemo_String_Set( FTDemo_Handle*  handle,
                      const char*     string );
+
+
+  /* load kerned advances with hinting compensation */
+  FT_Error
+  FTDemo_String_Load( FTDemo_Handle*          handle,
+                      FTDemo_String_Context*  sc );
 
 
   /* draw a string centered at (center_x, center_y) --  */

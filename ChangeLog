@@ -1,3 +1,17 @@
+2018-09-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Load glyphs and advances explicitly.
+
+	* src/ftcommon.h (FTDemo_Handle): Remove `string_reload' flag.
+	(TGlyph): Split `delta' into original `lsb_delta' and `rsb_delta'.
+	(FTDemo_String_Load): Declare new function.
+	* src/ftcommon.c (string_load, string_render_prepare): Merge into...
+	(FTDemo_String_Load): ... this function.
+	(FTDemo_String_Draw): Devoid of string loading.
+
+	* src/ftstring.c (main, Process_Event,Render_{Waterfall,KernCmp}):
+	Call `FTDemo_String_Load' explicitly.
+
 2018-09-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Keep all advances together.
