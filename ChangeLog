@@ -1,5 +1,13 @@
 2018-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftstring] Implement text carpeting mode.
+
+	* src/ftstring.c (main): Add text-carpeting mode implemented in...
+	(Render_Text): ... this new function.
+	(Render_CmpKern, Render_Waterfall): Minor updates and refactoring.
+
+2018-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Teach `FT_String_Draw' to recycle glyphs.
 
 	* src/ftcommon.h (FTDemo_String_Context): New fields for offset glyph

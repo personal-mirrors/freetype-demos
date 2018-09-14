@@ -75,6 +75,7 @@
   enum
   {
     RENDER_MODE_STRING,
+    RENDER_MODE_TEXT,
     RENDER_MODE_WATERFALL,
     RENDER_MODE_KERNCMP,
     N_RENDER_MODES
@@ -99,7 +100,7 @@
     char       header_buffer[256];
 
   } status = { DIM, RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 0, NULL,
-               { 0, 0, 0x8000, 0, NULL },
+               { 0, 0, 0x8000, 0, NULL, 0, 0 },
                { 0, 0, 0, 0 }, 0, NULL, { 0 } };
 
   static FTDemo_Display*  display;
@@ -717,12 +718,52 @@
 
 
   static FT_Error
+  Render_Text( void )
+  {
+    int      x = FT_MulFix( display->bitmap->width, status.sc.center);
+    int      y, step_y;
+    int      offset = 0;
+    FT_Size  size;
+
+    FTDemo_String_Context sc = status.sc;
+
+
+    sc.extent   = display->bitmap->width * 64;
+    sc.vertical = 0;
+
+    error = FTDemo_Get_Size( handle, &size );
+    if ( error )
+      return error;
+
+    step_y = ( size->metrics.height >> 6 ) + 1;
+    y      = 40 + ( size->metrics.ascender >> 6 );
+
+    for ( ; y < display->bitmap->rows + ( size->metrics.descender >> 6 );
+            y += step_y )
+    {
+      sc.offset = offset;
+
+      offset += FTDemo_String_Draw( handle, display, &sc, x, y );
+
+      offset %= handle->string_length;
+    }
+
+    return FT_Err_Ok;
+  }
+
+
+  static FT_Error
   Render_Waterfall( void )
   {
     int      pt_size = status.ptsize, step, pt_height;
-    int      start_y = 40, step_y, y;
+    int      y = 40;
+    int      x = FT_MulFix( display->bitmap->width, status.sc.center);
     FT_Size  size;
 
+    FTDemo_String_Context sc = status.sc;
+
+
+    sc.vertical = 0;
 
     pt_height = 64 * 72 * display->bitmap->rows / status.res;
     step      = ( pt_size * pt_size / pt_height + 64 ) & ~63;
@@ -742,19 +783,13 @@
         continue;
       }
 
-      step_y = ( size->metrics.height >> 6 ) + 1;
-
-      y = start_y + ( size->metrics.ascender >> 6 );
-
-      start_y += step_y;
+      y += ( size->metrics.height >> 6 ) + 1;
 
       if ( y >= display->bitmap->rows )
         break;
 
-      FTDemo_String_Draw( handle, display,
-                          &status.sc,
-                          FT_MulFix( display->bitmap->width, status.sc.center),
-                          y );
+      FTDemo_String_Draw( handle, display, &sc,
+                          x, y + ( size->metrics.descender >> 6 ) );
     }
 
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
@@ -768,7 +803,7 @@
   Render_KernCmp( void )
   {
     FT_Size                size;
-    FTDemo_String_Context  sc = { 0, 0, 0, 0, NULL };
+    FTDemo_String_Context  sc = { 0, 0, 0, 0, NULL, 0, 0 };
     FT_Int                 x, y;
     FT_Int                 height;
 
@@ -787,7 +822,7 @@
     grWriteCellString( display->bitmap, 5,
                        y - ( height + CELLSTRING_HEIGHT ) / 2,
                        "none", display->fore_color );
-    error = FTDemo_String_Draw( handle, display, &sc, x, y );
+    FTDemo_String_Draw( handle, display, &sc, x, y );
 
     /* Second line: track kern only */
     sc.kerning_degree = status.sc.kerning_degree;
@@ -797,7 +832,7 @@
     grWriteCellString( display->bitmap, 5,
                        y - ( height + CELLSTRING_HEIGHT ) / 2,
                        "track", display->fore_color );
-    error = FTDemo_String_Draw( handle, display, &sc, x, y );
+    FTDemo_String_Draw( handle, display, &sc, x, y );
 
     /* Third line: track kern + pair kern */
     sc.kerning_mode = status.sc.kerning_mode;
@@ -807,9 +842,9 @@
     grWriteCellString( display->bitmap, 5,
                        y - ( height + CELLSTRING_HEIGHT ) / 2,
                        "both", display->fore_color );
-    error = FTDemo_String_Draw( handle, display, &sc, x, y );
+    FTDemo_String_Draw( handle, display, &sc, x, y );
 
-    return error;
+    return FT_Err_Ok;
   }
 
 
@@ -880,6 +915,10 @@
       {
       case RENDER_MODE_STRING:
         error = Render_String();
+        break;
+
+      case RENDER_MODE_TEXT:
+        error = Render_Text();
         break;
 
       case RENDER_MODE_WATERFALL:
