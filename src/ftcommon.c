@@ -1423,37 +1423,50 @@
   }
 
 
-  FT_Error
+  int
   FTDemo_String_Draw( FTDemo_Handle*          handle,
                       FTDemo_Display*         display,
                       FTDemo_String_Context*  sc,
                       int                     x,
                       int                     y )
   {
-    int        n;
+    int        first = sc->offset;
+    int        last  = handle->string_length;
+    int        m, n;
     FT_Vector  pen = { 0, 0};
     FT_Vector  advance;
 
 
-    if ( !sc                        ||
-         x < 0                      ||
+    if ( x < 0                      ||
          y < 0                      ||
          x > display->bitmap->width ||
          y > display->bitmap->rows  )
-      return FT_Err_Invalid_Argument;
+      return 0;
 
     /* change to Cartesian coordinates */
     y = display->bitmap->rows - y;
 
     /* calculate the extent */
-    if ( sc->vertical )
-      for ( n = 0; n < handle->string_length; n++ )
+    if ( sc->extent )
+      for( n = first; ; n++ )
+      {
+        m = n % handle->string_length;  /* recycling */
+        if ( pen.x + handle->string[m].hadvance.x > sc->extent )
+        {
+          last = n;
+          break;
+        }
+        pen.x += handle->string[m].hadvance.x;
+        pen.y += handle->string[m].hadvance.y;
+      }
+    else if ( sc->vertical )
+      for ( n = first; n < last; n++ )
       {
         pen.x += handle->string[n].vadvance.x;
         pen.y += handle->string[n].vadvance.y;
       }
     else
-      for ( n = 0; n < handle->string_length; n++ )
+      for ( n = first; n < last; n++ )
       {
         pen.x += handle->string[n].hadvance.x;
         pen.y += handle->string[n].hadvance.y;
@@ -1469,9 +1482,9 @@
     pen.x = ( x << 6 ) - pen.x;
     pen.y = ( y << 6 ) - pen.y;
 
-    for ( n = 0; n < handle->string_length; n++ )
+    for ( n = first; n < last; n++ )
     {
-      PGlyph    glyph = handle->string + n;
+      PGlyph    glyph = handle->string + n % handle->string_length;
       FT_Glyph  image;
       FT_BBox   bbox;
 
@@ -1564,7 +1577,7 @@
       FT_Done_Glyph( image );
     }
 
-    return error;
+    return last - first;
   }
 
 

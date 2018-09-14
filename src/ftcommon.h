@@ -168,9 +168,13 @@
   {
     int         kerning_mode;
     int         kerning_degree;
+
     FT_Fixed    center;            /* 0..1 */
     int         vertical;          /* displayed vertically? */
     FT_Matrix*  matrix;            /* string transformation */
+
+    FT_Pos      extent;            /* extent to fill, glyphs recycled */
+    int         offset;            /* initial glyph */
 
   } FTDemo_String_Context;
 
@@ -345,8 +349,9 @@
 
 
   /* draw a string centered at (center_x, center_y) --  */
+  /* returns the number of rendered glyphs              */
   /* note that handle->use_sbits_cache is not supported */
-  FT_Error
+  int
   FTDemo_String_Draw( FTDemo_Handle*          handle,
                       FTDemo_Display*         display,
                       FTDemo_String_Context*  sc,

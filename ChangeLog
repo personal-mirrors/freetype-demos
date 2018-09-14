@@ -1,3 +1,13 @@
+2018-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Teach `FT_String_Draw' to recycle glyphs.
+
+	* src/ftcommon.h (FTDemo_String_Context): New fields for offset glyph
+	and extent to fill.
+	(FTDemo_String_Draw): Return the number of glyphs drawn.
+	* src/ftcommon.c (FTDemo_String_Draw): Implement glyph recycling until 
+	the extent is full.
+
 2018-09-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Load glyphs and advances explicitly.
