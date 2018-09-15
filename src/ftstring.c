@@ -217,7 +217,7 @@
     grWriteln( "  f         : toggle forced auto-hinting" );
     grWriteln( "  h         : toggle outline hinting" );
     grLn();
-    grWriteln( "  1-3       : select rendering mode" );
+    grWriteln( "  1-4       : select rendering mode" );
     grWriteln( "  l         : cycle through anti-aliasing modes" );
     grWriteln( "  k         : cycle through kerning modes" );
     grWriteln( "  t         : cycle through kerning degrees" );
@@ -422,13 +422,12 @@
 
     switch ( status.render_mode )
     {
-    case RENDER_MODE_STRING:
-    case RENDER_MODE_WATERFALL:
-      status.header = NULL;
-      break;
-
     case RENDER_MODE_KERNCMP:
       status.header = (char *)"Kerning comparison";
+      break;
+
+    default:
+      status.header = NULL;
       break;
     }
   }
@@ -609,7 +608,7 @@
     fprintf( stderr,
       "  -d WxHxD  Set the window width, height, and color depth.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
-      "  -e enc    Specify encoding tag (default: no encoding).\n"
+      "  -e enc    Specify encoding tag (default: Unicode).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
       "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -m text   Use `text' for rendering.\n"
