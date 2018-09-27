@@ -238,6 +238,8 @@
     grLn();
     grWriteln( "  Left      : move left" );
     grWriteln( "  Right     : move right" );
+    grWriteln( "  Home      : flush left" );
+    grWriteln( "  End       : flush right" );
     grLn();
     grWriteln( "  F5        : rotate counter-clockwise" );
     grWriteln( "  F6        : rotate clockwise" );
@@ -546,8 +548,10 @@
     case grKeyPageUp:   event_size_change(  640 ); goto String;
     case grKeyPageDown: event_size_change( -640 ); goto String;
 
-    case grKeyLeft:  event_center_change(  0x800 ); goto Exit;
-    case grKeyRight: event_center_change( -0x800 ); goto Exit;
+    case grKeyLeft:  event_center_change( -0x800 ); goto Exit;
+    case grKeyRight: event_center_change(  0x800 ); goto Exit;
+    case grKeyHome:  event_center_change( -0x10000 ); goto Exit;
+    case grKeyEnd:   event_center_change(  0x10000 ); goto Exit;
 
     case grKeyF5: event_angle_change(  -3 ); goto Exit;
     case grKeyF6: event_angle_change(   3 ); goto Exit;

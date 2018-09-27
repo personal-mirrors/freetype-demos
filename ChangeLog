@@ -1,3 +1,7 @@
+2018-09-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftstring.c (Process_Event, event_help): Implement flushing.
+
 2018-09-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftstring.c: Polished.
