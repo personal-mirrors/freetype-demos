@@ -1,5 +1,9 @@
 2018-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftstring.c (Render_Waterfall): Mark the status size.
+
+2018-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/grfill.c (grFillHLine): Fix cropping.
 	(grFillVLine): Refactor in line with `grFillHLine'.
 

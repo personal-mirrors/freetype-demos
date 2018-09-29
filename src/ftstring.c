@@ -786,10 +786,16 @@
         continue;
       }
 
+      if ( pt_size == status.ptsize )
+        grFillHLine( display->bitmap, x - 4, y, 8, display->fore_color );
+
       y += ( size->metrics.height >> 6 ) + 1;
 
       if ( y >= display->bitmap->rows )
         break;
+
+      if ( pt_size == status.ptsize )
+        grFillHLine( display->bitmap, x - 4, y, 8, display->fore_color );
 
       FTDemo_String_Draw( handle, display, &sc,
                           x, y + ( size->metrics.descender >> 6 ) );
