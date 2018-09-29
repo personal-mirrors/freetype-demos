@@ -170,9 +170,9 @@ grFillHLine( grBitmap*  target,
   }
   delta = x + width - target->width;
   if ( delta > 0 )
-    width -= x;
+    width -= delta;
 
-  if ( y < 0 || y >= target->rows || width < 0 || hline_func == NULL )
+  if ( y < 0 || y >= target->rows || width <= 0 || hline_func == NULL )
     return;
 
   line = target->buffer + y*target->pitch;
@@ -191,10 +191,7 @@ grFillVLine( grBitmap*  target,
 {
   int              delta;
   unsigned char*   line;
-  grFillHLineFunc  hline_func;
-
-  if ( x < 0 || x >= target->width )
-    return;
+  grFillHLineFunc  hline_func = gr_fill_hline_funcs[ target->mode ];
 
   if ( y < 0 )
   {
@@ -205,19 +202,15 @@ grFillVLine( grBitmap*  target,
   if ( delta > 0 )
     height -= delta;
 
-  if ( height <= 0 )
+  if ( x < 0 || x >= target->width || height <= 0 || hline_func == NULL )
     return;
 
-  hline_func = gr_fill_hline_funcs[ target->mode ];
-  if ( hline_func )
-  {
-    line = target->buffer + y*target->pitch;
-    if ( target->pitch < 0 )
-      line -= target->pitch*(target->rows-1);
+  line = target->buffer + y*target->pitch;
+  if ( target->pitch < 0 )
+    line -= target->pitch*(target->rows-1);
 
-    for ( ; height > 0; height--, line += target->pitch )
-      hline_func( line, x, 1, color );
-  }
+  for ( ; height > 0; height--, line += target->pitch )
+    hline_func( line, x, 1, color );
 }
 
 extern void
