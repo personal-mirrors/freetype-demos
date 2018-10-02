@@ -1054,10 +1054,6 @@ typedef  unsigned long   uint32;
     const grX11Format*  format;
     grX11ConvertFunc    convert;
 
-    int                 win_org_x,   win_org_y;
-    int                 win_width,   win_height;
-    int                 image_width, image_height;
-
     char                key_buffer[10];
     int                 key_cursor;
     int                 key_number;
@@ -1119,17 +1115,8 @@ typedef  unsigned long   uint32;
 
 
   static void
-  gr_x11_surface_refresh( grX11Surface*  surface )
-  {
-    gr_x11_surface_refresh_rect( surface, 0, 0,
-                                 surface->root.bitmap.width,
-                                 surface->root.bitmap.rows );
-  }
-
-
-  static void
   gr_x11_surface_set_title( grX11Surface*  surface,
-                             const char*   title )
+                            const char*    title )
   {
     XStoreName( surface->display, surface->win, title );
   }

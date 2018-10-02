@@ -1,5 +1,9 @@
 2018-10-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/x11/grx11.c: Remove unused fields and function.
+
+2018-10-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.c (gr_x11_surface_init): Clean up window creation.
 
 2018-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
