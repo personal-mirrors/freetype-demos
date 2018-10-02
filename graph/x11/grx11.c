@@ -1227,11 +1227,11 @@ typedef  unsigned long   uint32;
                    (unsigned int)x_event.xexpose.width,
                    (unsigned int)x_event.xexpose.height );
 #else
-        gr_x11_surface_refresh_rectangle( surface,
-                                          x_event.xexpose.x,
-                                          x_event.xexpose.y,
-                                          x_event.xexpose.width,
-                                          x_event.xexpose.height );
+        gr_x11_surface_refresh_rect( surface,
+                                     x_event.xexpose.x,
+                                     x_event.xexpose.y,
+                                     x_event.xexpose.width,
+                                     x_event.xexpose.height );
 #endif
         break;
 
@@ -1340,38 +1340,30 @@ typedef  unsigned long   uint32;
       return 0;
 
     {
-      XColor                color, dummy;
-      XTextProperty         xtp;
-      XSizeHints            xsh;
+      XTextProperty         xtp = { (unsigned char*)"FreeType", 31, 8, 8 };
+      XSizeHints            xsh = { 0 };
       XSetWindowAttributes  xswa;
-      unsigned long         xswa_mask = CWBackPixel | CWEventMask | CWCursor;
+      unsigned long         xswa_mask = CWEventMask | CWCursor;
 
       pid_t                 pid;
       Atom                  NET_WM_PID;
 
 
-      xswa.border_pixel = BlackPixel( display, screen );
+      xswa.cursor     = x11dev.busy;
+      xswa.event_mask = KeyPressMask | ExposureMask;
 
-      if (surface->visual == DefaultVisual( display, screen ) )
-      {
-        xswa.background_pixel = WhitePixel( display, screen );
+      if ( surface->visual == DefaultVisual( display, screen ) )
         surface->colormap     = DefaultColormap( display, screen );
-      }
       else
       {
-        xswa_mask             |= CWColormap | CWBorderPixel;
+        xswa_mask            |= CWBorderPixel | CWColormap;
+        xswa.border_pixel     = BlackPixel( display, screen );
         xswa.colormap         = XCreateColormap( display,
                                                  RootWindow( display, screen ),
                                                  surface->visual,
                                                  AllocNone );
-        XAllocNamedColor( display, xswa.colormap, "white", &color, &dummy );
-        xswa.background_pixel = color.pixel;
         surface->colormap     = xswa.colormap;
       }
-
-      xswa.cursor           = x11dev.busy;
-
-      xswa.event_mask = KeyPressMask | ExposureMask;
 
       surface->win = XCreateWindow( display,
                                     RootWindow( display, screen ),
@@ -1393,20 +1385,6 @@ typedef  unsigned long   uint32;
       XSetForeground( display, surface->gc, xswa.border_pixel     );
       XSetBackground( display, surface->gc, xswa.background_pixel );
 
-      /* make window manager happy :-) */
-      xtp.value    = (unsigned char*)"FreeType";
-      xtp.encoding = 31;
-      xtp.format   = 8;
-      xtp.nitems   = strlen( (char*)xtp.value );
-
-      xsh.x = 0;
-      xsh.y = 0;
-
-      xsh.width  = bitmap->width;
-      xsh.height = bitmap->rows;
-      xsh.flags  = PPosition | PSize;
-      xsh.flags  = 0;
-
       XSetWMProperties( display, surface->win, &xtp, &xtp,
                         NULL, 0, &xsh, NULL, NULL );
 
@@ -1421,8 +1399,6 @@ typedef  unsigned long   uint32;
     surface->root.refresh_rect = (grRefreshRectFunc)gr_x11_surface_refresh_rect;
     surface->root.set_title    = (grSetTitleFunc)   gr_x11_surface_set_title;
     surface->root.listen_event = (grListenEventFunc)gr_x11_surface_listen_event;
-
-    gr_x11_surface_refresh( surface );
 
     return 1;
   }
