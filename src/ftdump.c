@@ -42,7 +42,7 @@
   static FT_Error  error;
 
   static int  comma_flag  = 0;
-  static int  verbose     = 0;
+  static int  coverage    = 0;
   static int  name_tables = 0;
   static int  bytecode    = 0;
   static int  tables      = 0;
@@ -94,11 +94,11 @@
              execname );
 
     fprintf( stderr,
+      "  -c, -C    Print charmap coverage.\n"
       "  -n        Print SFNT name tables.\n"
       "  -p        Print TrueType programs.\n"
       "  -t        Print SFNT table list.\n"
       "  -u        Emit UTF8.\n"
-      "  -V        Be verbose.\n"
       "\n"
       "  -v        Show version.\n"
       "\n" );
@@ -483,7 +483,7 @@
 
       printf ( "\n" );
 
-      if ( verbose )
+      if ( coverage == 2 )
       {
         FT_ULong   charcode;
         FT_UInt    gindex;
@@ -504,6 +504,37 @@
           charcode = FT_Get_Next_Char( face, charcode, &gindex );
         }
         printf( "\n" );
+      }
+      else if ( coverage == 1 )
+      {
+        FT_ULong   next, last = ~1;
+        FT_UInt    gindex;
+        FT_String  buf[8] = "     ";
+        FT_Char    r = ',';
+
+
+        FT_Set_Charmap( face, face->charmaps[i] );
+
+        next = FT_Get_First_Char( face, &gindex );
+        while ( gindex )
+        {
+          if ( next == last + 1 )
+          {
+            sprintf( buf + 1, "%04lx,", next );
+            buf[0] = r;
+            r      = '-';
+          }
+          else
+          {
+            printf( "%s%04lx", buf, next );
+            buf[0] = ','; buf[1] = '\0';
+            r      = ',';
+          }
+
+          last = next;
+          next = FT_Get_Next_Char( face, last, &gindex );
+        }
+        printf( "%s\b \n", buf );
       }
     }
   }
@@ -794,13 +825,21 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "nptuvV" );
+      option = getopt( argc, argv, "Ccnptuv" );
 
       if ( option == -1 )
         break;
 
       switch ( option )
       {
+      case 'C':
+        coverage = 2;
+        break;
+
+      case 'c':
+        coverage = 1;
+        break;
+
       case 'n':
         name_tables = 1;
         break;
@@ -831,10 +870,6 @@
           exit( 0 );
         }
         /* break; */
-
-      case 'V':
-        verbose = 1;
-        break;
 
       default:
         usage( library, execname );

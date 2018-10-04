@@ -1,3 +1,11 @@
+2018-10-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdump] New compact charmap coverage format.
+
+	* src/ftdump.c (Print_Charmaps): Implement it.
+	(main): Change corresponding options.
+	* src/ftdump.1, src/ftdump.c (usage): Document it.
+
 2018-10-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/x11/grx11.c: Remove unused fields and function.
