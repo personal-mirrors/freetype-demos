@@ -366,6 +366,7 @@
 
     display->back_color = grFindColor( display->bitmap,  r,  g,  b, 0xff );
     display->fore_color = grFindColor( display->bitmap, ~r, ~g, ~b, 0xff );
+    display->warn_color = grFindColor( display->bitmap,  r, ~g, ~b, 0xff );
 
     i++;
   }
@@ -787,7 +788,7 @@
       }
 
       if ( pt_size == status.ptsize )
-        grFillHLine( display->bitmap, x - 4, y, 8, display->fore_color );
+        grFillHLine( display->bitmap, x - 4, y, 8, display->warn_color );
 
       y += ( size->metrics.height >> 6 ) + 1;
 
@@ -795,7 +796,7 @@
         break;
 
       if ( pt_size == status.ptsize )
-        grFillHLine( display->bitmap, x - 4, y, 8, display->fore_color );
+        grFillHLine( display->bitmap, x - 4, y, 8, display->warn_color );
 
       FTDemo_String_Draw( handle, display, &sc,
                           x, y + ( size->metrics.descender >> 6 ) );

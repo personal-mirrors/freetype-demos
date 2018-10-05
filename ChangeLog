@@ -1,3 +1,8 @@
+2018-10-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftstring.c (Render_Waterfall): Color the size marks.
+	(event_color_change): Manipulate the warning color.
+
 2018-10-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdump] New compact charmap coverage format.
