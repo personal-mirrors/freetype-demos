@@ -877,7 +877,6 @@
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_LIGHT );
 
     handle->encoding  = status.encoding;
-    handle->use_sbits = 0;
 
     for ( ; argc > 0; argc--, argv++ )
     {

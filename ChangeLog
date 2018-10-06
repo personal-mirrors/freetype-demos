@@ -1,3 +1,8 @@
+2018-10-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftcommon.c (FTDemo_String_Draw): Avoid endless loop.
+	* src/ftstring.c (main): Don't disable sbits.
+
 2018-10-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftstring.c (Render_Waterfall): Color the size marks.

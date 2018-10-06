@@ -1448,7 +1448,7 @@
 
     /* calculate the extent */
     if ( sc->extent )
-      for( n = first; ; n++ )
+      for( n = first; n < first + last || pen.x > 0; n++ )  /* chk progress */
       {
         m = n % handle->string_length;  /* recycling */
         if ( pen.x + handle->string[m].hadvance.x > sc->extent )
