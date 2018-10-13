@@ -1,5 +1,9 @@
 2018-10-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftdump.c (Print_Charmaps): Rework without \b.
+
+2018-10-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftcommon.c (FTDemo_String_Draw): Avoid endless loop.
 	* src/ftstring.c (main): Don't disable sbits.
 

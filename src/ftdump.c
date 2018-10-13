@@ -507,10 +507,12 @@
       }
       else if ( coverage == 1 )
       {
-        FT_ULong   next, last = ~1;
-        FT_UInt    gindex;
-        FT_String  buf[8] = "     ";
-        FT_Char    r = ',';
+        FT_ULong  next, last = ~1;
+        FT_UInt   gindex;
+
+        const char*  f1 = "";
+        const char*  f2 = "     %04lx";
+        const char*  f3;
 
 
         FT_Set_Charmap( face, face->charmaps[i] );
@@ -520,21 +522,23 @@
         {
           if ( next == last + 1 )
           {
-            sprintf( buf + 1, "%04lx,", next );
-            buf[0] = r;
-            r      = '-';
+            f1 = f3;
+            f3 = "-%04lx";
           }
           else
           {
-            printf( "%s%04lx", buf, next );
-            buf[0] = ','; buf[1] = '\0';
-            r      = ',';
+            printf( f1, last );
+            printf( f2, next );
+
+            f1 = "";
+            f2 = f3 = ",%04lx";
           }
 
           last = next;
           next = FT_Get_Next_Char( face, last, &gindex );
         }
-        printf( "%s\b \n", buf );
+        printf( f1, last );
+        printf( "\n" );
       }
     }
   }
