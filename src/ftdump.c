@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 
   static FT_Error  error;
@@ -111,6 +112,7 @@
   Print_Name( FT_Face  face )
   {
     const char*  ps_name;
+    TT_Header*   head;
 
 
     printf( "font name entries\n" );
@@ -125,6 +127,21 @@
       ps_name = "UNAVAILABLE";
 
     printf( "   postscript: %s\n", ps_name );
+
+    head = (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
+    if ( head )
+    {
+      time_t  created  = ( head->Created [0] << 32 ) + head->Created [1]
+                         - 2082844800;
+      time_t  modified = ( head->Modified[0] << 32 ) + head->Modified[1]
+                         - 2082844800;
+
+
+      printf("   revision:   %.2f\n", head->Font_Revision / 65536.0 );
+      printf("   created:    %s", ctime( &created  ) );
+      printf("   modified:   %s", ctime( &modified ) );
+    }
+
   }
 
 
