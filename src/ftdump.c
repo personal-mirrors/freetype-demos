@@ -131,6 +131,7 @@
     head = (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
     if ( head )
     {
+      char    buf[11];
       time_t  created  = ( head->Created [0] << 32 ) + head->Created [1]
                          - 2082844800;
       time_t  modified = ( head->Modified[0] << 32 ) + head->Modified[1]
@@ -138,8 +139,10 @@
 
 
       printf("   revision:   %.2f\n", head->Font_Revision / 65536.0 );
-      printf("   created:    %s", ctime( &created  ) );
-      printf("   modified:   %s", ctime( &modified ) );
+      strftime( buf, sizeof( buf ), "%Y-%m-%d", gmtime( &created  ) );
+      printf("   created:    %s\n", buf );
+      strftime( buf, sizeof( buf ), "%Y-%m-%d", gmtime( &modified ) );
+      printf("   modified:   %s\n", buf );
     }
 
   }

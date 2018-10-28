@@ -1,3 +1,7 @@
+2018-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftdump.c (Print_Name): Use ISO 8601 datestamps.
+
 2018-10-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftdump.c (Print_Name): Report `head' revision and timestamps.
