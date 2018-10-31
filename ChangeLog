@@ -1,3 +1,7 @@
+2018-10-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftdump.c (Print_Name): Ignore exuberant timestamps.
+
 2018-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftdump.c (Print_Name): Use ISO 8601 datestamps.

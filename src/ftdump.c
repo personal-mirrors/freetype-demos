@@ -132,17 +132,20 @@
     if ( head )
     {
       char    buf[11];
-      time_t  created  = ( head->Created [0] << 32 ) + head->Created [1]
-                         - 2082844800;
-      time_t  modified = ( head->Modified[0] << 32 ) + head->Modified[1]
-                         - 2082844800;
+      time_t  created  = head->Created [1];
+      time_t  modified = head->Modified[1];
 
 
-      printf("   revision:   %.2f\n", head->Font_Revision / 65536.0 );
+      /* ignore most of upper bits until 2176 and adjust epoch */
+      created  += head->Created [0] == 1 ? 2212122496 : -2082844800;
+      modified += head->Modified[0] == 1 ? 2212122496 : -2082844800;
+
       strftime( buf, sizeof( buf ), "%Y-%m-%d", gmtime( &created  ) );
       printf("   created:    %s\n", buf );
       strftime( buf, sizeof( buf ), "%Y-%m-%d", gmtime( &modified ) );
       printf("   modified:   %s\n", buf );
+
+      printf("   revision:   %.2f\n", head->Font_Revision / 65536.0 );
     }
 
   }
