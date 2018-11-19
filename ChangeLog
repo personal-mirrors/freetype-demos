@@ -1,4 +1,13 @@
-2018-10-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2018-11-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdiff] Tweak adjustment of spacing.
+
+	Align with b82405eda. We want to avoid changing or adjusting usual
+	rounding of advances.
+
+	* src/ftdiff.c (render_state_draw): Tweak conditionals.
+
+2018-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftdump.c (Print_Name): Ignore exuberant timestamps.
 

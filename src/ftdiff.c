@@ -718,9 +718,9 @@
       if ( rmode != HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL &&
            column->use_deltas                         )
       {
-        if ( prev_rsb_delta - face->glyph->lsb_delta >= 32 )
+        if ( prev_rsb_delta - face->glyph->lsb_delta > 32 )
           x_origin -= 64;
-        else if ( prev_rsb_delta - face->glyph->lsb_delta < -32 )
+        else if ( prev_rsb_delta - face->glyph->lsb_delta < -31 )
           x_origin += 64;
       }
       prev_rsb_delta = face->glyph->rsb_delta;
