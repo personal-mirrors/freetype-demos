@@ -1,3 +1,10 @@
+2018-12-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Color glyph framework and rendering (testing).
+
+	* src/ftstring.c (flower_init): Split into contours and assign colors.
+	(Render_String): Render flowers using FT_RENDER_MODE_BGRA.
+
 2018-11-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdiff] Tweak adjustment of spacing.

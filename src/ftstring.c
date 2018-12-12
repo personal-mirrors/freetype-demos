@@ -112,7 +112,7 @@
   static void
   flower_init( FT_Glyph*     glyph,
                FT_F26Dot6    radius,
-               unsigned int  i,
+               unsigned int  n,
                int           v,
                int           w,
                int           reflect,
@@ -122,23 +122,38 @@
     FT_Vector*   vec;
     FT_Vector*   limit;
     char*        tag;
-    FT_Fixed     s = FT_Sin( FT_ANGLE_PI4 / i );
+    FT_Fixed     s = FT_Sin( FT_ANGLE_PI4 / n );
     FT_Pos       b, d, p = 0, q = radius;
+    FT_Color*    color;
+    unsigned int i;
 
 
     FT_New_Glyph( handle->library, FT_GLYPH_FORMAT_OUTLINE, glyph );
 
     outline = &((FT_OutlineGlyph)*glyph)->outline;
 
-    FT_Outline_New( handle->library, 6 * i, 1, outline );
-    outline->contours[0] = outline->n_points - 1;
+    FT_Outline_New( handle->library, 6 * n, n, outline );
+
+    color = (FT_Color*)calloc( n, sizeof (FT_Color) );
+    ((FT_OutlineGlyph)*glyph)->color = color;
+
+    /* split and color contours */
+    for ( i = 0; i < n; i++ )
+    {
+       outline->contours[i] = 6 * i + 5;
+
+       color[i].red   = i & 1 ? 0xFF : 0;
+       color[i].green = i & 2 ? 0xFF : 0;
+       color[i].blue  = i & 4 ? 0xFF : 0;
+       color[i].alpha = 0xFF;
+    }
 
     if ( order == FT_CURVE_TAG_CUBIC )
       q += q / 3;
 
-    for ( vec = outline->points, tag = outline->tags;
-          i--;
-          vec += 6,              tag += 6 )
+    for ( i = 0, vec = outline->points, tag = outline->tags;
+          i < n;
+          i++,   vec += 6,              tag += 6 )
     {
        b = p + FT_MulFix( q, s );
        d = q - FT_MulFix( p, s );
@@ -703,14 +718,21 @@
   static FT_Error
   Render_String( void )
   {
-    int x, y = display->bitmap->rows - 4;
+    FT_Glyph  flower;
+    int       x, y = display->bitmap->rows - 4;
 
 
     x = 4;
-    FTDemo_Draw_Glyph( handle, display, daisy, &x, &y );
+    FT_Glyph_Copy( daisy, &flower );
+    FT_Glyph_To_Bitmap( &flower, FT_RENDER_MODE_BGRA, NULL, 0 );
+    FTDemo_Draw_Glyph( handle, display, flower, &x, &y );
+    FT_Done_Glyph( flower );
 
     x = display->bitmap->width - 4;
-    FTDemo_Draw_Glyph( handle, display, aster, &x, &y );
+    FT_Glyph_Copy( aster, &flower );
+    FT_Glyph_To_Bitmap( &flower, FT_RENDER_MODE_BGRA, NULL, 0 );
+    FTDemo_Draw_Glyph( handle, display, flower, &x, &y );
+    FT_Done_Glyph( flower );
 
     FTDemo_String_Draw( handle, display,
                         &status.sc,
