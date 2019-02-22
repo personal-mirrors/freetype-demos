@@ -1,3 +1,10 @@
+2019-02-22  Werner Lemberg  <wl@gnu.org>
+
+	Minor doc string fixes.
+
+	* src/ftgrid.c (usage), src/ftstring.c (usage), src/ftview.c
+	(event_help, usage): Improve.
+
 2018-11-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdiff] Tweak adjustment of spacing.

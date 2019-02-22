@@ -1730,7 +1730,8 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -d WxHxD  Set the window width, height, and color depth.\n"
+      "  -d WxHxD  Set the window width, height, and color depth\n"
+      "            (default: 640x480x24).\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"

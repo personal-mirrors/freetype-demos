@@ -824,7 +824,7 @@
     grWriteln( "  4         text string                   E         horizontal BGR (LCD)    " );
     grWriteln( "  5         waterfall                     F         vertical RGB (LCD)      " );
     grWriteln( "  space     cycle forwards                G         vertical BGR (LCD)      " );
-    grWriteln( "  backspace cycle backwards             k, l        cycle back and forth    " );
+    grWriteln( "  backspace cycle backwards               k, l      cycle back and forth    " );
     grWriteln( "                                                                            " );
     grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
     grWriteln( "                                                     emboldening (in mode 2)" );
@@ -1700,7 +1700,8 @@
       "            `.afm' or `.pfm').\n"
       "\n" );
     fprintf( stderr,
-      "  -d WxHxD  Set the window width, height, and color depth.\n"
+      "  -d WxHxD  Set the window width, height, and color depth\n"
+      "            (default: 640x480x24).\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
