@@ -186,7 +186,6 @@
 
 
     error = FTDemo_Get_Size( handle, &size );
-
     if ( error )
     {
       /* probably a non-existent bitmap font size */
@@ -293,7 +292,6 @@
 
 
     error = FTDemo_Get_Size( handle, &size );
-
     if ( error )
     {
       /* probably a non-existent bitmap font size */
@@ -446,8 +444,9 @@
     face = size->face;
     slot = face->glyph;
 
-    /* XXX handle palette index */
-    error = FT_Palette_Select( face, 0, &palette );
+    error = FT_Palette_Select( face,
+                               handle->current_font->palette_index,
+                               &palette );
     if ( error )
       palette = NULL;
 
@@ -473,7 +472,7 @@
                                               &layer_color_idx,
                                               &iterator );
 
-      if ( palette && have_layers /* && XXX handle->use_layers */ )
+      if ( palette && have_layers && handle->use_layers )
       {
         FT_Int32  load_flags = handle->load_flags;
 
@@ -826,9 +825,11 @@
     grWriteln( "  space     cycle forwards                G         vertical BGR (LCD)      " );
     grWriteln( "  backspace cycle backwards               k, l      cycle back and forth    " );
     grWriteln( "                                                                            " );
-    grWriteln( "b           toggle embedded bitmaps     x, X        adjust horizontal       " );
-    grWriteln( "                                                     emboldening (in mode 2)" );
-    grWriteln( "c           toggle coloured glyphs      y, Y        adjust vertical         " );
+    grWriteln( "b           toggle embedded bitmaps     i, I        cycle through color     " );
+    grWriteln( "                                                      color palette         " );
+    grWriteln( "c           toggle coloured bitmaps     x, X        adjust horizontal       " );
+    grWriteln( "z           toggle colour-layered                    emboldening (in mode 2)" );
+    grWriteln( "              glyphs                    y, Y        adjust vertical         " );
     grWriteln( "                                                     emboldening (in mode 2)" );
     grWriteln( "K           toggle cache modes          s, S        adjust slanting         " );
     grWriteln( "                                                     (in mode 2)            " );
@@ -1072,6 +1073,44 @@
 
 
   static int
+  event_palette_change( int  delta )
+  {
+    FT_Size  size;
+    FT_Face  face;
+
+    FT_Palette_Data  palette;
+
+    int  palette_index     = handle->current_font->palette_index;
+    int  old_palette_index = palette_index;
+
+
+    error = FTDemo_Get_Size( handle, &size );
+    if ( error )
+    {
+      /* probably a non-existent bitmap font size */
+      return 0;
+    }
+
+    face = size->face;
+
+    error = FT_Palette_Data_Get( face, &palette );
+    if ( error || !palette.num_palettes )
+      return 0;
+
+    palette_index += delta;
+
+    if ( palette_index < 0 )
+      palette_index = palette.num_palettes - 1;
+    else if ( palette_index >= palette.num_palettes )
+      palette_index = 0;
+
+    handle->current_font->palette_index = palette_index;
+
+    return old_palette_index == palette_index ? 0 : 1;
+  }
+
+
+  static int
   Process_Event( grEvent*  event )
   {
     int  ret = 0;
@@ -1128,6 +1167,20 @@
       handle->use_color = !handle->use_color;
       FTDemo_Update_Current_Flags( handle );
       status.update = 1;
+      break;
+
+    case grKEY( 'z' ):
+      handle->use_layers = !handle->use_layers;
+      FTDemo_Update_Current_Flags( handle );
+      status.update = 1;
+      break;
+
+    case grKEY( 'i' ):
+      status.update = event_palette_change( 1 );
+      break;
+
+    case grKEY( 'I' ):
+      status.update = event_palette_change( -1 );
       break;
 
     case grKEY( 'K' ):
@@ -1414,6 +1467,11 @@
     char  buf[256];
     int   line = 4;
 
+    FT_Face  face;
+
+
+    FTC_Manager_LookupFace( handle->cache_manager,
+                            handle->scaler.face_id, &face );
 
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
                         status.render_mode != RENDER_MODE_TEXT      &&
@@ -1535,13 +1593,10 @@
          handle->lcd_mode != LCD_MODE_LIGHT )
     {
       /* hinting engine */
-      FT_Face      face;
       FT_Module    module;
       const char*  hinting_engine = NULL;
 
 
-      FTC_Manager_LookupFace( handle->cache_manager,
-                              handle->scaler.face_id, &face );
       module = &face->driver->root;
 
       if ( !strcmp( module->clazz->module_name, "cff" ) )
@@ -1625,11 +1680,30 @@
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
-    /* color */
-    sprintf( buf, "color: %s",
-                  handle->use_color ? "on" : "off" );
-    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                       buf, display->fore_color );
+    if ( FT_HAS_COLOR( face ) )
+    {
+      sprintf( buf, "color:" );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+
+      /* color bitmaps */
+      sprintf( buf, "  bitmaps: %s",
+                    handle->use_color ? "on" : "off" );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+
+      /* color-layered glyphs */
+      sprintf( buf, "  outlines: %s",
+                    handle->use_layers ? "on" : "off" );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+
+      /* color palette */
+      sprintf( buf, "  palette idx: %d",
+                    handle->current_font->palette_index );
+      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+                         buf, display->fore_color );
+    }
 
     /* cache */
     sprintf( buf, "cache: %s",

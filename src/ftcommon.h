@@ -131,6 +131,7 @@
     const char*  filepathname;
     int          face_index;
     int          cmap_index;
+    int          palette_index;
     int          num_indices;
     void*        file_address;  /* for preloaded files */
     size_t       file_size;
@@ -198,12 +199,13 @@
     FT_Int32        load_flags;
 
     /* call FTDemo_Update_Current_Flags after setting any of the following fields */
-    int             hinted;            /* is glyph hinting active?    */
-    int             use_sbits;         /* do we use embedded bitmaps? */
-    int             use_color;         /* do we use coloured glyphs?  */
-    int             autohint;          /* force auto-hinting          */
-    int             lcd_mode;          /* mono, aa, light, vrgb, ...  */
-    int             preload;           /* force font file preloading  */
+    int             hinted;            /* is glyph hinting active?        */
+    int             use_sbits;         /* do we use embedded bitmaps?     */
+    int             use_color;         /* do we use coloured glyphs?      */
+    int             use_layers;        /* do we use color-layered glyphs? */
+    int             autohint;          /* force auto-hinting              */
+    int             lcd_mode;          /* mono, aa, light, vrgb, ...      */
+    int             preload;           /* force font file preloading      */
 
     /* don't touch the following fields! */
 

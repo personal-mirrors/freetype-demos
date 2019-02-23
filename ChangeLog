@@ -1,3 +1,21 @@
+2019-02-23  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Add more control for color-layered glyphs.
+
+	Key `z' toggles color-layered glyph usage.
+	Keys `i' and `I' cycle through color palettes.
+
+	* src/ftcommon.h (TFont): Add `palette_index' field.
+	(FTDemo_Handle): Add `use_layers' field.
+	* src/ftcommon.c (FTDemo_New, FTDemo_Install_Font): Initialize new
+	structure elements.
+
+	* src/ftview.c (Render_All): Select palette; use `use_layers'.
+	(event_help): Updated.
+	(event_palette_change): New function.
+	(Process_Event): Handle keys `z', `i', and `I'.
+	(write_header): Updated.
+
 2019-02-22  Werner Lemberg  <wl@gnu.org>
 
 	Minor doc string fixes.

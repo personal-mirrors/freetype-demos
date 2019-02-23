@@ -311,11 +311,12 @@
 
     handle->encoding = FT_ENCODING_ORDER;
 
-    handle->hinted    = 1;
-    handle->use_sbits = 1;
-    handle->use_color = 1;
-    handle->autohint  = 0;
-    handle->lcd_mode  = LCD_MODE_AA;
+    handle->hinted     = 1;
+    handle->use_sbits  = 1;
+    handle->use_color  = 1;
+    handle->use_layers = 1;
+    handle->autohint   = 0;
+    handle->lcd_mode   = LCD_MODE_AA;
 
     handle->use_sbits_cache = 1;
 
@@ -443,6 +444,8 @@
           font->cmap_index = FT_Get_Charmap_Index( face->charmap );
         else
           font->cmap_index = face->num_charmaps;  /* FT_ENCODING_ORDER */
+
+        font->palette_index = 0;
 
         if ( handle->preload )
         {
