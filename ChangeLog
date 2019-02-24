@@ -1,3 +1,10 @@
+2019-02-24  Werner Lemberg  <wl@gnu.org>
+
+	[ftview] Fix LCD rendering of color-layered glyphs.
+
+	* src/ftview.c (Render_All): Always use normal rendering for
+	color-layered glyphs.
+
 2019-02-23  Werner Lemberg  <wl@gnu.org>
 
 	[ftview] Add more control for color-layered glyphs.

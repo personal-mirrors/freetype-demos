@@ -721,7 +721,7 @@
         flags |= FT_LOAD_MONOCHROME;
     }
 
-    handle->load_flags    = flags;
+    handle->load_flags = flags;
   }
 
 

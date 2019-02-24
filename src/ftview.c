@@ -480,10 +480,15 @@
         FT_Vector  bitmap_offset = { 0, 0 };
 
 
-        /* we want to handle glyph layers manually, */
-        /* thus switching off `FT_LOAD_COLOR'       */
+        /*
+         * We want to handle glyph layers manually, thus switching off
+         * `FT_LOAD_COLOR' and ensuring normal AA render mode.
+         */
         load_flags &= ~FT_LOAD_COLOR;
         load_flags |=  FT_LOAD_RENDER;
+
+        load_flags &= ~FT_LOAD_TARGET_( 0xF );
+        load_flags |=  FT_LOAD_TARGET_NORMAL;
 
         FT_Bitmap_Init( &bitmap );
 
@@ -538,7 +543,7 @@
 
       if ( X_TOO_LONG( x + width, display ) )
       {
-        x = start_x;
+        x  = start_x;
         y += step_y;
 
         if ( Y_TOO_LONG( y, display ) )
@@ -555,6 +560,7 @@
       }
 
       error = FTDemo_Draw_Slot( handle, display, slot, &x, &y );
+
       if ( error )
         goto Next;
 
