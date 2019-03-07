@@ -1136,7 +1136,7 @@
   }
 
 
-  static FT_Error
+  static void
   RunIns( TT_ExecContext  exc )
   {
     FT_Int  key;
@@ -1937,7 +1937,6 @@
 
     if ( error && error != Quit && error != Restart )
       Abort( "error during execution" );
-    return error;
   }
 
 
