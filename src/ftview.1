@@ -1,4 +1,4 @@
-.TH FTVIEW 1 "May 2018" "FreeType 2.9.1"
+.TH FTVIEW 1 "March 2019" "FreeType 2.10.0"
 .
 .
 .SH NAME
@@ -37,9 +37,14 @@ This program is part of the FreeType demos package.
 .SH OPTIONS
 .
 .TP
-.BI \-d \ width x height x depth
-Set the window width (in pixels), height (in pixels), and depth (in bpp) to
-the given values (default: 640x480x24).
+.BI \-d \ W x H x D
+Set the window width to
+.I W
+pixels, the height to
+.I H
+pixels, and the depth to
+.I D
+bpp (default: 640x480x24).
 .
 .TP
 .BI \-r \ r
@@ -77,9 +82,17 @@ Set start-up rendering mode (0 <=
 <= 6).
 .
 .TP
-.BI \-L \ N,...
-Use comma-separated values to set either LCD filter weights or
-subpixel geometry depending on the implemented subpixel rendering method.
+.BI \-L \ W1 , W2 , W3 , W4 , W5
+If there are five arguments, set LCD filter weights (as specified in
+function
+.BR FT_Library_SetLcdFilterWeights ).
+.
+.TP
+.BI \-L \ G1 , G2 , G3 , G4 , G5 , G6
+If there are six arguments, set the subpixel geometry (as specified in
+function
+.BR FT_Library_SetLcdGeometry )
+depending on the implemented subpixel rendering method.
 .
 .TP
 .B \-p

@@ -1,3 +1,21 @@
+2019-03-15  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.10.0 released.
+	==========================
+
+
+	Tag sources with `VER-2-10-0.
+
+	* README: Updated.
+	* src/*.1: Updated.
+	* src/ftinspect/ftinspect.pro: Updated.
+
+	* Makefile (version, winversion): Since the minor version number has
+	two digits now, never omit the patch number.  We would get ambiguous
+	zip file names otherwise.
+
+	* src/ftdump.c (main): Avoid compiler warning.
+
 2019-03-07  Werner Lemberg  <wl@gnu.org>
 
 	* src/ttdebug.c (RunIns): Fix signature.

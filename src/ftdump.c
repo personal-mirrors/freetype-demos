@@ -535,7 +535,7 @@
 
         const char*  f1 = "";
         const char*  f2 = "     %04lx";
-        const char*  f3;
+        const char*  f3 = "";
 
 
         FT_Set_Charmap( face, face->charmaps[i] );

@@ -559,13 +559,13 @@ ifneq ($(findstring distx,$(MAKECMDGOALS)x),)
   minor := $(shell sed -n 's/.*FREETYPE_MINOR[^0-9]*\([0-9]\+\)/\1/p' < $(FT_H))
   patch := $(shell sed -n 's/.*FREETYPE_PATCH[^0-9]*\([0-9]\+\)/\1/p' < $(FT_H))
 
-  ifneq ($(findstring x0x,x$(patch)x),)
-    version := $(major).$(minor)
-    winversion := $(major)$(minor)
-  else
+#  ifneq ($(findstring x0x,x$(patch)x),)
+#    version := $(major).$(minor)
+#    winversion := $(major)$(minor)
+#  else
     version := $(major).$(minor).$(patch)
     winversion := $(major)$(minor)$(patch)
-  endif
+#  endif
 endif
 
 dist:
