@@ -571,7 +571,7 @@ endif
 dist:
 	-rm -rf tmp
 	rm -f ft2demos-$(version).tar.gz
-	rm -f ft2demos-$(version).tar.bz2
+	rm -f ft2demos-$(version).tar.xz
 	rm -f ftdmo$(winversion).zip
 
 	for d in `find . -wholename '*/.git' -prune \
@@ -597,7 +597,7 @@ dist:
 	tar -H ustar -chf - ft2demos-$(version) \
 	| gzip -c > ft2demos-$(version).tar.gz
 	tar -H ustar -chf - ft2demos-$(version) \
-	| bzip2 -c > ft2demos-$(version).tar.bz2
+	| xz -c > ft2demos-$(version).tar.xz
 
 	@# Use CR/LF for zip files.
 	zip -lr ftdmo$(winversion).zip ft2demos-$(version)
