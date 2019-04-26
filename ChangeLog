@@ -1,5 +1,9 @@
 2019-04-26  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftmulti.c (Help, main): Mark hidden axes with an asterisk.
+
+2019-04-26  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftmulti.c: Various minor clean-ups.
 
 2019-04-06  Werner Lemberg  <wl@gnu.org>

@@ -473,6 +473,8 @@
     grWriteln( "3, 4        adjust fifth axis by 1/50th of its range" );
     grWriteln( "5, 6        adjust sixth axis by 1/50th of its range" );
     grLn();
+    grWriteln( "Axes marked with an asterisk are hidden." );
+    grLn();
     grLn();
     grWriteln( "press any key to exit this help screen" );
 
@@ -1043,11 +1045,16 @@
 
           for ( n = 0; n < limit; n++ )
           {
-            char  temp[100];
+            char     temp[100];
+            FT_UInt  flags;
 
 
-            sprintf( temp, "  %.50s: %.02f",
+            (void)FT_Get_Var_Axis_Flags( multimaster, n, &flags );
+
+            sprintf( temp, "  %.50s%s: %.02f",
                            multimaster->axis[n].name,
+                           flags & FT_VAR_AXIS_FLAG_HIDDEN ? "*"
+                                                           : "",
                            design_pos[n] / 65536.0 );
             strncat( Header, temp,
                      sizeof ( Header ) - strlen( Header ) - 1 );
