@@ -120,7 +120,8 @@
 
 #ifdef DEBUG
   static void
-  LogMessage( const char*  fmt, ... )
+  LogMessage( const char*  fmt,
+              ... )
   {
     va_list  ap;
 
@@ -163,7 +164,8 @@
   static void
   parse_design_coords( char  *s )
   {
-    for ( requested_cnt = 0; requested_cnt < MAX_MM_AXES && *s;
+    for ( requested_cnt = 0;
+          requested_cnt < MAX_MM_AXES && *s;
           requested_cnt++ )
     {
       requested_pos[requested_cnt] = (FT_Fixed)( strtod( s, &s ) * 65536.0 );
@@ -174,7 +176,7 @@
   }
 
 
-  /* Clears the Bit bitmap/pixmap */
+  /* Clear `bit' bitmap/pixmap */
   static void
   Clear_Display( void )
   {
@@ -417,16 +419,17 @@
     char  buf[256];
     char  version[64];
 
-    const char*  format;
-    FT_Int       major, minor, patch;
+    FT_Int  major, minor, patch;
 
     grEvent  dummy_event;
 
 
     FT_Library_Version( library, &major, &minor, &patch );
 
-    format = patch ? "%d.%d.%d" : "%d.%d";
-    sprintf( version, format, major, minor, patch );
+    if ( patch )
+      sprintf( version, "%d.%d.%d", major, minor, patch );
+    else
+      sprintf( version, "%d.%d", major, minor );
 
     Clear_Display();
     grSetLineHeight( 10 );
@@ -441,7 +444,7 @@
     grWriteln( buf );
     grLn();
     grWriteln( "This program displays all glyphs from one or several" );
-    grWriteln( "Multiple Masters or GX font files, with the FreeType library." );
+    grWriteln( "Multiple Masters, GX, or OpenType Variation font files." );
     grLn();
     grWriteln( "Use the following keys:");
     grLn();
@@ -768,7 +771,7 @@
       "  -f index     Specify first glyph index to display.\n"
       "  -d \"axis1 axis2 ...\"\n"
       "               Specify the design coordinates for each\n"
-      "               Multiple Master axis at start-up.\n"
+      "               variation axis at start-up.\n"
       "\n"
       "  -v           Show version."
       "\n" );
@@ -941,7 +944,7 @@
     /* set the current position to the median of each axis */
     if ( multimaster->num_axis > MAX_MM_AXES )
     {
-      fprintf( stderr, "only handling first %d GX axes (of %d)\n",
+      fprintf( stderr, "only handling first %d variation axes (of %d)\n",
                        MAX_MM_AXES, multimaster->num_axis );
       used_num_axis = MAX_MM_AXES;
     }
@@ -1106,10 +1109,8 @@
         }
       }
       else
-      {
         sprintf( Header, "%.100s: not an MM font file, or could not be opened",
                          ft_basename( argv[file] ) );
-      }
 
       grWriteCellString( &bit, 0, 8, Header, fore_color );
       grRefreshSurface( surface );
