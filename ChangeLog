@@ -1,3 +1,20 @@
+2019-04-28  Werner Lemberg  <wl@gnu.org>
+
+	[ftmulti] Add axis grouping.
+
+	If axis grouping (key `A') is active, hidden axes that have the same
+	name tag as a visible one are not displayed.  Additionally they
+	receive the same values as the corresponding visible axis.
+
+	* src/ftmulti.c (grouping, hidden, shown_axes, num_shown_axes): New
+	global variables.
+	(set_up_axes): New function to group axes.
+	(Render_All, Render_Text, Help): Updated.
+	(Process_Event): Handle key `A'.
+	Handle grouping of axis values.
+	(main): Initialize `shown_axes' and `hidden'; call `set_up_axes'.
+	Update code to display axes tags.
+
 2019-04-26  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftmulti.c (Help, main): Mark hidden axes with an asterisk.

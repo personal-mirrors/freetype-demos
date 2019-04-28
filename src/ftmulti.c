@@ -88,6 +88,7 @@
   static int  ptsize;                /* current point size          */
 
   static int  hinted    = 1;         /* is glyph hinting active?    */
+  static int  grouping  = 1;         /* is axis grouping active?    */
   static int  antialias = 1;         /* is anti-aliasing active?    */
   static int  use_sbits = 1;         /* do we use embedded bitmaps? */
   static int  Num;                   /* current first glyph index   */
@@ -107,6 +108,16 @@
   static FT_Fixed      requested_pos[MAX_MM_AXES];
   static unsigned int  requested_cnt = 0;
   static unsigned int  used_num_axis = 0;
+
+  /*
+   * We use the following arrays to support both the display of all axes and
+   * the grouping of axes.  If grouping is active, hidden axes that have the
+   * same tag as a non-hidden axis are not displayed; instead, they receive
+   * the same axis value as the non-hidden one.
+   */
+  static unsigned int  hidden[MAX_MM_AXES];
+  static int           shown_axes[MAX_MM_AXES];  /* array of axis indices */
+  static unsigned int  num_shown_axes;
 
 
 #define DEBUGxxx
@@ -172,6 +183,92 @@
 
       while ( *s==' ' )
         ++s;
+    }
+  }
+
+
+  static void
+  set_up_axes( void )
+  {
+    if ( grouping )
+    {
+      int  i, j, idx;
+
+
+      /*
+       * `ftmulti' is a diagnostic tool that should be able to handle
+       * pathological situations also; for this reason the looping code
+       * below is a bit more complicated in comparison to normal
+       * applications.
+       *
+       * In particular, the loop handles the following cases gracefully,
+       * avoiding grouping.
+       *
+       * . multiple non-hidden axes have the same tag
+       *
+       * . multiple hidden axes have the same tag without a corresponding
+       *   non-hidden axis
+       */
+
+      idx = -1;
+      for ( i = 0; i < (int)used_num_axis; i++ )
+      {
+        int            do_skip;
+        unsigned long  tag = multimaster->axis[i].tag;
+
+
+        do_skip = 0;
+        if ( hidden[i] )
+        {
+          /* if axis is hidden, check whether an already assigned */
+          /* non-hidden axis has the same tag; if yes, skip it    */
+          for ( j = 0; j <= idx; j++ )
+            if ( !hidden[shown_axes[j]]                      &&
+                 multimaster->axis[shown_axes[j]].tag == tag )
+            {
+              do_skip = 1;
+              break;
+            }
+        }
+        else
+        {
+          /* otherwise check whether we have already assigned this axis */
+          for ( j = 0; j <= idx; j++ )
+            if ( shown_axes[j] == i )
+            {
+              do_skip = 1;
+              break;
+            }
+        }
+        if ( do_skip )
+          continue;
+
+        /* we have a new axis to display */
+        shown_axes[++idx] = i;
+
+        /* if axis is hidden, use a non-hidden axis */
+        /* with the same tag instead if available   */
+        if ( hidden[i] )
+        {
+          for ( j = i + 1; j < (int)used_num_axis; j++ )
+            if ( !hidden[j]                      &&
+                 multimaster->axis[j].tag == tag )
+              shown_axes[idx] = j;
+        }
+      }
+
+      num_shown_axes = idx + 1;
+    }
+    else
+    {
+      unsigned int  i;
+
+
+      /* show all axes */
+      for ( i = 0; i < used_num_axis; i++ )
+        shown_axes[i] = i;
+
+      num_shown_axes = used_num_axis;
     }
   }
 
@@ -291,7 +388,7 @@
 
 
     start_x = 4;
-    start_y = pt_size + ( used_num_axis > MAX_MM_AXES / 2 ? 52 : 44 );
+    start_y = pt_size + ( num_shown_axes > MAX_MM_AXES / 2 ? 52 : 44 );
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -355,7 +452,7 @@
 
 
     start_x = 4;
-    start_y = pt_size + ( used_num_axis > MAX_MM_AXES / 2 ? 52 : 44 );
+    start_y = pt_size + ( num_shown_axes > MAX_MM_AXES / 2 ? 52 : 44 );
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -449,6 +546,7 @@
     grWriteln( "Use the following keys:");
     grLn();
     grWriteln( "?           display this help screen" );
+    grWriteln( "A           toggle axis grouping" );
     grWriteln( "a           toggle anti-aliasing" );
     grWriteln( "h           toggle outline hinting" );
     grWriteln( "b           toggle embedded bitmaps" );
@@ -511,22 +609,29 @@
 
     case grKEY( '?' ):
       Help();
-      return 1;
+      break;
 
     /* mode keys */
+
+    case grKEY( 'A' ):
+      grouping = !grouping;
+      new_header = grouping ? (char *)"axis grouping is now on"
+                            : (char *)"axis grouping is now off";
+      set_up_axes();
+      break;
 
     case grKEY( 'a' ):
       antialias  = !antialias;
       new_header = antialias ? (char *)"anti-aliasing is now on"
                              : (char *)"anti-aliasing is now off";
-      return 1;
+      break;
 
     case grKEY( 'b' ):
       use_sbits  = !use_sbits;
       new_header = use_sbits
                      ? (char *)"embedded bitmaps are now used if available"
                      : (char *)"embedded bitmaps are now ignored";
-      return 1;
+      break;
 
     case grKEY( 'n' ):
     case grKEY( 'p' ):
@@ -681,11 +786,18 @@
     return 1;
 
   Do_Axis:
-    if ( axis < used_num_axis )
+    if ( axis < num_shown_axes )
     {
-      FT_Var_Axis*  a   = multimaster->axis + axis;
-      FT_Fixed      pos = design_pos[axis];
+      FT_Var_Axis*  a;
+      FT_Fixed      pos;
+      unsigned int  n;
 
+
+      /* convert to real axis index */
+      axis = (unsigned int)shown_axes[axis];
+
+      a   = multimaster->axis + axis;
+      pos = design_pos[axis];
 
       /*
        * Normalize i.  Changing by 20 is all very well for PostScript fonts,
@@ -699,24 +811,33 @@
       if ( pos > a->maximum )
         pos = a->maximum;
 
-      design_pos[axis] = pos;
-
       /* for MM fonts, round the design coordinates to integers,         */
       /* otherwise round to two decimal digits to make the PS name short */
       if ( !FT_IS_SFNT( face ) )
-        design_pos[axis] = FT_RoundFix( design_pos[axis] );
+        pos = FT_RoundFix( pos );
       else
       {
         double  x;
 
 
-        x  = design_pos[axis] / 65536.0 * 100.0;
+        x  = pos / 65536.0 * 100.0;
         x += x < 0.0 ? -0.5 : 0.5;
         x  = (int)x;
         x  = x / 100.0 * 65536.0;
         x += x < 0.0 ? -0.5 : 0.5;
 
-        design_pos[axis] = (int)x;
+        pos = (int)x;
+      }
+
+      design_pos[axis] = pos;
+
+      if ( grouping )
+      {
+        /* synchronize hidden axes with visible axis */
+        for ( n = 0; n < used_num_axis; n++ )
+          if ( hidden[n]                          &&
+               multimaster->axis[n].tag == a->tag )
+            design_pos[n] = pos;
       }
 
       FT_Set_Var_Design_Coordinates( face, used_num_axis, design_pos );
@@ -942,8 +1063,8 @@
       goto Display_Font;
     }
 
-    /* if the user specified a position, use it, otherwise */
-    /* set the current position to the median of each axis */
+    /* if the user specified a position, use it, otherwise  */
+    /* set the current position to the default of each axis */
     if ( multimaster->num_axis > MAX_MM_AXES )
     {
       fprintf( stderr, "only handling first %d variation axes (of %d)\n",
@@ -952,6 +1073,20 @@
     }
     else
       used_num_axis = multimaster->num_axis;
+
+    for ( n = 0; n < MAX_MM_AXES; n++ )
+      shown_axes[n] = -1;
+
+    for ( n = 0; n < used_num_axis; n++ )
+    {
+      unsigned int  flags;
+
+
+      (void)FT_Get_Var_Axis_Flags( multimaster, n, &flags );
+      hidden[n] = flags & FT_VAR_AXIS_FLAG_HIDDEN;
+    }
+
+    set_up_axes();
 
     for ( n = 0; n < used_num_axis; n++ )
     {
@@ -1038,33 +1173,32 @@
 
         sprintf( Header, "axes:" );
         {
-          unsigned int  limit = used_num_axis > MAX_MM_AXES / 2
+          unsigned int  limit = num_shown_axes > MAX_MM_AXES / 2
                                   ? MAX_MM_AXES / 2
-                                  : used_num_axis;
+                                  : num_shown_axes;
 
 
           for ( n = 0; n < limit; n++ )
           {
-            char     temp[100];
-            FT_UInt  flags;
+            char  temp[100];
+            int   axis;
 
 
-            (void)FT_Get_Var_Axis_Flags( multimaster, n, &flags );
+            axis = shown_axes[n];
 
             sprintf( temp, "  %.50s%s: %.02f",
-                           multimaster->axis[n].name,
-                           flags & FT_VAR_AXIS_FLAG_HIDDEN ? "*"
-                                                           : "",
-                           design_pos[n] / 65536.0 );
+                           multimaster->axis[axis].name,
+                           hidden[axis] ? "*" : "",
+                           design_pos[axis] / 65536.0 );
             strncat( Header, temp,
                      sizeof ( Header ) - strlen( Header ) - 1 );
           }
         }
         grWriteCellString( &bit, 0, 24, Header, fore_color );
 
-        if ( used_num_axis > MAX_MM_AXES / 2 )
+        if ( num_shown_axes > MAX_MM_AXES / 2 )
         {
-          unsigned int  limit = used_num_axis;
+          unsigned int  limit = num_shown_axes;
 
 
           sprintf( Header, "     " );
@@ -1072,11 +1206,15 @@
           for ( n = MAX_MM_AXES / 2; n < limit; n++ )
           {
             char  temp[100];
+            int   axis;
 
 
-            sprintf( temp, "  %.50s: %.02f",
-                           multimaster->axis[n].name,
-                           design_pos[n] / 65536.0 );
+            axis = shown_axes[n];
+
+            sprintf( temp, "  %.50s%s: %.02f",
+                           multimaster->axis[axis].name,
+                           hidden[axis] ? "*" : "",
+                           design_pos[axis] / 65536.0 );
             strncat( Header, temp,
                      sizeof ( Header ) - strlen( Header ) - 1 );
           }
