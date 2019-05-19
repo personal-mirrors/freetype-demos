@@ -122,23 +122,25 @@
     /* Opcodes are gathered in groups of 16. */
     /* Please keep the spaces as they are.   */
 
-    /*  SVTCA  y  */  PACK( 0, 0 ),
-    /*  SVTCA  x  */  PACK( 0, 0 ),
-    /*  SPvTCA y  */  PACK( 0, 0 ),
-    /*  SPvTCA x  */  PACK( 0, 0 ),
-    /*  SFvTCA y  */  PACK( 0, 0 ),
-    /*  SFvTCA x  */  PACK( 0, 0 ),
-    /*  SPvTL //  */  PACK( 2, 0 ),
-    /*  SPvTL +   */  PACK( 2, 0 ),
-    /*  SFvTL //  */  PACK( 2, 0 ),
-    /*  SFvTL +   */  PACK( 2, 0 ),
-    /*  SPvFS     */  PACK( 2, 0 ),
-    /*  SFvFS     */  PACK( 2, 0 ),
+    /* 0x00 */
+    /*  SVTCA[0]  */  PACK( 0, 0 ),
+    /*  SVTCA[1]  */  PACK( 0, 0 ),
+    /*  SPVTCA[0] */  PACK( 0, 0 ),
+    /*  SPVTCA[1] */  PACK( 0, 0 ),
+    /*  SFVTCA[0] */  PACK( 0, 0 ),
+    /*  SFVTCA[1] */  PACK( 0, 0 ),
+    /*  SPVTL[0]  */  PACK( 2, 0 ),
+    /*  SPVTL[1]  */  PACK( 2, 0 ),
+    /*  SFVTL[0]  */  PACK( 2, 0 ),
+    /*  SFVTL[1]  */  PACK( 2, 0 ),
+    /*  SPVFS     */  PACK( 2, 0 ),
+    /*  SFVFS     */  PACK( 2, 0 ),
     /*  GPV       */  PACK( 0, 2 ),
     /*  GFV       */  PACK( 0, 2 ),
-    /*  SFvTPv    */  PACK( 0, 0 ),
+    /*  SFVTPV    */  PACK( 0, 0 ),
     /*  ISECT     */  PACK( 5, 0 ),
 
+    /* 0x10 */
     /*  SRP0      */  PACK( 1, 0 ),
     /*  SRP1      */  PACK( 1, 0 ),
     /*  SRP2      */  PACK( 1, 0 ),
@@ -152,10 +154,11 @@
     /*  SMD       */  PACK( 1, 0 ),
     /*  ELSE      */  PACK( 0, 0 ),
     /*  JMPR      */  PACK( 1, 0 ),
-    /*  SCvTCi    */  PACK( 1, 0 ),
-    /*  SSwCi     */  PACK( 1, 0 ),
+    /*  SCVTCI    */  PACK( 1, 0 ),
+    /*  SSWCI     */  PACK( 1, 0 ),
     /*  SSW       */  PACK( 1, 0 ),
 
+    /* 0x20 */
     /*  DUP       */  PACK( 1, 2 ),
     /*  POP       */  PACK( 1, 0 ),
     /*  CLEAR     */  PACK( 0, 0 ),
@@ -163,7 +166,7 @@
     /*  DEPTH     */  PACK( 0, 1 ),
     /*  CINDEX    */  PACK( 1, 1 ),
     /*  MINDEX    */  PACK( 1, 0 ),
-    /*  AlignPTS  */  PACK( 2, 0 ),
+    /*  ALIGNPTS  */  PACK( 2, 0 ),
     /*  INS_$28   */  PACK( 0, 0 ),
     /*  UTP       */  PACK( 1, 0 ),
     /*  LOOPCALL  */  PACK( 2, 0 ),
@@ -173,29 +176,31 @@
     /*  MDAP[0]   */  PACK( 1, 0 ),
     /*  MDAP[1]   */  PACK( 1, 0 ),
 
+    /* 0x30 */
     /*  IUP[0]    */  PACK( 0, 0 ),
     /*  IUP[1]    */  PACK( 0, 0 ),
-    /*  SHP[0]    */  PACK( 0, 0 ),
-    /*  SHP[1]    */  PACK( 0, 0 ),
+    /*  SHP[0]    */  PACK( 0, 0 ), /* loops */
+    /*  SHP[1]    */  PACK( 0, 0 ), /* loops */
     /*  SHC[0]    */  PACK( 1, 0 ),
     /*  SHC[1]    */  PACK( 1, 0 ),
     /*  SHZ[0]    */  PACK( 1, 0 ),
     /*  SHZ[1]    */  PACK( 1, 0 ),
-    /*  SHPIX     */  PACK( 1, 0 ),
-    /*  IP        */  PACK( 0, 0 ),
+    /*  SHPIX     */  PACK( 1, 0 ), /* loops */
+    /*  IP        */  PACK( 0, 0 ), /* loops */
     /*  MSIRP[0]  */  PACK( 2, 0 ),
     /*  MSIRP[1]  */  PACK( 2, 0 ),
-    /*  AlignRP   */  PACK( 0, 0 ),
+    /*  ALIGNRP   */  PACK( 0, 0 ), /* loops */
     /*  RTDG      */  PACK( 0, 0 ),
     /*  MIAP[0]   */  PACK( 2, 0 ),
     /*  MIAP[1]   */  PACK( 2, 0 ),
 
-    /*  NPushB    */  PACK( 0, 0 ),
-    /*  NPushW    */  PACK( 0, 0 ),
+    /* 0x40 */
+    /*  NPUSHB    */  PACK( 0, 0 ),
+    /*  NPUSHW    */  PACK( 0, 0 ),
     /*  WS        */  PACK( 2, 0 ),
     /*  RS        */  PACK( 1, 1 ),
-    /*  WCvtP     */  PACK( 2, 0 ),
-    /*  RCvt      */  PACK( 1, 1 ),
+    /*  WCVTP     */  PACK( 2, 0 ),
+    /*  RCVT      */  PACK( 1, 1 ),
     /*  GC[0]     */  PACK( 1, 1 ),
     /*  GC[1]     */  PACK( 1, 1 ),
     /*  SCFS      */  PACK( 2, 0 ),
@@ -203,10 +208,11 @@
     /*  MD[1]     */  PACK( 2, 1 ),
     /*  MPPEM     */  PACK( 0, 1 ),
     /*  MPS       */  PACK( 0, 1 ),
-    /*  FlipON    */  PACK( 0, 0 ),
-    /*  FlipOFF   */  PACK( 0, 0 ),
+    /*  FLIPON    */  PACK( 0, 0 ),
+    /*  FLIPOFF   */  PACK( 0, 0 ),
     /*  DEBUG     */  PACK( 1, 0 ),
 
+    /* 0x50 */
     /*  LT        */  PACK( 2, 1 ),
     /*  LTEQ      */  PACK( 2, 1 ),
     /*  GT        */  PACK( 2, 1 ),
@@ -220,10 +226,11 @@
     /*  AND       */  PACK( 2, 1 ),
     /*  OR        */  PACK( 2, 1 ),
     /*  NOT       */  PACK( 1, 1 ),
-    /*  DeltaP1   */  PACK( 1, 0 ),
+    /*  DELTAP1   */  PACK( 1, 0 ),
     /*  SDB       */  PACK( 1, 0 ),
     /*  SDS       */  PACK( 1, 0 ),
 
+    /* 0x60 */
     /*  ADD       */  PACK( 2, 1 ),
     /*  SUB       */  PACK( 2, 1 ),
     /*  DIV       */  PACK( 2, 1 ),
@@ -241,14 +248,15 @@
     /*  NROUND[2] */  PACK( 1, 1 ),
     /*  NROUND[3] */  PACK( 1, 1 ),
 
-    /*  WCvtF     */  PACK( 2, 0 ),
-    /*  DeltaP2   */  PACK( 1, 0 ),
-    /*  DeltaP3   */  PACK( 1, 0 ),
-    /*  DeltaCn[0] */ PACK( 1, 0 ),
-    /*  DeltaCn[1] */ PACK( 1, 0 ),
-    /*  DeltaCn[2] */ PACK( 1, 0 ),
+    /* 0x70 */
+    /*  WCVTF     */  PACK( 2, 0 ),
+    /*  DELTAP2   */  PACK( 1, 0 ),
+    /*  DELTAP3   */  PACK( 1, 0 ),
+    /*  DELTACN[0] */ PACK( 1, 0 ),
+    /*  DELTACN[1] */ PACK( 1, 0 ),
+    /*  DELTACN[2] */ PACK( 1, 0 ),
     /*  SROUND    */  PACK( 1, 0 ),
-    /*  S45Round  */  PACK( 1, 0 ),
+    /*  S45ROUND  */  PACK( 1, 0 ),
     /*  JROT      */  PACK( 2, 0 ),
     /*  JROF      */  PACK( 2, 0 ),
     /*  ROFF      */  PACK( 0, 0 ),
@@ -258,23 +266,25 @@
     /*  SANGW     */  PACK( 1, 0 ),
     /*  AA        */  PACK( 1, 0 ),
 
-    /*  FlipPT    */  PACK( 0, 0 ),
-    /*  FlipRgON  */  PACK( 2, 0 ),
-    /*  FlipRgOFF */  PACK( 2, 0 ),
+    /* 0x80 */
+    /*  FLIPPT    */  PACK( 0, 0 ), /* loops */
+    /*  FLIPRGON  */  PACK( 2, 0 ),
+    /*  FLIPRGOFF */  PACK( 2, 0 ),
     /*  INS_$83   */  PACK( 0, 0 ),
     /*  INS_$84   */  PACK( 0, 0 ),
-    /*  ScanCTRL  */  PACK( 1, 0 ),
-    /*  SDVPTL[0] */  PACK( 2, 0 ),
-    /*  SDVPTL[1] */  PACK( 2, 0 ),
-    /*  GetINFO   */  PACK( 1, 1 ),
+    /*  SCANCTRL  */  PACK( 1, 0 ),
+    /*  SDPVTL[0] */  PACK( 2, 0 ),
+    /*  SDPVTL[1] */  PACK( 2, 0 ),
+    /*  GETINFO   */  PACK( 1, 1 ),
     /*  IDEF      */  PACK( 1, 0 ),
     /*  ROLL      */  PACK( 3, 3 ),
     /*  MAX       */  PACK( 2, 1 ),
     /*  MIN       */  PACK( 2, 1 ),
-    /*  ScanTYPE  */  PACK( 1, 0 ),
-    /*  InstCTRL  */  PACK( 2, 0 ),
+    /*  SCANTYPE  */  PACK( 1, 0 ),
+    /*  INSTCTRL  */  PACK( 2, 0 ),
     /*  INS_$8F   */  PACK( 0, 0 ),
 
+    /* 0x90 */
     /*  INS_$90  */   PACK( 0, 0 ),
     /*  INS_$91  */   PACK( 0, 0 ),
     /*  INS_$92  */   PACK( 0, 0 ),
@@ -292,6 +302,7 @@
     /*  INS_$9E  */   PACK( 0, 0 ),
     /*  INS_$9F  */   PACK( 0, 0 ),
 
+    /* 0xA0 */
     /*  INS_$A0  */   PACK( 0, 0 ),
     /*  INS_$A1  */   PACK( 0, 0 ),
     /*  INS_$A2  */   PACK( 0, 0 ),
@@ -309,23 +320,25 @@
     /*  INS_$AE  */   PACK( 0, 0 ),
     /*  INS_$AF  */   PACK( 0, 0 ),
 
-    /*  PushB[0]  */  PACK( 0, 1 ),
-    /*  PushB[1]  */  PACK( 0, 2 ),
-    /*  PushB[2]  */  PACK( 0, 3 ),
-    /*  PushB[3]  */  PACK( 0, 4 ),
-    /*  PushB[4]  */  PACK( 0, 5 ),
-    /*  PushB[5]  */  PACK( 0, 6 ),
-    /*  PushB[6]  */  PACK( 0, 7 ),
-    /*  PushB[7]  */  PACK( 0, 8 ),
-    /*  PushW[0]  */  PACK( 0, 1 ),
-    /*  PushW[1]  */  PACK( 0, 2 ),
-    /*  PushW[2]  */  PACK( 0, 3 ),
-    /*  PushW[3]  */  PACK( 0, 4 ),
-    /*  PushW[4]  */  PACK( 0, 5 ),
-    /*  PushW[5]  */  PACK( 0, 6 ),
-    /*  PushW[6]  */  PACK( 0, 7 ),
-    /*  PushW[7]  */  PACK( 0, 8 ),
+    /* 0xB0 */
+    /*  PUSHB[0]  */  PACK( 0, 1 ),
+    /*  PUSHB[1]  */  PACK( 0, 2 ),
+    /*  PUSHB[2]  */  PACK( 0, 3 ),
+    /*  PUSHB[3]  */  PACK( 0, 4 ),
+    /*  PUSHB[4]  */  PACK( 0, 5 ),
+    /*  PUSHB[5]  */  PACK( 0, 6 ),
+    /*  PUSHB[6]  */  PACK( 0, 7 ),
+    /*  PUSHB[7]  */  PACK( 0, 8 ),
+    /*  PUSHW[0]  */  PACK( 0, 1 ),
+    /*  PUSHW[1]  */  PACK( 0, 2 ),
+    /*  PUSHW[2]  */  PACK( 0, 3 ),
+    /*  PUSHW[3]  */  PACK( 0, 4 ),
+    /*  PUSHW[4]  */  PACK( 0, 5 ),
+    /*  PUSHW[5]  */  PACK( 0, 6 ),
+    /*  PUSHW[6]  */  PACK( 0, 7 ),
+    /*  PUSHW[7]  */  PACK( 0, 8 ),
 
+    /* 0xC0 */
     /*  MDRP[00]  */  PACK( 1, 0 ),
     /*  MDRP[01]  */  PACK( 1, 0 ),
     /*  MDRP[02]  */  PACK( 1, 0 ),
@@ -343,6 +356,7 @@
     /*  MDRP[14]  */  PACK( 1, 0 ),
     /*  MDRP[15]  */  PACK( 1, 0 ),
 
+    /* 0xD0 */
     /*  MDRP[16]  */  PACK( 1, 0 ),
     /*  MDRP[17]  */  PACK( 1, 0 ),
     /*  MDRP[18]  */  PACK( 1, 0 ),
@@ -360,6 +374,7 @@
     /*  MDRP[30]  */  PACK( 1, 0 ),
     /*  MDRP[31]  */  PACK( 1, 0 ),
 
+    /* 0xE0 */
     /*  MIRP[00]  */  PACK( 2, 0 ),
     /*  MIRP[01]  */  PACK( 2, 0 ),
     /*  MIRP[02]  */  PACK( 2, 0 ),
@@ -377,6 +392,7 @@
     /*  MIRP[14]  */  PACK( 2, 0 ),
     /*  MIRP[15]  */  PACK( 2, 0 ),
 
+    /* 0xF0 */
     /*  MIRP[16]  */  PACK( 2, 0 ),
     /*  MIRP[17]  */  PACK( 2, 0 ),
     /*  MIRP[18]  */  PACK( 2, 0 ),
