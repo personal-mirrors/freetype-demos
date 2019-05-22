@@ -803,6 +803,661 @@
   };
 
 
+  /*
+   * structure of documentation string:
+   *
+   *   explanation string
+   *     [... i3 i2 i1 (stream data) o1 o2 o3 ...]
+   *
+   * The `(stream data)' part represents the top of the stack; this means
+   * that `i1' and `o1' are the top stack values before and after the
+   * operation, respectively.  A hyphen indicates that no data is popped (or
+   * pushed).  If no argument is either popped from or pushed to the stack,
+   * the stack layout gets omitted.
+   *
+   * In the explanation, the short-hands `[FV]', `[PV]', and `[DPV] mean
+   * `measured along the freedom vector', `measured along the projection
+   * vector', `measured along the dual-projection vector', respectively.
+   * `<L>' indicates that the marked opcode obeys the loop counter.
+   */
+
+  static const FT_String*  OpStrDoc[256] =
+  {
+    /* 0x00 */
+    "Set all graphics state vectors to y axis.",
+    "Set all graphics state vectors to x axis.",
+    "Set projection and dual-projection vectors to y axis.",
+    "Set projection and dual-projection vectors to x axis.",
+
+    "Set freedom vector to y axis.",
+    "Set freedom vector to x axis.",
+    "Set projection and dual-projection vectors parallel to vector P1P2:\n"
+      "  p2 p1 (%s) -",
+    "Set projection and dual-projection vectors perpendicular to vector P1P2:\n"
+      "  p2 p1 (%s) -",
+
+    "Set freedom vector parallel to vector P1P2:\n"
+      "  p2 p1 (%s) -",
+    "Set freedom vector perpendicular to vector P1P2:\n"
+      "  p2 p1 (%s) -",
+    "Set projection and dual-projection vectors from vector (X,Y):\n"
+      "  x y (%s) -",
+    "Set freedom vector from vector (X,Y):\n"
+      "  x y (%s) -",
+
+    "Get projection vector (X,Y):\n"
+      "  - (%s) y x",
+    "Get freedom vector (X,Y):\n"
+      "  - (%s) y x",
+    "Set freedom vector to projection vector.",
+    "Set point P to intersection of lines A0A1 and B0B1:\n"
+      "  p a0 a1 b0 b1 (%s) -",
+
+    /* 0x10 */
+    "Set RP0 to P:\n"
+      "  p (%s) -",
+    "Set RP1 to P:\n"
+      "  p (%s) -",
+    "Set RP2 to P:\n"
+      "  p (%s) -",
+    "Set ZP0 to zone N:\n"
+      "  n (%s) -",
+
+    "Set ZP1 to zone N:\n"
+      "  n (%s) -",
+    "Set ZP2 to zone N:\n"
+      "  n (%s) -",
+    "Set all zone pointers to zone N:\n"
+      "  n (%s) -",
+    "Set loop counter to N:\n"
+      "  n (%s) -",
+
+    "Set rounding state to 'round to grid'.",
+    "Set rounding state to 'round to half grid'.",
+    "Set minimum distance to N:\n"
+      "  n (%s) -",
+    "Mark start of block to be executed if previous IF instruction is false.",
+
+    "Jump N bytes in instruction stream:\n"
+      "  n (%s) -",
+    "Set CVT cut-in value to N:\n"
+      "  n (%s) -",
+    "Set single-width cut-in to N:\n"
+      "  n (%s) -",
+    "Set single width to N:\n"
+      "  n (%s) -",
+
+    /* 0x20 */
+    "Duplicate top stack element E:\n"
+      "  e (%s) e e",
+    "Pop top element E off the stack:\n"
+      "  e (%s) -",
+    "Clear entire stack:\n"
+      "  ... (%s) -",
+    "Swap top two elements E1 and E2 of the stack:\n"
+      "  e2 e1 (%s) e2 e1",
+
+    "Return depth N of the stack:\n"
+      "  (%s) n",
+    "Copy stack value EK to top of stack:\n"
+      "  ... ek ... e2 e1 k (%s) ek e1 e2 ... ek ...",
+    "Move stack value EK to top of stack:\n"
+      "  ... ek ... e2 e1 k (%s) ek e1 e2 ... ek-1 ek+1 ...",
+    "Move points P1 and P2 [FV] to their average distance [PV]:\n"
+      "  p2 p1 (%s) -",
+
+    "Invalid opcode.",
+    "Mark point P as untouched:\n"
+      "  p (%s) -",
+    "Call N times the function with index I:\n"
+      "  n i (%s) -",
+    "Call function with index I:\n"
+      "  i (%s) -",
+
+    "Mark start of function definition with index I:\n"
+      "  i (%s) -",
+    "Mark end of FDEF or IDEF.",
+    "Set RP0=RP1=P:\n"
+      "  p (%s) -",
+    "Measure [PV] and apply [FV] rounding state, then set RP0=RP1=P:\n"
+      "  p (%s) -",
+
+    /* 0x30 */
+    "Interpolate untouched points between touched ones in the y direction.",
+    "Interpolate untouched points between toucned ones in the x direction.",
+    "Shift point P [FV] by distance (origin,current) [PV] of RP2 <L>:\n"
+      "  p (%s) -",
+    "Shift point P [FV] by distance (origin,current) [PV] of RP1 <L>:\n"
+      "  p (%s) -",
+
+    "Shift contour C [FV] by distance (origin,current) [PV] of RP2:\n"
+      "  c (%s) -",
+    "Shift contour C [FV] by distance (origin,current) [PV] of RP1:\n"
+      "  c (%s) -",
+    "Shift zone N [FV] by distance (origin,current) [PV] of RP2:\n"
+      "  n (%s) -",
+    "Shift zone N [FV] by distance (origin,current) [PV] of RP1:\n"
+      "  n (%s) -",
+
+    "Shift point P [FV] by N pixels <L>:\n"
+      "  p n (%s) -",
+    "Interpolate current position of point P between RP1 and RP2 [FV],\n"
+      "preserving relative original distances [PV]:\n"
+      "  p (%s) -",
+    "Make distance between points RP0 and P [FV] equal to D [PV],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p d (%s) -",
+    "Make distance between points RP0 and P [FV] equal to D [PV],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p d (%s) -",
+
+    "Move point P [FV] until distance to RP0 becomes zero [PV]:\n"
+      "  p (%s) -",
+    "Set rounding state to 'round to double grid'.",
+    "Move point P [FV] to CVT index I value [PV], then set RP0=RP1=P:\n"
+      "  p i (%s) -",
+    "Move point P [FV] to CVT index I value [PV, cut-in, rounding state],\n"
+      "then set RP0=RP1=P:\n"
+      "  p i (%s) -",
+
+    /* 0x40 */
+    "Push N bytes to the stack:\n"
+      "  - (%s n b1 b2 ... bn) bn ... b2 b1",
+    "Push N words to the stack:\n"
+      "  - (%s n w1 w2 ... wn) wn ... w2 w1",
+    "Write X to storage area index I:\n"
+      "  i x (%s) -",
+    "Read X from storage area index I:\n"
+      "  i (%s) x",
+
+    "Write X to CVT index I in pixels:\n"
+      "  i x (%s) -",
+    "Read X from CVT index I:\n"
+      "  i (%s) x",
+    "Get point P's current position X [PV]:\n"
+      "  p (%s) x",
+    "Get point P's original position X [DPV]:\n"
+      "  p (%s) x",
+
+    "Move point P [FV] until distance becomes D [PV]:\n"
+      "  p d (%s) -",
+    "Get current length D of vector P1P2 [PV]:\n"
+      "  p2 p1 (%s) d",
+    "Get original length D of vector P1P2 [DPV]:\n"
+      "  p2 p1 (%s) d",
+    "Get number of pixels per EM:\n"
+      "  - (%s) ppem",
+
+    "Get current point size S:\n"
+      "  - (%s) s",
+    "Set auto flip to true.",
+    "Set auto flip to false.",
+    "Instruction for debugging; not supported in FreeType.",
+
+    /* 0x50 */
+    "Return B=1 if E1 < E2, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+    "Return B=1 if E1 <= E2, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+    "Return B=1 if E1 > E2, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+    "Return B=1 if E1 >= E2, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+
+    "Return B=1 if E1 == E2, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+    "Return B=1 if E1 != E2, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+    "Return B=1 if E is odd, B=0 otherwise:\n"
+      "  e (%s) b",
+    "Return B=1 if E is even, B=0 otherwise:\n"
+      "  e (%s) b",
+
+    "If value E is false, jump to next ELSE or EIF instruction:\n"
+      "  e (%s) -",
+    "Mark end of an IF block.",
+    "Return B=1 if both E1 and E2 are not zero, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+    "Return B=1 if either E1 or E2 is not zero, B=0 otherwise:\n"
+      "  e1 e2 (%s) b",
+
+    "Return B=1 if E is zero, B=0 otherwise:\n"
+      "  e (%s) b",
+    "Apply N delta exceptions ARG1 to ARGN [FV] for points P1 to PN\n"
+      "(range [delta base;delta base+15]):\n"
+      "  ... arg2 p2 arg1 p1 n (%s) -",
+    "Set delta base to N:\n"
+      "  n (%s) -",
+    "Set delta shift to N:\n"
+      "  n (%s) -",
+
+    /* 0x60 */
+    "Return C = A + B:\n"
+      "  a b (%s) c",
+    "Return C = A - B:\n"
+      "  a b (%s) c",
+    "Return C = A / B:\n"
+      "  a b (%s) c",
+    "Return C = A * B:\n"
+      "  a b (%s) c",
+
+    "Return C = |A|:\n"
+      "  a (%s) c",
+    "Return C = -A:\n"
+      "  a (%s) c",
+    "Return greatest integer value C which is <= A:\n"
+      "  a (%s) c",
+    "Return least integer value C which is >= A:\n"
+      "  a (%s) c",
+
+    "Pop A, perform engine correction for gray, apply rounding state,\n"
+      "and push result as B:\n"
+      "  a (%s) b",
+    "Pop A, perform engine correction for black, apply rounding state,\n"
+      "and push result as B:\n"
+      "  a (%s) b",
+    "Pop A, perform engine correction for white, apply rounding state,\n"
+      "and push result as B:\n"
+      "  a (%s) b",
+    "Pop A, apply rounding state, and push result as B:\n"
+      "  a (%s) b",
+
+    "Pop A, perform engine correction for gray, and push result as B:\n"
+      "a (%s) b",
+    "Pop A, perform engine correction for black, and push result as B:\n"
+      "a (%s) b",
+    "Pop A, perform engine correction for white, and push result as B:\n"
+      "a (%s) b",
+    "This is a no-op.",
+
+    /* 0x70 */
+    "Write X to CVT index I in font units:\n"
+      "  i x (%s) -",
+    "Apply N delta exceptions ARG1 to ARGN [FV] for points P1 to PN\n"
+      "(range [delta base+16;delta base+31]):\n"
+      "  ... arg2 p2 arg1 p1 n (%s) -",
+    "Apply N delta exceptions ARG1 to ARGN [FV] for points P1 to PN\n"
+      "(range [delta base+32;delta base+47]):\n"
+      "  ... arg2 p2 arg1 p1 n (%s) -",
+    "Apply N delta exceptions ARG1 to ARGN for CVT values\n"
+      "with indices C1 to CN (range [delta base;delta base+15]:\n"
+      "... arg2 c2 arg1 c1 n (%s) -",
+
+    "Apply N delta exceptions ARG1 to ARGN for CVT values\n"
+      "with indices C1 to CN (range [delta base+16;delta base+31]):\n"
+      "... arg2 c2 arg1 c1 n (%s) -",
+    "Apply N delta exceptions ARG1 to ARGN for CVT values\n"
+      "with indices C1 to CN (range [delta base+32;delta base+47]):\n"
+      "... arg2 c2 arg1 c1 n (%s) -",
+    "Set rounding state to 'super round to N':\n"
+      "  n (%s) -",
+    "Set rounding state to 'super round 45 degrees to N':\n"
+      "  n (%s) -",
+
+    "Jump N bytes in instruction stream if E is true:\n"
+      "  n e (%s) -",
+    "Jump N bytes in instruction stream if E is false:\n"
+      "  n e (%s) -",
+    "Set rounding state to 'no rounding'.",
+    "Invalid opcode.",
+
+    "Set rounding state to 'round up to grid'.",
+    "Set rounding state to 'round down to grid'.",
+    "Set angle weight (deprecated, unsupported):\n"
+      "  w (%s) -",
+    "Adjust angle (deprecated, unsupported):\n"
+      "  a (%s) -",
+
+    /* 0x80 */
+    "Flip on-off curve status of point P <L>:\n"
+      "  p (%s) -",
+    "Make off-curve points on-curve for index range [A;B]:\n"
+      "  a b (%s) -",
+    "Make on-curve points off-curve for index range [A;B]:\n"
+      "  a b (%s) -",
+    "Invalid opcode.",
+
+    "Invalid opcode.",
+    "Set scan control variable to N:\n"
+      "  n (%s) -",
+    "Set dual projection vector parallel to vector P1P2:\n"
+      "  p2 p1 (%s) -",
+    "Set dual projection vector perpendicular to vector P1P2:\n"
+      "  p2 p1 (%s) -",
+
+    "For selector S, get value V describing rasterizer version\n"
+      "or characteristics of current glyph:\n"
+      "  s (%s) v",
+    "Mark start of instruction definition with opcode I:\n"
+      "  i (%s) -",
+    "Roll top three stack elements A, B, and C:\n"
+      "  c b a (%s) c a b",
+    "Return C=A if A > B, C=B otherwise:\n"
+      "  a b (%s) c",
+
+    "Return C=A if A < B, C=B otherwise:\n"
+      "  a b (%s) c",
+    "Make scan converter use rule N:\n"
+      "  n (%s) -",
+    "Set selector S to value V in instruction control variable:\n"
+      "  v s (%s) -",
+    "Invalid opcode.",
+
+    /* 0x90 */
+    "Invalid opcode.",
+    "For variation fonts, get normalized axes coordinates A1, A2, ..., AN:\n"
+      "  - (%s) an ... a2 a1",
+    "Old opcode with unknown function, always returning number 17:\n"
+      "  - (%s) 17",
+    "Invalid opcode.",
+
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+
+    /* 0xA0 */
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+    "Invalid opcode.",
+
+    /* 0xB0 */
+    "Push one byte to the stack:\n"
+      "  - (%s b1) b1",
+    "Push two bytes to the stack:\n"
+      "  - (%s b1 b2) b2 b1",
+    "Push three bytes to the stack:\n"
+      "  - (%s b1 b2 b3) b3 b2 b1",
+    "Push four bytes to the stack:\n"
+      "  - (%s b1 b3 b3 b4) b4 b3 b2 b1",
+
+    "Push five bytes to the stack:\n"
+      "  - (%s b1 b2 b3 b4 b5) b5 b4 b3 b2 b1",
+    "Push six bytes to the stack:\n"
+      "  - (%s b1 b2 b3 b4 b5 b6) b6 b5 b4 b3 b2 b1",
+    "Push seven bytes to the stack:\n"
+      "  - (%s b1 b2 b3 b4 b5 b6 b7) b7 b6 b5 b4 b3 b2 b1",
+    "Push eight bytes to the stack:\n"
+      "  - (%s b1 b2 b3 b4 b5 b6 b7 b8) b8 b7 b6 b5 b4 b3 b2 b1",
+
+    "Push one word to the stack:\n"
+      "  - (%s w1) w1",
+    "Push two words to the stack:\n"
+      "  - (%s w1 w2) w2 w1",
+    "Push three words to the stack:\n"
+      "  - (%s w1 w2 w3) w3 w2 w1",
+    "Push four words to the stack:\n"
+      "  - (%s w1 w2 w3 w4) w4 w3 w2 w1",
+
+    "Push five words to the stack:\n"
+      "  - (%s w1 w2 w3 w4 w5) w5 w4 w3 w2 w1",
+    "Push six words to the stack:\n"
+      "  - (%s w1 w2 w3 w4 w5 w6) w6 w5 w4 w3 w2 w1",
+    "Push seven words to the stack:\n"
+      "  - (%s w1 w2 w3 w4 w5 w6 w7) w7 w6 w5 w4 w3 w2 w1",
+    "Push eight words to the stack:\n"
+      "  - (%s w1 w2 w3 w4 w5 w6 w7 w8) w8 w7 w6 w5 w4 w3 w2 w1",
+
+    /* 0xC0 */
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p (%s) -",
+
+    /* 0xD0 */
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV, rounding state], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "original one [DPV, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p (%s) -",
+
+    /* 0xE0 */
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P:\n"
+      "  p i (%s) -",
+
+    /* 0xF0 */
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV, minimum distance], then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+
+    "Make current distance between points RP0 and P [FV, gray] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, black] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV, white] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -",
+    "Make current distance between points RP0 and P [FV] equal to\n"
+      "CVT index I value [DPV, cut-in, rounding state, minimum distance],\n"
+      "then set RP1=RP0, RP2=P, RP0=P:\n"
+      "  p i (%s) -"
+  };
+
+
   /*********************************************************************
    *
    * Init_Keyboard: Set the input file descriptor to char-by-char
@@ -1519,17 +2174,19 @@
             "R   restart debugger                    G   show graphics state\n"
             "c   continue to next code range         P   show points zone\n"
             "n   skip to next instruction            T   show twilight zone\n"
-            "s   step into                           S   show storage area\n"
+            "s   step into function                  S   show storage area\n"
             "f   finish current function             C   show CVT data\n"
             "l   show last bytecode instruction      K   show full stack\n"
-            "b   toggle breakpoint at curr. pos.     F   toggle floating/fixed\n"
-            "p   toggle breakpoint at prev. pos.         point format\n"
-            "                                        I   toggle hexadecimal/\n"
-            "                                            decimal int. format\n"
-            "                                        B   show backtrace\n"
-            "\n"
-            "\n"
-            "  Format of point changes:\n"
+            "b   toggle breakpoint at curr. pos.     B   show backtrace\n"
+            "p   toggle breakpoint at prev. pos.     O   show opcode docstring\n"
+            "F   toggle floating/fixed point format\n"
+            "I   toggle hex/decimal integer format   H   show format help\n"
+            "\n" );
+          break;
+
+        case 'H':
+          printf(
+            "Format of value changes:\n"
             "\n"
             "    idx   orus.x  orus.y  tags  org.x  org.y  cur.x  cur.y\n"
             "\n"
@@ -1544,6 +2201,23 @@
             "\n"
             "  Possible tag values are `P' (on curve), `C' (control point),\n"
             "  `X' (touched horizontally), and `Y' (touched vertically).\n"
+            "\n"
+            "Format of opcode help:\n"
+            "\n"
+            "    explanation string[: ... i3 i2 i1 (stream data) o1 o2 o3 ...]\n"
+            "\n"
+            "  The `(stream data)' part represents the top of the stack;\n"
+            "  this means that `i1' and `o1' are the top stack values\n"
+            "  before and after the operation, respectively.\n"
+            "  A hyphen indicates that no data is popped (or pushed).\n"
+            "  If no argument is either popped from or pushed to the stack,\n"
+            "  the colon and the following part gets omitted\n"
+            "  (and a full stop is printed instead).\n"
+            "\n"
+            "  `[FV]', `[PV]', and `[DPV]' mean `measured along the\n"
+            "  freedom vector', `measured along the projection vector', and\n"
+            "  `measured along the dual-projection vector', respectively.\n"
+            "  `<L>' indicates that the opcode obeys the loop counter.\n"
             "\n" );
           break;
 
@@ -1712,7 +2386,7 @@
               printf( "\n" );
             }
             else
-              printf( "Stack empty\n" );
+              printf( "Stack empty.\n" );
           }
           break;
 
@@ -1757,6 +2431,17 @@
                             : 'g' ),
                       rec->Caller_IP - 1 );
             }
+            printf( "\n" );
+          }
+          break;
+
+        /* Show opcode help string */
+        case 'O':
+          {
+            FT_Int  op = CUR.code[CUR.IP];
+
+
+            printf( OpStrDoc[op], OpStr[op] );
             printf( "\n" );
           }
           break;

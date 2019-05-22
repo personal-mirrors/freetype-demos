@@ -1,5 +1,16 @@
 2019-05-22  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] New key `O' to show opcode help string.
+
+	Also add key `H' to show help on the formatting of data.
+
+	* src/ttdebug.c (OpStrDoc): New global array.
+	(RunIns) <'h'>: Move help on format of value changes to...
+	<'H'>: ... this key.  Also describe format of opcode syntax.
+	<'O'>: Show opcode help string.
+
+2019-05-22  Werner Lemberg  <wl@gnu.org>
+
 	[ttdebug] Add support for GETVARIATION and GETDATA opcodes.
 
 	* src/ttdebug.c: Include FT_MULTIPLE_MASTERS_H.
