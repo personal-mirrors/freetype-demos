@@ -1,3 +1,10 @@
+2018-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Prepare for scripting.
+
+	* src/{ftview.c,ftstring.c,ftgrid.c,ftmulti.c,ftgamma.c} 
+	(main, Process_Event): Consolidate event handling.
+
 2019-04-28  Werner Lemberg  <wl@gnu.org>
 
 	[ftmulti] Add axis grouping.

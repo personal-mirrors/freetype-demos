@@ -437,21 +437,24 @@
 
 
   static int
-  Process_Event( grEvent*  event )
+  Process_Event( void )
   {
+    grEvent                 event;
     FTDemo_String_Context*  sc  = &status.sc;
     int                     ret = 0;
 
 
-    if ( event->key >= '1' && event->key < '1' + N_RENDER_MODES )
+    grListenSurface( display->surface, 0, &event );
+
+    if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
-      status.render_mode = (int)( event->key - '1' );
+      status.render_mode = (int)( event.key - '1' );
       event_render_mode_change( 0 );
 
       return ret;
     }
 
-    switch ( event->key )
+    switch ( event.key )
     {
     case grKeyEsc:
     case grKEY( 'q' ):
@@ -863,9 +866,6 @@
   main( int     argc,
         char**  argv )
   {
-    grEvent  event;
-
-
     /* Initialize engine */
     handle = FTDemo_New();
 
@@ -943,8 +943,7 @@
       write_header( error );
 
       status.header = 0;
-      grListenSurface( display->surface, 0, &event );
-    } while ( !Process_Event( &event ) );
+    } while ( !Process_Event() );
 
     printf( "Execution completed successfully.\n" );
 

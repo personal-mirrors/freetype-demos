@@ -595,13 +595,16 @@
 
 
   static int
-  Process_Event( grEvent*  event )
+  Process_Event( void )
   {
+    grEvent       event;
     int           i;
     unsigned int  axis;
 
 
-    switch ( event->key )
+    grListenSurface( surface, 0, &event );
+
+    switch ( event.key )
     {
     case grKeyEsc:            /* ESC or q */
     case grKEY( 'q' ):
@@ -635,7 +638,7 @@
 
     case grKEY( 'n' ):
     case grKEY( 'p' ):
-      return (int)event->key;
+      return (int)event.key;
 
     case grKEY( 'h' ):
       hinted     = !hinted;
@@ -915,8 +918,6 @@
     int    file_loaded;
 
     unsigned int  n;
-
-    grEvent  event;
 
     unsigned int  dflt_tt_interpreter_version;
     unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
@@ -1260,8 +1261,7 @@
       grWriteCellString( &bit, 0, 8, Header, fore_color );
       grRefreshSurface( surface );
 
-      grListenSurface( surface, 0, &event );
-      if ( !( key = Process_Event( &event ) ) )
+      if ( !( key = Process_Event() ) )
         goto End;
 
       if ( key == 'n' )

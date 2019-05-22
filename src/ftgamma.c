@@ -321,11 +321,15 @@
 
 
   static int
-  Process_Event( grEvent*  event )
+  Process_Event( void )
   {
-    int  ret = 0;
+    grEvent  event;
+    int      ret = 0;
 
-    switch ( event->key )
+
+    grListenSurface( display->surface, 0, &event );
+
+    switch ( event.key )
     {
     case grKeyEsc:
     case grKEY( 'q' ):
@@ -362,9 +366,8 @@
   int
   main( void )
   {
-    grEvent          event;
-    char             buf[4];
-    int              i;
+    char  buf[4];
+    int   i;
 
     display = FTDemo_Display_New( DIM );
     if ( !display )
@@ -417,8 +420,7 @@
                          "Gamma", display->fore_color );
 
       grRefreshSurface( display->surface );
-      grListenSurface( display->surface, 0, &event );
-    } while ( Process_Event( &event ) == 0 );
+    } while ( Process_Event() == 0 );
 
     FTDemo_Display_Done( display );
 

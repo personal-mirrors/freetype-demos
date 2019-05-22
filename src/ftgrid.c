@@ -1374,14 +1374,17 @@
 
 
   static int
-  Process_Event( grEvent*  event )
+  Process_Event( void )
   {
-    int  ret = 0;
+    grEvent  event;
+    int      ret = 0;
 
+
+    grListenSurface( display->surface, 0, &event );
 
     status.header = NULL;
 
-    switch ( event->key )
+    switch ( event.key )
     {
     case grKeyEsc:
     case grKEY( 'q' ):
@@ -1851,7 +1854,6 @@
   main( int    argc,
         char*  argv[] )
   {
-    grEvent       event;
     int           n;
     unsigned int  dflt_tt_interpreter_version;
     unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
@@ -1929,7 +1931,7 @@
 
     grid_status_rescale_initial( &status, handle );
 
-    for ( ;; )
+    do
     {
       FTDemo_Display_Clear( display );
 
@@ -1941,10 +1943,7 @@
 
       write_header( 0 );
 
-      grListenSurface( display->surface, 0, &event );
-      if ( Process_Event( &event ) )
-        break;
-    }
+    } while ( !Process_Event() );
 
     printf( "Execution completed successfully.\n" );
 

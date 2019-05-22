@@ -1117,27 +1117,29 @@
 
 
   static int
-  Process_Event( grEvent*  event )
+  Process_Event( void )
   {
-    int  ret = 0;
+    grEvent  event;
+    int      ret = 0;
 
 
+    grListenSurface( display->surface, 0, &event );
     status.update = 0;
 
-    if ( status.render_mode == (int)( event->key - '1' ) )
+    if ( status.render_mode == (int)( event.key - '1' ) )
       return ret;
-    if ( event->key >= '1' && event->key < '1' + N_RENDER_MODES )
+    if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
-      status.render_mode = (int)( event->key - '1' );
+      status.render_mode = (int)( event.key - '1' );
       event_render_mode_change( 0 );
       status.update = 1;
       return ret;
     }
 
-    if ( event->key >= 'A'             &&
-         event->key < 'A' + N_LCD_IDXS )
+    if ( event.key >= 'A'             &&
+         event.key < 'A' + N_LCD_IDXS )
     {
-      int  lcd_idx = (int)( event->key - 'A' );
+      int  lcd_idx = (int)( event.key - 'A' );
 
 
       if ( status.lcd_idx == lcd_idx )
@@ -1150,7 +1152,7 @@
       return ret;
     }
 
-    switch ( event->key )
+    switch ( event.key )
     {
     case grKeyEsc:
     case grKEY( 'q' ):
@@ -1256,7 +1258,7 @@
     case grKEY( 'k' ):
       status.lcd_idx =
         ( status.lcd_idx                          +
-          ( event->key == grKEY( 'l' ) ? 1 : -1 ) +
+          ( event.key == grKEY( 'l' ) ? 1 : -1 ) +
           N_LCD_IDXS                              ) % N_LCD_IDXS;
 
       handle->lcd_mode = lcd_modes[status.lcd_idx];
@@ -1387,7 +1389,7 @@
          handle->lcd_mode < LCD_MODE_RGB                 )
       return ret;
 
-    switch ( event->key )
+    switch ( event.key )
     {
     case grKEY( 'L' ):
       FTC_Manager_RemoveFaceID( handle->cache_manager,
@@ -1935,7 +1937,6 @@
   main( int    argc,
         char*  argv[] )
   {
-    grEvent  event;
     unsigned int  dflt_tt_interpreter_version;
     int           i;
     unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
@@ -2009,7 +2010,7 @@
     do
     {
       if ( !status.update )
-        goto Listen;
+        continue;
 
       FTDemo_Display_Clear( display );
 
@@ -2041,9 +2042,7 @@
 
       write_header( error );
 
-    Listen:
-      grListenSurface( display->surface, 0, &event );
-    } while ( Process_Event( &event ) == 0 );
+    } while ( Process_Event() == 0 );
 
     printf( "Execution completed successfully.\n" );
     printf( "Fails = %d\n", status.num_fails );
