@@ -621,7 +621,7 @@
     fprintf( stderr,
       "  -d WxHxD  Set the window width, height, and color depth\n"
       "            (default: 640x480x24).\n"
-      "  -k keys   Emulate sequence of keystrokes upon start up.\n"
+      "  -k keys   Emulate sequence of keystrokes upon start-up.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -e enc    Specify encoding tag (default: Unicode).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
