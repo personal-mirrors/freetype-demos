@@ -83,6 +83,7 @@
 
   static struct  status_
   {
+    const char*    keys;
     const char*    dims;
 
     int            render_mode;
@@ -99,7 +100,8 @@
     char*      header;
     char       header_buffer[256];
 
-  } status = { DIM, RENDER_MODE_STRING, FT_ENCODING_UNICODE, 72, 48, 0, NULL,
+  } status = { "", DIM, RENDER_MODE_STRING, FT_ENCODING_UNICODE,
+               72, 48, 0, NULL,
                { 0, 0, 0x8000, 0, NULL, 0, 0 },
                { 0, 0, 0, 0 }, 0, NULL, { 0 } };
 
@@ -444,7 +446,10 @@
     int                     ret = 0;
 
 
-    grListenSurface( display->surface, 0, &event );
+    if ( *status.keys )
+      event.key = grKEY( *status.keys++ );
+    else
+      grListenSurface( display->surface, 0, &event );
 
     if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
@@ -616,6 +621,7 @@
     fprintf( stderr,
       "  -d WxHxD  Set the window width, height, and color depth\n"
       "            (default: 640x480x24).\n"
+      "  -k keys   Emulate sequence of keystrokes upon start up.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -e enc    Specify encoding tag (default: Unicode).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
@@ -641,7 +647,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "d:e:m:r:v" );
+      option = getopt( *argc, *argv, "d:e:k:m:r:v" );
 
       if ( option == -1 )
         break;
@@ -654,6 +660,10 @@
 
       case 'e':
         status.encoding = FTDemo_Make_Encoding_Tag( optarg );
+        break;
+
+      case 'k':
+        status.keys = optarg;
         break;
 
       case 'm':

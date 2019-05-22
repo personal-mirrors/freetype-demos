@@ -98,6 +98,7 @@
   {
     int            update;
 
+    const char*    keys;
     const char*    dims;
     int            render_mode;
 
@@ -128,7 +129,7 @@
     int            fw_idx;
 
   } status = { 1,
-               DIM, RENDER_MODE_ALL,
+               "", DIM, RENDER_MODE_ALL,
                72, 48, 1, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
@@ -1123,7 +1124,11 @@
     int      ret = 0;
 
 
-    grListenSurface( display->surface, 0, &event );
+    if ( *status.keys )
+      event.key = grKEY( *status.keys++ );
+    else
+      grListenSurface( display->surface, 0, &event );
+
     status.update = 0;
 
     if ( status.render_mode == (int)( event.key - '1' ) )
@@ -1784,6 +1789,7 @@
     fprintf( stderr,
       "  -d WxHxD  Set the window width, height, and color depth\n"
       "            (default: 640x480x24).\n"
+      "  -k keys   Emulate sequence of keystrokes upon start up.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
@@ -1816,7 +1822,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "d:e:f:L:l:m:pr:v" );
+      option = getopt( *argc, *argv, "d:e:f:k:L:l:m:pr:v" );
 
       if ( option == -1 )
         break;
@@ -1833,6 +1839,10 @@
 
       case 'f':
         status.offset = atoi( optarg );
+        break;
+
+      case 'k':
+        status.keys = optarg;
         break;
 
       case 'l':

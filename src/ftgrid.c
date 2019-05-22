@@ -95,6 +95,7 @@
 
   typedef struct  GridStatusRec_
   {
+    const char*  keys;
     const char*  dims;
 
     int          ptsize;
@@ -164,6 +165,7 @@
   static void
   grid_status_init( GridStatus  st )
   {
+    st->keys          = "";
     st->dims          = DIM;
     st->res           = 72;
 
@@ -1379,8 +1381,10 @@
     grEvent  event;
     int      ret = 0;
 
-
-    grListenSurface( display->surface, 0, &event );
+    if ( *status.keys )
+      event.key = grKEY( *status.keys++ );
+    else
+      grListenSurface( display->surface, 0, &event );
 
     status.header = NULL;
 
@@ -1735,6 +1739,7 @@
     fprintf( stderr,
       "  -d WxHxD  Set the window width, height, and color depth\n"
       "            (default: 640x480x24).\n"
+      "  -k keys   Emulate sequence of keystrokes upon start up.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
@@ -1764,7 +1769,7 @@
 
     while ( 1 )
     {
-      option = getopt( *argc, *argv, "a:d:e:f:nr:v" );
+      option = getopt( *argc, *argv, "a:d:e:f:k:nr:v" );
 
       if ( option == -1 )
         break;
@@ -1802,6 +1807,10 @@
 
       case 'f':
         status.Num = atoi( optarg );
+        break;
+
+      case 'k':
+        status.keys = optarg;
         break;
 
       case 'n':
