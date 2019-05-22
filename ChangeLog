@@ -1,4 +1,8 @@
-2018-05-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2019-05-22  Werner Lemberg  <wl@gnu.org>
+
+	* src/ttdebug.c (OpStr): Improve opcode mnemonics.
+
+2019-05-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview,ftstring,ftgrid] Add keystroke emulator.
 
@@ -8,7 +12,7 @@
 	(usage): Document it.
 	* src/{ftview,ftstring,ftgrid}.1: Document it.
 
-2018-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2019-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	Prepare for scripting.
 

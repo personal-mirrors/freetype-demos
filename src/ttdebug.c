@@ -414,159 +414,169 @@
 
   static const FT_String*  OpStr[256] =
   {
-    "SVTCA y",       /* set vectors to coordinate axis y    */
-    "SVTCA x",       /* set vectors to coordinate axis x    */
-    "SPVTCA y",      /* set proj. vec. to coord. axis y     */
-    "SPVTCA x",      /* set proj. vec. to coord. axis x     */
-    "SFVTCA y",      /* set free. vec. to coord. axis y     */
-    "SFVTCA x",      /* set free. vec. to coord. axis x     */
-    "SPVTL ||",      /* set proj. vec. parallel to segment  */
-    "SPVTL +",       /* set proj. vec. normal to segment    */
-    "SFVTL ||",      /* set free. vec. parallel to segment  */
-    "SFVTL +",       /* set free. vec. normal to segment    */
-    "SPVFS",         /* set proj. vec. from stack           */
-    "SFVFS",         /* set free. vec. from stack           */
-    "GPV",           /* get projection vector               */
-    "GFV",           /* get freedom vector                  */
-    "SFVTPV",        /* set free. vec. to proj. vec.        */
-    "ISECT",         /* compute intersection                */
+    /* 0x00 */
+    "SVTCA[y]",
+    "SVTCA[x]",
+    "SPVTCA[y]",
+    "SPVTCA[x]",
+    "SFVTCA[y]",
+    "SFVTCA[x]",
+    "SPVTL[||]",
+    "SPVTL[+]",
+    "SFVTL[||]",
+    "SFVTL[+]",
+    "SPVFS",
+    "SFVFS",
+    "GPV",
+    "GFV",
+    "SFVTPV",
+    "ISECT",
 
-    "SRP0",          /* set reference point 0               */
-    "SRP1",          /* set reference point 1               */
-    "SRP2",          /* set reference point 2               */
-    "SZP0",          /* set zone pointer 0                  */
-    "SZP1",          /* set zone pointer 1                  */
-    "SZP2",          /* set zone pointer 2                  */
-    "SZPS",          /* set all zone pointers               */
-    "SLOOP",         /* set loop counter                    */
-    "RTG",           /* round to grid                       */
-    "RTHG",          /* round to half-grid                  */
-    "SMD",           /* set minimum distance                */
-    "ELSE",          /* else                                */
-    "JMPR",          /* jump relative                       */
-    "SCVTCI",        /* set CVT cut-in                      */
-    "SSWCI",         /* set single width cut-in             */
-    "SSW",           /* set single width                    */
+    /* 0x10 */
+    "SRP0",
+    "SRP1",
+    "SRP2",
+    "SZP0",
+    "SZP1",
+    "SZP2",
+    "SZPS",
+    "SLOOP",
+    "RTG",
+    "RTHG",
+    "SMD",
+    "ELSE",
+    "JMPR",
+    "SCVTCI",
+    "SSWCI",
+    "SSW",
 
-    "DUP",           /*                                     */
-    "POP",           /*                                     */
-    "CLEAR",         /*                                     */
-    "SWAP",          /*                                     */
-    "DEPTH",         /*                                     */
-    "CINDEX",        /*                                     */
-    "MINDEX",        /*                                     */
-    "AlignPTS",      /*                                     */
+    /* 0x20 */
+    "DUP",
+    "POP",
+    "CLEAR",
+    "SWAP",
+    "DEPTH",
+    "CINDEX",
+    "MINDEX",
+    "ALIGNPTS",
     "INS_$28",
-    "UTP",           /*                                     */
-    "LOOPCALL",      /*                                     */
-    "CALL",          /*                                     */
-    "FDEF",          /*                                     */
-    "ENDF",          /*                                     */
-    "MDAP[0]",       /*                                     */
-    "MDAP[1]",       /*                                     */
+    "UTP",
+    "LOOPCALL",
+    "CALL",
+    "FDEF",
+    "ENDF",
+    "MDAP[]",
+    "MDAP[rnd]",
 
-    "IUP[0]",        /*                                     */
-    "IUP[1]",        /*                                     */
-    "SHP[0]",        /*                                     */
-    "SHP[1]",        /*                                     */
-    "SHC[0]",        /*                                     */
-    "SHC[1]",        /*                                     */
-    "SHZ[0]",        /*                                     */
-    "SHZ[1]",        /*                                     */
-    "SHPIX",         /*                                     */
-    "IP",            /*                                     */
-    "MSIRP[0]",      /*                                     */
-    "MSIRP[1]",      /*                                     */
-    "AlignRP",       /*                                     */
-    "RTDG",          /*                                     */
-    "MIAP[0]",       /*                                     */
-    "MIAP[1]",       /*                                     */
+    /* 0x30 */
+    "IUP[y]",
+    "IUP[x]",
+    "SHP[rp2]",
+    "SHP[rp1]",
+    "SHC[rp2]",
+    "SHC[rp1]",
+    "SHZ[rp2]",
+    "SHZ[rp1]",
+    "SHPIX",
+    "IP",
+    "MSIRP[]",
+    "MSIRP[rp0]",
+    "ALIGNRP",
+    "RTDG",
+    "MIAP[]",
+    "MIAP[rnd]",
 
-    "NPushB",        /*                                     */
-    "NPushW",        /*                                     */
-    "WS",            /*                                     */
-    "RS",            /*                                     */
-    "WCvtP",         /*                                     */
-    "RCvt",          /*                                     */
-    "GC[0]",         /*                                     */
-    "GC[1]",         /*                                     */
-    "SCFS",          /*                                     */
-    "MD[0]",         /*                                     */
-    "MD[1]",         /*                                     */
-    "MPPEM",         /*                                     */
-    "MPS",           /*                                     */
-    "FlipON",        /*                                     */
-    "FlipOFF",       /*                                     */
-    "DEBUG",         /*                                     */
+    /* 0x40 */
+    "NPUSHB",
+    "NPUSHW",
+    "WS",
+    "RS",
+    "WCVTP",
+    "RCVT",
+    "GC[curr]",
+    "GC[orig]",
+    "SCFS",
+    "MD[curr]",
+    "MD[orig]",
+    "MPPEM",
+    "MPS",
+    "FLIPON",
+    "FLIPOFF",
+    "DEBUG",
 
-    "LT",            /*                                     */
-    "LTEQ",          /*                                     */
-    "GT",            /*                                     */
-    "GTEQ",          /*                                     */
-    "EQ",            /*                                     */
-    "NEQ",           /*                                     */
-    "ODD",           /*                                     */
-    "EVEN",          /*                                     */
-    "IF",            /*                                     */
-    "EIF",           /*                                     */
-    "AND",           /*                                     */
-    "OR",            /*                                     */
-    "NOT",           /*                                     */
-    "DeltaP1",       /*                                     */
-    "SDB",           /*                                     */
-    "SDS",           /*                                     */
+    /* 0x50 */
+    "LT",
+    "LTEQ",
+    "GT",
+    "GTEQ",
+    "EQ",
+    "NEQ",
+    "ODD",
+    "EVEN",
+    "IF",
+    "EIF",
+    "AND",
+    "OR",
+    "NOT",
+    "DELTAP1",
+    "SDB",
+    "SDS",
 
-    "ADD",           /*                                     */
-    "SUB",           /*                                     */
-    "DIV",           /*                                     */
-    "MUL",           /*                                     */
-    "ABS",           /*                                     */
-    "NEG",           /*                                     */
-    "FLOOR",         /*                                     */
-    "CEILING",       /*                                     */
-    "ROUND[0]",      /*                                     */
-    "ROUND[1]",      /*                                     */
-    "ROUND[2]",      /*                                     */
-    "ROUND[3]",      /*                                     */
-    "NROUND[0]",     /*                                     */
-    "NROUND[1]",     /*                                     */
-    "NROUND[2]",     /*                                     */
-    "NROUND[3]",     /*                                     */
+    /* 0x60 */
+    "ADD",
+    "SUB",
+    "DIV",
+    "MUL",
+    "ABS",
+    "NEG",
+    "FLOOR",
+    "CEILING",
+    "ROUND[G]",
+    "ROUND[B]",
+    "ROUND[W]",
+    "ROUND[]",
+    "NROUND[G]",
+    "NROUND[B]",
+    "NROUND[W]",
+    "NROUND[]",
 
-    "WCvtF",         /*                                     */
-    "DeltaP2",       /*                                     */
-    "DeltaP3",       /*                                     */
-    "DeltaC1",       /*                                     */
-    "DeltaC2",       /*                                     */
-    "DeltaC3",       /*                                     */
-    "SROUND",        /*                                     */
-    "S45Round",      /*                                     */
-    "JROT",          /*                                     */
-    "JROF",          /*                                     */
-    "ROFF",          /*                                     */
+    /* 0x70 */
+    "WCVTF",
+    "DELTAP2",
+    "DELTAP3",
+    "DELTAC1",
+    "DELTAC2",
+    "DELTAC3",
+    "SROUND",
+    "S45ROUND",
+    "JROT",
+    "JROF",
+    "ROFF",
     "INS_$7B",
-    "RUTG",          /*                                     */
-    "RDTG",          /*                                     */
-    "SANGW",         /*                                     */
-    "AA",            /*                                     */
+    "RUTG",
+    "RDTG",
+    "SANGW",
+    "AA",
 
-    "FlipPT",        /*                                     */
-    "FlipRgON",      /*                                     */
-    "FlipRgOFF",     /*                                     */
+    /* 0x80 */
+    "FLIPPT",
+    "FLIPRGON",
+    "FLIPRGOFF",
     "INS_$83",
     "INS_$84",
-    "ScanCTRL",      /*                                     */
-    "SDPVTL[0]",     /*                                     */
-    "SDPVTL[1]",     /*                                     */
-    "GetINFO",       /*                                     */
-    "IDEF",          /*                                     */
-    "ROLL",          /*                                     */
-    "MAX",           /*                                     */
-    "MIN",           /*                                     */
-    "ScanTYPE",      /*                                     */
-    "InstCTRL",      /*                                     */
+    "SCANCTRL",
+    "SDPVTL[||]",
+    "SDPVTL[+]",
+    "GETINFO",
+    "IDEF",
+    "ROLL",
+    "MAX",
+    "MIN",
+    "SCANTYPE",
+    "INSTCTRL",
     "INS_$8F",
 
+    /* 0x90 */
     "INS_$90",
     "INS_$91",
     "INS_$92",
@@ -584,6 +594,7 @@
     "INS_$9E",
     "INS_$9F",
 
+    /* 0xA0 */
     "INS_$A0",
     "INS_$A1",
     "INS_$A2",
@@ -601,90 +612,95 @@
     "INS_$AE",
     "INS_$AF",
 
-    "PushB[0]",      /*                                     */
-    "PushB[1]",      /*                                     */
-    "PushB[2]",      /*                                     */
-    "PushB[3]",      /*                                     */
-    "PushB[4]",      /*                                     */
-    "PushB[5]",      /*                                     */
-    "PushB[6]",      /*                                     */
-    "PushB[7]",      /*                                     */
-    "PushW[0]",      /*                                     */
-    "PushW[1]",      /*                                     */
-    "PushW[2]",      /*                                     */
-    "PushW[3]",      /*                                     */
-    "PushW[4]",      /*                                     */
-    "PushW[5]",      /*                                     */
-    "PushW[6]",      /*                                     */
-    "PushW[7]",      /*                                     */
+    /* 0xB0 */
+    "PUSHB[0]",
+    "PUSHB[1]",
+    "PUSHB[2]",
+    "PUSHB[3]",
+    "PUSHB[4]",
+    "PUSHB[5]",
+    "PUSHB[6]",
+    "PUSHB[7]",
+    "PUSHW[0]",
+    "PUSHW[1]",
+    "PUSHW[2]",
+    "PUSHW[3]",
+    "PUSHW[4]",
+    "PUSHW[5]",
+    "PUSHW[6]",
+    "PUSHW[7]",
 
-    "MDRP[G]",       /*                                     */
-    "MDRP[B]",       /*                                     */
-    "MDRP[W]",       /*                                     */
-    "MDRP[?]",       /*                                     */
-    "MDRP[rG]",      /*                                     */
-    "MDRP[rB]",      /*                                     */
-    "MDRP[rW]",      /*                                     */
-    "MDRP[r?]",      /*                                     */
-    "MDRP[mG]",      /*                                     */
-    "MDRP[mB]",      /*                                     */
-    "MDRP[mW]",      /*                                     */
-    "MDRP[m?]",      /*                                     */
-    "MDRP[mrG]",     /*                                     */
-    "MDRP[mrB]",     /*                                     */
-    "MDRP[mrW]",     /*                                     */
-    "MDRP[mr?]",     /*                                     */
+    /* 0xC0 */
+    "MDRP[G]",
+    "MDRP[B]",
+    "MDRP[W]",
+    "MDRP[]",
+    "MDRP[rG]",
+    "MDRP[rB]",
+    "MDRP[rW]",
+    "MDRP[r]",
+    "MDRP[mG]",
+    "MDRP[mB]",
+    "MDRP[mW]",
+    "MDRP[m]",
+    "MDRP[mrG]",
+    "MDRP[mrB]",
+    "MDRP[mrW]",
+    "MDRP[mr]",
 
-    "MDRP[pG]",      /*                                     */
-    "MDRP[pB]",      /*                                     */
-    "MDRP[pW]",      /*                                     */
-    "MDRP[p?]",      /*                                     */
-    "MDRP[prG]",     /*                                     */
-    "MDRP[prB]",     /*                                     */
-    "MDRP[prW]",     /*                                     */
-    "MDRP[pr?]",     /*                                     */
-    "MDRP[pmG]",     /*                                     */
-    "MDRP[pmB]",     /*                                     */
-    "MDRP[pmW]",     /*                                     */
-    "MDRP[pm?]",     /*                                     */
-    "MDRP[pmrG]",    /*                                     */
-    "MDRP[pmrB]",    /*                                     */
-    "MDRP[pmrW]",    /*                                     */
-    "MDRP[pmr?]",    /*                                     */
+    /* 0xD0 */
+    "MDRP[pG]",
+    "MDRP[pB]",
+    "MDRP[pW]",
+    "MDRP[p]",
+    "MDRP[prG]",
+    "MDRP[prB]",
+    "MDRP[prW]",
+    "MDRP[pr]",
+    "MDRP[pmG]",
+    "MDRP[pmB]",
+    "MDRP[pmW]",
+    "MDRP[pm]",
+    "MDRP[pmrG]",
+    "MDRP[pmrB]",
+    "MDRP[pmrW]",
+    "MDRP[pmr]",
 
-    "MIRP[G]",       /*                                     */
-    "MIRP[B]",       /*                                     */
-    "MIRP[W]",       /*                                     */
-    "MIRP[?]",       /*                                     */
-    "MIRP[rG]",      /*                                     */
-    "MIRP[rB]",      /*                                     */
-    "MIRP[rW]",      /*                                     */
-    "MIRP[r?]",      /*                                     */
-    "MIRP[mG]",      /*                                     */
-    "MIRP[mB]",      /*                                     */
-    "MIRP[mW]",      /*                                     */
-    "MIRP[m?]",      /*                                     */
-    "MIRP[mrG]",     /*                                     */
-    "MIRP[mrB]",     /*                                     */
-    "MIRP[mrW]",     /*                                     */
-    "MIRP[mr?]",     /*                                     */
+    /* 0xE0 */
+    "MIRP[G]",
+    "MIRP[B]",
+    "MIRP[W]",
+    "MIRP[]",
+    "MIRP[rG]",
+    "MIRP[rB]",
+    "MIRP[rW]",
+    "MIRP[r]",
+    "MIRP[mG]",
+    "MIRP[mB]",
+    "MIRP[mW]",
+    "MIRP[m]",
+    "MIRP[mrG]",
+    "MIRP[mrB]",
+    "MIRP[mrW]",
+    "MIRP[mr]",
 
-    "MIRP[pG]",      /*                                     */
-    "MIRP[pB]",      /*                                     */
-    "MIRP[pW]",      /*                                     */
-    "MIRP[p?]",      /*                                     */
-    "MIRP[prG]",     /*                                     */
-    "MIRP[prB]",     /*                                     */
-    "MIRP[prW]",     /*                                     */
-    "MIRP[pr?]",     /*                                     */
-    "MIRP[pmG]",     /*                                     */
-    "MIRP[pmB]",     /*                                     */
-    "MIRP[pmW]",     /*                                     */
-    "MIRP[pm?]",     /*                                     */
-    "MIRP[pmrG]",    /*                                     */
-    "MIRP[pmrB]",    /*                                     */
-    "MIRP[pmrW]",    /*                                     */
-    "MIRP[pmr?]"     /*                                     */
+    /* 0xF0 */
+    "MIRP[pG]",
+    "MIRP[pB]",
+    "MIRP[pW]",
+    "MIRP[p]",
+    "MIRP[prG]",
+    "MIRP[prB]",
+    "MIRP[prW]",
+    "MIRP[pr]",
+    "MIRP[pmG]",
+    "MIRP[pmB]",
+    "MIRP[pmW]",
+    "MIRP[pm]",
+    "MIRP[pmrG]",
+    "MIRP[pmrB]",
+    "MIRP[pmrW]",
+    "MIRP[pmr]"
   };
 
 
