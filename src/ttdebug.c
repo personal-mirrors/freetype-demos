@@ -52,6 +52,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_MULTIPLE_MASTERS_H
 #include "common.h"
 #include "mlgetopt.h"
 
@@ -75,6 +76,8 @@
   static TT_Face       face;       /* truetype face       */
   static TT_Size       size;       /* truetype size       */
   static TT_GlyphSlot  glyph;      /* truetype glyph slot */
+
+  static FT_MM_Var    *multimaster;
 
   static unsigned int  tt_interpreter_versions[3];
   static int           num_tt_interpreter_versions;
@@ -286,8 +289,8 @@
 
     /* 0x90 */
     /*  INS_$90  */   PACK( 0, 0 ),
-    /*  INS_$91  */   PACK( 0, 0 ),
-    /*  INS_$92  */   PACK( 0, 0 ),
+    /*  GETVAR   */   PACK( 0, 0 ),
+    /*  GETDATA  */   PACK( 0, 1 ),
     /*  INS_$93  */   PACK( 0, 0 ),
     /*  INS_$94  */   PACK( 0, 0 ),
     /*  INS_$95  */   PACK( 0, 0 ),
@@ -578,8 +581,8 @@
 
     /* 0x90 */
     "INS_$90",
-    "INS_$91",
-    "INS_$92",
+    "GETVARIATION",
+    "GETDATA",
     "INS_$93",
     "INS_$94",
     "INS_$95",
@@ -2180,6 +2183,11 @@
         error = FT_Err_Invalid_File_Format;
         Abort( "this is not a TrueType font" );
       }
+
+      FT_Done_MM_Var( library, multimaster );
+      error = FT_Get_MM_Var( (FT_Face)face, &multimaster );
+      if ( error )
+        multimaster = NULL;
 
       size = (TT_Size)face->root.size;
 

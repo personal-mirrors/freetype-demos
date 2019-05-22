@@ -1,5 +1,14 @@
 2019-05-22  Werner Lemberg  <wl@gnu.org>
 
+	[ttdebug] Add support for GETVARIATION and GETDATA opcodes.
+
+	* src/ttdebug.c: Include FT_MULTIPLE_MASTERS_H.
+	(multimaster): New global variable.
+	(OpStr): Updated.
+	(main): Call `FT_Get_MM_Var' to initialize MM support.
+
+2019-05-22  Werner Lemberg  <wl@gnu.org>
+
 	* src/ttdebug.c (OpStr): Improve opcode mnemonics.
 
 2019-05-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
