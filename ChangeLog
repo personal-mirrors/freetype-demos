@@ -1,3 +1,15 @@
+2019-05-24  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Add option `-d' to select variation font instance.
+
+	* src/ttdebug.c: Include `ctype.h'.
+	(requested_pos, requested_cnt): New global variables.
+	(parse_design_coords): New auxiliary function.
+	(Usage): Updated.
+	(main): Handle option`-d'.
+
+	* src/ttdebug.1: Updated.
+
 2019-05-22  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] New key `O' to show opcode help string.

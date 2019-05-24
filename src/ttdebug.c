@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #ifdef UNIX
 
@@ -78,6 +79,8 @@
   static TT_GlyphSlot  glyph;      /* truetype glyph slot */
 
   static FT_MM_Var    *multimaster;
+  static FT_Fixed*     requested_pos;
+  static unsigned int  requested_cnt;
 
   static unsigned int  tt_interpreter_versions[3];
   static int           num_tt_interpreter_versions;
@@ -1532,6 +1535,42 @@
   }
 
 
+  static void
+  parse_design_coords( char*  arg )
+  {
+    unsigned int  i;
+    char*         s;
+
+
+    /* get number of coordinates;                                      */
+    /* a group of non-whitespace characters is handled as one argument */
+    s = arg;
+    for ( requested_cnt = 0; *s; requested_cnt++ )
+    {
+      while ( isspace( *s ) )
+        s++;
+
+      while ( *s && !isspace( *s ) )
+        s++;
+    }
+
+    requested_pos = (FT_Fixed*)malloc( sizeof ( FT_Fixed ) * requested_cnt );
+
+    s = arg;
+    for ( i = 0; i < requested_cnt; i++ )
+    {
+      requested_pos[i] = (FT_Fixed)( strtod( s, &s ) * 65536.0 );
+      /* skip until next whitespace in case of junk */
+      /* that `strtod' doesn't handle               */
+      while ( *s && !isspace( *s ) )
+        s++;
+
+      while ( isspace( *s ) )
+        s++;
+    }
+  }
+
+
   /******************************************************************
    *
    *  Function:    Calc_Length
@@ -1967,18 +2006,18 @@
     save_pts.n_points   = pts.n_points;
     save_pts.n_contours = pts.n_contours;
 
-    save_pts.org  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+    save_pts.org  = (FT_Vector*)malloc( 2 * sizeof ( FT_F26Dot6 ) *
                                         save_pts.n_points );
-    save_pts.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+    save_pts.cur  = (FT_Vector*)malloc( 2 * sizeof ( FT_F26Dot6 ) *
                                         save_pts.n_points );
     save_pts.tags = (FT_Byte*)malloc( save_pts.n_points );
 
     save_twilight.n_points   = twilight.n_points;
     save_twilight.n_contours = twilight.n_contours;
 
-    save_twilight.org  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+    save_twilight.org  = (FT_Vector*)malloc( 2 * sizeof ( FT_F26Dot6 ) *
                                              save_twilight.n_points );
-    save_twilight.cur  = (FT_Vector*)malloc( 2 * sizeof( FT_F26Dot6 ) *
+    save_twilight.cur  = (FT_Vector*)malloc( 2 * sizeof ( FT_F26Dot6 ) *
                                              save_twilight.n_points );
     save_twilight.tags = (FT_Byte*)malloc( save_twilight.n_points );
 
@@ -2786,9 +2825,12 @@
       "  size      The size of the glyph in pixels (ppem).\n"
       "  font      The TrueType font file to debug.\n"
       "\n"
-      "  -I ver    Use TT interpreter version VER.\n"
+      "  -I ver    Use TrueType interpreter version VER.\n"
       "            Available versions are %s; default is version %d.\n"
       "  -f idx    Access font IDX if input file is a TTC (default: 0).\n"
+      "  -d \"axis1 axis2 ...\"\n"
+      "            Specify the design coordinates for each variation axis\n"
+      "            at start-up (ignored if not a variation font).\n"
       "  -v        Show version.\n"
       "\n"
       "While running, press the `?' key for help.\n"
@@ -2869,7 +2911,7 @@
 
     while ( 1 )
     {
-      option = getopt( argc, argv, "I:f:v" );
+      option = getopt( argc, argv, "I:d:f:v" );
 
       if ( option == -1 )
         break;
@@ -2901,6 +2943,10 @@
           printf( "invalid TrueType interpreter version = %d\n", version );
           Usage( execname );
         }
+        break;
+
+      case 'd':
+        parse_design_coords( optarg );
         break;
 
       case 'f':
@@ -2969,6 +3015,26 @@
       error = FT_Get_MM_Var( (FT_Face)face, &multimaster );
       if ( error )
         multimaster = NULL;
+      else
+      {
+        unsigned int  n;
+
+
+        if ( requested_cnt > multimaster->num_axis )
+          requested_cnt = multimaster->num_axis;
+
+        for ( n = 0; n < requested_cnt; n++ )
+        {
+          if ( requested_pos[n] < multimaster->axis[n].minimum )
+            requested_pos[n] = multimaster->axis[n].minimum;
+          else if ( requested_pos[n] > multimaster->axis[n].maximum )
+            requested_pos[n] = multimaster->axis[n].maximum;
+        }
+
+        FT_Set_Var_Design_Coordinates( (FT_Face)face,
+                                       requested_cnt,
+                                       requested_pos );
+      }
 
       size = (TT_Size)face->root.size;
 
@@ -2997,6 +3063,8 @@
     Reset_Keyboard();
 
     FT_Done_FreeType( library );
+
+    free( requested_pos );
 
     return 0;
   }
