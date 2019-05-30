@@ -1275,6 +1275,7 @@ typedef  unsigned long   uint32;
         surface->convert = format->gray_convert;
         break;
       }
+      /* fall through */
 
     default:
       /* we don't support other modes */

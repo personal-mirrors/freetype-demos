@@ -2024,6 +2024,7 @@
         blit_lcdv_to_24( &blit, color, glyph->grays-1 );
         break;
       }
+      /* fall through */
 
     case gr_pixel_mode_lcd2:
       if ( mode == gr_pixel_mode_rgb24 )
@@ -2039,12 +2040,12 @@
       break;
 
     case gr_pixel_mode_lcdv2:
-     if ( mode == gr_pixel_mode_rgb24 )
-     {
-       if ( glyph->grays > 1 )
-         blit_lcdv2_to_24( &blit, color, glyph->grays-1 );
-     }
-     break;
+      if ( mode == gr_pixel_mode_rgb24 )
+      {
+        if ( glyph->grays > 1 )
+          blit_lcdv2_to_24( &blit, color, glyph->grays-1 );
+      }
+      break;
 
     default:
       /* we don't support the blitting of bitmaps of the following  */

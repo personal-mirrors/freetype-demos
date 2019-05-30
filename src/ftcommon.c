@@ -565,6 +565,7 @@
     /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
     case FT_ENCODING_MS_SYMBOL:
       font->num_indices = 0x10000L;
+      break;
 
     default:
       font->num_indices = 0x10000L;

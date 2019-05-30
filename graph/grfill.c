@@ -257,8 +257,10 @@ grFillRect( grBitmap*   target,
   {
   case gr_pixel_mode_rgb32:
     size++;
+    /* fall through */
   case gr_pixel_mode_rgb24:
     size++;
+    /* fall through */
   case gr_pixel_mode_rgb565:
   case gr_pixel_mode_rgb555:
     size += 2;
