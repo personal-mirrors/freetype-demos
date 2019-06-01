@@ -1,3 +1,10 @@
+2019-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid,ftview,ftstring] Consolidate versioning.
+
+	* src/ftcommon.[ch] (FTDemo_Version): New function.
+	* src/{ftgrid,ftview,ftstring}.c (parse_cmdline, event_help): Use it.
+
 2019-05-24  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Add option `-d' to select variation font instance.

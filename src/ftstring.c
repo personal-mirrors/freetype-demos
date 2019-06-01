@@ -183,18 +183,12 @@
   event_help( void )
   {
     char  buf[256];
-    char  version[64];
-
-    const char*  format;
-    FT_Int       major, minor, patch;
+    char  version[64] = "";
 
     grEvent  dummy_event;
 
 
-    FT_Library_Version( handle->library, &major, &minor, &patch );
-
-    format = patch ? "%d.%d.%d" : "%d.%d";
-    sprintf( version, format, major, minor, patch );
+    FTDemo_Version( handle, version );
 
     FTDemo_Display_Clear( display );
     grSetLineHeight( 10 );
@@ -464,7 +458,7 @@
     case grKeyEsc:
     case grKEY( 'q' ):
       ret = 1;
-      goto Exit;;
+      goto Exit;
 
     case grKeyF1:
     case grKEY( '?' ):
@@ -680,15 +674,11 @@
 
       case 'v':
         {
-          FT_Int  major, minor, patch;
+          FT_String  str[64] = "ftstring (FreeType) ";
 
 
-          FT_Library_Version( handle->library, &major, &minor, &patch );
-
-          printf( "ftstring (FreeType) %d.%d", major, minor );
-          if ( patch )
-            printf( ".%d", patch );
-          printf( "\n" );
+          FTDemo_Version( handle, str );
+          printf( "%s\n", str );
           exit( 0 );
         }
         /* break; */

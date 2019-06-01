@@ -367,6 +367,24 @@
   }
 
 
+  void
+  FTDemo_Version( FTDemo_Handle*  handle,
+                  FT_String*      str )
+  {
+    FT_Int     major, minor, patch;
+    FT_String  format[] = "%d.%d.%d";
+
+
+    FT_Library_Version( handle->library, &major, &minor, &patch );
+
+    if ( !patch )
+      format[5] = '\0';   /* terminate early */
+
+    /* append the version string */
+    sprintf( str + strlen( str ), format, major, minor, patch );
+  }
+
+
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,
                        const char*     filepath,

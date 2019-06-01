@@ -228,6 +228,12 @@
   FTDemo_Done( FTDemo_Handle*  handle );
 
 
+  /* append version information */
+  void
+  FTDemo_Version( FTDemo_Handle*  handle,
+                  FT_String*      str );
+
+
   /* install a font */
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,
