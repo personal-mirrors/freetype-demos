@@ -131,6 +131,7 @@ else
                   $(CFLAGS) \
                   $(ANSIFLAGS) \
                   $(INCLUDES:%=$I%) \
+                  $DFT_CONFIG_OPTIONS_H="<ftoption.h>" \
                   $DFT_CONFIG_MODULES_H="<ftmodule.h>"
 
   # Enable C99 for gcc to avoid warnings.

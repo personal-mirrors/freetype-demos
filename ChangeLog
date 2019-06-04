@@ -1,3 +1,14 @@
+2019-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid,ftview,ftstring] Implement PNG printing.
+
+	* src/ftcommon.[hc] (FT_Display_Print): New function.
+	* src/{ftgrid,ftview,ftstring}.c (Process_Event): New event.
+
+	* Makefile: Compile with appropriate <ftoption.h> so that
+	FT_CONFIG_OPTION_USE_PNG status is inherited from the library build
+	and based on the libPNG avalability.
+
 2019-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid,ftview,ftstring] Consolidate versioning.

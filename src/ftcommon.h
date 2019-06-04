@@ -99,6 +99,12 @@
   FTDemo_Display_Clear( FTDemo_Display*  display );
 
 
+  /* dump display image in PNG format */
+  int
+  FTDemo_Display_Print( FTDemo_Display*  display,
+                        FT_String*       filename,
+                        FT_String*       ver_str );
+
   /*************************************************************************/
   /*************************************************************************/
   /*****                                                               *****/

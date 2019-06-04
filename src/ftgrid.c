@@ -919,6 +919,7 @@
     grWriteln( "             anti-aliasing modes          F3, F4    adjust current axis by  " );
     grWriteln( "L           cycle through LCD                        1/50th of its range    " );
     grWriteln( "             filters                                                        " );
+    grWriteln( "                                        P           print PNG file          " );
     grWriteln( "g, v        adjust gamma value          q, ESC      quit ftgrid             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
@@ -1392,6 +1393,16 @@
     case grKeyF1:
     case grKEY( '?' ):
       event_help();
+      break;
+
+    case grKEY( 'P' ):
+      {
+        FT_String  str[64] = "ftgrid (FreeType) ";
+
+
+        FTDemo_Version( handle, str );
+        FTDemo_Display_Print( display, "ftgrid.png", str );
+      }
       break;
 
     case grKEY( 'f' ):

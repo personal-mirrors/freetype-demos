@@ -242,6 +242,9 @@
     grWriteln( "  F7        : big rotate counter-clockwise" );
     grWriteln( "  F8        : big rotate clockwise" );
     grLn();
+    grWriteln( "  P         : print PNG file" );
+    grWriteln( "  q,ESC     : quit" );
+    grLn();
     grWriteln( "press any key to exit this help screen" );
 
     grRefreshSurface( display->surface );
@@ -463,6 +466,16 @@
     case grKeyF1:
     case grKEY( '?' ):
       event_help();
+      goto Exit;
+
+    case grKEY( 'P' ):
+      {
+        FT_String  str[64] = "ftstring (FreeType) ";
+
+
+        FTDemo_Version( handle, str );
+        FTDemo_Display_Print( display, "ftstring.png", str );
+      }
       goto Exit;
 
     case grKEY( 'b' ):

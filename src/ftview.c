@@ -849,7 +849,7 @@
     grWriteln( "             engines (if available)                                         " );
     grWriteln( "f           toggle forced auto-         Tab         cycle through charmaps  " );
     grWriteln( "             hinting (if hinting)                                           " );
-    grWriteln( "w           toggle warping                                                  " );
+    grWriteln( "w           toggle warping              P           print PNG file          " );
     grWriteln( "             (if available)             q, ESC      quit ftview             " );
     /*          |----------------------------------|    |----------------------------------| */
     grLn();
@@ -1162,6 +1162,17 @@
     case grKEY( '?' ):
       event_help();
       status.update = 1;
+      break;
+
+    case grKEY( 'P' ):
+      {
+        FT_String  str[64] = "ftview (FreeType) ";
+
+
+        FTDemo_Version( handle, str );
+        FTDemo_Display_Print( display, "ftview.png", str );
+      }
+      status.update = 0;
       break;
 
     case grKEY( 'b' ):
