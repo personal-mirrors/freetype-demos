@@ -120,10 +120,7 @@
   };
 
 
-  extern grDevice*      gr_devices[];
-  extern grDeviceChain  gr_device_chain[];
-  extern int            gr_num_devices;
-  extern int            gr_max_devices;
+  extern grDeviceChain*  gr_device_chain;
 
 
 extern void

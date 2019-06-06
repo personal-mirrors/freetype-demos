@@ -1,3 +1,13 @@
+2019-06-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Stay true to linked lists.
+
+	* graph/grinit.c (grInitDevices, grDoneDevices): Properly walk and
+	delete entries from the linked list `gr_device_chain'.
+	* graph/grdevice.c (find_device): Ditto.
+	* graph/grdevice.h (gr_num_devices, gr_max_devices): Removed.
+	* graph/grconfig.h (GR_MAX_DEVICES): Ditto.
+
 2019-06-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid,ftview,ftstring] Implement PNG printing.
@@ -237,7 +247,7 @@
 	* src/ftcommon.h (FTDemo_String_Context): New fields for offset glyph
 	and extent to fill.
 	(FTDemo_String_Draw): Return the number of glyphs drawn.
-	* src/ftcommon.c (FTDemo_String_Draw): Implement glyph recycling until 
+	* src/ftcommon.c (FTDemo_String_Draw): Implement glyph recycling until
 	the extent is full.
 
 2018-09-12  Alexei Podtelezhnikov  <apodtele@gmail.com>

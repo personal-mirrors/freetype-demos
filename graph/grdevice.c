@@ -3,28 +3,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-  grDeviceChain   gr_device_chain[ GR_MAX_DEVICES ];
-  int             gr_num_devices = 0;
+  grDeviceChain*  gr_device_chain;
 
   static
   grDevice*  find_device( const char*  device_name )
   {
-    int  idx = 0;
+    grDeviceChain*  chain = gr_device_chain;
+    grDevice*       device = NULL;
 
     if (device_name)
-    {
-      for ( idx = gr_num_devices-1; idx > 0; idx-- )
-        if ( strcmp( device_name, gr_device_chain[idx].name ) == 0 )
+      while (chain)
+      {
+        if ( strcmp( device_name, chain->name ) == 0 )
+        {
+          device = chain->device;
           break;
-    }
+        }
 
-    if ( idx < 0 || gr_num_devices <= 0 || !gr_device_chain[idx].device )
-    {
+        chain = chain->next;
+      }
+    else if (chain)
+      device = chain->device;
+
+    if (!device)
       grError = gr_err_invalid_device;
-      return 0;
-    }
 
-    return gr_device_chain[idx].device;
+    return device;
   }
 
 

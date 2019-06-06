@@ -63,55 +63,34 @@
   extern
   grDeviceChain*  grInitDevices( void )
   {
-    grDeviceChain*  chain = GR_INIT_DEVICE_CHAIN;
-    grDeviceChain*  cur   = gr_device_chain;
+    grDeviceChain*   chain;
+    grDeviceChain**  chptr;
 
+    chain = gr_device_chain = GR_INIT_DEVICE_CHAIN;
+    chptr = &gr_device_chain;
 
     while (chain)
     {
-      /* initialize the device */
-      grDevice*  device;
+      if ( chain->device->init() != 0 )
+        *chptr = chain->next;
 
-      device = chain->device;
-      if ( device->init() == 0             &&
-           gr_num_devices < GR_MAX_DEVICES )
-
-      {
-        /* successful device initialisation - add it to our chain */
-        cur->next   = 0;
-        cur->device = device;
-        cur->name   = device->device_name;
-
-        if (cur > gr_device_chain)
-          cur[-1].next = cur;
-
-        cur++;
-        gr_num_devices++;
-      }
+      chptr = &chain->next;
       chain = chain->next;
     }
 
-    return (gr_num_devices > 0 ? gr_device_chain : 0 );
+    return gr_device_chain;
   }
 
 
   extern
   void  grDoneDevices( void )
   {
-    int             i;
     grDeviceChain*  chain = gr_device_chain;
 
-
-    for ( i = 0; i < gr_num_devices; i++ )
+    while (chain)
     {
       chain->device->done();
 
-      chain->next   = 0;
-      chain->device = 0;
-      chain->name   = 0;
-
-      chain++;
+      chain = chain->next;
     }
-
-    gr_num_devices = 0;
   }
