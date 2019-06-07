@@ -189,7 +189,6 @@ static int init_surface(grSurface* surface, grBitmap* bitmap)
 {
     if(grNewBitmap(bitmap->mode, bitmap->grays, bitmap->width, bitmap->rows, bitmap)) return 0;
 
-    surface->device = &gr_alleg_device;
     surface->bitmap = *bitmap;
     surface->refresh = 0;
     surface->owner = 0;
