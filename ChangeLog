@@ -1,3 +1,14 @@
+2019-06-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] New batch device.
+
+	This driver maintains the image in memory without displaying it,
+	useful for batch processing without GUI.
+
+	* graph/batch/grbatch.[hc]: New implenetation files.
+	* graph/batch/rules.mk: Makefile with unconditinal compilation.
+	* graph/grinit.c (GR_INIT_DEVICE_CHAIN): Add the driver at the tail.
+
 2019-06-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Stay true to linked lists.

@@ -5,6 +5,10 @@
 #define GR_INIT_DEVICE_CHAIN   ((grDeviceChain*)0)
 #define GR_INIT_BUILD
 
+#ifdef DEVICE_BATCH
+#include "batch/grbatch.h"
+#endif
+
 #ifdef DEVICE_X11
 #ifndef VMS
 #include "x11/grx11.h"
