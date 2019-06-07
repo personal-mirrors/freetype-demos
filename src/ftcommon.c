@@ -202,11 +202,12 @@
     int        height = bit->rows;
     int        color_type;
 
-    int code = 1;
-    FILE *fp = NULL;
-    png_structp png_ptr = NULL;
-    png_infop info_ptr = NULL;
-    png_bytep row = NULL;
+    int   code = 1;
+    FILE *fp   = NULL;
+
+    png_structp  png_ptr  = NULL;
+    png_infop    info_ptr = NULL;
+    png_bytep    row      = NULL;
 
 
     /* Set color_type */
@@ -267,12 +268,13 @@
     /* Record version string  */
     if ( ver_str != NULL )
     {
-      png_text text;
+      png_text  text;
 
 
       text.compression = PNG_TEXT_COMPRESSION_NONE;
-      text.key = "Software";
-      text.text = ver_str;
+      text.key         = (char *)"Software";
+      text.text        = ver_str;
+
       png_set_text( png_ptr, info_ptr, &text, 1 );
     }
 

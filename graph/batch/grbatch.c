@@ -29,47 +29,65 @@
     return 0;  /* success */
   }
 
+
   static void
   gr_batch_device_done( void )
   {
     /* nothing to do */
   }
 
+
   static void
   gr_batch_surface_set_title( grSurface*   surface,
-                            const char*  title_string )
+                              const char*  title_string )
   {
+    (void)surface;                   /* unused */
     printf( "%s\n", title_string );  /* prompt */
   }
 
-  static void
-  gr_batch_surface_refresh_rect( grSurface* surface,
-                                 int x, int y, int width, int height )
-  {
-    /* no screen or window to refresh */
-  }
 
   static void
-  gr_batch_surface_done( grSurface* surface )
+  gr_batch_surface_refresh_rect( grSurface*  surface,
+                                 int         x,
+                                 int         y,
+                                 int         width,
+                                 int         height )
+  {
+    /* no screen or window to refresh */
+
+    (void)surface;  /* unused */
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)height;
+  }
+
+
+  static void
+  gr_batch_surface_done( grSurface*  surface )
   {
     grDoneBitmap( &(surface->bitmap) );
   }
 
-  static int
-  gr_batch_surface_listen_event( grSurface* surface,
-                                 int event_mode,
-                                 grEvent* event )
-  {
-    event->type = gr_event_key;
 
-    event->key = grKEY( getchar() );
+  static int
+  gr_batch_surface_listen_event( grSurface*  surface,
+                                 int         event_mode,
+                                 grEvent*    event )
+  {
+    (void)surface;    /* unused */
+    (void)event_mode;
+
+    event->type = gr_event_key;
+    event->key  = grKEY( getchar() );
 
     return 1;
   }
 
+
   static int
-  gr_batch_surface_init( grSurface* surface,
-                         grBitmap* bitmap )
+  gr_batch_surface_init( grSurface*  surface,
+                         grBitmap*   bitmap )
   {
     if ( grNewBitmap( bitmap->mode, bitmap->grays,
                       bitmap->width, bitmap->rows, bitmap) )
@@ -89,9 +107,10 @@
     return 1;
   }
 
+
   grDevice  gr_batch_device =
   {
-    sizeof(grSurface),
+    sizeof( grSurface ),
     "batch",
 
     gr_batch_device_init,
@@ -102,3 +121,6 @@
     0,
     0
   };
+
+
+/* END */

@@ -1,3 +1,13 @@
+2019-06-07  Werner Lemberg  <wl@gnu.org>
+
+	Fix compilation warnings.
+
+	Also do some minor formatting.
+
+	* graph/batch/grbatch.c: Suppress warnings about unused variables.
+
+	* src/*: Suppress warnings about dropping `const'.
+
 2019-06-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid,ftview,ftstring] Enable batch mode.

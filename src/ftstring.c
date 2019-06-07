@@ -475,7 +475,7 @@
 
 
         FTDemo_Version( handle, str );
-        FTDemo_Display_Print( display, "ftstring.png", str );
+        FTDemo_Display_Print( display, (FT_String *)"ftstring.png", str );
       }
       goto Exit;
 
