@@ -100,6 +100,7 @@
 
     const char*    keys;
     const char*    dims;
+    const char*    device;
     int            render_mode;
 
     int            res;
@@ -129,7 +130,7 @@
     int            fw_idx;
 
   } status = { 1,
-               "", DIM, RENDER_MODE_ALL,
+               "", DIM, NULL, RENDER_MODE_ALL,
                72, 48, 1, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, { 0 }, 0, 0, 0, /* default values are set at runtime */
                0, 0, 0, 0, 0,
@@ -1848,6 +1849,8 @@
 
       case 'k':
         status.keys = optarg;
+        if ( optarg[ strlen( optarg ) - 1 ] == 'q' )
+          status.device = "batch";
         break;
 
       case 'l':
@@ -2007,7 +2010,7 @@
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );
 
-    display = FTDemo_Display_New( status.dims );
+    display = FTDemo_Display_New( status.device, status.dims );
     if ( !display )
       Fatal( "could not allocate display surface" );
 

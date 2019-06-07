@@ -99,7 +99,8 @@
 
 
   FTDemo_Display*
-  FTDemo_Display_New( const char*  dims )
+  FTDemo_Display_New( const char*  device,
+                      const char*  dims )
   {
     FTDemo_Display*  display;
     grPixelMode      mode;
@@ -141,7 +142,7 @@
     bit.rows  = height;
     bit.grays = 256;
 
-    surface = grNewSurface( 0, &bit );
+    surface = grNewSurface( device, &bit );
 
     if ( !surface )
     {

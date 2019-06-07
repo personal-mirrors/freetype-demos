@@ -85,6 +85,7 @@
   {
     const char*    keys;
     const char*    dims;
+    const char*    device;
 
     int            render_mode;
     unsigned long  encoding;
@@ -100,7 +101,7 @@
     char*      header;
     char       header_buffer[256];
 
-  } status = { "", DIM, RENDER_MODE_STRING, FT_ENCODING_UNICODE,
+  } status = { "", DIM, NULL, RENDER_MODE_STRING, FT_ENCODING_UNICODE,
                72, 48, 0, NULL,
                { 0, 0, 0x8000, 0, NULL, 0, 0 },
                { 0, 0, 0, 0 }, 0, NULL, { 0 } };
@@ -671,6 +672,8 @@
 
       case 'k':
         status.keys = optarg;
+        if ( optarg[ strlen( optarg ) - 1 ] == 'q' )
+          status.device = "batch";
         break;
 
       case 'm':
@@ -909,7 +912,7 @@
     if ( handle->num_fonts == 0 )
       PanicZ( "could not open any font file" );
 
-    display = FTDemo_Display_New( status.dims );
+    display = FTDemo_Display_New( status.device, status.dims );
 
     if ( !display )
       PanicZ( "could not allocate display surface" );

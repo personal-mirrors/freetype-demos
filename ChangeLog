@@ -1,5 +1,14 @@
 2019-06-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid,ftview,ftstring] Enable batch mode.
+
+	* src/ftcommon.[hc] (FTDemo_Display_New): Pass `device' argument.
+	* src/{ftview,ftstring,ftgrid}.c (status): New `device' field.
+	(parse_cmdline): Enable batch mode if keys end with `q'.
+	* src/{ftview,ftstring,ftgrid}.1: Document it.
+
+2019-06-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph] New batch device.
 
 	This driver maintains the image in memory without displaying it,

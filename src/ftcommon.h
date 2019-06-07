@@ -87,7 +87,8 @@
 
 
   FTDemo_Display*
-  FTDemo_Display_New( const char*  dims );
+  FTDemo_Display_New( const char*  device,
+                      const char*  dims );
 
 
   void
