@@ -47,23 +47,6 @@
 
 
   static void
-  gr_batch_surface_refresh_rect( grSurface*  surface,
-                                 int         x,
-                                 int         y,
-                                 int         width,
-                                 int         height )
-  {
-    /* no screen or window to refresh */
-
-    (void)surface;  /* unused */
-    (void)x;
-    (void)y;
-    (void)width;
-    (void)height;
-  }
-
-
-  static void
   gr_batch_surface_done( grSurface*  surface )
   {
     grDoneBitmap( &(surface->bitmap) );
@@ -90,7 +73,7 @@
                          grBitmap*   bitmap )
   {
     if ( grNewBitmap( bitmap->mode, bitmap->grays,
-                      bitmap->width, bitmap->rows, bitmap) )
+                      bitmap->width, bitmap->rows, bitmap ) )
       return 0;
 
     surface->bitmap     = *bitmap;
@@ -99,7 +82,7 @@
     surface->saturation = 0;
     surface->blit_mono  = 0;
 
-    surface->refresh_rect = gr_batch_surface_refresh_rect;
+    surface->refresh_rect = (grRefreshRectFunc)NULL;  /* nothing to refresh */
     surface->set_title    = gr_batch_surface_set_title;
     surface->listen_event = gr_batch_surface_listen_event;
     surface->done         = gr_batch_surface_done;

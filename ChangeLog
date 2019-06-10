@@ -1,5 +1,9 @@
 2019-06-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/batch/grbatch.c (gr_batch_surface_refresh_rect): Remove.
+
+2019-06-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftcommon.[hc] (FTDemo_Display_Print): Use `const' qualifier. 
 	* src/ftdump.c (Print_Bytecode): Ditto.
 	* src/ftmulti.c (new_header): Ditto.
