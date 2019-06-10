@@ -1796,6 +1796,7 @@
       "  -d WxHxD  Set the window width, height, and color depth\n"
       "            (default: 640x480x24).\n"
       "  -k keys   Emulate sequence of keystrokes upon start-up.\n"
+      "            If the keys contain `q', use batch mode.\n"
       "  -r R      Use resolution R dpi (default: 72dpi).\n"
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
@@ -1849,7 +1850,9 @@
 
       case 'k':
         status.keys = optarg;
-        if ( optarg[ strlen( optarg ) - 1 ] == 'q' )
+        while ( *optarg && *optarg != 'q' )
+          optarg++;
+        if ( *optarg == 'q' )
           status.device = "batch";
         break;
 

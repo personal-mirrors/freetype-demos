@@ -1,5 +1,11 @@
 2019-06-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ft{view,grid,string}.c (parse_cmdline): Generalize batch mode...
+	(usage): ... and mention it.
+	* src/ft{view,grid,string}.1: s/end/contain/.
+
+2019-06-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/batch/grbatch.c (gr_batch_surface_refresh_rect): Remove.
 
 2019-06-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
