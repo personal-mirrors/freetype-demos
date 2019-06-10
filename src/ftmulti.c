@@ -51,8 +51,8 @@
                                             unsigned int   delta );
 
 
-  static char   Header[256];
-  static char*  new_header = NULL;
+  static char         Header[256];
+  static const char*  new_header = NULL;
 
   static const unsigned char*  Text = (unsigned char*)
     "The quick brown fox jumps over the lazy dog 0123456789 "
@@ -618,22 +618,22 @@
 
     case grKEY( 'A' ):
       grouping = !grouping;
-      new_header = grouping ? (char *)"axis grouping is now on"
-                            : (char *)"axis grouping is now off";
+      new_header = grouping ? "axis grouping is now on"
+                            : "axis grouping is now off";
       set_up_axes();
       break;
 
     case grKEY( 'a' ):
       antialias  = !antialias;
-      new_header = antialias ? (char *)"anti-aliasing is now on"
-                             : (char *)"anti-aliasing is now off";
+      new_header = antialias ? "anti-aliasing is now on"
+                             : "anti-aliasing is now off";
       break;
 
     case grKEY( 'b' ):
       use_sbits  = !use_sbits;
       new_header = use_sbits
-                     ? (char *)"embedded bitmaps are now used if available"
-                     : (char *)"embedded bitmaps are now ignored";
+                     ? "embedded bitmaps are now used if available"
+                     : "embedded bitmaps are now ignored";
       break;
 
     case grKEY( 'n' ):
@@ -642,14 +642,14 @@
 
     case grKEY( 'h' ):
       hinted     = !hinted;
-      new_header = hinted ? (char *)"glyph hinting is now active"
-                          : (char *)"glyph hinting is now ignored";
+      new_header = hinted ? "glyph hinting is now active"
+                          : "glyph hinting is now ignored";
       break;
 
     case grKEY( ' ' ):
       render_mode ^= 1;
-      new_header   = render_mode ? (char *)"rendering all glyphs in font"
-                                 : (char *)"rendering test text string";
+      new_header   = render_mode ? "rendering all glyphs in font"
+                                 : "rendering test text string";
       break;
 
     case grKEY( 'H' ):

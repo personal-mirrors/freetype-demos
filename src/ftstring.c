@@ -98,8 +98,9 @@
 
     FT_Matrix  trans_matrix;
     int        font_index;
-    char*      header;
-    char       header_buffer[256];
+
+    const char*  header;
+    char         header_buffer[256];
 
   } status = { "", DIM, NULL, RENDER_MODE_STRING, FT_ENCODING_UNICODE,
                72, 48, 0, NULL,
@@ -426,7 +427,7 @@
     switch ( status.render_mode )
     {
     case RENDER_MODE_KERNCMP:
-      status.header = (char *)"Kerning comparison";
+      status.header = "Kerning comparison";
       break;
 
     default:
@@ -475,29 +476,29 @@
 
 
         FTDemo_Version( handle, str );
-        FTDemo_Display_Print( display, (FT_String *)"ftstring.png", str );
+        FTDemo_Display_Print( display, "ftstring.png", str );
       }
       goto Exit;
 
     case grKEY( 'b' ):
       handle->use_sbits = !handle->use_sbits;
       status.header     = handle->use_sbits
-                          ? (char *)"embedded bitmaps are now used when available"
-                          : (char *)"embedded bitmaps are now ignored";
+                          ? "embedded bitmaps are now used when available"
+                          : "embedded bitmaps are now ignored";
       goto Flags;
 
     case grKEY( 'f' ):
       handle->autohint = !handle->autohint;
       status.header     = handle->autohint
-                          ? (char *)"forced auto-hinting is now on"
-                          : (char *)"forced auto-hinting is now off";
+                          ? "forced auto-hinting is now on"
+                          : "forced auto-hinting is now off";
       goto Flags;
 
     case grKEY( 'h' ):
       handle->hinted = !handle->hinted;
       status.header   = handle->hinted
-                        ? (char *)"glyph hinting is now active"
-                        : (char *)"glyph hinting is now ignored";
+                        ? "glyph hinting is now active"
+                        : "glyph hinting is now ignored";
       goto Flags;
 
     case grKEY( 'l' ):
@@ -508,22 +509,22 @@
       sc->kerning_mode = ( sc->kerning_mode + 1 ) % N_KERNING_MODES;
       status.header =
         sc->kerning_mode == KERNING_MODE_SMART
-        ? (char *)"pair kerning and side bearing correction is now active"
+        ? "pair kerning and side bearing correction is now active"
         : sc->kerning_mode == KERNING_MODE_NORMAL
-          ? (char *)"pair kerning is now active"
-          : (char *)"pair kerning is now ignored";
+          ? "pair kerning is now active"
+          : "pair kerning is now ignored";
       goto String;
 
     case grKEY( 't' ):
       sc->kerning_degree = ( sc->kerning_degree + 1 ) % N_KERNING_DEGREES;
       status.header =
         sc->kerning_degree == KERNING_DEGREE_NONE
-        ? (char *)"no track kerning"
+        ? "no track kerning"
         : sc->kerning_degree == KERNING_DEGREE_LIGHT
-          ? (char *)"light track kerning active"
+          ? "light track kerning active"
           : sc->kerning_degree == KERNING_DEGREE_MEDIUM
-            ? (char *)"medium track kerning active"
-            : (char *)"tight track kerning active";
+            ? "medium track kerning active"
+            : "tight track kerning active";
       goto String;
 
     case grKeySpace:
@@ -538,8 +539,8 @@
     case grKEY( 'V' ):
       sc->vertical  = !sc->vertical;
       status.header = sc->vertical
-                      ? (char *)"using vertical layout"
-                      : (char *)"using horizontal layout";
+                      ? "using vertical layout"
+                      : "using horizontal layout";
       goto Exit;
 
     case grKEY( 'g' ):

@@ -647,9 +647,9 @@
 
 
   static void
-  Print_Bytecode( FT_Byte*   buffer,
-                  FT_UShort  length,
-                  char*      tag )
+  Print_Bytecode( FT_Byte*     buffer,
+                  FT_UShort    length,
+                  const char*  tag )
   {
     FT_UShort  i;
     int        j = 0;  /* status counter */
@@ -714,7 +714,7 @@
       goto Exit;
 
     printf( "font program" );
-    Print_Bytecode( buffer, (FT_UShort)length, (char*)"fpgm" );
+    Print_Bytecode( buffer, (FT_UShort)length, "fpgm" );
 
   Prep:
     length = 0;
@@ -732,7 +732,7 @@
       goto Exit;
 
     printf( "\ncontrol value program" );
-    Print_Bytecode( buffer, (FT_UShort)length, (char*)"prep" );
+    Print_Bytecode( buffer, (FT_UShort)length, "prep" );
 
   Glyf:
     length = 0;

@@ -1403,7 +1403,7 @@
 
 
         FTDemo_Version( handle, str );
-        FTDemo_Display_Print( display, (FT_String *)"ftgrid.png", str );
+        FTDemo_Display_Print( display, "ftgrid.png", str );
       }
       break;
 

@@ -193,7 +193,7 @@
 
   int
   FTDemo_Display_Print( FTDemo_Display*  display,
-                        FT_String*       filename,
+                        const char*      filename,
                         FT_String*       ver_str )
   {
 #ifdef FT_CONFIG_OPTION_USE_PNG

@@ -1171,7 +1171,7 @@
 
 
         FTDemo_Version( handle, str );
-        FTDemo_Display_Print( display, (FT_String *)"ftview.png", str );
+        FTDemo_Display_Print( display, "ftview.png", str );
       }
       status.update = 0;
       break;

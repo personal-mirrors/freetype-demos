@@ -103,7 +103,7 @@
   /* dump display image in PNG format */
   int
   FTDemo_Display_Print( FTDemo_Display*  display,
-                        FT_String*       filename,
+                        const char*      filename,
                         FT_String*       ver_str );
 
   /*************************************************************************/
