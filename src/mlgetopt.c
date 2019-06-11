@@ -8,7 +8,7 @@
  *  mleisher@crl.nmsu.edu (Mark Leisher)
  *  10 October 1997
  *
- *  Last update 2009-03-11.
+ *  Last update 2019-06-10.
  */
 
 #include "mlgetopt.h"
@@ -140,21 +140,18 @@
     /*
      *  If the option expects an argument, get it.
      */
-    if ( *(pp + 1) == ':' && (optarg = av[optind]) == 0 )
+    if ( *(pp + 1) == ':'             &&
+         *(optarg = p + 2) == 0       &&
+         (optarg = av[optind++]) == 0 )
     {
       /*
-       *  If the option argument is NULL, issue a warning and return a '?'.
+       *  If the option argument is missing, issue a warning and return a '?'.
        */
       if ( opterr )
         fprintf( stderr, "%s: option requires an argument -- %c\n",
                          cmdname, opt );
       opt = '?';
     }
-    else if ( optarg )
-    /*
-     *  Increment the option index past the argument.
-     */
-      optind++;
 
     /*
      *  Return the option character.

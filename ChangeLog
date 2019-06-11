@@ -1,3 +1,7 @@
+2019-06-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/mlgetopt.c (getopt): Permit merged option-argument pairs.
+
 2019-06-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ft{view,grid,string}.c (parse_cmdline): Generalize batch mode...
