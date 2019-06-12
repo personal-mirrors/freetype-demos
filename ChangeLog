@@ -1,3 +1,12 @@
+2019-06-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Fix compilation warnings.
+
+	* src/ft{lint,dump}.c (main): Null-terminate `strncpy'.
+	* src/ttdebug.c (main): Reluctantly ditto.
+
+	* src/mlgetopt.c (getopt): Suppress the dropped `const' warning.
+
 2019-06-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/mlgetopt.c (getopt): Permit merged option-argument pairs.

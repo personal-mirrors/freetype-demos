@@ -140,9 +140,9 @@
     /*
      *  If the option expects an argument, get it.
      */
-    if ( *(pp + 1) == ':'             &&
-         *(optarg = p + 2) == 0       &&
-         (optarg = av[optind++]) == 0 )
+    if ( *(pp + 1) == ':'              &&
+         *(optarg = (char*)p + 2) == 0 &&
+         (optarg = av[optind++]) == 0  )
     {
       /*
        *  If the option argument is missing, issue a warning and return a '?'.

@@ -2093,7 +2093,7 @@
                              CUR.opcode,
                              Cur_U_Line( &CUR ) );
 
-          strncpy( temp + 46, " (", 2 );
+          strncpy( temp + 46, " (", 3 );
 
           args = CUR.top - 1;
           pop  = Pop_Push_Count[CUR.opcode] >> 4;
