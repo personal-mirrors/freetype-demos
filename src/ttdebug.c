@@ -1526,10 +1526,24 @@
 #endif /* !UNIX */
 
 
+  /* error messages */
+#undef FTERRORS_H_
+#define FT_ERROR_START_LIST     {
+#define FT_ERRORDEF( e, v, s )  case v: str = s; break;
+#define FT_ERROR_END_LIST       default: str = "unknown error"; }
+
+
   static void
   Abort( const char*  message )
   {
-    fprintf( stderr, "%s\n  error code = 0x%04x.\n", message, error );
+    const FT_String  *str;
+
+
+    switch( error )
+    #include FT_ERRORS_H
+
+    fprintf( stderr, "%s\n  error = 0x%04x, %s\n", message, error, str );
+
     Reset_Keyboard();
     exit( 1 );
   }
@@ -1961,7 +1975,7 @@
   }
 
 
-  static void
+  static FT_Error
   RunIns( TT_ExecContext  exc )
   {
     FT_Int  key;
@@ -2152,8 +2166,7 @@
         /* First, check for empty stack and overflow */
         if ( CUR.args < 0 )
         {
-          printf( "ERROR: Too Few Arguments.\n" );
-          error = TT_Err_Too_Few_Arguments;
+          error = FT_ERR( Too_Few_Arguments );
           goto LErrorLabel_;
         }
 
@@ -2164,8 +2177,7 @@
 
         if ( CUR.new_top > CUR.stackSize )
         {
-          printf( "ERROR: Stack overflow.\n" );
-          error = TT_Err_Stack_Overflow;
+          error = FT_ERR( Stack_Overflow );
           goto LErrorLabel_;
         }
       }
@@ -2792,6 +2804,8 @@
 
     if ( error && error != Quit && error != Restart )
       Abort( "error during execution" );
+
+    return error;
   }
 
 

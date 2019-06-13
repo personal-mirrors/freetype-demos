@@ -1,3 +1,8 @@
+2019-06-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ttdebug.c (RunIns): Return error like `TT_RunIns'.
+	(Abort): Add error messages.
+
 2019-06-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	Fix compilation warnings.
