@@ -16,6 +16,13 @@
 #include FT_INTERNAL_DRIVER_H
 #include FT_INTERNAL_OBJECTS_H
 
+/* these variables, structures, and declarations are for  */
+/* communication with the debugger in the autofit module; */
+/* normal programs don't need this */
+extern int _af_debug_disable_horz_hints;
+extern int _af_debug_disable_vert_hints;
+extern int _af_debug_disable_blue_hints;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -517,6 +524,21 @@ Engine::loadOutline(int glyphIndex)
 
 
 void
+Engine::setWarping()
+{
+  FT_Error error = FT_Property_Set(library,
+                                   "autofitter",
+                                   "warping",
+                                   &doWarping);
+  if (!error)
+  {
+    // reset the cache
+    FTC_Manager_Reset(cacheManager);
+  }
+}
+
+
+void
 Engine::setCFFHintingMode(int mode)
 {
   int index = gui->hintingModesCFFHash.key(mode);
@@ -583,7 +605,44 @@ Engine::update()
     loadFlags |= FT_LOAD_FORCE_AUTOHINT;
   loadFlags |= FT_LOAD_NO_BITMAP; // XXX handle bitmap fonts also
 
+  _af_debug_disable_horz_hints = doHorizontalHinting;
+  _af_debug_disable_vert_hints = doVerticalHinting;
+  _af_debug_disable_blue_hints = doBlueZoneHinting;
+
+  if (doHorizontalHinting)
+  {
+    if (!doAutoHinting)
+    {
+      _af_debug_disable_horz_hints = !doHorizontalHinting;
+    }
+  }
+
+  if (doVerticalHinting)
+  {
+    if (!doAutoHinting)
+    {
+      _af_debug_disable_vert_hints = !doVerticalHinting;
+    }
+  }
+
+  if (doBlueZoneHinting)
+  {
+    if (!doAutoHinting)
+    {
+      _af_debug_disable_blue_hints = !doBlueZoneHinting;
+    }
+  }
+
   int index = gui->antiAliasingComboBoxx->currentIndex();
+
+  if (doWarping)
+  {
+    if (!(index == MainGUI::AntiAliasing_Normal && doAutoHinting))
+    {
+      doWarping = !doWarping;
+    }
+  }
+  setWarping();
 
   if (doHinting)
   {

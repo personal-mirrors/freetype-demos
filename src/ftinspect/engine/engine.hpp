@@ -56,6 +56,7 @@ public:
   FT_Outline* loadOutline(int glyphIndex);
   void removeFont(int fontIndex);
   void setCFFHintingMode(int mode);
+  void setWarping();
   void setTTInterpreterVersion(int version);
   void update();
 

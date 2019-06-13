@@ -1044,6 +1044,14 @@ MainGUI::createConnections()
 
   connect(autoHintingCheckBox, SIGNAL(clicked()),
           SLOT(checkAutoHinting()));
+  connect(horizontalHintingCheckBox, SIGNAL(clicked()),
+          SLOT(drawGlyph()));
+  connect(verticalHintingCheckBox, SIGNAL(clicked()),
+          SLOT(drawGlyph()));
+  connect(blueZoneHintingCheckBox, SIGNAL(clicked()),
+          SLOT(drawGlyph()));
+  connect(warpingCheckBox, SIGNAL(clicked()),
+          SLOT(drawGlyph()));
   connect(showBitmapCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));
   connect(showPointsCheckBox, SIGNAL(clicked()),
