@@ -190,6 +190,17 @@
 
 /* */
 
+static const GBlenderBlitFunc*
+blit_funcs[GBLENDER_TARGET_MAX] =
+{
+  blit_funcs_gray8,
+  blit_funcs_rgb32,
+  blit_funcs_rgb24,
+  blit_funcs_rgb565,
+  blit_funcs_bgr565
+};
+
+
 static void
 _gblender_blit_dummy( GBlenderBlit   blit,
                       GBlenderPixel  color )
@@ -218,96 +229,12 @@ gblender_blit_init( GBlenderBlit           blit,
   int               src_x = 0;
   int               src_y = 0;
   int               delta;
-  GBlenderBlitFunc  blit_func = 0;
 
-  switch ( src_format )
-  {
-  case GBLENDER_SOURCE_GRAY8:
-      switch ( dst_format )
-      {
-      case GBLENDER_TARGET_RGB32:  blit_func = _gblender_blit_gray8_rgb32; break;
-      case GBLENDER_TARGET_RGB24:  blit_func = _gblender_blit_gray8_rgb24; break;
-      case GBLENDER_TARGET_RGB565: blit_func = _gblender_blit_gray8_rgb565; break;
-      case GBLENDER_TARGET_BGR565: blit_func = _gblender_blit_gray8_bgr565; break;
-      case GBLENDER_TARGET_GRAY8:  blit_func = _gblender_blit_gray8_gray8; break;
-      default:
-          ;
-      }
-      break;
-
-  case GBLENDER_SOURCE_HRGB:
-      switch ( dst_format )
-      {
-      case GBLENDER_TARGET_RGB32:  blit_func = _gblender_blit_hrgb_rgb32; break;
-      case GBLENDER_TARGET_RGB24:  blit_func = _gblender_blit_hrgb_rgb24; break;
-      case GBLENDER_TARGET_RGB565: blit_func = _gblender_blit_hrgb_rgb565; break;
-      case GBLENDER_TARGET_BGR565: blit_func = _gblender_blit_hrgb_bgr565; break;
-      case GBLENDER_TARGET_GRAY8:  blit_func = _gblender_blit_hrgb_gray8; break;
-      default:
-          ;
-      }
-      break;
-
-  case GBLENDER_SOURCE_HBGR:
-      switch ( dst_format )
-      {
-      case GBLENDER_TARGET_RGB32:  blit_func = _gblender_blit_hbgr_rgb32; break;
-      case GBLENDER_TARGET_RGB24:  blit_func = _gblender_blit_hbgr_rgb24; break;
-      case GBLENDER_TARGET_RGB565: blit_func = _gblender_blit_hbgr_rgb565; break;
-      case GBLENDER_TARGET_BGR565: blit_func = _gblender_blit_hbgr_bgr565; break;
-      case GBLENDER_TARGET_GRAY8:  blit_func = _gblender_blit_hbgr_gray8; break;
-      default:
-          ;
-      }
-      break;
-
-  case GBLENDER_SOURCE_VRGB:
-      switch ( dst_format )
-      {
-      case GBLENDER_TARGET_RGB32:  blit_func = _gblender_blit_vrgb_rgb32; break;
-      case GBLENDER_TARGET_RGB24:  blit_func = _gblender_blit_vrgb_rgb24; break;
-      case GBLENDER_TARGET_RGB565: blit_func = _gblender_blit_vrgb_rgb565; break;
-      case GBLENDER_TARGET_BGR565: blit_func = _gblender_blit_vrgb_bgr565; break;
-      case GBLENDER_TARGET_GRAY8:  blit_func = _gblender_blit_vrgb_gray8; break;
-      default:
-          ;
-      }
-      break;
-
-  case GBLENDER_SOURCE_VBGR:
-      switch ( dst_format )
-      {
-      case GBLENDER_TARGET_RGB32:  blit_func = _gblender_blit_vbgr_rgb32; break;
-      case GBLENDER_TARGET_RGB24:  blit_func = _gblender_blit_vbgr_rgb24; break;
-      case GBLENDER_TARGET_RGB565: blit_func = _gblender_blit_vbgr_rgb565; break;
-      case GBLENDER_TARGET_BGR565: blit_func = _gblender_blit_vbgr_bgr565; break;
-      case GBLENDER_TARGET_GRAY8:  blit_func = _gblender_blit_vbgr_gray8; break;
-      default:
-          ;
-      }
-      break;
-
-  case GBLENDER_SOURCE_BGRA:
-      switch ( dst_format )
-      {
-      case GBLENDER_TARGET_RGB32:  blit_func = _gblender_blit_bgra_rgb32; break;
-      case GBLENDER_TARGET_RGB24:  blit_func = _gblender_blit_bgra_rgb24; break;
-      case GBLENDER_TARGET_RGB565: blit_func = _gblender_blit_bgra_rgb565; break;
-      case GBLENDER_TARGET_BGR565: blit_func = _gblender_blit_bgra_bgr565; break;
-      case GBLENDER_TARGET_GRAY8:  blit_func = _gblender_blit_bgra_gray8; break;
-      default:
-          ;
-      }
-      break;
-
-  default:
-    ;
-  }
 
   blit->blender   = blender;
-  blit->blit_func = blit_func;
+  blit->blit_func = blit_funcs[dst_format][src_format];
 
-  if ( blit_func == 0 )
+  if ( blit->blit_func == 0 )
   {
    /* unsupported blit mode
     */

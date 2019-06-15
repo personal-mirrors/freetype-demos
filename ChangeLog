@@ -1,4 +1,9 @@
-2019-06-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2019-06-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/gblblit.c (gblender_blit_init): Switch to lookup table.
+	* graph/gblany.h: Updated.
+
+2019-06-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ttdebug.c (RunIns): Return error like `TT_RunIns'.
 	(Abort): Add error messages.
