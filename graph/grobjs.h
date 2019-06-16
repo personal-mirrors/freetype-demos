@@ -18,6 +18,7 @@
 #include "graph.h"
 #include "grconfig.h"
 #include "grtypes.h"
+#include "gblender.h"
 
 
   typedef struct grBiColor_
@@ -109,8 +110,11 @@
 
   struct grSurface_
   {
-    grDevice*          device;
     grBitmap           bitmap;
+
+    GBlenderRec        gblender[1];
+
+    grDevice*          device;
     grBool             refresh;
     grBool             owner;
 

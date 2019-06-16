@@ -301,6 +301,8 @@
     if ( !surface )
       PanicZ( "could not allocate display surface\n" );
 
+    grSetTargetGamma( (grBitmap*)surface, 1.8 );
+
     graph_init = 1;
   }
 

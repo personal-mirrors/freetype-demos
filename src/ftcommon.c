@@ -162,6 +162,8 @@
 
     display->gamma = GAMMA;
 
+    grSetTargetGamma( display->bitmap, display->gamma );
+
     return display;
   }
 

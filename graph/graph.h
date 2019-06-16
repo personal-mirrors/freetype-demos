@@ -663,7 +663,7 @@
  /**********************************************************************
   *
   * <Function>
-  *    grSetGlyphGamma
+  *    grSetTargetGamma
   *
   * <Description>
   *    set the gamma-correction coefficient. This is only used to
@@ -675,7 +675,7 @@
   **********************************************************************/
 
   extern
-  void  grSetGlyphGamma( double  gamma_value );
+  void  grSetTargetGamma( grBitmap*  target, double  gamma_value );
 
 /* */
 

@@ -395,7 +395,7 @@
     else if ( display->gamma < 0.1 )
       display->gamma = 0.1;
 
-    grSetGlyphGamma( display->gamma );
+    grSetTargetGamma( display->bitmap, display->gamma );
   }
 
 

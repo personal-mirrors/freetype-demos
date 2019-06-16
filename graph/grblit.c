@@ -1808,11 +1808,12 @@
 
 #include "gblblit.h"
 
-  static double    gr_glyph_gamma = 1.8;
-
-  void  grSetGlyphGamma( double  gamma )
+  void  grSetTargetGamma( grBitmap*  target, double  gamma )
   {
-    gr_glyph_gamma = gamma;
+    grSurface*  surface = (grSurface*)target;
+
+
+    gblender_init( surface->gblender, gamma );
   }
 
 
@@ -1848,8 +1849,8 @@
       int                   width, height;
       GBlenderBlitRec       gblit[1];
       GBlenderPixel         gcolor;
-      static GBlenderRec    gblender[1];
-      static double         gblender_gamma = -100.0;
+      grSurface*            surface = (grSurface*)target;
+
 
       if ( glyph->grays != 256 )
         goto LegacyBlit;
@@ -1880,23 +1881,15 @@
 
       switch ( target->mode )
       {
+      case gr_pixel_mode_gray:   dst_format = GBLENDER_TARGET_GRAY8; break;
       case gr_pixel_mode_rgb32:  dst_format = GBLENDER_TARGET_RGB32; break;
       case gr_pixel_mode_rgb24:  dst_format = GBLENDER_TARGET_RGB24; break;
       case gr_pixel_mode_rgb565: dst_format = GBLENDER_TARGET_RGB565; break;
-      case gr_pixel_mode_gray:   dst_format = GBLENDER_TARGET_GRAY8; break;
       default:
           goto LegacyBlit;
       }
 
-     /* initialize blender when needed, i.e. when gamma changes
-      */
-      if ( gblender_gamma != gr_glyph_gamma  )
-      {
-        gblender_gamma = gr_glyph_gamma;
-        gblender_init( gblender, gblender_gamma );
-      }
-
-      if ( gblender_blit_init( gblit, gblender,
+      if ( gblender_blit_init( gblit, surface->gblender,
                                x, y,
                                src_format,
                                glyph->buffer,
