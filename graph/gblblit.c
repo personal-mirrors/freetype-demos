@@ -1,3 +1,4 @@
+#include "grobjs.h"
 #include "gblblit.h"
 
 /* blitting gray glyphs
@@ -212,26 +213,55 @@ _gblender_blit_dummy( GBlenderBlit   blit,
 
 GBLENDER_APIDEF( int )
 gblender_blit_init( GBlenderBlit           blit,
-                    GBlender               blender,
                     int                    dst_x,
                     int                    dst_y,
-                    GBlenderSourceFormat   src_format,
-                    const unsigned char*   src_buffer,
-                    int                    src_pitch,
-                    int                    src_width,
-                    int                    src_height,
-                    GBlenderTargetFormat   dst_format,
-                    unsigned char*         dst_buffer,
-                    int                    dst_pitch,
-                    int                    dst_width,
-                    int                    dst_height )
+                    grBitmap*              target,
+                    grBitmap*              glyph )
 {
   int               src_x = 0;
   int               src_y = 0;
   int               delta;
 
+  GBlenderSourceFormat   src_format;
+  const unsigned char*   src_buffer = glyph->buffer;
+  int                    src_pitch  = glyph->pitch;
+  int                    src_width  = glyph->width;
+  int                    src_height = glyph->rows;
+  GBlenderTargetFormat   dst_format;
+  unsigned char*         dst_buffer = target->buffer;
+  int                    dst_pitch  = target->pitch;
+  int                    dst_width  = target->width;
+  int                    dst_height = target->rows;
 
-  blit->blender   = blender;
+  grSurface*  surface = (grSurface*)target;
+
+
+  if ( glyph->grays != 256 )
+    return -2;
+
+  switch ( glyph->mode )
+  {
+  case gr_pixel_mode_gray:  src_format = GBLENDER_SOURCE_GRAY8; break;
+  case gr_pixel_mode_lcd:   src_format = GBLENDER_SOURCE_HRGB;  break;
+  case gr_pixel_mode_lcdv:  src_format = GBLENDER_SOURCE_VRGB;  break;
+  case gr_pixel_mode_lcd2:  src_format = GBLENDER_SOURCE_HBGR;  break;
+  case gr_pixel_mode_lcdv2: src_format = GBLENDER_SOURCE_VBGR;  break;
+  case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;  break;
+  default:
+    return -2;
+  }
+
+  switch ( target->mode )
+  {
+  case gr_pixel_mode_gray:   dst_format = GBLENDER_TARGET_GRAY8; break;
+  case gr_pixel_mode_rgb32:  dst_format = GBLENDER_TARGET_RGB32; break;
+  case gr_pixel_mode_rgb24:  dst_format = GBLENDER_TARGET_RGB24; break;
+  case gr_pixel_mode_rgb565: dst_format = GBLENDER_TARGET_RGB565; break;
+  default:
+    return -2;
+  }
+
+  blit->blender   = surface->gblender;
   blit->blit_func = blit_funcs[dst_format][src_format];
 
   if ( blit->blit_func == 0 )
@@ -241,6 +271,14 @@ gblender_blit_init( GBlenderBlit           blit,
     blit->blit_func = _gblender_blit_dummy;
     return -2;
   }
+
+  if ( glyph->mode == gr_pixel_mode_lcd  ||
+       glyph->mode == gr_pixel_mode_lcd2 )
+    src_width /= 3;
+
+  if ( glyph->mode == gr_pixel_mode_lcdv  ||
+       glyph->mode == gr_pixel_mode_lcdv2 )
+    src_height /= 3;
 
   if ( dst_x < 0 )
   {

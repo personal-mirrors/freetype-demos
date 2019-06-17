@@ -1,3 +1,9 @@
+2019-06-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grblit.c (grBlitGlyphToBitmap): Move code from here...
+	* graph/gblblit.c (gblender_blit_init): ... to here.
+	* graph/gblblit.h: Updated.
+
 2019-06-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Relocate `gblender' to `grSurface'.

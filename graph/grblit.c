@@ -10,7 +10,6 @@
 /****************************************************************************/
 
 #include "grblit.h"
-#include "grobjs.h"
 
 #define  GRAY8
 
@@ -1844,66 +1843,16 @@
    /* short cut to alpha blender for certain glyph types
     */
     {
-      GBlenderSourceFormat  src_format;
-      GBlenderTargetFormat  dst_format;
-      int                   width, height;
       GBlenderBlitRec       gblit[1];
       GBlenderPixel         gcolor;
-      grSurface*            surface = (grSurface*)target;
 
 
-      if ( glyph->grays != 256 )
-        goto LegacyBlit;
-
-      switch ( glyph->mode )
+      switch ( gblender_blit_init( gblit, x, y, target, glyph ) )
       {
-      case gr_pixel_mode_gray:  src_format = GBLENDER_SOURCE_GRAY8; break;
-      case gr_pixel_mode_lcd:   src_format = GBLENDER_SOURCE_HRGB;  break;
-      case gr_pixel_mode_lcdv:  src_format = GBLENDER_SOURCE_VRGB;  break;
-      case gr_pixel_mode_lcd2:  src_format = GBLENDER_SOURCE_HBGR;  break;
-      case gr_pixel_mode_lcdv2: src_format = GBLENDER_SOURCE_VBGR;  break;
-      case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;  break;
-
-      default:
-          goto LegacyBlit;
-      }
-
-      width  = glyph->width;
-      height = glyph->rows;
-
-      if ( glyph->mode == gr_pixel_mode_lcd  ||
-           glyph->mode == gr_pixel_mode_lcd2 )
-        width /= 3;
-
-      if ( glyph->mode == gr_pixel_mode_lcdv  ||
-           glyph->mode == gr_pixel_mode_lcdv2 )
-        height /= 3;
-
-      switch ( target->mode )
-      {
-      case gr_pixel_mode_gray:   dst_format = GBLENDER_TARGET_GRAY8; break;
-      case gr_pixel_mode_rgb32:  dst_format = GBLENDER_TARGET_RGB32; break;
-      case gr_pixel_mode_rgb24:  dst_format = GBLENDER_TARGET_RGB24; break;
-      case gr_pixel_mode_rgb565: dst_format = GBLENDER_TARGET_RGB565; break;
-      default:
-          goto LegacyBlit;
-      }
-
-      if ( gblender_blit_init( gblit, surface->gblender,
-                               x, y,
-                               src_format,
-                               glyph->buffer,
-                               glyph->pitch,
-                               width,
-                               height,
-                               dst_format,
-                               target->buffer,
-                               target->pitch,
-                               target->width,
-                               target->rows ) < 0 )
-      {
-        /* nothing to do */
+      case -1: /* nothing to do */
         return 0;
+      case -2:
+        goto LegacyBlit;
       }
 
       gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
