@@ -555,6 +555,13 @@ Engine::setCFFHintingMode(int mode)
 }
 
 
+FT_Size
+Engine::getFtSize()
+{
+  return ftSize;
+}
+
+
 void
 Engine::setTTInterpreterVersion(int mode)
 {
@@ -643,6 +650,7 @@ Engine::update()
     }
   }
   setWarping();
+
 
   if (doHinting)
   {

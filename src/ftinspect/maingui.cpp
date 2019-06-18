@@ -643,6 +643,14 @@ MainGUI::drawGlyph()
     currentGlyphBitmapItem = NULL;
   }
 
+  if (currentGlyphSegmentItem)
+  {
+    glyphScene->removeItem(currentGlyphSegmentItem);
+    delete currentGlyphSegmentItem;
+
+    currentGlyphSegmentItem = NULL;
+  }
+
   if (currentGlyphOutlineItem)
   {
     glyphScene->removeItem(currentGlyphOutlineItem);
@@ -683,6 +691,14 @@ MainGUI::drawGlyph()
                                                monoColorTable,
                                                grayColorTable);
       glyphScene->addItem(currentGlyphBitmapItem);
+    }
+
+    if (segmentDrawingCheckBox->isChecked())
+    {
+      currentGlyphSegmentItem = new GlyphSegment(segmentPen,
+                                                 blueZonePen,
+                                                 engine->getFtSize());
+      glyphScene->addItem(currentGlyphSegmentItem);
     }
 
     if (showOutlinesCheckBox->isChecked())
@@ -1051,6 +1067,8 @@ MainGUI::createConnections()
   connect(blueZoneHintingCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));
   connect(warpingCheckBox, SIGNAL(clicked()),
+          SLOT(drawGlyph()));
+  connect(segmentDrawingCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));
   connect(showBitmapCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));

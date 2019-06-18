@@ -9,6 +9,7 @@
 #include "rendering/glyphbitmap.hpp"
 #include "rendering/glyphoutline.hpp"
 #include "rendering/glyphpointnumbers.hpp"
+#include "rendering/glyphsegment.hpp"
 #include "rendering/glyphpoints.hpp"
 #include "widgets/qcomboboxx.hpp"
 #include "widgets/qgraphicsviewx.hpp"
@@ -114,6 +115,7 @@ private:
   // layout related stuff
   GlyphOutline *currentGlyphOutlineItem;
   GlyphPoints *currentGlyphPointsItem;
+  GlyphSegment *currentGlyphSegmentItem;
   GlyphPointNumbers *currentGlyphPointNumbersItem;
   GlyphBitmap *currentGlyphBitmapItem;
 

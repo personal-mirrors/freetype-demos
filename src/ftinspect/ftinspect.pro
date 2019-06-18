@@ -7,7 +7,7 @@ QMAKE_CXXFLAGS += -isystem ../../../freetype2/include
 #
 # You should adapt this to your setup.
 unix|macx {
-  LIBS += ../../../freetype2/objs/.libs/libfreetype.a
+  LIBS += ../../../freetype2/objs/libfreetype.a
 
   CONFIG += link_pkgconfig
   PKGCONFIG += libpng harfbuzz zlib bzip2

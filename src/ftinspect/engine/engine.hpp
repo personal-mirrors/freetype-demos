@@ -57,6 +57,7 @@ public:
   void removeFont(int fontIndex);
   void setCFFHintingMode(int mode);
   void setWarping();
+  FT_Size getFtSize();
   void setTTInterpreterVersion(int version);
   void update();
 
