@@ -22,7 +22,7 @@ ifeq ($(PLATFORM),os2)
 
   # the rule used to compile the graphics driver
   #
-  $(OBJ_DIR_2)/gros2pm.$O: $(GR_OS2)/gros2pm.c $(GR_OS2)/gros2pm.h
+  $(OBJ_DIR_2)/gros2pm.$O: $(GR_OS2)/gros2pm.c $(GR_OS2)/gros2pm.h $(GRAPH_H)
 	  $(CC) $(CFLAGS) $(GRAPH_INCLUDES:%=$I%) \
                 $I$(subst /,$(COMPILER_SEP),$(GR_OS2)) \
                 $T$(subst /,$(COMPILER_SEP),$@ $<)

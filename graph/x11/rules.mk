@@ -112,7 +112,7 @@ ifneq ($(X11_PATH),)
 
   # the rule used to compile the X11 driver
   #
-  $(OBJ_DIR_2)/grx11.$(O): $(GR_X11)/grx11.c $(GR_X11)/grx11.h
+  $(OBJ_DIR_2)/grx11.$(O): $(GR_X11)/grx11.c $(GR_X11)/grx11.h $(GRAPH_H)
   ifneq ($(LIBTOOL),)
 	  $(LIBTOOL) --mode=compile $(CC) -static $(CFLAGS) \
                      $(GRAPH_INCLUDES:%=$I%) \

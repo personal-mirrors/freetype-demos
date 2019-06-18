@@ -1,3 +1,7 @@
+2019-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/*/rules.mk: Add missing dependency.
+
 2019-06-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grblit.c (grBlitGlyphToBitmap): Move code from here...
