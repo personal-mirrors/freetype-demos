@@ -1,5 +1,11 @@
 2019-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftmulti.c (bit): Surface bitmap must belong to surface.
+	* graph/graph.h (grBlitGlyphToBitmap): Clarify documentation.
+	* graph/grdevice.c (grNewSurface): Initialize default blender.
+
+2019-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/*/rules.mk: Add missing dependency.
 
 2019-06-16  Alexei Podtelezhnikov  <apodtele@gmail.com>

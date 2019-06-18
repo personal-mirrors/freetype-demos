@@ -1748,25 +1748,6 @@
   }
 
 
- /**********************************************************************
-  *
-  * <Function>
-  *    grBlitGlyphToBitmap
-  *
-  * <Description>
-  *    writes a given glyph bitmap to a target surface.
-  *
-  * <Input>
-  *    surface :: handle to target surface
-  *    x       :: position of left-most pixel of glyph image in surface
-  *    y       :: position of top-most pixel of glyph image in surface
-  *    bitmap  :: source glyph image
-  *
-  * <Return>
-  *   Error code. 0 means success
-  *
-  **********************************************************************/
-
   typedef  void (*grColorGlyphBlitter)( grBlitter*  blit,
                                         grColor     color,
                                         int         max_gray );

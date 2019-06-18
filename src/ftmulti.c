@@ -79,7 +79,7 @@
   static FT_Error      error;        /* error returned by FreeType? */
 
   static grSurface*    surface;      /* current display surface     */
-  static grBitmap      bit;          /* current display bitmap      */
+  static grBitmap*     bit;          /* current display bitmap      */
 
   static int  width     = DIM_X;     /* window width                */
   static int  height    = DIM_Y;     /* window height               */
@@ -277,12 +277,12 @@
   static void
   Clear_Display( void )
   {
-    long  bitmap_size = (long)bit.pitch * bit.rows;
+    long  bitmap_size = (long)bit->pitch * bit->rows;
 
 
     if ( bitmap_size < 0 )
       bitmap_size = -bitmap_size;
-    memset( bit.buffer, 0, (unsigned long)bitmap_size );
+    memset( bit->buffer, 0, (unsigned long)bitmap_size );
   }
 
 
@@ -290,18 +290,16 @@
   static void
   Init_Display( void )
   {
+    grBitmap  bitmap = { height, width, 0, gr_pixel_mode_gray, 256, NULL };
+
+
     grInitDevices();
 
-    bit.mode  = gr_pixel_mode_gray;
-    bit.width = width;
-    bit.rows  = height;
-    bit.grays = 256;
-
-    surface = grNewSurface( 0, &bit );
+    surface = grNewSurface( 0, &bitmap );
     if ( !surface )
       PanicZ( "could not allocate display surface\n" );
 
-    grSetTargetGamma( (grBitmap*)surface, 1.8 );
+    bit = (grBitmap*)surface;
 
     graph_init = 1;
   }
@@ -347,7 +345,8 @@
     x_top = x_offset + glyph->bitmap_left;
     y_top = y_offset - glyph->bitmap_top;
 
-    grBlitGlyphToBitmap( &bit, &bit3, x_top, y_top, fore_color );
+    grBlitGlyphToBitmap( bit, &bit3,
+                         x_top, y_top, fore_color );
 
     return 0;
   }
@@ -424,12 +423,12 @@
 
         x += ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
 
-        if ( x + size->metrics.x_ppem > bit.width )
+        if ( x + size->metrics.x_ppem > bit->width )
         {
           x  = start_x;
           y += step_y;
 
-          if ( y >= bit.rows )
+          if ( y >= bit->rows )
             return FT_Err_Ok;
         }
       }
@@ -492,12 +491,12 @@
 
         x += ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
 
-        if ( x + size->metrics.x_ppem > bit.width )
+        if ( x + size->metrics.x_ppem > bit->width )
         {
           x  = start_x;
           y += step_y;
 
-          if ( y >= bit.rows )
+          if ( y >= bit->rows )
             return FT_Err_Ok;
         }
       }
@@ -534,7 +533,7 @@
     grSetLineHeight( 10 );
     grGotoxy( 0, 0 );
     grSetMargin( 2, 1 );
-    grGotobitmap( &bit );
+    grGotobitmap( bit );
 
     sprintf( buf,
              "FreeType MM Glyph Viewer - part of the FreeType %s test suite",
@@ -1167,12 +1166,12 @@
         if ( !new_header )
           new_header = Header;
 
-        grWriteCellString( &bit, 0, 0, new_header, fore_color );
+        grWriteCellString( bit, 0, 0, new_header, fore_color );
         new_header = NULL;
 
         sprintf( Header, "PS name: %s",
                          FT_Get_Postscript_Name( face ) );
-        grWriteCellString( &bit, 0, 16, Header, fore_color );
+        grWriteCellString( bit, 0, 16, Header, fore_color );
 
         sprintf( Header, "axes:" );
         {
@@ -1197,7 +1196,7 @@
                      sizeof ( Header ) - strlen( Header ) - 1 );
           }
         }
-        grWriteCellString( &bit, 0, 24, Header, fore_color );
+        grWriteCellString( bit, 0, 24, Header, fore_color );
 
         if ( num_shown_axes > MAX_MM_AXES / 2 )
         {
@@ -1222,7 +1221,7 @@
                      sizeof ( Header ) - strlen( Header ) - 1 );
           }
 
-          grWriteCellString( &bit, 0, 32, Header, fore_color );
+          grWriteCellString( bit, 0, 32, Header, fore_color );
         }
 
         {
@@ -1260,7 +1259,7 @@
         sprintf( Header, "%.100s: not an MM font file, or could not be opened",
                          ft_basename( argv[file] ) );
 
-      grWriteCellString( &bit, 0, 8, Header, fore_color );
+      grWriteCellString( bit, 0, 8, Header, fore_color );
       grRefreshSurface( surface );
 
       if ( !( key = Process_Event() ) )

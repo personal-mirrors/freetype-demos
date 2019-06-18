@@ -160,7 +160,7 @@
   *    writes a given glyph bitmap to a target surface.
   *
   * <Input>
-  *    target  :: handle to target bitmap
+  *    target  :: handle to target bitmap that belongs to surface
   *    glyph   :: handle to source glyph bitmap
   *    x       :: position of left-most pixel of glyph image in target surface
   *    y       :: position of top-most pixel of glyph image in target surface
@@ -474,11 +474,6 @@
   *               requested pixel mode, number of grays and dimensions
   *               for the surface. the bitmap's 'pitch' and 'buffer'
   *               fields are ignored on input.
-  *
-  *               On output, the bitmap describes the surface's image
-  *               completely. It is possible to write directly in it
-  *               with grBlitGlyphToBitmap, even though the use of
-  *               grBlitGlyphToSurface is recommended.
   *
   * <Return>
   *    handle to the corresponding surface object. 0 in case of error
