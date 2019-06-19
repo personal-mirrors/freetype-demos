@@ -207,7 +207,7 @@ gblender_init( GBlender   blender,
 }
 
 
-GBLENDER_API( void )
+GBLENDER_APIDEF( void )
 gblender_use_channels( GBlender  blender,
                        int       channels )
 {

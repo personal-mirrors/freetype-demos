@@ -10,6 +10,7 @@
 /****************************************************************************/
 
 #include "grblit.h"
+#include "gblblit.h"
 
 #define  GRAY8
 
@@ -1786,17 +1787,6 @@
 #endif
 
 
-#include "gblblit.h"
-
-  void  grSetTargetGamma( grBitmap*  target, double  gamma )
-  {
-    grSurface*  surface = (grSurface*)target;
-
-
-    gblender_init( surface->gblender, gamma );
-  }
-
-
   int
   grBlitGlyphToBitmap( grBitmap*  target,
                        grBitmap*  glyph,
@@ -1821,30 +1811,14 @@
       return 0;
     }
 
-   /* short cut to alpha blender for certain glyph types
-    */
+    /* short cut to alpha blender for certain glyph types */
+    switch ( grBlitGlyphToSurface( (grSurface*)target, glyph, x, y, color ) )
     {
-      GBlenderBlitRec       gblit[1];
-      GBlenderPixel         gcolor;
-
-
-      switch ( gblender_blit_init( gblit, x, y, target, glyph ) )
-      {
-      case -1: /* nothing to do */
-        return 0;
-      case -2:
-        goto LegacyBlit;
-      }
-
-      gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
-               ((GBlenderPixel)color.chroma[1] << 8 ) |
-               ((GBlenderPixel)color.chroma[2]      ) ;
-
-      gblender_blit_run( gblit, gcolor );
+    case 1:
       return 1;
+    case 0:
+      return 0;
     }
-
-  LegacyBlit:      /* no gamma correction, no caching */
 
     /* set up blitter and compute clipping.  Return immediately if needed */
     blit.source = *glyph;

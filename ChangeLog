@@ -1,3 +1,11 @@
+2019-06-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Clearly separate two blenders.
+
+	* graph/gblblit.[hc] (grBlitGlyphToSurface): Declare and define it.
+	* graph/grblit.c (grBlitGlyphToBitmap): Call `grBlitGlyphToSurface'.
+	* graph/gblender.c: Minor.
+
 2019-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftmulti.c (bit): Surface bitmap must belong to surface.

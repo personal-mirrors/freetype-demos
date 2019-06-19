@@ -1,3 +1,15 @@
+/****************************************************************************/
+/*                                                                          */
+/*  The FreeType project -- a free and portable quality TrueType renderer.  */
+/*                                                                          */
+/*  Copyright (C) 1996-2019 by                                              */
+/*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
+/*                                                                          */
+/*  grblit.c: Support for alpha blending with gamma correction and caching. */
+/*                                                                          */
+/****************************************************************************/
+
+
 #include "grobjs.h"
 #include "gblblit.h"
 
@@ -211,16 +223,18 @@ _gblender_blit_dummy( GBlenderBlit   blit,
 }
 
 
-GBLENDER_APIDEF( int )
+static int
 gblender_blit_init( GBlenderBlit           blit,
                     int                    dst_x,
                     int                    dst_y,
-                    grBitmap*              target,
+                    grSurface*             surface,
                     grBitmap*              glyph )
 {
   int               src_x = 0;
   int               src_y = 0;
   int               delta;
+
+  grBitmap*  target = (grBitmap*)surface;
 
   GBlenderSourceFormat   src_format;
   const unsigned char*   src_buffer = glyph->buffer;
@@ -232,8 +246,6 @@ gblender_blit_init( GBlenderBlit           blit,
   int                    dst_pitch  = target->pitch;
   int                    dst_width  = target->width;
   int                    dst_height = target->rows;
-
-  grSurface*  surface = (grSurface*)target;
 
 
   if ( glyph->grays != 256 )
@@ -332,3 +344,54 @@ gblender_blit_init( GBlenderBlit           blit,
   return 0;
 }
 
+
+GBLENDER_APIDEF( int )
+grBlitGlyphToSurface( grSurface*  surface,
+                      grBitmap*   glyph,
+                      grPos       x,
+                      grPos       y,
+                      grColor     color )
+{
+  GBlenderBlitRec       gblit[1];
+  GBlenderPixel         gcolor;
+
+
+  /* check arguments */
+  if ( !surface || !glyph )
+  {
+    grError = gr_err_bad_argument;
+    return -1;
+  }
+
+  if ( !glyph->rows || !glyph->width )
+  {
+    /* nothing to do */
+    return 0;
+  }
+
+  switch ( gblender_blit_init( gblit, x, y, surface, glyph ) )
+  {
+  case -1: /* nothing to do */
+    return 0;
+  case -2:
+    return -1;
+  }
+
+  gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
+           ((GBlenderPixel)color.chroma[1] << 8 ) |
+           ((GBlenderPixel)color.chroma[2]      ) ;
+
+  gblender_blit_run( gblit, gcolor );
+  return 1;
+}
+
+
+GBLENDER_APIDEF( void )
+grSetTargetGamma( grBitmap*  target,
+                  double     gamma )
+{
+  grSurface*  surface = (grSurface*)target;
+
+
+  gblender_init( surface->gblender, gamma );
+}
