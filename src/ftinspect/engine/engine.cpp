@@ -408,11 +408,20 @@ Engine::loadFont(int fontIndex,
     ftSize = NULL;
     curFamilyName = QString();
     curStyleName = QString();
+    postscriptName = QString();
+    driverName = QString();
+    issfnt = QString();
   }
   else
   {
     curFamilyName = QString(ftSize->face->family_name);
     curStyleName = QString(ftSize->face->style_name);
+
+    postscriptName = FT_Get_Postscript_Name(ftSize->face);
+    if( postscriptName == NULL )
+    {
+      postscriptName = "UNAVAILABLE";
+    }
 
     FT_Module module = &ftSize->face->driver->root;
     const char* moduleName = module->clazz->module_name;
@@ -422,6 +431,9 @@ Engine::loadFont(int fontIndex,
       fontType = FontType_CFF;
     else if (!strcmp(moduleName, "truetype"))
       fontType = FontType_TrueType;
+
+    driverName = moduleName;
+    issfnt = FT_IS_SFNT( ftSize->face ) ? QString("yes") : QString("no");
   }
 
   return numGlyphs;
@@ -464,6 +476,27 @@ const QString&
 Engine::currentStyleName()
 {
   return curStyleName;
+}
+
+
+const QString&
+Engine::currentPostscriptName()
+{
+    return postscriptName;
+}
+
+
+const QString&
+Engine::DriverName()
+{
+    return driverName;
+}
+
+
+const QString&
+Engine::issfntwrapped()
+{
+   return issfnt;
 }
 
 

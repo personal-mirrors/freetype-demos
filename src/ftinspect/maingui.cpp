@@ -13,6 +13,7 @@
 #include <QSettings>
 
 #include FT_DRIVER_H
+#include FT_TRUETYPE_TABLES_H
 
 
 MainGUI::MainGUI()
@@ -57,6 +58,142 @@ MainGUI::closeEvent(QCloseEvent* event)
 {
   writeSettings();
   event->accept();
+}
+
+
+void
+MainGUI::showFontName()
+{
+    QMessageBox::about(
+      this,
+      tr("Font Name Entries"),
+      tr("<b> Face number : %1 </b><br><br>"
+         "Family : %2 <br>"
+         "Style : %3 <br>"
+         "Postscript : %4")
+         .arg(fontList.size())
+         .arg(engine->currentFamilyName())
+         .arg(engine->currentStyleName())
+         .arg(engine->currentPostscriptName()));
+}
+
+
+void
+MainGUI::showFontType()
+{
+  FT_Face face = engine->getFtSize()->face;
+  const char* fontType;
+  if (FT_IS_SCALABLE( face ) != 0 )
+  {
+    if (FT_HAS_MULTIPLE_MASTERS( face ) != 0 )
+    {
+      fontType = "scalable, multiple masters";
+    }
+    else
+    {
+      fontType =  "scalable";
+    }
+  }
+  else if (FT_HAS_FIXED_SIZES( face ) != 0)
+  {
+    fontType = "fixed size";
+  }
+
+  const char* direction = "" ;
+  if (FT_HAS_HORIZONTAL( face))
+  {
+    if (FT_HAS_VERTICAL( face ))
+    {
+      direction =  " horizontal vertical";
+    }
+    else
+    {
+      direction = " horizontal";
+    }
+  }
+  else
+  {
+    if (FT_HAS_VERTICAL( face ))
+    {
+      direction =  " vertical";
+    }
+  }
+
+  if(FT_IS_SCALABLE( face ))
+  {
+    QMessageBox::about(this,
+      tr("Font Type Entries"),
+      tr("<p><b>Face number : %1</b><br><br>"
+          "FreeType driver: %2<br>"
+          "sfnt wrapped : %3<br>"
+          "type : %4<br>"
+          "direction : %5 <br>"
+          "fixed width : %6 <br>"
+          "glyph names : %7 <br></p>"
+          "<b>Scalability Properties</b><br>"
+          "EM size : %9 <br>"
+          "global BBox : (%10, %11):(%12, %13) <br>"
+          "ascent : %14 <br>"
+          "descent : %15<br>"
+          "text height : %16 <br>")
+        .arg(fontList.size())
+        .arg(engine->DriverName())
+        .arg(FT_IS_SFNT( face ) ? QString("yes") : QString("no"))
+        .arg(fontType)
+        .arg(direction)
+        .arg(FT_IS_FIXED_WIDTH(face) ? QString("yes") : QString("no"))
+        .arg(FT_HAS_GLYPH_NAMES( face ) ? QString("yes") : QString("no"))
+        .arg(face->units_per_EM)
+        .arg(face->bbox.xMin)
+        .arg(face->bbox.yMin)
+        .arg(face->bbox.xMax)
+        .arg(face->bbox.yMax)
+        .arg(face->ascender)
+        .arg(face->descender)
+        .arg(face->height));
+  }
+  else
+  {
+    QMessageBox::about(
+    this,
+    tr("Font Type Entries"),
+    tr("<b>Face number : %1</b><br><br>"
+        "FreeType driver: %2<br>"
+        "sfnt wrapped : %3<br>"
+        "type : %4<br>"
+        "direction : %5 <br>"
+        "fixed width : %6 <br>"
+        "glyph names : %7 <br>")
+    .arg(fontList.size())
+    .arg(engine->DriverName())
+    .arg(FT_IS_SFNT( face ) ? QString("yes") : QString("no"))
+    .arg(fontType)
+    .arg(direction)
+    .arg(FT_IS_FIXED_WIDTH(face) ? QString("yes") : QString("no"))
+    .arg(FT_HAS_GLYPH_NAMES( face ) ? QString("yes") : QString("no")));
+  }
+}
+
+
+void
+MainGUI::showCharmapsInfo()
+{
+  FT_Face face = engine->getFtSize()->face;
+  QMessageBox msgBox;
+  for(int i = 0 ; i < face->num_charmaps ; i++)
+  {
+    QMessageBox::about(
+      this,
+      tr("Charmaps Info"),
+      tr("Format : %1<br>"
+        "Platform : %2<br>"
+        "Encoding : %3<br>"
+        "Language : %4<br>")
+        .arg(FT_Get_CMap_Format( face->charmaps[i] ))
+        .arg(face->charmaps[i]->platform_id)
+        .arg(face->charmaps[i]->encoding_id)
+        .arg(FT_Get_CMap_Language_ID(face->charmaps[i])));
+  }
 }
 
 
@@ -107,6 +244,9 @@ MainGUI::loadFonts()
   // XXX sort data, uniquify elements
   fontList.append(files);
 
+  // Enable font info menu
+  menuInfo->setEnabled(true);
+
   // if we have new fonts, set the current index to the first new one
   if (oldSize < fontList.size())
     currentFontIndex = oldSize;
@@ -133,6 +273,9 @@ MainGUI::closeFont()
   }
   else
     currentFontIndex = 0;
+
+  // disable font info menu
+  menuInfo->setEnabled(false);
 
   showFont();
 }
@@ -1160,6 +1303,15 @@ MainGUI::createActions()
   exitAct->setShortcuts(QKeySequence::Quit);
   connect(exitAct, SIGNAL(triggered()), SLOT(close()));
 
+  showFontNameAct = new QAction(tr("&Font Name"), this);
+  connect(showFontNameAct, SIGNAL(triggered()), SLOT(showFontName()));
+
+  showFontTypeAct = new QAction(tr("&Font Type"), this);
+  connect(showFontTypeAct, SIGNAL(triggered()), SLOT(showFontType()));
+
+  showCharmapsInfoAct = new QAction(tr("&Charmap Info"), this);
+  connect(showCharmapsInfoAct, SIGNAL(triggered()), SLOT(showCharmapsInfo()));
+
   aboutAct = new QAction(tr("&About"), this);
   connect(aboutAct, SIGNAL(triggered()), SLOT(about()));
 
@@ -1175,6 +1327,16 @@ MainGUI::createMenus()
   menuFile->addAction(loadFontsAct);
   menuFile->addAction(closeFontAct);
   menuFile->addAction(exitAct);
+
+  menuInfo = menuBar()->addMenu(tr("&Elements"));
+  menuInfo->addAction(showFontNameAct);
+  menuInfo->addAction(showFontTypeAct);
+  menuInfo->addAction(showCharmapsInfoAct);
+
+  if (fontList.size() <= 0)
+  {
+    menuInfo->setEnabled(false);
+  }
 
   menuHelp = menuBar()->addMenu(tr("&Help"));
   menuHelp->addAction(aboutAct);

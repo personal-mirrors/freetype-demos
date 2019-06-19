@@ -71,6 +71,9 @@ protected:
 private slots:
   void about();
   void aboutQt();
+  void showCharmapsInfo();
+  void showFontType();
+  void showFontName();
   void adjustGlyphIndex(int);
   void checkAntiAliasing();
   void checkAutoHinting();
@@ -124,6 +127,9 @@ private:
   QAction *closeFontAct;
   QAction *exitAct;
   QAction *loadFontsAct;
+  QAction *showCharmapsInfoAct;
+  QAction *showFontTypeAct;
+  QAction *showFontNameAct;
 
   QCheckBox *autoHintingCheckBox;
   QCheckBox *blueZoneHintingCheckBox;
@@ -189,6 +195,7 @@ private:
 
   QMenu *menuFile;
   QMenu *menuHelp;
+  QMenu *menuInfo;
 
   QPen axisPen;
   QPen blueZonePen;

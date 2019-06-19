@@ -46,6 +46,10 @@ public:
 
   const QString& currentFamilyName();
   const QString& currentStyleName();
+  const QString& currentPostscriptName();
+  const QString& DriverName();
+  const QString& issfntwrapped();
+
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
   int numberOfNamedInstances(int fontIndex,
@@ -83,6 +87,9 @@ private:
 
   QString curFamilyName;
   QString curStyleName;
+  QString postscriptName;
+  QString driverName;
+  QString issfnt;
 
   FT_Library library;
   FTC_Manager cacheManager;
