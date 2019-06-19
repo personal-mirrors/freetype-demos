@@ -28,6 +28,7 @@ SOURCES += \
   rendering/glyphoutline.cpp \
   rendering/glyphpointnumbers.cpp \
   rendering/glyphpoints.cpp \
+  rendering/glyphsegment.cpp \
   rendering/grid.cpp \
   widgets/qcomboboxx.cpp \
   widgets/qgraphicsviewx.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
   rendering/glyphoutline.hpp \
   rendering/glyphpointnumbers.hpp \
   rendering/glyphpoints.hpp \
+  rendering/glyphsegment.hpp \
   rendering/grid.hpp \
   widgets/qcomboboxx.hpp \
   widgets/qgraphicsviewx.hpp \
