@@ -1,6 +1,7 @@
 #ifndef GBLBLIT_H_
 #define GBLBLIT_H_
 
+#include "grobjs.h"
 #include "gblender.h"
 
 /*
@@ -60,22 +61,13 @@ typedef struct GBlenderBlitRec_
 } GBlenderBlitRec;
 
 
-
 GBLENDER_API( int )
 gblender_blit_init( GBlenderBlit           blit,
-                    GBlender               blender,
                     int                    dst_x,
                     int                    dst_y,
-                    GBlenderSourceFormat   src_format,
-                    const unsigned char*   src_buffer,
-                    int                    src_pitch,
-                    int                    src_width,
-                    int                    src_height,
-                    GBlenderTargetFormat   dst_format,
-                    unsigned char*         dst_buffer,
-                    int                    dst_pitch,
-                    int                    dst_width,
-                    int                    dst_height );
+                    grBitmap*              target,
+                    grBitmap*              glyph );
+
 
 #define  gblender_blit_run(b,color)  (b)->blit_func( (b), (color) )
 

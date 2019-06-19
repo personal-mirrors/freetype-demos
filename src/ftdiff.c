@@ -1014,7 +1014,7 @@
     display->bitmap  = &surface->bitmap;
     display->gamma   = GAMMA;
 
-    grSetGlyphGamma( display->gamma );
+    grSetTargetGamma( display->bitmap, display->gamma );
 
     memset( &display->fore_color, 0, sizeof( grColor ) );
     memset( &display->back_color, 0xff, sizeof( grColor ) );
@@ -1123,7 +1123,7 @@
     else if ( display->gamma < 0.0001 )
       display->gamma = 0.0;
 
-    grSetGlyphGamma( display->gamma );
+    grSetTargetGamma( display->bitmap, display->gamma );
   }
 
 

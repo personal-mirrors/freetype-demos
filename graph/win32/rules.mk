@@ -19,7 +19,8 @@ ifeq ($(PLATFORM),win32)
 
   # the rule used to compile the graphics driver
   #
-  $(OBJ_DIR_2)/grwin32.$O: $(GR_WIN32)/grwin32.c $(GR_WIN32)/grwin32.h
+  $(OBJ_DIR_2)/grwin32.$O: $(GR_WIN32)/grwin32.c $(GR_WIN32)/grwin32.h \
+                           $(GRAPH_H)
 	  $(CC) $(CFLAGS) $(GRAPH_INCLUDES:%=$I%) \
                 $I$(subst /,$(COMPILER_SEP),$(GR_WIN32)) \
                 $T$(subst /,$(COMPILER_SEP),$@ $<)

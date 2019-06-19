@@ -125,6 +125,18 @@ GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit   blit,
 }
 
 
+static const GBlenderBlitFunc
+GCONCAT( blit_funcs_, GDST_TYPE )[GBLENDER_SOURCE_MAX] =
+{
+  GCONCAT( _gblender_blit_gray8_, GDST_TYPE ),
+  GCONCAT( _gblender_blit_hrgb_, GDST_TYPE ),
+  GCONCAT( _gblender_blit_hbgr_, GDST_TYPE ),
+  GCONCAT( _gblender_blit_vrgb_, GDST_TYPE ),
+  GCONCAT( _gblender_blit_vbgr_, GDST_TYPE ),
+  GCONCAT( _gblender_blit_bgra_, GDST_TYPE )
+};
+
+
 /* unset the macros, to prevent accidental re-use
  */
 

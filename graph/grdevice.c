@@ -110,11 +110,6 @@
   *               for the surface. the bitmap's 'pitch' and 'buffer'
   *               fields are ignored on input.
   *
-  *               On output, the bitmap describes the surface's image
-  *               completely. It is possible to write directly in it
-  *               with grBlitGlyphToBitmap, even though the use of
-  *               grBlitGlyphToSurface is recommended.
-  *
   * <Return>
   *    handle to the corresponding surface object. 0 in case of error
   *
@@ -137,8 +132,8 @@
   *
   **********************************************************************/
 
-  extern grSurface*  grNewSurface( const char*  device_name,
-                                   grBitmap*    bitmap )
+  grSurface*  grNewSurface( const char*  device_name,
+                            grBitmap*    bitmap )
   {
     grDevice*   device;
     grSurface*  surface;
@@ -155,6 +150,9 @@
       grFree( (void *)surface );
       surface = 0;
     }
+    else
+      grSetTargetGamma( (grBitmap*)surface, 1.8 );
+
     return surface;
   }
 

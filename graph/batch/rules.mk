@@ -18,7 +18,8 @@ DEVICES += BATCH
 
 # batch driver compilation rule
 #
-$(OBJ_DIR_2)/grbatch.$O : $(GR_BATCH)/grbatch.c $(GR_BATCH)/grbatch.h
+$(OBJ_DIR_2)/grbatch.$O : $(GR_BATCH)/grbatch.c $(GR_BATCH)/grbatch.h \
+                          $(GRAPH_H)
 ifneq ($(LIBTOOL),)
 	$(LIBTOOL) --mode=compile $(CC) -static $(CFLAGS) \
                 $(GRAPH_INCLUDES:%=$I%) \

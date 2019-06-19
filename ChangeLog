@@ -1,4 +1,38 @@
-2019-06-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2019-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftmulti.c (bit): Surface bitmap must belong to surface.
+	* graph/graph.h (grBlitGlyphToBitmap): Clarify documentation.
+	* graph/grdevice.c (grNewSurface): Initialize default blender.
+
+2019-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/*/rules.mk: Add missing dependency.
+
+2019-06-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grblit.c (grBlitGlyphToBitmap): Move code from here...
+	* graph/gblblit.c (gblender_blit_init): ... to here.
+	* graph/gblblit.h: Updated.
+
+2019-06-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Relocate `gblender' to `grSurface'.
+
+	This will be needed for direct rendering and simplifies gamma setting.
+
+	* graph/grobjs.h (grSurface): Put `bitmap' on top, add `gblender'.
+	* graph/graph.h: s/grSetGlyphGamma/grSetTargetGamma/.
+	* graph/grblit.c (grSetTargetGamma): Move `gblender_init' here...
+	(grBlitGlyphToBitmap): ...from here.
+	* src/ftcommon.c (FTDemo_Display_New): Call `grSetTargetGamma'.
+	* src/ft{diff,grid,string,view,multi}.c: Updated.
+
+2019-06-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/gblblit.c (gblender_blit_init): Switch to lookup table.
+	* graph/gblany.h: Updated.
+
+2019-06-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ttdebug.c (RunIns): Return error like `TT_RunIns'.
 	(Abort): Add error messages.

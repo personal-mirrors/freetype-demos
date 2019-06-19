@@ -919,7 +919,7 @@
     else if ( display->gamma < 0.0 )
       display->gamma = 0.0;
 
-    grSetGlyphGamma( display->gamma );
+    grSetTargetGamma( display->bitmap, display->gamma );
   }
 
 
