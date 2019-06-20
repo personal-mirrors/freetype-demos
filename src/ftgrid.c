@@ -681,8 +681,9 @@
         FT_Get_Glyph( slot, &glyph );
         FT_Glyph_Stroke( &glyph, st->stroker, 1 );
 
-        error = FTDemo_Draw_Glyph_Color( handle, display, glyph, &ox, &oy,
-                                         st->outline_color );
+        error = FTDemo_Sketch_Glyph_Color( handle, display, glyph,
+                                           ox * 64, oy * 64,
+                                           st->outline_color );
         if ( !error )
           FT_Done_Glyph( glyph );
       }

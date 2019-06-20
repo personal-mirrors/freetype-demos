@@ -1,5 +1,16 @@
 2019-06-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid] Direct outline drawing.
+
+	Now we can test `FT_RASTER_FLAG_DIRECT' and it is also faster because
+	the glyph outline image is extremely sparse.
+
+	* src/ftcommon.[hc] (FTDemo_Sketch_Glyph_Color): Implement rendering
+	in direct mode.
+	* src/ftgrid.c (grid_status_draw_outline): Use it.
+
+2019-06-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph] Implement and register gray_span function.
 
 	* graph/gblspans.h, graph/gblany.h (_gblender_spans_*): New functions.

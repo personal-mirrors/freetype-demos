@@ -374,6 +374,16 @@
                       int                     center_y );
 
 
+  /* draw an outline glyph directly onto display surface */
+  FT_Error
+  FTDemo_Sketch_Glyph_Color( FTDemo_Handle*     handle,
+                             FTDemo_Display*    display,
+                             FT_Glyph           glyph,
+                             FT_Pos             x,
+                             FT_Pos             y,
+                             grColor            color );
+
+
   /* make a FT_Encoding tag from a string */
   unsigned long
   FTDemo_Make_Encoding_Tag( const char*  s );

@@ -1725,6 +1725,45 @@
   }
 
 
+  FT_Error
+  FTDemo_Sketch_Glyph_Color( FTDemo_Handle*     handle,
+                             FTDemo_Display*    display,
+                             FT_Glyph           glyph,
+                             FT_Pos             x,
+                             FT_Pos             y,
+                             grColor            color )
+  {
+    grSurface*        surface = (grSurface*)display->surface;
+    FT_Raster_Params  params;
+    FT_Outline*       outline;
+
+
+    if ( glyph->format != FT_GLYPH_FORMAT_OUTLINE )
+      return FT_Err_Ok;
+
+    outline = &((FT_OutlineGlyph)glyph)->outline;
+
+    FT_Outline_Translate( outline, x, display->bitmap->rows * 64 - y );
+
+    params.source        = outline;
+    params.flags         = FT_RASTER_FLAG_AA     |
+                           FT_RASTER_FLAG_DIRECT |
+                           FT_RASTER_FLAG_CLIP;
+    params.gray_spans    = (FT_SpanFunc)surface->gray_spans;
+    params.user          = surface;
+    params.clip_box.xMin = 0;
+    params.clip_box.yMin = 0;
+    params.clip_box.xMax = display->bitmap->width;
+    params.clip_box.yMax = display->bitmap->rows;
+
+    surface->gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
+                      ((GBlenderPixel)color.chroma[1] << 8 ) |
+                      ((GBlenderPixel)color.chroma[2]      ) ;
+
+    return FT_Outline_Render( handle->library, outline, &params );
+  }
+
+
   unsigned long
   FTDemo_Make_Encoding_Tag( const char*  s )
   {
