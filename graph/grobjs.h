@@ -107,12 +107,30 @@
                                      grEvent   *event );
 
 
+  typedef struct grSpan_
+  {
+    short           x;
+    unsigned short  len;
+    unsigned char   coverage;
+
+  } grSpan;
+
+  typedef void
+  (*grSpanFunc)( int            y,
+                 int            count,
+                 const grSpan*  spans,
+                 grSurface*     surface );
+
+
 
   struct grSurface_
   {
     grBitmap           bitmap;
 
     GBlenderRec        gblender[1];
+
+    GBlenderPixel      gcolor;
+    grSpanFunc         gray_spans;
 
     grDevice*          device;
     grBool             refresh;

@@ -394,4 +394,23 @@ grSetTargetGamma( grBitmap*  target,
 
 
   gblender_init( surface->gblender, gamma );
+
+  /* not related to gamma but needs to be set */
+  switch ( target->mode )
+  {
+  case gr_pixel_mode_gray:
+    surface->gray_spans = _gblender_spans_gray8;
+    break;
+  case gr_pixel_mode_rgb32:
+    surface->gray_spans = _gblender_spans_rgb32;
+    break;
+  case gr_pixel_mode_rgb24:
+    surface->gray_spans = _gblender_spans_rgb24;
+    break;
+  case gr_pixel_mode_rgb565:
+    surface->gray_spans = _gblender_spans_rgb565;
+    break;
+  default:
+    surface->gray_spans = (grSpanFunc)0;
+  }
 }

@@ -41,6 +41,24 @@
 
 
 static void
+GCONCAT( _gblender_spans_, GDST_TYPE )( int            y,
+                                        int            count,
+                                        const grSpan*  spans,
+                                        grSurface*     surface )
+{
+  GBlenderPixel  color   = surface->gcolor;
+  GBlender       blender = surface->gblender;
+  unsigned int   r       = (color >> 16) & 255;
+  unsigned int   g       = (color >> 8)  & 255;
+  unsigned int   b       = (color)       & 255;
+
+  GDST_COPY_VAR
+
+#include "gblspans.h"
+}
+
+
+static void
 GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit   blit,
                                              GBlenderPixel  color )
 {

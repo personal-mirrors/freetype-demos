@@ -1,3 +1,12 @@
+2019-06-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Implement and register gray_span function.
+
+	* graph/gblspans.h, graph/gblany.h (_gblender_spans_*): New functions.
+	* graph/grobjs.h (grSurface): New fields `gray_spans' and `gcolor'. 
+	* graph/gblblit.c (grSetSurfaceGamma): Initialize `gray_spans'.
+	* graph/rules.mk: Add new file.
+
 2019-06-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Clearly separate two blenders.
