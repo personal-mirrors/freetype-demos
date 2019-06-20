@@ -1063,6 +1063,7 @@ MainGUI::createLayout()
   currentGlyphOutlineItem = NULL;
   currentGlyphPointsItem = NULL;
   currentGlyphPointNumbersItem = NULL;
+  currentGlyphSegmentItem = NULL;
   drawGlyph();
 
   glyphView = new QGraphicsViewx;
