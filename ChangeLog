@@ -1,3 +1,14 @@
+2019-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Tweak direct rendering.
+
+	* src/ftcommon.c (FT_Demo_Sketch_Glyph_Color): Redefine surface origin
+	and clipping box instead of shifting outline.
+	* src/ftgrid.c (grid_status_draw_outline): Tweaked.
+	* graph/gblspans.h: Simplify.
+	* graph/grobjs.h (grSurface): Introduce `origin' byte. 
+	* graph/gblblit.c: Silence compilation warning.
+
 2019-06-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid] Direct outline drawing.

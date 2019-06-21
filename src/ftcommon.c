@@ -1734,16 +1734,45 @@
                              grColor            color )
   {
     grSurface*        surface = (grSurface*)display->surface;
-    FT_Raster_Params  params;
+    grBitmap*         target = display->bitmap;
+    unsigned char*    origin;
     FT_Outline*       outline;
+    FT_Raster_Params  params;
 
 
     if ( glyph->format != FT_GLYPH_FORMAT_OUTLINE )
       return FT_Err_Ok;
 
-    outline = &((FT_OutlineGlyph)glyph)->outline;
+    origin = target->buffer;
+    if ( target->pitch < 0 )
+      origin += ( y - target->rows ) * target->pitch;
+    else
+      origin += ( y - 1 ) * target->pitch;
 
-    FT_Outline_Translate( outline, x, display->bitmap->rows * 64 - y );
+    switch ( target->mode )
+    {
+    case gr_pixel_mode_gray:
+      origin += x;
+      break;
+    case gr_pixel_mode_rgb565:
+      origin += x * 2;
+      break;
+    case gr_pixel_mode_rgb24:
+      origin += x * 3;
+      break;
+    case gr_pixel_mode_rgb32:
+      origin += x * 4;
+      break;
+    default:
+      fprintf( stderr, "Unsupported target\n" );
+      return FT_Err_Ok;
+    }
+
+    surface->origin = origin;
+    surface->gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
+                      ((GBlenderPixel)color.chroma[1] << 8 ) |
+                      ((GBlenderPixel)color.chroma[2]      ) ;
+    outline = &((FT_OutlineGlyph)glyph)->outline;
 
     params.source        = outline;
     params.flags         = FT_RASTER_FLAG_AA     |
@@ -1751,14 +1780,10 @@
                            FT_RASTER_FLAG_CLIP;
     params.gray_spans    = (FT_SpanFunc)surface->gray_spans;
     params.user          = surface;
-    params.clip_box.xMin = 0;
-    params.clip_box.yMin = 0;
-    params.clip_box.xMax = display->bitmap->width;
-    params.clip_box.yMax = display->bitmap->rows;
-
-    surface->gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
-                      ((GBlenderPixel)color.chroma[1] << 8 ) |
-                      ((GBlenderPixel)color.chroma[2]      ) ;
+    params.clip_box.xMin = -x;
+    params.clip_box.yMin =  y - target->rows;
+    params.clip_box.xMax = -x + target->width;
+    params.clip_box.yMax =  y;
 
     return FT_Outline_Render( handle->library, outline, &params );
   }

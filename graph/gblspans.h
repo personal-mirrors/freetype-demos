@@ -1,7 +1,7 @@
 
   GBLENDER_VARS;
 
-  unsigned char*  dst_line = surface->bitmap.buffer;
+  unsigned char*  dst_origin = surface->origin - y * surface->bitmap.pitch;
 
   gblender_use_channels( blender, 0 );
 
@@ -12,14 +12,9 @@
   (void)(g);
   (void)(b);
 
-  if ( surface->bitmap.pitch > 0 )
-    dst_line -= surface->bitmap.pitch * ( y - surface->bitmap.rows + 1 );
-  else
-    dst_line -= surface->bitmap.pitch * y;
-
   for ( ; count--; spans++ )
   {
-    unsigned char*  dst = dst_line + spans->x * GDST_INCR;
+    unsigned char*  dst = dst_origin + spans->x * GDST_INCR;
     unsigned short  w   = spans->len;
     int             a   = GBLENDER_SHADE_INDEX( spans->coverage );
 

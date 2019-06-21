@@ -129,8 +129,9 @@
 
     GBlenderRec        gblender[1];
 
-    GBlenderPixel      gcolor;
-    grSpanFunc         gray_spans;
+    unsigned char*     origin;      /* span origin   */
+    GBlenderPixel      gcolor;      /* span color    */
+    grSpanFunc         gray_spans;  /* span function */
 
     grDevice*          device;
     grBool             refresh;

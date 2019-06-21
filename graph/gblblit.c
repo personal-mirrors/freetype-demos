@@ -411,6 +411,7 @@ grSetTargetGamma( grBitmap*  target,
     surface->gray_spans = _gblender_spans_rgb565;
     break;
   default:
+    (void)_gblender_spans_bgr565;  /* unused */
     surface->gray_spans = (grSpanFunc)0;
   }
 }
