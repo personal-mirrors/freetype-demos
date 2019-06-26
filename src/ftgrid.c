@@ -88,10 +88,11 @@
 
 #define BUFSIZE  256
 
-#define DO_BITMAP      1
-#define DO_OUTLINE     2
-#define DO_DOTS        4
-#define DO_DOTNUMBERS  8
+#define DO_BITMAP       1
+#define DO_GRAY_BITMAP  2
+#define DO_OUTLINE      4
+#define DO_DOTS         8
+#define DO_DOTNUMBERS  16
 
   typedef struct  GridStatusRec_
   {
@@ -459,8 +460,9 @@
 
 
   static void
-  bitmap_scale( grBitmap*  bit,
-                int        scale )
+  bitmap_scale( GridStatus  st,
+                grBitmap*   bit,
+                int         scale )
   {
     unsigned char*  s = bit->buffer;
     unsigned char*  t;
@@ -503,6 +505,7 @@
         break;
 
       case gr_pixel_mode_gray:
+      Gray:
         for ( i = 0; i < bit->rows; i++ )
         {
           for ( j = 0; j < pitch; j++ )
@@ -516,6 +519,8 @@
 
       case gr_pixel_mode_lcd:
       case gr_pixel_mode_lcd2:
+        if ( st->work & DO_GRAY_BITMAP )
+          goto Gray;
         for ( i = 0; i < bit->rows; i++ )
         {
           for ( j = 0; j < width; j += 3 )
@@ -534,6 +539,8 @@
 
       case gr_pixel_mode_lcdv:
       case gr_pixel_mode_lcdv2:
+        if ( st->work & DO_GRAY_BITMAP )
+          goto Gray;
         for ( i = 0; i < bit->rows; i += 3 )
         {
           for ( j = 0; j < pitch; j++ )
@@ -636,7 +643,7 @@
 
       if ( !error )
       {
-        bitmap_scale( &bitg, scale );
+        bitmap_scale( st, &bitg, scale );
 
         grBlitGlyphToBitmap( display->bitmap, &bitg,
                              ox + left * scale, oy - top * scale,
@@ -1510,6 +1517,8 @@
 
     case grKEY( 'b' ):
       status.work ^= DO_BITMAP;
+      if ( status.work & DO_BITMAP )
+        status.work ^= DO_GRAY_BITMAP;
       break;
 
     case grKEY( 'p' ):

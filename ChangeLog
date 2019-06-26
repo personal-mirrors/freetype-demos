@@ -1,3 +1,8 @@
+2019-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftgrid.c (bitmap_scale): Gray alternative to LCD bitmap...
+	(Process_Event): ... after repeated bitmap toggles.
+
 2019-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid] Tweak direct rendering.
