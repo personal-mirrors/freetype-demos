@@ -2,7 +2,6 @@
 
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
-#include <QtDebug>
 
 
 /* these variables, structures, and declarations are for  */
@@ -67,67 +66,71 @@ GlyphSegment::paint(QPainter* painter,
   const qreal lod = option->levelOfDetailFromTransform(
                               painter->worldTransform());
 
-  FT_Fixed  x_scale = ftsize->metrics.x_scale;
-  FT_Fixed  y_scale = ftsize->metrics.y_scale;
-
-  FT_Int  dimension;
-  int     x_org = 0;
-  int     y_org = 0;
- 
-
-  painter->setPen(segmentPen);
-
-  for ( dimension = 1; dimension >= 0; dimension-- )
+  if (lod >= 5)
   {
-    FT_Int  num_seg;
-    FT_Int  count;
+    FT_Fixed  x_scale = ftsize->metrics.x_scale;
+    FT_Fixed  y_scale = ftsize->metrics.y_scale;
 
-    af_glyph_hints_get_num_segments( _af_debug_hints, dimension, &num_seg );
+    FT_Int  dimension;
+    int     x_org = 0;
+    int     y_org = 0;
 
-    for ( count = 0; count < num_seg; count++ )
+
+    for ( dimension = 1; dimension >= 0; dimension-- )
     {
-      int      pos;
-      FT_Pos   offset;
-      FT_Bool  is_blue;
-      FT_Pos   blue_offset;
+      FT_Int  num_seg;
+      FT_Int  count;
 
-      af_glyph_hints_get_segment_offset( _af_debug_hints, dimension,
-                                           count, &offset,
-                                           &is_blue, &blue_offset);
-      
-      if ( dimension == 0 )
-      {
-        offset = FT_MulFix( offset, x_scale );
-        pos    = x_org + ( ( offset) >> 6 );
-        painter->drawLine(pos, -100, pos, 100);
-      }
-      else
-      {
-        offset = FT_MulFix( offset, y_scale );
-        pos    = y_org - ( ( offset) >> 6 );
+      af_glyph_hints_get_num_segments( _af_debug_hints, dimension, &num_seg );
 
-        if ( is_blue )
+      for ( count = 0; count < num_seg; count++ )
+      {
+        int      pos;
+        FT_Pos   offset;
+        FT_Bool  is_blue;
+        FT_Pos   blue_offset;
+
+        painter->setPen(segmentPen);
+
+        af_glyph_hints_get_segment_offset( _af_debug_hints, dimension,
+                                              count, &offset,
+                                              &is_blue, &blue_offset);
+        
+        if ( dimension == 0 )
         {
-          int  blue_pos;
-
-
-          blue_offset = FT_MulFix( blue_offset, y_scale );
-          blue_pos    = y_org - ( ( blue_offset) >> 6 );
-          if ( blue_pos == pos )
-          {
-            painter->drawLine(-100, pos, 100, pos);
-          }
-          else
-          {
-            painter->setPen(bluezonePen);
-            painter->drawLine(-100, blue_pos, 100, blue_pos);
-            painter->setPen(segmentPen);
-            painter->drawLine(-100, pos, 100, pos);
-          }
+          offset = FT_MulFix( offset, x_scale );
+          pos    = x_org + ( ( offset) >> 6 );
+          painter->drawLine(pos, -100, pos, 100);
         }
         else
         {
-          painter->drawLine(-100, pos, 100, pos);
+          offset = FT_MulFix( offset, y_scale );
+          pos    = y_org - ( ( offset) >> 6 );
+
+          if ( is_blue )
+          {
+            int  blue_pos;
+
+
+            blue_offset = FT_MulFix( blue_offset, y_scale );
+            blue_pos    = y_org - ( ( blue_offset) >> 6 );
+            if ( blue_pos == pos )
+            {
+              painter->setPen(bluezonePen);
+              painter->drawLine(-100, blue_pos, 100, blue_pos);
+            }
+            else
+            {
+              painter->setPen(bluezonePen);
+              painter->drawLine(-100, blue_pos, 100, blue_pos);
+              painter->setPen(segmentPen);
+              painter->drawLine(-100, pos, 100, pos);
+            }
+          }
+          else
+          {
+            painter->drawLine(-100, pos, 100, pos);
+          }
         }
       }
     }

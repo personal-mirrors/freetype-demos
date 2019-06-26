@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QtDebug>
 
 #include FT_DRIVER_H
 #include FT_TRUETYPE_TABLES_H
@@ -737,6 +738,7 @@ MainGUI::zoom()
   transform.translate(shift, shift);
 
   glyphView->setTransform(transform);
+  drawGlyph();
 }
 
 
@@ -756,7 +758,7 @@ MainGUI::setGraphicsDefaults()
   axisPen.setColor(Qt::black);
   axisPen.setWidth(0);
   blueZonePen.setColor(QColor(64, 64, 255, 64)); // light blue
-  blueZonePen.setWidth(0);
+  blueZonePen.setWidthF(0.2);
   gridPen.setColor(Qt::lightGray);
   gridPen.setWidth(0);
   offPen.setColor(Qt::darkGreen);
@@ -766,7 +768,7 @@ MainGUI::setGraphicsDefaults()
   outlinePen.setColor(Qt::red);
   outlinePen.setWidth(0);
   segmentPen.setColor(QColor(64, 255, 128, 64)); // light green
-  segmentPen.setWidth(0);
+  segmentPen.setWidthF(0.2);
 }
 
 
@@ -774,6 +776,7 @@ void
 MainGUI::drawGlyph()
 {
   // the call to `engine->loadOutline' updates FreeType's load flags
+  qDebug()<<"called";
 
   if (!engine)
     return;
@@ -1070,7 +1073,7 @@ MainGUI::createLayout()
   glyphView = new QGraphicsViewx;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
   glyphView->setDragMode(QGraphicsView::ScrollHandDrag);
-  glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+  //glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
   glyphView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
   glyphView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   glyphView->setScene(glyphScene);
