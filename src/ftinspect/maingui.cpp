@@ -831,6 +831,7 @@ MainGUI::drawGlyph()
       currentGlyphBitmapItem = new GlyphBitmap(outline,
                                                engine->library,
                                                pixelMode,
+                                               (gammaSlider->value()/10.0),
                                                monoColorTable,
                                                grayColorTable);
       glyphScene->addItem(currentGlyphBitmapItem);
@@ -1221,6 +1222,8 @@ MainGUI::createConnections()
   connect(showPointNumbersCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));
   connect(showOutlinesCheckBox, SIGNAL(clicked()),
+          SLOT(drawGlyph()));
+  connect(gammaSlider, SIGNAL(valueChanged(int)),
           SLOT(drawGlyph()));
 
   connect(sizeDoubleSpinBox, SIGNAL(valueChanged(double)),

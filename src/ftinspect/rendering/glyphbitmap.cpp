@@ -13,10 +13,12 @@
 GlyphBitmap::GlyphBitmap(FT_Outline* outline,
                          FT_Library lib,
                          FT_Pixel_Mode pxlMode,
+                         double gammaVal,
                          const QVector<QRgb>& monoColorTbl,
                          const QVector<QRgb>& grayColorTbl)
 : library(lib),
   pixelMode(pxlMode),
+  gamma(gammaVal),
   monoColorTable(monoColorTbl),
   grayColorTable(grayColorTbl)
 {
@@ -61,6 +63,11 @@ GlyphBitmap::paint(QPainter* painter,
                    QWidget*)
 {
   FT_Bitmap bitmap;
+
+  if ( gamma <= 0 ) // special case for sRGB
+  {
+    gamma = 2.4;
+  }
 
   int height = static_cast<int>(ceil(bRect.height()));
   int width = static_cast<int>(ceil(bRect.width()));
@@ -112,14 +119,19 @@ GlyphBitmap::paint(QPainter* painter,
     {
       // be careful not to lose the alpha channel
       QRgb p = image.pixel(x, y);
+      const double r = qRed(p) / 255.0;
+      const double g = qGreen(p) / 255.0;
+      const double b = qBlue(p) / 255.0;
+      const double a = qAlpha(p) / 255.0;
       painter->fillRect(QRectF(x + bRect.left() - 1 / lod / 2,
                                y + bRect.top() - 1 / lod / 2,
                                1 + 1 / lod,
                                1 + 1 / lod),
-                        QColor(qRed(p),
-                               qGreen(p),
-                               qBlue(p),
-                               qAlpha(p)));
+                        QColor(
+                               255 * std::pow(r, 1/gamma),
+                               255 * std::pow(g, 1/gamma),
+                               255 * std::pow(b, 1/gamma),
+                               255 * std::pow(a, 1/gamma)));
     }
 #endif
 }

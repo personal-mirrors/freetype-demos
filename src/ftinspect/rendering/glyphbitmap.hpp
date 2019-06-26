@@ -20,6 +20,7 @@ public:
   GlyphBitmap(FT_Outline* outline,
               FT_Library library,
               FT_Pixel_Mode pixelMode,
+              double gamma,
               const QVector<QRgb>& monoColorTable,
               const QVector<QRgb>& grayColorTable);
   ~GlyphBitmap();
@@ -32,6 +33,7 @@ private:
   FT_Outline transformed;
   FT_Library library;
   unsigned char pixelMode;
+  double gamma;
   const QVector<QRgb>& monoColorTable;
   const QVector<QRgb>& grayColorTable;
   QRectF bRect;
