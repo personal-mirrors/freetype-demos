@@ -11,7 +11,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
-#include <QtDebug>
 
 #include FT_DRIVER_H
 #include FT_TRUETYPE_TABLES_H
@@ -776,8 +775,6 @@ void
 MainGUI::drawGlyph()
 {
   // the call to `engine->loadOutline' updates FreeType's load flags
-  qDebug()<<"called";
-
   if (!engine)
     return;
 
@@ -1073,7 +1070,7 @@ MainGUI::createLayout()
   glyphView = new QGraphicsViewx;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
   glyphView->setDragMode(QGraphicsView::ScrollHandDrag);
-  //glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+  glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
   glyphView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
   glyphView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   glyphView->setScene(glyphScene);
