@@ -1,3 +1,7 @@
+2019-07-01  Werner Lemberg  <wl@gnu.org>
+
+	* graph/x11/grx11.c (gr_x11_surface_init): Fix C++ warnings.
+
 2019-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (bitmap_scale): Gray alternative to LCD bitmap...
@@ -11,7 +15,7 @@
 	and clipping box instead of shifting outline.
 	* src/ftgrid.c (grid_status_draw_outline): Tweaked.
 	* graph/gblspans.h: Simplify.
-	* graph/grobjs.h (grSurface): Introduce `origin' byte. 
+	* graph/grobjs.h (grSurface): Introduce `origin' byte.
 	* graph/gblblit.c: Silence compilation warning.
 
 2019-06-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
@@ -30,7 +34,7 @@
 	[graph] Implement and register gray_span function.
 
 	* graph/gblspans.h, graph/gblany.h (_gblender_spans_*): New functions.
-	* graph/grobjs.h (grSurface): New fields `gray_spans' and `gcolor'. 
+	* graph/grobjs.h (grSurface): New fields `gray_spans' and `gcolor'.
 	* graph/gblblit.c (grSetSurfaceGamma): Initialize `gray_spans'.
 	* graph/rules.mk: Add new file.
 
@@ -106,7 +110,7 @@
 
 2019-06-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/ftcommon.[hc] (FTDemo_Display_Print): Use `const' qualifier. 
+	* src/ftcommon.[hc] (FTDemo_Display_Print): Use `const' qualifier.
 	* src/ftdump.c (Print_Bytecode): Ditto.
 	* src/ftmulti.c (new_header): Ditto.
 	* src/ftstring.c (header): Ditto.
