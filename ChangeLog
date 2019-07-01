@@ -1,5 +1,17 @@
 2019-07-01  Werner Lemberg  <wl@gnu.org>
 
+	* Version 2.10.1 released.
+	==========================
+
+
+	Tag sources with `VER-2-10-1.
+
+	* README: Updated.
+	* src/*.1: Updated.
+	* src/ftinspect/ftinspect.pro: Updated.
+
+2019-07-01  Werner Lemberg  <wl@gnu.org>
+
 	* graph/x11/grx11.c (gr_x11_surface_init): Fix C++ warnings.
 
 2019-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
