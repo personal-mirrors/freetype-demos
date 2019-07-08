@@ -229,6 +229,88 @@ RenderAll::paint(QPainter* painter,
       }
     }
   }
+
+  // Stroked mode
+  if (mode == 3)
+  {
+    FT_Fixed radius;
+    FT_Stroker stroker;
+
+    FT_Stroker_New( library, &stroker );
+    radius = (FT_Fixed)( size->metrics.y_ppem * 64 * 0.2 );
+
+    FT_Stroker_Set( stroker, radius,
+                    FT_STROKER_LINECAP_ROUND,
+                    FT_STROKER_LINEJOIN_ROUND,
+                    0 );
+
+    for ( int i = 0; i < face->num_glyphs; i++ )
+    {
+      // get char index 
+      //glyph_idx = FT_Get_Char_Index( face , (FT_ULong)i );
+      if ( face->charmap->encoding != FT_ENCODING_ORDER )
+      {
+        glyph_idx = FTC_CMapCache_Lookup(cmap_cache, face_id,
+                                          FT_Get_Charmap_Index(face->charmap), (FT_UInt32)i);
+      }
+      else
+      {
+        glyph_idx = (FT_UInt32)i;
+      }
+
+      /* load glyph image into the slot (erase previous one) */
+      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+      if ( error )
+      {
+        break;  /* ignore errors */
+      }
+
+      if ( !error && slot->format == FT_GLYPH_FORMAT_OUTLINE )
+      {
+        FT_Glyph  glyph;
+
+        error = FT_Get_Glyph( slot, &glyph );
+        if ( error )
+          break;
+        error = FT_Glyph_Stroke( &glyph, stroker, 1 );
+        if ( error )
+        {
+          //FT_Done_Glyph( glyph );
+          break;
+        }
+        error = FT_Render_Glyph(face->glyph,
+                                FT_RENDER_MODE_NORMAL);
+
+        QImage glyphImage(face->glyph->bitmap.buffer,
+                            face->glyph->bitmap.width,
+                            face->glyph->bitmap.rows,
+                            face->glyph->bitmap.pitch,
+                            QImage::Format_Indexed8);
+
+        
+
+        QVector<QRgb> colorTable;
+        for (int i = 0; i < 256; ++i)
+        {
+          colorTable << qRgba(0, 0, 0, i);
+        }
+          
+        glyphImage.setColorTable(colorTable);
+        
+
+        painter->drawImage(x, y,
+                          glyphImage, 0, 0, -1, -1);
+        x = x + 20;
+
+        if (x >= 350)
+        { 
+          y = y + 30;
+          x = -350;
+        }
+      }
+    }
+    FT_Stroker_Done( stroker );
+  }
 }
 
 // end of RenderAll.cpp
