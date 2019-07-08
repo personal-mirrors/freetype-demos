@@ -1,0 +1,9 @@
+{
+  "files.associations": {
+    "mlgetopt.h": "c",
+    "ftcommon.h": "c",
+    "common.h": "c",
+    "gblblit.h": "c",
+    "gblender.h": "c"
+  }
+}

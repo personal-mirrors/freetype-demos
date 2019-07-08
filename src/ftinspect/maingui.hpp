@@ -11,6 +11,8 @@
 #include "rendering/glyphpointnumbers.hpp"
 #include "rendering/glyphsegment.hpp"
 #include "rendering/glyphpoints.hpp"
+#include "rendering/view.hpp"
+#include "rendering/grid.hpp"
 #include "widgets/qcomboboxx.hpp"
 #include "widgets/qgraphicsviewx.hpp"
 #include "widgets/qpushbuttonx.hpp"
@@ -42,9 +44,11 @@
 #include <QTimer>
 #include <QVariant>
 #include <QVBoxLayout>
+#include <QRadioButton>
 
 #include <ft2build.h>
 #include FT_LCD_FILTER_H
+#include FT_COLOR_H
 
 
 class MainGUI
@@ -96,6 +100,8 @@ private slots:
   void previousNamedInstance();
   void watchCurrentFont();
   void zoom();
+  void renderAll();
+  void gridViewRender();
 
 private:
   Engine* engine;
@@ -115,12 +121,16 @@ private:
   int currentCFFHintingMode;
   int currentTTInterpreterVersion;
 
+  int render_mode;
+
   // layout related stuff
   GlyphOutline *currentGlyphOutlineItem;
   GlyphPoints *currentGlyphPointsItem;
   GlyphSegment *currentGlyphSegmentItem;
   GlyphPointNumbers *currentGlyphPointNumbersItem;
   GlyphBitmap *currentGlyphBitmapItem;
+  RenderAll *currentRenderAllItem;
+  Grid *currentGridItem;
 
   QAction *aboutAct;
   QAction *aboutQtAct;
@@ -142,6 +152,13 @@ private:
   QCheckBox *showPointsCheckBox;
   QCheckBox *verticalHintingCheckBox;
   QCheckBox *warpingCheckBox;
+  // ftview options
+  QCheckBox *normalCheckbox;
+  QCheckBox *fancyCheckbox;
+  QCheckBox *strokedCheckbox;
+  QCheckBox *textStringCheckbox;
+  QCheckBox *waterFallCheckbox;
+  
 
   QComboBoxx *antiAliasingComboBoxx;
   QComboBoxx *hintingModeComboBoxx;
@@ -176,6 +193,7 @@ private:
   QHBoxLayout *sizeLayout;
   QHBoxLayout *verticalHintingLayout;
   QHBoxLayout *warpingLayout;
+  QHBoxLayout *programNavigationLayout;
 
   QLabel *antiAliasingLabel;
   QLabel *dpiLabel;
@@ -188,6 +206,11 @@ private:
   QLabel *lcdFilterLabel;
   QLabel *sizeLabel;
   QLabel *zoomLabel;
+
+  QRadioButton *gridView = new QRadioButton(tr("Grid View"));
+  QRadioButton *allGlyphs = new QRadioButton(tr("All Glyphs"));
+  QRadioButton *stringView = new QRadioButton(tr("Render String"));
+  QRadioButton *multiView = new QRadioButton(tr("Multi View"));
 
   QList<int> hintingModesAlwaysDisabled;
 
@@ -237,6 +260,7 @@ private:
   QVBoxLayout *generalTabLayout;
   QVBoxLayout *leftLayout;
   QVBoxLayout *rightLayout;
+  QVBoxLayout *viewlayout;
 
   QVector<QRgb> grayColorTable;
   QVector<QRgb> monoColorTable;
@@ -246,6 +270,7 @@ private:
   QWidget *leftWidget;
   QWidget *rightWidget;
   QWidget *mmgxTabWidget;
+  QWidget *viewTabWidget;
 
   enum AntiAliasing
   {

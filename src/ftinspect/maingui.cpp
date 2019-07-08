@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QtDebug>
 
 #include FT_DRIVER_H
 #include FT_TRUETYPE_TABLES_H
@@ -486,6 +487,88 @@ MainGUI::checkAutoHinting()
 
 
 void
+MainGUI::gridViewRender()
+{
+  if (gridView->isChecked())
+  {
+    if (currentRenderAllItem)
+    {
+      glyphScene->removeItem(currentRenderAllItem);
+      delete currentRenderAllItem;
+
+      currentRenderAllItem = NULL;
+    }
+
+    currentGridItem = new Grid(gridPen, axisPen);
+    glyphScene->addItem(currentGridItem);
+    zoomSpinBox->setValue(20);
+    //drawGlyph();
+  }
+
+}
+
+
+void
+MainGUI::renderAll()
+{
+  // Basic definition
+  FT_Size size;
+  FT_Face face;
+  FT_Color* palette;
+  FTC_CMapCache cmap_cache;
+  FT_Error error;
+
+  // Basic Initialization
+  size = engine->getFtSize();
+
+  // Set the charmap for now
+  //error = FT_Set_Charmap( size->face, size->face->charmaps[0]);
+  // chache manager
+  FTC_Manager cacheManager = engine->cacheManager;
+  FTC_FaceID  face_id = engine->scaler.face_id;
+  //face = size->face;
+  // Render glyphs normally
+  if (allGlyphs->isChecked())
+  {
+    render_mode = 1;
+  }
+  if (fancyCheckbox->isChecked())
+  {
+    render_mode = 2;
+  }
+
+  error = FTC_CMapCache_New(cacheManager, &cmap_cache );
+
+  if (currentGridItem)
+  {
+    glyphScene->removeItem(currentGridItem);
+    delete currentGridItem;
+
+    currentGridItem = NULL;
+  }
+
+  if (currentRenderAllItem)
+  {
+    glyphScene->removeItem(currentRenderAllItem);
+    delete currentRenderAllItem;
+
+    currentRenderAllItem = NULL;
+  }
+
+  /* now, draw to our target surface */
+  currentRenderAllItem = new RenderAll(size->face,
+                                  size,
+                                  cacheManager,
+                                  face_id,
+                                  cmap_cache,
+                                  engine->library,
+                                  render_mode);
+  glyphScene->addItem(currentRenderAllItem);
+  zoomSpinBox->setValue(1);
+}
+
+
+void
 MainGUI::checkAntiAliasing()
 {
   int index = antiAliasingComboBoxx->currentIndex();
@@ -818,6 +901,15 @@ MainGUI::drawGlyph()
     currentGlyphPointNumbersItem = NULL;
   }
 
+  /* if (currentRenderAllItem)
+  {
+    glyphScene->removeItem(currentRenderAllItem);
+    delete currentRenderAllItem;
+
+    currentRenderAllItem = NULL;
+
+  }*/
+
   FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
   if (outline)
   {
@@ -1027,14 +1119,32 @@ MainGUI::createLayout()
   generalTabLayout->addLayout(pointNumbersLayout);
   generalTabLayout->addWidget(showOutlinesCheckBox);
 
+  normalCheckbox = new QCheckBox(tr("Normal"));
+  fancyCheckbox = new QCheckBox(tr("Fancy"));
+  strokedCheckbox = new QCheckBox(tr("Stroked"));
+  textStringCheckbox = new QCheckBox(tr("Text String"));
+  waterFallCheckbox = new QCheckBox(tr("Waterfall"));
+
+  viewlayout = new QVBoxLayout;
+  viewlayout->addWidget(normalCheckbox);
+  viewlayout->addWidget(fancyCheckbox);
+  viewlayout->addWidget(strokedCheckbox);
+  viewlayout->addWidget(textStringCheckbox);
+  viewlayout->addWidget(waterFallCheckbox);
+
   generalTabWidget = new QWidget;
   generalTabWidget->setLayout(generalTabLayout);
 
   mmgxTabWidget = new QWidget;
 
+  // set layout ftview
+  viewTabWidget = new QWidget;
+  viewTabWidget->setLayout(viewlayout);
+
   tabWidget = new QTabWidget;
   tabWidget->addTab(generalTabWidget, tr("General"));
   tabWidget->addTab(mmgxTabWidget, tr("MM/GX"));
+  tabWidget->addTab(viewTabWidget, tr("Ftview"));
 
   leftLayout = new QVBoxLayout;
   leftLayout->addLayout(infoLeftLayout);
@@ -1058,14 +1168,14 @@ MainGUI::createLayout()
   fontNameLabel = new QLabel;
 
   glyphScene = new QGraphicsScene;
-  glyphScene->addItem(new Grid(gridPen, axisPen));
+  gridView->setChecked(true);
 
   currentGlyphBitmapItem = NULL;
   currentGlyphOutlineItem = NULL;
   currentGlyphPointsItem = NULL;
   currentGlyphPointNumbersItem = NULL;
   currentGlyphSegmentItem = NULL;
-  drawGlyph();
+  currentRenderAllItem = NULL;
 
   glyphView = new QGraphicsViewx;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
@@ -1125,6 +1235,19 @@ MainGUI::createLayout()
   infoRightLayout->addWidget(glyphNameLabel, 0, 1);
   infoRightLayout->addWidget(fontNameLabel, 0, 2);
 
+  programNavigationLayout = new QHBoxLayout;
+  programNavigationLayout->addStretch(2);
+  programNavigationLayout->addWidget(gridView);
+  programNavigationLayout->addStretch(1);
+  programNavigationLayout->addWidget(allGlyphs);
+  programNavigationLayout->addStretch(1);
+  programNavigationLayout->addWidget(stringView);
+  programNavigationLayout->addStretch(1);
+  programNavigationLayout->addWidget(multiView);
+  programNavigationLayout->addStretch(1);
+  programNavigationLayout->addStretch(2);
+
+
   navigationLayout = new QHBoxLayout;
   navigationLayout->setSpacing(0);
   navigationLayout->addStretch(1);
@@ -1168,6 +1291,7 @@ MainGUI::createLayout()
   rightLayout = new QVBoxLayout;
   rightLayout->addLayout(infoRightLayout);
   rightLayout->addWidget(glyphView);
+  rightLayout->addLayout(programNavigationLayout);
   rightLayout->addLayout(navigationLayout);
   rightLayout->addSpacing(10); // XXX px
   rightLayout->addLayout(sizeLayout);
@@ -1202,6 +1326,19 @@ MainGUI::createConnections()
           SLOT(checkAntiAliasing()));
   connect(lcdFilterComboBox, SIGNAL(currentIndexChanged(int)),
           SLOT(checkLcdFilter()));
+
+  connect(allGlyphs, SIGNAL(clicked()),
+          SLOT(renderAll()));
+  connect(fancyCheckbox, SIGNAL(clicked()),
+          SLOT(renderAll()));
+  connect(strokedCheckbox, SIGNAL(clicked()),
+          SLOT(renderAll()));
+  connect(textStringCheckbox, SIGNAL(clicked()),
+          SLOT(renderAll()));
+  connect(waterFallCheckbox, SIGNAL(clicked()),
+          SLOT(renderAll()));
+  connect(gridView, SIGNAL(clicked()),
+          SLOT(gridViewRender()));
 
   connect(autoHintingCheckBox, SIGNAL(clicked()),
           SLOT(checkAutoHinting()));
@@ -1442,6 +1579,7 @@ MainGUI::setDefaults()
   checkCurrentNamedInstanceIndex();
   adjustGlyphIndex(0);
   zoom();
+  gridViewRender();
 }
 
 
