@@ -311,6 +311,101 @@ RenderAll::paint(QPainter* painter,
     }
     FT_Stroker_Done( stroker );
   }
+
+  if (mode == 4)
+  {
+    int offset = -1;
+    int num_indices = 0;
+
+    /*
+     In UTF-8 encoding:
+
+       The quick brown fox jumps over the lazy dog
+       0123456789
+       âêîûôäëïöüÿàùéèç
+       &#~"'(-`_^@)=+°
+       ABCDEFGHIJKLMNOPQRSTUVWXYZ
+       $£^¨*µù%!§:/;.,?<>
+
+     The trailing space is for `looping' in case `Text' gets displayed more
+     than once.
+   */
+    static const char*  Text =
+      "The quick brown fox jumps over the lazy dog"
+      " 0123456789"
+      " \303\242\303\252\303\256\303\273\303\264"
+      "\303\244\303\253\303\257\303\266\303\274\303\277"
+      "\303\240\303\271\303\251\303\250\303\247"
+      " &#~\"\'(-`_^@)=+\302\260"
+      " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      " $\302\243^\302\250*\302\265\303\271%!\302\247:/;.,?<> ";
+    
+    const char*  p;
+    const char*  pEnd;
+    int          ch;
+
+    p    = Text;
+    pEnd = p + strlen( Text );
+    qDebug() << "p "<<p; 
+    qDebug() << "pEnd "<<pEnd; 
+
+    int length = strlen(Text);
+    qDebug() << "lenght "<<length; 
+
+    for ( int i = 0; i < length; i++ )
+    {
+      QChar ch = Text[i];
+
+      // get char index 
+      glyph_idx = FT_Get_Char_Index( face , ch.unicode());
+      /* if ( face->charmap->encoding != FT_ENCODING_ORDER )
+      {
+        glyph_idx = FTC_CMapCache_Lookup(cmap_cache, face_id,
+                                          FT_Get_Charmap_Index(face->charmap), (FT_UInt32)ch);
+      }
+      else
+      {
+        glyph_idx = (FT_UInt32)ch;
+      }*/
+
+      //glyph_idx = (FT_UInt)i;
+      /* load glyph image into the slot (erase previous one) */
+      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+      if ( error )
+      {
+        break;  /* ignore errors */
+      } 
+
+      error = FT_Render_Glyph(face->glyph,
+                                FT_RENDER_MODE_NORMAL);
+
+      QImage glyphImage(face->glyph->bitmap.buffer,
+                          face->glyph->bitmap.width,
+                          face->glyph->bitmap.rows,
+                          face->glyph->bitmap.pitch,
+                          QImage::Format_Indexed8);
+
+
+      QVector<QRgb> colorTable;
+      for (int i = 0; i < 256; ++i)
+      {
+        colorTable << qRgba(0, 0, 0, i);
+      }
+        
+      glyphImage.setColorTable(colorTable);
+      
+
+      painter->drawImage(x, y,
+                        glyphImage, 0, 0, -1, -1);
+      x = x + 15;
+
+      if (x >= 350)
+      { 
+        y = y + 30;
+        x = -350;
+      }
+    }
+  }
 }
 
 // end of RenderAll.cpp
