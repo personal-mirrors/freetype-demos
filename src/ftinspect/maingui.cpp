@@ -424,6 +424,35 @@ MainGUI::checkHinting()
 
 
 void
+MainGUI::checkRenderingMode()
+{
+  int index = renderingModeComboBoxx->currentIndex();
+
+  renderingModeComboBoxx->setItemEnabled(index, true);
+
+  if (!(renderingModeComboBoxx->itemText(index).compare("Normal")))
+  {
+    render_mode = 1;
+  } else if (!(renderingModeComboBoxx->itemText(index).compare("Fancy")))
+  {
+    render_mode = 2;
+  } else if (!(renderingModeComboBoxx->itemText(index).compare("Stroked")))
+  {
+    render_mode = 3;
+  } else if (!(renderingModeComboBoxx->itemText(index).compare("Text String")))
+  {
+    render_mode = 4;
+  } else 
+  {
+    render_mode = 5;
+    glyphView->setDragMode(QGraphicsView::NoDrag);
+  } 
+
+  renderAll();
+}
+
+
+void
 MainGUI::checkHintingMode()
 {
   int index = hintingModeComboBoxx->currentIndex();
@@ -511,6 +540,13 @@ MainGUI::gridViewRender()
 void
 MainGUI::renderAll()
 {
+  // Embolden factors
+  double x_factor = embolden_x_Slider->value()/1000.0;
+  double y_factor = embolden_y_Slider->value()/1000.0;
+
+  double slant_factor = slant_Slider->value()/100.0;
+  double stroke_factor = stroke_Slider->value()/1000.0;
+
   // Basic definition
   FT_Size size;
   FT_Face face;
@@ -527,15 +563,6 @@ MainGUI::renderAll()
   FTC_Manager cacheManager = engine->cacheManager;
   FTC_FaceID  face_id = engine->scaler.face_id;
   //face = size->face;
-  // Render glyphs normally
-  if (allGlyphs->isChecked())
-  {
-    render_mode = 1;
-  }
-  if (fancyCheckbox->isChecked())
-  {
-    render_mode = 2;
-  }
 
   error = FTC_CMapCache_New(cacheManager, &cmap_cache );
 
@@ -562,7 +589,13 @@ MainGUI::renderAll()
                                   face_id,
                                   cmap_cache,
                                   engine->library,
-                                  render_mode);
+                                  render_mode,
+                                  engine->scaler,
+                                  engine->imageCache,
+                                  x_factor,
+                                  y_factor,
+                                  slant_factor,
+                                  stroke_factor);
   glyphScene->addItem(currentRenderAllItem);
   zoomSpinBox->setValue(1);
 }
@@ -1022,23 +1055,42 @@ MainGUI::createLayout()
   lcdFilterComboBox->insertItem(LCDFilter_Legacy, tr("Legacy"));
   lcdFilterLabel->setBuddy(lcdFilterComboBox);
 
+  renderingModeLabel = new QLabel(tr("Render Mode"));
+  renderingModeLabel->setAlignment(Qt::AlignTop);
+  renderingModeComboBoxx = new QComboBoxx;
+  renderingModeComboBoxx->insertItem(Normal,
+                                   tr("Normal"));
+  renderingModeComboBoxx->insertItem(Fancy,
+                                   tr("Fancy"));
+  renderingModeComboBoxx->insertItem(Stroked,
+                                   tr("Stroked"));
+  renderingModeComboBoxx->insertItem(Text_String,
+                                   tr("Text String"));
+  renderingModeComboBoxx->insertItem(Waterfall,
+                                   tr("Waterfall"));
+  renderingModeLabel->setBuddy(renderingModeComboBoxx);
+
   int width;
   // make all labels have the same width
   width = hintingModeLabel->minimumSizeHint().width();
   width = qMax(antiAliasingLabel->minimumSizeHint().width(), width);
   width = qMax(lcdFilterLabel->minimumSizeHint().width(), width);
+  width = qMax(renderingModeLabel->minimumSizeHint().width(), width);
   hintingModeLabel->setMinimumWidth(width);
   antiAliasingLabel->setMinimumWidth(width);
   lcdFilterLabel->setMinimumWidth(width);
+  renderingModeLabel->setMinimumWidth(width);
 
   // ensure that all items in combo boxes fit completely;
   // also make all combo boxes have the same width
   width = hintingModeComboBoxx->minimumSizeHint().width();
   width = qMax(antiAliasingComboBoxx->minimumSizeHint().width(), width);
   width = qMax(lcdFilterComboBox->minimumSizeHint().width(), width);
+  width = qMax(renderingModeComboBoxx->minimumSizeHint().width(), width);
   hintingModeComboBoxx->setMinimumWidth(width);
   antiAliasingComboBoxx->setMinimumWidth(width);
   lcdFilterComboBox->setMinimumWidth(width);
+  renderingModeComboBoxx->setMinimumWidth(width);
 
   gammaLabel = new QLabel(tr("Gamma"));
   gammaLabel->setAlignment(Qt::AlignRight);
@@ -1047,6 +1099,37 @@ MainGUI::createLayout()
   gammaSlider->setTickPosition(QSlider::TicksBelow);
   gammaSlider->setTickInterval(5);
   gammaLabel->setBuddy(gammaSlider);
+
+  xLabel = new QLabel(tr("Embolden X"));
+  yLabel = new QLabel(tr("Embolden Y"));
+  xLabel->setAlignment(Qt::AlignRight);
+  yLabel->setAlignment(Qt::AlignRight);
+  embolden_x_Slider = new QSlider(Qt::Horizontal);
+  embolden_y_Slider = new QSlider(Qt::Horizontal);
+  embolden_x_Slider->setRange(0, 100); // 5 = 0.005
+  embolden_y_Slider->setRange(0, 100);
+  embolden_x_Slider->setTickPosition(QSlider::TicksBelow);
+  embolden_x_Slider->setTickInterval(5);
+  embolden_y_Slider->setTickPosition(QSlider::TicksBelow);
+  embolden_y_Slider->setTickInterval(5);
+  xLabel->setBuddy(embolden_x_Slider);
+  yLabel->setBuddy(embolden_y_Slider);
+
+
+  slantLabel = new QLabel(tr("Slant"));
+  strokeLabel = new QLabel(tr("Stroke"));
+  slantLabel->setAlignment(Qt::AlignRight);
+  strokeLabel->setAlignment(Qt::AlignRight);
+  slant_Slider = new QSlider(Qt::Horizontal);
+  stroke_Slider = new QSlider(Qt::Horizontal);
+  slant_Slider->setRange(0, 100); // 5 = 0.05
+  stroke_Slider->setRange(0, 100);
+  slant_Slider->setTickPosition(QSlider::TicksBelow);
+  slant_Slider->setTickInterval(2);
+  stroke_Slider->setTickPosition(QSlider::TicksBelow);
+  stroke_Slider->setTickInterval(5);
+  slantLabel->setBuddy(slant_Slider);
+  strokeLabel->setBuddy(stroke_Slider);
 
   showBitmapCheckBox = new QCheckBox(tr("Show Bitmap"));
   showPointsCheckBox = new QCheckBox(tr("Show Points"));
@@ -1092,6 +1175,22 @@ MainGUI::createLayout()
   gammaLayout->addWidget(gammaLabel);
   gammaLayout->addWidget(gammaSlider);
 
+  emboldenVertLayout = new QHBoxLayout;
+  emboldenVertLayout->addWidget(yLabel);
+  emboldenVertLayout->addWidget(embolden_y_Slider);
+
+  emboldenHorzLayout = new QHBoxLayout;
+  emboldenHorzLayout->addWidget(xLabel);
+  emboldenHorzLayout->addWidget(embolden_x_Slider);
+
+  slantLayout = new QHBoxLayout;
+  slantLayout->addWidget(slantLabel);
+  slantLayout->addWidget(slant_Slider);
+
+  strokeLayout = new QHBoxLayout;
+  strokeLayout->addWidget(strokeLabel);
+  strokeLayout->addWidget(stroke_Slider);
+
   pointNumbersLayout = new QHBoxLayout;
   pointNumbersLayout->addSpacing(20); // XXX px
   pointNumbersLayout->addWidget(showPointNumbersCheckBox);
@@ -1119,18 +1218,16 @@ MainGUI::createLayout()
   generalTabLayout->addLayout(pointNumbersLayout);
   generalTabLayout->addWidget(showOutlinesCheckBox);
 
-  normalCheckbox = new QCheckBox(tr("Normal"));
-  fancyCheckbox = new QCheckBox(tr("Fancy"));
-  strokedCheckbox = new QCheckBox(tr("Stroked"));
-  textStringCheckbox = new QCheckBox(tr("Text String"));
-  waterFallCheckbox = new QCheckBox(tr("Waterfall"));
+  renderLayout = new QHBoxLayout;
+  renderLayout->addWidget(renderingModeLabel);
+  renderLayout->addWidget(renderingModeComboBoxx);
 
-  viewlayout = new QVBoxLayout;
-  viewlayout->addWidget(normalCheckbox);
-  viewlayout->addWidget(fancyCheckbox);
-  viewlayout->addWidget(strokedCheckbox);
-  viewlayout->addWidget(textStringCheckbox);
-  viewlayout->addWidget(waterFallCheckbox);
+  viewTabLayout = new QVBoxLayout;
+  viewTabLayout->addLayout(renderLayout);
+  viewTabLayout->addLayout(emboldenVertLayout);
+  viewTabLayout->addLayout(emboldenHorzLayout);
+  viewTabLayout->addLayout(slantLayout);
+  viewTabLayout->addLayout(strokeLayout);
 
   generalTabWidget = new QWidget;
   generalTabWidget->setLayout(generalTabLayout);
@@ -1139,7 +1236,8 @@ MainGUI::createLayout()
 
   // set layout ftview
   viewTabWidget = new QWidget;
-  viewTabWidget->setLayout(viewlayout);
+  viewTabWidget->setLayout(viewTabLayout);
+
 
   tabWidget = new QTabWidget;
   tabWidget->addTab(generalTabWidget, tr("General"));
@@ -1326,16 +1424,10 @@ MainGUI::createConnections()
           SLOT(checkAntiAliasing()));
   connect(lcdFilterComboBox, SIGNAL(currentIndexChanged(int)),
           SLOT(checkLcdFilter()));
+  connect(renderingModeComboBoxx, SIGNAL(currentIndexChanged(int)),
+          SLOT(checkRenderingMode()));
 
   connect(allGlyphs, SIGNAL(clicked()),
-          SLOT(renderAll()));
-  connect(fancyCheckbox, SIGNAL(clicked()),
-          SLOT(renderAll()));
-  connect(strokedCheckbox, SIGNAL(clicked()),
-          SLOT(renderAll()));
-  connect(textStringCheckbox, SIGNAL(clicked()),
-          SLOT(renderAll()));
-  connect(waterFallCheckbox, SIGNAL(clicked()),
           SLOT(renderAll()));
   connect(gridView, SIGNAL(clicked()),
           SLOT(gridViewRender()));
@@ -1362,6 +1454,14 @@ MainGUI::createConnections()
           SLOT(drawGlyph()));
   connect(gammaSlider, SIGNAL(valueChanged(int)),
           SLOT(drawGlyph()));
+  connect(embolden_x_Slider, SIGNAL(valueChanged(int)),
+          SLOT(renderAll()));
+  connect(embolden_y_Slider, SIGNAL(valueChanged(int)),
+          SLOT(renderAll()));
+  connect(slant_Slider, SIGNAL(valueChanged(int)),
+          SLOT(renderAll()));
+  connect(stroke_Slider, SIGNAL(valueChanged(int)),
+          SLOT(renderAll()));
 
   connect(sizeDoubleSpinBox, SIGNAL(valueChanged(double)),
           SLOT(drawGlyph()));
@@ -1554,6 +1654,7 @@ MainGUI::setDefaults()
 
   antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
+  renderingModeComboBoxx->setCurrentIndex(0);
 
   horizontalHintingCheckBox->setChecked(true);
   verticalHintingCheckBox->setChecked(true);
@@ -1563,6 +1664,8 @@ MainGUI::setDefaults()
   showOutlinesCheckBox->setChecked(true);
 
   gammaSlider->setValue(18); // 1.8
+  //embolden_x_Slider->setValue(40);
+  //embolden_y_Slider->setValue(40);
   sizeDoubleSpinBox->setValue(20);
   dpiSpinBox->setValue(96);
   zoomSpinBox->setValue(20);

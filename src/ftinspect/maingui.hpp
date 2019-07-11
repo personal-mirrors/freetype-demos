@@ -86,6 +86,7 @@ private slots:
   void checkCurrentNamedInstanceIndex();
   void checkHinting();
   void checkHintingMode();
+  void checkRenderingMode();
   void checkLcdFilter();
   void checkShowPoints();
   void checkUnits();
@@ -121,7 +122,7 @@ private:
   int currentCFFHintingMode;
   int currentTTInterpreterVersion;
 
-  int render_mode;
+  int render_mode = 1;
 
   // layout related stuff
   GlyphOutline *currentGlyphOutlineItem;
@@ -152,16 +153,11 @@ private:
   QCheckBox *showPointsCheckBox;
   QCheckBox *verticalHintingCheckBox;
   QCheckBox *warpingCheckBox;
-  // ftview options
-  QCheckBox *normalCheckbox;
-  QCheckBox *fancyCheckbox;
-  QCheckBox *strokedCheckbox;
-  QCheckBox *textStringCheckbox;
-  QCheckBox *waterFallCheckbox;
   
 
   QComboBoxx *antiAliasingComboBoxx;
   QComboBoxx *hintingModeComboBoxx;
+  QComboBoxx *renderingModeComboBoxx;
   QComboBox *lcdFilterComboBox;
   QComboBox *unitsComboBox;
 
@@ -194,6 +190,11 @@ private:
   QHBoxLayout *verticalHintingLayout;
   QHBoxLayout *warpingLayout;
   QHBoxLayout *programNavigationLayout;
+  QHBoxLayout *renderLayout;
+  QHBoxLayout *emboldenVertLayout;
+  QHBoxLayout *emboldenHorzLayout;
+  QHBoxLayout *slantLayout;
+  QHBoxLayout *strokeLayout;
 
   QLabel *antiAliasingLabel;
   QLabel *dpiLabel;
@@ -203,9 +204,14 @@ private:
   QLabel *glyphIndexLabel;
   QLabel *glyphNameLabel;
   QLabel *hintingModeLabel;
+  QLabel *renderingModeLabel;
   QLabel *lcdFilterLabel;
   QLabel *sizeLabel;
   QLabel *zoomLabel;
+  QLabel *xLabel;
+  QLabel *yLabel;
+  QLabel *slantLabel;
+  QLabel *strokeLabel;
 
   QRadioButton *gridView = new QRadioButton(tr("Grid View"));
   QRadioButton *allGlyphs = new QRadioButton(tr("All Glyphs"));
@@ -249,6 +255,10 @@ private:
   QSignalMapper *glyphNavigationMapper;
 
   QSlider *gammaSlider;
+  QSlider *embolden_x_Slider;
+  QSlider *embolden_y_Slider;
+  QSlider *stroke_Slider;
+  QSlider *slant_Slider;
 
   QSpinBox *dpiSpinBox;
   QSpinBoxx *zoomSpinBox;
@@ -260,7 +270,7 @@ private:
   QVBoxLayout *generalTabLayout;
   QVBoxLayout *leftLayout;
   QVBoxLayout *rightLayout;
-  QVBoxLayout *viewlayout;
+  QVBoxLayout *viewTabLayout;
 
   QVector<QRgb> grayColorTable;
   QVector<QRgb> monoColorTable;
@@ -301,6 +311,14 @@ private:
   {
     Units_px,
     Units_pt
+  };
+  enum RenderingMode
+  {
+    Normal,
+    Fancy,
+    Stroked,
+    Text_String,
+    Waterfall
   };
 
   void createActions();

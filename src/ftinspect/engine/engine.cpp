@@ -595,6 +595,27 @@ Engine::getFtSize()
 }
 
 
+double
+Engine::getPtSize()
+{
+  return pointSize;
+}
+
+
+double
+Engine::getPixelSize()
+{
+  return pixelSize;
+}
+
+
+int
+Engine::getResolution()
+{
+  return dpi;
+}
+
+
 void
 Engine::setTTInterpreterVersion(int mode)
 {

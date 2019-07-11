@@ -62,6 +62,9 @@ public:
   void setCFFHintingMode(int mode);
   void setWarping();
   FT_Size getFtSize();
+  double getPtSize();
+  double getPixelSize();
+  int getResolution();
   void setTTInterpreterVersion(int version);
   void update();
 
@@ -79,6 +82,10 @@ public:
     FontType_Other
   };
 
+  FTC_ScalerRec scaler;
+  FTC_ImageCache imageCache;
+  unsigned long loadFlags;
+
 private:
   MainGUI* gui;
 
@@ -93,10 +100,10 @@ private:
 
   FT_Library library;
   FTC_Manager cacheManager;
-  FTC_ImageCache imageCache;
+  //FTC_ImageCache imageCache;
   FTC_SBitCache sbitsCache;
 
-  FTC_ScalerRec scaler;
+  //FTC_ScalerRec scaler;
   FT_Size ftSize;
 
   int cffHintingEngineDefault;
@@ -124,7 +131,7 @@ private:
 
   double gamma;
 
-  unsigned long loadFlags;
+  //unsigned long loadFlags;
 };
 
 
