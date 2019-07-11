@@ -37,7 +37,13 @@ public:
        FTC_FaceID  face_id,
        FTC_CMapCache  cmap_cache,
        FT_Library library,
-       int mode);
+       int mode,
+       FTC_ScalerRec scaler,
+       FTC_ImageCache imageCache,
+       double x_factor,
+       double y_factor,
+       double slant_factor,
+       double stroke_factor);
   ~RenderAll();
   QRectF boundingRect() const;
   void paint(QPainter* painter,
@@ -54,6 +60,13 @@ private:
   FTC_CMapCache cmap_cache;
   FT_Size size;
   int mode;
+  Engine* engine;
+  FTC_ScalerRec scaler;
+  FTC_ImageCache imageCache;
+  double x_factor;
+  double y_factor;
+  double slant_factor;
+  double stroke_factor;
 };
 
 

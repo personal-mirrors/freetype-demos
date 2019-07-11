@@ -13,8 +13,21 @@
   /* special encoding to display glyphs in order */
 #define FT_ENCODING_ORDER  0xFFFF
 #define ft_encoding_unicode         FT_ENCODING_UNICODE
+#define START_X  18 * 8
+#define START_Y  3 * 12
 
 #define TRUNC(x) ((x) >> 6)
+
+
+static const char*  Text =
+      "The quick brown fox jumps over the lazy dog"
+      " 0123456789"
+      " \303\242\303\252\303\256\303\273\303\264"
+      "\303\244\303\253\303\257\303\266\303\274\303\277"
+      "\303\240\303\271\303\251\303\250\303\247"
+      " &#~\"\'(-`_^@)=+\302\260"
+      " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      " $\302\243^\302\250*\302\265\303\271%!\302\247:/;.,?<> ";
 
 
 RenderAll::RenderAll(FT_Face face,
@@ -23,21 +36,34 @@ RenderAll::RenderAll(FT_Face face,
           FTC_FaceID  face_id,
           FTC_CMapCache  cmap_cache,
           FT_Library lib,
-          int render_mode)
+          int render_mode,
+          FTC_ScalerRec scaler,
+          FTC_ImageCache imageCache,
+          double x,
+          double y,
+          double slant_factor,
+          double stroke_factor)
 :face(face),
 size(size),
 cacheManager(cacheManager),
 face_id(face_id),
 cmap_cache(cmap_cache),
 library(lib),
-mode(render_mode)
+mode(render_mode),
+scaler(scaler),
+imageCache(imageCache),
+x_factor(x),
+y_factor(y),
+slant_factor(slant_factor),
+stroke_factor(stroke_factor)
 {
 }
 
 
 RenderAll::~RenderAll()
 {
-  //FT_Done_Face(face);
+  //FT_Stroker_Done(stroker);
+  //FTC_Manager_Done(cacheManager);
 }
 
 QRectF
@@ -63,7 +89,9 @@ RenderAll::paint(QPainter* painter,
   FT_UInt  glyph_idx;
   int x = -350;
   int y = -180;
-  
+
+
+ // Normal rendering mode
   if (mode == 1)
   {
     // Normal rendering
@@ -120,6 +148,7 @@ RenderAll::paint(QPainter* painter,
     }
   }
 
+  // Fancy rendering mode
   if (mode == 2)
   {
     // fancy render
@@ -127,12 +156,12 @@ RenderAll::paint(QPainter* painter,
     FT_Pos xstr, ystr;
 
     shear.xx = 1 << 16;
-    shear.xy = (FT_Fixed)( ( 1 << 16 ) );
+    shear.xy = (FT_Fixed)( slant_factor * ( 1 << 16 ) );
     shear.yx = 0;
     shear.yy = 1 << 16;
-
-    xstr = (FT_Pos)( size->metrics.y_ppem * 64 * 0 );
-    ystr = (FT_Pos)( size->metrics.y_ppem * 64 * 0 ); 
+    
+    xstr = (FT_Pos)( size->metrics.y_ppem * 64 * x_factor );
+    ystr = (FT_Pos)( size->metrics.y_ppem * 64 * y_factor );
 
     for ( int i = 0; i < face->num_glyphs; i++ )
     {
@@ -230,14 +259,14 @@ RenderAll::paint(QPainter* painter,
     }
   }
 
-  // Stroked mode
+  // Stroked rendering mode
   if (mode == 3)
   {
     FT_Fixed radius;
     FT_Stroker stroker;
 
     FT_Stroker_New( library, &stroker );
-    radius = (FT_Fixed)( size->metrics.y_ppem * 64 * 0.2 );
+    radius = (FT_Fixed)( size->metrics.y_ppem * 64 * stroke_factor );
 
     FT_Stroker_Set( stroker, radius,
                     FT_STROKER_LINECAP_ROUND,
@@ -272,6 +301,7 @@ RenderAll::paint(QPainter* painter,
         error = FT_Get_Glyph( slot, &glyph );
         if ( error )
           break;
+
         error = FT_Glyph_Stroke( &glyph, stroker, 1 );
         if ( error )
         {
@@ -309,9 +339,9 @@ RenderAll::paint(QPainter* painter,
         }
       }
     }
-    FT_Stroker_Done( stroker );
   }
-
+  
+  // Render String mode
   if (mode == 4)
   {
     int offset = -1;
@@ -330,27 +360,15 @@ RenderAll::paint(QPainter* painter,
      The trailing space is for `looping' in case `Text' gets displayed more
      than once.
    */
-    static const char*  Text =
-      "The quick brown fox jumps over the lazy dog"
-      " 0123456789"
-      " \303\242\303\252\303\256\303\273\303\264"
-      "\303\244\303\253\303\257\303\266\303\274\303\277"
-      "\303\240\303\271\303\251\303\250\303\247"
-      " &#~\"\'(-`_^@)=+\302\260"
-      " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-      " $\302\243^\302\250*\302\265\303\271%!\302\247:/;.,?<> ";
     
     const char*  p;
     const char*  pEnd;
     int          ch;
 
     p    = Text;
-    pEnd = p + strlen( Text );
-    qDebug() << "p "<<p; 
-    qDebug() << "pEnd "<<pEnd; 
+    pEnd = p + strlen( Text ); 
 
     int length = strlen(Text);
-    qDebug() << "lenght "<<length; 
 
     for ( int i = 0; i < length; i++ )
     {
@@ -404,6 +422,78 @@ RenderAll::paint(QPainter* painter,
         y = y + 30;
         x = -350;
       }
+    }
+  }
+
+  // Waterfall rendering mode
+  if (mode == 5)
+  {
+    
+    int length = strlen(Text);
+    while (y <= 200)
+    { 
+      int m = 0;
+      while ( m < length )
+      {
+
+        FT_Glyph  glyph;
+        QChar ch = Text[m];
+        m += 1;
+
+          
+        // get char index 
+        glyph_idx = FT_Get_Char_Index( face , ch.unicode());
+
+        error = FTC_ImageCache_LookupScaler(imageCache,
+                                  &scaler,
+                                  FT_LOAD_NO_BITMAP,
+                                  glyph_idx,
+                                  &glyph,
+                                  NULL);
+
+        /* load glyph image into the slot (erase previous one) */
+        error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+        if ( error )
+        {
+          break;  /* ignore errors */
+        }
+
+        error = FT_Get_Glyph( slot, &glyph );
+        if ( error )
+          break;
+
+        error = FT_Render_Glyph(face->glyph,
+                                  FT_RENDER_MODE_NORMAL);
+
+        QImage glyphImage(face->glyph->bitmap.buffer,
+                            face->glyph->bitmap.width,
+                            face->glyph->bitmap.rows,
+                            face->glyph->bitmap.pitch,
+                            QImage::Format_Indexed8);
+
+        
+
+        QVector<QRgb> colorTable;
+        for (int i = 0; i < 256; ++i)
+        {
+          colorTable << qRgba(0, 0, 0, i);
+        }
+          
+        glyphImage.setColorTable(colorTable);
+        
+
+        painter->drawImage(x, y,
+                          glyphImage, 0, 0, -1, -1);
+        x = x + 20;
+
+        if (x >= 350)
+        { 
+          break;
+        }
+      }
+
+      y = y + 50;
+      x = -350;
     }
   }
 }
