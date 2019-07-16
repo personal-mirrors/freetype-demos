@@ -322,9 +322,11 @@
     shear.xy = (FT_Fixed)( status.slant * ( 1 << 16 ) );
     shear.yx = 0;
     shear.yy = 1 << 16;
-
+printf("state is\n");
     xstr = (FT_Pos)( size->metrics.y_ppem * 64 * status.xbold_factor );
     ystr = (FT_Pos)( size->metrics.y_ppem * 64 * status.ybold_factor );
+    printf("statex is %lf\n",64 * status.xbold_factor);
+    printf("statey is %lf\n",64 * status.ybold_factor);
 
     have_topleft = 0;
 
