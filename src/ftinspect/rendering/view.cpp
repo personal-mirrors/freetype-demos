@@ -138,11 +138,13 @@ RenderAll::paint(QPainter* painter,
 
       painter->drawImage(x, y,
                         glyphImage, 0, 0, -1, -1);
-      x = x + 20;
 
+      x += face->glyph->advance.x/64;
+      // extra space between the glyphs
+      x++;
       if (x >= 350)
       { 
-        y = y + 30;
+        y += (size->metrics.height + 4)/64;
         x = -350;
       }
     }
@@ -249,11 +251,13 @@ RenderAll::paint(QPainter* painter,
 
       painter->drawImage(x, y,
                         glyphImage, 0, 0, -1, -1);
-      x = x + 20;
 
+      x += face->glyph->advance.x/64;
+      // extra space between the glyphs
+      x++;
       if (x >= 350)
       { 
-        y = y + 30;
+        y += (size->metrics.height + 4)/64;
         x = -350;
       }
     }
@@ -308,13 +312,13 @@ RenderAll::paint(QPainter* painter,
           //FT_Done_Glyph( glyph );
           break;
         }
-        error = FT_Render_Glyph(face->glyph,
+        error = FT_Render_Glyph(slot,
                                 FT_RENDER_MODE_NORMAL);
 
-        QImage glyphImage(face->glyph->bitmap.buffer,
-                            face->glyph->bitmap.width,
-                            face->glyph->bitmap.rows,
-                            face->glyph->bitmap.pitch,
+        QImage glyphImage(slot->bitmap.buffer,
+                            slot->bitmap.width,
+                            slot->bitmap.rows,
+                            slot->bitmap.pitch,
                             QImage::Format_Indexed8);
 
         
@@ -330,13 +334,15 @@ RenderAll::paint(QPainter* painter,
 
         painter->drawImage(x, y,
                           glyphImage, 0, 0, -1, -1);
-        x = x + 20;
 
-        if (x >= 350)
-        { 
-          y = y + 30;
-          x = -350;
-        }
+      x += face->glyph->advance.x/64;
+      // extra space between the glyphs
+      x++;
+      if (x >= 350)
+      { 
+        y += (size->metrics.height + 4)/64;
+        x = -350;
+      }
       }
     }
   }
@@ -415,11 +421,13 @@ RenderAll::paint(QPainter* painter,
 
       painter->drawImage(x, y,
                         glyphImage, 0, 0, -1, -1);
-      x = x + 15;
 
+      x += face->glyph->advance.x/64;
+      // extra space between the glyphs
+      x++;
       if (x >= 350)
       { 
-        y = y + 30;
+        y += (size->metrics.height + 4)/64;
         x = -350;
       }
     }
@@ -484,14 +492,13 @@ RenderAll::paint(QPainter* painter,
 
         painter->drawImage(x, y,
                           glyphImage, 0, 0, -1, -1);
-        x = x + 20;
 
+        x += face->glyph->advance.x/64;
         if (x >= 350)
         { 
           break;
         }
       }
-
       y = y + 50;
       x = -350;
     }
