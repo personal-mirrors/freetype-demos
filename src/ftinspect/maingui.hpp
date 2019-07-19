@@ -87,6 +87,8 @@ private slots:
   void checkHinting();
   void checkHintingMode();
   void checkRenderingMode();
+  void checkKerningMode();
+  void checkKerningDegree();
   void checkLcdFilter();
   void checkShowPoints();
   void checkUnits();
@@ -107,6 +109,11 @@ private slots:
 private:
   Engine* engine;
 
+  
+  int render_mode = 1;
+  int kerning_mode = 0;
+  int kerning_degree = 0;
+
   QStringList fontList;
   int currentFontIndex;
 
@@ -122,7 +129,7 @@ private:
   int currentCFFHintingMode;
   int currentTTInterpreterVersion;
 
-  int render_mode = 1;
+
 
   // layout related stuff
   GlyphOutline *currentGlyphOutlineItem;
@@ -158,6 +165,8 @@ private:
   QComboBoxx *antiAliasingComboBoxx;
   QComboBoxx *hintingModeComboBoxx;
   QComboBoxx *renderingModeComboBoxx;
+  QComboBoxx *kerningModeComboBoxx;
+  QComboBoxx *kerningDegreeComboBoxx;
   QComboBox *lcdFilterComboBox;
   QComboBox *unitsComboBox;
 
@@ -191,6 +200,8 @@ private:
   QHBoxLayout *warpingLayout;
   QHBoxLayout *programNavigationLayout;
   QHBoxLayout *renderLayout;
+  QHBoxLayout *kerningLayout;
+  QHBoxLayout *degreeLayout;
   QHBoxLayout *emboldenVertLayout;
   QHBoxLayout *emboldenHorzLayout;
   QHBoxLayout *slantLayout;
@@ -205,6 +216,8 @@ private:
   QLabel *glyphNameLabel;
   QLabel *hintingModeLabel;
   QLabel *renderingModeLabel;
+  QLabel *kerningModeLabel;
+  QLabel *kerningDegreeLabel;
   QLabel *lcdFilterLabel;
   QLabel *sizeLabel;
   QLabel *zoomLabel;
@@ -318,7 +331,21 @@ private:
     Fancy,
     Stroked,
     Text_String,
-    Waterfall
+    Waterfall,
+    Kerning_Comparison
+  };
+  enum KerningMode
+  {
+    KERNING_MODE_NONE,      /* 0: no kerning;                  */
+    KERNING_MODE_NORMAL,        /* 1: `kern' values                */
+    KERNING_MODE_SMART         /* 2: `kern' + side bearing errors */
+  };
+  enum KerningDegree
+  {
+    KERNING_DEGREE_NONE,
+    KERNING_DEGREE_LIGHT,
+    KERNING_DEGREE_MEDIUM,
+    KERNING_DEGREE_TIGHT
   };
 
   void createActions();

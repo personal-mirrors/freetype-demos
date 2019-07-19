@@ -442,13 +442,63 @@ MainGUI::checkRenderingMode()
   } else if (!(renderingModeComboBoxx->itemText(index).compare("Text String")))
   {
     render_mode = 4;
-  } else 
+  } else if (!(renderingModeComboBoxx->itemText(index).compare("Waterfall")))
   {
     render_mode = 5;
     glyphView->setDragMode(QGraphicsView::NoDrag);
-  } 
-
+  } else
+  {
+    render_mode = 6;
+  }
   renderAll();
+}
+
+void
+MainGUI::checkKerningMode()
+{
+  int index = kerningModeComboBoxx->currentIndex();
+  kerningModeComboBoxx->setItemEnabled(index, true);
+
+  if (!(kerningModeComboBoxx->itemText(index).compare("No Kerning")))
+  {
+    kerning_mode = 0;
+  } else if (!(kerningModeComboBoxx->itemText(index).compare("Normal")))
+  {
+    kerning_mode = 1;
+  } else if (!(kerningModeComboBoxx->itemText(index).compare("Smart")))
+  {
+    kerning_mode = 2;
+  }
+  
+  render_mode = 6;
+  renderAll();
+  renderingModeComboBoxx->setItemEnabled(5, true);
+}
+
+
+void
+MainGUI::checkKerningDegree()
+{
+  int index = kerningDegreeComboBoxx->currentIndex();
+  kerningDegreeComboBoxx->setItemEnabled(index, true);
+
+  if (!(kerningDegreeComboBoxx->itemText(index).compare("None")))
+  {
+    kerning_degree = 0;
+  } else if (!(kerningDegreeComboBoxx->itemText(index).compare("Light")))
+  {
+    kerning_degree = 1;
+  } else if (!(kerningDegreeComboBoxx->itemText(index).compare("Medium")))
+  {
+    kerning_degree = 2;
+  } else if (!(kerningDegreeComboBoxx->itemText(index).compare("Tight")))
+  {
+    kerning_degree = 3;
+  }
+
+  render_mode = 6;
+  renderAll();
+  renderingModeComboBoxx->setItemEnabled(5, true);
 }
 
 
@@ -550,8 +600,6 @@ MainGUI::renderAll()
   // Basic definition
   FT_Size size;
   FT_Face face;
-  FT_Color* palette;
-  FTC_CMapCache cmap_cache;
   FT_Error error;
 
   // Basic Initialization
@@ -561,10 +609,11 @@ MainGUI::renderAll()
   //error = FT_Set_Charmap( size->face, size->face->charmaps[0]);
   // chache manager
   FTC_Manager cacheManager = engine->cacheManager;
+  FTC_CMapCache cmap_cache = engine->cmap_cache;
   FTC_FaceID  face_id = engine->scaler.face_id;
   //face = size->face;
 
-  error = FTC_CMapCache_New(cacheManager, &cmap_cache );
+  
 
   if (currentGridItem)
   {
@@ -595,7 +644,9 @@ MainGUI::renderAll()
                                   x_factor,
                                   y_factor,
                                   slant_factor,
-                                  stroke_factor);
+                                  stroke_factor,
+                                  kerning_mode,
+                                  kerning_degree);
   glyphScene->addItem(currentRenderAllItem);
   zoomSpinBox->setValue(1);
 }
@@ -1058,17 +1109,30 @@ MainGUI::createLayout()
   renderingModeLabel = new QLabel(tr("Render Mode"));
   renderingModeLabel->setAlignment(Qt::AlignTop);
   renderingModeComboBoxx = new QComboBoxx;
-  renderingModeComboBoxx->insertItem(Normal,
-                                   tr("Normal"));
-  renderingModeComboBoxx->insertItem(Fancy,
-                                   tr("Fancy"));
-  renderingModeComboBoxx->insertItem(Stroked,
-                                   tr("Stroked"));
-  renderingModeComboBoxx->insertItem(Text_String,
-                                   tr("Text String"));
-  renderingModeComboBoxx->insertItem(Waterfall,
-                                   tr("Waterfall"));
+  renderingModeComboBoxx->insertItem(Normal, tr("Normal"));
+  renderingModeComboBoxx->insertItem(Fancy, tr("Fancy"));
+  renderingModeComboBoxx->insertItem(Stroked, tr("Stroked"));
+  renderingModeComboBoxx->insertItem(Text_String, tr("Text String"));
+  renderingModeComboBoxx->insertItem(Waterfall, tr("Waterfall"));
+  renderingModeComboBoxx->insertItem(Kerning_Comparison, tr("Kerning Comparison"));
   renderingModeLabel->setBuddy(renderingModeComboBoxx);
+
+  kerningModeLabel = new QLabel(tr("Kerning Mode"));
+  kerningModeLabel->setAlignment(Qt::AlignTop);
+  kerningModeComboBoxx = new QComboBoxx;
+  kerningModeComboBoxx->insertItem(KERNING_MODE_NONE, tr("No Kerning"));
+  kerningModeComboBoxx->insertItem(KERNING_MODE_NORMAL, tr("Normal"));
+  kerningModeComboBoxx->insertItem(KERNING_MODE_SMART, tr("Smart"));
+  kerningModeLabel->setBuddy(kerningModeComboBoxx);
+
+  kerningDegreeLabel = new QLabel(tr("Kerning Degree"));
+  kerningDegreeLabel->setAlignment(Qt::AlignTop);
+  kerningDegreeComboBoxx = new QComboBoxx;
+  kerningDegreeComboBoxx->insertItem(KERNING_DEGREE_NONE, tr("None"));
+  kerningDegreeComboBoxx->insertItem(KERNING_DEGREE_LIGHT, tr("Light"));
+  kerningDegreeComboBoxx->insertItem(KERNING_DEGREE_MEDIUM, tr("Medium"));
+  kerningDegreeComboBoxx->insertItem(KERNING_DEGREE_TIGHT, tr("Tight"));
+  kerningDegreeLabel->setBuddy(kerningDegreeComboBoxx);
 
   int width;
   // make all labels have the same width
@@ -1076,10 +1140,14 @@ MainGUI::createLayout()
   width = qMax(antiAliasingLabel->minimumSizeHint().width(), width);
   width = qMax(lcdFilterLabel->minimumSizeHint().width(), width);
   width = qMax(renderingModeLabel->minimumSizeHint().width(), width);
+  width = qMax(kerningModeLabel->minimumSizeHint().width(), width);
+  width = qMax(kerningDegreeLabel->minimumSizeHint().width(), width);
   hintingModeLabel->setMinimumWidth(width);
   antiAliasingLabel->setMinimumWidth(width);
   lcdFilterLabel->setMinimumWidth(width);
   renderingModeLabel->setMinimumWidth(width);
+  kerningModeLabel->setMinimumWidth(width);
+  kerningDegreeLabel->setMinimumWidth(width);
 
   // ensure that all items in combo boxes fit completely;
   // also make all combo boxes have the same width
@@ -1087,10 +1155,14 @@ MainGUI::createLayout()
   width = qMax(antiAliasingComboBoxx->minimumSizeHint().width(), width);
   width = qMax(lcdFilterComboBox->minimumSizeHint().width(), width);
   width = qMax(renderingModeComboBoxx->minimumSizeHint().width(), width);
+  width = qMax(kerningModeComboBoxx->minimumSizeHint().width(), width);
+  width = qMax(kerningDegreeComboBoxx->minimumSizeHint().width(), width);
   hintingModeComboBoxx->setMinimumWidth(width);
   antiAliasingComboBoxx->setMinimumWidth(width);
   lcdFilterComboBox->setMinimumWidth(width);
   renderingModeComboBoxx->setMinimumWidth(width);
+  kerningModeComboBoxx->setMinimumWidth(width);
+  kerningDegreeComboBoxx->setMinimumWidth(width);
 
   gammaLabel = new QLabel(tr("Gamma"));
   gammaLabel->setAlignment(Qt::AlignRight);
@@ -1122,11 +1194,9 @@ MainGUI::createLayout()
   strokeLabel->setAlignment(Qt::AlignRight);
   slant_Slider = new QSlider(Qt::Horizontal);
   stroke_Slider = new QSlider(Qt::Horizontal);
-  slant_Slider->setRange(0, 100); // 5 = 0.05
-  stroke_Slider->setRange(0, 100);
-  slant_Slider->setTickPosition(QSlider::TicksBelow);
+  slant_Slider->setRange(1, 100); // 5 = 0.05
+  stroke_Slider->setRange(1, 100);
   slant_Slider->setTickInterval(2);
-  stroke_Slider->setTickPosition(QSlider::TicksBelow);
   stroke_Slider->setTickInterval(5);
   slantLabel->setBuddy(slant_Slider);
   strokeLabel->setBuddy(stroke_Slider);
@@ -1222,8 +1292,18 @@ MainGUI::createLayout()
   renderLayout->addWidget(renderingModeLabel);
   renderLayout->addWidget(renderingModeComboBoxx);
 
+  kerningLayout = new QHBoxLayout;
+  kerningLayout->addWidget(kerningModeLabel);
+  kerningLayout->addWidget(kerningModeComboBoxx);
+
+  degreeLayout = new QHBoxLayout;
+  degreeLayout->addWidget(kerningDegreeLabel);
+  degreeLayout->addWidget(kerningDegreeComboBoxx);
+
   viewTabLayout = new QVBoxLayout;
   viewTabLayout->addLayout(renderLayout);
+  viewTabLayout->addLayout(kerningLayout);
+  viewTabLayout->addLayout(degreeLayout);
   viewTabLayout->addLayout(emboldenVertLayout);
   viewTabLayout->addLayout(emboldenHorzLayout);
   viewTabLayout->addLayout(slantLayout);
@@ -1426,6 +1506,10 @@ MainGUI::createConnections()
           SLOT(checkLcdFilter()));
   connect(renderingModeComboBoxx, SIGNAL(currentIndexChanged(int)),
           SLOT(checkRenderingMode()));
+  connect(kerningModeComboBoxx, SIGNAL(currentIndexChanged(int)),
+          SLOT(checkKerningMode()));
+  connect(kerningDegreeComboBoxx, SIGNAL(currentIndexChanged(int)),
+          SLOT(checkKerningDegree()));
 
   connect(allGlyphs, SIGNAL(clicked()),
           SLOT(renderAll()));

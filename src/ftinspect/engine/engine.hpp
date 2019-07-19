@@ -100,6 +100,7 @@ private:
 
   FT_Library library;
   FTC_Manager cacheManager;
+  FTC_CMapCache cmap_cache;
   //FTC_ImageCache imageCache;
   FTC_SBitCache sbitsCache;
 

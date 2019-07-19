@@ -43,7 +43,9 @@ public:
        double x_factor,
        double y_factor,
        double slant_factor,
-       double stroke_factor);
+       double stroke_factor,
+       int kerning_mode,
+       int kerning_degree);
   ~RenderAll();
   QRectF boundingRect() const;
   void paint(QPainter* painter,
@@ -61,12 +63,15 @@ private:
   FT_Size size;
   int mode;
   Engine* engine;
+  MainGUI* gui;
   FTC_ScalerRec scaler;
   FTC_ImageCache imageCache;
   double x_factor;
   double y_factor;
   double slant_factor;
   double stroke_factor;
+  int kerning_mode;
+  int kerning_degree;
 };
 
 

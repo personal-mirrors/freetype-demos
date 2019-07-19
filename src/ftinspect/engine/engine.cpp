@@ -160,6 +160,8 @@ Engine::Engine(MainGUI* g)
     // XXX error handling
   }
 
+  error = FTC_CMapCache_New(cacheManager, &cmap_cache );
+
   // query engines and check for alternatives
 
   // CFF
