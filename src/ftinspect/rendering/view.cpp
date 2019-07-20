@@ -11,12 +11,8 @@
 
 #define ft_render_mode_normal  FT_RENDER_MODE_NORMAL
   /* special encoding to display glyphs in order */
-#define FT_ENCODING_ORDER  0xFFFF
-#define ft_encoding_unicode         FT_ENCODING_UNICODE
-#define START_X  18 * 8
-#define START_Y  3 * 12
-
-#define TRUNC(x) ((x) >> 6)
+#define FT_ENCODING_ORDER 0xFFFF
+#define ft_encoding_unicode FT_ENCODING_UNICODE
 
 extern "C" {
 
@@ -98,6 +94,12 @@ static FT_Outline_Funcs outlineFuncs =
 
 static const char*  Sample[] =
   {
+    "None   The quick brown fox jumps over the lazy dog",
+
+    "Track  The quick brown fox jumps over the lazy dog",
+
+    "Both   The quick brown fox jumps over the lazy dog",
+
     "The quick brown fox jumps over the lazy dog",
 
     /* Luís argüia à Júlia que «brações, fé, chá, óxido, pôr, zângão» */
@@ -142,7 +144,7 @@ static const char*  Sample[] =
 
 
 
-/* static const char*  Sample[0] =
+/* static const char*  Sample[3] =
       "The quick brown fox jumps over the lazy dog"
       " 0123456789"
       " \303\242\303\252\303\256\303\273\303\264"
@@ -214,8 +216,8 @@ RenderAll::paint(QPainter* painter,
   // Basic def or just pass size 
   slot = face->glyph;
   FT_UInt  glyph_idx;
-  int x = -350;
-  int y = -180;
+  int x = -280;
+  int y = -20;
 
 
  // Normal rendering mode
@@ -269,10 +271,10 @@ RenderAll::paint(QPainter* painter,
       x += face->glyph->advance.x/64;
       // extra space between the glyphs
       x++;
-      if (x >= 350)
+      if (x >= 280)
       { 
         y += (size->metrics.height + 4)/64;
-        x = -350;
+        x = -280;
       }
     }
   }
@@ -382,10 +384,10 @@ RenderAll::paint(QPainter* painter,
       x += face->glyph->advance.x/64;
       // extra space between the glyphs
       x++;
-      if (x >= 350)
+      if (x >= 280)
       { 
         y += (size->metrics.height + 4)/64;
-        x = -350;
+        x = -280;
       }
     }
   }
@@ -507,177 +509,22 @@ RenderAll::paint(QPainter* painter,
   // Render String mode
   if (mode == 4)
   {
-    /*
-     In UTF-8 encoding:
-
-       The quick brown fox jumps over the lazy dog
-       0123456789
-       âêîûôäëïöüÿàùéèç
-       &#~"'(-`_^@)=+°
-       ABCDEFGHIJKLMNOPQRSTUVWXYZ
-       $£^¨*µù%!§:/;.,?<>
-
-     The trailing space is for `looping' in case `Sample[0]' gets displayed more
-     than once.
-   */
-    
+    FT_Pos lsb_delta = 0; /* delta caused by hinting */
+    FT_Pos rsb_delta = 0; /* delta caused by hinting */
     const char*  p;
     const char*  pEnd;
     int          ch;
-
-    p    = Sample[0];
-    pEnd = p + strlen( Sample[0] ); 
-
-    int length = strlen(Sample[0]);
-
-    for ( int i = 0; i < length; i++ )
-    {
-      QChar ch = Sample[0][i];
-
-      // get char index 
-      glyph_idx = FT_Get_Char_Index( face , ch.unicode());
-      /* if ( face->charmap->encoding != FT_ENCODING_ORDER )
-      {
-        glyph_idx = FTC_CMapCache_Lookup(cmap_cache, face_id,
-                                          FT_Get_Charmap_Index(face->charmap), (FT_UInt32)ch);
-      }
-      else
-      {
-        glyph_idx = (FT_UInt32)ch;
-      }*/
-
-      //glyph_idx = (FT_UInt)i;
-      /* load glyph image into the slot (erase previous one) */
-      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
-      if ( error )
-      {
-        break;  /* ignore errors */
-      } 
-
-      error = FT_Render_Glyph(face->glyph,
-                                FT_RENDER_MODE_NORMAL);
-
-      QImage glyphImage(face->glyph->bitmap.buffer,
-                          face->glyph->bitmap.width,
-                          face->glyph->bitmap.rows,
-                          face->glyph->bitmap.pitch,
-                          QImage::Format_Indexed8);
-
-
-      QVector<QRgb> colorTable;
-      for (int i = 0; i < 256; ++i)
-      {
-        colorTable << qRgba(0, 0, 0, i);
-      }
-        
-      glyphImage.setColorTable(colorTable);
-      
-
-      painter->drawImage(x, y,
-                        glyphImage, 0, 0, -1, -1);
-
-      x += face->glyph->advance.x/64;
-      if (x >= 350)
-      { 
-        y += (size->metrics.height + 4)/64;
-        x = -350;
-      }
-    }
-  }
-
-  // Waterfall rendering mode
-  if (mode == 5)
-  {
-    
-    int length = strlen(Sample[0]);
-    while (y <= 200)
-    { 
-      int m = 0;
-      while ( m < length )
-      {
-
-        FT_Glyph  glyph;
-        QChar ch = Sample[0][m];
-        m += 1;
-
-          
-        // get char index 
-        glyph_idx = FT_Get_Char_Index( face , ch.unicode());
-
-        error = FTC_ImageCache_LookupScaler(imageCache,
-                                  &scaler,
-                                  FT_LOAD_NO_BITMAP,
-                                  glyph_idx,
-                                  &glyph,
-                                  NULL);
-
-        /* load glyph image into the slot (erase previous one) */
-        error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
-        if ( error )
-        {
-          break;  /* ignore errors */
-        }
-
-        error = FT_Get_Glyph( slot, &glyph );
-        if ( error )
-          break;
-
-        error = FT_Render_Glyph(face->glyph,
-                                  FT_RENDER_MODE_NORMAL);
-
-        QImage glyphImage(face->glyph->bitmap.buffer,
-                            face->glyph->bitmap.width,
-                            face->glyph->bitmap.rows,
-                            face->glyph->bitmap.pitch,
-                            QImage::Format_Indexed8);
-
-        
-
-        QVector<QRgb> colorTable;
-        for (int i = 0; i < 256; ++i)
-        {
-          colorTable << qRgba(0, 0, 0, i);
-        }
-          
-        glyphImage.setColorTable(colorTable);
-        
-
-        painter->drawImage(x, y,
-                          glyphImage, 0, 0, -1, -1);
-
-        x += face->glyph->advance.x/64;
-        if (x >= 350)
-        { 
-          break;
-        }
-      }
-      y = y + 50;
-      x = -350;
-    }
-  }
-
-  // Kerning comparison
-  if (mode == 6)
-  {
-    /* 1. Print text without kerning
-    2. Print text with kerning mode 1
-    3. Print text with kerning mode 2 */
-    FT_Pos     lsb_delta = 0; /* delta caused by hinting */
-    FT_Pos     rsb_delta = 0; /* delta caused by hinting */
-    const char*  p;
-    const char*  pEnd;
-    int          ch;
-    FT_Pos   track_kern   = 0;
+    FT_Pos track_kern = 0;
     FT_Bool use_kerning;
     FT_UInt previous;
 
     use_kerning = FT_HAS_KERNING( face );
     previous = 0;
 
-    p    = Sample[0];
-    pEnd = p + strlen( Sample[0] ); 
+    p    = Sample[3];
+    pEnd = p + strlen( Sample[3] ); 
 
-    int length = strlen(Sample[0]);
+    int length = strlen(Sample[3]);
 
     // if kerning degree > 0
     if ( kerning_degree )
@@ -694,7 +541,7 @@ RenderAll::paint(QPainter* painter,
 
     for ( int i = 0; i < length; i++ )
     {
-      QChar ch = Sample[0][i];
+      QChar ch = Sample[3][i];
 
       // get char index 
       glyph_idx = FT_Get_Char_Index( face , ch.unicode());
@@ -756,6 +603,242 @@ RenderAll::paint(QPainter* painter,
 
       previous = glyph_idx;
     }
+  }
+
+  // Waterfall rendering mode
+  if (mode == 5)
+  {
+    FT_Pos track_kern = 0;
+    FT_Bool use_kerning;
+    y = -180;
+    
+    int length = strlen(Sample[3]);
+
+       // if kerning degree > 0
+    if ( kerning_degree )
+    {
+      /* this function needs and returns points, not pixels */
+      if ( !FT_Get_Track_Kerning( face,
+                                  (FT_Fixed)scaler.width << 10,
+                                  -kerning_degree,
+                                  &track_kern ) )
+      track_kern = (FT_Pos)(
+                    ( track_kern / 1024.0 * scaler.x_res ) /
+                    72.0 );
+    }
+
+    while (y <= 200)
+    { 
+      int m = 0;
+      FT_Pos lsb_delta = 0; /* delta caused by hinting */
+      FT_Pos rsb_delta = 0; /* delta caused by hinting */
+      FT_UInt previous;
+
+      while ( m < length )
+      {
+
+        FT_Glyph  glyph;
+        QChar ch = Sample[3][m];
+        m += 1;
+
+          
+        // get char index 
+        glyph_idx = FT_Get_Char_Index( face , ch.unicode());
+
+        x += track_kern;
+
+        if (previous && glyph_idx )
+        {
+          FT_Vector delta;
+
+          FT_Get_Kerning( face, previous, glyph_idx,
+                          FT_KERNING_UNFITTED, &delta );
+
+          x += delta.x;
+          
+          if ( kerning_mode > 1 )
+          {   
+              if ( rsb_delta && rsb_delta - face->glyph->lsb_delta > 32 )
+                x -= 1;
+              else if ( rsb_delta && rsb_delta - face->glyph->lsb_delta < -31 )
+                x += 1;
+          }
+        }
+
+        error = FTC_ImageCache_LookupScaler(imageCache,
+                                  &scaler,
+                                  FT_LOAD_NO_BITMAP,
+                                  glyph_idx,
+                                  &glyph,
+                                  NULL);
+
+        /* load glyph image into the slot (erase previous one) */
+        error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+        if ( error )
+        {
+          break;  /* ignore errors */
+        }
+
+        error = FT_Get_Glyph( slot, &glyph );
+        if ( error )
+          break;
+
+        error = FT_Render_Glyph(face->glyph,
+                                  FT_RENDER_MODE_NORMAL);
+
+        QImage glyphImage(face->glyph->bitmap.buffer,
+                            face->glyph->bitmap.width,
+                            face->glyph->bitmap.rows,
+                            face->glyph->bitmap.pitch,
+                            QImage::Format_Indexed8);
+
+        
+
+        QVector<QRgb> colorTable;
+        for (int i = 0; i < 256; ++i)
+        {
+          colorTable << qRgba(0, 0, 0, i);
+        }
+          
+        glyphImage.setColorTable(colorTable);
+        
+
+        painter->drawImage(x, y,
+                          glyphImage, 0, 0, -1, -1);
+        
+        if (previous)
+        {
+          lsb_delta = face->glyph->lsb_delta;
+          rsb_delta = face->glyph->rsb_delta;
+        }
+
+        x += face->glyph->advance.x/64;
+        if (x >= 350)
+        { 
+          break;
+        }
+        previous = glyph_idx;
+      }
+      y = y + 50;
+      x = -280;
+    }
+  }
+
+  // Kerning comparison
+  if (mode == 6)
+  {
+
+    for (int line = 0; line < 3; line++)
+    {
+
+      FT_Pos     lsb_delta = 0; /* delta caused by hinting */
+      FT_Pos     rsb_delta = 0; /* delta caused by hinting */
+      const char*  p;
+      const char*  pEnd;
+      int          ch;
+      FT_Pos   track_kern   = 0;
+      FT_Bool use_kerning;
+      FT_UInt previous;
+
+      use_kerning = FT_HAS_KERNING( face );
+
+      // Line 1 (None)
+      if (line == 0)
+      {
+        use_kerning = 1;
+      } else
+      {
+        kerning_degree = 1;
+      }
+
+      previous = 0;
+
+      p    = Sample[line];
+      pEnd = p + strlen( Sample[line] ); 
+
+      int length = strlen(Sample[line]);
+
+      // if kerning degree > 0
+      if ( kerning_degree )
+      {
+        /* this function needs and returns points, not pixels */
+        if ( !FT_Get_Track_Kerning( face,
+                                    (FT_Fixed)scaler.width << 10,
+                                    -kerning_degree,
+                                    &track_kern ) )
+        track_kern = (FT_Pos)(
+                      ( track_kern / 1024.0 * scaler.x_res ) /
+                      72.0 );
+      }
+
+      for ( int i = 0; i < length; i++ )
+      {
+        QChar ch = Sample[line][i];
+
+        // get char index 
+        glyph_idx = FT_Get_Char_Index( face , ch.unicode());
+
+        x += track_kern;
+
+        if (!use_kerning && previous && glyph_idx )
+        {
+          FT_Vector delta;
+
+          FT_Get_Kerning( face, previous, glyph_idx,
+                          FT_KERNING_UNFITTED, &delta );
+
+          x += delta.x;
+          
+          if ( kerning_mode > 1 )
+          {   
+              if ( rsb_delta && rsb_delta - face->glyph->lsb_delta > 32 )
+                x -= 1;
+              else if ( rsb_delta && rsb_delta - face->glyph->lsb_delta < -31 )
+                x += 1;
+          }
+        }
+
+        /* load glyph image into the slot (erase previous one) */
+        error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+        if ( error )
+        {
+          break;  /* ignore errors */
+        }
+
+        error = FT_Render_Glyph(face->glyph,
+                                  FT_RENDER_MODE_NORMAL);
+
+        QImage glyphImage(face->glyph->bitmap.buffer,
+                            face->glyph->bitmap.width,
+                            face->glyph->bitmap.rows,
+                            face->glyph->bitmap.pitch,
+                            QImage::Format_Indexed8);
+
+
+        QVector<QRgb> colorTable;
+        for (int i = 0; i < 256; ++i)
+        {
+          colorTable << qRgba(0, 0, 0, i);
+        }
+          
+        glyphImage.setColorTable(colorTable);
+        painter->drawImage(x, y,
+                          glyphImage, 0, 0, -1, -1);
+
+        if (previous)
+        {
+          lsb_delta = face->glyph->lsb_delta;
+          rsb_delta = face->glyph->rsb_delta;
+        }
+        // space between the glyphs
+        x += face->glyph->advance.x/64;
+
+        previous = glyph_idx;
+      }
+
+      y += (size->metrics.height + 4)/64;
+      x = -280;
+    }    
   }
 }
 

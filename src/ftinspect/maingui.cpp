@@ -470,9 +470,8 @@ MainGUI::checkKerningMode()
     kerning_mode = 2;
   }
   
-  render_mode = 6;
   renderAll();
-  renderingModeComboBoxx->setItemEnabled(5, true);
+  //renderingModeComboBoxx->setItemEnabled(5, true);
 }
 
 
@@ -496,9 +495,8 @@ MainGUI::checkKerningDegree()
     kerning_degree = 3;
   }
 
-  render_mode = 6;
   renderAll();
-  renderingModeComboBoxx->setItemEnabled(5, true);
+  //renderingModeComboBoxx->setItemEnabled(5, true);
 }
 
 
@@ -590,6 +588,40 @@ MainGUI::gridViewRender()
 void
 MainGUI::renderAll()
 {
+  kerningDegreeComboBoxx->setEnabled(false);
+  kerningModeComboBoxx->setEnabled(false);
+  stroke_Slider->setEnabled(false);
+
+  if (render_mode == 3)
+  {
+    stroke_Slider->setEnabled(true);
+  }
+
+  if (render_mode == 4 || render_mode == 5)
+  {
+    kerningDegreeComboBoxx->setEnabled(true);
+    kerningModeComboBoxx->setEnabled(true);
+  }
+
+  if (render_mode == 2)
+  {
+    embolden_x_Slider->setEnabled(true);
+    embolden_y_Slider->setEnabled(true);
+    slant_Slider->setEnabled(true);
+  } else
+  {
+    // Diable unused parameters for render modes
+    embolden_x_Slider->setEnabled(false);
+    embolden_y_Slider->setEnabled(false);
+    slant_Slider->setEnabled(false);
+  }
+
+  // Diable unused parameters
+  showPointNumbersCheckBox->setEnabled(false);
+  showBitmapCheckBox->setEnabled(false);
+  showPointsCheckBox->setEnabled(false);
+  showOutlinesCheckBox->setEnabled(false);
+
   // Embolden factors
   double x_factor = embolden_x_Slider->value()/1000.0;
   double y_factor = embolden_y_Slider->value()/1000.0;
@@ -1180,9 +1212,7 @@ MainGUI::createLayout()
   embolden_y_Slider = new QSlider(Qt::Horizontal);
   embolden_x_Slider->setRange(0, 100); // 5 = 0.005
   embolden_y_Slider->setRange(0, 100);
-  embolden_x_Slider->setTickPosition(QSlider::TicksBelow);
   embolden_x_Slider->setTickInterval(5);
-  embolden_y_Slider->setTickPosition(QSlider::TicksBelow);
   embolden_y_Slider->setTickInterval(5);
   xLabel->setBuddy(embolden_x_Slider);
   yLabel->setBuddy(embolden_y_Slider);
