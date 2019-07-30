@@ -476,6 +476,34 @@ MainGUI::checkKerningMode()
 
 
 void
+MainGUI::checkColumnHinting()
+{
+  int index = hintingModeColumnComboBoxx->currentIndex();
+  hintingModeColumnComboBoxx->setItemEnabled(index, true);
+  int column_index = columnComboBoxx->currentIndex();
+
+  if (!(hintingModeColumnComboBoxx->itemText(index).compare("Unhinted")))
+  {
+    state[column_index].hint_mode = HINT_MODE_UNHINTED;
+  } else if (!(hintingModeColumnComboBoxx->itemText(index).compare("Auto-hinting")))
+  {
+    state[column_index].hint_mode = HINT_MODE_AUTOHINT;
+  } else if (!(hintingModeColumnComboBoxx->itemText(index).compare("Light Auto-hinting")))
+  {
+    state[column_index].hint_mode = HINT_MODE_AUTOHINT_LIGHT;
+  } else if (!(hintingModeColumnComboBoxx->itemText(index).compare("Light Auto-hinting (Subp.)")))
+  {
+    state[column_index].hint_mode = HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL;
+  } else
+  {
+    state[column_index].hint_mode = HINT_MODE_BYTECODE;
+  }
+
+  comparatorViewRender();
+}
+
+
+void
 MainGUI::checkKerningDegree()
 {
   int index = kerningDegreeComboBoxx->currentIndex();
@@ -564,6 +592,104 @@ MainGUI::checkAutoHinting()
 
 
 void
+MainGUI::comparatorViewRender()
+{
+    // Basic definition
+  FT_Size size;
+  
+  // Basic Initialization
+  size = engine->getFtSize();
+
+  if (comparatorView->isChecked())
+  {
+    if (currentRenderAllItem)
+    {
+      glyphScene->removeItem(currentRenderAllItem);
+      delete currentRenderAllItem;
+
+      currentRenderAllItem = NULL;
+    }
+
+    if (currentGridItem)
+    {
+      glyphScene->removeItem(currentGridItem);
+      delete currentGridItem;
+
+      currentGridItem = NULL;
+    }
+
+    if (currentComparatorItem)
+    {
+      glyphScene->removeItem(currentComparatorItem);
+      delete currentComparatorItem;
+
+      currentComparatorItem = NULL;
+    }
+
+    for (int col = 0; col < 3; col++)
+    {
+      // load flags
+      load_flags[col] = FT_LOAD_DEFAULT;
+
+      if ( state[col].hint_mode == HINT_MODE_AUTOHINT )
+      {
+        load_flags[col] = FT_LOAD_FORCE_AUTOHINT;
+      }
+
+      if ( state[col].hint_mode == HINT_MODE_AUTOHINT_LIGHT          ||
+          state[col].hint_mode == HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL )
+      {
+        load_flags[col] = FT_LOAD_TARGET_LIGHT;
+      }
+
+      if ( state[col].hint_mode == HINT_MODE_UNHINTED )
+      {
+        load_flags[col] |= FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
+      }
+
+      int column_index = columnComboBoxx->currentIndex();
+
+      // set warping
+      if (warpingColumnCheckBox->isChecked())
+      {
+        warping[column_index] = true;
+      }
+
+      // set kerning
+      if (kerningColumnCheckBox->isChecked())
+      {
+        kerningCol[column_index] = true;
+      }
+
+      // rendering mode set
+      int index = renderingModeComboBoxx->currentIndex();
+      renderingModeComboBoxx->setItemEnabled(index, true);
+
+      if (!(renderingModeComboBoxx->itemText(index).compare("Grey Rendering")))
+      {
+        pixelMode[column_index] = FT_PIXEL_MODE_GRAY;
+      }
+
+    }
+
+    currentComparatorItem = new Comparator(engine->library,
+                                size->face,
+                                size,
+                                fontList,
+                                load_flags,
+                                pixelMode,
+                                grayColorTable,
+                                monoColorTable,
+                                warping,
+                                kerningCol);
+    glyphScene->addItem(currentComparatorItem);
+    sizeDoubleSpinBox->setValue(11);
+    zoomSpinBox->setValue(1);
+  }
+}
+
+
+void
 MainGUI::gridViewRender()
 {
   if (gridView->isChecked())
@@ -575,6 +701,16 @@ MainGUI::gridViewRender()
 
       currentRenderAllItem = NULL;
     }
+
+    if (currentComparatorItem)
+    {
+      glyphScene->removeItem(currentComparatorItem);
+      delete currentComparatorItem;
+
+      currentComparatorItem = NULL;
+    }
+
+   
 
     currentGridItem = new Grid(gridPen, axisPen);
     glyphScene->addItem(currentGridItem);
@@ -663,6 +799,14 @@ MainGUI::renderAll()
     currentRenderAllItem = NULL;
   }
 
+  if (currentComparatorItem)
+  {
+    glyphScene->removeItem(currentComparatorItem);
+    delete currentComparatorItem;
+
+    currentComparatorItem = NULL;
+  }
+
   /* now, draw to our target surface */
   currentRenderAllItem = new RenderAll(size->face,
                                   size,
@@ -680,6 +824,7 @@ MainGUI::renderAll()
                                   kerning_mode,
                                   kerning_degree);
   glyphScene->addItem(currentRenderAllItem);
+  sizeDoubleSpinBox->setValue(20);
   zoomSpinBox->setValue(1);
 }
 
@@ -1166,6 +1311,34 @@ MainGUI::createLayout()
   kerningDegreeComboBoxx->insertItem(KERNING_DEGREE_TIGHT, tr("Tight"));
   kerningDegreeLabel->setBuddy(kerningDegreeComboBoxx);
 
+  columnLabel = new QLabel(tr("Column"));
+  columnLabel->setAlignment(Qt::AlignTop);
+  columnComboBoxx = new QComboBoxx;
+  columnComboBoxx->addItem("Column 1");
+  columnComboBoxx->addItem("Column 2");
+  columnComboBoxx->addItem("Column 3");
+  columnLabel->setBuddy(columnComboBoxx);
+
+  hintingColumnLabel = new QLabel(tr("Hinting Mode"));
+  hintingColumnLabel->setAlignment(Qt::AlignTop);
+  hintingModeColumnComboBoxx = new QComboBoxx;
+  hintingModeColumnComboBoxx->insertItem(HINT_MODE_UNHINTED, tr("Unhinted"));
+  hintingModeColumnComboBoxx->insertItem(HINT_MODE_AUTOHINT, tr("Auto-hinting"));
+  hintingModeColumnComboBoxx->insertItem(HINT_MODE_AUTOHINT_LIGHT, tr("Light Auto-hinting"));
+  hintingModeColumnComboBoxx->insertItem(HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL, tr("Light Auto-hinting (Subp.)"));
+  hintingModeColumnComboBoxx->insertItem(HINT_MODE_BYTECODE, tr("Native"));
+  hintingColumnLabel->setBuddy(hintingModeColumnComboBoxx);
+
+  renderColumnLabel = new QLabel(tr("Render Mode"));
+  renderColumnLabel->setAlignment(Qt::AlignTop);
+  renderingModeColumnComboBoxx = new QComboBoxx;
+  renderingModeColumnComboBoxx->addItem(tr("LCD Rendering"));
+  renderingModeColumnComboBoxx->addItem(tr("Grey Rendering"));
+  renderColumnLabel->setBuddy(renderingModeColumnComboBoxx);
+
+  warpingColumnCheckBox = new QCheckBox(tr("Warping"));
+  kerningColumnCheckBox = new QCheckBox(tr("Kerning"));
+
   int width;
   // make all labels have the same width
   width = hintingModeLabel->minimumSizeHint().width();
@@ -1174,12 +1347,18 @@ MainGUI::createLayout()
   width = qMax(renderingModeLabel->minimumSizeHint().width(), width);
   width = qMax(kerningModeLabel->minimumSizeHint().width(), width);
   width = qMax(kerningDegreeLabel->minimumSizeHint().width(), width);
+  width = qMax(columnLabel->minimumSizeHint().width(), width);
+  width = qMax(renderColumnLabel->minimumSizeHint().width(), width);
+  width = qMax(hintingColumnLabel->minimumSizeHint().width(), width);
   hintingModeLabel->setMinimumWidth(width);
   antiAliasingLabel->setMinimumWidth(width);
   lcdFilterLabel->setMinimumWidth(width);
   renderingModeLabel->setMinimumWidth(width);
   kerningModeLabel->setMinimumWidth(width);
   kerningDegreeLabel->setMinimumWidth(width);
+  columnLabel->setMinimumWidth(width);
+  renderColumnLabel->setMinimumWidth(width);
+  hintingColumnLabel->setMinimumWidth(width);
 
   // ensure that all items in combo boxes fit completely;
   // also make all combo boxes have the same width
@@ -1189,12 +1368,18 @@ MainGUI::createLayout()
   width = qMax(renderingModeComboBoxx->minimumSizeHint().width(), width);
   width = qMax(kerningModeComboBoxx->minimumSizeHint().width(), width);
   width = qMax(kerningDegreeComboBoxx->minimumSizeHint().width(), width);
+  width = qMax(columnComboBoxx->minimumSizeHint().width(), width);
+  width = qMax(hintingModeColumnComboBoxx->minimumSizeHint().width(), width);
+  width = qMax(renderingModeColumnComboBoxx->minimumSizeHint().width(), width);
   hintingModeComboBoxx->setMinimumWidth(width);
   antiAliasingComboBoxx->setMinimumWidth(width);
   lcdFilterComboBox->setMinimumWidth(width);
   renderingModeComboBoxx->setMinimumWidth(width);
   kerningModeComboBoxx->setMinimumWidth(width);
   kerningDegreeComboBoxx->setMinimumWidth(width);
+  columnComboBoxx->setMinimumWidth(width);
+  hintingModeColumnComboBoxx->setMinimumWidth(width);
+  renderingModeColumnComboBoxx->setMinimumWidth(width);
 
   gammaLabel = new QLabel(tr("Gamma"));
   gammaLabel->setAlignment(Qt::AlignRight);
@@ -1263,6 +1448,14 @@ MainGUI::createLayout()
   warpingLayout->addSpacing(20); // XXX px
   warpingLayout->addWidget(warpingCheckBox);
 
+  warpingColumnLayout = new QHBoxLayout;
+  warpingColumnLayout->addSpacing(20); // XXX px
+  warpingColumnLayout->addWidget(warpingColumnCheckBox);
+
+  kerningColumnLayout = new QHBoxLayout;
+  kerningColumnLayout->addSpacing(20); // XXX px
+  kerningColumnLayout->addWidget(kerningColumnCheckBox);
+
   antiAliasingLayout = new QHBoxLayout;
   antiAliasingLayout->addWidget(antiAliasingLabel);
   antiAliasingLayout->addWidget(antiAliasingComboBoxx);
@@ -1330,6 +1523,18 @@ MainGUI::createLayout()
   degreeLayout->addWidget(kerningDegreeLabel);
   degreeLayout->addWidget(kerningDegreeComboBoxx);
 
+  columnLayout = new QHBoxLayout;
+  columnLayout->addWidget(columnLabel);
+  columnLayout->addWidget(columnComboBoxx);
+
+  hintColumnLayout = new QHBoxLayout;
+  hintColumnLayout->addWidget(hintingColumnLabel);
+  hintColumnLayout->addWidget(hintingModeColumnComboBoxx);
+
+  renderColumnLayout = new QHBoxLayout;
+  renderColumnLayout->addWidget(renderColumnLabel);
+  renderColumnLayout->addWidget(renderingModeColumnComboBoxx);
+
   viewTabLayout = new QVBoxLayout;
   viewTabLayout->addLayout(renderLayout);
   viewTabLayout->addLayout(kerningLayout);
@@ -1348,11 +1553,24 @@ MainGUI::createLayout()
   viewTabWidget = new QWidget;
   viewTabWidget->setLayout(viewTabLayout);
 
+  diffTabLayout = new QVBoxLayout;
+  diffTabLayout->addLayout(columnLayout);
+  diffTabLayout->addLayout(renderColumnLayout);
+  diffTabLayout->addLayout(hintColumnLayout);
+  diffTabLayout->addWidget(kerningColumnCheckBox);
+  diffTabLayout->addLayout(kerningColumnLayout);
+  diffTabLayout->addWidget(warpingColumnCheckBox);
+  diffTabLayout->addLayout(warpingColumnLayout);
+  
+  diffTabWidget = new QWidget;
+  diffTabWidget->setLayout(diffTabLayout);
+
 
   tabWidget = new QTabWidget;
   tabWidget->addTab(generalTabWidget, tr("General"));
   tabWidget->addTab(mmgxTabWidget, tr("MM/GX"));
   tabWidget->addTab(viewTabWidget, tr("Ftview"));
+  tabWidget->addTab(diffTabWidget, tr("Ftdiff"));
 
   leftLayout = new QVBoxLayout;
   leftLayout->addLayout(infoLeftLayout);
@@ -1384,6 +1602,7 @@ MainGUI::createLayout()
   currentGlyphPointNumbersItem = NULL;
   currentGlyphSegmentItem = NULL;
   currentRenderAllItem = NULL;
+  currentComparatorItem = NULL;
 
   glyphView = new QGraphicsViewx;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
@@ -1449,7 +1668,7 @@ MainGUI::createLayout()
   programNavigationLayout->addStretch(1);
   programNavigationLayout->addWidget(allGlyphs);
   programNavigationLayout->addStretch(1);
-  programNavigationLayout->addWidget(stringView);
+  programNavigationLayout->addWidget(comparatorView);
   programNavigationLayout->addStretch(1);
   programNavigationLayout->addWidget(multiView);
   programNavigationLayout->addStretch(1);
@@ -1540,11 +1759,17 @@ MainGUI::createConnections()
           SLOT(checkKerningMode()));
   connect(kerningDegreeComboBoxx, SIGNAL(currentIndexChanged(int)),
           SLOT(checkKerningDegree()));
+  connect(hintingModeColumnComboBoxx, SIGNAL(currentIndexChanged(int)),
+        SLOT(checkColumnHinting()));
+  connect(renderingModeColumnComboBoxx, SIGNAL(currentIndexChanged(int)),
+        SLOT(comparatorViewRender()));
 
   connect(allGlyphs, SIGNAL(clicked()),
           SLOT(renderAll()));
   connect(gridView, SIGNAL(clicked()),
           SLOT(gridViewRender()));
+  connect(comparatorView, SIGNAL(clicked()),
+          SLOT(comparatorViewRender()));
 
   connect(autoHintingCheckBox, SIGNAL(clicked()),
           SLOT(checkAutoHinting()));
@@ -1566,6 +1791,8 @@ MainGUI::createConnections()
           SLOT(drawGlyph()));
   connect(showOutlinesCheckBox, SIGNAL(clicked()),
           SLOT(drawGlyph()));
+  connect(warpingColumnCheckBox, SIGNAL(clicked()),
+          SLOT(comparatorViewRender()));
   connect(gammaSlider, SIGNAL(valueChanged(int)),
           SLOT(drawGlyph()));
   connect(embolden_x_Slider, SIGNAL(valueChanged(int)),

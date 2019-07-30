@@ -12,6 +12,7 @@
 #include "rendering/glyphsegment.hpp"
 #include "rendering/glyphpoints.hpp"
 #include "rendering/view.hpp"
+#include "rendering/comparator.hpp"
 #include "rendering/grid.hpp"
 #include "widgets/qcomboboxx.hpp"
 #include "widgets/qgraphicsviewx.hpp"
@@ -89,6 +90,7 @@ private slots:
   void checkRenderingMode();
   void checkKerningMode();
   void checkKerningDegree();
+  void checkColumnHinting();
   void checkLcdFilter();
   void checkShowPoints();
   void checkUnits();
@@ -105,6 +107,7 @@ private slots:
   void zoom();
   void renderAll();
   void gridViewRender();
+  void comparatorViewRender();
 
 private:
   Engine* engine;
@@ -113,6 +116,7 @@ private:
   int render_mode = 1;
   int kerning_mode = 0;
   int kerning_degree = 0;
+
 
   QStringList fontList;
   int currentFontIndex;
@@ -138,6 +142,7 @@ private:
   GlyphPointNumbers *currentGlyphPointNumbersItem;
   GlyphBitmap *currentGlyphBitmapItem;
   RenderAll *currentRenderAllItem;
+  Comparator *currentComparatorItem;
   Grid *currentGridItem;
 
   QAction *aboutAct;
@@ -160,6 +165,8 @@ private:
   QCheckBox *showPointsCheckBox;
   QCheckBox *verticalHintingCheckBox;
   QCheckBox *warpingCheckBox;
+  QCheckBox *warpingColumnCheckBox;
+  QCheckBox *kerningColumnCheckBox;
   
 
   QComboBoxx *antiAliasingComboBoxx;
@@ -167,6 +174,9 @@ private:
   QComboBoxx *renderingModeComboBoxx;
   QComboBoxx *kerningModeComboBoxx;
   QComboBoxx *kerningDegreeComboBoxx;
+  QComboBoxx *columnComboBoxx;
+  QComboBoxx *hintingModeColumnComboBoxx;
+  QComboBoxx *renderingModeColumnComboBoxx;
   QComboBox *lcdFilterComboBox;
   QComboBox *unitsComboBox;
 
@@ -206,6 +216,11 @@ private:
   QHBoxLayout *emboldenHorzLayout;
   QHBoxLayout *slantLayout;
   QHBoxLayout *strokeLayout;
+  QHBoxLayout *columnLayout;
+  QHBoxLayout *hintColumnLayout;
+  QHBoxLayout *renderColumnLayout;
+  QHBoxLayout *warpingColumnLayout;
+  QHBoxLayout *kerningColumnLayout;
 
   QLabel *antiAliasingLabel;
   QLabel *dpiLabel;
@@ -225,10 +240,13 @@ private:
   QLabel *yLabel;
   QLabel *slantLabel;
   QLabel *strokeLabel;
+  QLabel *columnLabel;
+  QLabel *hintingColumnLabel;
+  QLabel *renderColumnLabel;
 
   QRadioButton *gridView = new QRadioButton(tr("Grid View"));
   QRadioButton *allGlyphs = new QRadioButton(tr("All Glyphs"));
-  QRadioButton *stringView = new QRadioButton(tr("Render String"));
+  QRadioButton *comparatorView = new QRadioButton(tr("Comparator"));
   QRadioButton *multiView = new QRadioButton(tr("Multi View"));
 
   QList<int> hintingModesAlwaysDisabled;
@@ -284,6 +302,7 @@ private:
   QVBoxLayout *leftLayout;
   QVBoxLayout *rightLayout;
   QVBoxLayout *viewTabLayout;
+  QVBoxLayout *diffTabLayout;
 
   QVector<QRgb> grayColorTable;
   QVector<QRgb> monoColorTable;
@@ -294,6 +313,7 @@ private:
   QWidget *rightWidget;
   QWidget *mmgxTabWidget;
   QWidget *viewTabWidget;
+  QWidget *diffTabWidget;
 
   enum AntiAliasing
   {
@@ -347,6 +367,30 @@ private:
     KERNING_DEGREE_MEDIUM,
     KERNING_DEGREE_TIGHT
   };
+
+  typedef enum  HintMode_
+  {
+    HINT_MODE_UNHINTED,
+    HINT_MODE_AUTOHINT,
+    HINT_MODE_AUTOHINT_LIGHT,
+    HINT_MODE_AUTOHINT_LIGHT_SUBPIXEL,
+    HINT_MODE_BYTECODE,
+    HINT_MODE_MAX
+
+  } HintMode;
+
+  
+  typedef struct  ColumnStateRec_
+  {
+    HintMode       hint_mode;
+  } ColumnStateRec, *ColumnState;
+  
+  HintMode hintmode;
+  ColumnStateRec state[3];
+  int load_flags[3] = { 0, 0, 0};
+  int pixelMode[3] = {FT_PIXEL_MODE_MONO, FT_PIXEL_MODE_MONO, FT_PIXEL_MODE_MONO};
+  bool warping[3] = {false, false, false};
+  bool kerningCol[3] = {false, false, false};;
 
   void createActions();
   void createConnections();

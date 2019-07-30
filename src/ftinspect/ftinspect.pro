@@ -29,6 +29,7 @@ SOURCES += \
   rendering/glyphpointnumbers.cpp \
   rendering/glyphpoints.cpp \
   rendering/glyphsegment.cpp \
+  rendering/comparator.cpp \
   rendering/view.cpp \
   rendering/grid.cpp \
   widgets/qcomboboxx.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
   rendering/glyphpointnumbers.hpp \
   rendering/glyphpoints.hpp \
   rendering/glyphsegment.hpp \
+  rendering/comparator.hpp \
   rendering/view.hpp \
   rendering/grid.hpp \
   widgets/qcomboboxx.hpp \
