@@ -14,25 +14,11 @@
 #define HEADER_HEIGHT  12
 
 static const char*  default_text =
-    "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras sit amet"
-    " dui.  Nam sapien. Fusce vestibulum ornare metus. Maecenas ligula orci,"
-    " consequat vitae, dictum nec, lacinia non, elit. Aliquam iaculis"
-    " molestie neque. Maecenas suscipit felis ut pede convallis malesuada."
-    " Aliquam erat volutpat. Nunc pulvinar condimentum nunc. Donec ac sem vel"
-    " leo bibendum aliquam. Pellentesque habitant morbi tristique senectus et"
-    " netus et malesuada fames ac turpis egestas.\n"
-    "\n"
-    "Sed commodo. Nulla ut libero sit amet justo varius blandit. Mauris vitae"
-    " nulla eget lorem pretium ornare. Proin vulputate erat porta risus."
-    " Vestibulum malesuada, odio at vehicula lobortis, nisi metus hendrerit"
-    " est, vitae feugiat quam massa a ligula. Aenean in tellus. Praesent"
-    " convallis. Nullam vel lacus.  Aliquam congue erat non urna mollis"
-    " faucibus. Morbi vitae mauris faucibus quam condimentum ornare. Quisque"
-    " sit amet augue. Morbi ullamcorper mattis enim. Aliquam erat volutpat."
-    " Morbi nec felis non enim pulvinar lobortis.  Ut libero. Nullam id orci"
-    " quis nisl dapibus rutrum. Suspendisse consequat vulputate leo. Aenean"
-    " non orci non tellus iaculis vestibulum. Sed neque.\n"
-    "\n";
+    "One popular and recognizable form of hinting is found in the TrueType"
+    "font format, released in 1991 by Apple Inc. Hinting in TrueType invokes"
+    "tables of font data used to render fonts properly on screen. One aspect"
+    "of TrueType hinting is grid-fitting, which modifies the height and width"
+    "of font characters to line up to the set pixel grid of screen display";
 
 
 Comparator::Comparator(FT_Library lib,
@@ -135,13 +121,13 @@ Comparator::paint(QPainter* painter,
   /* error = FT_New_Face(library,
                 fontList[0].toLatin1().constData(),
                 0,
-                &f);
+                &f);*/
 
   error = FT_Set_Char_Size(face,
                         0,
                         16 * 64,
                         0,
-                        72);*/
+                        72);
                         
   //column_y_start = 10 + 2 * HEADER_HEIGHT;
   //column_height  = height - 8 * HEADER_HEIGHT - 5;
@@ -155,11 +141,15 @@ Comparator::paint(QPainter* painter,
                               "warping",
                               &warping_col[col]);
 
+    int count = 0;
+
     for ( int i = 0; i < length; i++ )
     {
+
+      count += 1;
       QChar ch = default_text[i];
 
-      // get char index 
+      // get char index
       glyph_idx = FT_Get_Char_Index( face , ch.unicode());
 
       if ( kerning[col] && glyph_idx != 0 && previous != 0 )
@@ -198,10 +188,18 @@ Comparator::paint(QPainter* painter,
         glyphImage.setColorTable(colorTable);
       } else
       {
-        glyphImage.setColorTable(grayColorTable);
+        glyphImage.setColorTable(colorTable);
       }
 
-      painter->drawImage(column_x_start[col], height,
+      FT_Pos bottom = 0;
+
+      if (count == 1)
+      {
+        FT_Pos bottom = face->glyph->metrics.height/64;
+      }
+
+
+      painter->drawImage(column_x_start[col], height + bottom - face->glyph->metrics.horiBearingY/64,
                         glyphImage, 0, 0, -1, -1);
 
 

@@ -13,6 +13,7 @@
   /* special encoding to display glyphs in order */
 #define FT_ENCODING_ORDER 0xFFFF
 #define ft_encoding_unicode FT_ENCODING_UNICODE
+#define TRUNC(x) ((x) >> 6)
 
 extern "C" {
 
@@ -164,6 +165,7 @@ RenderAll::RenderAll(FT_Face face,
           int render_mode,
           FTC_ScalerRec scaler,
           FTC_ImageCache imageCache,
+          QStringList fontList,
           double x,
           double y,
           double slant_factor,
@@ -179,6 +181,7 @@ library(lib),
 mode(render_mode),
 scaler(scaler),
 imageCache(imageCache),
+fontList(fontList),
 x_factor(x),
 y_factor(y),
 slant_factor(slant_factor),
@@ -223,9 +226,12 @@ RenderAll::paint(QPainter* painter,
  // Normal rendering mode
   if (mode == 1)
   {
+
+    int count = 0;
     // Normal rendering
     for ( int i = 0; i < face->num_glyphs; i++ )
     {
+      count += 1;
       // get char index
       //glyph_idx = FT_Get_Char_Index( face , (FT_ULong)i );
       if ( face->charmap->encoding != FT_ENCODING_ORDER )
@@ -263,9 +269,14 @@ RenderAll::paint(QPainter* painter,
       }
         
       glyphImage.setColorTable(colorTable);
-      
 
-      painter->drawImage(x, y,
+      FT_Pos bottom = 0;
+      if (count == 1)
+      {
+        FT_Pos bottom = face->glyph->metrics.height/64;
+      }
+
+      painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
                         glyphImage, 0, 0, -1, -1);
 
       x += face->glyph->advance.x/64;
@@ -282,6 +293,7 @@ RenderAll::paint(QPainter* painter,
   // Fancy rendering mode
   if (mode == 2)
   {
+    int count = 0;
     // fancy render
     FT_Matrix shear;
     FT_Pos xstr, ystr;
@@ -296,6 +308,7 @@ RenderAll::paint(QPainter* painter,
 
     for ( int i = 0; i < face->num_glyphs; i++ )
     {
+      count += 1;
       // get char index 
       //glyph_idx = FT_Get_Char_Index( face , (FT_ULong)i );
       if ( face->charmap->encoding != FT_ENCODING_ORDER )
@@ -376,9 +389,13 @@ RenderAll::paint(QPainter* painter,
       }
         
       glyphImage.setColorTable(colorTable);
-      
+      FT_Pos bottom = 0;
+      if (count == 1)
+      {
+        FT_Pos bottom = face->glyph->metrics.height/64;
+      }
 
-      painter->drawImage(x, y,
+      painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
                         glyphImage, 0, 0, -1, -1);
 
       x += face->glyph->advance.x/64;
@@ -450,7 +467,7 @@ RenderAll::paint(QPainter* painter,
 
 
 
-/* 
+ 
       if ( !error && slot->format == FT_GLYPH_FORMAT_OUTLINE )
       {
         
@@ -459,16 +476,16 @@ RenderAll::paint(QPainter* painter,
 
         FT_Glyph_StrokeBorder(&glyph, stroker, 0, 1);
 
-        FT_Outline* outline = engine->loadOutline(glyph_idx); */
+        FT_Outline* outline = engine->loadOutline(glyph_idx);
 
-       /*  error = FT_Glyph_Stroke( &glyph, stroker, 1 );
+         error = FT_Glyph_Stroke( &glyph, stroker, 1 );
         if ( error )
         {
           //FT_Done_Glyph( glyph );
           break;
-        } */
+        }
 
-        /* error = FT_Get_Glyph( slot, &glyph );
+        error = FT_Get_Glyph( slot, &glyph );
         if ( error )
           break;
 
@@ -502,13 +519,15 @@ RenderAll::paint(QPainter* painter,
         y += (size->metrics.height + 4)/64;
         x = -350;
       }
-      //}*/
+      }
     }
   }
   
   // Render String mode
   if (mode == 4)
   {
+
+    int count = 0;
     FT_Pos lsb_delta = 0; /* delta caused by hinting */
     FT_Pos rsb_delta = 0; /* delta caused by hinting */
     const char*  p;
@@ -541,6 +560,7 @@ RenderAll::paint(QPainter* painter,
 
     for ( int i = 0; i < length; i++ )
     {
+      count += 1;
       QChar ch = Sample[3][i];
 
       // get char index 
@@ -568,10 +588,25 @@ RenderAll::paint(QPainter* painter,
 
       /* load glyph image into the slot (erase previous one) */
       error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
-      if ( error )
+      if ( !error )
       {
-        break;  /* ignore errors */
+        
+          if (!error)
+          {
+            FT_Pos left = face->glyph->metrics.horiBearingX;
+            FT_Pos right = left + face->glyph->metrics.width;
+            FT_Pos top = face->glyph->metrics.horiBearingY;
+            FT_Pos bottom = top - face->glyph->metrics.height;
+
+            m_glyphRect = QRect(QPoint(TRUNC(left),
+                                       -TRUNC(top) + 1),
+                                QSize(TRUNC(right - left) + 1,
+                                      TRUNC(top - bottom) + 1));
+            //setFixedSize(m_glyphRect.width(),m_glyphRect.height());
+          }
       }
+
+      painter->translate(-m_glyphRect.x(),-m_glyphRect.y());
 
       error = FT_Render_Glyph(face->glyph,
                                 FT_RENDER_MODE_NORMAL);
@@ -582,6 +617,13 @@ RenderAll::paint(QPainter* painter,
                           face->glyph->bitmap.pitch,
                           QImage::Format_Indexed8);
 
+      painter->translate(m_glyphRect.x(),m_glyphRect.y());
+
+      FT_Pos bottom = 0;
+      if (count == 1)
+      {
+        FT_Pos bottom = face->glyph->metrics.height/64;
+      }
 
       QVector<QRgb> colorTable;
       for (int i = 0; i < 256; ++i)
@@ -590,7 +632,7 @@ RenderAll::paint(QPainter* painter,
       }
         
       glyphImage.setColorTable(colorTable);
-      painter->drawImage(x, y,
+      painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
                         glyphImage, 0, 0, -1, -1);
 
       if (previous)
@@ -611,6 +653,12 @@ RenderAll::paint(QPainter* painter,
     FT_Pos track_kern = 0;
     FT_Bool use_kerning;
     y = -180;
+    FT_Face f;
+
+    error = FT_New_Face(library,
+                fontList[0].toLatin1().constData(),
+                0,
+                &f);
     
     int length = strlen(Sample[3]);
 
@@ -618,7 +666,7 @@ RenderAll::paint(QPainter* painter,
     if ( kerning_degree )
     {
       /* this function needs and returns points, not pixels */
-      if ( !FT_Get_Track_Kerning( face,
+      if ( !FT_Get_Track_Kerning( f,
                                   (FT_Fixed)scaler.width << 10,
                                   -kerning_degree,
                                   &track_kern ) )
@@ -627,15 +675,30 @@ RenderAll::paint(QPainter* painter,
                     72.0 );
     }
 
+    int i = 10;
+    int res = 16;
+    int space = 0;
+
     while (y <= 200)
-    { 
+    {
+      res = res + i;
+      space += 1;
+
+      error = FT_Set_Char_Size(f,
+                      0,
+                      16 * 64,
+                      0,
+                      res);
       int m = 0;
       FT_Pos lsb_delta = 0; /* delta caused by hinting */
       FT_Pos rsb_delta = 0; /* delta caused by hinting */
       FT_UInt previous;
 
+      int count = 0;
+
       while ( m < length )
       {
+        count = count + 1;
 
         FT_Glyph  glyph;
         QChar ch = Sample[3][m];
@@ -643,7 +706,7 @@ RenderAll::paint(QPainter* painter,
 
           
         // get char index 
-        glyph_idx = FT_Get_Char_Index( face , ch.unicode());
+        glyph_idx = FT_Get_Char_Index( f , ch.unicode());
 
         x += track_kern;
 
@@ -651,7 +714,7 @@ RenderAll::paint(QPainter* painter,
         {
           FT_Vector delta;
 
-          FT_Get_Kerning( face, previous, glyph_idx,
+          FT_Get_Kerning( f, previous, glyph_idx,
                           FT_KERNING_UNFITTED, &delta );
 
           x += delta.x;
@@ -673,7 +736,7 @@ RenderAll::paint(QPainter* painter,
                                   NULL);
 
         /* load glyph image into the slot (erase previous one) */
-        error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+        error = FT_Load_Glyph( f, glyph_idx, FT_LOAD_DEFAULT );
         if ( error )
         {
           break;  /* ignore errors */
@@ -683,13 +746,13 @@ RenderAll::paint(QPainter* painter,
         if ( error )
           break;
 
-        error = FT_Render_Glyph(face->glyph,
+        error = FT_Render_Glyph(f->glyph,
                                   FT_RENDER_MODE_NORMAL);
 
-        QImage glyphImage(face->glyph->bitmap.buffer,
-                            face->glyph->bitmap.width,
-                            face->glyph->bitmap.rows,
-                            face->glyph->bitmap.pitch,
+        QImage glyphImage(f->glyph->bitmap.buffer,
+                            f->glyph->bitmap.width,
+                            f->glyph->bitmap.rows,
+                            f->glyph->bitmap.pitch,
                             QImage::Format_Indexed8);
 
         
@@ -701,9 +764,15 @@ RenderAll::paint(QPainter* painter,
         }
           
         glyphImage.setColorTable(colorTable);
-        
 
-        painter->drawImage(x, y,
+        FT_Pos bottom = 0;
+        if (count == 1)
+        {
+          FT_Pos bottom = f->glyph->metrics.height/64;
+        }
+
+
+        painter->drawImage(x, y + bottom - f->glyph->metrics.horiBearingY/64,
                           glyphImage, 0, 0, -1, -1);
         
         if (previous)
@@ -712,16 +781,24 @@ RenderAll::paint(QPainter* painter,
           rsb_delta = face->glyph->rsb_delta;
         }
 
-        x += face->glyph->advance.x/64;
+        x += f->glyph->advance.x/64;
         if (x >= 350)
         { 
           break;
         }
         previous = glyph_idx;
       }
-      y = y + 50;
+      if (space == 1)
+      {
+        y += 20;
+      } else
+      {
+        y = y + 25 + space;
+      }
+
       x = -280;
     }
+    FT_Done_Face(f);
   }
 
   // Kerning comparison
@@ -771,8 +848,11 @@ RenderAll::paint(QPainter* painter,
                       72.0 );
       }
 
+      int count = 0;
       for ( int i = 0; i < length; i++ )
       {
+
+        count += 1;
         QChar ch = Sample[line][i];
 
         // get char index 
@@ -820,9 +900,16 @@ RenderAll::paint(QPainter* painter,
         {
           colorTable << qRgba(0, 0, 0, i);
         }
+
+        FT_Pos bottom = 0;
+
+        if (count == 1)
+        {
+          FT_Pos bottom = face->glyph->metrics.height/64;
+        }
           
         glyphImage.setColorTable(colorTable);
-        painter->drawImage(x, y,
+        painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
                           glyphImage, 0, 0, -1, -1);
 
         if (previous)

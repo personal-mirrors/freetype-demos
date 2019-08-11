@@ -282,6 +282,7 @@ Engine::Engine(MainGUI* g)
 Engine::~Engine()
 {
   FTC_Manager_Done(cacheManager);
+  //FT_Done_Face(getFtSize()->face);
   FT_Done_FreeType(library);
 }
 
@@ -464,6 +465,82 @@ Engine::removeFont(int fontIndex)
 
     iter = faceIDMap.erase(iter);
   }
+}
+
+int
+Engine::debugEngine(QStringList fontList)
+{
+  FT_Face f;
+  FT_Library lib;
+  int num_glyphs;
+  FT_Error error;
+  static int ptsize = 20;
+  int Fail;
+
+  error = FT_Init_FreeType( &lib );
+
+   /* try to open the file with no extra extension first */
+  error = FT_New_Face(library,
+              fontList[0].toLatin1().constData(),
+              0,
+              &f);
+  
+  if (!error)
+  {
+    num_glyphs = (unsigned int)f->num_glyphs;
+  }
+
+  if ( error == FT_Err_Unknown_File_Format )
+  {
+    return 0;
+  }
+
+  error = FT_Set_Char_Size( f, ptsize << 6, ptsize << 6, 72, 72 );
+  if (error)
+  {
+    return 0;
+  }
+
+  Fail = 0;
+  {
+    for ( int id = 0; id < num_glyphs; id++ )
+    {
+      error = FT_Load_Glyph( f, id, FT_LOAD_DEFAULT );
+      if (error)
+      {
+        if ( Fail < 10 )
+        {
+
+        }
+          //printf( "glyph %4u: 0x%04x\n" , id, error );
+        Fail++;
+      }
+    }
+  }
+
+  if ( Fail == 0 )
+  {
+
+  }
+    //printf( "OK.\n" );
+  else
+  {
+    if ( Fail == 1 )
+    {
+
+    }
+      //printf( "1 fail.\n" );
+    else
+    {
+
+    }
+      //printf( "%d fails.\n", Fail );
+  }
+
+FT_Done_Face( f );
+
+FT_Done_FreeType(lib);
+exit( 0 );      /* for safety reasons */
 }
 
 

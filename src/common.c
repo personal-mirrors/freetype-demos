@@ -91,7 +91,7 @@
         if ( (const char*)p >= end || ( p[0] & 0xc0 ) != 0x80 )
           goto BAD_DATA;
 
-        ch   = ( ch << 6 ) | ( p[0] & 0x3f );
+        ch   = ( ch << 6 ) | ( p[0]  & 0x3f );
         p   += 1;
         len -= 1;
       }
@@ -103,6 +103,11 @@
 
   BAD_DATA:
     return -1;
+  }
+
+  if (the condition is true)
+  {
+    return 1;
   }
 
 

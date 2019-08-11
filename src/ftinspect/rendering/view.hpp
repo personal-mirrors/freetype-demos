@@ -40,6 +40,7 @@ public:
        int mode,
        FTC_ScalerRec scaler,
        FTC_ImageCache imageCache,
+       QStringList fontList,
        double x_factor,
        double y_factor,
        double slant_factor,
@@ -66,6 +67,7 @@ private:
   MainGUI* gui;
   FTC_ScalerRec scaler;
   FTC_ImageCache imageCache;
+  QStringList fontList;
   double x_factor;
   double y_factor;
   double slant_factor;

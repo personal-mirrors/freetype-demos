@@ -51,6 +51,13 @@
 #include FT_LCD_FILTER_H
 #include FT_COLOR_H
 
+#include FT_FREETYPE_H
+#include FT_SFNT_NAMES_H
+#include FT_TRUETYPE_IDS_H
+#include FT_TRUETYPE_TABLES_H
+#include FT_TRUETYPE_TAGS_H
+#include FT_MULTIPLE_MASTERS_H
+
 
 class MainGUI
 : public QMainWindow
@@ -77,6 +84,8 @@ private slots:
   void about();
   void aboutQt();
   void showCharmapsInfo();
+  void showTablesInfo();
+  void showTablesListInfo();
   void showFontType();
   void showFontName();
   void adjustGlyphIndex(int);
@@ -151,6 +160,8 @@ private:
   QAction *exitAct;
   QAction *loadFontsAct;
   QAction *showCharmapsInfoAct;
+  QAction *showTablesSFNTAct;
+  QAction *showNamesSFNTAct;
   QAction *showFontTypeAct;
   QAction *showFontNameAct;
 

@@ -59,6 +59,7 @@ public:
                int namedInstanceIndex); // return number of glyphs
   FT_Outline* loadOutline(int glyphIndex);
   void removeFont(int fontIndex);
+  int debugEngine(QStringList fontList);
   void setCFFHintingMode(int mode);
   void setWarping();
   FT_Size getFtSize();

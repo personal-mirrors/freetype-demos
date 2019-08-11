@@ -68,10 +68,10 @@ MainGUI::showFontName()
     QMessageBox::about(
       this,
       tr("Font Name Entries"),
-      tr("<b> Face number : %1 </b><br><br>"
-         "Family : %2 <br>"
-         "Style : %3 <br>"
-         "Postscript : %4")
+      tr("<pre><b>Face number : %1 </b><br><br>"
+         "Family     : <em>%2</em> <br>"
+         "Style      : <em>%3</em> <br>"
+         "Postscript : <em>%4</em></pre><br>")
          .arg(fontList.size())
          .arg(engine->currentFamilyName())
          .arg(engine->currentStyleName())
@@ -105,18 +105,18 @@ MainGUI::showFontType()
   {
     if (FT_HAS_VERTICAL( face ))
     {
-      direction =  " horizontal vertical";
+      direction =  "horizontal vertical";
     }
     else
     {
-      direction = " horizontal";
+      direction = "horizontal";
     }
   }
   else
   {
     if (FT_HAS_VERTICAL( face ))
     {
-      direction =  " vertical";
+      direction =  "vertical";
     }
   }
 
@@ -124,19 +124,19 @@ MainGUI::showFontType()
   {
     QMessageBox::about(this,
       tr("Font Type Entries"),
-      tr("<p><b>Face number : %1</b><br><br>"
-          "FreeType driver: %2<br>"
-          "sfnt wrapped : %3<br>"
-          "type : %4<br>"
-          "direction : %5 <br>"
-          "fixed width : %6 <br>"
-          "glyph names : %7 <br></p>"
-          "<b>Scalability Properties</b><br>"
-          "EM size : %9 <br>"
-          "global BBox : (%10, %11):(%12, %13) <br>"
-          "ascent : %14 <br>"
-          "descent : %15<br>"
-          "text height : %16 <br>")
+      tr("<pre><b>Face number : %1</b><br><br>"
+          "FreeType driver      : &nbsp;&nbsp;<em>%2</em><br>"
+          "SFNT wrapped         : &nbsp;&nbsp;<em>%3</em><br>"
+          "Type                 : &nbsp;&nbsp;<em>%4</em><br>"
+          "Direction            : &nbsp;&nbsp;<em>%5</em><br>"
+          "Fixed Width          : &nbsp;&nbsp;<em>%6</em><br>"
+          "Glyph Names          : &nbsp;&nbsp;<em>%7</em><br></pre>"
+          "<pre><b>Scalability Properties</b><br><br>"
+          "EM size              : &nbsp;&nbsp;<em>%9</em><br>"
+          "Global BBox          : &nbsp;&nbsp;<em>(%10, %11):(%12, %13)</em><br>"
+          "Ascent               : &nbsp;&nbsp;<em>%14</em><br>"
+          "Descent              : &nbsp;&nbsp;<em>%15</em><br>"
+          "Text Height          : &nbsp;&nbsp;<em>%16</em></pre><br>")
         .arg(fontList.size())
         .arg(engine->DriverName())
         .arg(FT_IS_SFNT( face ) ? QString("yes") : QString("no"))
@@ -158,13 +158,13 @@ MainGUI::showFontType()
     QMessageBox::about(
     this,
     tr("Font Type Entries"),
-    tr("<b>Face number : %1</b><br><br>"
-        "FreeType driver: %2<br>"
-        "sfnt wrapped : %3<br>"
-        "type : %4<br>"
-        "direction : %5 <br>"
-        "fixed width : %6 <br>"
-        "glyph names : %7 <br>")
+    tr("<pre><b>Face number : %1</b><br><br>"
+          "FreeType driver      : &nbsp;&nbsp;<em>%2</em><br>"
+          "SFNT wrapped         : &nbsp;&nbsp;<em>%3</em><br>"
+          "Type                 : &nbsp;&nbsp;<em>%4</em><br>"
+          "Direction            : &nbsp;<em>%5</em><br>"
+          "Fixed Width          : &nbsp;&nbsp;<em>%6</em><br>"
+          "Glyph Names          : &nbsp;&nbsp;<em>%7</em><br></pre>")
     .arg(fontList.size())
     .arg(engine->DriverName())
     .arg(FT_IS_SFNT( face ) ? QString("yes") : QString("no"))
@@ -177,6 +177,198 @@ MainGUI::showFontType()
 
 
 void
+MainGUI::showTablesListInfo()
+{
+    FT_ULong  num_tables, i;
+    FT_ULong  tag, length;
+    FT_Byte   buffer[4];
+    FT_Face face = engine->getFtSize()->face;
+
+    FT_Sfnt_Table_Info( face, 0, NULL, &num_tables );
+    QMessageBox msgBox;
+    //msgBox.setWindowTitle("SFNT Tables List");
+    QString tablesinfo = "<pre><b>SFNT Tables List</b></pre>";
+
+    tablesinfo.append("<pre><b>S No.</b>    <b>Tags</b>               <b>Buffer</b></pre>");
+
+    for ( i = 0; i < num_tables; i++ )
+    {
+      FT_Sfnt_Table_Info( face, (FT_UInt)i, &tag, &length );
+
+      if ( length >= 4 )
+      {
+        length = 4;
+        FT_Load_Sfnt_Table( face, tag, 0, buffer, &length );
+      }
+      else
+      {
+        continue;
+      }
+
+      tablesinfo.append(QString("<pre>%1 :      <em>%2 %3 %4 %5              %6 %7 %8 %9</em></pre>").arg(i)
+                                                                        .arg((FT_Char)( tag >> 24 ))
+                                                                        .arg((FT_Char)( tag >> 16 ))
+                                                                        .arg((FT_Char)( tag >> 8 ))
+                                                                        .arg((FT_Char)( tag ))
+                                                                        .arg((FT_UInt)buffer[0])
+                                                                        .arg((FT_UInt)buffer[1])
+                                                                        .arg((FT_UInt)buffer[2])
+                                                                        .arg((FT_UInt)buffer[3]));
+    }
+
+    QMessageBox::about(this, "SFNT Tables List", tablesinfo);
+}
+
+
+void
+MainGUI::showTablesInfo()
+{
+  FT_SfntName name;
+  FT_UInt num_names, i;
+  FT_Face face = engine->getFtSize()->face;
+  FT_Error error;
+
+  QMessageBox msgBox;
+  msgBox.setWindowTitle("SFNT Tables");
+  QString tablesinfo = "<b>SFNT Tables</b><br>";// = QString("%1").arg(desc.idVendor, 0, 16).rightJustified(4, '0');
+
+  //printf( "font string entries\n" );
+  tablesinfo.append(QString("<pre><b>Name ID</b>   <b>Platform ID</b>   <b>Encoding ID</b></pre>"));
+
+  num_names = FT_Get_Sfnt_Name_Count( face );
+  for ( i = 0; i < num_names; i++ )
+  {
+    error = FT_Get_Sfnt_Name( face, i, &name );
+    if ( error == FT_Err_Ok )
+    {
+      const short unsigned int  NameID     = name.name_id;
+      const short unsigned int  PlatformID = name.platform_id;
+
+      if ( NameID )
+      {
+                //printf( "   %-15s [%s]", NameID, PlatformID );
+        if (NameID < 10)
+        {
+          tablesinfo.append(QString("<pre>%1           [%2]        ").arg(NameID).arg(PlatformID));
+        } else if (NameID < 100)
+        {
+          tablesinfo.append(QString("<pre>%1          [%2]        ").arg(NameID).arg(PlatformID));
+        } else if (NameID < 1000)
+        {
+          tablesinfo.append(QString("<pre>%1         [%2]        ").arg(NameID).arg(PlatformID));
+        }
+      }
+      else
+      {
+                //printf( "   Name ID %-5d   [%s]", name.name_id, PlatformID );
+        tablesinfo.append(QString("Name ID %1 [%2]").arg(NameID).arg(PlatformID));
+      }
+    }
+  
+
+    switch ( name.platform_id )
+    {
+      case TT_PLATFORM_APPLE_UNICODE:
+        //fputs( ":\n", stdout );
+        //tablesinfo.append("<pre> : </pre>");
+        switch ( name.encoding_id )
+        {
+        case TT_APPLE_ID_DEFAULT:
+        case TT_APPLE_ID_UNICODE_1_1:
+        case TT_APPLE_ID_ISO_10646:
+        //case TT_APPLE_ID_UNICODE_2_0:
+          //put_unicode_be16( name.string, name.string_len, 6, utf8 );
+          //break;
+
+        default:
+          //printf( "{unsupported Unicode encoding %d}", name.encoding_id );
+          tablesinfo.append(QString("unsupported Unicode encoding %1").arg(name.encoding_id));
+          break;
+        }
+        break;
+
+      case TT_PLATFORM_MACINTOSH:
+        if ( name.language_id != TT_MAC_LANGID_ENGLISH )
+        {
+          tablesinfo.append(QString("(language=%1)").arg(name.language_id));
+        }
+          //printf( " (language=%u)", name.language_id );
+        //tablesinfo.append(":");
+
+        switch ( name.encoding_id )
+        {
+        //case TT_MAC_ID_ROMAN:
+          /* FIXME: convert from MacRoman to ASCII/ISO8895-1/whatever */
+          /* (MacRoman is mostly like ISO8895-1 but there are         */
+          /* differences)                                             */
+          //put_ascii( name.string, name.string_len, 6 );
+          //break;
+
+         default:
+          //printf( "      [data in encoding %d]", name.encoding_id );
+          tablesinfo.append(QString("[data in encoding %1]").arg(name.encoding_id));
+          break;
+        }
+        break;
+
+      case TT_PLATFORM_ISO:
+        //tablesinfo.append(":");
+        switch ( name.encoding_id )
+        {
+        case TT_ISO_ID_7BIT_ASCII:
+        //case TT_ISO_ID_8859_1:
+         // put_ascii( name.string, name.string_len, 6 );
+         // break;
+
+        //case TT_ISO_ID_10646:
+          //put_unicode_be16( name.string, name.string_len, 6, utf8 );
+          //break;
+
+        default:
+          //printf( "{unsupported encoding %d}", name.encoding_id );
+          tablesinfo.append(QString("{unsupported encoding %1}").arg(name.encoding_id));
+          break;
+        }
+        break;
+
+      case TT_PLATFORM_MICROSOFT:
+        if ( name.language_id != TT_MS_LANGID_ENGLISH_UNITED_STATES )
+        {
+                    //printf( " (language=0x%04x)", name.language_id );
+          tablesinfo.append(QString("{(language=%1)}").arg(name.language_id));
+        }
+        //fputs( ":\n", stdout );
+        //tablesinfo.append(":");
+
+        switch ( name.encoding_id )
+        {
+          /* TT_MS_ID_SYMBOL_CS is Unicode, similar to PID/EID=3/1 */
+         case TT_MS_ID_SYMBOL_CS:
+        // case TT_MS_ID_UNICODE_CS:
+         // put_unicode_be16( name.string, name.string_len, 6, utf8 );
+         // break;
+
+        default:
+          //printf( "{unsupported encoding %d}", name.encoding_id );
+          tablesinfo.append(QString("{unsupported encoding %1}").arg(name.encoding_id));
+          break;
+        }
+        break;
+
+      default:
+        //printf( "{unsupported platform}" );
+        tablesinfo.append(QString("{unsupported platform}"));
+        break;
+      }
+
+      //stablesinfo.append("<br>");
+    }
+
+    QMessageBox::about(this, "SFNT Tables", tablesinfo);
+  }
+
+
+void
 MainGUI::showCharmapsInfo()
 {
   FT_Face face = engine->getFtSize()->face;
@@ -186,10 +378,10 @@ MainGUI::showCharmapsInfo()
     QMessageBox::about(
       this,
       tr("Charmaps Info"),
-      tr("Format : %1<br>"
-        "Platform : %2<br>"
-        "Encoding : %3<br>"
-        "Language : %4<br>")
+      tr("<pre>Format   : <em>%1</em></pre>"
+        "<pre>Platform : <em>%2</em></pre>"
+        "<pre>Encoding : <em>%3</em></pre>"
+        "<pre>Language : <em>%4</em></pre>")
         .arg(FT_Get_CMap_Format( face->charmaps[i] ))
         .arg(face->charmaps[i]->platform_id)
         .arg(face->charmaps[i]->encoding_id)
@@ -672,6 +864,34 @@ MainGUI::comparatorViewRender()
 
     }
 
+        // Diable unused parameters
+    showPointNumbersCheckBox->setEnabled(false);
+    showBitmapCheckBox->setEnabled(false);
+    showPointsCheckBox->setEnabled(false);
+    showOutlinesCheckBox->setEnabled(false);
+    navigationLayout->setEnabled(false);
+
+    showPointNumbersCheckBox->setChecked(false);
+    showBitmapCheckBox->setChecked(false);
+    showPointsCheckBox->setChecked(false);
+    showOutlinesCheckBox->setChecked(false);
+
+      // diable glyph buttons
+    toStartButtonx->setEnabled(false);
+    toM1000Buttonx->setEnabled(false);
+    toM100Buttonx->setEnabled(false);
+    toM10Buttonx->setEnabled(false);
+    toM1Buttonx->setEnabled(false);
+    toP1Buttonx->setEnabled(false);
+    toP10Buttonx->setEnabled(false);
+    toP100Buttonx->setEnabled(false);
+    toP1000Buttonx->setEnabled(false);
+    toEndButtonx->setEnabled(false);
+
+    fontNameLabel->setEnabled(false);
+    glyphNameLabel->setEnabled(false);
+    glyphIndexLabel->setEnabled(false);
+
     currentComparatorItem = new Comparator(engine->library,
                                 size->face,
                                 size,
@@ -710,7 +930,26 @@ MainGUI::gridViewRender()
       currentComparatorItem = NULL;
     }
 
-   
+    // enable parameters
+    showPointNumbersCheckBox->setEnabled(true);
+    showBitmapCheckBox->setEnabled(true);
+    showPointsCheckBox->setEnabled(true);
+    showOutlinesCheckBox->setEnabled(true);
+
+    toStartButtonx->setEnabled(true);
+    toM1000Buttonx->setEnabled(true);
+    toM100Buttonx->setEnabled(true);
+    toM10Buttonx->setEnabled(true);
+    toM1Buttonx->setEnabled(true);
+    toP1Buttonx->setEnabled(true);
+    toP10Buttonx->setEnabled(true);
+    toP100Buttonx->setEnabled(true);
+    toP1000Buttonx->setEnabled(true);
+    toEndButtonx->setEnabled(true);
+
+    fontNameLabel->setEnabled(true);
+    glyphNameLabel->setEnabled(true);
+    glyphIndexLabel->setEnabled(true);
 
     currentGridItem = new Grid(gridPen, axisPen);
     glyphScene->addItem(currentGridItem);
@@ -807,6 +1046,27 @@ MainGUI::renderAll()
     currentComparatorItem = NULL;
   }
 
+  showPointNumbersCheckBox->setChecked(false);
+  showBitmapCheckBox->setChecked(false);
+  showPointsCheckBox->setChecked(false);
+  showOutlinesCheckBox->setChecked(false);
+
+  // disable glyph buttons
+  toStartButtonx->setEnabled(false);
+  toM1000Buttonx->setEnabled(false);
+  toM100Buttonx->setEnabled(false);
+  toM10Buttonx->setEnabled(false);
+  toM1Buttonx->setEnabled(false);
+  toP1Buttonx->setEnabled(false);
+  toP10Buttonx->setEnabled(false);
+  toP100Buttonx->setEnabled(false);
+  toP1000Buttonx->setEnabled(false);
+  toEndButtonx->setEnabled(false);
+
+  fontNameLabel->setEnabled(false);
+  glyphNameLabel->setEnabled(false);
+  glyphIndexLabel->setEnabled(false);
+
   /* now, draw to our target surface */
   currentRenderAllItem = new RenderAll(size->face,
                                   size,
@@ -817,6 +1077,7 @@ MainGUI::renderAll()
                                   render_mode,
                                   engine->scaler,
                                   engine->imageCache,
+                                  fontList,
                                   x_factor,
                                   y_factor,
                                   slant_factor,
@@ -1569,8 +1830,8 @@ MainGUI::createLayout()
   tabWidget = new QTabWidget;
   tabWidget->addTab(generalTabWidget, tr("General"));
   tabWidget->addTab(mmgxTabWidget, tr("MM/GX"));
-  tabWidget->addTab(viewTabWidget, tr("Ftview"));
-  tabWidget->addTab(diffTabWidget, tr("Ftdiff"));
+  tabWidget->addTab(viewTabWidget, tr("Glyphs"));
+  tabWidget->addTab(diffTabWidget, tr("Columns"));
 
   leftLayout = new QVBoxLayout;
   leftLayout->addLayout(infoLeftLayout);
@@ -1894,6 +2155,12 @@ MainGUI::createActions()
   showCharmapsInfoAct = new QAction(tr("&Charmap Info"), this);
   connect(showCharmapsInfoAct, SIGNAL(triggered()), SLOT(showCharmapsInfo()));
 
+  showTablesSFNTAct = new QAction(tr("&SFNT Name Tables"), this);
+  connect(showTablesSFNTAct, SIGNAL(triggered()), SLOT(showTablesInfo()));
+
+  showNamesSFNTAct = new QAction(tr("&SFNT Tables List"), this);
+  connect(showNamesSFNTAct, SIGNAL(triggered()), SLOT(showTablesListInfo()));
+
   aboutAct = new QAction(tr("&About"), this);
   connect(aboutAct, SIGNAL(triggered()), SLOT(about()));
 
@@ -1914,6 +2181,11 @@ MainGUI::createMenus()
   menuInfo->addAction(showFontNameAct);
   menuInfo->addAction(showFontTypeAct);
   menuInfo->addAction(showCharmapsInfoAct);
+  //if (FT_IS_SFNT( engine->getFtSize()->face ))
+  //{
+    menuInfo->addAction(showTablesSFNTAct);
+ // }
+  menuInfo->addAction(showNamesSFNTAct);
 
   if (fontList.size() <= 0)
   {
