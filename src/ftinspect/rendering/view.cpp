@@ -309,8 +309,8 @@ RenderAll::paint(QPainter* painter,
     for ( int i = 0; i < face->num_glyphs; i++ )
     {
       count += 1;
+
       // get char index 
-      //glyph_idx = FT_Get_Char_Index( face , (FT_ULong)i );
       if ( face->charmap->encoding != FT_ENCODING_ORDER )
       {
         glyph_idx = FTC_CMapCache_Lookup(cmap_cache, face_id,
@@ -413,19 +413,20 @@ RenderAll::paint(QPainter* painter,
   if (mode == 3)
   {
     FT_Fixed radius;
+    FT_Glyph glyph;
     FT_Stroker stroker;
+    int count = 0;
 
-      FT_Stroker_New( library, &stroker );
-      radius = (FT_Fixed)( size->metrics.y_ppem * 64 * stroke_factor );
+    FT_Stroker_New( library, &stroker );
+    radius = (FT_Fixed)( size->metrics.y_ppem * 64 * stroke_factor );
+    
+    FT_Stroker_Set( stroker, 32, FT_STROKER_LINECAP_BUTT,
+                FT_STROKER_LINEJOIN_BEVEL, 0x20000 );
 
-      
-      FT_Stroker_Set( stroker, 32, FT_STROKER_LINECAP_BUTT,
-                  FT_STROKER_LINEJOIN_BEVEL, 0x20000 );
-
-    for ( int i = 0; i <2; i++ )
+    for ( int i = 0; i < face->num_glyphs; i++ )
     {
-      // get char index 
-      //glyph_idx = FT_Get_Char_Index( face , (FT_ULong)i );
+      count += 1;
+
       if ( face->charmap->encoding != FT_ENCODING_ORDER )
       {
         glyph_idx = FTC_CMapCache_Lookup(cmap_cache, face_id,
@@ -436,23 +437,20 @@ RenderAll::paint(QPainter* painter,
         glyph_idx = (FT_UInt32)i;
       }
 
-      
-      FT_Glyph glyph;
+      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
 
       // XXX handle bitmap fonts
 
       // the `scaler' object is set up by the
       // `update' and `loadFont' methods
-      error = FTC_ImageCache_LookupScaler(imageCache,
+      /*error = FTC_ImageCache_LookupScaler(imageCache,
                                 &scaler,
                                 FT_LOAD_NO_BITMAP,
                                 glyph_idx,
                                 &glyph,
-                                NULL);
-      {
-      }
+                                NULL);*/
 
-      FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
+      /*FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
 
       FT_Outline* outline = &outlineGlyph->outline;
 
@@ -463,33 +461,21 @@ RenderAll::paint(QPainter* painter,
       QPainterPath path;
       FT_Outline_Decompose(outline, &outlineFuncs, &path);
 
-      painter->drawPath(path);
+      //painter->drawPath(path);*/
 
-
-
- 
       if ( !error && slot->format == FT_GLYPH_FORMAT_OUTLINE )
       {
-        
-        
+        FT_Glyph glyph;
 
+        //FT_Glyph_StrokeBorder(&glyph, stroker, 0, 1);
 
-        FT_Glyph_StrokeBorder(&glyph, stroker, 0, 1);
-
-        FT_Outline* outline = engine->loadOutline(glyph_idx);
-
-         error = FT_Glyph_Stroke( &glyph, stroker, 1 );
-        if ( error )
-        {
-          //FT_Done_Glyph( glyph );
-          break;
-        }
+        //FT_Outline* outline = engine->loadOutline(glyph_idx);
 
         error = FT_Get_Glyph( slot, &glyph );
-        if ( error )
-          break;
 
-        FT_Glyph_Stroke( &glyph, stroker, 1 );
+        error = FT_Glyph_Stroke( &glyph, stroker, 1 );
+
+        //FT_Glyph_Stroke( &glyph, stroker, 1 );
 
         error = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
 
@@ -504,23 +490,29 @@ RenderAll::paint(QPainter* painter,
         {
           colorTable << qRgba(0, 0, 0, i);
         }
-          
+
         glyphImage.setColorTable(colorTable);
-        
 
-        painter->drawImage(x, y,
-                          glyphImage, 0, 0, -1, -1);
+        FT_Pos bottom = 0;
+        if (count == 1)
+        {
+          FT_Pos bottom = face->glyph->metrics.height/64;
+        }
 
-      x += face->glyph->advance.x/64;
-      // extra space between the glyphs
-      x++;
-      if (x >= 350)
-      { 
-        y += (size->metrics.height + 4)/64;
-        x = -350;
-      }
+        painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
+                    glyphImage, 0, 0, -1, -1);
+
+        x += face->glyph->advance.x/64;
+        // extra space between the glyphs
+        x++;
+        if (x >= 280)
+        { 
+          y += (size->metrics.height + 4)/64;
+          x = -280;
+        }
       }
     }
+    FT_Stroker_Done(stroker);
   }
   
   // Render String mode
