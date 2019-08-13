@@ -950,6 +950,7 @@ MainGUI::gridViewRender()
     fontNameLabel->setEnabled(true);
     glyphNameLabel->setEnabled(true);
     glyphIndexLabel->setEnabled(true);
+    showBitmapCheckBox->setChecked(true);
 
     currentGridItem = new Grid(gridPen, axisPen);
     glyphScene->addItem(currentGridItem);
