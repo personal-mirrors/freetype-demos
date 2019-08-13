@@ -888,6 +888,13 @@ MainGUI::comparatorViewRender()
     toP1000Buttonx->setEnabled(false);
     toEndButtonx->setEnabled(false);
 
+    // diable tabs
+    tabWidget->setTabEnabled(1, false);
+    tabWidget->setTabEnabled(2, false);
+
+    // enable glyphs tabs
+    tabWidget->setTabEnabled(3, true);
+
     fontNameLabel->setEnabled(false);
     glyphNameLabel->setEnabled(false);
     glyphIndexLabel->setEnabled(false);
@@ -946,6 +953,11 @@ MainGUI::gridViewRender()
     toP100Buttonx->setEnabled(true);
     toP1000Buttonx->setEnabled(true);
     toEndButtonx->setEnabled(true);
+
+    // diable tabs
+    tabWidget->setTabEnabled(1, false);
+    tabWidget->setTabEnabled(2, false);
+    tabWidget->setTabEnabled(3, false);
 
     fontNameLabel->setEnabled(true);
     glyphNameLabel->setEnabled(true);
@@ -1063,6 +1075,13 @@ MainGUI::renderAll()
   toP100Buttonx->setEnabled(false);
   toP1000Buttonx->setEnabled(false);
   toEndButtonx->setEnabled(false);
+
+  // diable tabs
+  tabWidget->setTabEnabled(1, false);
+  tabWidget->setTabEnabled(3, false);
+
+  // enable glyphs tabs
+  tabWidget->setTabEnabled(2, true);
 
   fontNameLabel->setEnabled(false);
   glyphNameLabel->setEnabled(false);
