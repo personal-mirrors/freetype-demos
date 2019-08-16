@@ -68,7 +68,7 @@ MainGUI::showFontName()
     QMessageBox::about(
       this,
       tr("Font Name Entries"),
-      tr("<pre><b>Face number : %1 </b><br><br>"
+      tr("<pre><b>No. of Faces : %1 </b><br><br>"
          "Family     : <em>%2</em> <br>"
          "Style      : <em>%3</em> <br>"
          "Postscript : <em>%4</em></pre><br>")
@@ -124,7 +124,7 @@ MainGUI::showFontType()
   {
     QMessageBox::about(this,
       tr("Font Type Entries"),
-      tr("<pre><b>Face number : %1</b><br><br>"
+      tr("<pre><b>No. of Faces : %1</b><br><br>"
           "FreeType driver      : &nbsp;&nbsp;<em>%2</em><br>"
           "SFNT wrapped         : &nbsp;&nbsp;<em>%3</em><br>"
           "Type                 : &nbsp;&nbsp;<em>%4</em><br>"
@@ -158,7 +158,7 @@ MainGUI::showFontType()
     QMessageBox::about(
     this,
     tr("Font Type Entries"),
-    tr("<pre><b>Face number : %1</b><br><br>"
+    tr("<pre><b>No. of Faces : %1</b><br><br>"
           "FreeType driver      : &nbsp;&nbsp;<em>%2</em><br>"
           "SFNT wrapped         : &nbsp;&nbsp;<em>%3</em><br>"
           "Type                 : &nbsp;&nbsp;<em>%4</em><br>"
@@ -189,7 +189,7 @@ MainGUI::showTablesListInfo()
     //msgBox.setWindowTitle("SFNT Tables List");
     QString tablesinfo = "<pre><b>SFNT Tables List</b></pre>";
 
-    tablesinfo.append("<pre><b>S No.</b>    <b>Tags</b>               <b>Buffer</b></pre>");
+    tablesinfo.append("<pre><b>S No.</b>\t<b>Tag</b></pre>");
 
     for ( i = 0; i < num_tables; i++ )
     {
@@ -205,18 +205,16 @@ MainGUI::showTablesListInfo()
         continue;
       }
 
-      tablesinfo.append(QString("<pre>%1 :      <em>%2 %3 %4 %5              %6 %7 %8 %9</em></pre>").arg(i)
-                                                                        .arg((FT_Char)( tag >> 24 ))
-                                                                        .arg((FT_Char)( tag >> 16 ))
-                                                                        .arg((FT_Char)( tag >> 8 ))
-                                                                        .arg((FT_Char)( tag ))
-                                                                        .arg((FT_UInt)buffer[0])
-                                                                        .arg((FT_UInt)buffer[1])
-                                                                        .arg((FT_UInt)buffer[2])
-                                                                        .arg((FT_UInt)buffer[3]));
+      tablesinfo.append(QString("<pre>%1\t<em>%2%3%4%5</pre>").arg(i)
+                                                                        .arg((char)( tag >> 24 ))
+                                                                        .arg((char)( tag >> 16 ))
+                                                                        .arg((char)( tag >> 8 ))
+                                                                        .arg((char)( tag )));
     }
 
-    QMessageBox::about(this, "SFNT Tables List", tablesinfo);
+    msgBox.setStyleSheet("QLabel{max-height: 550px; font-size: 10px;}");
+    msgBox.setText(tablesinfo);
+    msgBox.exec();
 }
 
 
@@ -233,7 +231,7 @@ MainGUI::showTablesInfo()
   QString tablesinfo = "<b>SFNT Tables</b><br>";// = QString("%1").arg(desc.idVendor, 0, 16).rightJustified(4, '0');
 
   //printf( "font string entries\n" );
-  tablesinfo.append(QString("<pre><b>Name ID</b>   <b>Platform ID</b>   <b>Encoding ID</b></pre>"));
+  tablesinfo.append(QString("<pre><b>Name ID</b>\t<b>Platform ID</b>\t<b>Encoding ID</b></pre>"));
 
   num_names = FT_Get_Sfnt_Name_Count( face );
   for ( i = 0; i < num_names; i++ )
@@ -249,13 +247,13 @@ MainGUI::showTablesInfo()
                 //printf( "   %-15s [%s]", NameID, PlatformID );
         if (NameID < 10)
         {
-          tablesinfo.append(QString("<pre>%1           [%2]        ").arg(NameID).arg(PlatformID));
+          tablesinfo.append(QString("<pre>%1\t[%2]\t\t").arg(NameID).arg(PlatformID));
         } else if (NameID < 100)
         {
-          tablesinfo.append(QString("<pre>%1          [%2]        ").arg(NameID).arg(PlatformID));
+          tablesinfo.append(QString("<pre>%1\t[%2]\t\t").arg(NameID).arg(PlatformID));
         } else if (NameID < 1000)
         {
-          tablesinfo.append(QString("<pre>%1         [%2]        ").arg(NameID).arg(PlatformID));
+          tablesinfo.append(QString("<pre>%1\t[%2]\t\t").arg(NameID).arg(PlatformID));
         }
       }
       else
@@ -364,7 +362,10 @@ MainGUI::showTablesInfo()
       //stablesinfo.append("<br>");
     }
 
-    QMessageBox::about(this, "SFNT Tables", tablesinfo);
+    //QMessageBox::about(this, "SFNT Tables", tablesinfo);
+    msgBox.setStyleSheet("QLabel{max-height: 550px; font-size: 10px;}");
+    msgBox.setText(tablesinfo);
+    msgBox.exec();
   }
 
 
@@ -373,20 +374,21 @@ MainGUI::showCharmapsInfo()
 {
   FT_Face face = engine->getFtSize()->face;
   QMessageBox msgBox;
+  msgBox.setWindowTitle("Charmaps Info");
+  QString charmapinfo = "<b>Charmaps Info</b><br>";
+
   for(int i = 0 ; i < face->num_charmaps ; i++)
   {
-    QMessageBox::about(
-      this,
-      tr("Charmaps Info"),
-      tr("<pre>Format   : <em>%1</em></pre>"
-        "<pre>Platform : <em>%2</em></pre>"
-        "<pre>Encoding : <em>%3</em></pre>"
-        "<pre>Language : <em>%4</em></pre>")
-        .arg(FT_Get_CMap_Format( face->charmaps[i] ))
-        .arg(face->charmaps[i]->platform_id)
-        .arg(face->charmaps[i]->encoding_id)
-        .arg(FT_Get_CMap_Language_ID(face->charmaps[i])));
+    charmapinfo.append(QString("<pre>Format   : <em>%1</em></pre>").arg(FT_Get_CMap_Format( face->charmaps[i] )));
+    charmapinfo.append(QString("<pre>Platform : <em>%2</em></pre>").arg(face->charmaps[i]->platform_id));
+    charmapinfo.append(QString("<pre>Encoding : <em>%3</em></pre>").arg(face->charmaps[i]->encoding_id));
+    charmapinfo.append(QString("<pre>Language : <em>%4</em></pre>").arg(FT_Get_CMap_Language_ID(face->charmaps[i])));
+
+    charmapinfo.append("<br>");
   }
+  msgBox.setStyleSheet("QLabel{max-height: 550px; font-size: 10px;}");
+  QMessageBox::about(this, "Charmaps Info", charmapinfo);
+  //msgBox.exec();
 }
 
 
@@ -888,7 +890,7 @@ MainGUI::comparatorViewRender()
     int column = columnComboBoxx->currentIndex();
     load_flags[column] |= engine->getFlags();
 
-        // Diable unused parameters
+    // Diable unused parameters
     showPointNumbersCheckBox->setEnabled(false);
     showBitmapCheckBox->setEnabled(false);
     showPointsCheckBox->setEnabled(false);
@@ -911,6 +913,11 @@ MainGUI::comparatorViewRender()
     toP100Buttonx->setEnabled(false);
     toP1000Buttonx->setEnabled(false);
     toEndButtonx->setEnabled(false);
+
+    // disable general tab
+    hintingCheckBox->setEnabled(false);
+    autoHintingCheckBox->setEnabled(false);
+    antiAliasingComboBoxx->setEnabled(false);
 
     // diable tabs
     tabWidget->setTabEnabled(1, false);
@@ -984,6 +991,11 @@ MainGUI::gridViewRender()
     tabWidget->setTabEnabled(1, false);
     tabWidget->setTabEnabled(2, false);
     tabWidget->setTabEnabled(3, false);
+    
+    // enabled the disabled views
+    hintingCheckBox->setEnabled(true);
+    autoHintingCheckBox->setEnabled(true);
+    antiAliasingComboBoxx->setEnabled(true);
 
     fontNameLabel->setEnabled(true);
     glyphNameLabel->setEnabled(true);
@@ -1121,6 +1133,11 @@ MainGUI::renderAll()
 
   // enable glyphs tabs
   tabWidget->setTabEnabled(2, true);
+  
+  // enabled the disabled views
+  hintingCheckBox->setEnabled(true);
+  autoHintingCheckBox->setEnabled(true);
+  antiAliasingComboBoxx->setEnabled(true);
 
   fontNameLabel->setEnabled(false);
   glyphNameLabel->setEnabled(false);

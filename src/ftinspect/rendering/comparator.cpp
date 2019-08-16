@@ -14,11 +14,13 @@
 #define HEADER_HEIGHT  12
 
 static const char*  default_text =
-    "One popular and recognizable form of hinting is found in the TrueType"
-    "font format, released in 1991 by Apple Inc. Hinting in TrueType invokes"
-    "tables of font data used to render fonts properly on screen. One aspect"
-    "of TrueType hinting is grid-fitting, which modifies the height and width"
-    "of font characters to line up to the set pixel grid of screen display";
+    "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras sit amet"
+    " dui.  Nam sapien. Fusce vestibulum ornare metus. Maecenas ligula orci,"
+    " consequat vitae, dictum nec, lacinia non, elit. Aliquam iaculis"
+    " molestie neque. Maecenas suscipit felis ut pede convallis malesuada."
+    " Aliquam erat volutpat. Nunc pulvinar condimentum nunc. Donec ac sem vel"
+    " leo bibendum aliquam. Pellentesque habitant morbi tristique senectus et"
+    " netus et malesuada fames ac turpis egestas.";
 
 
 Comparator::Comparator(FT_Library lib,
