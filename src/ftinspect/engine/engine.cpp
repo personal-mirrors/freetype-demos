@@ -711,6 +711,12 @@ Engine::setTTInterpreterVersion(int mode)
   }
 }
 
+unsigned long
+Engine::getFlags()
+{
+  return loadFlags;
+}
+
 
 void
 Engine::update()

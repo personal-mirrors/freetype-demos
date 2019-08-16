@@ -30,13 +30,17 @@ Comparator::Comparator(FT_Library lib,
                         QVector<QRgb> grayColorTable,
                         QVector<QRgb> monoColorTable,
                         bool warping[],
-                        bool kerningCol[])
+                        bool kerningCol[],
+                        double gammaVal,
+                        unsigned long loadFlags)
 : library(lib),
 face(face),
 size(size),
 fontList(fontList),
 grayColorTable(grayColorTable),
-monoColorTable(monoColorTable)
+monoColorTable(monoColorTable),
+gamma(gammaVal),
+loadFlags(loadFlags)
 {
   load[0] = load_flags[0];
   load[1] = load_flags[1];
@@ -115,6 +119,9 @@ Comparator::paint(QPainter* painter,
   column_x_temp[0] = width + border_width;
   column_x_temp[1] = width + 3 * border_width + column_width;
   column_x_temp[2] = width + 5 * border_width + 2 * column_width;
+
+  const qreal lod = option->levelOfDetailFromTransform(
+                            painter->worldTransform());
 
   int height = -220;
 
@@ -198,9 +205,31 @@ Comparator::paint(QPainter* painter,
         FT_Pos bottom = face->glyph->metrics.height/64;
       }
 
+      for (int n = 0; n < glyphImage.width(); n++)
+      {
+        for (int m = 0; m < glyphImage.height(); m++)
+        {
+          // be careful not to lose the alpha channel
+          const QRgb p = glyphImage.pixel(n, m);
+          const double r = qRed(p) / 255.0;
+          const double g = qGreen(p) / 255.0;
+          const double b = qBlue(p) / 255.0;
+          const double a = qAlpha(p) / 255.0;
+          painter->fillRect(QRectF(n + column_x_start[col]- 1 / lod / 2,
+                                    m + height + bottom - face->glyph->metrics.horiBearingY/64- 1 / lod / 2,
+                                    1/lod,
+                                    1/lod),
+                            QColor(
+                                  255 * std::pow(r, 1/gamma),
+                                  255 * std::pow(g, 1/gamma),
+                                  255 * std::pow(b, 1/gamma),
+                                  255 * std::pow(a, 1/gamma)));
+        }
+      }
 
-      painter->drawImage(column_x_start[col], height + bottom - face->glyph->metrics.horiBearingY/64,
-                        glyphImage, 0, 0, -1, -1);
+
+      //painter->drawImage(column_x_start[col], height + bottom - face->glyph->metrics.horiBearingY/64,
+      //                 glyphImage, 0, 0, -1, -1);
 
 
       column_x_start[col] += face->glyph->advance.x/64;

@@ -66,6 +66,7 @@ public:
   double getPtSize();
   double getPixelSize();
   int getResolution();
+  unsigned long getFlags();
   void setTTInterpreterVersion(int version);
   void update();
 

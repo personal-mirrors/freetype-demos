@@ -171,7 +171,9 @@ RenderAll::RenderAll(FT_Face face,
           double slant_factor,
           double stroke_factor,
           int kern_mode,
-          int kern_degree)
+          int kern_degree,
+          unsigned long loadFlags,
+          double gammaVal)
 :face(face),
 size(size),
 cacheManager(cacheManager),
@@ -187,14 +189,15 @@ y_factor(y),
 slant_factor(slant_factor),
 stroke_factor(stroke_factor),
 kerning_mode(kern_mode),
-kerning_degree(kern_degree)
+kerning_degree(kern_degree),
+loadFlags(loadFlags),
+gamma(gammaVal)
 {
 }
 
 
 RenderAll::~RenderAll()
 {
-  //FT_Stroker_Done(stroker);
   //FTC_Manager_Done(cacheManager);
 }
 
@@ -220,7 +223,15 @@ RenderAll::paint(QPainter* painter,
   slot = face->glyph;
   FT_UInt  glyph_idx;
   int x = -280;
-  int y = -20;
+  int y = -180;
+
+  if ( gamma <= 0 ) // special case for sRGB
+  {
+    gamma = 2.4;
+  }
+
+  const qreal lod = option->levelOfDetailFromTransform(
+                              painter->worldTransform());
 
 
  // Normal rendering mode
@@ -245,7 +256,7 @@ RenderAll::paint(QPainter* painter,
       }
       //glyph_idx = (FT_UInt)i;
       /* load glyph image into the slot (erase previous one) */
-      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+      error = FT_Load_Glyph( face, glyph_idx, loadFlags);
       if ( error )
       {
         break;  /* ignore errors */
@@ -276,8 +287,31 @@ RenderAll::paint(QPainter* painter,
         FT_Pos bottom = face->glyph->metrics.height/64;
       }
 
-      painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
-                        glyphImage, 0, 0, -1, -1);
+    
+      for (int n = 0; n < glyphImage.width(); n++)
+      {
+          for (int m = 0; m < glyphImage.height(); m++)
+          {
+            // be careful not to lose the alpha channel
+            const QRgb p = glyphImage.pixel(n, m);
+            const double r = qRed(p) / 255.0;
+            const double g = qGreen(p) / 255.0;
+            const double b = qBlue(p) / 255.0;
+            const double a = qAlpha(p) / 255.0;
+            painter->fillRect(QRectF(n + x - 1 / lod / 2,
+                                     m + y + bottom - face->glyph->metrics.horiBearingY/64 - 1 / lod / 2,
+                                     1,
+                                     1),
+                              QColor(
+                                    255 * std::pow(r, 1/gamma),
+                                    255 * std::pow(g, 1/gamma),
+                                    255 * std::pow(b, 1/gamma),
+                                    255 * std::pow(a, 1/gamma)));
+          }
+      }
+      //painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
+      //                  glyphImage, 0, 0, -1, -1);
+
 
       x += face->glyph->advance.x/64;
       // extra space between the glyphs
@@ -322,7 +356,7 @@ RenderAll::paint(QPainter* painter,
       }
 
       /* load glyph image into the slot (erase previous one) */
-      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+      error = FT_Load_Glyph( face, glyph_idx, loadFlags );
       if ( error )
       {
         break;  /* ignore errors */
@@ -380,7 +414,7 @@ RenderAll::paint(QPainter* painter,
                           face->glyph->bitmap.pitch,
                           QImage::Format_Indexed8);
 
-      
+
 
       QVector<QRgb> colorTable;
       for (int i = 0; i < 256; ++i)
@@ -389,14 +423,37 @@ RenderAll::paint(QPainter* painter,
       }
         
       glyphImage.setColorTable(colorTable);
+
       FT_Pos bottom = 0;
       if (count == 1)
       {
         FT_Pos bottom = face->glyph->metrics.height/64;
       }
 
-      painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
-                        glyphImage, 0, 0, -1, -1);
+      for (int n = 0; n < glyphImage.width(); n++)
+      {
+          for (int m = 0; m < glyphImage.height(); m++)
+          {
+            // be careful not to lose the alpha channel
+            const QRgb p = glyphImage.pixel(n, m);
+            const double r = qRed(p) / 255.0;
+            const double g = qGreen(p) / 255.0;
+            const double b = qBlue(p) / 255.0;
+            const double a = qAlpha(p) / 255.0;
+            painter->fillRect(QRectF(n + x - 1 / lod / 2,
+                                     m + y + bottom - face->glyph->metrics.horiBearingY/64 - 1 / lod / 2,
+                                     1,
+                                     1),
+                              QColor(
+                                    255 * std::pow(r, 1/gamma),
+                                    255 * std::pow(g, 1/gamma),
+                                    255 * std::pow(b, 1/gamma),
+                                    255 * std::pow(a, 1/gamma)));
+          }
+        }
+
+      //painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
+      //                  glyphImage, 0, 0, -1, -1);
 
       x += face->glyph->advance.x/64;
       // extra space between the glyphs
@@ -437,7 +494,7 @@ RenderAll::paint(QPainter* painter,
         glyph_idx = (FT_UInt32)i;
       }
 
-      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+      error = FT_Load_Glyph( face, glyph_idx, loadFlags );
 
       // XXX handle bitmap fonts
 
@@ -499,8 +556,30 @@ RenderAll::paint(QPainter* painter,
           FT_Pos bottom = face->glyph->metrics.height/64;
         }
 
-        painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
-                    glyphImage, 0, 0, -1, -1);
+        for (int n = 0; n < glyphImage.width(); n++)
+        {
+            for (int m = 0; m < glyphImage.height(); m++)
+            {
+              // be careful not to lose the alpha channel
+              const QRgb p = glyphImage.pixel(n, m);
+              const double r = qRed(p) / 255.0;
+              const double g = qGreen(p) / 255.0;
+              const double b = qBlue(p) / 255.0;
+              const double a = qAlpha(p) / 255.0;
+              painter->fillRect(QRectF(n + x - 1 / lod / 2,
+                                       m + y + bottom - face->glyph->metrics.horiBearingY/64 - 1 / lod / 2,
+                                       1,
+                                       1),
+                                QColor(
+                                      255 * std::pow(r, 1/gamma),
+                                      255 * std::pow(g, 1/gamma),
+                                      255 * std::pow(b, 1/gamma),
+                                      255 * std::pow(a, 1/gamma)));
+            }
+        }
+
+        //painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
+        //            glyphImage, 0, 0, -1, -1);
 
         x += face->glyph->advance.x/64;
         // extra space between the glyphs
@@ -579,7 +658,7 @@ RenderAll::paint(QPainter* painter,
       }
 
       /* load glyph image into the slot (erase previous one) */
-      error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+      error = FT_Load_Glyph( face, glyph_idx, loadFlags );
       if ( !error )
       {
         
@@ -611,21 +690,45 @@ RenderAll::paint(QPainter* painter,
 
       painter->translate(m_glyphRect.x(),m_glyphRect.y());
 
+      QVector<QRgb> colorTable;
+      for (int i = 0; i < 256; ++i)
+      {
+        colorTable << qRgba(0, 0, 0, i);
+      }
+
+      glyphImage.setColorTable(colorTable);
+
       FT_Pos bottom = 0;
       if (count == 1)
       {
         FT_Pos bottom = face->glyph->metrics.height/64;
       }
 
-      QVector<QRgb> colorTable;
-      for (int i = 0; i < 256; ++i)
+    
+      for (int n = 0; n < glyphImage.width(); n++)
       {
-        colorTable << qRgba(0, 0, 0, i);
+          for (int m = 0; m < glyphImage.height(); m++)
+          {
+            // be careful not to lose the alpha channel
+            const QRgb p = glyphImage.pixel(n, m);
+            const double r = qRed(p) / 255.0;
+            const double g = qGreen(p) / 255.0;
+            const double b = qBlue(p) / 255.0;
+            const double a = qAlpha(p) / 255.0;
+            painter->fillRect(QRectF(n + x - 1 / lod / 2,
+                                     m + y + bottom - face->glyph->metrics.horiBearingY/64 - 1 / lod / 2,
+                                     1,
+                                     1),
+                              QColor(
+                                    255 * std::pow(r, 1/gamma),
+                                    255 * std::pow(g, 1/gamma),
+                                    255 * std::pow(b, 1/gamma),
+                                    255 * std::pow(a, 1/gamma)));
+          }
       }
-        
-      glyphImage.setColorTable(colorTable);
-      painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
-                        glyphImage, 0, 0, -1, -1);
+
+      //painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
+      //                  glyphImage, 0, 0, -1, -1);
 
       if (previous)
       {
@@ -644,7 +747,6 @@ RenderAll::paint(QPainter* painter,
   {
     FT_Pos track_kern = 0;
     FT_Bool use_kerning;
-    y = -180;
     FT_Face f;
 
     error = FT_New_Face(library,
@@ -713,9 +815,9 @@ RenderAll::paint(QPainter* painter,
           
           if ( kerning_mode > 1 )
           {   
-              if ( rsb_delta && rsb_delta - face->glyph->lsb_delta > 32 )
+              if ( rsb_delta && rsb_delta - f->glyph->lsb_delta > 32 )
                 x -= 1;
-              else if ( rsb_delta && rsb_delta - face->glyph->lsb_delta < -31 )
+              else if ( rsb_delta && rsb_delta - f->glyph->lsb_delta < -31 )
                 x += 1;
           }
         }
@@ -728,7 +830,7 @@ RenderAll::paint(QPainter* painter,
                                   NULL);
 
         /* load glyph image into the slot (erase previous one) */
-        error = FT_Load_Glyph( f, glyph_idx, FT_LOAD_DEFAULT );
+        error = FT_Load_Glyph( f, glyph_idx, loadFlags );
         if ( error )
         {
           break;  /* ignore errors */
@@ -754,7 +856,7 @@ RenderAll::paint(QPainter* painter,
         {
           colorTable << qRgba(0, 0, 0, i);
         }
-          
+
         glyphImage.setColorTable(colorTable);
 
         FT_Pos bottom = 0;
@@ -763,14 +865,34 @@ RenderAll::paint(QPainter* painter,
           FT_Pos bottom = f->glyph->metrics.height/64;
         }
 
-
-        painter->drawImage(x, y + bottom - f->glyph->metrics.horiBearingY/64,
-                          glyphImage, 0, 0, -1, -1);
+        for (int n = 0; n < glyphImage.width(); n++)
+        {
+            for (int m = 0; m < glyphImage.height(); m++)
+            {
+              // be careful not to lose the alpha channel
+              const QRgb p = glyphImage.pixel(n, m);
+              const double r = qRed(p) / 255.0;
+              const double g = qGreen(p) / 255.0;
+              const double b = qBlue(p) / 255.0;
+              const double a = qAlpha(p) / 255.0;
+              painter->fillRect(QRectF(n + x - 1 / lod / 2,
+                                       m + y + bottom - f->glyph->metrics.horiBearingY/64 - 1 / lod / 2,
+                                       1,
+                                       1),
+                                QColor(
+                                      255 * std::pow(r, 1/gamma),
+                                      255 * std::pow(g, 1/gamma),
+                                      255 * std::pow(b, 1/gamma),
+                                      255 * std::pow(a, 1/gamma)));
+            }
+        }
+        //painter->drawImage(x, y + bottom - f->glyph->metrics.horiBearingY/64,
+        //                  glyphImage, 0, 0, -1, -1);
         
         if (previous)
         {
-          lsb_delta = face->glyph->lsb_delta;
-          rsb_delta = face->glyph->rsb_delta;
+          lsb_delta = f->glyph->lsb_delta;
+          rsb_delta = f->glyph->rsb_delta;
         }
 
         x += f->glyph->advance.x/64;
@@ -871,7 +993,7 @@ RenderAll::paint(QPainter* painter,
         }
 
         /* load glyph image into the slot (erase previous one) */
-        error = FT_Load_Glyph( face, glyph_idx, FT_LOAD_DEFAULT );
+        error = FT_Load_Glyph( face, glyph_idx, loadFlags );
         if ( error )
         {
           break;  /* ignore errors */
@@ -899,10 +1021,33 @@ RenderAll::paint(QPainter* painter,
         {
           FT_Pos bottom = face->glyph->metrics.height/64;
         }
-          
+
         glyphImage.setColorTable(colorTable);
-        painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
-                          glyphImage, 0, 0, -1, -1);
+
+
+        for (int n = 0; n < glyphImage.width(); n++)
+        {
+            for (int m = 0; m < glyphImage.height(); m++)
+            {
+              // be careful not to lose the alpha channel
+              const QRgb p = glyphImage.pixel(n, m);
+              const double r = qRed(p) / 255.0;
+              const double g = qGreen(p) / 255.0;
+              const double b = qBlue(p) / 255.0;
+              const double a = qAlpha(p) / 255.0;
+              painter->fillRect(QRectF(n + x - 1 / lod / 2,
+                                       m + y + bottom - face->glyph->metrics.horiBearingY/64 - 1 / lod / 2,
+                                       1,
+                                       1),
+                                QColor(
+                                      255 * std::pow(r, 1/gamma),
+                                      255 * std::pow(g, 1/gamma),
+                                      255 * std::pow(b, 1/gamma),
+                                      255 * std::pow(a, 1/gamma)));
+            }
+        }
+        //painter->drawImage(x, y + bottom - face->glyph->metrics.horiBearingY/64,
+        //                  glyphImage, 0, 0, -1, -1);
 
         if (previous)
         {

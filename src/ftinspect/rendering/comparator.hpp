@@ -36,7 +36,9 @@ public:
              QVector<QRgb> grayColorTable,
              QVector<QRgb> monoColorTable,
              bool warping[],
-             bool kerningCol[]);
+             bool kerningCol[],
+             double gamma,
+             unsigned long loadFlags);
   ~Comparator();
   QRectF boundingRect() const;
   void paint(QPainter* painter,
@@ -58,6 +60,8 @@ private:
   QVector<QRgb> monoColorTable;
   FT_UInt kerning_mode = FT_KERNING_DEFAULT;
   bool kerning[3];
+  double gamma;
+  unsigned long loadFlags;
 };
 
 

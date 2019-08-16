@@ -470,6 +470,22 @@ MainGUI::closeFont()
   // disable font info menu
   menuInfo->setEnabled(false);
 
+  if (currentRenderAllItem)
+  {
+    glyphScene->removeItem(currentRenderAllItem);
+    delete currentRenderAllItem;
+
+    currentRenderAllItem = NULL;
+  }
+
+  if (currentComparatorItem)
+  {
+    glyphScene->removeItem(currentComparatorItem);
+    delete currentComparatorItem;
+
+    currentComparatorItem = NULL;
+  }
+
   showFont();
 }
 
@@ -612,6 +628,12 @@ MainGUI::checkHinting()
   }
 
   drawGlyph();
+
+  // hinting in 'all glyphs mode'
+  if (allGlyphs->isChecked())
+  {
+    renderAll();
+  }
 }
 
 
@@ -861,8 +883,10 @@ MainGUI::comparatorViewRender()
       {
         pixelMode[column_index] = FT_PIXEL_MODE_GRAY;
       }
-
     }
+
+    int column = columnComboBoxx->currentIndex();
+    load_flags[column] |= engine->getFlags();
 
         // Diable unused parameters
     showPointNumbersCheckBox->setEnabled(false);
@@ -908,7 +932,9 @@ MainGUI::comparatorViewRender()
                                 grayColorTable,
                                 monoColorTable,
                                 warping,
-                                kerningCol);
+                                kerningCol,
+                                (gammaSlider->value()/10.0),
+                                engine->getFlags());
     glyphScene->addItem(currentComparatorItem);
     sizeDoubleSpinBox->setValue(11);
     zoomSpinBox->setValue(1);
@@ -970,6 +996,19 @@ MainGUI::gridViewRender()
     //drawGlyph();
   }
 
+}
+
+
+void
+MainGUI::gammaChange()
+{
+  if (allGlyphs->isChecked())
+  {
+    renderAll();
+  } else
+  {
+    drawGlyph();
+  }
 }
 
 
@@ -1043,20 +1082,20 @@ MainGUI::renderAll()
     currentGridItem = NULL;
   }
 
-  if (currentRenderAllItem)
-  {
-    glyphScene->removeItem(currentRenderAllItem);
-    delete currentRenderAllItem;
-
-    currentRenderAllItem = NULL;
-  }
-
   if (currentComparatorItem)
   {
     glyphScene->removeItem(currentComparatorItem);
     delete currentComparatorItem;
 
     currentComparatorItem = NULL;
+  }
+
+  if (currentRenderAllItem)
+  {
+    glyphScene->removeItem(currentRenderAllItem);
+    delete currentRenderAllItem;
+
+    currentRenderAllItem = NULL;
   }
 
   showPointNumbersCheckBox->setChecked(false);
@@ -1103,7 +1142,9 @@ MainGUI::renderAll()
                                   slant_factor,
                                   stroke_factor,
                                   kerning_mode,
-                                  kerning_degree);
+                                  kerning_degree,
+                                  engine->getFlags(),
+                                  (gammaSlider->value()/10.0));
   glyphScene->addItem(currentRenderAllItem);
   sizeDoubleSpinBox->setValue(20);
   zoomSpinBox->setValue(1);
@@ -1443,15 +1484,6 @@ MainGUI::drawGlyph()
     currentGlyphPointNumbersItem = NULL;
   }
 
-  /* if (currentRenderAllItem)
-  {
-    glyphScene->removeItem(currentRenderAllItem);
-    delete currentRenderAllItem;
-
-    currentRenderAllItem = NULL;
-
-  }*/
-
   FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
   if (outline)
   {
@@ -1463,19 +1495,19 @@ MainGUI::drawGlyph()
         pixelMode = FT_PIXEL_MODE_MONO;
 
       currentGlyphBitmapItem = new GlyphBitmap(outline,
-                                               engine->library,
-                                               pixelMode,
-                                               (gammaSlider->value()/10.0),
-                                               monoColorTable,
-                                               grayColorTable);
+                                              engine->library,
+                                              pixelMode,
+                                              (gammaSlider->value()/10.0),
+                                              monoColorTable,
+                                              grayColorTable);
       glyphScene->addItem(currentGlyphBitmapItem);
     }
 
     if (segmentDrawingCheckBox->isChecked())
     {
       currentGlyphSegmentItem = new GlyphSegment(segmentPen,
-                                                 blueZonePen,
-                                                 engine->getFtSize());
+                                                blueZonePen,
+                                                engine->getFtSize());
       glyphScene->addItem(currentGlyphSegmentItem);
     }
 
@@ -1493,14 +1525,18 @@ MainGUI::drawGlyph()
       if (showPointNumbersCheckBox->isChecked())
       {
         currentGlyphPointNumbersItem = new GlyphPointNumbers(onPen,
-                                                             offPen,
-                                                             outline);
+                                                            offPen,
+                                                            outline);
         glyphScene->addItem(currentGlyphPointNumbersItem);
       }
     }
   }
-
   glyphScene->update();
+
+  if (comparatorView->isChecked())
+  {
+    comparatorViewRender();
+  }
 }
 
 
@@ -2075,7 +2111,7 @@ MainGUI::createConnections()
   connect(warpingColumnCheckBox, SIGNAL(clicked()),
           SLOT(comparatorViewRender()));
   connect(gammaSlider, SIGNAL(valueChanged(int)),
-          SLOT(drawGlyph()));
+          SLOT(gammaChange()));
   connect(embolden_x_Slider, SIGNAL(valueChanged(int)),
           SLOT(renderAll()));
   connect(embolden_y_Slider, SIGNAL(valueChanged(int)),

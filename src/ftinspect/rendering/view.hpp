@@ -46,7 +46,9 @@ public:
        double slant_factor,
        double stroke_factor,
        int kerning_mode,
-       int kerning_degree);
+       int kerning_degree,
+       unsigned long loadFlags,
+       double gamma);
   ~RenderAll();
   QRectF boundingRect() const;
   void paint(QPainter* painter,
@@ -74,6 +76,8 @@ private:
   double stroke_factor;
   int kerning_mode;
   int kerning_degree;
+  unsigned long loadFlags;
+  double gamma;
 };
 
 

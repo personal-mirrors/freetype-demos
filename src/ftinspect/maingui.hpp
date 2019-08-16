@@ -115,6 +115,7 @@ private slots:
   void watchCurrentFont();
   void zoom();
   void renderAll();
+  void gammaChange();
   void gridViewRender();
   void comparatorViewRender();
 
