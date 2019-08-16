@@ -24,6 +24,12 @@ main(int argc,
   MainGUI gui;
   Engine engine(&gui);
 
+  for (int i = 1; i < QCoreApplication::arguments().size(); i++)
+  {
+    QString homeDir = "/mnt/d/" + QCoreApplication::arguments().at(i);
+    gui.files.append(homeDir);
+  }
+
   gui.update(&engine);
   gui.setDefaults();
 

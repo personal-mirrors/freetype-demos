@@ -11,7 +11,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
-#include <QtDebug>
 
 #include FT_DRIVER_H
 #include FT_TRUETYPE_TABLES_H
@@ -428,13 +427,16 @@ MainGUI::loadFonts()
 {
   int oldSize = fontList.size();
 
-  QStringList files = QFileDialog::getOpenFileNames(
+  if (files.size() <= 0)
+  {
+      QStringList files = QFileDialog::getOpenFileNames(
                         this,
                         tr("Load one or more fonts"),
                         QDir::homePath(),
                         "",
                         NULL,
                         QFileDialog::ReadOnly);
+  }
 
   // XXX sort data, uniquify elements
   fontList.append(files);
@@ -1133,7 +1135,7 @@ MainGUI::renderAll()
 
   // enable glyphs tabs
   tabWidget->setTabEnabled(2, true);
-  
+
   // enabled the disabled views
   hintingCheckBox->setEnabled(true);
   autoHintingCheckBox->setEnabled(true);
@@ -2369,6 +2371,11 @@ MainGUI::setDefaults()
   adjustGlyphIndex(0);
   zoom();
   gridViewRender();
+
+  if (files.size() != 0)
+  {
+    loadFonts();
+  }
 }
 
 

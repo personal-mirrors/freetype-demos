@@ -70,6 +70,7 @@ public:
 
   void setDefaults();
   void update(Engine*);
+  QStringList files;
 
   friend class Engine;
   friend FT_Error faceRequester(FTC_FaceID,
