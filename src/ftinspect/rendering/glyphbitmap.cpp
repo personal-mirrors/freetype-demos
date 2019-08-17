@@ -8,7 +8,6 @@
 #include <cmath>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
-#include <QtDebug>
 
 
 GlyphBitmap::GlyphBitmap(FT_Outline* outline,

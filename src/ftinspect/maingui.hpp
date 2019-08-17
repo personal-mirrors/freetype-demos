@@ -72,6 +72,11 @@ public:
   void update(Engine*);
   QStringList files;
 
+  // modes count
+  int comparatorCount = 0;
+  int renderAllCount = 0;
+  int arg = 0;
+
   friend class Engine;
   friend FT_Error faceRequester(FTC_FaceID,
                                 FT_Library,
@@ -119,6 +124,8 @@ private slots:
   void gammaChange();
   void gridViewRender();
   void comparatorViewRender();
+  void mmViewRender();
+  void resetView();
 
 private:
   Engine* engine;
@@ -261,6 +268,8 @@ private:
   QRadioButton *allGlyphs = new QRadioButton(tr("All Glyphs"));
   QRadioButton *comparatorView = new QRadioButton(tr("Comparator"));
   QRadioButton *multiView = new QRadioButton(tr("Multi View"));
+  QPushButton *reset  = new QPushButton(tr("Reset"));;
+
 
   QList<int> hintingModesAlwaysDisabled;
 

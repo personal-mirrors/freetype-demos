@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QtDebug>
 
 #include FT_DRIVER_H
 #include FT_TRUETYPE_TABLES_H
@@ -427,15 +428,18 @@ MainGUI::loadFonts()
 {
   int oldSize = fontList.size();
 
-  if (files.size() <= 0)
+  if (arg == 0)
   {
-      QStringList files = QFileDialog::getOpenFileNames(
+      files = QFileDialog::getOpenFileNames(
                         this,
                         tr("Load one or more fonts"),
                         QDir::homePath(),
                         "",
                         NULL,
                         QFileDialog::ReadOnly);
+  } else
+  {
+    arg = 0;
   }
 
   // XXX sort data, uniquify elements
@@ -663,7 +667,7 @@ MainGUI::checkRenderingMode()
   } else if (!(renderingModeComboBoxx->itemText(index).compare("Waterfall")))
   {
     render_mode = 5;
-    glyphView->setDragMode(QGraphicsView::NoDrag);
+    //glyphView->setDragMode(QGraphicsView::NoDrag);
   } else
   {
     render_mode = 6;
@@ -810,10 +814,43 @@ MainGUI::checkAutoHinting()
 
 
 void
+MainGUI::resetView()
+{
+  if (allGlyphs->isChecked())
+  {
+    renderAll();
+    zoomSpinBox->setValue(1);
+    sizeDoubleSpinBox->setValue(20);
+  } else if (comparatorView->isChecked())
+  {
+    comparatorViewRender();
+    zoomSpinBox->setValue(1);
+    sizeDoubleSpinBox->setValue(20);
+  } else if (gridView->isChecked())
+  {
+    gridViewRender();
+    sizeDoubleSpinBox->setValue(20);
+    zoomSpinBox->setValue(20);
+  }
+}
+
+
+void
+MainGUI::mmViewRender()
+{
+  QMessageBox msgBox;
+  msgBox.setText("This feature hasn't been implemented yet.");
+  msgBox.exec();
+}
+
+
+void
 MainGUI::comparatorViewRender()
 {
     // Basic definition
   FT_Size size;
+
+  comparatorCount += 1;
   
   // Basic Initialization
   size = engine->getFtSize();
@@ -842,6 +879,46 @@ MainGUI::comparatorViewRender()
       delete currentComparatorItem;
 
       currentComparatorItem = NULL;
+    }
+
+    if (currentGlyphBitmapItem)
+    {
+      glyphScene->removeItem(currentGlyphBitmapItem);
+      delete currentGlyphBitmapItem;
+
+      currentGlyphBitmapItem = NULL;
+    }
+
+    if (currentGlyphSegmentItem)
+    {
+      glyphScene->removeItem(currentGlyphSegmentItem);
+      delete currentGlyphSegmentItem;
+
+      currentGlyphSegmentItem = NULL;
+    }
+
+    if (currentGlyphOutlineItem)
+    {
+      glyphScene->removeItem(currentGlyphOutlineItem);
+      delete currentGlyphOutlineItem;
+
+      currentGlyphOutlineItem = NULL;
+    }
+
+    if (currentGlyphPointsItem)
+    {
+      glyphScene->removeItem(currentGlyphPointsItem);
+      delete currentGlyphPointsItem;
+
+      currentGlyphPointsItem = NULL;
+    }
+
+    if (currentGlyphPointNumbersItem)
+    {
+      glyphScene->removeItem(currentGlyphPointNumbersItem);
+      delete currentGlyphPointNumbersItem;
+
+      currentGlyphPointNumbersItem = NULL;
     }
 
     for (int col = 0; col < 3; col++)
@@ -892,17 +969,17 @@ MainGUI::comparatorViewRender()
     int column = columnComboBoxx->currentIndex();
     load_flags[column] |= engine->getFlags();
 
+    showPointNumbersCheckBox->setChecked(false);
+    showBitmapCheckBox->setChecked(false);
+    showPointsCheckBox->setChecked(false);
+    showOutlinesCheckBox->setChecked(false);
+
     // Diable unused parameters
     showPointNumbersCheckBox->setEnabled(false);
     showBitmapCheckBox->setEnabled(false);
     showPointsCheckBox->setEnabled(false);
     showOutlinesCheckBox->setEnabled(false);
     navigationLayout->setEnabled(false);
-
-    showPointNumbersCheckBox->setChecked(false);
-    showBitmapCheckBox->setChecked(false);
-    showPointsCheckBox->setChecked(false);
-    showOutlinesCheckBox->setChecked(false);
 
       // diable glyph buttons
     toStartButtonx->setEnabled(false);
@@ -945,9 +1022,13 @@ MainGUI::comparatorViewRender()
                                 (gammaSlider->value()/10.0),
                                 engine->getFlags());
     glyphScene->addItem(currentComparatorItem);
-    sizeDoubleSpinBox->setValue(11);
+  }
+
+  if (comparatorCount < 2)
+  {
     zoomSpinBox->setValue(1);
   }
+
 }
 
 
@@ -970,6 +1051,46 @@ MainGUI::gridViewRender()
       delete currentComparatorItem;
 
       currentComparatorItem = NULL;
+    }
+
+    if (currentGlyphBitmapItem)
+    {
+      glyphScene->removeItem(currentGlyphBitmapItem);
+      delete currentGlyphBitmapItem;
+
+      currentGlyphBitmapItem = NULL;
+    }
+
+    if (currentGlyphSegmentItem)
+    {
+      glyphScene->removeItem(currentGlyphSegmentItem);
+      delete currentGlyphSegmentItem;
+
+      currentGlyphSegmentItem = NULL;
+    }
+
+    if (currentGlyphOutlineItem)
+    {
+      glyphScene->removeItem(currentGlyphOutlineItem);
+      delete currentGlyphOutlineItem;
+
+      currentGlyphOutlineItem = NULL;
+    }
+
+    if (currentGlyphPointsItem)
+    {
+      glyphScene->removeItem(currentGlyphPointsItem);
+      delete currentGlyphPointsItem;
+
+      currentGlyphPointsItem = NULL;
+    }
+
+    if (currentGlyphPointNumbersItem)
+    {
+      glyphScene->removeItem(currentGlyphPointNumbersItem);
+      delete currentGlyphPointNumbersItem;
+
+      currentGlyphPointNumbersItem = NULL;
     }
 
     // enable parameters
@@ -998,18 +1119,17 @@ MainGUI::gridViewRender()
     hintingCheckBox->setEnabled(true);
     autoHintingCheckBox->setEnabled(true);
     antiAliasingComboBoxx->setEnabled(true);
+    showBitmapCheckBox->setChecked(true);
+    showOutlinesCheckBox->setChecked(true);
 
     fontNameLabel->setEnabled(true);
     glyphNameLabel->setEnabled(true);
     glyphIndexLabel->setEnabled(true);
-    showBitmapCheckBox->setChecked(true);
 
     currentGridItem = new Grid(gridPen, axisPen);
     glyphScene->addItem(currentGridItem);
-    zoomSpinBox->setValue(20);
-    //drawGlyph();
   }
-
+  drawGlyph();
 }
 
 
@@ -1032,6 +1152,8 @@ MainGUI::renderAll()
   kerningDegreeComboBoxx->setEnabled(false);
   kerningModeComboBoxx->setEnabled(false);
   stroke_Slider->setEnabled(false);
+
+  renderAllCount += 1;
 
   if (render_mode == 3)
   {
@@ -1057,11 +1179,17 @@ MainGUI::renderAll()
     slant_Slider->setEnabled(false);
   }
 
+  showPointNumbersCheckBox->setChecked(false);
+  showBitmapCheckBox->setChecked(false);
+  showPointsCheckBox->setChecked(false);
+  showOutlinesCheckBox->setChecked(false);
+
   // Diable unused parameters
   showPointNumbersCheckBox->setEnabled(false);
   showBitmapCheckBox->setEnabled(false);
   showPointsCheckBox->setEnabled(false);
   showOutlinesCheckBox->setEnabled(false);
+  navigationLayout->setEnabled(false);
 
   // Embolden factors
   double x_factor = embolden_x_Slider->value()/1000.0;
@@ -1112,10 +1240,45 @@ MainGUI::renderAll()
     currentRenderAllItem = NULL;
   }
 
-  showPointNumbersCheckBox->setChecked(false);
-  showBitmapCheckBox->setChecked(false);
-  showPointsCheckBox->setChecked(false);
-  showOutlinesCheckBox->setChecked(false);
+      if (currentGlyphBitmapItem)
+    {
+      glyphScene->removeItem(currentGlyphBitmapItem);
+      delete currentGlyphBitmapItem;
+
+      currentGlyphBitmapItem = NULL;
+    }
+
+    if (currentGlyphSegmentItem)
+    {
+      glyphScene->removeItem(currentGlyphSegmentItem);
+      delete currentGlyphSegmentItem;
+
+      currentGlyphSegmentItem = NULL;
+    }
+
+    if (currentGlyphOutlineItem)
+    {
+      glyphScene->removeItem(currentGlyphOutlineItem);
+      delete currentGlyphOutlineItem;
+
+      currentGlyphOutlineItem = NULL;
+    }
+
+    if (currentGlyphPointsItem)
+    {
+      glyphScene->removeItem(currentGlyphPointsItem);
+      delete currentGlyphPointsItem;
+
+      currentGlyphPointsItem = NULL;
+    }
+
+    if (currentGlyphPointNumbersItem)
+    {
+      glyphScene->removeItem(currentGlyphPointNumbersItem);
+      delete currentGlyphPointNumbersItem;
+
+      currentGlyphPointNumbersItem = NULL;
+    }
 
   // disable glyph buttons
   toStartButtonx->setEnabled(false);
@@ -1165,8 +1328,11 @@ MainGUI::renderAll()
                                   engine->getFlags(),
                                   (gammaSlider->value()/10.0));
   glyphScene->addItem(currentRenderAllItem);
-  sizeDoubleSpinBox->setValue(20);
-  zoomSpinBox->setValue(1);
+
+  if (renderAllCount < 2)
+  {
+    zoomSpinBox->setValue(1);
+  }
 }
 
 
@@ -2008,6 +2174,8 @@ MainGUI::createLayout()
   programNavigationLayout->addStretch(1);
   programNavigationLayout->addWidget(multiView);
   programNavigationLayout->addStretch(1);
+  programNavigationLayout->addWidget(reset);
+  programNavigationLayout->addStretch(1);
   programNavigationLayout->addStretch(2);
 
 
@@ -2106,6 +2274,10 @@ MainGUI::createConnections()
           SLOT(gridViewRender()));
   connect(comparatorView, SIGNAL(clicked()),
           SLOT(comparatorViewRender()));
+  connect(multiView, SIGNAL(clicked()),
+          SLOT(mmViewRender()));
+  connect(reset, SIGNAL(clicked()),
+          SLOT(resetView()));
 
   connect(autoHintingCheckBox, SIGNAL(clicked()),
           SLOT(checkAutoHinting()));
@@ -2374,6 +2546,7 @@ MainGUI::setDefaults()
 
   if (files.size() != 0)
   {
+    arg = 1;
     loadFonts();
   }
 }

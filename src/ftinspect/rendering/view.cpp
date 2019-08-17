@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QImage>
 #include <iostream>
+#include <QSettings>
 #include <QtDebug>
 
 #define ft_render_mode_normal  FT_RENDER_MODE_NORMAL
