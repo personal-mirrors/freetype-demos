@@ -174,7 +174,8 @@ RenderAll::RenderAll(FT_Face face,
           int kern_mode,
           int kern_degree,
           unsigned long loadFlags,
-          double gammaVal)
+          double gammaVal,
+          int glyphIndex)
 :face(face),
 size(size),
 cacheManager(cacheManager),
@@ -192,7 +193,8 @@ stroke_factor(stroke_factor),
 kerning_mode(kern_mode),
 kerning_degree(kern_degree),
 loadFlags(loadFlags),
-gamma(gammaVal)
+gamma(gammaVal),
+glyphIndexStart(glyphIndex)
 {
 }
 
@@ -241,7 +243,7 @@ RenderAll::paint(QPainter* painter,
 
     int count = 0;
     // Normal rendering
-    for ( int i = 0; i < face->num_glyphs; i++ )
+    for ( int i = glyphIndexStart; i < face->num_glyphs; i++ )
     {
       count += 1;
       // get char index
@@ -341,7 +343,7 @@ RenderAll::paint(QPainter* painter,
     xstr = (FT_Pos)( size->metrics.y_ppem * 64 * x_factor );
     ystr = (FT_Pos)( size->metrics.y_ppem * 64 * y_factor );
 
-    for ( int i = 0; i < face->num_glyphs; i++ )
+    for ( int i = glyphIndexStart; i < face->num_glyphs; i++ )
     {
       count += 1;
 
@@ -481,7 +483,7 @@ RenderAll::paint(QPainter* painter,
     FT_Stroker_Set( stroker, 32, FT_STROKER_LINECAP_BUTT,
                 FT_STROKER_LINEJOIN_BEVEL, 0x20000 );
 
-    for ( int i = 0; i < face->num_glyphs; i++ )
+    for ( int i = glyphIndexStart; i < face->num_glyphs; i++ )
     {
       count += 1;
 

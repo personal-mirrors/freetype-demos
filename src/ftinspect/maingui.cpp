@@ -1281,7 +1281,7 @@ MainGUI::renderAll()
     }
 
   // disable glyph buttons
-  toStartButtonx->setEnabled(false);
+  /*toStartButtonx->setEnabled(false);
   toM1000Buttonx->setEnabled(false);
   toM100Buttonx->setEnabled(false);
   toM10Buttonx->setEnabled(false);
@@ -1290,7 +1290,7 @@ MainGUI::renderAll()
   toP10Buttonx->setEnabled(false);
   toP100Buttonx->setEnabled(false);
   toP1000Buttonx->setEnabled(false);
-  toEndButtonx->setEnabled(false);
+  toEndButtonx->setEnabled(false);*/
 
   // diable tabs
   tabWidget->setTabEnabled(1, false);
@@ -1326,7 +1326,8 @@ MainGUI::renderAll()
                                   kerning_mode,
                                   kerning_degree,
                                   engine->getFlags(),
-                                  (gammaSlider->value()/10.0));
+                                  (gammaSlider->value()/10.0),
+                                  currentGlyphIndex);
   glyphScene->addItem(currentRenderAllItem);
 
   if (renderAllCount < 2)
@@ -1420,6 +1421,11 @@ MainGUI::adjustGlyphIndex(int delta)
   glyphNameLabel->setText(engine->glyphName(currentGlyphIndex));
 
   drawGlyph();
+
+  if (allGlyphs->isChecked())
+  {
+    renderAll();
+  }
 }
 
 

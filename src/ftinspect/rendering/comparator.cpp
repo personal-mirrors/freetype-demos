@@ -132,11 +132,11 @@ Comparator::paint(QPainter* painter,
                 0,
                 &f);*/
 
-  error = FT_Set_Char_Size(face,
+  /*error = FT_Set_Char_Size(face,
                         0,
                         16 * 64,
                         0,
-                        72);
+                        72);*/
                         
   //column_y_start = 10 + 2 * HEADER_HEIGHT;
   //column_height  = height - 8 * HEADER_HEIGHT - 5;
@@ -191,14 +191,15 @@ Comparator::paint(QPainter* painter,
       {
         colorTable << qRgba(0, 0, 0, i);
       }
+      glyphImage.setColorTable(colorTable);
 
-      if (pixelMode_col[col] == FT_PIXEL_MODE_GRAY)
+      /* if (pixelMode_col[col] == FT_PIXEL_MODE_GRAY)
       {
-        glyphImage.setColorTable(colorTable);
+        
       } else
       {
         glyphImage.setColorTable(colorTable);
-      }
+      }*/
 
       FT_Pos bottom = 0;
 
@@ -219,8 +220,8 @@ Comparator::paint(QPainter* painter,
           const double a = qAlpha(p) / 255.0;
           painter->fillRect(QRectF(n + column_x_start[col]- 1 / lod / 2,
                                     m + height + bottom - face->glyph->metrics.horiBearingY/64- 1 / lod / 2,
-                                    1/lod,
-                                    1/lod),
+                                    1,
+                                    1),
                             QColor(
                                   255 * std::pow(r, 1/gamma),
                                   255 * std::pow(g, 1/gamma),

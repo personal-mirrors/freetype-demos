@@ -48,7 +48,8 @@ public:
        int kerning_mode,
        int kerning_degree,
        unsigned long loadFlags,
-       double gamma);
+       double gamma,
+       int glyphIndexStart);
   ~RenderAll();
   QRectF boundingRect() const;
   void paint(QPainter* painter,
@@ -78,6 +79,7 @@ private:
   int kerning_degree;
   unsigned long loadFlags;
   double gamma;
+  int glyphIndexStart;
 };
 
 

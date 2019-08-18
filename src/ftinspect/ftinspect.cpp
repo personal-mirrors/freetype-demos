@@ -26,7 +26,7 @@ main(int argc,
 
   for (int i = 1; i < QCoreApplication::arguments().size(); i++)
   {
-    QString homeDir = app.applicationDirPath() + "/" + QCoreApplication::arguments().at(i);
+    QString homeDir = QCoreApplication::arguments().at(i);
     gui.files.append(homeDir);
   }
 
