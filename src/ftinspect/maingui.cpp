@@ -1894,8 +1894,19 @@ MainGUI::createLayout()
   gammaSlider = new QSlider(Qt::Horizontal);
   gammaSlider->setRange(0, 30); // in 1/10th
   gammaSlider->setTickPosition(QSlider::TicksBelow);
-  gammaSlider->setTickInterval(5);
-  gammaLabel->setBuddy(gammaSlider);
+  gammaSlider->setTickInterval(10);
+  QLabel *label_1 = new QLabel("<pre>0.0</pre>", this);
+  QLabel *label_2 = new QLabel("<pre>\t1.0</pre>", this);
+  QLabel *label_3 = new QLabel("<pre>\t2.0</pre>", this);
+  QLabel *label_4 = new QLabel("<pre>\t3.0</pre>", this);
+  //gammaLabel->setBuddy(gammaSlider);
+  QGridLayout *gLayout = new QGridLayout;
+  gLayout->addWidget(gammaSlider, 0, 0, 1, 5);
+  gLayout->addWidget(label_1, 1, 0, 1, 1);
+  gLayout->addWidget(label_2, 1, 1, 1, 1);
+  gLayout->addWidget(label_3, 1, 2, 1, 1);
+  gLayout->addWidget(label_4, 1, 3, 1, 1);
+ 
 
   xLabel = new QLabel(tr("Embolden X"));
   yLabel = new QLabel(tr("Embolden Y"));
@@ -1965,16 +1976,19 @@ MainGUI::createLayout()
   kerningColumnLayout->addWidget(kerningColumnCheckBox);
 
   antiAliasingLayout = new QHBoxLayout;
+  antiAliasingLabel->setAlignment(Qt::AlignLeft);
   antiAliasingLayout->addWidget(antiAliasingLabel);
   antiAliasingLayout->addWidget(antiAliasingComboBoxx);
 
   lcdFilterLayout = new QHBoxLayout;
+  lcdFilterLabel->setAlignment(Qt::AlignLeft);
   lcdFilterLayout->addWidget(lcdFilterLabel);
   lcdFilterLayout->addWidget(lcdFilterComboBox);
 
   gammaLayout = new QHBoxLayout;
+  gammaLabel->setAlignment(Qt::AlignLeft);
   gammaLayout->addWidget(gammaLabel);
-  gammaLayout->addWidget(gammaSlider);
+  //gammaLayout->addWidget(gammaSlider);
 
   emboldenVertLayout = new QHBoxLayout;
   emboldenVertLayout->addWidget(yLabel);
@@ -2012,6 +2026,7 @@ MainGUI::createLayout()
   generalTabLayout->addSpacing(20); // XXX px
   generalTabLayout->addStretch(1);
   generalTabLayout->addLayout(gammaLayout);
+  generalTabLayout->addLayout(gLayout);
   generalTabLayout->addSpacing(20); // XXX px
   generalTabLayout->addStretch(1);
   generalTabLayout->addWidget(showBitmapCheckBox);

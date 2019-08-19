@@ -215,9 +215,9 @@ private:
   QHash<FT_LcdFilter, int> lcdFilterHash;
 
   QHBoxLayout *antiAliasingLayout;
+  QHBoxLayout *gammaLayout;
   QHBoxLayout *blueZoneHintingLayout;
   QHBoxLayout *ftinspectLayout;
-  QHBoxLayout *gammaLayout;
   QHBoxLayout *hintingModeLayout;
   QHBoxLayout *horizontalHintingLayout;
   QHBoxLayout *infoLeftLayout;

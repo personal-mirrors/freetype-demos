@@ -191,15 +191,14 @@ Comparator::paint(QPainter* painter,
       {
         colorTable << qRgba(0, 0, 0, i);
       }
-      glyphImage.setColorTable(colorTable);
 
-      /* if (pixelMode_col[col] == FT_PIXEL_MODE_GRAY)
+      if (pixelMode_col[col] == FT_PIXEL_MODE_GRAY)
       {
-        
+        glyphImage.setColorTable(colorTable);
       } else
       {
         glyphImage.setColorTable(colorTable);
-      }*/
+      }
 
       FT_Pos bottom = 0;
 
