@@ -46,6 +46,7 @@
 #include <QVariant>
 #include <QVBoxLayout>
 #include <QRadioButton>
+#include <QSettings>
 
 #include <ft2build.h>
 #include FT_LCD_FILTER_H
@@ -71,11 +72,12 @@ public:
   void setDefaults();
   void update(Engine*);
   QStringList files;
-  
+
   // modes count
   int comparatorCount = 0;
   int renderAllCount = 0;
   int arg = 0;
+  QSettings settings;
 
   friend class Engine;
   friend FT_Error faceRequester(FTC_FaceID,

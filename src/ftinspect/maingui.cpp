@@ -33,7 +33,7 @@ MainGUI::MainGUI()
   createMenus();
   createStatusBar();
 
-  readSettings();
+  //readSettings();
 
   setUnifiedTitleAndToolBarOnMac(true);
 }
@@ -846,6 +846,7 @@ MainGUI::mmViewRender()
 void
 MainGUI::comparatorViewRender()
 {
+  writeSettings();
     // Basic definition
   FT_Size size;
 
@@ -1027,13 +1028,13 @@ MainGUI::comparatorViewRender()
   {
     zoomSpinBox->setValue(1);
   }
-
 }
 
 
 void
 MainGUI::gridViewRender()
 {
+  writeSettings();
   if (gridView->isChecked())
   {
     if (currentRenderAllItem)
@@ -1148,6 +1149,7 @@ MainGUI::gammaChange()
 void
 MainGUI::renderAll()
 {
+  writeSettings();
   kerningDegreeComboBoxx->setEnabled(false);
   kerningModeComboBoxx->setEnabled(false);
   stroke_Slider->setEnabled(false);
@@ -1594,6 +1596,8 @@ MainGUI::zoom()
 
   glyphView->setTransform(transform);
   drawGlyph();
+
+  readSettings();
 }
 
 
@@ -2577,7 +2581,22 @@ MainGUI::setDefaults()
 void
 MainGUI::readSettings()
 {
-  QSettings settings;
+
+  if (allGlyphs->isChecked())
+  {
+    settings.setValue("ZoomGlyph", zoomSpinBox->value());
+    settings.setValue("dpiGlyph", sizeDoubleSpinBox->value());
+  }
+  if (comparatorView->isChecked())
+  {
+    settings.setValue("ZoomComp", zoomSpinBox->value());
+    settings.setValue("dpiComp", sizeDoubleSpinBox->value());
+  }
+  if (gridView->isChecked())
+  {
+    settings.setValue("ZoomGrid", zoomSpinBox->value());
+    settings.setValue("dpiGrid", sizeDoubleSpinBox->value());
+  }
 //  QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
 //  QSize size = settings.value("size", QSize(400, 400)).toSize();
 //  resize(size);
@@ -2588,7 +2607,27 @@ MainGUI::readSettings()
 void
 MainGUI::writeSettings()
 {
-  QSettings settings;
+  if (allGlyphs->isChecked())
+  {
+    int zoomGlyph = settings.value("ZoomGlyph", 19).toInt();
+    int dpiGlyph = settings.value("dpiGlyph", 20).toInt();
+    zoomSpinBox->setValue(zoomGlyph);
+    sizeDoubleSpinBox->setValue(dpiGlyph);
+  }
+  if (comparatorView->isChecked())
+  {
+    int zoomComp = settings.value("ZoomComp", 19).toInt();
+    int dpiComp = settings.value("dpiComp", 20).toInt();
+    zoomSpinBox->setValue(zoomComp);
+    sizeDoubleSpinBox->setValue(dpiComp);
+  }
+  if (gridView->isChecked())
+  {
+    int zoomGrid = settings.value("ZoomGrid", 19).toInt();
+    int dpiGrid = settings.value("dpiGrid", 20).toInt();
+    zoomSpinBox->setValue(zoomGrid);
+    sizeDoubleSpinBox->setValue(dpiGrid);
+  }
 //  settings.setValue("pos", pos());
 //  settings.setValue("size", size());
 }
