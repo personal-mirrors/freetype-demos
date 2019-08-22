@@ -71,7 +71,7 @@ public:
   void setDefaults();
   void update(Engine*);
   QStringList files;
-
+  
   // modes count
   int comparatorCount = 0;
   int renderAllCount = 0;

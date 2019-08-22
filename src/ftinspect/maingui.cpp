@@ -187,9 +187,7 @@ MainGUI::showTablesListInfo()
     FT_Sfnt_Table_Info( face, 0, NULL, &num_tables );
     QMessageBox msgBox;
     //msgBox.setWindowTitle("SFNT Tables List");
-    QString tablesinfo = "<pre><b>SFNT Tables List</b></pre>";
-
-    tablesinfo.append("<pre><b>S No.</b>\t<b>Tag</b></pre>");
+    QString tablesinfo = "S No.\tTag\n\n";
 
     for ( i = 0; i < num_tables; i++ )
     {
@@ -205,15 +203,16 @@ MainGUI::showTablesListInfo()
         continue;
       }
 
-      tablesinfo.append(QString("<pre>%1\t<em>%2%3%4%5</pre>").arg(i)
+      tablesinfo.append(QString("%1\t%2%3%4%5\n").arg(i)
                                                                         .arg((char)( tag >> 24 ))
                                                                         .arg((char)( tag >> 16 ))
                                                                         .arg((char)( tag >> 8 ))
                                                                         .arg((char)( tag )));
     }
 
-    msgBox.setStyleSheet("QLabel{max-height: 550px; font-size: 10px;}");
-    msgBox.setText(tablesinfo);
+    msgBox.setText("SFNT Tables List");
+    msgBox.setDetailedText(tablesinfo);
+    msgBox.setStyleSheet("QLabel{max-height: 550px; min-width: 350px;}");
     msgBox.exec();
 }
 
@@ -228,10 +227,9 @@ MainGUI::showTablesInfo()
 
   QMessageBox msgBox;
   msgBox.setWindowTitle("SFNT Tables");
-  QString tablesinfo = "<b>SFNT Tables</b><br>";// = QString("%1").arg(desc.idVendor, 0, 16).rightJustified(4, '0');
+  QString tablesinfo = "Name ID\tPlatform ID\tEncoding ID\n\n";// = QString("%1").arg(desc.idVendor, 0, 16).rightJustified(4, '0');
 
   //printf( "font string entries\n" );
-  tablesinfo.append(QString("<pre><b>Name ID</b>\t<b>Platform ID</b>\t<b>Encoding ID</b></pre>"));
 
   num_names = FT_Get_Sfnt_Name_Count( face );
   for ( i = 0; i < num_names; i++ )
@@ -247,13 +245,13 @@ MainGUI::showTablesInfo()
                 //printf( "   %-15s [%s]", NameID, PlatformID );
         if (NameID < 10)
         {
-          tablesinfo.append(QString("<pre>%1\t[%2]\t\t").arg(NameID).arg(PlatformID));
+          tablesinfo.append(QString("%1\t[%2]\t").arg(NameID).arg(PlatformID));
         } else if (NameID < 100)
         {
-          tablesinfo.append(QString("<pre>%1\t[%2]\t\t").arg(NameID).arg(PlatformID));
+          tablesinfo.append(QString("%1\t[%2]\t").arg(NameID).arg(PlatformID));
         } else if (NameID < 1000)
         {
-          tablesinfo.append(QString("<pre>%1\t[%2]\t\t").arg(NameID).arg(PlatformID));
+          tablesinfo.append(QString("%1\t[%2]\t").arg(NameID).arg(PlatformID));
         }
       }
       else
@@ -280,7 +278,7 @@ MainGUI::showTablesInfo()
 
         default:
           //printf( "{unsupported Unicode encoding %d}", name.encoding_id );
-          tablesinfo.append(QString("unsupported Unicode encoding %1").arg(name.encoding_id));
+          tablesinfo.append(QString("unsupported Unicode encoding %1\n").arg(name.encoding_id));
           break;
         }
         break;
@@ -288,7 +286,7 @@ MainGUI::showTablesInfo()
       case TT_PLATFORM_MACINTOSH:
         if ( name.language_id != TT_MAC_LANGID_ENGLISH )
         {
-          tablesinfo.append(QString("(language=%1)").arg(name.language_id));
+          tablesinfo.append(QString("(language=%1)\n").arg(name.language_id));
         }
           //printf( " (language=%u)", name.language_id );
         //tablesinfo.append(":");
@@ -304,7 +302,7 @@ MainGUI::showTablesInfo()
 
          default:
           //printf( "      [data in encoding %d]", name.encoding_id );
-          tablesinfo.append(QString("[data in encoding %1]").arg(name.encoding_id));
+          tablesinfo.append(QString("[data in encoding %1]\n").arg(name.encoding_id));
           break;
         }
         break;
@@ -324,7 +322,7 @@ MainGUI::showTablesInfo()
 
         default:
           //printf( "{unsupported encoding %d}", name.encoding_id );
-          tablesinfo.append(QString("{unsupported encoding %1}").arg(name.encoding_id));
+          tablesinfo.append(QString("{unsupported encoding %1}\n").arg(name.encoding_id));
           break;
         }
         break;
@@ -333,7 +331,7 @@ MainGUI::showTablesInfo()
         if ( name.language_id != TT_MS_LANGID_ENGLISH_UNITED_STATES )
         {
                     //printf( " (language=0x%04x)", name.language_id );
-          tablesinfo.append(QString("{(language=%1)}").arg(name.language_id));
+          tablesinfo.append(QString("{(language=%1)}\n").arg(name.language_id));
         }
         //fputs( ":\n", stdout );
         //tablesinfo.append(":");
@@ -348,23 +346,23 @@ MainGUI::showTablesInfo()
 
         default:
           //printf( "{unsupported encoding %d}", name.encoding_id );
-          tablesinfo.append(QString("{unsupported encoding %1}").arg(name.encoding_id));
+          tablesinfo.append(QString("{unsupported encoding %1}\n").arg(name.encoding_id));
           break;
         }
         break;
 
       default:
         //printf( "{unsupported platform}" );
-        tablesinfo.append(QString("{unsupported platform}"));
+        tablesinfo.append(QString("{unsupported platform}\n"));
         break;
       }
 
       //stablesinfo.append("<br>");
     }
 
-    //QMessageBox::about(this, "SFNT Tables", tablesinfo);
-    msgBox.setStyleSheet("QLabel{max-height: 550px; font-size: 10px;}");
-    msgBox.setText(tablesinfo);
+    msgBox.setText("SFNT Tables");
+    msgBox.setDetailedText(tablesinfo);
+    msgBox.setStyleSheet("QLabel{max-height: 550px; min-width: 350px;}");
     msgBox.exec();
   }
 
@@ -375,19 +373,20 @@ MainGUI::showCharmapsInfo()
   FT_Face face = engine->getFtSize()->face;
   QMessageBox msgBox;
   msgBox.setWindowTitle("Charmaps Info");
-  QString charmapinfo = "<b>Charmaps Info</b><br>";
+  QString charmapinfo = "";
 
   for(int i = 0 ; i < face->num_charmaps ; i++)
   {
-    charmapinfo.append(QString("<pre>Format   : <em>%1</em></pre>").arg(FT_Get_CMap_Format( face->charmaps[i] )));
-    charmapinfo.append(QString("<pre>Platform : <em>%2</em></pre>").arg(face->charmaps[i]->platform_id));
-    charmapinfo.append(QString("<pre>Encoding : <em>%3</em></pre>").arg(face->charmaps[i]->encoding_id));
-    charmapinfo.append(QString("<pre>Language : <em>%4</em></pre>").arg(FT_Get_CMap_Language_ID(face->charmaps[i])));
-
-    charmapinfo.append("<br>");
+    charmapinfo.append(QString("Format:\t%1\n").arg(FT_Get_CMap_Format( face->charmaps[i] )));
+    charmapinfo.append(QString("Platform:\t%2\n").arg(face->charmaps[i]->platform_id));
+    charmapinfo.append(QString("Encoding:\t%3\n").arg(face->charmaps[i]->encoding_id));
+    charmapinfo.append(QString("Language:\t%4\n\n").arg(FT_Get_CMap_Language_ID(face->charmaps[i])));
   }
-  msgBox.setStyleSheet("QLabel{max-height: 550px; font-size: 10px;}");
-  QMessageBox::about(this, "Charmaps Info", charmapinfo);
+
+  msgBox.setText("Charmaps Info");
+  msgBox.setDetailedText(charmapinfo);
+  msgBox.setStyleSheet("QLabel{max-height: 550px; min-width: 350px;}");
+  msgBox.exec();
   //msgBox.exec();
 }
 
@@ -1281,16 +1280,16 @@ MainGUI::renderAll()
     }
 
   // disable glyph buttons
-  /*toStartButtonx->setEnabled(false);
-  toM1000Buttonx->setEnabled(false);
-  toM100Buttonx->setEnabled(false);
-  toM10Buttonx->setEnabled(false);
-  toM1Buttonx->setEnabled(false);
-  toP1Buttonx->setEnabled(false);
-  toP10Buttonx->setEnabled(false);
-  toP100Buttonx->setEnabled(false);
-  toP1000Buttonx->setEnabled(false);
-  toEndButtonx->setEnabled(false);*/
+  toStartButtonx->setEnabled(true);
+  toM1000Buttonx->setEnabled(true);
+  toM100Buttonx->setEnabled(true);
+  toM10Buttonx->setEnabled(true);
+  toM1Buttonx->setEnabled(true);
+  toP1Buttonx->setEnabled(true);
+  toP10Buttonx->setEnabled(true);
+  toP100Buttonx->setEnabled(true);
+  toP1000Buttonx->setEnabled(true);
+  toEndButtonx->setEnabled(true);
 
   // diable tabs
   tabWidget->setTabEnabled(1, false);
@@ -1631,6 +1630,8 @@ MainGUI::setGraphicsDefaults()
 void
 MainGUI::drawGlyph()
 {
+  
+  gammaLabel->setText(QString("Gamme(%1)").arg((gammaSlider->value()/10.0)));
   // the call to `engine->loadOutline' updates FreeType's load flags
   if (!engine)
     return;
