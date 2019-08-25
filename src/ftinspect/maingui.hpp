@@ -93,6 +93,9 @@ private slots:
   void aboutQt();
   void showCharmapsInfo();
   void showTablesInfo();
+  void PIDTriggered();
+  void IDTriggered();
+  void languageTriggered();
   void showTablesListInfo();
   void showFontType();
   void showFontName();
@@ -153,6 +156,8 @@ private:
   int currentCFFHintingMode;
   int currentTTInterpreterVersion;
 
+  int current_action = 0;
+
 
 
   // layout related stuff
@@ -171,7 +176,9 @@ private:
   QAction *exitAct;
   QAction *loadFontsAct;
   QAction *showCharmapsInfoAct;
-  QAction *showTablesSFNTAct;
+  QAction *showTablesPIDAct;
+  QAction *showTablesLanguageAct;
+  QAction *showTablesIDAct;
   QAction *showNamesSFNTAct;
   QAction *showFontTypeAct;
   QAction *showFontNameAct;
@@ -208,6 +215,7 @@ private:
 
   QGraphicsScene *glyphScene;
   QGraphicsViewx *glyphView;
+  QGraphicsViewx *glyphView1;
 
   QGridLayout *fontLayout;
   QGridLayout *infoRightLayout;

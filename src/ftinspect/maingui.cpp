@@ -11,6 +11,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QAbstractButton>
+#include <QTextEdit>
 #include <QtDebug>
 
 #include FT_DRIVER_H
@@ -41,7 +43,7 @@ MainGUI::MainGUI()
 
 MainGUI::~MainGUI()
 {
-  // empty
+  settings.clear();
 }
 
 
@@ -212,8 +214,47 @@ MainGUI::showTablesListInfo()
 
     msgBox.setText("SFNT Tables List");
     msgBox.setDetailedText(tablesinfo);
+    QAbstractButton *detailsButton = NULL;
+
+    foreach (QAbstractButton *button, msgBox.buttons()) {
+        if (msgBox.buttonRole(button) == QMessageBox::ActionRole) {
+            detailsButton = button;
+            break;
+        }
+    }
+
+    // If we have found the details button, then click it to expand the
+    // details area.
+    if (detailsButton) {
+        detailsButton->click();
+    }
+    QList<QTextEdit*> textBoxes = msgBox.findChildren<QTextEdit*>();
+    if(textBoxes.size())
+        textBoxes[0]->setFixedSize(400, 350);
     msgBox.setStyleSheet("QLabel{max-height: 550px; min-width: 350px;}");
     msgBox.exec();
+}
+
+
+void
+MainGUI::PIDTriggered()
+{
+  current_action = 1;
+  showTablesInfo();
+}
+
+void
+MainGUI::IDTriggered()
+{
+  current_action = 2;
+  showTablesInfo();
+}
+
+void
+MainGUI::languageTriggered()
+{
+  current_action = 3;
+  showTablesInfo();
 }
 
 
@@ -227,7 +268,18 @@ MainGUI::showTablesInfo()
 
   QMessageBox msgBox;
   msgBox.setWindowTitle("SFNT Tables");
-  QString tablesinfo = "Name ID\tPlatform ID\tEncoding ID\n\n";// = QString("%1").arg(desc.idVendor, 0, 16).rightJustified(4, '0');
+  
+  QString tablesinfo;
+  if (current_action == 1)
+  {
+    tablesinfo = "PID\tID\tLID\tEncoding ID\n\n";
+  } else if (current_action == 2)
+  {
+    tablesinfo = "ID\tPID\tLID\tEncoding ID\n\n";
+  } else if (current_action == 3)
+  {
+    tablesinfo = "LID\tID\tPID\tEncoding ID\n\n";
+  }// = QString("%1").arg(desc.idVendor, 0, 16).rightJustified(4, '0');
 
   //printf( "font string entries\n" );
 
@@ -239,25 +291,25 @@ MainGUI::showTablesInfo()
     {
       const short unsigned int  NameID     = name.name_id;
       const short unsigned int  PlatformID = name.platform_id;
+      const short unsigned int  LanguageID = name.language_id;
 
       if ( NameID )
       {
-                //printf( "   %-15s [%s]", NameID, PlatformID );
-        if (NameID < 10)
+        if (current_action == 1)
         {
-          tablesinfo.append(QString("%1\t[%2]\t").arg(NameID).arg(PlatformID));
-        } else if (NameID < 100)
+          tablesinfo.append(QString("%1\t%2\t%3\t").arg(PlatformID).arg(NameID).arg(LanguageID));
+        } else if (current_action == 2)
         {
-          tablesinfo.append(QString("%1\t[%2]\t").arg(NameID).arg(PlatformID));
-        } else if (NameID < 1000)
+          tablesinfo.append(QString("%1\t%2\t%3\t").arg(NameID).arg(PlatformID).arg(LanguageID));
+        } else if (current_action == 3)
         {
-          tablesinfo.append(QString("%1\t[%2]\t").arg(NameID).arg(PlatformID));
+          tablesinfo.append(QString("%1\t%2\t%3\t").arg(LanguageID).arg(NameID).arg(PlatformID));
         }
       }
       else
       {
-                //printf( "   Name ID %-5d   [%s]", name.name_id, PlatformID );
-        tablesinfo.append(QString("Name ID %1 [%2]").arg(NameID).arg(PlatformID));
+        //printf( "   Name ID %-5d   [%s]", name.name_id, PlatformID );
+        tablesinfo.append(QString("PID %1 %2").arg(PlatformID).arg(NameID));
       }
     }
   
@@ -362,6 +414,25 @@ MainGUI::showTablesInfo()
 
     msgBox.setText("SFNT Tables");
     msgBox.setDetailedText(tablesinfo);
+    // Loop through all buttons, looking for one with the "ActionRole" button
+    // role. This is the "Show Details..." button.
+    QAbstractButton *detailsButton = NULL;
+
+    foreach (QAbstractButton *button, msgBox.buttons()) {
+        if (msgBox.buttonRole(button) == QMessageBox::ActionRole) {
+            detailsButton = button;
+            break;
+        }
+    }
+    // If we have found the details button, then click it to expand the
+    // details area.
+    if (detailsButton) {
+        detailsButton->click();
+    }
+    QList<QTextEdit*> textBoxes = msgBox.findChildren<QTextEdit*>();
+    if(textBoxes.size())
+        textBoxes[0]->setFixedSize(450, 350);
+    
     msgBox.setStyleSheet("QLabel{max-height: 550px; min-width: 350px;}");
     msgBox.exec();
   }
@@ -385,6 +456,23 @@ MainGUI::showCharmapsInfo()
 
   msgBox.setText("Charmaps Info");
   msgBox.setDetailedText(charmapinfo);
+  QAbstractButton *detailsButton = NULL;
+
+  foreach (QAbstractButton *button, msgBox.buttons()) {
+      if (msgBox.buttonRole(button) == QMessageBox::ActionRole) {
+          detailsButton = button;
+          break;
+      }
+  }
+
+  // If we have found the details button, then click it to expand the
+  // details area.
+  if (detailsButton) {
+      detailsButton->click();
+  }
+  QList<QTextEdit*> textBoxes = msgBox.findChildren<QTextEdit*>();
+  if(textBoxes.size())
+      textBoxes[0]->setFixedSize(400, 350);
   msgBox.setStyleSheet("QLabel{max-height: 550px; min-width: 350px;}");
   msgBox.exec();
   //msgBox.exec();
@@ -846,7 +934,7 @@ MainGUI::mmViewRender()
 void
 MainGUI::comparatorViewRender()
 {
-  writeSettings();
+  readSettings();
     // Basic definition
   FT_Size size;
 
@@ -1027,6 +1115,7 @@ MainGUI::comparatorViewRender()
   if (comparatorCount < 2)
   {
     zoomSpinBox->setValue(1);
+    sizeDoubleSpinBox->setValue(20);
   }
 }
 
@@ -1034,7 +1123,7 @@ MainGUI::comparatorViewRender()
 void
 MainGUI::gridViewRender()
 {
-  writeSettings();
+  readSettings();
   if (gridView->isChecked())
   {
     if (currentRenderAllItem)
@@ -1149,7 +1238,7 @@ MainGUI::gammaChange()
 void
 MainGUI::renderAll()
 {
-  writeSettings();
+  readSettings();
   kerningDegreeComboBoxx->setEnabled(false);
   kerningModeComboBoxx->setEnabled(false);
   stroke_Slider->setEnabled(false);
@@ -1334,6 +1423,7 @@ MainGUI::renderAll()
   if (renderAllCount < 2)
   {
     zoomSpinBox->setValue(1);
+    sizeDoubleSpinBox->setValue(20);
   }
 }
 
@@ -1593,11 +1683,11 @@ MainGUI::zoom()
   // that represents 0.5px (i.e., half the 1px line width) after the scaling
   qreal shift = 0.5 / scale;
   transform.translate(shift, shift);
-
   glyphView->setTransform(transform);
+
   drawGlyph();
 
-  readSettings();
+  writeSettings();
 }
 
 
@@ -1728,6 +1818,8 @@ MainGUI::drawGlyph()
     }
   }
   glyphScene->update();
+  
+  writeSettings();
 
   if (comparatorView->isChecked())
   {
@@ -2135,9 +2227,9 @@ MainGUI::createLayout()
   glyphView = new QGraphicsViewx;
   glyphView->setRenderHint(QPainter::Antialiasing, true);
   glyphView->setDragMode(QGraphicsView::ScrollHandDrag);
-  glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+  //glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
   glyphView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-  glyphView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+  //glyphView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   glyphView->setScene(glyphScene);
 
   sizeLabel = new QLabel(tr("Size "));
@@ -2428,8 +2520,14 @@ MainGUI::createActions()
   showCharmapsInfoAct = new QAction(tr("&Charmap Info"), this);
   connect(showCharmapsInfoAct, SIGNAL(triggered()), SLOT(showCharmapsInfo()));
 
-  showTablesSFNTAct = new QAction(tr("&SFNT Name Tables"), this);
-  connect(showTablesSFNTAct, SIGNAL(triggered()), SLOT(showTablesInfo()));
+  showTablesPIDAct = new QAction(tr("&PID"), this);
+  connect(showTablesPIDAct, SIGNAL(triggered()), SLOT(PIDTriggered()));
+
+  showTablesLanguageAct = new QAction(tr("&Language"), this);
+  connect(showTablesLanguageAct, SIGNAL(triggered()), SLOT(languageTriggered()));
+
+  showTablesIDAct = new QAction(tr("&ID"), this);
+  connect(showTablesIDAct, SIGNAL(triggered()), SLOT(IDTriggered()));
 
   showNamesSFNTAct = new QAction(tr("&SFNT Tables List"), this);
   connect(showNamesSFNTAct, SIGNAL(triggered()), SLOT(showTablesListInfo()));
@@ -2455,9 +2553,11 @@ MainGUI::createMenus()
   menuInfo->addAction(showFontTypeAct);
   menuInfo->addAction(showCharmapsInfoAct);
   //if (FT_IS_SFNT( engine->getFtSize()->face ))
-  //{
-    menuInfo->addAction(showTablesSFNTAct);
- // }
+  //{ QMenu  = menuInfo->addMenu( "This shit" );
+  QMenu *sfntTable = menuInfo->addMenu("SFNT Name Tables (Order by)");
+  sfntTable->addAction(showTablesPIDAct);
+  sfntTable->addAction(showTablesLanguageAct);
+  sfntTable->addAction(showTablesIDAct);
   menuInfo->addAction(showNamesSFNTAct);
 
   if (fontList.size() <= 0)
@@ -2579,57 +2679,54 @@ MainGUI::setDefaults()
 
 
 void
-MainGUI::readSettings()
+MainGUI::writeSettings()
 {
-
   if (allGlyphs->isChecked())
   {
     settings.setValue("ZoomGlyph", zoomSpinBox->value());
     settings.setValue("dpiGlyph", sizeDoubleSpinBox->value());
   }
-  if (comparatorView->isChecked())
+  else if (comparatorView->isChecked())
   {
     settings.setValue("ZoomComp", zoomSpinBox->value());
     settings.setValue("dpiComp", sizeDoubleSpinBox->value());
   }
-  if (gridView->isChecked())
+  else if (gridView->isChecked())
   {
     settings.setValue("ZoomGrid", zoomSpinBox->value());
     settings.setValue("dpiGrid", sizeDoubleSpinBox->value());
   }
-//  QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-//  QSize size = settings.value("size", QSize(400, 400)).toSize();
-//  resize(size);
-//  move(pos);
+//QSize size = settings.value("size", QSize(400, 400)).toSize();
+//resize(size);
 }
 
 
 void
-MainGUI::writeSettings()
+MainGUI::readSettings()
 {
   if (allGlyphs->isChecked())
   {
-    int zoomGlyph = settings.value("ZoomGlyph", 19).toInt();
+    int zoomGlyph = settings.value("ZoomGlyph", 20).toInt();
     int dpiGlyph = settings.value("dpiGlyph", 20).toInt();
     zoomSpinBox->setValue(zoomGlyph);
     sizeDoubleSpinBox->setValue(dpiGlyph);
   }
-  if (comparatorView->isChecked())
+  else if (comparatorView->isChecked())
   {
-    int zoomComp = settings.value("ZoomComp", 19).toInt();
+    int zoomComp = settings.value("ZoomComp", 20).toInt();
     int dpiComp = settings.value("dpiComp", 20).toInt();
     zoomSpinBox->setValue(zoomComp);
     sizeDoubleSpinBox->setValue(dpiComp);
   }
-  if (gridView->isChecked())
+  else if (gridView->isChecked())
   {
-    int zoomGrid = settings.value("ZoomGrid", 19).toInt();
+    int zoomGrid = settings.value("ZoomGrid", 20).toInt();
     int dpiGrid = settings.value("dpiGrid", 20).toInt();
     zoomSpinBox->setValue(zoomGrid);
     sizeDoubleSpinBox->setValue(dpiGrid);
   }
-//  settings.setValue("pos", pos());
-//  settings.setValue("size", size());
+//settings.setValue("pos", pos());
+//settings.setValue("size", size());
 }
 
 
