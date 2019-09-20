@@ -1,3 +1,11 @@
+2019-09-20  Werner Lemberg  <wl@gnu.org>
+
+	* graph/x11/grx11.c (gr_x11_surface_init): Initialize `xswa'.
+
+	This removes two valgrind warnings about
+
+	  Conditional jump or move depends on uninitialised value(s)
+
 2019-08-27  Werner Lemberg  <wl@gnu.org>
 
 	* Makefile (PLATFORM==unixdev): Add `libbrotlidec'.

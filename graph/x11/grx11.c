@@ -1328,9 +1328,9 @@ typedef  unsigned long   uint32;
       return 0;
 
     {
-      XTextProperty         xtp = { (unsigned char*)"FreeType", 31, 8, 8 };
-      XSizeHints            xsh = { };
-      XSetWindowAttributes  xswa;
+      XTextProperty         xtp  = { (unsigned char*)"FreeType", 31, 8, 8 };
+      XSizeHints            xsh  = { };
+      XSetWindowAttributes  xswa = { };
       unsigned long         xswa_mask = CWEventMask | CWCursor;
 
       pid_t                 pid;
