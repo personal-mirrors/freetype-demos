@@ -29,6 +29,7 @@
 #include FT_SYNTHESIS_H
 #include FT_ADVANCES_H
 #include FT_OUTLINE_H
+#include FT_STROKER_H
 #include FT_BBOX_H
 #include FT_MODULE_H
 #include FT_DRIVER_H
@@ -99,12 +100,13 @@
     FT_BENCH_LOAD_ADVANCES,
     FT_BENCH_RENDER,
     FT_BENCH_GET_GLYPH,
-    FT_BENCH_GET_CBOX,
     FT_BENCH_CMAP,
     FT_BENCH_CMAP_ITER,
     FT_BENCH_NEW_FACE,
     FT_BENCH_EMBOLDEN,
+    FT_BENCH_STROKE,
     FT_BENCH_GET_BBOX,
+    FT_BENCH_GET_CBOX,
     FT_BENCH_NEW_FACE_AND_LOAD_GLYPH,
     N_FT_BENCH
   };
@@ -116,12 +118,13 @@
     "load advance widths (FT_Get_Advances)",
     "render a glyph      (FT_Render_Glyph)",
     "load a glyph        (FT_Get_Glyph)",
-    "get glyph cbox      (FT_Glyph_Get_CBox)",
     "get glyph indices   (FT_Get_Char_Index)",
     "iterate CMap        (FT_Get_{First,Next}_Char)",
     "open a new face     (FT_New_Face)",
     "embolden            (FT_GlyphSlot_Embolden)",
+    "stroke              (FT_Glyph_Stroke)",
     "get glyph bbox      (FT_Outline_Get_BBox)",
+    "get glyph cbox      (FT_Glyph_Get_CBox)",
 
     "open face and load glyph",
     NULL
@@ -356,6 +359,45 @@
       FT_GlyphSlot_Embolden( face->glyph );
       done++;
       TIMER_STOP( timer );
+    }
+
+    return done;
+  }
+
+
+  static int
+  test_stroke( btimer_t*  timer,
+               FT_Face    face,
+               void*      user_data )
+  {
+    FT_Glyph      glyph;
+    FT_Stroker    stroker;
+    unsigned int  i;
+    int           done = 0;
+
+    FT_UNUSED( user_data );
+
+
+    FT_Stroker_New( lib, &stroker );
+    FT_Stroker_Set( stroker, face->size->metrics.y_ppem,
+                    FT_STROKER_LINECAP_ROUND,
+                    FT_STROKER_LINEJOIN_ROUND,
+                    0 );
+
+    for ( i = first_index; i <= last_index; i++ )
+    {
+      if ( FT_Load_Glyph( face, i, load_flags ) )
+        continue;
+
+      if ( FT_Get_Glyph( face->glyph, &glyph ) )
+        continue;
+
+      TIMER_START( timer );
+      FT_Glyph_Stroke( &glyph, stroker, 1 );
+      TIMER_STOP( timer );
+
+      FT_Done_Glyph( glyph );
+      done++;
     }
 
     return done;
@@ -1352,6 +1394,15 @@
       case FT_BENCH_EMBOLDEN:
         test.title = "Embolden";
         test.bench = test_embolden;
+        if ( size )
+          benchmark( face, &test, max_iter, max_time );
+        else
+          printf( "  %-25s disabled (size = 0)\n", test.title );
+        break;
+
+      case FT_BENCH_STROKE:
+        test.title = "Stroke";
+        test.bench = test_stroke;
         if ( size )
           benchmark( face, &test, max_iter, max_time );
         else

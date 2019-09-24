@@ -1,3 +1,8 @@
+2019-09-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftbench.c (test_stroke): Implement stroker test.
+	(FT_BENCH_STROKE, bench_desc, main): Register it.
+
 2019-09-20  Werner Lemberg  <wl@gnu.org>
 
 	* graph/x11/grx11.c (gr_x11_surface_init): Initialize `xswa'.
