@@ -690,9 +690,12 @@
 
 
   static void
-  Print_Programs( FT_Face face )
+  Print_Programs( FT_Face  face )
   {
-    FT_ULong    length = 0;
+    FT_ULong    fpgm_length = 0;
+    FT_ULong    prep_length = 0;
+    FT_ULong    loca_length = 0;
+    FT_ULong    glyf_length = 0;
     FT_UShort   i;
     FT_Byte*    buffer = NULL;
     FT_Byte*    offset = NULL;
@@ -701,65 +704,59 @@
     TT_MaxProfile*  maxp;
 
 
-    error = FT_Load_Sfnt_Table( face, TTAG_fpgm, 0, NULL, &length );
-    if ( error || length == 0 )
+    error = FT_Load_Sfnt_Table( face, TTAG_fpgm, 0, NULL, &fpgm_length );
+    if ( error || fpgm_length == 0 )
       goto Prep;
 
-    buffer = (FT_Byte*)malloc( length );
+    buffer = (FT_Byte*)malloc( fpgm_length );
     if ( buffer == NULL )
       goto Exit;
 
-    error = FT_Load_Sfnt_Table( face, TTAG_fpgm, 0, buffer, &length );
+    error = FT_Load_Sfnt_Table( face, TTAG_fpgm, 0, buffer, &fpgm_length );
     if ( error )
       goto Exit;
 
     printf( "font program" );
-    Print_Bytecode( buffer, (FT_UShort)length, "fpgm" );
+    Print_Bytecode( buffer, (FT_UShort)fpgm_length, "fpgm" );
 
   Prep:
-    length = 0;
-
-    error = FT_Load_Sfnt_Table( face, TTAG_prep, 0, NULL, &length );
-    if ( error || length == 0 )
+    error = FT_Load_Sfnt_Table( face, TTAG_prep, 0, NULL, &prep_length );
+    if ( error || prep_length == 0 )
       goto Glyf;
 
-    buffer = (FT_Byte*)realloc( buffer, length );
+    buffer = (FT_Byte*)realloc( buffer, prep_length );
     if ( buffer == NULL )
       goto Exit;
 
-    error = FT_Load_Sfnt_Table( face, TTAG_prep, 0, buffer, &length );
+    error = FT_Load_Sfnt_Table( face, TTAG_prep, 0, buffer, &prep_length );
     if ( error )
       goto Exit;
 
     printf( "\ncontrol value program" );
-    Print_Bytecode( buffer, (FT_UShort)length, "prep" );
+    Print_Bytecode( buffer, (FT_UShort)prep_length, "prep" );
 
   Glyf:
-    length = 0;
-
-    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, NULL, &length );
-    if ( error || length == 0 )
+    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, NULL, &glyf_length );
+    if ( error || glyf_length == 0 )
       goto Exit;
 
-    buffer = (FT_Byte*)realloc( buffer, length );
+    buffer = (FT_Byte*)realloc( buffer, glyf_length );
     if ( buffer == NULL )
       goto Exit;
 
-    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, buffer, &length );
+    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, buffer, &glyf_length );
     if ( error )
       goto Exit;
 
-    length = 0;
-
-    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, NULL, &length );
-    if ( error || length == 0 )
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, NULL, &loca_length );
+    if ( error || loca_length == 0 )
       goto Exit;
 
-    offset = (FT_Byte*)malloc( length );
+    offset = (FT_Byte*)malloc( loca_length );
     if ( offset == NULL )
       goto Exit;
 
-    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &length );
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &loca_length );
     if ( error )
       goto Exit;
 
@@ -782,8 +779,13 @@
         loc = (FT_UInt32)offset[2 * i    ] << 9 |
               (FT_UInt32)offset[2 * i + 1] << 1;
 
-      len = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
+      if ( loc >= glyf_length )
+      {
+        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        continue;
+      }
 
+      len  = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
       loc += 10;
 
       if ( (FT_Int16)len < 0 )  /* composite */
@@ -793,6 +795,12 @@
 
         do
         {
+          if ( loc >= glyf_length )
+          {
+            printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+            goto Continue;
+          }
+
           flags = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
 
           loc += 4;
@@ -810,6 +818,12 @@
       else
         loc += 2 * len;
 
+      if ( loc >= glyf_length )
+      {
+        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        continue;
+      }
+
       len = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
 
       if ( len == 0 )
@@ -817,9 +831,18 @@
 
       loc += 2;
 
+      if ( len >= glyf_length || loc >= glyf_length - len )
+      {
+        printf( "\nglyf program %hd: invalid size (%d)\n", i, len );
+        continue;
+      }
+
       sprintf( tag, "%04hx", i );
-      printf("\nglyf program %hd (%.4s)", i, tag );
+      printf( "\nglyf program %hd (%.4s)", i, tag );
       Print_Bytecode( buffer + loc, len, tag );
+
+    Continue:
+      ;
     }
 
   Exit:
