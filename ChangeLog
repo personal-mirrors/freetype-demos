@@ -1,6 +1,13 @@
+2019-09-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftstring] Standalone stroker test.
+
+	* src/string.c (dinkus_init): Stroke an open path.
+	(main, Render_String): Use it.
+
 2019-09-27  Werner Lemberg  <wl@gnu.org>
 
-	src/ftdump.c (Print_Programs): Check glyf offset and length.
+	* src/ftdump.c (Print_Programs): Check glyf offset and length.
 
 	Problem reported by Marc Schönefeld <marc.schoenefeld@gmx.org>.
 

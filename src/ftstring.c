@@ -111,6 +111,7 @@
   static FTDemo_Handle*   handle;
 
   static FT_Glyph  wheel, daisy, aster;  /* stress test glyphs */
+  static FT_Glyph  dinkus;               /* stroke test glyph  */
 
 
   static void
@@ -170,6 +171,56 @@
         vec->y = -vec->y;
   }
 
+
+  static void
+  dinkus_init( FT_Glyph*     glyph,
+               FT_F26Dot6    size,
+               FT_F26Dot6    radius )
+  {
+    FT_Outline   path;
+    FT_Vector*   vec;
+    char*        tag;
+    FT_Outline*  outline;
+    FT_UInt      points, contours;
+
+
+    /* initial open path */
+    FT_Outline_New( handle->library, 9, 2, &path );
+    path.contours[0] = 3;
+    path.contours[1] = 8;
+
+    vec = path.points;
+    tag = path.tags;
+
+    vec->x =     -size; vec->y =  size;     vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x =  2 * size; vec->y =     0;     vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x = -2 * size; vec->y =     0;     vec++; *tag++ = FT_CURVE_TAG_CUBIC;
+    vec->x =      size; vec->y =  size;     vec++; *tag++ = FT_CURVE_TAG_ON;
+
+    vec->x = -size / 2; vec->y =  size / 2; vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x =     -size; vec->y =  size / 2; vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x =         0; vec->y =  size;     vec++; *tag++ = FT_CURVE_TAG_CONIC;
+    vec->x =      size; vec->y =  size / 2; vec++; *tag++ = FT_CURVE_TAG_ON;
+    vec->x =  size / 2; vec->y =  size / 2; vec++; *tag++ = FT_CURVE_TAG_ON;
+
+    FT_Stroker_Set( handle->stroker, radius,
+                    FT_STROKER_LINECAP_SQUARE,
+                    FT_STROKER_LINEJOIN_MITER,
+                    0x16A0AL );
+    FT_Stroker_ParseOutline( handle->stroker, &path, 1 );
+    FT_Stroker_GetCounts( handle->stroker, &points, &contours );
+
+    FT_New_Glyph( handle->library, FT_GLYPH_FORMAT_OUTLINE, glyph );
+
+    outline = &((FT_OutlineGlyph)*glyph)->outline;
+
+    FT_Outline_New( handle->library, points, contours, outline );
+    outline->n_points = outline->n_contours = 0;
+
+    FT_Stroker_Export( handle->stroker, outline );
+
+    FT_Outline_Done( handle->library, &path );
+  }
 
   /*************************************************************************/
   /*************************************************************************/
@@ -736,6 +787,9 @@
     x = display->bitmap->width - 4;
     FTDemo_Draw_Glyph( handle, display, aster, &x, &y );
 
+    x = display->bitmap->width / 2;
+    FTDemo_Draw_Glyph( handle, display, dinkus, &x, &y );
+
     FTDemo_String_Draw( handle, display,
                         &status.sc,
                         FT_MulFix( display->bitmap->width, status.sc.center),
@@ -894,6 +948,7 @@
     flower_init( &wheel, 8192, 20, 3, 1, 0, FT_CURVE_TAG_ON    );
     flower_init( &daisy, 8192, 20, 4, 1, 0, FT_CURVE_TAG_CONIC );
     flower_init( &aster, 8192, 20, 5, 1, 1, FT_CURVE_TAG_CUBIC );
+    dinkus_init( &dinkus, 8192, 192 );
 
     FT_Library_SetLcdFilter( handle->library, FT_LCD_FILTER_LIGHT );
 
