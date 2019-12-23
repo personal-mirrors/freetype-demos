@@ -198,7 +198,9 @@
                         const char*      filename,
                         FT_String*       ver_str )
   {
+
 #ifdef FT_CONFIG_OPTION_USE_PNG
+
     grBitmap*  bit    = display->bitmap;
     int        width  = bit->width;
     int        height = bit->rows;
@@ -305,8 +307,14 @@
     fclose( fp );
   Exit0:
     return code;
-#endif /* FT_CONFIG_OPTION_USE_PNG */
+
+#else
+
+    return 0;
+
+#endif /* !FT_CONFIG_OPTION_USE_PNG */
   }
+
 
   /*************************************************************************/
   /*************************************************************************/
