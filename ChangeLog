@@ -1,6 +1,6 @@
 2019-12-23  Noel Benzinger  <noelbenzinger@gmail.com>
 
-	* src/Jamfile (Library): Add `mlgetopt.c' as a dependency.
+	* src/Jamfile (Library): Add `mlgetopt.c' as a dependency (#57466).
 
 2019-09-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
