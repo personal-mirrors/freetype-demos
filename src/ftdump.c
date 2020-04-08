@@ -108,6 +108,26 @@
   }
 
 
+  static char*
+  Name_Field( const char*  name )
+  {
+    static char  result[80];
+    int          left = ( 20 - (int)strlen( name ) );
+
+
+    if ( left <= 0 )
+      left = 1;
+
+    sprintf( result, "   %s:%*s", name, left, " " );
+
+    return result;
+  }
+
+
+#define Print_Type_Number( name ) \
+  printf( "%s%d\n", Name_Field ( #name ), face->name )
+
+
   static void
   Print_Name( FT_Face  face )
   {
@@ -119,14 +139,14 @@
 
     /* XXX: Foundry?  Copyright?  Version? ... */
 
-    printf( "   family:     %s\n", face->family_name );
-    printf( "   style:      %s\n", face->style_name );
+    printf( "%s%s\n", Name_Field( "family" ), face->family_name );
+    printf( "%s%s\n", Name_Field( "style" ), face->style_name );
 
     ps_name = FT_Get_Postscript_Name( face );
     if ( ps_name == NULL )
       ps_name = "UNAVAILABLE";
 
-    printf( "   postscript: %s\n", ps_name );
+    printf( "%s%s\n", Name_Field( "postscript" ), ps_name );
 
     head = (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
     if ( head )
@@ -140,12 +160,13 @@
       created  += head->Created [0] == 1 ? 2212122496 : -2082844800;
       modified += head->Modified[0] == 1 ? 2212122496 : -2082844800;
 
-      strftime( buf, sizeof( buf ), "%Y-%m-%d", gmtime( &created  ) );
-      printf("   created:    %s\n", buf );
-      strftime( buf, sizeof( buf ), "%Y-%m-%d", gmtime( &modified ) );
-      printf("   modified:   %s\n", buf );
+      strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &created  ) );
+      printf( "%s%s\n", Name_Field( "created" ), buf );
+      strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &modified ) );
+      printf( "%s%s\n", Name_Field( "modified" ), buf );
 
-      printf("   revision:   %.2f\n", head->Font_Revision / 65536.0 );
+      printf( "%s%.2f\n", Name_Field( "revision" ),
+              head->Font_Revision / 65536.0 );
     }
 
   }
@@ -160,15 +181,16 @@
     printf( "font type entries\n" );
 
     module = &face->driver->root;
-    printf( "   FreeType driver: %s\n", module->clazz->module_name );
+    printf( "%s%s\n", Name_Field( "FreeType driver" ),
+            module->clazz->module_name );
 
     /* Is it better to dump all sfnt tag names? */
-    printf( "   sfnt wrapped:    %s\n",
+    printf( "%s%s\n", Name_Field( "sfnt wrapped" ),
             FT_IS_SFNT( face ) ? (char *)"yes" : (char *)"no" );
 
     /* isScalable? */
     comma_flag = 0;
-    printf( "   type:            " );
+    printf( "%s", Name_Field( "type" ) );
     if ( FT_IS_SCALABLE( face ) )
     {
       Print_Comma( "scalable" );
@@ -181,7 +203,7 @@
 
     /* Direction */
     comma_flag = 0;
-    printf( "   direction:       " );
+    printf( "%s", Name_Field( "direction" ) );
     if ( FT_HAS_HORIZONTAL( face ) )
       Print_Comma( "horizontal" );
 
@@ -190,21 +212,26 @@
 
     printf( "\n" );
 
-    printf( "   fixed width:     %s\n",
+    printf( "%s%s\n", Name_Field( "fixed width" ),
             FT_IS_FIXED_WIDTH( face ) ? (char *)"yes" : (char *)"no" );
 
-    printf( "   glyph names:     %s\n",
+    printf( "%s%s\n", Name_Field( "glyph names" ),
             FT_HAS_GLYPH_NAMES( face ) ? (char *)"yes" : (char *)"no" );
 
     if ( FT_IS_SCALABLE( face ) )
     {
-      printf( "   EM size:         %d\n", face->units_per_EM );
-      printf( "   global BBox:     (%ld,%ld):(%ld,%ld)\n",
+      printf( "%s%d\n", Name_Field( "EM size" ), face->units_per_EM );
+      printf( "%s(%ld,%ld):(%ld,%ld)\n",
+              Name_Field( "global BBox" ),
               face->bbox.xMin, face->bbox.yMin,
               face->bbox.xMax, face->bbox.yMax );
-      printf( "   ascent:          %d\n", face->ascender );
-      printf( "   descent:         %d\n", face->descender );
-      printf( "   text height:     %d\n", face->height );
+      Print_Type_Number( ascender );
+      Print_Type_Number( descender );
+      Print_Type_Number( height );
+      Print_Type_Number( max_advance_width );
+      Print_Type_Number( max_advance_height );
+      Print_Type_Number( underline_position );
+      Print_Type_Number( underline_thickness );
     }
   }
 
@@ -987,7 +1014,7 @@
       printf( "\n" );
       Print_Type( face );
 
-      printf( "   glyph count:     %ld\n", face->num_glyphs );
+      printf( "%s%ld\n", Name_Field( "glyph count" ), face->num_glyphs );
 
       if ( name_tables && FT_IS_SFNT( face ) )
       {
