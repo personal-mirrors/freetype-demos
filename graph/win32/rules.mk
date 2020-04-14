@@ -5,7 +5,7 @@
 #*
 #**************************************************************************
 
-ifeq ($(PLATFORM),win32)
+ifeq ($(PLATFORM),windows)
 
   # directory of the Win32 graphics driver
   #

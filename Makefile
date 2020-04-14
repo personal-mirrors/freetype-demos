@@ -125,6 +125,7 @@ else
                  $(BUILD_DIR) \
                  $(DEVEL_DIR) \
                  $(TOP_DIR)/include \
+                 $(TOP_DIR)/include/freetype/config \
                  $(SRC_DIR)
 
   COMPILE = $(CC) $(CPPFLAGS) \

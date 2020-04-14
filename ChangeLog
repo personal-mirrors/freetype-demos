@@ -1,3 +1,15 @@
+2020-04-14  Anuj Verma  <anujv@iitbhilai.ac.in>
+
+	Fix compilation under Windows.
+
+	* Makefile (FT_INCLUDES): Add configuration directory.  Without
+	that, the file `ftoption.h' that is added to the $(COMPILE) variable
+	gets found only if it is located in $(DEVEL_DIR), this is, if we do
+	a `make devel' build.
+
+	* graph/win32/rules.mk: s/win32/windows/ to synchronize test for
+	Windows platform with FreeType's build system.
+
 2020-03-08  Thomas E. Dickey  <dickey@invisible-island.net>
 
 	[ftdump] Show max-advance width/height and underline info.
