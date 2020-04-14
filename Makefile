@@ -15,10 +15,14 @@ space := $(empty) $(empty)
 # TOP_DIR is the directory where the main FreeType source is found,
 # as well as the `config.mk' file.
 #
-# TOP_DIR_2 is the directory is the top of the demonstration
+# TOP_DIR_2 is the directory containing the top of the demonstration
 # programs directory.
 #
 # OBJ_DIR gives the objects directory of the FreeType library.
+#
+# IF DEVEL_DIR is set, do a development build (i.e., use development
+# versions of the FreeType configuration header files `ft2build.h'
+# and `ftoption.h' given in this directory).
 #
 TOP_DIR   ?= ../freetype2
 TOP_DIR_2 ?= .
@@ -51,7 +55,7 @@ endif
 ####################################################################
 #
 # Check that we have a working `config.mk' in the above directory.
-# If not, issue a warning message, then stop there.
+# Otherwise issue a warning message and stop.
 #
 ifeq ($(wildcard $(CONFIG_MK)),)
   no_config_mk := 1
