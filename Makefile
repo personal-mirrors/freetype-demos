@@ -166,11 +166,11 @@ else
   LINK_ITEMS = $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   ifeq ($(PLATFORM),unix)
-    CC        = $(CCraw)
-    LINK_CMD  = $(subst /,$(SEP),$(OBJ_BUILD)/libtool) \
-                --mode=link $(CC) \
-                $(subst /,$(COMPILER_SEP),$(LDFLAGS))
-    LINK_LIBS = $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) $(LIB_CLOCK_GETTIME)
+    override CC = $(CCraw)
+    LINK_CMD    = $(subst /,$(SEP),$(OBJ_BUILD)/libtool) \
+                  --mode=link $(CC) \
+                  $(subst /,$(COMPILER_SEP),$(LDFLAGS))
+    LINK_LIBS   = $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) $(LIB_CLOCK_GETTIME)
   else
     LINK_CMD = $(CC) $(subst /,$(COMPILER_SEP),$(LDFLAGS))
     ifeq ($(PLATFORM),unixdev)
