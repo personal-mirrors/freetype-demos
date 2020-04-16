@@ -135,9 +135,7 @@ else
   COMPILE = $(CC) $(CPPFLAGS) \
                   $(CFLAGS) \
                   $(ANSIFLAGS) \
-                  $(INCLUDES:%=$I%) \
-                  $DFT_CONFIG_OPTIONS_H="<ftoption.h>" \
-                  $DFT_CONFIG_MODULES_H="<ftmodule.h>"
+                  $(INCLUDES:%=$I%)
 
   # Enable C99 for gcc to avoid warnings.
   # Note that clang++ aborts with an error if we use `-std=C99',

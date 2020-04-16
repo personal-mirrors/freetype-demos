@@ -1,3 +1,7 @@
+2020-04-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* Makefile (COMPILE): ... and remove defines.
+
 2020-04-14  Anuj Verma  <anujv@iitbhilai.ac.in>
 
 	Fix compilation under Windows.
