@@ -1,3 +1,17 @@
+2020-05-01  David Turner  <david@freetype.org>
+
+	Fix compilation warnings (#58257).
+
+	* graph/x11/grx11.c (gr_x11_surface_listen_event): Change return
+	type of to match the expected type.
+
+	* src/compos.c, src/ftchkwd.c, src/ftdump.c, src/ftlint.c,
+	src/ftmemchk.c, src/ftsbit.c, src/fttimer.c, src/fttry.c (main):
+	Remove problematic uses of `strncpy' and replace them with
+	`snprintf', which takes the size of the target buffer.
+
+	Remove un-needed uses of the `alt_filename' array.
+
 2020-04-16  Anuj Verma  <anujv@iitbhilai.ac.in>
 
 	* Makefile (FT_INCLUDES): Remove configuration directory since

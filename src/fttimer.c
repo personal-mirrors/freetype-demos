@@ -163,7 +163,6 @@
   {
     int    i, total, base, rendered_glyphs;
     char   filename[1024 + 4];
-    char   alt_filename[1024 + 4];
 
     long   t, t0, tz0;
 
@@ -222,17 +221,8 @@
       i--;
     }
 
-    filename[1024]     = '\0';
-    alt_filename[1024] = '\0';
-
-    strncpy( filename, argv[1], 1024 );
-    strncpy( alt_filename, argv[1], 1024 );
-
-    if ( i >= 0 )
-    {
-      strncpy( filename + strlen( filename ), ".ttf", 4 );
-      strncpy( alt_filename + strlen( alt_filename ), ".ttc", 4 );
-    }
+    snprintf( filename, sizeof ( filename ), "%s%s", argv[1],
+              ( i >= 0 ) ? ".ttf" : "" );
 
     /* Initialize engine */
 

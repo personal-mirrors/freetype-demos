@@ -1148,7 +1148,7 @@ typedef  unsigned long   uint32;
   }
 
 
-  static void
+  static int
   gr_x11_surface_listen_event( grX11Surface*  surface,
                                int            event_mask,
                                grEvent*       grevent )
@@ -1237,6 +1237,8 @@ typedef  unsigned long   uint32;
   Set_Key:
     grevent->type = gr_key_down;
     grevent->key  = grkey;
+
+    return 1;
   }
 
 

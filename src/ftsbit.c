@@ -195,17 +195,11 @@
       i--;
     }
 
-    filename[1024] = '\0';
-    alt_filename[1024] = '\0';
+    snprintf( filename, sizeof ( filename ), "%s%s", fname,
+              ( i >= 0 ) ? ".ttf" : "" );
 
-    strncpy( filename, fname, 1024 );
-    strncpy( alt_filename, fname, 1024 );
-
-    if ( i >= 0 )
-    {
-      strncpy( filename + strlen( filename ), ".ttf", 4 );
-      strncpy( alt_filename + strlen( alt_filename ), ".ttc", 4 );
-    }
+    snprintf( alt_filename, sizeof ( alt_filename ), "%s%s", fname,
+              ( i >= 0 ) ? ".ttc" : "" );
 
     /* Load face */
     error = FT_New_Resource( engine, filename, &resource );

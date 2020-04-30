@@ -67,7 +67,6 @@
   {
     int    i, file_index, glyph_index;
     char   filename[1024 + 4];
-    char   alt_filename[1024 + 4];
     char*  execname;
     char*  fname;
     int    load_unscaled = 0;
@@ -108,17 +107,9 @@
         i--;
       }
 
-      filename[1024] = '\0';
-      alt_filename[1024] = '\0';
+      snprintf( filename, sizeof ( filename ), "%s%s", fname,
+                ( i >= 0 ) ? ".ttf" : "" );
 
-      strncpy( filename, fname, 1024 );
-      strncpy( alt_filename, fname, 1024 );
-
-      if ( i >= 0 )
-      {
-        strncpy( filename + strlen( filename ), ".ttf", 4 );
-        strncpy( alt_filename + strlen( alt_filename ), ".ttc", 4 );
-      }
 
       i     = strlen( filename );
       fname = filename;

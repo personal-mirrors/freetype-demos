@@ -119,7 +119,6 @@
 
     int         i, file_index;
     char        filename[1024 + 4];
-    char        alt_filename[1024 + 4];
     char*       execname;
     char*       fname;
 
@@ -160,18 +159,11 @@
         i--;
       }
 
-      filename[1024] = '\0';
-      alt_filename[1024] = '\0';
-
-      strncpy( filename, fname, 1024 );
-      strncpy( alt_filename, fname, 1024 );
-
 #ifndef macintosh
-      if ( i >= 0 )
-      {
-        strncpy( filename + strlen( filename ), ".ttf", 4 );
-        strncpy( alt_filename + strlen( alt_filename ), ".ttc", 4 );
-      }
+      snprintf( filename, sizeof ( filename ), "%s%s", fname,
+                ( i >= 0 ? ".ttf" : "" ) );
+#else
+      snprintf( filename, sizeof ( filename ), "%s", fname );
 #endif
 
       /* Load face */

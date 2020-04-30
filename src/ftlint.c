@@ -63,7 +63,6 @@
     int           i, file_index;
     unsigned int  id;
     char          filename[1024];
-    char          alt_filename[1024];
     char*         execname;
     char*         fname;
 
@@ -110,19 +109,13 @@
         i--;
       }
 
-      strncpy( filename, fname, 1019 );
-      strncpy( alt_filename, fname, 1019 );
-
-      filename[1019] = '\0';
-      alt_filename[1019] = '\0';
-
 #ifndef macintosh
-      if ( i >= 0 )
-      {
-        strncpy( filename + strlen( filename ), ".ttf", 5 );
-        strncpy( alt_filename + strlen( alt_filename ), ".ttc", 5 );
-      }
+      snprintf( filename, sizeof ( filename ), "%s%s", fname,
+                ( i >= 0 ) ? ".ttf" : "" );
+#else
+      snprintf( filename, sizeof ( filename ), "%s", fname );
 #endif
+
       i     = (int)strlen( filename );
       fname = filename;
 

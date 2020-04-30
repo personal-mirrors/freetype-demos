@@ -884,7 +884,6 @@
   {
     int    i, file;
     char   filename[1024];
-    char   alt_filename[1024];
     char*  execname;
     int    num_faces;
     int    option;
@@ -962,12 +961,6 @@
 
     file = 0;
 
-    strncpy( filename, argv[file], 1019 );
-    strncpy( alt_filename, argv[file], 1019 );
-
-    filename[1019]     = '\0';
-    alt_filename[1019] = '\0';
-
     /* try to load the file name as is, first */
     error = FT_New_Face( library, argv[file], 0, &face );
     if ( !error )
@@ -982,11 +975,10 @@
       i--;
     }
 
-    if ( i >= 0 )
-    {
-      strncpy( filename + strlen( filename ), ".ttf", 5 );
-      strncpy( alt_filename + strlen( alt_filename ), ".ttc", 5 );
-    }
+    snprintf( filename, sizeof ( filename ), "%s%s", argv[file],
+              ( i >= 0 ? ".ttf" : "" ) );
+#else
+    snprintf( filename, sizeof ( filename ), "%s", argv[file] );
 #endif
 
     /* Load face */
