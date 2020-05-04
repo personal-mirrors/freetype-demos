@@ -1,3 +1,7 @@
+2020-05-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* Makefile (unixdev): Do not call pkg-config repeatedly.
+
 2020-05-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* Makefile (FT_INCLUDES): Remove redundant BUILD_DIR.
