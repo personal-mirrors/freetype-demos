@@ -938,11 +938,15 @@
 
 
     /* font and file name */
-    basename = ft_basename( handle->current_font->filepathname );
-    sprintf( buf, "%.50s %.50s (file `%.100s')",
-             face->family_name, face->style_name, basename );
-    grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+    x = sprintf( buf, "%.50s %.50s", face->family_name, face->style_name );
+    grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
                        buf, display->fore_color );
+
+    basename = ft_basename( handle->current_font->filepathname );
+    x = display->bitmap->width - 8 * (int)strlen( basename ) > 8 * x + 8 ?
+        display->bitmap->width - 8 * (int)strlen( basename ) : 8 * x + 8;
+    grWriteCellString( display->bitmap, x, line++ * HEADER_HEIGHT,
+                       basename, display->fore_color );
 
     /* ppem, pt and dpi, instance */
     ppem = FT_IS_SCALABLE( face ) ? FT_MulFix( face->units_per_EM,

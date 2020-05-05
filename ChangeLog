@@ -1,5 +1,9 @@
 2020-05-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* ftcommon.c (FTDemo_Draw_Header): Right-flush filename.
+
+2020-05-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Move man pages: src/*.1 -> man/*.1
 
 2020-05-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
