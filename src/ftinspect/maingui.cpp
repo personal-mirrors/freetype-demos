@@ -1,6 +1,6 @@
 // maingui.cpp
 
-// Copyright (C) 2016-2019 by Werner Lemberg.
+// Copyright (C) 2016-2020 by Werner Lemberg.
 
 
 #include "maingui.hpp"
@@ -67,7 +67,7 @@ MainGUI::about()
     this,
     tr("About ftinspect"),
     tr("<p>This is <b>ftinspect</b> version %1<br>"
-       " Copyright %2 2016-2019<br>"
+       " Copyright %2 2016-2020<br>"
        " by Werner Lemberg <tt>&lt;wl@gnu.org&gt;</tt></p>"
        ""
        "<p><b>ftinspect</b> shows how a font gets rendered"
