@@ -961,28 +961,31 @@
 
     file = 0;
 
-    /* try to load the file name as is, first */
-    error = FT_New_Face( library, argv[file], 0, &face );
+    snprintf( filename, sizeof ( filename ), "%s", argv[file] );
+
+    /* try to load the file name as is */
+    error = FT_New_Face( library, filename, 0, &face );
     if ( !error )
       goto Success;
 
 #ifndef macintosh
-    i = (int)strlen( argv[file] );
-    while ( i > 0 && argv[file][i] != '\\' && argv[file][i] != '/' )
+    /* try again, with `.ttf' appended if no extension */
+    i = (int)strlen( filename );
+    while ( i > 0 && filename[i] != '\\' && filename[i] != '/' )
     {
-      if ( argv[file][i] == '.' )
+      if ( filename[i] == '.' )
         i = 0;
       i--;
     }
 
-    snprintf( filename, sizeof ( filename ), "%s%s", argv[file],
-              ( i >= 0 ? ".ttf" : "" ) );
-#else
-    snprintf( filename, sizeof ( filename ), "%s", argv[file] );
+    if ( i >= 0 )
+    {
+      snprintf( filename, sizeof ( filename ), "%s%s", argv[file], ".ttf" );
+
+      error = FT_New_Face( library, filename, 0, &face );
+    }
 #endif
 
-    /* Load face */
-    error = FT_New_Face( library, filename, 0, &face );
     if ( error )
       PanicZ( library, "Could not open face." );
 
