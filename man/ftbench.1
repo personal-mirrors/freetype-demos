@@ -1,5 +1,5 @@
 '\" t
-.TH FTVIEW 1 "May 2019" "Freetype 2.10.1"
+.TH FTVIEW 1 "May 2020" "Freetype 2.10.2"
 .
 .
 .SH NAME
@@ -38,19 +38,20 @@ a@load glyphs (FT_Load_Glyph)
 b@load advance widths (FT_Get_Advances)
 c@render glyphs (FT_Render_Glyph)
 d@load glyphs (FT_Get_Glyph)
-e@get glyph cboxes (FT_Glyph_Get_CBox)
-f@get glyph indices (FT_Get_Char_Index)
-g@iterate CMap (FT_Get_{First,Next}_Char)
-h@open a new face (FT_New_Face or FT_New_Memory_Face)
-i@embolden glyphs (FT_GlyphSlot_Embolden)
+e@get glyph indices (FT_Get_Char_Index)
+f@iterate CMap (FT_Get_{First,Next}_Char)
+g@open a new face (FT_New_Face or FT_New_Memory_Face)
+h@embolden glyphs (FT_GlyphSlot_Embolden)
+i@stroke glyphs (FT_Glyph_Stroke)
 j@get glyph bboxes (FT_Outline_Get_BBox)
-k@open a new face and load glyphs
+k@get glyph cboxes (FT_Glyph_Get_CBox)
+l@open a new face and load glyphs
 .TE
 .RE
 .
 .IP
 (default is
-.BR abcdefghijk ,
+.BR abcdefghijkl ,
 this is, all tests).
 .
 .IP

@@ -1,3 +1,15 @@
+2029-05-09  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.10.2 released.
+	==========================
+
+
+	Tag sources with `VER-2-10-2.
+
+	* README: Updated.
+	* man/*.1: Updated.
+	* src/ftinspect/ftinspect.pro: Updated.
+
 2020-05-08  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftdump.c (main): Fix thinko introduced in commit from
