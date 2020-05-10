@@ -521,18 +521,9 @@
                        FT_Bool         outline_only,
                        FT_Bool         no_instances )
   {
-    static char   filename[1024 + 5];
     long          i, num_faces;
-    unsigned int  len;
     FT_Face       face;
 
-
-    len = strlen( filepath );
-    if ( len > 1024 )
-      len = 1024;
-
-    strncpy( filename, filepath, len );
-    filename[len] = 0;
 
     /* We use a conservative approach here, at the cost of calling     */
     /* `FT_New_Face' quite often.  The idea is that our demo programs  */
@@ -541,7 +532,7 @@
     /* a broken subfont, or an unsupported NFNT bitmap font in a Mac   */
     /* dfont resource that holds more than a single font.              */
 
-    error = FT_New_Face( handle->library, filename, -1, &face );
+    error = FT_New_Face( handle->library, filepath, -1, &face );
     if ( error )
       return error;
     num_faces = face->num_faces;
@@ -554,7 +545,7 @@
       long   j, instance_count;
 
 
-      error = FT_New_Face( handle->library, filename, -( i + 1 ), &face );
+      error = FT_New_Face( handle->library, filepath, -( i + 1 ), &face );
       if ( error )
         continue;
       instance_count = no_instances ? 0 : face->style_flags >> 16;
@@ -564,7 +555,7 @@
       for ( j = 0; j < instance_count + 1; j++ )
       {
         error = FT_New_Face( handle->library,
-                             filename,
+                             filepath,
                              ( j << 16 ) + i,
                              &face );
         if ( error )
@@ -581,8 +572,8 @@
         /* We allocate four more bytes since we want to attach an AFM */
         /* or PFM file for Type 1 fonts (if available).  Such fonts   */
         /* always have the extension `.afm' or `.pfm'.                */
-        font->filepathname = (char*)malloc( strlen( filename ) + 4 + 1 );
-        strcpy( (char*)font->filepathname, filename );
+        font->filepathname = (char*)malloc( strlen( filepath ) + 4 + 1 );
+        strcpy( (char*)font->filepathname, filepath );
 
         font->face_index = ( j << 16 ) + i;
 
@@ -597,7 +588,7 @@
 
         if ( handle->preload )
         {
-          FILE*   file = fopen( filename, "rb" );
+          FILE*   file = fopen( filepath, "rb" );
           size_t  file_size;
 
 
