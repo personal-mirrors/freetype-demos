@@ -1,5 +1,14 @@
 2020-05-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftview] Keep custom LCD filters normalized and balanced.
+
+	Unorthodox filters are still available through the `-L' option.
+
+	* src/ftview.c (event_fw_change): New function with distributed delta.
+	(Process_Event): Updated.
+
+2020-05-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftcommon.c (FTDemo_Install_Font): Remove unused buffer.
 
 2029-05-09  Werner Lemberg  <wl@gnu.org>

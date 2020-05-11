@@ -923,6 +923,27 @@
   }
 
 
+  static void
+  event_fw_change( int  delta )
+  {
+    int  i = status.fw_idx;
+    int  j = ( i ^ 1 ) & 1;
+
+
+    FTC_Manager_RemoveFaceID( handle->cache_manager,
+                              handle->scaler.face_id );
+
+    /* keep it normalized and balanced */
+    status.filter_weights[    i] += delta;
+    status.filter_weights[4 - i] += delta;
+    status.filter_weights[    j] -= delta;
+    status.filter_weights[4 - j] -= delta;
+
+    FT_Library_SetLcdFilterWeights( handle->library,
+                                    status.filter_weights );
+  }
+
+
   static int
   event_bold_change( double  xdelta,
                      double  ydelta )
@@ -1448,12 +1469,7 @@
     case grKEY( '-' ):
       if ( status.lcd_filter < 0 )
       {
-        FTC_Manager_RemoveFaceID( handle->cache_manager,
-                                  handle->scaler.face_id );
-
-        status.filter_weights[status.fw_idx]--;
-        FT_Library_SetLcdFilterWeights( handle->library,
-                                        status.filter_weights );
+        event_fw_change( -1 );
         status.update = 1;
       }
       break;
@@ -1462,12 +1478,7 @@
     case grKEY( '=' ):
       if ( status.lcd_filter < 0 )
       {
-        FTC_Manager_RemoveFaceID( handle->cache_manager,
-                                  handle->scaler.face_id );
-
-        status.filter_weights[status.fw_idx]++;
-        FT_Library_SetLcdFilterWeights( handle->library,
-                                        status.filter_weights );
+        event_fw_change( 1 );
         status.update = 1;
       }
       break;
