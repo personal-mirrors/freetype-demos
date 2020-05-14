@@ -1155,20 +1155,6 @@
 
 
   static void
-  event_gamma_change( double  delta )
-  {
-    display->gamma += delta;
-
-    if ( display->gamma > 3.0 )
-      display->gamma = 3.0;
-    else if ( display->gamma < 0.0 )
-      display->gamma = 0.0;
-
-    grSetTargetGamma( display->bitmap, display->gamma );
-  }
-
-
-  static void
   event_grid_reset( GridStatus  st )
   {
     st->x_origin = st->x_origin_0;
@@ -1477,11 +1463,11 @@
       break;
 
     case grKEY( 'g' ):
-      event_gamma_change( 0.1 );
+      FTDemo_Display_Gamma_Change( display,  1 );
       break;
 
     case grKEY( 'v' ):
-      event_gamma_change( -0.1 );
+      FTDemo_Display_Gamma_Change( display, -1 );
       break;
 
     case grKEY( 'n' ):

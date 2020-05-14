@@ -92,6 +92,11 @@
 
 
   void
+  FTDemo_Display_Gamma_Change( FTDemo_Display*  display,
+                               int              dir );
+
+
+  void
   FTDemo_Display_Done( FTDemo_Display*  display );
 
 

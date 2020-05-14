@@ -436,19 +436,6 @@
       i = 0;
   }
 
-  static void
-  event_gamma_change( double  delta )
-  {
-    display->gamma += delta;
-
-    if ( display->gamma > 3.0 )
-      display->gamma = 3.0;
-    else if ( display->gamma < 0.1 )
-      display->gamma = 0.1;
-
-    grSetTargetGamma( display->bitmap, display->gamma );
-  }
-
 
   static void
   event_size_change( int  delta )
@@ -595,11 +582,11 @@
       goto Exit;
 
     case grKEY( 'g' ):
-      event_gamma_change( 0.1 );
+      FTDemo_Display_Gamma_Change( display,  1 );
       goto Exit;
 
     case grKEY( 'v' ):
-      event_gamma_change( -0.1 );
+      FTDemo_Display_Gamma_Change( display, -1 );
       goto Exit;
 
     case grKEY( 'n' ):
@@ -985,7 +972,6 @@
       event_text_change();
 
     event_color_change();
-    event_gamma_change( 0 );
 
     event_font_change( 0 );
     FTDemo_String_Set( handle, status.text );

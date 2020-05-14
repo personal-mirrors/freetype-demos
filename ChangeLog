@@ -1,4 +1,12 @@
-2020-05-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-05-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftview,ftstring,ftgrid] Unify gamma adjustments.
+
+	* src/ftcommon.[ch] (FTDemo_Display_Gamma_Change): New function to
+	adjust gamma with sRGB between 2.2 and 2.3.
+	* src/ftview.c, src/ftstring.c, src/ftgrid.c (Process_Event): Use it.
+
+2020-05-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftview] Keep custom LCD filters normalized and balanced.
 
@@ -7,7 +15,7 @@
 	* src/ftview.c (event_fw_change): New function with distributed delta.
 	(Process_Event): Updated.
 
-2020-05-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-05-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftcommon.c (FTDemo_Install_Font): Remove unused buffer.
 
