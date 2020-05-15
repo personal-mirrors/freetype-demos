@@ -1,5 +1,9 @@
 2020-05-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftcommon.c (FTDemo_Display_Gamma_Change): Improve readability.
+
+2020-05-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftview,ftstring,ftgrid] Unify gamma adjustments.
 
 	* src/ftcommon.[ch] (FTDemo_Display_Gamma_Change): New function to

@@ -172,24 +172,29 @@
   FTDemo_Display_Gamma_Change( FTDemo_Display*  display,
                                int              dir )
   {
-    /* interrupt sequence between 2.2 and 2.3 to apply sRGB transformation */
+    /* the sequence of gamma values is limited between 0.3 and 3.0 and */ 
+    /* interrupted between 2.2 and 2.3 to apply sRGB transformation    */
     if ( dir > 0 )
     {
       if ( display->gamma == 0.0 )
         display->gamma  = 2.3;
-      else if ( 2.25 - 0.1 < display->gamma && display->gamma < 2.25 )
+      else if ( display->gamma < 2.25 - 0.1 )
+        display->gamma += 0.1;
+      else if ( display->gamma < 2.25 )
         display->gamma  = 0.0;  /* sRGB */
       else if ( display->gamma < 2.95 )
         display->gamma += 0.1;
     }
     else if ( dir < 0 )
     {
-      if ( display->gamma == 0.0 )
-        display->gamma  = 2.2;
-      else if ( 2.25 + 0.1 > display->gamma && display->gamma > 2.25 )
+      if ( display->gamma > 2.25 + 0.1 )
+        display->gamma -= 0.1;
+      else if ( display->gamma > 2.25 )
         display->gamma  = 0.0;  /* sRGB */
       else if ( display->gamma > 0.35 )
         display->gamma -= 0.1;
+      else if ( display->gamma == 0.0 )
+        display->gamma  = 2.2;
     }
 
     grSetTargetGamma( display->bitmap, display->gamma );
