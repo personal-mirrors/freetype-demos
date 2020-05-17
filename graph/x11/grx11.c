@@ -936,6 +936,7 @@ typedef  unsigned long   uint32;
 
     x11dev.idle = XCreateFontCursor( x11dev.display, XC_left_ptr );
     x11dev.busy = XCreateFontCursor( x11dev.display, XC_watch );
+    x11dev.scanline_pad = BitmapPad( x11dev.display );
 
     {
       int          count;
@@ -958,69 +959,54 @@ typedef  unsigned long   uint32;
 
         /* note, the 32-bit modes return a depth of 24, */
         /* and 32 bits per pixel                        */
-        switch ( format->depth )
+        if ( format->depth == 32 ||
+             format->depth == 24 ||
+             format->depth == 16 )
         {
-        case 16:
-        case 24:
-        case 32:
+          int           count2;
+          XVisualInfo*  visual;
+          XVisualInfo*  visuals;
+
+          templ.depth  = format->depth;
+          visuals      = XGetVisualInfo( x11dev.display,
+                                         VisualScreenMask | VisualDepthMask,
+                                         &templ,
+                                         &count2 );
+
+          for ( visual = visuals; count2 > 0; count2--, visual++ )
           {
-            int           count2;
-            XVisualInfo*  visual;
-            XVisualInfo*  visuals;
+            const grX11Format**  pformat = gr_x11_formats;
 
-            templ.depth  = format->depth;
-            visuals      = XGetVisualInfo( x11dev.display,
-                                           VisualScreenMask | VisualDepthMask,
-                                          &templ,
-                                          &count2 );
 
-            for ( visual = visuals; count2 > 0; count2--, visual++ )
+            LOG(( "> R:G:B %0*lx:%0*lx:%0*lx, colors %3d, bits %2d, %s\n",
+                  format->bits_per_pixel/4, visual->red_mask,
+                  format->bits_per_pixel/4, visual->green_mask,
+                  format->bits_per_pixel/4, visual->blue_mask,
+                                            visual->colormap_size,
+                                            visual->bits_per_rgb,
+                               visualClass( visual->Class ) ));
+
+            /* compare to the list of supported formats */
+            for ( pformat = gr_x11_formats; *pformat; pformat++ )
             {
-              LOG(( "> R:G:B %0*lx:%0*lx:%0*lx, colors %3d, bits %2d, %s\n",
-                     format->bits_per_pixel/4, visual->red_mask,
-                     format->bits_per_pixel/4, visual->green_mask,
-                     format->bits_per_pixel/4, visual->blue_mask,
-                                               visual->colormap_size,
-                                               visual->bits_per_rgb,
-                                  visualClass( visual->Class ) ));
-
-              /* compare to the list of supported formats */
+              if ( format->depth          == (*pformat)->x_depth          &&
+                   format->bits_per_pixel == (*pformat)->x_bits_per_pixel &&
+                   visual->red_mask       == (*pformat)->x_red_mask       &&
+                   visual->green_mask     == (*pformat)->x_green_mask     &&
+                   visual->blue_mask      == (*pformat)->x_blue_mask      )
               {
-                const grX11Format**  pcur_format = gr_x11_formats;
-                const grX11Format*   cur_format;
+                x11dev.format       = *pformat;
+                x11dev.visual       = visual->visual;
 
-
-                for (;;)
-                {
-                  cur_format = *pcur_format++;
-                  if ( cur_format == NULL )
-                    break;
-
-                  if ( format->depth          == cur_format->x_depth          &&
-                       format->bits_per_pixel == cur_format->x_bits_per_pixel &&
-                       visual->red_mask       == cur_format->x_red_mask       &&
-                       visual->green_mask     == cur_format->x_green_mask     &&
-                       visual->blue_mask      == cur_format->x_blue_mask      )
-                  {
-                    x11dev.format       = cur_format;
-                    x11dev.scanline_pad = format->scanline_pad;
-                    x11dev.visual       = visual->visual;
-
-                    XFree( visuals );
-                    XFree( formats );
-                    return 0;
-                  }
-                }
+                XFree( visuals );
+                XFree( formats );
+                return 0;
               }
-            } /* for visuals */
+            }
+          } /* for visuals */
 
-            XFree( visuals );
-          }
-          break;
-
-        default:
-          ;
-        } /* switch format depth */
+          XFree( visuals );
+        }
       } /* for formats */
       XFree( formats );
     }

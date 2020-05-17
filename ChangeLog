@@ -1,3 +1,7 @@
+2020-05-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/x11/grx11.c (gr_x11_device_init): Reduce nesting and clean up.
+
 2020-05-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftcommon.c (FTDemo_Display_Gamma_Change): Improve readability.
