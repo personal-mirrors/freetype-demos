@@ -3,10 +3,10 @@ This package contains example programs for the FreeType 2 library.
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
-  The Makefile and Jamfile contained in this directory assume that the
-  FreeType 2  library sources are  located in `../freetype2'.   If you
-  downloaded one  of the  stable FreeType 2  source packages  from our
-  server, you most probably have to rename its directory, for example:
+  The Makefile contained in this  directory assume that the FreeType 2
+  library sources  are located  in `../freetype2'.  If  you downloaded
+  one of  the stable FreeType 2  source packages from our  server, you
+  most probably have to rename its directory, for example:
 
     mv freetype-2.10.2 freetype2       on Unix
     rename freetype-2.10.2 freetype2   on Windows

@@ -1,3 +1,11 @@
+2020-05-01  David Turner  <david@freetype.org>
+
+	Remove obsolete Jamfiles from the tree.
+
+	These are not used anymore.
+
+	* Jamrules, src/Jamfile, graph/Jamfile, graph/*/Jamfile: Delete.
+
 2020-05-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/x11/grx11.c (gr_x11_device_init): Reduce nesting and clean up.
