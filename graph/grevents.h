@@ -16,10 +16,11 @@
 #define gr_key_up    0x80
 
 
-#define gr_event_mouse  0x3C
-#define gr_event_key    0xC0
+#define gr_event_mouse    0x3C
+#define gr_event_key      0xC0
+#define gr_event_resize  0x100
 
-#define gr_event_type  ( gr_event_mouse | gr_event_key )
+#define gr_event_type  ( gr_event_mouse | gr_event_key | gr_event_resize )
 
 
   typedef enum grKey_

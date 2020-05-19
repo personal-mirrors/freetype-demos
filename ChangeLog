@@ -1,3 +1,15 @@
+2020-05-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph]: Implement resizable X11 windows.
+
+	* graph/grevents.h (gr_event_resize): New event defined.
+	* graph/x11/grx11.c (gr_x11_surface_init): Configure window.
+	(gr_x11_surface_listen_event): Capture resizing events.
+	(gr_x11_surface_resize): Implement resizing.
+
+	* src/ftview.c (Process_Event): Redraw on resizing.
+	* src/ftgrid.c (Process_Event): Ditto.
+
 2020-05-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grobjs.c (grNewBitmap): Implement bitmap resizing.

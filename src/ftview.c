@@ -1131,6 +1131,12 @@
     else
       grListenSurface( display->surface, 0, &event );
 
+    if ( event.type == gr_event_resize )
+    {
+       status.update = 1;
+       return ret;
+    }
+
     status.update = 0;
 
     if ( status.render_mode == (int)( event.key - '1' ) )

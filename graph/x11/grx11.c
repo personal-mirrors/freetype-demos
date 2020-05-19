@@ -1122,6 +1122,56 @@ typedef  unsigned long   uint32;
 
 
   static int
+  gr_x11_surface_resize( grX11Surface*  surface,
+                         int            width,
+                         int            height )
+  {
+    grBitmap*  bitmap  = &surface->root.bitmap;
+    grBitmap*  pximage = &surface->ximage_bitmap;
+    char*      buffer;
+
+
+    /* resize the bitmap */
+    if ( grNewBitmap( bitmap->mode,
+                      bitmap->grays,
+                      width,
+                      height,
+                      bitmap ) )
+      return 0;
+
+    /* reallocate surface image */
+    pximage->pitch  = width * x11dev.format->x_bits_per_pixel >> 3;
+    pximage->width  = width;
+    pximage->rows   = height;
+
+    if ( x11dev.format->x_bits_per_pixel != x11dev.scanline_pad )
+    {
+      int  bits, over;
+
+
+      bits = width * x11dev.format->x_bits_per_pixel;
+      over = bits % x11dev.scanline_pad;
+
+      if ( over )
+        pximage->pitch += ( x11dev.scanline_pad - over ) >> 3;
+    }
+
+    buffer = (char*)realloc( pximage->buffer,
+            (unsigned long)( pximage->pitch * pximage->rows ) );
+    if ( !buffer )
+      return 0;
+
+    pximage->buffer                 = (unsigned char*)buffer;
+    surface->ximage->data           = buffer;
+    surface->ximage->width          = pximage->width;
+    surface->ximage->height         = pximage->rows;
+    surface->ximage->bytes_per_line = pximage->pitch;
+
+    return 1;
+  }
+
+
+  static int
   gr_x11_surface_listen_event( grX11Surface*  surface,
                                int            event_mask,
                                grEvent*       grevent )
@@ -1171,6 +1221,22 @@ typedef  unsigned long   uint32;
 
       case MappingNotify:
         XRefreshKeyboardMapping( &x_event.xmapping );
+        break;
+
+      case ConfigureNotify:
+        if ( x_event.xconfigure.width  != surface->ximage->width  ||
+             x_event.xconfigure.height != surface->ximage->height )
+        {
+          grevent->type = gr_event_resize;
+          grevent->x    = x_event.xconfigure.width;
+          grevent->y    = x_event.xconfigure.height;
+
+          gr_x11_surface_resize( surface,
+                                 x_event.xconfigure.width,
+                                 x_event.xconfigure.height );
+
+          return 1;
+        }
         break;
 
       case Expose:
@@ -1313,7 +1379,7 @@ typedef  unsigned long   uint32;
 
 
       xswa.cursor     = x11dev.busy;
-      xswa.event_mask = KeyPressMask | ExposureMask;
+      xswa.event_mask = ExposureMask | KeyPressMask | StructureNotifyMask ;
 
       if ( surface->visual == DefaultVisual( display, screen ) )
         surface->colormap     = DefaultColormap( display, screen );

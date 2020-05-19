@@ -1377,6 +1377,12 @@
     else
       grListenSurface( display->surface, 0, &event );
 
+    if ( event.type == gr_event_resize )
+    {
+      grid_status_display( &status, display );
+      return ret;
+    }
+
     status.header = NULL;
 
     switch ( event.key )
