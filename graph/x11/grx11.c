@@ -939,73 +939,60 @@ typedef  unsigned long   uint32;
     x11dev.scanline_pad = BitmapPad( x11dev.display );
 
     {
-      int          count;
-      XDepth*      format;
-      XDepth*      formats;
-      XVisualInfo  templ;
+      const grX11Format**  pformat = gr_x11_formats;
+      XDepth*              format;
+      XDepth*              formats;
+      XVisualInfo          templ;
+      XVisualInfo*         visual;
+      int                  count, count2;
+
 
       templ.screen = DefaultScreen( x11dev.display );
       formats      = XListPixmapFormats( x11dev.display, &count );
 
-      LOG(( "available pixmap formats\n" ));
-      LOG(( "depth  pixbits  scanpad\n" ));
-
+      /* compare to the list of supported formats first */
       for ( format = formats; count > 0; count--, format++ )
       {
-        LOG(( " %3d      %3d      %3d\n",
-                format->depth,
-                format->bits_per_pixel,
-                format->scanline_pad ));
-
-        /* note, the 32-bit modes return a depth of 24, */
-        /* and 32 bits per pixel                        */
-        if ( format->depth == 32 ||
-             format->depth == 24 ||
-             format->depth == 16 )
+        for ( pformat = gr_x11_formats; *pformat; pformat++ )
         {
-          int           count2;
-          XVisualInfo*  visual;
-          XVisualInfo*  visuals;
+          if ( format->depth          != (*pformat)->x_depth          ||
+               format->bits_per_pixel != (*pformat)->x_bits_per_pixel )
+            continue;
 
-          templ.depth  = format->depth;
-          visuals      = XGetVisualInfo( x11dev.display,
-                                         VisualScreenMask | VisualDepthMask,
-                                         &templ,
-                                         &count2 );
+          LOG(( "> R:G:B %0*lx:%0*lx:%0*lx",
+                format->bits_per_pixel/4, (*pformat)->x_red_mask,
+                format->bits_per_pixel/4, (*pformat)->x_green_mask,
+                format->bits_per_pixel/4, (*pformat)->x_blue_mask ));
 
-          for ( visual = visuals; count2 > 0; count2--, visual++ )
+          templ.depth      = format->depth;
+          templ.red_mask   = (*pformat)->x_red_mask;
+          templ.green_mask = (*pformat)->x_green_mask;
+          templ.blue_mask  = (*pformat)->x_blue_mask;
+
+          visual = XGetVisualInfo( x11dev.display,
+                                   VisualScreenMask    |
+                                   VisualDepthMask     |
+                                   VisualRedMaskMask   |
+                                   VisualGreenMaskMask |
+                                   VisualBlueMaskMask,
+                                   &templ,
+                                   &count2 );
+
+          if ( visual )
           {
-            const grX11Format**  pformat = gr_x11_formats;
+            LOG(( ", colors %3d, bits %2d, %s\n",
+                               visual->colormap_size,
+                               visual->bits_per_rgb,
+                  visualClass( visual->Class ) ));
 
+            x11dev.format       = *pformat;
+            x11dev.visual       = visual->visual;
 
-            LOG(( "> R:G:B %0*lx:%0*lx:%0*lx, colors %3d, bits %2d, %s\n",
-                  format->bits_per_pixel/4, visual->red_mask,
-                  format->bits_per_pixel/4, visual->green_mask,
-                  format->bits_per_pixel/4, visual->blue_mask,
-                                            visual->colormap_size,
-                                            visual->bits_per_rgb,
-                               visualClass( visual->Class ) ));
-
-            /* compare to the list of supported formats */
-            for ( pformat = gr_x11_formats; *pformat; pformat++ )
-            {
-              if ( format->depth          == (*pformat)->x_depth          &&
-                   format->bits_per_pixel == (*pformat)->x_bits_per_pixel &&
-                   visual->red_mask       == (*pformat)->x_red_mask       &&
-                   visual->green_mask     == (*pformat)->x_green_mask     &&
-                   visual->blue_mask      == (*pformat)->x_blue_mask      )
-              {
-                x11dev.format       = *pformat;
-                x11dev.visual       = visual->visual;
-
-                XFree( visuals );
-                XFree( formats );
-                return 0;
-              }
-            }
-          } /* for visuals */
-
-          XFree( visuals );
+            XFree( visual );
+            XFree( formats );
+            return 0;
+          }
+          LOG(( "\n" ));
         }
       } /* for formats */
       XFree( formats );

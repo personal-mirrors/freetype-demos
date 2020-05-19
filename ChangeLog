@@ -1,3 +1,7 @@
+2020-05-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/x11/grx11.c (gr_x11_device_init): Remove one nested cycle.
+
 2020-05-01  David Turner  <david@freetype.org>
 
 	Remove obsolete Jamfiles from the tree.
