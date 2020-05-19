@@ -122,7 +122,7 @@
   *    grNewBitmap
   *
   * <Description>
-  *    creates a new bitmap
+  *    creates a new bitmap or resizes an existing one
   *
   * <Input>
   *    pixel_mode   :: the target surface's pixel_mode
@@ -139,6 +139,8 @@
   * <Note>
   *    This function really allocates a pixel buffer, zero it, then
   *    returns a descriptor for it.
+  *
+  *    An existing bitmap will be resized.
   *
   *    Call grDoneBitmap when you're done with it..
   *

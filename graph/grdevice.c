@@ -145,6 +145,8 @@
     surface = (grSurface*)grAlloc( device->surface_objsize );
     if (!surface) return 0;
 
+    bitmap->buffer = NULL;
+
     if ( !device->init_surface( surface, bitmap ) )
     {
       grFree( (void *)surface );

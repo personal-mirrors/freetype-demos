@@ -351,6 +351,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
     return 0;
 
   /* allocate the BGR shadow bitmap */
+  surface->bgrBitmap.buffer = NULL;
   if ( grNewBitmap( bitmap->mode,
                     bitmap->grays,
                     bitmap->width,
@@ -361,6 +362,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
   surface->bgrBitmap.pitch = -surface->bgrBitmap.pitch;
 
 #ifdef SWIZZLE
+  surface->swizzle_bitmap.buffer = NULL;
   if ( bitmap->mode == gr_pixel_mode_rgb24 )
   {
     if ( grNewBitmap( bitmap->mode,

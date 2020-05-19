@@ -1,5 +1,13 @@
 2020-05-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/grobjs.c (grNewBitmap): Implement bitmap resizing.
+	* graph/graph.h (grNewBitmap): Document it.
+
+	* graph/grdevice.c (grNewSurface): Prevent accidental resizing.
+	* graph/win32/grwin32.c: Ditto.
+
+2020-05-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.c (gr_x11_device_init): Remove one nested cycle.
 
 2020-05-01  David Turner  <david@freetype.org>

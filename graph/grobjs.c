@@ -139,7 +139,7 @@
   *    grNewBitmap
   *
   * <Description>
-  *    creates a new bitmap
+  *    creates a new bitmap or resizes an existing one
   *
   * <Input>
   *    pixel_mode   :: the target surface's pixel_mode
@@ -174,11 +174,6 @@
       goto Fail;
     }
 
-    bit->width = width;
-    bit->rows  = height;
-    bit->mode  = pixel_mode;
-    bit->grays = num_grays;
-
     pitch = width;
 
     switch (pixel_mode)
@@ -201,9 +196,29 @@
         return 0;
     }
 
-    bit->pitch  = pitch;
-    bit->buffer = grAlloc( (unsigned long)( bit->pitch * bit->rows ) );
-    if (!bit->buffer) goto Fail;
+    if ( !bit->buffer )
+    {
+       bit->buffer = grAlloc( (unsigned long)( pitch * height ) );
+       if (!bit->buffer) goto Fail;
+    }
+    else  /* resize */
+    {
+       unsigned char*  buffer;
+
+
+       buffer = (unsigned char*)realloc( bit->buffer,
+                        (unsigned long)( pitch * height ) );
+       if ( buffer )
+         bit->buffer = buffer;
+       else
+         goto Fail;
+    }
+
+    bit->width = width;
+    bit->rows  = height;
+    bit->pitch = pitch;
+    bit->mode  = pixel_mode;
+    bit->grays = num_grays;
 
     return 0;
 
