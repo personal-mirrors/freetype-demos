@@ -119,7 +119,6 @@
     const char*   the_title;
     LPBITMAPINFO  pbmi;
     char          bmi[ sizeof(BITMAPINFO) + 256*sizeof(RGBQUAD) ];
-    HBITMAP       hbm;
     grEvent       ourevent;
     int           eventToProcess;
     grBitmap      bgrBitmap;  /* windows wants data in BGR format !! */
@@ -262,16 +261,6 @@ gr_win32_surface_refresh_rectangle(
     }
   }
 
-  hDC = GetDC ( window );
-  SetDIBits ( hDC, surface->hbm,
-              0,
-              bitmap->rows,
-              surface->bgrBitmap.buffer,
-              pbmi,
-              DIB_RGB_COLORS );
-
-  ReleaseDC ( window, hDC );
-
   ShowWindow( window, SW_SHOW );
   InvalidateRect ( window, NULL, FALSE );
   UpdateWindow ( window );
@@ -305,7 +294,7 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
   }
 
   surface->eventToProcess = 0;
-  while (GetMessage( &msg, 0, 0, 0 ))
+  while (GetMessage( &msg, 0, 0, 0 ) > 0)
   {
     TranslateMessage( &msg );
     DispatchMessage( &msg );
@@ -351,7 +340,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
     return 0;
 
   /* allocate the BGR shadow bitmap */
-  surface->bgrBitmap.buffer = NULL;
   if ( grNewBitmap( bitmap->mode,
                     bitmap->grays,
                     bitmap->width,
@@ -362,7 +350,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
   surface->bgrBitmap.pitch = -surface->bgrBitmap.pitch;
 
 #ifdef SWIZZLE
-  surface->swizzle_bitmap.buffer = NULL;
   if ( bitmap->mode == gr_pixel_mode_rgb24 )
   {
     if ( grNewBitmap( bitmap->mode,
@@ -504,42 +491,26 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
       surface->eventToProcess = 1;
       surface->window         = 0;
       PostQuitMessage ( 0 );
-      DeleteObject ( surface->hbm );
       return 0;
-
-    case WM_CREATE:
-      {
-        HDC           hDC;
-        LPBITMAPINFO  pbmi = surface->pbmi;
-
-        hDC          = GetDC ( handle );
-        surface->hbm = CreateDIBitmap (
-          /* HDC hdc;     handle of device context        */ hDC,
-          /* BITMAPINFOHEADER FAR* lpbmih;  addr.of header*/ &pbmi->bmiHeader,
-          /* DWORD dwInit;  CBM_INIT to initialize bitmap */ 0,
-          /* const void FAR* lpvBits;   address of values */ NULL,
-          /* BITMAPINFO FAR* lpbmi;   addr.of bitmap data */ pbmi,
-          /* UINT fnColorUse;      RGB or palette indices */ DIB_RGB_COLORS);
-        ReleaseDC ( handle, hDC );
-        break;
-      }
 
     case WM_PAINT:
       {
-      HDC           hDC, memDC;
-      HANDLE        oldbm;
+      HDC           hDC;
       PAINTSTRUCT   ps;
+      LPBITMAPINFO  pbmi = surface->pbmi;
 
       hDC   = BeginPaint ( handle, &ps );
-      memDC = CreateCompatibleDC( hDC );
-      oldbm = SelectObject( memDC, surface->hbm );
-
-      BitBlt ( hDC, 0, 0, surface->window_width, surface->window_height,
-               memDC, 0, 0, SRCCOPY);
-
-      ReleaseDC ( handle, hDC );
-      SelectObject ( memDC, oldbm );
-      DeleteObject ( memDC );
+      if ( pbmi )
+      {
+        SetDIBitsToDevice( hDC, 0, 0,
+                           pbmi->bmiHeader.biWidth,
+                           pbmi->bmiHeader.biHeight,
+                           0, 0, 0,
+                           pbmi->bmiHeader.biHeight,
+                           surface->bgrBitmap.buffer,
+                           pbmi,
+                           DIB_RGB_COLORS );
+      }
       EndPaint ( handle, &ps );
       return 0;
       }

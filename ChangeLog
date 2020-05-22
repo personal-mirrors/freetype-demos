@@ -1,3 +1,19 @@
+2020-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Clean up win32 driver.
+
+	This removes `BitBlt' and a related bitmap copy. Instead the driver 
+	now uses direct `SetDIBitsToDevice' which is similar to `XPutImage'.
+
+	* graph/win32/grwin32.c (grWin32Surface): Remove `hbn'.
+	(gr_win32_surface_refresh_rectangle): Do not call `SetDIBits'.
+	(Message_Process): Use `SetDIBitsToDevice' in WM_PAINT and do not
+	handle WM_CREATE and simplify WM_DESTROY.
+	(gr_win32_surface_init): Remove unnecessary code.
+	(gr_win32_surface_listen_event): Minor.
+
+	* graph/grobjs.c (grNewBitmap): Add padding to rgb24 required by GDI.
+
 2020-05-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph]: Implement resizable X11 windows.
