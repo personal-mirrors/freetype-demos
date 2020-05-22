@@ -1,5 +1,13 @@
 2020-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Implement resizable GDI windows.
+
+	* graph/win32/grwin32.c (gr_win32_surface_resize): Implement resizing.
+	(Nessage_Process): Add WM_SIZE handling.
+	(gr_win32_surface_init): Change window style and streamline.
+
+2020-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph] Clean up win32 driver.
 
 	This removes `BitBlt' and a related bitmap copy. Instead the driver 

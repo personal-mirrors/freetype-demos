@@ -312,15 +312,61 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
 
 
 static grWin32Surface*
+gr_win32_surface_resize( grWin32Surface*  surface,
+                         int              width,
+                         int              height )
+{
+  grBitmap*       bitmap = &surface->root.bitmap;
+  LPBITMAPINFO    pbmi = surface->pbmi;
+
+  /* resize root bitmap */
+  if ( grNewBitmap( bitmap->mode,
+                    bitmap->grays,
+                    width,
+                    height,
+                    bitmap ) )
+    return 0;
+  bitmap->pitch        = -bitmap->pitch;
+
+  /* resize BGR shadow bitmap */
+  if ( grNewBitmap( bitmap->mode,
+                    bitmap->grays,
+                    width,
+                    height,
+                    &surface->bgrBitmap ) )
+    return 0;
+  surface->bgrBitmap.pitch = -surface->bgrBitmap.pitch;
+
+#ifdef SWIZZLE
+  if ( bitmap->mode == gr_pixel_mode_rgb24 )
+  {
+    if ( grNewBitmap( bitmap->mode,
+                      bitmap->grays,
+                      width,
+                      height,
+                      &surface->swizzle_bitmap ) )
+      return 0;
+    surface->swizzle_bitmap.pitch = -surface->swizzle_bitmap.pitch;
+  }
+#endif
+
+  /* update the header to appropriate values */
+  pbmi->bmiHeader.biWidth  = width;
+  pbmi->bmiHeader.biHeight = height;
+
+  surface->window_width  = width;
+  surface->window_height = height;
+
+  return surface;
+}
+
+static grWin32Surface*
 gr_win32_surface_init( grWin32Surface*  surface,
                        grBitmap*        bitmap )
 {
   static RGBQUAD  black = {    0,    0,    0, 0 };
   static RGBQUAD  white = { 0xFF, 0xFF, 0xFF, 0 };
   LPBITMAPINFO    pbmi;
-
-  /* find some memory for the bitmap header */
-  surface->pbmi = pbmi = (LPBITMAPINFO) surface->bmi;
 
   LOG(( "Win32: init_surface( %p, %p )\n", surface, bitmap ));
 
@@ -338,6 +384,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
                     bitmap->rows,
                     bitmap ) )
     return 0;
+  bitmap->pitch        = -bitmap->pitch;
 
   /* allocate the BGR shadow bitmap */
   if ( grNewBitmap( bitmap->mode,
@@ -346,7 +393,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
                     bitmap->rows,
                     &surface->bgrBitmap ) )
     return 0;
-
   surface->bgrBitmap.pitch = -surface->bgrBitmap.pitch;
 
 #ifdef SWIZZLE
@@ -358,7 +404,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
                       bitmap->rows,
                       &surface->swizzle_bitmap ) )
       return 0;
-
     surface->swizzle_bitmap.pitch = -surface->swizzle_bitmap.pitch;
   }
 #endif
@@ -369,8 +414,8 @@ gr_win32_surface_init( grWin32Surface*  surface,
   LOG(( "       --   width  = %d\n", bitmap->width ));
   LOG(( "       --   height = %d\n", bitmap->rows ));
 
-  bitmap->pitch        = -bitmap->pitch;
-  surface->root.bitmap = *bitmap;
+  /* find some memory for the bitmap header */
+  surface->pbmi = pbmi = (LPBITMAPINFO) surface->bmi;
 
   /* initialize the header to appropriate values */
   memset( pbmi, 0, sizeof ( BITMAPINFO ) + sizeof ( RGBQUAD ) * 256 );
@@ -419,7 +464,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
   surface->window_height = bitmap->rows;
 
   {
-    DWORD  style = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+    DWORD  style = WS_OVERLAPPEDWINDOW;
     RECT   WndRect;
 
     WndRect.left   = 0;
@@ -446,6 +491,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
   if ( surface->window == 0 )
     return  0;
 
+  surface->root.bitmap       = *bitmap;
   surface->root.done         = (grDoneSurfaceFunc) gr_win32_surface_done;
   surface->root.refresh_rect = (grRefreshRectFunc) gr_win32_surface_refresh_rectangle;
   surface->root.set_title    = (grSetTitleFunc)    gr_win32_surface_set_title;
@@ -492,6 +538,23 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
       surface->window         = 0;
       PostQuitMessage ( 0 );
       return 0;
+
+    case WM_SIZE:
+      if ( wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED )
+      {
+        int  width  = LOWORD(lParam);
+        int  height = HIWORD(lParam);
+
+
+        if ( gr_win32_surface_resize( surface, width, height ) )
+        {
+          surface->ourevent.type  = gr_event_resize;
+          surface->ourevent.x     = width;
+          surface->ourevent.y     = height;
+          surface->eventToProcess = 1;
+        }
+      }
+      break;
 
     case WM_PAINT:
       {
