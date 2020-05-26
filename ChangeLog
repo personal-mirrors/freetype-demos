@@ -1,5 +1,15 @@
 2020-05-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Use size_t in memory allocations, handle zero-size bitmap.
+
+	* graph/grblit.c, graph/grdevice.c, graph/grdevice.h,
+	graph/x11/grx11.c: s/unsigned long/size_t/
+	* graph/grobjs.h: Ditto and inclide <stdlib.h>
+	* graph/grobjs.c (grAlloc): Ditto.
+	(grNewBitmap): Handle zero height or width.
+
+2020-05-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/grfill.c (grFillRect): Small bug.
 
 2020-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>

@@ -15,6 +15,8 @@
 #ifndef GROBJS_H_
 #define GROBJS_H_
 
+#include <stdlib.h>
+
 #include "graph.h"
 #include "grconfig.h"
 #include "grtypes.h"
@@ -165,7 +167,7 @@
   ********************************************************************/
 
   extern unsigned char*
-  grAlloc( unsigned long  size );
+  grAlloc( size_t  size );
 
 
  /********************************************************************

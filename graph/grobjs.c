@@ -1,5 +1,4 @@
 #include "grobjs.h"
-#include <stdlib.h>
 #include <string.h>
 
   int  grError = 0;
@@ -77,7 +76,7 @@
   ********************************************************************/
 
   unsigned char*
-  grAlloc( unsigned long  size )
+  grAlloc( size_t  size )
   {
     unsigned char*  p;
 
@@ -198,7 +197,7 @@
 
     if ( !bit->buffer )
     {
-       bit->buffer = grAlloc( (unsigned long)( pitch * height ) );
+       bit->buffer = grAlloc( (size_t)pitch * (size_t)height );
        if (!bit->buffer) goto Fail;
     }
     else  /* resize */
@@ -207,8 +206,8 @@
 
 
        buffer = (unsigned char*)realloc( bit->buffer,
-                        (unsigned long)( pitch * height ) );
-       if ( buffer )
+                                         (size_t)pitch * (size_t)height );
+       if ( buffer || !pitch || !height )
          bit->buffer = buffer;
        else
          goto Fail;

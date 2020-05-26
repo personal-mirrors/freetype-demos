@@ -575,7 +575,7 @@
       int          i;
       const byte*  table;
 
-      table = (const byte*)grAlloc( (unsigned long)( 3 * num_grays - 1 ) *
+      table = (const byte*)grAlloc( (size_t)( 3 * num_grays - 1 ) *
                                     sizeof ( byte ) );
       if (!table) return 0;
 
@@ -673,8 +673,7 @@
       const byte*  table;
       int          n;
 
-      table = (const byte*)grAlloc( (unsigned long)source_grays *
-                                    sizeof ( byte ) );
+      table = (const byte*)grAlloc( (size_t)source_grays * sizeof ( byte ) );
       if (!table)
         return 0;
 

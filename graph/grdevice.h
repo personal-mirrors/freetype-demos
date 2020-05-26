@@ -107,8 +107,8 @@
 
   struct grDevice_
   {
-    unsigned int  surface_objsize;
-    const char*   device_name;  /* name of device                 */
+    size_t       surface_objsize;
+    const char*  device_name;  /* name of device                 */
 
     grDeviceInitFunc        init;
     grDeviceDoneFunc        done;

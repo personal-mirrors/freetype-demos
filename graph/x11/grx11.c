@@ -1339,8 +1339,8 @@ typedef  unsigned long   uint32;
       pximage->rows   = bitmap->rows;
     }
 
-    pximage->buffer = (unsigned char*)grAlloc(
-                        (unsigned long)( pximage->pitch * pximage->rows ) );
+    pximage->buffer = (unsigned char*)grAlloc( (size_t)pximage->pitch *
+                                               (size_t)pximage->rows );
     if ( !pximage->buffer )
       return 0;
 
