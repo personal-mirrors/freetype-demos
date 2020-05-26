@@ -228,7 +228,7 @@ grFillRect( grBitmap*   target,
 
   if ( x < 0 )
   {
-    width -= x;
+    width += x;
     x      = 0;
   }
   delta = x + width - target->width;
