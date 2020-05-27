@@ -25,7 +25,11 @@
 
   typedef enum grKey_
   {
-    grKeyNone = 0,
+    grKeyNone      = 0,
+    grKeyBackSpace = 0x08,
+    grKeyTab       = 0x09,
+    grKeyReturn    = 0x0D,
+    grKeyEsc       = 0x1B,
 
     grKeySpace = ' ',
     grKey0     = '0',
@@ -119,19 +123,9 @@
     grKey_y = 'y',
     grKey_z = 'z',
 
-    grKeyBackSpace = 0x100,
-    grKeyTab,
-    grKeyReturn,
-    grKeyEsc,
+    grKeyDel       = 0x7F,
 
-    grKeyIns,
-    grKeyDel,
-    grKeyHome,
-    grKeyEnd,
-    grKeyPageUp,
-    grKeyPageDown,
-
-    grKeyF1,
+    grKeyF1  = 0x101,
     grKeyF2,
     grKeyF3,
     grKeyF4,
@@ -144,6 +138,11 @@
     grKeyF11,
     grKeyF12,
 
+    grKeyIns,
+    grKeyHome,
+    grKeyEnd,
+    grKeyPageUp,
+    grKeyPageDown,
     grKeyLeft,
     grKeyRight,
     grKeyUp,

@@ -1,4 +1,8 @@
-2020-05-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grevents.c (grKey): Utilize some ASCII control codes.
+
+2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Use size_t in memory allocations, handle zero-size bitmap.
 
