@@ -1,5 +1,15 @@
 2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Rework GDI message handling.
+
+	* graph/win32/grwin32.c (WM_RESIZE): New custom message.
+	(gr_win32_surface_listen_event): Simplify and handle keystroke events
+	and window resizing here.
+	(grWin32Surface): Remove no longer neccessary fields.
+	(Message_Process): Handle WM_PAINT and post WN_RESIZE as needed.
+
+2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/grevents.c (grKey): Utilize some ASCII control codes.
 
 2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>

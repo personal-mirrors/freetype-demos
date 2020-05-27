@@ -58,9 +58,8 @@
 #endif
 /*-------------------*/
 
-/*  Size of the window. */
-#define WIN_WIDTH   640u
-#define WIN_HEIGHT  450u
+/*  Custom messages. */
+#define WM_RESIZE  WM_USER+517
 
 /* These values can be changed, but WIN_WIDTH should remain for now a  */
 /* multiple of 32 to avoid padding issues.                             */
@@ -101,12 +100,6 @@
     { VK_F12,       grKeyF12       }
   };
 
-  static
-  Translator  syskey_translators[] =
-  {
-    { VK_F10,       grKeyF10       }
-  };
-
   static ATOM  ourAtom;
 
   typedef struct grWin32SurfaceRec_
@@ -115,12 +108,9 @@
     HWND          window;
     int           window_width;
     int           window_height;
-    int           title_set;
     const char*   the_title;
     LPBITMAPINFO  pbmi;
     char          bmi[ sizeof(BITMAPINFO) + 256*sizeof(RGBQUAD) ];
-    grEvent       ourevent;
-    int           eventToProcess;
     grBitmap      bgrBitmap;  /* windows wants data in BGR format !! */
 #ifdef SWIZZLE
     grBitmap      swizzle_bitmap;
@@ -154,7 +144,6 @@ gr_win32_surface_refresh_rectangle(
          int              w,
          int              h )
 {
-  HDC           hDC;
   int           row_bytes, delta;
   LPBITMAPINFO  pbmi   = surface->pbmi;
   HANDLE        window = surface->window;
@@ -273,37 +262,9 @@ gr_win32_surface_set_title( grWin32Surface*  surface,
 {
   /* the title will be set on the next listen_event, just */
   /* record it there..                                    */
-  surface->title_set = 0;
   surface->the_title = title;
 }
 
-static void
-gr_win32_surface_listen_event( grWin32Surface*  surface,
-                               int              event_mask,
-                               grEvent*         grevent )
-{
-  MSG     msg;
-  HANDLE  window = surface->window;
-
-  event_mask=event_mask;  /* unused parameter */
-
-  if ( window && !surface->title_set )
-  {
-    SetWindowText( window, surface->the_title );
-    surface->title_set = 1;
-  }
-
-  surface->eventToProcess = 0;
-  while (GetMessage( &msg, 0, 0, 0 ) > 0)
-  {
-    TranslateMessage( &msg );
-    DispatchMessage( &msg );
-    if (surface->eventToProcess)
-      break;
-  }
-
-  *grevent = surface->ourevent;
-}
 
 /*
  * set graphics mode
@@ -358,6 +319,72 @@ gr_win32_surface_resize( grWin32Surface*  surface,
   surface->window_height = height;
 
   return surface;
+}
+
+static void
+gr_win32_surface_listen_event( grWin32Surface*  surface,
+                               int              event_mask,
+                               grEvent*         grevent )
+{
+  MSG     msg;
+  HANDLE  window = surface->window;
+
+  event_mask=event_mask;  /* unused parameter */
+
+  if ( window && surface->the_title )
+  {
+    SetWindowText( window, surface->the_title );
+    surface->the_title = NULL;
+  }
+
+  while (GetMessage( &msg, 0, 0, 0 ) > 0)
+  {
+    switch ( msg.message )
+    {
+    case WM_RESIZE:
+      {
+        int  width  = LOWORD(msg.lParam);
+        int  height = HIWORD(msg.lParam);
+
+
+        if ( gr_win32_surface_resize( surface, width, height ) )
+        {
+          grevent->type  = gr_event_resize;
+          grevent->x     = width;
+          grevent->y     = height;
+          return;
+        }
+      }
+      break;
+
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+      {
+        Translator*  trans = key_translators;
+        Translator*  limit = trans + sizeof( key_translators ) /
+		                     sizeof( key_translators[0] );
+        for ( ; trans < limit; trans++ )
+          if ( msg.wParam == trans->winkey )
+          {
+            grevent->type = gr_event_key;
+            grevent->key  = trans->grkey;
+            return;
+          }
+      }
+      break;
+
+    case WM_CHAR:
+      {
+        grevent->type = gr_event_key;
+        grevent->key  = msg.wParam;
+        return;
+      }
+      break;
+    }
+
+    TranslateMessage( &msg );
+    DispatchMessage( &msg );
+  }
 }
 
 static grWin32Surface*
@@ -530,29 +557,24 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
 
     switch( mess )
     {
-    case WM_DESTROY:
+    case WM_CLOSE:
         /* warn the main thread to quit if it didn't know */
-      surface->ourevent.type  = gr_event_key;
-      surface->ourevent.key   = grKeyEsc;
-      surface->eventToProcess = 1;
       surface->window         = 0;
-      PostQuitMessage ( 0 );
+      PostMessage( handle, WM_CHAR, (WPARAM)grKeyEsc, 0 );
       return 0;
 
     case WM_SIZE:
       if ( wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED )
+        PostMessage( handle, WM_RESIZE, wParam, lParam );
+      break;
+
+    case WM_EXITSIZEMOVE:
       {
-        int  width  = LOWORD(lParam);
-        int  height = HIWORD(lParam);
+        RECT  WndRect;
 
-
-        if ( gr_win32_surface_resize( surface, width, height ) )
-        {
-          surface->ourevent.type  = gr_event_resize;
-          surface->ourevent.x     = width;
-          surface->ourevent.y     = height;
-          surface->eventToProcess = 1;
-        }
+        GetClientRect( handle, &WndRect );
+        PostMessage( handle, WM_RESIZE, SIZE_RESTORED,
+                     MAKELPARAM( WndRect.right, WndRect.bottom ) );
       }
       break;
 
@@ -577,60 +599,6 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
       EndPaint ( handle, &ps );
       return 0;
       }
-
-    case WM_SYSKEYDOWN:
-      {
-        int          count = sizeof( syskey_translators )/sizeof( syskey_translators[0] );
-        Translator*  trans = syskey_translators;
-        Translator*  limit = trans + count;
-        for ( ; trans < limit; trans++ )
-          if ( wParam == trans->winkey )
-          {
-            surface->ourevent.key = trans->grkey;
-            goto Do_Key_Event;
-          }
-        return DefWindowProc( handle, mess, wParam, lParam );
-      }
-
-
-    case WM_KEYDOWN:
-      switch ( wParam )
-      {
-      case VK_ESCAPE:
-        surface->ourevent.type  = gr_event_key;
-        surface->ourevent.key   = grKeyEsc;
-        surface->eventToProcess = 1;
-        PostQuitMessage ( 0 );
-        return 0;
-
-      default:
-        /* lookup list of translated keys */
-        {
-          int          count = sizeof( key_translators )/sizeof( key_translators[0] );
-          Translator*  trans = key_translators;
-          Translator*  limit = trans + count;
-          for ( ; trans < limit; trans++ )
-            if ( wParam == trans->winkey )
-            {
-              surface->ourevent.key = trans->grkey;
-              goto Do_Key_Event;
-            }
-        }
-
-        /* the key isn't found, default processing               */
-        /* return DefWindowProc( handle, mess, wParam, lParam ); */
-        return DefWindowProc( handle, mess, wParam, lParam );
-    }
-
-    case WM_CHAR:
-      {
-        surface->ourevent.key = wParam;
-
-    Do_Key_Event:
-        surface->ourevent.type  = gr_event_key;
-        surface->eventToProcess = 1;
-      }
-      break;
 
     default:
        return DefWindowProc( handle, mess, wParam, lParam );
