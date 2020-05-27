@@ -1020,6 +1020,7 @@ typedef  unsigned long   uint32;
     Visual*             visual;
     Colormap            colormap;
     GC                  gc;
+    Atom                wm_delete_window;
     XImage*             ximage;
     grBitmap            ximage_bitmap;
 
@@ -1198,6 +1199,14 @@ typedef  unsigned long   uint32;
 
       switch ( x_event.type )
       {
+      case ClientMessage:
+        if ( (Atom)x_event.xclient.data.l[0] == surface->wm_delete_window )
+        {
+          grkey = grKeyEsc;  /* signal to exit gracefully */
+          goto Set_Key;
+        }
+        break;
+
       case KeyPress:
         surface->key_number = XLookupString( &x_event.xkey,
                                              surface->key_buffer,
@@ -1414,6 +1423,10 @@ typedef  unsigned long   uint32;
 
       XSetWMProperties( display, surface->win, &xtp, &xtp,
                         NULL, 0, &xsh, NULL, NULL );
+
+      surface->wm_delete_window = XInternAtom( display,
+                                               "WM_DELETE_WINDOW", False );
+      XSetWMProtocols( display, surface->win, &surface->wm_delete_window, 1);
 
       pid = getpid();
       NET_WM_PID = XInternAtom( display, "_NET_WM_PID", False );

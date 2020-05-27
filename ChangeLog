@@ -1,5 +1,10 @@
 2020-05-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/x11/grx11.c (gr_x11_surface_init): Register WM_DELETE_WINDOW.
+	(gr_x11_surface_listen_event): Handle it to exit gracefully.
+
+2020-05-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.c (grX11Surface): Remove unused field.
 
 2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
