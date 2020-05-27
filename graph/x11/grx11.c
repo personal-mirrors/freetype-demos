@@ -1020,7 +1020,6 @@ typedef  unsigned long   uint32;
     Visual*             visual;
     Colormap            colormap;
     GC                  gc;
-    int                 depth;
     XImage*             ximage;
     grBitmap            ximage_bitmap;
 
@@ -1297,7 +1296,6 @@ typedef  unsigned long   uint32;
 
     screen = DefaultScreen( display );
 
-    surface->depth    = x11dev.format->x_depth;
     surface->visual   = x11dev.visual;
 
     surface->format      = format = x11dev.format;

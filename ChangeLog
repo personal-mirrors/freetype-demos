@@ -1,3 +1,7 @@
+2020-05-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/x11/grx11.c (grX11Surface): Remove unused field.
+
 2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Rework GDI message handling.
