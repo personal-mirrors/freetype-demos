@@ -1210,6 +1210,12 @@ typedef  unsigned long   uint32;
                              &key,
                              NULL );
 
+        LOG(( num ? isprint( surface->key_buffer[0] ) ?
+                  "KeyPress: KeySym = 0x%04x, Char = '%c'\n" :
+                  "KeyPress: KeySym = 0x%04x, Char = <%02x>\n" :
+                  "KeyPress: KeySym = 0x%04x\n",
+              key, surface->key_buffer[0] ));
+
         if ( num == 0 || key > 512 )
         {
           /* this may be a special key like F1, F2, etc. */

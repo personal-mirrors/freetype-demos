@@ -362,12 +362,13 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
       {
         Translator*  trans = key_translators;
         Translator*  limit = trans + sizeof( key_translators ) /
-		                     sizeof( key_translators[0] );
+                                     sizeof( key_translators[0] );
         for ( ; trans < limit; trans++ )
           if ( msg.wParam == trans->winkey )
           {
             grevent->type = gr_event_key;
             grevent->key  = trans->grkey;
+            LOG(( "KeyPress: VK = 0x%02x\n", msg.wParam ));
             return;
           }
       }
@@ -377,6 +378,9 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
       {
         grevent->type = gr_event_key;
         grevent->key  = msg.wParam;
+        LOG(( isprint( msg.wParam ) ? "KeyPress: Char = '%c'\n"
+                                    : "KeyPress: Char = <%02x>\n",
+              msg.wParam ));
         return;
       }
       break;
