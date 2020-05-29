@@ -1,5 +1,9 @@
 2020-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	src/ftgamma.c: Center and clip the bitmap to fix resizing.
+
+2020-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph/x11] Stop double-dealing BackSpace, Tab, Return, and Esc.
 
 	* graph/x11/grx11.c (gr_x11_surface_listen_event): Do not reset the
