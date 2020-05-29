@@ -1180,20 +1180,16 @@ typedef  unsigned long   uint32;
     KeySym     key;
     Display*   display = surface->display;
 
-    int        bool_exit;
+    int        num;
     grKey      grkey;
-
-    XComposeStatus  compose;
 
     /* XXX: for now, ignore the event mask, and only exit when */
     /*      a key is pressed                                   */
     (void)event_mask;
 
-    bool_exit = surface->key_cursor < surface->key_number;
-
     XDefineCursor( display, surface->win, x11dev.idle );
 
-    while ( !bool_exit )
+    while ( surface->key_cursor >= surface->key_number )
     {
       XNextEvent( display, &x_event );
 
@@ -1208,15 +1204,13 @@ typedef  unsigned long   uint32;
         break;
 
       case KeyPress:
-        surface->key_number = XLookupString( &x_event.xkey,
-                                             surface->key_buffer,
-                                             sizeof ( surface->key_buffer ),
-                                             &key,
-                                             &compose );
-        surface->key_cursor = 0;
+        num = XLookupString( &x_event.xkey,
+                             surface->key_buffer,
+                             sizeof ( surface->key_buffer ),
+                             &key,
+                             NULL );
 
-        if ( surface->key_number == 0 ||
-             key > 512       )
+        if ( num == 0 || key > 512 )
         {
           /* this may be a special key like F1, F2, etc. */
           grkey = KeySymTogrKey( key );
@@ -1224,7 +1218,10 @@ typedef  unsigned long   uint32;
             goto Set_Key;
         }
         else
-          bool_exit = 1;
+        {
+          surface->key_number = num;
+          surface->key_cursor = 0;
+        }
         break;
 
       case MappingNotify:

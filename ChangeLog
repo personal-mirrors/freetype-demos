@@ -1,3 +1,10 @@
+2020-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/x11] Stop double-dealing BackSpace, Tab, Return, and Esc.
+
+	* graph/x11/grx11.c (gr_x11_surface_listen_event): Do not reset the
+	cursor prematurely.
+
 2020-05-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/x11/grx11.c (gr_x11_surface_init): Register WM_DELETE_WINDOW.
