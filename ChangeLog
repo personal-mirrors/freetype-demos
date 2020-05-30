@@ -1,6 +1,10 @@
+2020-05-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftdump.c (Print_Name): Fix timestamps on Windows.
+
 2020-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	src/ftgamma.c: Center and clip the bitmap to fix resizing.
+	* src/ftgamma.c: Center and clip the bitmap to fix resizing.
 
 2020-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
