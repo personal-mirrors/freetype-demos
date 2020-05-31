@@ -157,10 +157,10 @@
 
 
       /* ignore most of upper bits until 2176 and adjust epoch */
-      created  = head->Created [0] == 1 ? created  + 2212122496
-	                                : created  - 2082844800;
-      modified = head->Modified[0] == 1 ? modified + 2212122496
-	                                : modified - 2082844800;
+      created  = head->Created [0] == 1 ? created  + 2212122496U
+                                        : created  - 2082844800U;
+      modified = head->Modified[0] == 1 ? modified + 2212122496U
+                                        : modified - 2082844800U;
 
       strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &created  ) );
       printf( "%s%s\n", Name_Field( "created" ), buf );
