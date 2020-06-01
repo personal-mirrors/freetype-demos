@@ -1,5 +1,9 @@
 2020-05-31  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftstring.c (Process_Event): Process resizing.
+
+2020-05-31  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.c (gr_x11_surface_init): Remove some settings.
 
 2020-05-31  Alexei Podtelezhnikov  <apodtele@gmail.com>

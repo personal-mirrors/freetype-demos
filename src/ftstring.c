@@ -488,6 +488,9 @@
     else
       grListenSurface( display->surface, 0, &event );
 
+    if (event.type == gr_event_resize )
+      return ret;
+
     if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
       status.render_mode = (int)( event.key - '1' );
