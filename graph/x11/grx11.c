@@ -1380,8 +1380,7 @@ typedef  unsigned long   uint32;
 
     {
       XTextProperty         xtp  = { (unsigned char*)"FreeType", 31, 8, 8 };
-      XSizeHints            xsh  = { };
-      XSetWindowAttributes  xswa = { };
+      XSetWindowAttributes  xswa;
       unsigned long         xswa_mask = CWEventMask | CWCursor;
 
       pid_t                 pid;
@@ -1421,11 +1420,9 @@ typedef  unsigned long   uint32;
 
       surface->gc = XCreateGC( display, surface->win,
                                0L, NULL );
-      XSetForeground( display, surface->gc, xswa.border_pixel     );
-      XSetBackground( display, surface->gc, xswa.background_pixel );
 
       XSetWMProperties( display, surface->win, &xtp, &xtp,
-                        NULL, 0, &xsh, NULL, NULL );
+                        NULL, 0, NULL, NULL, NULL );
 
       surface->wm_delete_window = XInternAtom( display,
                                                "WM_DELETE_WINDOW", False );
