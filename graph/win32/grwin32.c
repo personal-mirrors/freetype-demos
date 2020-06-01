@@ -108,7 +108,6 @@
     HWND          window;
     int           window_width;
     int           window_height;
-    const char*   the_title;
     LPBITMAPINFO  pbmi;
     char          bmi[ sizeof(BITMAPINFO) + 256*sizeof(RGBQUAD) ];
     grBitmap      bgrBitmap;  /* windows wants data in BGR format !! */
@@ -250,9 +249,7 @@ gr_win32_surface_refresh_rectangle(
     }
   }
 
-  ShowWindow( window, SW_SHOW );
-  InvalidateRect ( window, NULL, FALSE );
-  UpdateWindow ( window );
+  InvalidateRect( window, NULL, FALSE );
 }
 
 
@@ -260,9 +257,7 @@ static void
 gr_win32_surface_set_title( grWin32Surface*  surface,
                             const char*      title )
 {
-  /* the title will be set on the next listen_event, just */
-  /* record it there..                                    */
-  surface->the_title = title;
+  SetWindowText( surface->window, title );
 }
 
 
@@ -287,7 +282,7 @@ gr_win32_surface_resize( grWin32Surface*  surface,
                     height,
                     bitmap ) )
     return 0;
-  bitmap->pitch        = -bitmap->pitch;
+  bitmap->pitch = -bitmap->pitch;
 
   /* resize BGR shadow bitmap */
   if ( grNewBitmap( bitmap->mode,
@@ -331,13 +326,7 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
 
   event_mask=event_mask;  /* unused parameter */
 
-  if ( window && surface->the_title )
-  {
-    SetWindowText( window, surface->the_title );
-    surface->the_title = NULL;
-  }
-
-  while (GetMessage( &msg, 0, 0, 0 ) > 0)
+  while (GetMessage( &msg, NULL, 0, 0 ) > 0)
   {
     switch ( msg.message )
     {
@@ -347,7 +336,9 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
         int  height = HIWORD(msg.lParam);
 
 
-        if ( gr_win32_surface_resize( surface, width, height ) )
+        if ( ( width  != surface->window_width  ||
+               height != surface->window_height )              &&
+             gr_win32_surface_resize( surface, width, height ) )
         {
           grevent->type  = gr_event_resize;
           grevent->x     = width;
@@ -415,7 +406,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
                     bitmap->rows,
                     bitmap ) )
     return 0;
-  bitmap->pitch        = -bitmap->pitch;
+  bitmap->pitch = -bitmap->pitch;
 
   /* allocate the BGR shadow bitmap */
   if ( grNewBitmap( bitmap->mode,
@@ -522,6 +513,8 @@ gr_win32_surface_init( grWin32Surface*  surface,
   if ( surface->window == 0 )
     return  0;
 
+  ShowWindow( surface->window, SW_SHOWNORMAL );
+
   surface->root.bitmap       = *bitmap;
   surface->root.done         = (grDoneSurfaceFunc) gr_win32_surface_done;
   surface->root.refresh_rect = (grRefreshRectFunc) gr_win32_surface_refresh_rectangle;
@@ -562,8 +555,7 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
     switch( mess )
     {
     case WM_CLOSE:
-        /* warn the main thread to quit if it didn't know */
-      surface->window         = 0;
+      /* warn the main thread to quit if it didn't know */
       PostMessage( handle, WM_CHAR, (WPARAM)grKeyEsc, 0 );
       return 0;
 
