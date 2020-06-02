@@ -238,36 +238,22 @@
       double  ggamma = 0.1 * g;
       char    temp[6];
       int     y = y_0 + ( yside + 1 ) * ( g - 1 );
-      int     nx, ny;
+      int     nx;
 
-      unsigned char*  line = display->bitmap->buffer +
-                             y * display->bitmap->pitch;
-
-
-      if ( display->bitmap->pitch < 0 )
-        line -= display->bitmap->pitch * ( display->bitmap->rows - 1 );
-
-      line += x_0 * 3;
-
-      grSetPixelMargin( x_0 - 32, y + ( yside - 8 ) / 2 );
-      grGotoxy( 0, 0 );
 
       sprintf( temp, "%.1f", ggamma );
-      grWrite( temp );
+      grWriteCellString( display->bitmap, x_0 - 32, y + ( yside - 6 ) / 2,
+                         temp, display->fore_color );
 
-      for ( ny = 0; ny < yside; ny++, line += display->bitmap->pitch )
+      for ( nx = 0; nx < levels; nx++ )
       {
-        unsigned char*  dst = line;
+        double   p  = nx / (double)( levels - 1 );
+        int      gm = (int)( 255.0 * pow( p, ggamma ) + 0.5 );
+        grColor  c;
 
 
-        for ( nx = 0; nx < levels; nx++, dst += 3 * xside )
-        {
-          double  p   = nx / (double)( levels - 1 );
-          int     gm  = (int)( 255.0 * pow( p, ggamma ) + 0.5 );
-
-
-          memset( dst, gm, (unsigned int)( xside * 3 ) );
-        }
+        c = grFindColor( display->bitmap, gm, gm, gm, 0xff );
+        grFillRect( display->bitmap, x_0 + nx * xside, y, xside, yside, c );
       }
     }
 

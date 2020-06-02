@@ -1,3 +1,7 @@
+2020-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftgamma.c (event_gamma_grid): Fix oscure resizing crash.
+
 2020-05-31  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftstring.c (Process_Event): Process resizing.
