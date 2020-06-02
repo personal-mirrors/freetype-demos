@@ -1375,12 +1375,14 @@
     if ( *status.keys )
       event.key = grKEY( *status.keys++ );
     else
+    {
       grListenSurface( display->surface, 0, &event );
 
-    if ( event.type == gr_event_resize )
-    {
-      grid_status_display( &status, display );
-      return ret;
+      if ( event.type == gr_event_resize )
+      {
+        grid_status_display( &status, display );
+        return ret;
+      }
     }
 
     status.header = NULL;

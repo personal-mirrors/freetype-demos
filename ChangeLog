@@ -1,5 +1,11 @@
 2020-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid,ftstring,ftview] Avoid uninitialized `event.type'.
+
+	* src/ftgrid.c, src/ftstring.c, src/ftview.c (Process_Event): Updated.
+
+2020-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftgamma.c (event_gamma_grid): Fix oscure resizing crash.
 
 2020-05-31  Alexei Podtelezhnikov  <apodtele@gmail.com>

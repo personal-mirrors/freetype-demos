@@ -486,10 +486,12 @@
     if ( *status.keys )
       event.key = grKEY( *status.keys++ );
     else
+    {
       grListenSurface( display->surface, 0, &event );
 
-    if (event.type == gr_event_resize )
-      return ret;
+      if ( event.type == gr_event_resize )
+        return ret;
+    }
 
     if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
