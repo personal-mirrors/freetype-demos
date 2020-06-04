@@ -13,8 +13,8 @@
 #include FT_LCD_FILTER_H
 
 // internal FreeType header files; only available in the source code bundle
-#include FT_INTERNAL_DRIVER_H
-#include FT_INTERNAL_OBJECTS_H
+#include <freetype/internal/ftdrv.h>
+#include <freetype/internal/ftobjs.h>
 
 
 /////////////////////////////////////////////////////////////////////////////

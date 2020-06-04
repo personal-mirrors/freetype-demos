@@ -24,8 +24,8 @@
   /* showing driver name -- the two internal header files */
   /* shouldn't be used in normal programs                 */
 #include FT_MODULE_H
-#include FT_INTERNAL_OBJECTS_H
-#include FT_INTERNAL_DRIVER_H
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/ftdrv.h>
 
 #include <stdarg.h>
 #include <stdio.h>

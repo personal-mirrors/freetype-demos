@@ -22,12 +22,12 @@
 #include <stdio.h>
 
   /* the following header shouldn't be used in normal programs */
-#include FT_INTERNAL_DEBUG_H
+#include <freetype/internal/ftdebug.h>
 
   /* showing driver name */
 #include FT_MODULE_H
-#include FT_INTERNAL_OBJECTS_H
-#include FT_INTERNAL_DRIVER_H
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/ftdrv.h>
 
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
