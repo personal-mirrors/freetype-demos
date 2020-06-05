@@ -1771,7 +1771,6 @@
   {
     grSurface*        surface = (grSurface*)display->surface;
     grBitmap*         target = display->bitmap;
-    unsigned char*    origin;
     FT_Outline*       outline;
     FT_Raster_Params  params;
 
@@ -1779,35 +1778,8 @@
     if ( glyph->format != FT_GLYPH_FORMAT_OUTLINE )
       return FT_Err_Ok;
 
-    origin = target->buffer;
-    if ( target->pitch < 0 )
-      origin += ( y - target->rows ) * target->pitch;
-    else
-      origin += ( y - 1 ) * target->pitch;
+    grSetTargetPenBrush( target, x, y, color );
 
-    switch ( target->mode )
-    {
-    case gr_pixel_mode_gray:
-      origin += x;
-      break;
-    case gr_pixel_mode_rgb565:
-      origin += x * 2;
-      break;
-    case gr_pixel_mode_rgb24:
-      origin += x * 3;
-      break;
-    case gr_pixel_mode_rgb32:
-      origin += x * 4;
-      break;
-    default:
-      fprintf( stderr, "Unsupported target\n" );
-      return FT_Err_Ok;
-    }
-
-    surface->origin = origin;
-    surface->gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
-                      ((GBlenderPixel)color.chroma[1] << 8 ) |
-                      ((GBlenderPixel)color.chroma[2]      ) ;
     outline = &((FT_OutlineGlyph)glyph)->outline;
 
     params.source        = outline;

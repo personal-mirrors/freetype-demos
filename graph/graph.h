@@ -667,12 +667,35 @@
   *    blit glyphs
   *
   * <Input>
+  *    target     :: handle to target bitmap/surface
   *    gamma      :: gamma value. <= 0 to select sRGB transfer function
   *
   **********************************************************************/
 
   extern
   void  grSetTargetGamma( grBitmap*  target, double  gamma_value );
+
+
+ /**********************************************************************
+  *
+  * <Function>
+  *    grSetTargetPenBrush
+  *
+  * <Description>
+  *    set the pen position and brush color as required for direct mode.
+  *
+  * <Input>
+  *    target     :: handle to target bitmap/surface
+  *    x, y       :: pen position
+  *    color      :: color as defined by grFindColor
+  *
+  **********************************************************************/
+
+  extern
+  void  grSetTargetPenBrush( grBitmap*  target,
+                             int        x,
+                             int        y,
+                             grColor    color );
 
 /* */
 

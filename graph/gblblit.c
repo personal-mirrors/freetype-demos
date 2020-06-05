@@ -61,6 +61,8 @@
 
 #define  GRGB_TO_GRAY8(r,g,b)  ( (unsigned char)( ( 2*(r) + 7*(g) + (b) ) / 10 ) )
 
+#define  GGRAY8_TO_RGB24(p)    GRGB_PACK(p,p,p)
+
 #define  GRGB24_TO_GRAY8(p)   ( (unsigned char)( ( 2*( ((p) >> 16) & 0xFF ) +         \
                                                    7*( ((p) >>  8) & 0xFF ) +         \
                                                      ( ((p))       & 0xFF ) ) / 10 ) )
@@ -345,6 +347,67 @@ gblender_blit_init( GBlenderBlit           blit,
 }
 
 
+GBLENDER_APIDEF( void )
+grSetTargetGamma( grBitmap*  target,
+                  double     gamma )
+{
+  grSurface*  surface = (grSurface*)target;
+
+
+  gblender_init( surface->gblender, gamma );
+}
+
+
+GBLENDER_APIDEF( void )
+grSetTargetPenBrush( grBitmap*  target,
+                     int        x,
+                     int        y,
+                     grColor    color )
+{
+  grSurface*  surface = (grSurface*)target;
+
+
+  surface->origin = target->buffer;
+  if ( target->pitch < 0 )
+    surface->origin += ( y - target->rows ) * target->pitch;
+  else
+    surface->origin += ( y - 1 ) * target->pitch;
+
+  switch ( target->mode )
+  {
+  case gr_pixel_mode_gray:
+    surface->origin    += x;
+    surface->gray_spans = _gblender_spans_gray8;
+    surface->gcolor     = GGRAY8_TO_RGB24( color.value );
+    break;
+  case gr_pixel_mode_rgb565:
+    surface->origin    += x * 2;
+    surface->gray_spans = _gblender_spans_rgb565;
+    surface->gcolor     = GRGB565_TO_RGB24( color.value );
+    break;
+  case gr_pixel_mode_rgb24:
+    surface->origin    += x * 3;
+    surface->gray_spans = _gblender_spans_rgb24;
+    surface->gcolor     = GRGB_PACK( color.chroma[0],
+                                     color.chroma[1],
+                                     color.chroma[2] );
+    break;
+  case gr_pixel_mode_rgb32:
+    surface->origin    += x * 4;
+    surface->gray_spans = _gblender_spans_rgb32;
+    surface->gcolor     = GRGB_PACK( color.chroma[0],
+                                     color.chroma[1],
+                                     color.chroma[2] );
+    break;
+  default:
+    (void)_gblender_spans_bgr565;  /* unused */
+    surface->origin     = NULL;
+    surface->gray_spans = (grSpanFunc)NULL;
+    surface->gcolor     = 0;
+  }
+}
+
+
 GBLENDER_APIDEF( int )
 grBlitGlyphToSurface( grSurface*  surface,
                       grBitmap*   glyph,
@@ -353,7 +416,6 @@ grBlitGlyphToSurface( grSurface*  surface,
                       grColor     color )
 {
   GBlenderBlitRec       gblit[1];
-  GBlenderPixel         gcolor;
 
 
   /* check arguments */
@@ -377,41 +439,9 @@ grBlitGlyphToSurface( grSurface*  surface,
     return -1;
   }
 
-  gcolor = ((GBlenderPixel)color.chroma[0] << 16) |
-           ((GBlenderPixel)color.chroma[1] << 8 ) |
-           ((GBlenderPixel)color.chroma[2]      ) ;
+  /* this is not a direct mode but we need to decode color */
+  grSetTargetPenBrush( (grBitmap*)surface, 0, 0, color );
 
-  gblender_blit_run( gblit, gcolor );
+  gblender_blit_run( gblit, surface->gcolor );
   return 1;
-}
-
-
-GBLENDER_APIDEF( void )
-grSetTargetGamma( grBitmap*  target,
-                  double     gamma )
-{
-  grSurface*  surface = (grSurface*)target;
-
-
-  gblender_init( surface->gblender, gamma );
-
-  /* not related to gamma but needs to be set */
-  switch ( target->mode )
-  {
-  case gr_pixel_mode_gray:
-    surface->gray_spans = _gblender_spans_gray8;
-    break;
-  case gr_pixel_mode_rgb32:
-    surface->gray_spans = _gblender_spans_rgb32;
-    break;
-  case gr_pixel_mode_rgb24:
-    surface->gray_spans = _gblender_spans_rgb24;
-    break;
-  case gr_pixel_mode_rgb565:
-    surface->gray_spans = _gblender_spans_rgb565;
-    break;
-  default:
-    (void)_gblender_spans_bgr565;  /* unused */
-    surface->gray_spans = (grSpanFunc)0;
-  }
 }

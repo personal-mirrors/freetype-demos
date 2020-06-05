@@ -1,3 +1,13 @@
+2020-06-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Fix color management bugs including `ftmulti'.
+
+	* graph/gblblit.c (grSetTargetPenBrush): New function to manage color
+	and other parameters required for direct rendering.
+	(grBlitGlyphToSurface): Use it here to decode color only.
+	* src/ftcommon.h (FTDemo_Sketch_Glyph_Color): Use it here in full.
+	* graph/graph.h: Update docs.
+
 2020-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid,ftstring,ftview] Avoid uninitialized `event.type'.
