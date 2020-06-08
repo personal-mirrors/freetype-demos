@@ -1,3 +1,8 @@
+2020-06-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftmulti.c (Process_Event) Handle resizing.
+	* src/ftdiff.c (main): Ditto.
+
 2020-06-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Fix color management bugs including `ftmulti'.

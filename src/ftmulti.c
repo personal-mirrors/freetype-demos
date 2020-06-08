@@ -605,6 +605,9 @@
 
     grListenSurface( surface, 0, &event );
 
+    if ( event.type == gr_event_resize )
+      return 1;
+
     switch ( event.key )
     {
     case grKeyEsc:            /* ESC or q */

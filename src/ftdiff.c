@@ -1689,8 +1689,14 @@
 
       write_global_info( state );
       grRefreshSurface( adisplay->surface );
+
       grListenSurface( adisplay->surface, 0, &event );
-      if ( process_event( state, &event ) )
+      if ( event.type == gr_event_resize )
+      {
+        width  = event.x;
+        height = event.y;
+      }
+      else if ( process_event( state, &event ) )
         break;
     }
 
