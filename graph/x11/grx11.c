@@ -1276,9 +1276,6 @@ typedef  unsigned long   uint32;
       }
     }
 
-    XDefineCursor( display, surface->win, x11dev.busy );
-    XFlush       ( display );
-
     /* now, translate the keypress to a grKey; */
     /* if this wasn't part of the simple translated keys, */
     /* simply get the charcode from the character buffer  */
@@ -1287,6 +1284,8 @@ typedef  unsigned long   uint32;
   Set_Key:
     grevent->type = gr_key_down;
     grevent->key  = grkey;
+
+    XDefineCursor( display, surface->win, x11dev.busy );
 
     return 1;
   }
