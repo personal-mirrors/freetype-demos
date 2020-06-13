@@ -162,7 +162,7 @@ typedef  unsigned long   uint32;
   static int
   gr_x11_blitter_reset( grX11Blitter*  blit,
                         grBitmap*      source,
-                        grBitmap*      target,
+                        XImage*        target,
                         int            x,
                         int            y,
                         int            width,
@@ -198,7 +198,7 @@ typedef  unsigned long   uint32;
     if ( delta > 0 )
       width -= delta;
 
-    delta = y + height - target->rows;
+    delta = y + height - target->height;
     if ( delta > 0 )
       height -= delta;
 
@@ -212,11 +212,11 @@ typedef  unsigned long   uint32;
     if ( pitch < 0 )
       blit->src_line -= ( source->rows - 1 ) * pitch;
 
-    pitch = blit->dst_pitch = target->pitch;
+    pitch = blit->dst_pitch = target->bytes_per_line;
 
-    blit->dst_line = target->buffer + y * pitch;
+    blit->dst_line = target->data + y * pitch;
     if ( pitch < 0 )
-      blit->dst_line -= ( target->rows - 1 ) * pitch;
+      blit->dst_line -= ( target->height - 1 ) * pitch;
 
     blit->x      = x;
     blit->y      = y;
@@ -1021,10 +1021,8 @@ typedef  unsigned long   uint32;
     Colormap            colormap;
     GC                  gc;
     Atom                wm_delete_window;
-    XImage*             ximage;
-    grBitmap            ximage_bitmap;
 
-    const grX11Format*  format;
+    XImage*             ximage;
     grX11ConvertFunc    convert;
 
     char                key_buffer[10];
@@ -1070,8 +1068,7 @@ typedef  unsigned long   uint32;
     grX11Blitter  blit;
 
 
-    if ( !gr_x11_blitter_reset( &blit, &surface->root.bitmap,
-                                &surface->ximage_bitmap,
+    if ( !gr_x11_blitter_reset( &blit, &surface->root.bitmap, surface->ximage,
                                 x, y, w, h ) )
     {
       surface->convert( &blit );
@@ -1127,7 +1124,8 @@ typedef  unsigned long   uint32;
                          int            height )
   {
     grBitmap*  bitmap  = &surface->root.bitmap;
-    grBitmap*  pximage = &surface->ximage_bitmap;
+    XImage*    ximage  = surface->ximage;
+    int        pitch;
     char*      buffer;
 
 
@@ -1140,32 +1138,25 @@ typedef  unsigned long   uint32;
       return 0;
 
     /* reallocate surface image */
-    pximage->pitch  = width * x11dev.format->x_bits_per_pixel >> 3;
-    pximage->width  = width;
-    pximage->rows   = height;
+    pitch  = width * ximage->bits_per_pixel >> 3;
 
-    if ( x11dev.format->x_bits_per_pixel != x11dev.scanline_pad )
+    if ( ximage->bits_per_pixel != ximage->bitmap_pad )
     {
-      int  bits, over;
-
-
-      bits = width * x11dev.format->x_bits_per_pixel;
-      over = bits % x11dev.scanline_pad;
+      int  over = width * ximage->bits_per_pixel
+                        % ximage->bitmap_pad;
 
       if ( over )
-        pximage->pitch += ( x11dev.scanline_pad - over ) >> 3;
+        pitch += ( ximage->bitmap_pad - over ) >> 3;
     }
 
-    buffer = (char*)realloc( pximage->buffer,
-            (unsigned long)( pximage->pitch * pximage->rows ) );
-    if ( !buffer )
+    buffer = (char*)realloc( ximage->data, (size_t)height * (size_t)pitch );
+    if ( !buffer && height && pitch )
       return 0;
 
-    pximage->buffer                 = (unsigned char*)buffer;
-    surface->ximage->data           = buffer;
-    surface->ximage->width          = pximage->width;
-    surface->ximage->height         = pximage->rows;
-    surface->ximage->bytes_per_line = pximage->pitch;
+    ximage->data           = buffer;
+    ximage->bytes_per_line = pitch;
+    ximage->width          = width;
+    ximage->height         = height;
 
     return 1;
   }
@@ -1235,16 +1226,14 @@ typedef  unsigned long   uint32;
         break;
 
       case ConfigureNotify:
-        if ( x_event.xconfigure.width  != surface->ximage->width  ||
-             x_event.xconfigure.height != surface->ximage->height )
+        if ( ( x_event.xconfigure.width  != surface->ximage->width  ||
+               x_event.xconfigure.height != surface->ximage->height )    &&
+             gr_x11_surface_resize( surface, x_event.xconfigure.width,
+                                             x_event.xconfigure.height ) )
         {
           grevent->type = gr_event_resize;
           grevent->x    = x_event.xconfigure.width;
           grevent->y    = x_event.xconfigure.height;
-
-          gr_x11_surface_resize( surface,
-                                 x_event.xconfigure.width,
-                                 x_event.xconfigure.height );
 
           return 1;
         }
@@ -1296,33 +1285,24 @@ typedef  unsigned long   uint32;
                        grBitmap*      bitmap )
   {
     Display*            display;
-    int                 screen;
-    grBitmap*           pximage = &surface->ximage_bitmap;
-    const grX11Format*  format;
 
 
     surface->key_number = 0;
     surface->key_cursor = 0;
     surface->display    = display = x11dev.display;
-
-    screen = DefaultScreen( display );
-
-    surface->visual   = x11dev.visual;
-
-    surface->format      = format = x11dev.format;
-    surface->root.bitmap = *bitmap;
+    surface->visual     = x11dev.visual;
 
     switch ( bitmap->mode )
     {
     case gr_pixel_mode_rgb24:
-      surface->convert = format->rgb_convert;
+      surface->convert = x11dev.format->rgb_convert;
       break;
 
     case gr_pixel_mode_gray:
       /* we only support 256-gray level 8-bit pixmaps */
       if ( bitmap->grays == 256 )
       {
-        surface->convert = format->gray_convert;
+        surface->convert = x11dev.format->gray_convert;
         break;
       }
       /* fall through */
@@ -1331,27 +1311,6 @@ typedef  unsigned long   uint32;
       /* we don't support other modes */
       return 0;
     }
-
-    /* allocate surface image */
-    {
-      int  bits, over;
-
-
-      bits = bitmap->width * format->x_bits_per_pixel;
-      over = bits % x11dev.scanline_pad;
-
-      if ( over )
-        bits += x11dev.scanline_pad - over;
-
-      pximage->pitch  = bits >> 3;
-      pximage->width  = bitmap->width;
-      pximage->rows   = bitmap->rows;
-    }
-
-    pximage->buffer = (unsigned char*)grAlloc( (size_t)pximage->pitch *
-                                               (size_t)pximage->rows );
-    if ( !pximage->buffer )
-      return 0;
 
     /* create the bitmap */
     if ( grNewBitmap( bitmap->mode,
@@ -1366,18 +1325,25 @@ typedef  unsigned long   uint32;
     /* Now create the surface X11 image */
     surface->ximage = XCreateImage( display,
                                     surface->visual,
-                                    (unsigned int)format->x_depth,
+                                    (unsigned int)x11dev.format->x_depth,
                                     ZPixmap,
                                     0,
-                                    (char*)pximage->buffer,
-                                    (unsigned int)pximage->width,
-                                    (unsigned int)pximage->rows,
+                                    NULL,
+                                    (unsigned int)bitmap->width,
+                                    (unsigned int)bitmap->rows,
                                     x11dev.scanline_pad,
                                     0 );
     if ( !surface->ximage )
       return 0;
 
+    /* allocate surface image data */
+    surface->ximage->data = (char*)grAlloc( (size_t)bitmap->rows *
+                         (size_t)surface->ximage->bytes_per_line );
+    if ( !surface->ximage->data )
+      return 0;
+
     {
+      int                   screen = DefaultScreen( display );
       XTextProperty         xtp  = { (unsigned char*)"FreeType", 31, 8, 8 };
       XSetWindowAttributes  xswa;
       unsigned long         xswa_mask = CWEventMask | CWCursor;
@@ -1409,7 +1375,7 @@ typedef  unsigned long   uint32;
                                     (unsigned int)bitmap->width,
                                     (unsigned int)bitmap->rows,
                                     10,
-                                    format->x_depth,
+                                    x11dev.format->x_depth,
                                     InputOutput,
                                     surface->visual,
                                     xswa_mask,
