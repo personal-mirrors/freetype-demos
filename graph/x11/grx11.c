@@ -26,7 +26,7 @@
 #define xxTEST
 
 #ifdef TEST
-#include "grfont.h"
+#include <ctype.h>
 #define LOG(x)  printf x
 #define visualClass(x)  ( x == StaticGray  ? "StaticGray"  : \
                           x == GrayScale   ? "GrayScale"   : \
@@ -1200,7 +1200,7 @@ typedef  unsigned long   uint32;
                   "KeyPress: KeySym = 0x%04x, Char = '%c'\n" :
                   "KeyPress: KeySym = 0x%04x, Char = <%02x>\n" :
                   "KeyPress: KeySym = 0x%04x\n",
-              key, surface->key_buffer[0] ));
+              (unsigned int)key, surface->key_buffer[0] ));
 
         if ( num == 0 || key > 512 )
         {
@@ -1235,7 +1235,7 @@ typedef  unsigned long   uint32;
         break;
 
       case Expose:
-        LOG(( "Expose (%lu): %dx%d\m", x_event.xexpose.serial,
+        LOG(( "Expose (%lu): %dx%d\n", x_event.xexpose.serial,
                 x_event.xexpose.width, x_event.xexpose.height ));
 
         XPutImage( surface->display,
@@ -1414,6 +1414,7 @@ typedef  unsigned long   uint32;
 
 
 #ifdef TEST
+#if 0
 
   typedef struct  grKeyName
   {
@@ -1452,7 +1453,6 @@ typedef  unsigned long   uint32;
   };
 
 
-#if 0
   int
   main( void )
   {
