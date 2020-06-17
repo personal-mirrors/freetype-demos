@@ -214,7 +214,7 @@ typedef  unsigned long   uint32;
 
     pitch = blit->dst_pitch = target->bytes_per_line;
 
-    blit->dst_line = target->data + y * pitch;
+    blit->dst_line = (unsigned char*)target->data + y * pitch;
     if ( pitch < 0 )
       blit->dst_line -= ( target->height - 1 ) * pitch;
 
@@ -1073,13 +1073,8 @@ typedef  unsigned long   uint32;
     {
       surface->convert( &blit );
 
-      XPutImage( surface->display,
-                 surface->win,
-                 surface->gc,
-                 surface->ximage,
-                 blit.x, blit.y,
-                 blit.x, blit.y,
-                 (unsigned int)blit.width, (unsigned int)blit.height );
+      /* without background defined, this only generates Expose event */
+      XClearArea( surface->display, surface->win, x, y, w, h, True );
     }
   }
 
@@ -1240,8 +1235,9 @@ typedef  unsigned long   uint32;
         break;
 
       case Expose:
-#if 1
-        /* we don't need to convert the bits on each expose! */
+        LOG(( "Expose (%lu): %dx%d\m", x_event.xexpose.serial,
+                x_event.xexpose.width, x_event.xexpose.height ));
+
         XPutImage( surface->display,
                    surface->win,
                    surface->gc,
@@ -1252,13 +1248,6 @@ typedef  unsigned long   uint32;
                    x_event.xexpose.y,
                    (unsigned int)x_event.xexpose.width,
                    (unsigned int)x_event.xexpose.height );
-#else
-        gr_x11_surface_refresh_rect( surface,
-                                     x_event.xexpose.x,
-                                     x_event.xexpose.y,
-                                     x_event.xexpose.width,
-                                     x_event.xexpose.height );
-#endif
         break;
 
       /* You should add more cases to handle mouse events, etc. */

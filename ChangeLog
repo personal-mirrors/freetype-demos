@@ -1,3 +1,12 @@
+2020-06-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/x11] Miscellaneous clean-ups.
+
+	* graph/x11/grx11.c (gr_x11_surface_refresh_rect): Generate Expose
+	instead of `XPutImage'.
+	(gr_x11_blitter_reset): Signedness.
+	(gr_x11_surface_listen_event): Logging.
+
 2020-06-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Simplify X11 driver.
