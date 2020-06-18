@@ -1162,16 +1162,20 @@ typedef  unsigned long   uint32;
                                int            event_mask,
                                grEvent*       grevent )
   {
-    XEvent     x_event;
-    KeySym     key;
-    Display*   display = surface->display;
+    Display*      display = surface->display;
+    XEvent        x_event;
+    XExposeEvent  exposed;
+    KeySym        key;
 
-    int        num;
-    grKey      grkey;
+    int           num;
+    grKey         grkey;
 
     /* XXX: for now, ignore the event mask, and only exit when */
     /*      a key is pressed                                   */
     (void)event_mask;
+
+    /* reset exposed area */
+    exposed.x = exposed.y = exposed.width = exposed.height = 0;
 
     XDefineCursor( display, surface->win, x11dev.idle );
 
@@ -1234,20 +1238,42 @@ typedef  unsigned long   uint32;
         }
         break;
 
-      case Expose:
-        LOG(( "Expose (%lu): %dx%d\n", x_event.xexpose.serial,
-                x_event.xexpose.width, x_event.xexpose.height ));
+      case VisibilityNotify:
+        /* reset exposed area */
+        exposed.x = exposed.y = exposed.width = exposed.height = 0;
+        break;
 
-        XPutImage( surface->display,
-                   surface->win,
-                   surface->gc,
-                   surface->ximage,
-                   x_event.xexpose.x,
-                   x_event.xexpose.y,
-                   x_event.xexpose.x,
-                   x_event.xexpose.y,
-                   (unsigned int)x_event.xexpose.width,
-                   (unsigned int)x_event.xexpose.height );
+      case Expose:
+        LOG(( "Expose (%lu,%d): %dx%d ",
+              x_event.xexpose.serial, x_event.xexpose.count,
+              x_event.xexpose.width,  x_event.xexpose.height ));
+
+        /* paint only newly exposed areas */
+        if ( x_event.xexpose.x < exposed.x              ||
+             x_event.xexpose.y < exposed.y              ||
+             x_event.xexpose.x + x_event.xexpose.width
+                   > exposed.x +         exposed.width  ||
+             x_event.xexpose.y + x_event.xexpose.height
+                   > exposed.y +         exposed.height )
+        {
+          XPutImage( surface->display,
+                     surface->win,
+                     surface->gc,
+                     surface->ximage,
+                     x_event.xexpose.x,
+                     x_event.xexpose.y,
+                     x_event.xexpose.x,
+                     x_event.xexpose.y,
+                     (unsigned int)x_event.xexpose.width,
+                     (unsigned int)x_event.xexpose.height );
+
+          exposed = x_event.xexpose;
+          LOG(( "painted\n" ));
+        }
+        else
+        {
+          LOG(( "ignored\n" ));
+        }
         break;
 
       /* You should add more cases to handle mouse events, etc. */
@@ -1342,7 +1368,8 @@ typedef  unsigned long   uint32;
 
 
       xswa.cursor     = x11dev.busy;
-      xswa.event_mask = ExposureMask | KeyPressMask | StructureNotifyMask ;
+      xswa.event_mask = ExposureMask | VisibilityChangeMask |
+                        KeyPressMask | StructureNotifyMask ;
 
       if ( surface->visual == DefaultVisual( display, screen ) )
         surface->colormap     = DefaultColormap( display, screen );
