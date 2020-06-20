@@ -629,20 +629,20 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*   lread  = line_read;
-      unsigned char*   lwrite = line_write;
+      uint32*          lwrite = (uint32*)line_write;
       int              x      = blit->width;
 
 
-      for ( ; x > 0; x--, lread += 3, lwrite += 4 )
+      for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
         uint32  r = lread[0];
         uint32  g = lread[1];
         uint32  b = lread[2];
 
 
-        *(uint32*)lwrite = ( r << 24 ) |
-                           ( g << 16 ) |
-                           ( b <<  8 );
+        *lwrite = ( r << 24 ) |
+                  ( g << 16 ) |
+                  ( b <<  8 );
       }
 
       line_read  += blit->src_pitch;
@@ -662,18 +662,18 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      unsigned char*  lwrite = line_write;
+      uint32*         lwrite = (uint32*)line_write;
       int             x      = blit->width;
 
 
-      for ( ; x > 0; x--, lread ++, lwrite += 4 )
+      for ( ; x > 0; x--, lread++, lwrite++ )
       {
         uint32  p = lread[0];
 
 
-        *(uint32*)lwrite = ( p << 24 ) |
-                           ( p << 16 ) |
-                           ( p <<  8 );
+        *lwrite = ( p << 24 ) |
+                  ( p << 16 ) |
+                  ( p <<  8 );
       }
 
       line_read  += blit->src_pitch;
@@ -709,20 +709,20 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      unsigned char*  lwrite = line_write;
+      uint32*         lwrite = (uint32*)line_write;
       int             x      = blit->width;
 
 
-      for ( ; x > 0; x--, lread += 3, lwrite += 4 )
+      for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
         uint32  r = lread[0];
         uint32  g = lread[1];
         uint32  b = lread[2];
 
 
-        *(uint32*)lwrite = ( r << 16 ) |
-                           ( g <<  8 ) |
-                           ( b <<  0 );
+        *lwrite = ( r << 16 ) |
+                  ( g <<  8 ) |
+                  ( b <<  0 );
       }
 
       line_read  += blit->src_pitch;
@@ -742,18 +742,18 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      unsigned char*  lwrite = line_write;
+      uint32*         lwrite = (uint32*)line_write;
       int             x      = blit->width;
 
 
-      for ( ; x > 0; x--, lread ++, lwrite += 4 )
+      for ( ; x > 0; x--, lread++, lwrite++ )
       {
         uint32  p = lread[0];
 
 
-        *(uint32*)lwrite = ( p << 16 ) |
-                           ( p <<  8 ) |
-                           ( p <<  0 );
+        *lwrite = ( p << 16 ) |
+                  ( p <<  8 ) |
+                  ( p <<  0 );
       }
 
       line_read  += blit->src_pitch;
@@ -789,20 +789,20 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      unsigned char*  lwrite = line_write;
+      uint32*         lwrite = (uint32*)line_write;
       int             x      = blit->width;
 
 
-      for ( ; x > 0; x--, lread += 3, lwrite += 4 )
+      for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
         uint32  r = lread[0];
         uint32  g = lread[1];
         uint32  b = lread[2];
 
 
-        *(uint32*)lwrite = ( r <<  8 ) |
-                           ( g << 16 ) |
-                           ( b << 24 );
+        *lwrite = ( r <<  8 ) |
+                  ( g << 16 ) |
+                  ( b << 24 );
       }
 
       line_read  += blit->src_pitch;
@@ -838,20 +838,20 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      unsigned char*  lwrite = line_write;
+      uint32*         lwrite = (uint32*)line_write;
       int             x      = blit->width;
 
 
-      for ( ; x > 0; x--, lread += 3, lwrite += 4 )
+      for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
         uint32  r = lread[0];
         uint32  g = lread[1];
         uint32  b = lread[2];
 
 
-        *(uint32*)lwrite = ( r <<  0 ) |
-                           ( g <<  8 ) |
-                           ( b << 16 );
+        *lwrite = ( r <<  0 ) |
+                  ( g <<  8 ) |
+                  ( b << 16 );
       }
 
       line_read  += blit->src_pitch;
@@ -937,6 +937,11 @@ typedef  unsigned long   uint32;
     x11dev.idle = XCreateFontCursor( x11dev.display, XC_left_ptr );
     x11dev.busy = XCreateFontCursor( x11dev.display, XC_watch );
     x11dev.scanline_pad = BitmapPad( x11dev.display );
+
+    LOG(( "Display: BitmapUnit = %d, BitmapPad = %d, ByteOrder = %s\n",
+          BitmapUnit( x11dev.display ), BitmapPad( x11dev.display ),
+          ImageByteOrder( x11dev.display ) == LSBFirst ? "LSBFirst"
+                                                       : "MSBFirst" ));
 
     {
       const grX11Format**  pformat = gr_x11_formats;
