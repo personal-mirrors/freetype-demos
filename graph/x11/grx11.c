@@ -878,16 +878,16 @@ typedef  unsigned long   uint32;
 
   static const grX11Format*  gr_x11_formats[] =
   {
-    &gr_x11_format_rgb565,
-    &gr_x11_format_bgr565,
-    &gr_x11_format_rgb555,
-    &gr_x11_format_bgr555,
-    &gr_x11_format_rgb888,
-    &gr_x11_format_bgr888,
     &gr_x11_format_rgb0888,
     &gr_x11_format_bgr0888,
     &gr_x11_format_rgb8880,
     &gr_x11_format_bgr8880,
+    &gr_x11_format_rgb888,
+    &gr_x11_format_bgr888,
+    &gr_x11_format_rgb565,
+    &gr_x11_format_bgr565,
+    &gr_x11_format_rgb555,
+    &gr_x11_format_bgr555,
     NULL
   };
 
@@ -956,9 +956,9 @@ typedef  unsigned long   uint32;
       formats      = XListPixmapFormats( x11dev.display, &count );
 
       /* compare to the list of supported formats first */
-      for ( format = formats; count > 0; count--, format++ )
+      for ( pformat = gr_x11_formats; *pformat; pformat++ )
       {
-        for ( pformat = gr_x11_formats; *pformat; pformat++ )
+        for ( format = formats; count > 0; count--, format++ )
         {
           if ( format->depth          != (*pformat)->x_depth          ||
                format->bits_per_pixel != (*pformat)->x_bits_per_pixel )

@@ -1,5 +1,9 @@
 2020-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/x11/grx11.c (gr_x11_device_init): Prioritize 32-bit formats.
+
+2020-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.c (gr_x11_convert_*): Clean up `uint32'.
 	(gr_x11_device_init): Display logging.
 
