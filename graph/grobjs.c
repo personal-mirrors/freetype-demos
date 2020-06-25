@@ -183,7 +183,7 @@
       case gr_pixel_mode_pal4  : pitch = (width+3) >> 2; break;
 
       case gr_pixel_mode_pal8  :
-      case gr_pixel_mode_gray  : pitch = width; break;
+      case gr_pixel_mode_gray  : pitch = ( width + 3 ) & ~3; break;
 
       case gr_pixel_mode_rgb555:
       case gr_pixel_mode_rgb565: pitch = width*2; break;

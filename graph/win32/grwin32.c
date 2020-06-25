@@ -217,12 +217,7 @@ gr_win32_surface_refresh_rectangle(
     {
       for ( ; height > 0; height-- )
       {
-        unsigned char*  read       = read_line;
-        unsigned char*  read_limit = read + width;
-        unsigned char*  write      = write_line;
-
-        for ( ; read < read_limit; read++, write++ )
-          *write = *read;
+        memcpy( write_line, read_line, width );
 
         read_line  += read_pitch;
         write_line += write_pitch;
@@ -472,7 +467,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
       {
         color->rgbRed   =
         color->rgbGreen =
-        color->rgbBlue  = (unsigned char)(((count-x)*255)/count);
+        color->rgbBlue  = (unsigned char)(x*255/(count-1));
         color->rgbReserved = 0;
       }
     }

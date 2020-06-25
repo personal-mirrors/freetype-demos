@@ -1,4 +1,13 @@
-2020-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-06-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/win32] Grayscale fixes.
+
+	* graph/win32/grwin32.c (gr_win32_surface_init): Straighten mapping.
+	(gr_win32_surface_refresh_rectangle): Use `memcpy'.
+
+	* graph/grobjs.c (grNewBitmap): Add padding to gray required by GDI.
+
+2020-06-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grobjs.c (grFindColor): Fortify gray luminance.
 	* graph/gblblit.c (GRGB*_TO_GRAY8): Synchronize with `grFindColor'.
