@@ -1,3 +1,8 @@
+2020-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grobjs.c (grFindColor): Fortify gray luminance.
+	* graph/gblblit.c (GRGB*_TO_GRAY8): Synchronize with `grFindColor'.
+
 2020-06-24  Jan Alexander Steffens  <jan.steffens@gmail.com>
 
 	* Makefile (COMPILE): Prioritize FreeType path.

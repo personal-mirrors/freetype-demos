@@ -24,7 +24,9 @@
         break;
 
       case gr_pixel_mode_gray:
-        color.value = (3*red + 6*green + blue)/10;
+        color.value = ( 3*(red   & 0xFF) +
+                        6*(green & 0xFF) +
+                          (blue  & 0xFF) ) / 10;
         break;
 
       case gr_pixel_mode_rgb555:
