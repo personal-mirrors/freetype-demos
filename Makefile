@@ -130,10 +130,10 @@ else
                  $(TOP_DIR)/include \
                  $(SRC_DIR)
 
-  COMPILE = $(CC) $(CPPFLAGS) \
-                  $(CFLAGS) \
-                  $(ANSIFLAGS) \
-                  $(INCLUDES:%=$I%)
+  COMPILE = $(CC) $(ANSIFLAGS) \
+                  $(INCLUDES:%=$I%) \
+                  $(CPPFLAGS) \
+                  $(CFLAGS)
 
   # Enable C99 for gcc to avoid warnings.
   # Note that clang++ aborts with an error if we use `-std=C99',

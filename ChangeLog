@@ -1,3 +1,11 @@
+2020-06-24  Jan Alexander Steffens  <jan.steffens@gmail.com>
+
+	* Makefile (COMPILE): Prioritize FreeType path.
+
+	This ensures the includedir for the built FreeType comes first,
+	before any flags for a system FreeType which might be pulled in
+	through pkg-config for harfbuzz.
+
 2020-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/x11/grx11.c (gr_x11_device_init): Prioritize 32-bit formats.
