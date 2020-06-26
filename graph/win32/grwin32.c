@@ -143,10 +143,10 @@ gr_win32_surface_refresh_rectangle(
          int              w,
          int              h )
 {
-  int           row_bytes, delta;
-  LPBITMAPINFO  pbmi   = surface->pbmi;
-  HANDLE        window = surface->window;
-  grBitmap*     bitmap = &surface->root.bitmap;
+  int        delta;
+  RECT       rect;
+  HANDLE     window = surface->window;
+  grBitmap*  bitmap = &surface->root.bitmap;
 
   LOG(( "gr_win32_surface_refresh_rectangle: ( %p, %d, %d, %d, %d )\n",
         (long)surface, x, y, w, h ));
@@ -176,13 +176,10 @@ gr_win32_surface_refresh_rectangle(
   if ( w <= 0 || h <= 0 )
     return;
 
-  /* now, perform the blit */
-  row_bytes = surface->root.bitmap.pitch;
-  if ( row_bytes < 0 )
-    row_bytes = -row_bytes;
-
-  if ( row_bytes * 8 != pbmi->bmiHeader.biWidth * pbmi->bmiHeader.biBitCount )
-    pbmi->bmiHeader.biWidth = row_bytes * 8 / pbmi->bmiHeader.biBitCount;
+  rect.left   = x;
+  rect.top    = y;
+  rect.right  = x + w;
+  rect.bottom = y + h;
 
 #ifdef SWIZZLE
   {
@@ -204,20 +201,23 @@ gr_win32_surface_refresh_rectangle(
     int             read_pitch  = bitmap->pitch;
     unsigned char*  write_line  = (unsigned char*)surface->bgrBitmap.buffer;
     int             write_pitch = surface->bgrBitmap.pitch;
-    int             height      = bitmap->rows;
-    int             width       = bitmap->width;
 
     if ( read_pitch < 0 )
-      read_line -= ( height - 1 ) * read_pitch;
+      read_line -= ( bitmap->rows - 1 ) * read_pitch;
 
     if ( write_pitch < 0 )
-      write_line -= ( height - 1 ) * write_pitch;
+      write_line -= ( bitmap->rows - 1 ) * write_pitch;
+
+    read_line  += y * read_pitch;
+    write_line += y * write_pitch;
 
     if ( bitmap->mode == gr_pixel_mode_gray )
     {
-      for ( ; height > 0; height-- )
+      read_line  += x;
+      write_line += x;
+      for ( ; h > 0; h-- )
       {
-        memcpy( write_line, read_line, width );
+        memcpy( write_line, read_line, w );
 
         read_line  += read_pitch;
         write_line += write_pitch;
@@ -225,10 +225,12 @@ gr_win32_surface_refresh_rectangle(
     }
     else
     {
-      for ( ; height > 0; height-- )
+      read_line  += 3 * x;
+      write_line += 3 * x;
+      for ( ; h > 0; h-- )
       {
         unsigned char*  read       = read_line;
-        unsigned char*  read_limit = read + 3 * width;
+        unsigned char*  read_limit = read + 3 * w;
         unsigned char*  write      = write_line;
 
         for ( ; read < read_limit; read += 3, write += 3 )
@@ -244,7 +246,7 @@ gr_win32_surface_refresh_rectangle(
     }
   }
 
-  InvalidateRect( window, NULL, FALSE );
+  InvalidateRect( window, &rect, FALSE );
 }
 
 

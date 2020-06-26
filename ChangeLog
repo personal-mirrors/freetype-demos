@@ -1,5 +1,12 @@
 2020-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph/win32] Clean up refresh.
+
+	* graph/win32/grwin32.c (gr_win32_surface_refresh_rectangle): Copy
+	only requested rectangle, remove dead code.
+
+2020-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.c (gr_x11_device_init): Fix up 03707489a839.
 
 2020-06-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
