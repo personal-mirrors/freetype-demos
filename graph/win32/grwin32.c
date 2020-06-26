@@ -106,8 +106,6 @@
   {
     grSurface     root;
     HWND          window;
-    int           window_width;
-    int           window_height;
     LPBITMAPINFO  pbmi;
     char          bmi[ sizeof(BITMAPINFO) + 256*sizeof(RGBQUAD) ];
     grBitmap      bgrBitmap;  /* windows wants data in BGR format !! */
@@ -159,7 +157,7 @@ gr_win32_surface_refresh_rectangle(
     x  = 0;
   }
 
-  delta = x + w - surface->window_width;
+  delta = x + w - bitmap->width;
   if ( delta > 0 )
     w -= delta;
 
@@ -169,7 +167,7 @@ gr_win32_surface_refresh_rectangle(
     y  = 0;
   }
 
-  delta = y + h - surface->window_height;
+  delta = y + h - bitmap->rows;
   if ( delta > 0 )
     h -= delta;
 
@@ -307,9 +305,6 @@ gr_win32_surface_resize( grWin32Surface*  surface,
   pbmi->bmiHeader.biWidth  = width;
   pbmi->bmiHeader.biHeight = height;
 
-  surface->window_width  = width;
-  surface->window_height = height;
-
   return surface;
 }
 
@@ -333,8 +328,8 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
         int  height = HIWORD(msg.lParam);
 
 
-        if ( ( width  != surface->window_width  ||
-               height != surface->window_height )              &&
+        if ( ( width  != surface->root.bitmap.width  ||
+               height != surface->root.bitmap.rows   )         &&
              gr_win32_surface_resize( surface, width, height ) )
         {
           grevent->type  = gr_event_resize;
@@ -478,9 +473,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
   default:
     return 0;         /* Unknown mode */
   }
-
-  surface->window_width  = bitmap->width;
-  surface->window_height = bitmap->rows;
 
   {
     DWORD  style = WS_OVERLAPPEDWINDOW;
