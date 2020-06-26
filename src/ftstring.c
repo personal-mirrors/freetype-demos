@@ -411,8 +411,8 @@
   event_color_change( void )
   {
     static int     i = 0;
-    unsigned char  r = i & 4 ? 0xff : 0;
-    unsigned char  g = i & 2 ? 0xff : 0;
+    unsigned char  r = i & 2 ? 0xff : 0;
+    unsigned char  g = i & 4 ? 0xff : 0;
     unsigned char  b = i & 1 ? 0xff : 0;
 
 

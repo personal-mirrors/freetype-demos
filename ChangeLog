@@ -1,5 +1,9 @@
 2020-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftstring.c (event_color_change): Cycle color by luminance.
+
+2020-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.c (grX11Surface): Remove redundant fields.
 	(gr_win32_surface_{refresh_rectangle,listen_event}): Updated.
 
