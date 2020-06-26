@@ -949,7 +949,7 @@ typedef  unsigned long   uint32;
       XDepth*              formats;
       XVisualInfo          templ;
       XVisualInfo*         visual;
-      int                  count, count2;
+      int                  i, count, count2;
 
 
       templ.screen = DefaultScreen( x11dev.display );
@@ -958,7 +958,7 @@ typedef  unsigned long   uint32;
       /* compare to the list of supported formats first */
       for ( pformat = gr_x11_formats; *pformat; pformat++ )
       {
-        for ( format = formats; count > 0; count--, format++ )
+        for ( format = formats, i = count; i > 0; i--, format++ )
         {
           if ( format->depth          != (*pformat)->x_depth          ||
                format->bits_per_pixel != (*pformat)->x_bits_per_pixel )
