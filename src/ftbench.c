@@ -35,6 +35,9 @@
 #include FT_DRIVER_H
 #include FT_LCD_FILTER_H
 
+  /* the following header shouldn't be used in normal programs */
+#include <freetype/internal/compiler-macros.h>
+
 #ifdef UNIX
 #include <unistd.h>
 #else

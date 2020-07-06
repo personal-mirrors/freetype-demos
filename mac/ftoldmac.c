@@ -30,6 +30,7 @@
 
   /* the following header shouldn't be used in normal programs */
 #include <freetype/internal/ftdebug.h>
+#include <freetype/internal/compiler-macros.h>
 
   /* showing driver name */
 #include FT_MODULE_H

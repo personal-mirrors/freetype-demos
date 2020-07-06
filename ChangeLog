@@ -1,3 +1,11 @@
+2020-07-06  Werner Lemberg  <wl@gnu.org>
+
+	Synchronize with recent FreeType changes.
+
+	* mac/ftoldmac.c, src/ftbench.c, src/ftchkwd.c, src/ftcommon.c:
+	Include `compiler-macros.h', which now contains the definition of
+	`FT_UNUSED'.
+
 2020-06-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftstring.c (event_color_change): Cycle color by luminance.
