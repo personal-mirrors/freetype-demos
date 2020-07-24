@@ -21,6 +21,7 @@
 
 #include "common.h"
 #include "mlgetopt.h"
+#include "strbuf.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1147,7 +1148,8 @@
 
     for ( ;; )
     {
-      int  key;
+      int     key;
+      StrBuf  header[1];
 
 
       Clear_Display();
@@ -1164,10 +1166,11 @@
           Render_All( (unsigned int)Num, ptsize );
         }
 
-        sprintf( Header, "%.50s %.50s (file %.100s)",
-                         face->family_name,
-                         face->style_name,
-                         ft_basename( argv[file] ) );
+        strbuf_init( header, Header, sizeof ( Header ) );
+        strbuf_format( header, "%.50s %.50s (file %.100s)",
+                       face->family_name,
+                       face->style_name,
+                       ft_basename( argv[file] ) );
 
         if ( !new_header )
           new_header = Header;
@@ -1175,11 +1178,14 @@
         grWriteCellString( bit, 0, 0, new_header, fore_color );
         new_header = NULL;
 
-        sprintf( Header, "PS name: %s",
-                         FT_Get_Postscript_Name( face ) );
+        strbuf_reset( header );
+        strbuf_format( header, "PS name: %s",
+                       FT_Get_Postscript_Name( face ) );
         grWriteCellString( bit, 0, 16, Header, fore_color );
 
-        sprintf( Header, "axes:" );
+        strbuf_reset( header );
+        strbuf_add( header, "axes:" );
+
         {
           unsigned int  limit = num_shown_axes > MAX_MM_AXES / 2
                                   ? MAX_MM_AXES / 2
@@ -1188,18 +1194,13 @@
 
           for ( n = 0; n < limit; n++ )
           {
-            char  temp[100];
-            int   axis;
+            int  axis = shown_axes[n];
 
 
-            axis = shown_axes[n];
-
-            sprintf( temp, "  %.50s%s: %.02f",
+            strbuf_format( header, "  %.50s%s: %.02f",
                            multimaster->axis[axis].name,
                            hidden[axis] ? "*" : "",
                            design_pos[axis] / 65536.0 );
-            strncat( Header, temp,
-                     sizeof ( Header ) - strlen( Header ) - 1 );
           }
         }
         grWriteCellString( bit, 0, 24, Header, fore_color );
@@ -1209,22 +1210,18 @@
           unsigned int  limit = num_shown_axes;
 
 
-          sprintf( Header, "     " );
+          strbuf_reset( header );
+          strbuf_add( header, "     " );
 
           for ( n = MAX_MM_AXES / 2; n < limit; n++ )
           {
-            char  temp[100];
-            int   axis;
+            int  axis = shown_axes[n];
 
 
-            axis = shown_axes[n];
-
-            sprintf( temp, "  %.50s%s: %.02f",
+            strbuf_format( header, "  %.50s%s: %.02f",
                            multimaster->axis[axis].name,
                            hidden[axis] ? "*" : "",
                            design_pos[axis] / 65536.0 );
-            strncat( Header, temp,
-                     sizeof ( Header ) - strlen( Header ) - 1 );
           }
 
           grWriteCellString( bit, 0, 32, Header, fore_color );
@@ -1255,15 +1252,18 @@
                                        ? "TrueType (v38)"
                                        : "TrueType (v40)" ) );
 
-          sprintf( Header, "at %d points, first glyph = %d, format = %s",
-                           ptsize,
-                           Num,
-                           format_str );
+          strbuf_reset( header );
+          strbuf_format( header,
+                         "at %d points, first glyph = %d, format = %s",
+                         ptsize,
+                         Num,
+                         format_str );
         }
       }
       else
-        sprintf( Header, "%.100s: not an MM font file, or could not be opened",
-                         ft_basename( argv[file] ) );
+        strbuf_format( header,
+                       "%.100s: not an MM font file, or could not be opened",
+                       ft_basename( argv[file] ) );
 
       grWriteCellString( bit, 0, 8, Header, fore_color );
       grRefreshSurface( surface );

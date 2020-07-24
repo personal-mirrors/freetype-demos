@@ -35,6 +35,7 @@
 #define FT_ERROR_END_LIST       default: str = "unknown error"; }
 
 #include "common.h"
+#include "strbuf.h"
 #include "ftcommon.h"
 
 #include <stdio.h>
@@ -556,6 +557,7 @@
   {
     FT_Int     major, minor, patch;
     FT_String  format[] = "%d.%d.%d";
+    StrBuf     sb;
 
 
     FT_Library_Version( handle->library, &major, &minor, &patch );
@@ -564,7 +566,8 @@
       format[5] = '\0';   /* terminate early */
 
     /* append the version string */
-    sprintf( str + strlen( str ), format, major, minor, patch );
+    strbuf_init( &sb, str, strlen( str ) );
+    strbuf_format( &sb, format, major, minor, patch );
   }
 
 
@@ -961,7 +964,8 @@
                       int              error_code )
   {
     FT_Face      face;
-    char         buf[256];
+    char         buffer[256];
+    StrBuf       buf[1];
     const char*  basename;
     int          ppem;
 
@@ -980,9 +984,11 @@
 
 
     /* font and file name */
-    x = sprintf( buf, "%.50s %.50s", face->family_name, face->style_name );
+    strbuf_init( buf, buffer, sizeof ( buffer ) );
+    x = strbuf_format( buf, "%.50s %.50s", face->family_name,
+                       face->style_name );
     grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
-                       buf, display->fore_color );
+                       strbuf_value( buf ), display->fore_color );
 
     basename = ft_basename( handle->current_font->filepathname );
     x = display->bitmap->width - 8 * (int)strlen( basename ) > 8 * x + 8 ?
@@ -995,49 +1001,53 @@
                                                face->size->metrics.y_scale )
                                   : face->size->metrics.y_ppem * 64;
 
+    strbuf_reset( buf );
     if ( res == 72 )
-      x  = sprintf( buf, "%.4g ppem", ppem / 64.0 );
+      strbuf_format( buf, "%.4g ppem", ppem / 64.0 );
     else
-      x  = sprintf( buf, "%g pt at %d dpi, %.4g ppem",
-                         ptsize / 64.0, res, ppem / 64.0 );
+      strbuf_format( buf, "%g pt at %d dpi, %.4g ppem",
+                     ptsize / 64.0, res, ppem / 64.0 );
 
     if ( face->face_index >> 16 )
-      x += sprintf( buf + x, ", instance %ld/%ld",
-                             face->face_index >> 16,
-                             face->style_flags >> 16 );
+      strbuf_format( buf, ", instance %ld/%ld",
+                     face->face_index >> 16,
+                     face->style_flags >> 16 );
 
     grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
-                       buf, display->fore_color );
+                       strbuf_value( buf ), display->fore_color );
 
     if ( abs( ptsize * res / 64 - face->size->metrics.y_ppem * 72 ) > 36 ||
          error_code                                                      )
     {
+      strbuf_reset( buf );
+
       switch ( error_code )
       {
       case FT_Err_Ok:
-        sprintf( buf, "Available size shown" );
+        strbuf_add( buf, "Available size shown" );
         break;
       case FT_Err_Invalid_Pixel_Size:
-        sprintf( buf, "Invalid pixel size" );
+        strbuf_add( buf, "Invalid pixel size" );
         break;
       case FT_Err_Invalid_PPem:
-        sprintf( buf, "Invalid ppem value" );
+        strbuf_add( buf, "Invalid ppem value" );
         break;
       default:
-        sprintf( buf, "Error 0x%04x", (FT_UShort)error_code );
+        strbuf_format( buf, "Error 0x%04x", (FT_UShort)error_code );
       }
       grWriteCellString( display->bitmap, 8 * x + 16, line * HEADER_HEIGHT,
-                         buf, display->warn_color );
+                         strbuf_value( buf ), display->warn_color );
     }
 
     /* gamma */
+    strbuf_reset( buf );
     if ( display->gamma == 0.0 )
-      sprintf( buf, "gamma: sRGB" );
+      strbuf_add( buf, "gamma: sRGB" );
     else
-      sprintf( buf, "gamma = %.1f", display->gamma );
+      strbuf_format( buf, "gamma = %.1f", display->gamma );
     grWriteCellString( display->bitmap,
                        display->bitmap->width - 8 * 11, line * HEADER_HEIGHT,
-                       buf, display->fore_color );
+                       strbuf_value( buf ), display->fore_color );
 
     line++;
 
@@ -1096,25 +1106,30 @@
         encoding = "Other";
       }
 
+      strbuf_reset( buf );
       if ( handle->encoding == FT_ENCODING_ORDER )
-        x = sprintf( buf, "%s idx: %d",
-                          encoding, idx );
+        x = strbuf_format( buf, "%s idx: %d",
+                           encoding, idx );
       else if ( handle->encoding == FT_ENCODING_UNICODE )
-        x = sprintf( buf, "%s charcode: U+%04X (glyph idx %d)",
-                          encoding, idx, glyph_idx );
+        x = strbuf_format( buf, "%s charcode: U+%04X (glyph idx %d)",
+                           encoding, idx, glyph_idx );
       else
-        x = sprintf( buf, "%s charcode: 0x%X (glyph idx %d)",
-                          encoding, idx, glyph_idx );
+        x = strbuf_format( buf, "%s charcode: 0x%X (glyph idx %d)",
+                           encoding, idx, glyph_idx );
 
       if ( FT_HAS_GLYPH_NAMES( face ) )
       {
-        x += sprintf( buf + x, ", name: " );
+        x += strbuf_add( buf, ", name: " );
 
-        FT_Get_Glyph_Name( face, glyph_idx, buf + x, (FT_UInt)( 256 - x ) );
+        /* NOTE: This relies on the fact that `FT_Get_Glyph_Name' */
+        /* always appends a terminating zero to the input.        */
+        FT_Get_Glyph_Name( face, glyph_idx,
+                           strbuf_end( buf ),
+                           (FT_UInt)( strbuf_available( buf ) + 1 ) );
       }
 
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
-                         buf, display->fore_color );
+                         strbuf_value( buf ), display->fore_color );
     }
 
   }

@@ -55,6 +55,7 @@
 #include FT_FREETYPE_H
 #include FT_MULTIPLE_MASTERS_H
 #include "common.h"
+#include "strbuf.h"
 #include "mlgetopt.h"
 
 #include FT_DRIVER_H
@@ -96,9 +97,8 @@
   typedef char  ByteStr[2];
   typedef char  WordStr[4];
   typedef char  LongStr[8];
-  typedef char  DebugStr[128];
 
-  static DebugStr  tempStr;
+  static char   tempStr[256];
 
 
   typedef struct  Storage_
@@ -1656,19 +1656,19 @@
   static const FT_String*
   Cur_U_Line( TT_ExecContext  exc )
   {
-    FT_String  s[32];
-    FT_Int     op, i, n;
+    FT_Int  op, i, n;
+    StrBuf  bs[1];
 
 
     op = CUR.code[CUR.IP];
 
-    sprintf( tempStr, "%s", OpStr[op] );
+    strbuf_init( bs, tempStr, sizeof ( tempStr ) );
+    strbuf_add( bs, OpStr[op] );
 
     if ( op == 0x40 )  /* NPUSHB */
     {
       n = CUR.code[CUR.IP + 1];
-      sprintf( s, "(%d)", n );
-      strncat( tempStr, s, 8 );
+      strbuf_format( bs, "(%d)", n );
 
       /* limit output */
       if ( n > 20 )
@@ -1676,19 +1676,14 @@
 
       for ( i = 0; i < n; i++ )
       {
-        const FT_String*  temp;
-
-
-        temp = use_hex ? " $%02x" : " %d";
-        sprintf( s, temp, CUR.code[CUR.IP + i + 2] );
-        strncat( tempStr, s, 8 );
+        strbuf_format( bs, ( use_hex ? " $%02x" : " %d" ),
+                       CUR.code[CUR.IP + i + 2] );
       }
     }
     else if ( op == 0x41 )  /* NPUSHW */
     {
       n = CUR.code[CUR.IP + 1];
-      sprintf( s, "(%d)", n );
-      strncat( tempStr, s, 8 );
+      strbuf_format( bs, "(%d)", n );
 
       /* limit output */
       if ( n > 20 )
@@ -1697,9 +1692,9 @@
       for ( i = 0; i < n; i++ )
       {
         if ( use_hex )
-          sprintf( s, " $%02x%02x",
-                      CUR.code[CUR.IP + i * 2 + 2],
-                      CUR.code[CUR.IP + i * 2 + 3] );
+          strbuf_format( bs, " $%02x%02x",
+                         CUR.code[CUR.IP + i * 2 + 2],
+                         CUR.code[CUR.IP + i * 2 + 3] );
         else
         {
           unsigned short  temp;
@@ -1707,10 +1702,8 @@
 
           temp = (unsigned short)( ( CUR.code[CUR.IP + i * 2 + 2] << 8 ) +
                                      CUR.code[CUR.IP + i * 2 + 3]        );
-          sprintf( s, " %d",
-                      (signed short)temp );
+          strbuf_format( bs, " %u", temp );
         }
-        strncat( tempStr, s, 8 );
       }
     }
     else if ( ( op & 0xF8 ) == 0xB0 )  /* PUSHB */
@@ -1719,12 +1712,8 @@
 
       for ( i = 0; i <= n; i++ )
       {
-        const FT_String*  temp;
-
-
-        temp = use_hex ? " $%02x" : " %d";
-        sprintf( s, temp, CUR.code[CUR.IP + i + 1] );
-        strncat( tempStr, s, 8 );
+        strbuf_format( bs, ( use_hex ? " $%02x" : " %d" ),
+                       CUR.code[CUR.IP + i + 1] );
       }
     }
     else if ( ( op & 0xF8 ) == 0xB8 )  /* PUSHW */
@@ -1734,9 +1723,9 @@
       for ( i = 0; i <= n; i++ )
       {
         if ( use_hex )
-          sprintf( s, " $%02x%02x",
-                      CUR.code[CUR.IP + i * 2 + 1],
-                      CUR.code[CUR.IP + i * 2 + 2] );
+          strbuf_format( bs, " $%02x%02x",
+                         CUR.code[CUR.IP + i * 2 + 1],
+                         CUR.code[CUR.IP + i * 2 + 2] );
         else
         {
           unsigned short  temp;
@@ -1744,19 +1733,16 @@
 
           temp = (unsigned short)( ( CUR.code[CUR.IP + i * 2 + 1] << 8 ) +
                                      CUR.code[CUR.IP + i * 2 + 2]        );
-          sprintf( s, " %d",
-                      (signed short)temp );
+          strbuf_format( bs, " %d", (signed short)temp );
         }
-        strncat( tempStr, s, 8 );
       }
     }
     else if ( op == 0x39 )  /* IP */
     {
-      sprintf( s, " rp1=%d, rp2=%d", CUR.GS.rp1, CUR.GS.rp2 );
-      strncat( tempStr, s, 31 );
+      strbuf_format( bs, " rp1=%d, rp2=%d", CUR.GS.rp1, CUR.GS.rp2 );
     }
 
-    return (FT_String*)tempStr;
+    return (FT_String*)strbuf_value( bs );
   }
 
 
@@ -1999,7 +1985,7 @@
 
     const FT_String*  code_range;
 
-    const FT_String*  round_str[8] =
+    static const FT_String*  round_str[8] =
     {
       "to half-grid",
       "to grid",
@@ -2079,35 +2065,35 @@
         /* [loc]:[addr] [opcode]  [disassembly]         [a][b]|[c][d]      */
 
         {
-          char  temp[90];
-          int   n, col, pop;
-          int   args;
+          StrBuf  temp[1];
+          int     n, col, pop;
+          int     args;
 
 
-          sprintf( temp, "%78c\n", ' ' );
+          strbuf_init( temp, tempStr, sizeof ( tempStr ) );
 
           /* first letter of location */
           switch ( CUR.curRange )
           {
           case tt_coderange_glyph:
-            temp[0] = 'g';
+            strbuf_addc( temp, 'g' );
             break;
 
           case tt_coderange_cvt:
-            temp[0] = 'c';
+            strbuf_addc( temp, 'c' );
             break;
 
           default:
-            temp[0] = 'f';
+            strbuf_addc( temp, 'f' );
           }
 
           /* current IP */
-          sprintf( temp + 1, "%04lx: %02x  %-36.36s",
-                             CUR.IP,
-                             CUR.opcode,
-                             Cur_U_Line( &CUR ) );
+          strbuf_format( temp, "%04lx: %02x  %-36.36s",
+                         CUR.IP,
+                         CUR.opcode,
+                         Cur_U_Line( &CUR ) );
 
-          strncpy( temp + 46, " (", 3 );
+          strbuf_add( temp, " (" );
 
           args = CUR.top - 1;
           pop  = Pop_Push_Count[CUR.opcode] >> 4;
@@ -2123,7 +2109,12 @@
 
 
             if ( pop == 0 )
-              temp[col - 1] = temp[col - 1] == '(' ? ' ' : ')';
+            {
+              char* last = strbuf_back( temp );
+
+
+              *last = ( *last == '(' ) ? ' ' : ')';
+            }
 
             if ( args >= 0 )
             {
@@ -2134,13 +2125,12 @@
               {
                 /* we display signed hexadecimal numbers, which */
                 /* is easier to read and needs less space       */
-                num_chars = sprintf( temp + col, "%s%04lx",
-                                                 val < 0 ? "-" : "",
-                                                 val < 0 ? -val : val );
+                num_chars = strbuf_format( temp, "%s%04lx",
+                                           val < 0 ? "-" : "",
+                                           val < 0 ? -val : val );
               }
               else
-                num_chars = sprintf( temp + col, "%ld",
-                                                 val );
+                num_chars = strbuf_format( temp, "%ld", val );
 
               if ( col + num_chars >= 78 )
                 break;
@@ -2148,19 +2138,18 @@
             else
               num_chars = 0;
 
-            temp[col + num_chars] = ' ';
-            col                  += num_chars + 1;
+            strbuf_addc( temp, ' ' );
+            col += num_chars + 1;
 
             pop--;
             args--;
           }
 
           for ( n = col; n < 78; n++ )
-            temp[n] = ' ';
+            strbuf_addc( temp, ' ' );
 
-          temp[78] = '\n';
-          temp[79] = '\0';
-          printf( "%s", temp );
+          strbuf_addc( temp, '\n' );
+          printf( "%s", strbuf_value( temp ) );
         }
 
         /* First, check for empty stack and overflow */

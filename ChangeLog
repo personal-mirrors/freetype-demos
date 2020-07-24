@@ -1,5 +1,22 @@
 2020-07-24  David Turner  <david@freetype.org>
 
+	Use new string functions to replace remaining `sprintf' calls.
+
+	This also removes calls to `strncat' and friends.
+
+	* src/ftcommon.c: Include `strbuf.h'.
+	(FTDemo_Version, FTDemo_DrawHeader): Do it.
+
+	* src/ftmulti.c: Include `strbuf.h'.
+	(main): Do it.
+
+	* src/ttdebug.c: Include `strbuf.h'.
+	(tempStr): Increase size to 256 bytes.
+	(Cur_U_Line): Do it.
+	(RunIns): Make `round_str' static.
+
+2020-07-24  David Turner  <david@freetype.org>
+
 	Add functions to safely append strings to fixed-size buffers.
 
 	Not used yet.
