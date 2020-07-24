@@ -1,3 +1,14 @@
+2020-07-24  Werner Lemberg  <wl@gnu.org>
+
+	Make new code from David work.
+
+	* src/strbuf.c (strbuf_value): Fix assertion.
+	(strbuf_vformat): Shortcut if no space is available.
+	Set `pos'.
+
+	* src/ftcommon.c (FTDemo_Draw_Header): Add missing call to
+	`strbuf_skip_over'.
+
 2020-07-24  David Turner  <david@freetype.org>
 
 	Use new string functions to replace remaining `sprintf' calls.

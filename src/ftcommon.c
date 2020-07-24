@@ -1126,6 +1126,7 @@
         FT_Get_Glyph_Name( face, glyph_idx,
                            strbuf_end( buf ),
                            (FT_UInt)( strbuf_available( buf ) + 1 ) );
+        strbuf_skip_over( buf, strlen( strbuf_end( buf ) ) );
       }
 
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,

@@ -35,7 +35,7 @@
   const char*
   strbuf_value( const StrBuf*  sb )
   {
-    assert( sb->pos < sb->limit );
+    assert( sb->pos <= sb->limit );
     assert( sb->buffer[sb->pos] == '\0' );
 
     return sb->buffer;
@@ -157,12 +157,22 @@
                   va_list      args )
   {
     size_t  available = sb->limit - sb->pos;
-    int     ret       = vsnprintf( sb->buffer + sb->pos, available,
-                                   fmt, args );
+    int     ret;
+
+
+    if ( !available )
+      return 0;
+
+    ret = vsnprintf( sb->buffer + sb->pos, available, fmt, args );
 
     /* NOTE: On Windows, vsnprintf() can return -1 in case of truncation! */
     if ( ret < 0 || (size_t)ret > available )
+    {
+      sb->pos = sb->limit;
       return (int)available;
+    }
+
+    sb->pos += ret;
 
     return (int)ret;
   }
