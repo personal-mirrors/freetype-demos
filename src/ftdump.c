@@ -118,7 +118,7 @@
     if ( left <= 0 )
       left = 1;
 
-    sprintf( result, "   %s:%*s", name, left, " " );
+    snprintf( result, sizeof ( result ), "   %s:%*s", name, left, " " );
 
     return result;
   }
@@ -865,7 +865,7 @@
         continue;
       }
 
-      sprintf( tag, "%04hx", i );
+      snprintf( tag, sizeof ( tag ), "%04hx", i );
       printf( "\nglyf program %hd (%.4s)", i, tag );
       Print_Bytecode( buffer + loc, len, tag );
 

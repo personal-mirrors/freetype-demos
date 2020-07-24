@@ -40,7 +40,7 @@
   {
     static char  temp[32];
 
-    sprintf( temp, "0x%04lx", error );
+    snprintf( temp, sizeof ( temp ), "0x%04lx", error );
     return temp;
   }
 

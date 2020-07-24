@@ -887,9 +887,10 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    sprintf( buf,
-            "FreeType Glyph Grid Viewer - part of the FreeType %s test suite",
-             version );
+    snprintf( buf, sizeof ( buf ),
+             "FreeType Glyph Grid Viewer -"
+               " part of the FreeType %s test suite",
+              version );
 
     grWriteln( buf );
     grLn();
@@ -1114,10 +1115,10 @@
       event_font_change( 0 );
     }
 
-    sprintf( status.header_buffer,
-             "TrueType engine changed to version %d",
-             status.tt_interpreter_versions[
-               status.tt_interpreter_version_idx]);
+    snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+              "TrueType engine changed to version %d",
+              status.tt_interpreter_versions[
+                status.tt_interpreter_version_idx] );
 
     status.header = (const char *)status.header_buffer;
   }
@@ -1185,7 +1186,8 @@
     if ( status.scale == scale_old && zoom > 1.0 )
       status.scale++;
 
-    sprintf( status.header_buffer, "zoom scale %d:1", status.scale );
+    snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+              "zoom scale %d:1", status.scale );
 
     status.header = (const char *)status.header_buffer;
   }
@@ -1235,8 +1237,9 @@
       event_font_change( 0 );
     }
 
-    sprintf( status.header_buffer, "rendering mode changed to %s",
-             lcd_mode );
+    snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+              "rendering mode changed to %s",
+              lcd_mode );
 
     status.header = (const char *)status.header_buffer;
 
@@ -1286,8 +1289,9 @@
         break;
       }
 
-      sprintf( status.header_buffer, "LCD filter changed to %s",
-               lcd_filter );
+      snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+                "LCD filter changed to %s",
+                lcd_filter );
 
       status.header = (const char *)status.header_buffer;
 
@@ -1548,9 +1552,10 @@
               event_font_change( 0 );
             }
 
-            sprintf( status.header_buffer, "CFF engine changed to %s",
-                     status.cff_hinting_engine == FT_HINTING_FREETYPE
-                       ? "FreeType" : "Adobe" );
+            snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+                      "CFF engine changed to %s",
+                      status.cff_hinting_engine == FT_HINTING_FREETYPE
+                        ? "FreeType" : "Adobe" );
 
             status.header = (const char *)status.header_buffer;
           }
@@ -1568,9 +1573,10 @@
               event_font_change( 0 );
             }
 
-            sprintf( status.header_buffer, "Type 1 engine changed to %s",
-                     status.type1_hinting_engine == FT_HINTING_FREETYPE
-                       ? "FreeType" : "Adobe" );
+            snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+                      "Type 1 engine changed to %s",
+                      status.type1_hinting_engine == FT_HINTING_FREETYPE
+                        ? "FreeType" : "Adobe" );
 
             status.header = (const char *)status.header_buffer;
           }
@@ -1588,9 +1594,10 @@
               event_font_change( 0 );
             }
 
-            sprintf( status.header_buffer, "CID engine changed to %s",
-                     status.t1cid_hinting_engine == FT_HINTING_FREETYPE
-                       ? "FreeType" : "Adobe" );
+            snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+                      "CID engine changed to %s",
+                      status.t1cid_hinting_engine == FT_HINTING_FREETYPE
+                        ? "FreeType" : "Adobe" );
 
             status.header = (const char *)status.header_buffer;
           }

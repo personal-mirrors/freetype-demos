@@ -835,27 +835,27 @@
 
     /* we expect that at least one interpreter version is available */
     if ( num_tt_interpreter_versions == 2 )
-      sprintf(interpreter_versions,
-              "%d and %d",
-              tt_interpreter_versions[0],
-              tt_interpreter_versions[1] );
+      snprintf( interpreter_versions, sizeof ( interpreter_versions ),
+                "%d and %d",
+                tt_interpreter_versions[0],
+                tt_interpreter_versions[1] );
     else
-      sprintf(interpreter_versions,
-              "%d, %d, and %d",
-              tt_interpreter_versions[0],
-              tt_interpreter_versions[1],
-              tt_interpreter_versions[2] );
+      snprintf( interpreter_versions, sizeof ( interpreter_versions ),
+                "%d, %d, and %d",
+                tt_interpreter_versions[0],
+                tt_interpreter_versions[1],
+                tt_interpreter_versions[2] );
 
     /* we expect that at least one hinting engine is available */
     if ( num_ps_hinting_engines == 1 )
-      sprintf(hinting_engines,
-              "`%s'",
-              ps_hinting_engine_names[ps_hinting_engines[0]] );
+      snprintf( hinting_engines, sizeof ( hinting_engines ),
+                "`%s'",
+                ps_hinting_engine_names[ps_hinting_engines[0]] );
     else
-      sprintf(hinting_engines,
-              "`%s' and `%s'",
-              ps_hinting_engine_names[ps_hinting_engines[0]],
-              ps_hinting_engine_names[ps_hinting_engines[1]] );
+      snprintf( hinting_engines, sizeof ( hinting_engines ),
+                "`%s' and `%s'",
+                ps_hinting_engine_names[ps_hinting_engines[0]],
+                ps_hinting_engine_names[ps_hinting_engines[1]] );
 
 
     fprintf( stderr,

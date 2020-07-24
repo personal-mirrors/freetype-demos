@@ -249,9 +249,9 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    sprintf( buf,
-             "FreeType String Viewer - part of the FreeType %s test suite",
-             version );
+    snprintf( buf, sizeof ( buf ),
+              "FreeType String Viewer - part of the FreeType %s test suite",
+              version );
 
     grWriteln( buf );
     grLn();
@@ -402,7 +402,8 @@
       lcd_mode = " monochrome";
     }
 
-    sprintf( status.header_buffer, "mode changed to %s", lcd_mode );
+    snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+              "mode changed to %s", lcd_mode );
     status.header = status.header_buffer;
   }
 

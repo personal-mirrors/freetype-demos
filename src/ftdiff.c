@@ -876,8 +876,8 @@
       else if ( rmode == HINT_MODE_AUTOHINT )
         extra = warping ? " (+warp)" : " (-warp)";
 
-      sprintf( temp, "%s%s",
-               render_mode_names[column->hint_mode], extra );
+      snprintf( temp, sizeof ( temp ), "%s%s",
+                render_mode_names[column->hint_mode], extra );
       state->display.disp_text( disp, left,
                                 bottom + 5, temp );
 
@@ -896,19 +896,19 @@
           unsigned char*  fw  = column->filter_weights;
 
 
-          sprintf( temp,
-                   "%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s",
-                   fwi == 0 ? "[" : " ",
-                     fw[0],
-                   fwi == 0 ? "]" : ( fwi == 1 ? "[" : " " ),
-                     fw[1],
-                   fwi == 1 ? "]" : ( fwi == 2 ? "[" : " " ),
-                     fw[2],
-                   fwi == 2 ? "]" : ( fwi == 3 ? "[" : " " ),
-                     fw[3],
-                   fwi == 3 ? "]" : ( fwi == 4 ? "[" : " " ),
-                     fw[4],
-                   fwi == 4 ? "]" : " " );
+          snprintf( temp, sizeof ( temp ),
+                    "%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s0x%02X%s",
+                    fwi == 0 ? "[" : " ",
+                      fw[0],
+                    fwi == 0 ? "]" : ( fwi == 1 ? "[" : " " ),
+                      fw[1],
+                    fwi == 1 ? "]" : ( fwi == 2 ? "[" : " " ),
+                      fw[2],
+                    fwi == 2 ? "]" : ( fwi == 3 ? "[" : " " ),
+                      fw[3],
+                    fwi == 3 ? "]" : ( fwi == 4 ? "[" : " " ),
+                      fw[4],
+                    fwi == 4 ? "]" : " " );
           state->display.disp_text( disp, left,
                                     bottom + 2 * HEADER_HEIGHT + 5, temp );
         }
@@ -939,13 +939,13 @@
                                   bottom + 2 * HEADER_HEIGHT + 5, msg );
       }
 
-      sprintf( temp, "%s %s %s",
-               column->use_kerning ? "+kern"
-                                   : "-kern",
-               column->use_deltas ? "+delta"
-                                  : "-delta",
-               column->use_cboxes ? "glyph boxes"
-                                  : "adv. widths" );
+      snprintf( temp, sizeof ( temp ), "%s %s %s",
+                column->use_kerning ? "+kern"
+                                    : "-kern",
+                column->use_deltas ? "+delta"
+                                   : "-delta",
+                column->use_cboxes ? "glyph boxes"
+                                   : "adv. widths" );
       state->display.disp_text( disp, left,
                                 bottom + 3 * HEADER_HEIGHT + 5, temp );
 
@@ -1143,7 +1143,7 @@
     FT_Library_Version( state->library, &major, &minor, &patch );
 
     format = patch ? "%d.%d.%d" : "%d.%d";
-    sprintf( version, format, major, minor, patch );
+    snprintf( version, sizeof ( version ), format, major, minor, patch );
 
     adisplay_clear( display );
     grSetLineHeight( 10 );
@@ -1151,9 +1151,10 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    sprintf( buf,
-             "FreeType Hinting Mode Comparator - part of the FreeType %s test suite",
-             version );
+    snprintf( buf, sizeof ( buf ),
+              "FreeType Hinting Mode Comparator -"
+                " part of the FreeType %s test suite",
+              version );
 
     grWriteln( buf );
     grLn();
@@ -1479,20 +1480,20 @@
 
 
     basename = ft_basename( state->filename );
-    sprintf( buf, "%.50s %.50s (file `%.100s')",
-                  face->family_name,
-                  face->style_name,
-                  basename );
+    snprintf( buf, sizeof ( buf ), "%.50s %.50s (file `%.100s')",
+              face->family_name,
+              face->style_name,
+              basename );
     grWriteCellString( adisplay->bitmap, 0, 5,
                        buf, adisplay->fore_color );
 
     if ( adisplay->gamma != 0.0 )
-      sprintf( gamma, "%.1f", adisplay->gamma );
-    sprintf( buf, "%.1fpt (%dppem) at %ddpi, gamma: %s",
-                  state->char_size,
-                  (int)(state->char_size * state->resolution / 72 + 0.5),
-                  state->resolution,
-                  gamma );
+      snprintf( gamma, sizeof ( gamma ), "%.1f", adisplay->gamma );
+    snprintf( buf, sizeof ( buf ), "%.1fpt (%dppem) at %ddpi, gamma: %s",
+              state->char_size,
+              (int)( state->char_size * state->resolution / 72 + 0.5 ),
+              state->resolution,
+              gamma );
     grWriteCellString( adisplay->bitmap, 0, 5 + HEADER_HEIGHT,
                        buf, adisplay->fore_color );
 

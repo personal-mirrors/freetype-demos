@@ -1,3 +1,10 @@
+2020-07-24  David Turner  <david@freetype.org>
+
+	* src/*: Replace simple usage of `sprintf' with `snprintf'.
+
+	Recent gcc compiler versions produce warnings for potentially unsafe
+	functions like `sprintf'.
+
 2020-07-06  Werner Lemberg  <wl@gnu.org>
 
 	Synchronize with recent FreeType changes.

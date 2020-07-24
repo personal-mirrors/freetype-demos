@@ -241,7 +241,7 @@
       int     nx;
 
 
-      sprintf( temp, "%.1f", ggamma );
+      snprintf( temp, sizeof ( temp ), "%.1f", ggamma );
       grWriteCellString( display->bitmap, x_0 - 32, y + ( yside - 6 ) / 2,
                          temp, display->fore_color );
 
@@ -420,7 +420,7 @@
 
       for ( i = 0; i <= 10; i++ )
       {
-        sprintf( buf, "%.1f", 1. + .2 * i );
+        snprintf( buf, sizeof ( buf ), "%.1f", 1. + .2 * i );
         grWriteCellString( display->bitmap, x - 311 + i * 60, y + 155,
                            buf, display->fore_color );
       }

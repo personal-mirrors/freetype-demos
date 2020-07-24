@@ -806,9 +806,9 @@
     grSetMargin( 2, 1 );
     grGotobitmap( display->bitmap );
 
-    sprintf( buf,
-             "FreeType Glyph Viewer - part of the FreeType %s test suite",
-             version );
+    snprintf( buf, sizeof ( buf ),
+              "FreeType Glyph Viewer - part of the FreeType %s test suite",
+              version );
 
     grWriteln( buf );
     grLn();
@@ -1525,9 +1525,9 @@
         render_mode = "waterfall";
         break;
       }
-      sprintf( buf, "%d: %s",
-                    status.render_mode + 1,
-                    render_mode );
+      snprintf( buf, sizeof ( buf ), "%d: %s",
+                status.render_mode + 1,
+                render_mode );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
@@ -1535,20 +1535,20 @@
     if ( status.render_mode == RENDER_MODE_FANCY )
     {
       /* x emboldening */
-      sprintf( buf, " x: % .3f",
-                    status.xbold_factor );
+      snprintf( buf, sizeof ( buf ), " x: % .3f",
+                status.xbold_factor );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
 
       /* y emboldening */
-      sprintf( buf, " y: % .3f",
-                    status.ybold_factor );
+      snprintf( buf, sizeof ( buf ), " y: % .3f",
+                status.ybold_factor );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
 
       /* slanting */
-      sprintf( buf, " s: % .3f",
-                    status.slant );
+      snprintf( buf, sizeof ( buf ), " s: % .3f",
+                status.slant );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
@@ -1556,8 +1556,8 @@
     if ( status.render_mode == RENDER_MODE_STROKE )
     {
       /* stroking radius */
-      sprintf( buf, " radius: %.3f",
-                    status.radius );
+      snprintf( buf, sizeof ( buf ), " radius: %.3f",
+                status.radius );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
@@ -1598,17 +1598,17 @@
     }
 
     /* hinting */
-    sprintf( buf, "hinting: %s",
-                  handle->hinted ? "on" : "off" );
+    snprintf( buf, sizeof ( buf ), "hinting: %s",
+              handle->hinted ? "on" : "off" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
     if ( handle->hinted )
     {
       /* auto-hinting */
-      sprintf( buf, " forced auto: %s",
-                    ( handle->autohint                   ||
-                      handle->lcd_mode == LCD_MODE_LIGHT ) ? "on" : "off" );
+      snprintf( buf, sizeof( buf ), " forced auto: %s",
+                ( handle->autohint                   ||
+                  handle->lcd_mode == LCD_MODE_LIGHT ) ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
@@ -1681,8 +1681,8 @@
 
       if ( hinting_engine )
       {
-        sprintf( buf, "engine: %s",
-                      hinting_engine );
+        snprintf( buf, sizeof ( buf ), "engine: %s",
+                  hinting_engine );
         grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                            buf, display->fore_color );
       }
@@ -1690,8 +1690,8 @@
 
     if ( handle->lcd_mode == LCD_MODE_AA && handle->autohint )
     {
-      sprintf( buf, "warping: %s",
-                    status.warping ? "on" : "off" );
+      snprintf( buf, sizeof ( buf ), "warping: %s",
+                status.warping ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
@@ -1699,39 +1699,39 @@
     line++;
 
     /* embedded bitmaps */
-    sprintf( buf, "bitmaps: %s",
-                  handle->use_sbits ? "on" : "off" );
+    snprintf( buf, sizeof ( buf ), "bitmaps: %s",
+              handle->use_sbits ? "on" : "off" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
     if ( FT_HAS_COLOR( face ) )
     {
-      sprintf( buf, "color:" );
+      snprintf( buf, sizeof ( buf ), "color:" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
 
       /* color bitmaps */
-      sprintf( buf, "  bitmaps: %s",
-                    handle->use_color ? "on" : "off" );
+      snprintf( buf, sizeof ( buf ), "  bitmaps: %s",
+                handle->use_color ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
 
       /* color-layered glyphs */
-      sprintf( buf, "  outlines: %s",
-                    handle->use_layers ? "on" : "off" );
+      snprintf( buf, sizeof ( buf ), "  outlines: %s",
+                handle->use_layers ? "on" : "off" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
 
       /* color palette */
-      sprintf( buf, "  palette idx: %d",
-                    handle->current_font->palette_index );
+      snprintf( buf, sizeof ( buf ), "  palette idx: %d",
+                handle->current_font->palette_index );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
     }
 
     /* cache */
-    sprintf( buf, "cache: %s",
-                  handle->use_sbits_cache ? "on" : "off" );
+    snprintf( buf, sizeof ( buf ), "cache: %s",
+              handle->use_sbits_cache ? "on" : "off" );
     grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                        buf, display->fore_color );
 
@@ -1742,11 +1742,11 @@
                          FT_Err_Unimplemented_Feature    &&
          handle->lcd_mode >= LCD_MODE_RGB                )
     {
-      sprintf( buf, "filter: %s",
-                    status.lcd_filter == 0 ? "none" :
-                    status.lcd_filter == 1 ? "default" :
-                    status.lcd_filter == 2 ? "light" :
-                    status.lcd_filter == 3 ? "legacy" : "custom" );
+      snprintf( buf, sizeof ( buf ), "filter: %s",
+                status.lcd_filter == 0 ? "none" :
+                status.lcd_filter == 1 ? "default" :
+                status.lcd_filter == 2 ? "light" :
+                status.lcd_filter == 3 ? "legacy" : "custom" );
       grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                          buf, display->fore_color );
 
@@ -1760,11 +1760,11 @@
 
         for ( i = 0; i < 5; i++ )
         {
-          sprintf( buf,
-                   " %s0x%02X%s",
-                   fwi == i ? "[" : " ",
-                   fw[i],
-                   fwi == i ? "]" : " " );
+          snprintf( buf, sizeof ( buf ),
+                    " %s0x%02X%s",
+                    fwi == i ? "[" : " ",
+                    fw[i],
+                    fwi == i ? "]" : " " );
           grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
                              buf, display->fore_color );
         }

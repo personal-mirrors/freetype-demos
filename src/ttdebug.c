@@ -2817,14 +2817,16 @@
 
     /* we expect that at least one interpreter version is available */
     if ( num_tt_interpreter_versions == 2 )
-      sprintf(versions, "%d and %d",
-                        tt_interpreter_versions[0],
-                        tt_interpreter_versions[1] );
+      snprintf( versions, sizeof ( versions ),
+                "%d and %d",
+                tt_interpreter_versions[0],
+                tt_interpreter_versions[1] );
     else
-      sprintf(versions, "%d, %d, and %d",
-                        tt_interpreter_versions[0],
-                        tt_interpreter_versions[1],
-                        tt_interpreter_versions[2] );
+      snprintf( versions, sizeof ( versions ),
+                "%d, %d, and %d",
+                tt_interpreter_versions[0],
+                tt_interpreter_versions[1],
+                tt_interpreter_versions[2] );
 
     fprintf( stderr,
       "\n"

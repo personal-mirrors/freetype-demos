@@ -525,9 +525,11 @@
     FT_Library_Version( library, &major, &minor, &patch );
 
     if ( patch )
-      sprintf( version, "%d.%d.%d", major, minor, patch );
+      snprintf( version, sizeof ( version ),
+                "%d.%d.%d", major, minor, patch );
     else
-      sprintf( version, "%d.%d", major, minor );
+      snprintf( version, sizeof ( version ),
+                "%d.%d", major, minor );
 
     Clear_Display();
     grSetLineHeight( 10 );
@@ -535,9 +537,10 @@
     grSetMargin( 2, 1 );
     grGotobitmap( bit );
 
-    sprintf( buf,
-             "FreeType MM Glyph Viewer - part of the FreeType %s test suite",
-             version );
+    snprintf( buf, sizeof ( buf ),
+              "FreeType MM Glyph Viewer -"
+                " part of the FreeType %s test suite",
+              version );
 
     grWriteln( buf );
     grLn();
