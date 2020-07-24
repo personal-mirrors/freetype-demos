@@ -1,5 +1,15 @@
 2020-07-24  David Turner  <david@freetype.org>
 
+	Add functions to safely append strings to fixed-size buffers.
+
+	Not used yet.
+
+	* src/strbuf.c, src/strbuf.h: New files.
+
+	* Makefile: Updated to compile `strbuf.c'.
+
+2020-07-24  David Turner  <david@freetype.org>
+
 	* src/ftcommon.c (my_face_requester): Improve code readability.
 
 2020-07-24  David Turner  <david@freetype.org>
