@@ -1,5 +1,19 @@
 2020-07-24  David Turner  <david@freetype.org>
 
+	Add `ft_strdup' function.
+
+	This simplifies compilation on Windows, which doesn't have this
+	function.
+
+	* src/common.c: Include `ftstring.h'.
+	(ft_strdup): New function.
+	* src/common.h: Updated.
+
+	* src/ftcommon.c (FTDemo_Install_Font), src/ftdiff.c
+	(render_state_set_files): Use it.
+
+2020-07-24  David Turner  <david@freetype.org>
+
 	* src/*: Replace simple usage of `sprintf' with `snprintf'.
 
 	Recent gcc compiler versions produce warnings for potentially unsafe

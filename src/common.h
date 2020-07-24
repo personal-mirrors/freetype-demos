@@ -6,6 +6,7 @@
   extern "C" {
 #endif
 
+
   extern char*
   ft_basename( const char*  name );
 
@@ -25,6 +26,14 @@
   extern int
   utf8_next( const char**  pcursor,
              const char*   end );
+
+  /*
+   * Implement `strdup', which is POSIX but not C89 or even C11, and
+   * Microsoft insists on renaming it `_strdup' instead.  Platform
+   * auto-detection is complicated, so just provide a re-implementation.
+   */
+  extern char*
+  ft_strdup( const char*  name );
 
 #ifdef __cplusplus
   }

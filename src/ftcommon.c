@@ -605,11 +605,9 @@
 
         font = (PFont)malloc( sizeof ( *font ) );
 
-        /* We allocate four more bytes since we want to attach an AFM */
-        /* or PFM file for Type 1 fonts (if available).  Such fonts   */
-        /* always have the extension `.afm' or `.pfm'.                */
-        font->filepathname = (char*)malloc( strlen( filepath ) + 4 + 1 );
-        strcpy( (char*)font->filepathname, filepath );
+        font->filepathname = ft_strdup( filepath );
+        if ( !font->filepathname )
+          return FT_Err_Out_Of_Memory;
 
         font->face_index = ( j << 16 ) + i;
 

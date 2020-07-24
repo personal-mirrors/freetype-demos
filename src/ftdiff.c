@@ -460,19 +460,17 @@
           fn = face->family_name;
         else
           fn = (char*)"(unknown family)";
-        family_name = (char*)malloc( strlen( fn ) + 1 );
+        family_name = ft_strdup( fn );
         if ( family_name == NULL )
           panic( "ftdiff: not enough memory\n" );
-        strcpy( family_name, fn );
 
         if ( face->style_name )
           sn = face->style_name;
         else
           sn = (char*)"(unknown style)";
-        style_name = (char*)malloc( strlen( sn ) + 1 );
+        style_name = ft_strdup( sn );
         if ( style_name == NULL )
           panic( "ftdiff: not enough memory\n" );
-        strcpy( style_name, sn );
 
         faces[num_faces].filepath    = files[0];
         faces[num_faces].index       = count;
