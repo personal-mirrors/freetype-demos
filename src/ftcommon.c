@@ -404,30 +404,47 @@
 
       if ( !strcmp( format, "Type 1" ) )
       {
-        char   orig[5];
-        char*  suffix        = (char*)strrchr( font->filepathname, '.' );
-        int    has_extension = suffix                                &&
-                               ( strcasecmp( suffix, ".pfa" ) == 0 ||
-                                 strcasecmp( suffix, ".pfb" ) == 0 );
+        /* Build the extension file name from the main font file name.
+         * The rules to follow are:
+         *
+         *   - If a `.pfa' or `.pfb' extension is used, remove/ignore them.
+         *   - Add `.afm' and call `FT_Attach_File'; if this fails, try with
+         *     `.pfm' extension instead and call `FT_Attach_File' again.
+         */
+        size_t  path_len      = strlen( font->filepathname );
+        char*   suffix        = (char *)strrchr( font->filepathname, '.' );
+        int     has_extension = suffix                                 &&
+                                ( strcasecmp( suffix, ".pfa" ) == 0 ||
+                                  strcasecmp( suffix, ".pfb" ) == 0 );
+
+        size_t  ext_path_len;
+        char*   ext_path;
 
 
         if ( has_extension )
-          memcpy( orig, suffix, 5 );
-        else
-          /* we have already allocated four more bytes */
-          suffix = (char*)font->filepathname + strlen( font->filepathname );
-
-        memcpy( suffix, ".afm", 5 );
-        if ( FT_Attach_File( *aface, font->filepathname ) )
         {
-          memcpy( suffix, ".pfm", 5 );
-          FT_Attach_File( *aface, font->filepathname );
+          /* Ignore `.pfa' or `.pfb' extension in the original font path. */
+          path_len -= 4;
         }
 
-        if ( has_extension )
-          memcpy( suffix, orig, 5 );
-        else
-          *suffix = '\0';
+        ext_path_len = path_len + 5;       /* 4 bytes extension + '\0' */
+        ext_path     = (char *)malloc( ext_path_len );
+
+        if ( ext_path != NULL )
+        {
+          snprintf( ext_path, ext_path_len, "%.*s.afm", (int)path_len,
+                    font->filepathname );
+
+          if ( FT_Attach_File( *aface, ext_path ) != FT_Err_Ok )
+          {
+            snprintf( ext_path, ext_path_len, "%.*s.pfm", (int)path_len,
+                      font->filepathname );
+
+            FT_Attach_File( *aface, ext_path );
+          }
+
+          free( ext_path );
+        }
       }
 
       if ( (*aface)->charmaps && font->cmap_index < (*aface)->num_charmaps )
