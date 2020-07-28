@@ -1,3 +1,11 @@
+2020-07-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdump] Report flagged overlaps.
+
+	* src/ftdump.c (Print_Glyfs): New function to count simple and
+	composite glyphs and report flagged overlaps.
+	(main): Use it along with glyph count earlier.
+
 2020-07-24  Werner Lemberg  <wl@gnu.org>
 
 	Make new code from David work.

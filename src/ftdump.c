@@ -879,6 +879,133 @@
   }
 
 
+  static void
+  Print_Glyfs( FT_Face  face )
+  {
+    FT_ULong    loca_length = 0;
+    FT_ULong    glyf_length = 0;
+    FT_UShort   i;
+    FT_Byte*    buffer = NULL;
+    FT_Byte*    offset = NULL;
+
+    FT_Int      simple            = 0;
+    FT_Int      simple_overlap    = 0;
+    FT_Int      composite         = 0;
+    FT_Int      composite_overlap = 0;
+
+    TT_Header*      head;
+    TT_MaxProfile*  maxp;
+
+
+    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, NULL, &glyf_length );
+    if ( error || glyf_length == 0 )
+      goto Exit;
+
+    buffer = (FT_Byte*)malloc( glyf_length );
+    if ( buffer == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, buffer, &glyf_length );
+    if ( error )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, NULL, &loca_length );
+    if ( error || loca_length == 0 )
+      goto Exit;
+
+    offset = (FT_Byte*)malloc( loca_length );
+    if ( offset == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &loca_length );
+    if ( error )
+      goto Exit;
+
+    head =     (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
+    maxp = (TT_MaxProfile*)FT_Get_Sfnt_Table( face, FT_SFNT_MAXP );
+
+    for ( i = 0; i < maxp->numGlyphs; i++ )
+    {
+      FT_UInt32  loc;
+      FT_UInt16  len;
+      FT_UShort  flags;
+
+
+      if ( head->Index_To_Loc_Format )
+        loc = (FT_UInt32)offset[4 * i    ] << 24 |
+              (FT_UInt32)offset[4 * i + 1] << 16 |
+              (FT_UInt32)offset[4 * i + 2] << 8  |
+              (FT_UInt32)offset[4 * i + 3];
+      else
+        loc = (FT_UInt32)offset[2 * i    ] << 9 |
+              (FT_UInt32)offset[2 * i + 1] << 1;
+
+      if ( loc >= glyf_length )
+      {
+        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        continue;
+      }
+
+      len  = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
+      loc += 10;
+
+      if ( (FT_Int16)len < 0 )  /* composite */
+      {
+        composite++;
+
+        if ( loc >= glyf_length )
+        {
+          printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+          continue;
+        }
+
+        flags = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
+
+        composite_overlap += ( flags & 0x400 ) >> 10;
+
+        continue;
+      }
+
+      simple++;
+
+      loc += 2 * len;
+
+      if ( loc >= glyf_length )
+      {
+        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        continue;
+      }
+
+      len = (FT_UInt16)( buffer[loc] << 8 | buffer[loc + 1] );
+
+      loc += 2 + len;
+
+      if ( len >= glyf_length )
+      {
+        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        continue;
+      }
+
+      flags = (FT_UInt16)buffer[loc];
+
+      simple_overlap += ( flags & 0x40 ) >> 6;
+    }
+
+    printf( "%s%d", Name_Field( "   simple" ), simple );
+    printf( simple_overlap    ? ", with overlap flagged in %d\n"
+                              : "\n",
+            simple_overlap );
+    printf( "%s%d", Name_Field( "   composite" ), composite );
+    printf( composite_overlap ? ", with overlap flagged in %d\n"
+                              : "\n",
+            composite_overlap );
+
+  Exit:
+    free( buffer );
+    free( offset );
+  }
+
+
   int
   main( int    argc,
         char*  argv[] )
@@ -1007,10 +1134,13 @@
 
       printf( "\n----- Face number: %d -----\n\n", i );
       Print_Name( face );
-      printf( "\n" );
-      Print_Type( face );
 
       printf( "%s%ld\n", Name_Field( "glyph count" ), face->num_glyphs );
+      if ( FT_IS_SFNT( face ) )
+        Print_Glyfs( face );
+
+      printf( "\n" );
+      Print_Type( face );
 
       if ( name_tables && FT_IS_SFNT( face ) )
       {
