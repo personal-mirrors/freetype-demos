@@ -566,7 +566,7 @@
       format[5] = '\0';   /* terminate early */
 
     /* append the version string */
-    strbuf_init( &sb, str, strlen( str ) );
+    strbuf_init( &sb, str, sizeof ( str ) );
     strbuf_format( &sb, format, major, minor, patch );
   }
 
