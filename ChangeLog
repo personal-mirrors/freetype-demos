@@ -1,5 +1,14 @@
 2020-08-21  Werner Lemberg  <wl@gnu.org>
 
+	Improve help for command line option `-d'.
+
+	* src/ftgrid.c, src/ftstring.c, src/ftview.c (usage): Depth value is
+	optional.
+
+	* man/ftgrid.1, man/ftstring.1, man/ftview.1: Updated.
+
+2020-08-21  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftcommon.c (FTDemo_Version): Correctly call `strbuf_init'.
 
 2020-07-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
