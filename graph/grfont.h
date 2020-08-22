@@ -10,6 +10,13 @@
   grGotobitmap( grBitmap*  bitmap );
 
   void
+  grGotobitmapColor( grBitmap*  bitmap,
+                     int        r,
+                     int        g,
+                     int        b,
+                     int        a );
+
+  void
   grSetMargin( int  right,
                int  top );
 

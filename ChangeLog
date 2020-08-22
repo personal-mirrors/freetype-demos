@@ -1,5 +1,11 @@
 2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
 
+	[graph] Add function to pass custom color for writing headers.
+
+	* graph/grfont.h, graph/grfont.c (grGotobitmapColor): New function.
+
+2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
+
 	[ftsdf] Add main function.
 
 	* src/ftsdf.c (main): New function.
