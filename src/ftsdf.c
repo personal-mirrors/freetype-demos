@@ -187,5 +187,37 @@
     grListenSurface( display->surface, gr_event_key, &dummy );
   }
 
+  static void
+  write_header()
+  {
+    /* This function simply prints some information to the top */
+    /* left of the screen. The information contains various    */
+    /* properties and values etc.                              */
+
+    static char   header_string[512];
+
+    sprintf( header_string, "Glyph Index: %d, Pt Size: %d, Spread: %d, Scale: %d",
+             status.glyph_index, status.ptsize, status.spread, status.scale );
+    grWriteCellString( display->bitmap, 0, 0, header_string, display->fore_color );
+
+    sprintf( header_string, "Position Offset: %d,%d", status.x_offset, status.y_offset );
+    grWriteCellString( display->bitmap, 0, 1 * HEADER_HEIGHT, header_string, display->fore_color );
+
+    sprintf( header_string, "SDF Generated in: %.0f ms, From: %s", status.generation_time,
+             status.use_bitmap ? "Bitmap" : "Outline" );
+    grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT, header_string, display->fore_color );
+
+    sprintf( header_string, "Filtering: %s, View: %s", status.nearest_filtering ? "Nearest" : "Bilinear",
+                                                       status.reconstruct ? "Reconstructing": "Raw" );
+    grWriteCellString( display->bitmap, 0, 3 * HEADER_HEIGHT, header_string, display->fore_color );
+
+    if ( status.reconstruct )
+    {
+      /* Only print these in reconstruction mode. */
+      sprintf( header_string, "Width: %.2f, Edge: %.2f", status.width, status.edge );
+      grWriteCellString( display->bitmap, 0, 4 * HEADER_HEIGHT, header_string, display->fore_color );
+    }
+  }
+
 
 /* END */
