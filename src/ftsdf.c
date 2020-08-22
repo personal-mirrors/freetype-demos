@@ -96,7 +96,9 @@
     /* generate SDF from bitmap) we must render the glyph first using  */
     /* the smooth or the monochrome FreeType rasterizer.               */
     if ( status.use_bitmap )
+    {
       FT_CALL( FT_Render_Glyph( status.face->glyph, FT_RENDER_MODE_NORMAL ) );
+    }
     FT_CALL( FT_Render_Glyph( status.face->glyph, FT_RENDER_MODE_SDF ) );
 
     /* Compute and print the generation time. */
