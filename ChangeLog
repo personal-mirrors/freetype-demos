@@ -1,3 +1,10 @@
+2020-08-22  Werner Lemberg  <wl@gnu.org>
+
+	ttdebug: Make it work again.
+
+	* src/ttdebug.c (temqStr): New global array.
+	(RunIns): Use it.
+
 2020-08-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grevents.h (grKey): Recode function keys as 0xF1, etc.

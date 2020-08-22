@@ -99,6 +99,7 @@
   typedef char  LongStr[8];
 
   static char   tempStr[256];
+  static char   temqStr[256];
 
 
   typedef struct  Storage_
@@ -2070,7 +2071,7 @@
           int     args;
 
 
-          strbuf_init( temp, tempStr, sizeof ( tempStr ) );
+          strbuf_init( temp, temqStr, sizeof ( tempStr ) );
 
           /* first letter of location */
           switch ( CUR.curRange )
