@@ -125,7 +125,7 @@
 
     grKeyDel       = 0x7F,
 
-    grKeyF1  = 0x101,
+    grKeyF1  = 0xF1,
     grKeyF2,
     grKeyF3,
     grKeyF4,
@@ -138,7 +138,7 @@
     grKeyF11,
     grKeyF12,
 
-    grKeyIns,
+    grKeyIns = 0x100,
     grKeyHome,
     grKeyEnd,
     grKeyPageUp,
@@ -155,7 +155,7 @@
   } grKey;
 
 
-#define grKEY( c )  ( (grKey)( c ) )
+#define grKEY( c )  ( (grKey)(unsigned char)( c ) )
   /* masks - to be used as enums they would have to be included */
   /* in the grKey enum                                          */
 #define grKeyAlt    ( (grKey)0x8000 )

@@ -1,3 +1,9 @@
+2020-08-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grevents.h (grKey): Recode function keys as 0xF1, etc.
+
+	Use bash ANSI-C quoting $'\xF1' to pass them from the command line.
+
 2020-08-21  Werner Lemberg  <wl@gnu.org>
 
 	Improve help for command line option `-d'.
