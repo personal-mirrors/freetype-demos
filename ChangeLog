@@ -1,5 +1,12 @@
 2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
 
+	[ftsdf] Handle some events.
+
+	* src/ftsdf.c (event_font_update, event_color_change, event_help):
+	New functions.
+
+2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
+
 	[ftsdf] New demo program to view SDF glyphs.
 
 	* src/ftsdf.c: New file, with first templates.

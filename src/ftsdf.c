@@ -69,4 +69,135 @@
     /* edge              */ 0.2f
   };
 
+
+  /* This event is triggered when rasterizer properties, */
+  /* the glyph index or the glyph size is updated.       */
+  static FT_Error
+  event_font_update( void )
+  {
+    FT_Error  err = FT_Err_Ok;
+
+    clock_t  start, end;
+
+
+    /* Set various properties of the renderers. */
+    FT_CALL( FT_Property_Set( handle->library, "bsdf", "spread",
+                              &status.spread ) );
+    FT_CALL( FT_Property_Set( handle->library, "sdf", "spread",
+                              &status.spread ) );
+    FT_CALL( FT_Property_Set( handle->library, "sdf", "overlaps",
+                              &status.overlaps ) );
+
+    /* Set pixel size and load the glyph index. */
+    FT_CALL( FT_Set_Pixel_Sizes( status.face, 0, status.ptsize ) );
+    FT_CALL( FT_Load_Glyph( status.face, status.glyph_index,
+                            FT_LOAD_DEFAULT ) );
+
+    /* This is just to measure the generation time. */
+    start = clock();
+
+    /* Finally render the glyph.  To force the 'bsdf' renderer (i.e., to */
+    /* generate SDF from bitmap) we must render the glyph first using    */
+    /* the smooth or the monochrome FreeType rasterizer.                 */
+    if ( status.use_bitmap )
+      FT_CALL( FT_Render_Glyph( status.face->glyph,
+               FT_RENDER_MODE_NORMAL ) );
+    FT_CALL( FT_Render_Glyph( status.face->glyph, FT_RENDER_MODE_SDF ) );
+
+    /* Compute and print the generation time. */
+    end = clock();
+
+    status.generation_time = ( (float)( end - start ) /
+                               (float)CLOCKS_PER_SEC ) * 1000.0f;
+
+    printf( "Generation Time: %.0f ms\n", status.generation_time );
+
+  Exit:
+    return err;
+  }
+
+
+  /* This event is triggered when we create a new display. */
+  /* We set various colors for the display buffer.         */
+  static void
+  event_color_change( void )
+  {
+    display->back_color = grFindColor( display->bitmap,
+                                       0, 0, 0, 0xff );
+    display->fore_color = grFindColor( display->bitmap,
+                                       255, 255, 255, 0xff );
+    display->warn_color = grFindColor( display->bitmap,
+                                       0, 255, 255, 0xff );
+  }
+
+
+  /* This event is triggered when the user presses the help */
+  /* screen button (either key '?' or F1).  It basically    */
+  /* prints the list of keys along with their usage to the  */
+  /* display window.                                        */
+  static void
+  event_help( void )
+  {
+    grEvent  dummy;
+
+
+    /* For the help screen we use a slightly gray color instead of */
+    /* a completely black background.                              */
+    display->back_color = grFindColor( display->bitmap,
+                                       30, 30, 30, 0xff );
+    FTDemo_Display_Clear( display );
+    display->back_color = grFindColor( display->bitmap,
+                                       0, 0, 0, 0xff );
+
+    /* Set some properties. */
+    grSetLineHeight( 10 );
+    grGotoxy( 0, 0 );
+    grSetMargin( 2, 1 );
+
+    /* Set the text color (kind of purple). */
+    grGotobitmapColor( display->bitmap, 204, 153, 204, 255 );
+
+    /* Print the keys and usage. */
+    grWriteln( "Signed Distance Field Viewer" );
+    grLn();
+    grWriteln( "Use the following keys:" );
+    grWriteln( "-----------------------" );
+    grLn();
+    grWriteln( "  F1 or ? or /       : display this help screen" );
+    grLn();
+    grWriteln( "  b                  : Toggle between bitmap/outline to be used for generating" );
+    grLn();
+    grWriteln( "  z, x               : Zoom/Scale Up and Down" );
+    grLn();
+    grWriteln( "  Up, Down Arrow     : Adjust glyph's point size by 1" );
+    grWriteln( "  PgUp, PgDn         : Adjust glyph's point size by 25" );
+    grLn();
+    grWriteln( "  Left, Right Arrow  : Adjust glyph index by 1" );
+    grWriteln( "  F5, F6             : Adjust glyph index by 50" );
+    grWriteln( "  F7, F8             : Adjust glyph index by 500" );
+    grLn();
+    grWriteln( "  o, l               : Adjust spread size by 1" );
+    grLn();
+    grWriteln( "  w, s               : Move glyph Up/Down" );
+    grWriteln( "  a, d               : Move glyph Left/right" );
+    grLn();
+    grWriteln( "  f                  : Toggle between bilinear/nearest filtering" );
+    grLn();
+    grWriteln( "  m                  : Toggle overlapping support" );
+    grLn();
+    grWriteln( "Reconstructing Image from SDF" );
+    grWriteln( "-----------------------------" );
+    grWriteln( "  r                  : Toggle between reconstruction/raw view" );
+    grWriteln( "  i, k               : Adjust width by 1 (makes the text bolder/thinner)" );
+    grWriteln( "  u, j               : Adjust edge by 1 (makes the text smoother/sharper)" );
+    grLn();
+    grWriteln( "press any key to exit this help screen" );
+
+    /* Now wait till any key press, otherwise the help screen */
+    /* only blinks and disappears.                            */
+    grRefreshSurface( display->surface );
+    grListenSurface( display->surface, gr_event_key, &dummy );
+  }
+
+
 /* END */
