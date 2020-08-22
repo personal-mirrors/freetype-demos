@@ -1,5 +1,12 @@
 2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
 
+	Add `ftsdf` to the build system.
+
+	* Makefile (EXES): Add `ftsdf`.
+	Add compile and link rules for `ftsdf`.
+
+2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
+
 	[graph] Add function to pass custom color for writing headers.
 
 	* graph/grfont.h, graph/grfont.c (grGotobitmapColor): New function.

@@ -298,6 +298,7 @@ else
           ftgamma  \
           ftgrid   \
           ftmulti  \
+          ftsdf    \
           ftstring \
           ftview
 
@@ -442,6 +443,18 @@ else
 
   ####################################################################
   #
+  # Special rule to compile the `ftsdf' program as it includes
+  # internal header files.
+  #
+  $(OBJ_DIR_2)/ftsdf.$(SO): $(SRC_DIR)/ftsdf.c \
+                            $(SRC_DIR)/ftcommon.h \
+                            $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
+
+
+  ####################################################################
+  #
   # Special rule to compile the `ftdiff' program as it includes
   # internal header files.
   #
@@ -548,6 +561,9 @@ else
                            $(GRAPH_LIB) $(COMMON_OBJ) $(FTCOMMON_OBJ)
 	  $(LINK_NEW)
 
+  $(BIN_DIR_2)/ftsdf$E: $(OBJ_DIR_2)/ftsdf.$(SO) $(FTLIB) \
+                        $(GRAPH_LIB) $(COMMON_OBJ) $(FTCOMMON_OBJ)
+	  $(LINK_NEW)
 
 endif
 
