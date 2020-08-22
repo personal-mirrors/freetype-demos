@@ -1,5 +1,11 @@
 2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
 
+	[ftsdf] Handle window events.
+
+	* src/ftsdf.c (Process_Event): New function.
+
+2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
+
 	[ftsdf] Add function to display some information.
 
 	* src/ftsdf.c (write_header): New function.

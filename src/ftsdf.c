@@ -251,4 +251,144 @@
   }
 
 
+  /* Listen to the events on the display and process them. */
+  static int
+  Process_Event( void )
+  {
+    grEvent  event;
+
+    int  ret   = 0;
+    int  speed = 10 * status.scale;
+
+
+    grListenSurface( display->surface, 0, &event );
+
+    switch ( event.key )
+    {
+    case grKEY( 'q' ):
+    case grKeyEsc:
+      ret = 1;
+      break;
+
+    case grKEY( 'z' ):
+      status.scale++;
+      break;
+    case grKEY( 'x' ):
+      status.scale--;
+      if ( status.scale < 1 )
+        status.scale = 1;
+      break;
+
+    case grKeyPageUp:
+      status.ptsize += 24;
+      /* fall through */
+    case grKeyUp:
+      status.ptsize++;
+      if ( status.ptsize > 512 )
+        status.ptsize = 512;
+      event_font_update();
+      break;
+
+    case grKeyPageDown:
+      status.ptsize -= 24;
+      /* fall through */
+    case grKeyDown:
+      status.ptsize--;
+      if ( status.ptsize < 8 )
+        status.ptsize = 8;
+      event_font_update();
+      break;
+
+    case grKEY( 'o' ):
+      status.spread++;
+      if ( status.spread > 32 )
+        status.spread = 32;
+      event_font_update();
+      break;
+    case grKEY( 'l' ):
+      status.spread--;
+      if ( status.spread < 2 )
+        status.spread = 2;
+      event_font_update();
+      break;
+
+    case grKeyF8:
+      status.glyph_index += 450;
+      /* fall through */
+    case grKeyF6:
+      status.glyph_index += 49;
+      /* fall through */
+    case grKeyRight:
+      status.glyph_index++;
+      event_font_update();
+      break;
+
+    case grKeyF7:
+      status.glyph_index -= 450;
+      /* fall through */
+    case grKeyF5:
+      status.glyph_index -= 49;
+      /* fall through */
+    case grKeyLeft:
+      status.glyph_index--;
+      if ( status.glyph_index < 0 )
+        status.glyph_index = 0;
+      event_font_update();
+      break;
+
+    case grKEY( 'b' ):
+      status.use_bitmap = !status.use_bitmap;
+      event_font_update();
+      break;
+    case grKEY( 'f' ):
+      status.nearest_filtering = !status.nearest_filtering;
+      break;
+    case grKEY( 'r' ):
+      status.reconstruct = !status.reconstruct;
+      break;
+
+    case grKEY( 'i' ):
+      status.width += 0.5f;
+      break;
+    case grKEY( 'k' ):
+      status.width -= 0.5f;
+      break;
+    case grKEY( 'u' ):
+      status.edge += 0.2f;
+      break;
+    case grKEY( 'j' ):
+      status.edge -= 0.2f;
+      break;
+
+    case grKEY( 'd' ):
+      status.x_offset += speed;
+      break;
+    case grKEY( 'a' ):
+      status.x_offset -= speed;
+      break;
+    case grKEY( 's' ):
+      status.y_offset -= speed;
+      break;
+    case grKEY( 'w' ):
+      status.y_offset += speed;
+      break;
+
+    case grKEY( 'm' ):
+      status.overlaps = !status.overlaps;
+      event_font_update();
+      break;
+
+    case grKEY( '?' ):
+    case grKEY( '/' ):
+    case grKeyF1:
+      event_help();
+      break;
+
+    default:
+        break;
+    }
+
+    return ret;
+  }
+
 /* END */
