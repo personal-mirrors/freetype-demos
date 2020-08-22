@@ -391,4 +391,247 @@
     return ret;
   }
 
+
+  /* Clamp value `x` between `lower_limit` and `upper_limit`. */
+  float
+  clamp( float  x,
+         float  lower_limit,
+         float  upper_limit )
+  {
+    if ( x < lower_limit )
+      x = lower_limit;
+    if ( x > upper_limit )
+      x = upper_limit;
+
+    return x;
+  }
+
+
+  /* Do smooth interpolation of value `x` between `edge0` and `edge1` */
+  /* using a polynomial function.                                     */
+  /*                                                                  */
+  /* This implementation is taken from Wikipedia.                     */
+  /*                                                                  */
+  /*   https://en.wikipedia.org/wiki/Smoothstep                       */
+  float
+  smoothstep( float  edge0,
+              float  edge1,
+              float  x )
+  {
+    /* scale, bias and saturate x to 0..1 range */
+    x = clamp( ( x - edge0 ) / ( edge1 - edge0 ), 0.0, 1.0 );
+
+    /* evaluate polynomial */
+    return x * x * ( 3 - 2 * x );
+  }
+
+
+  /* Draw an SDF image to the display. */
+  static FT_Error
+  draw( void )
+  {
+    FT_Bitmap*  bitmap = &status.face->glyph->bitmap;
+
+    Box  draw_region;
+    Box  sample_region;
+
+    Vec2       center;
+    FT_Short*  buffer;
+
+
+    if ( !bitmap || !bitmap->buffer )
+      return FT_Err_Invalid_Argument;
+
+    /* compute center of display */
+    center.x = display->bitmap->width / 2;
+    center.y = display->bitmap->rows  / 2;
+
+    /* compute draw region around `center` */
+    draw_region.xMin = center.x - ( bitmap->width * status.scale) / 2;
+    draw_region.xMax = center.x + ( bitmap->width * status.scale) / 2;
+    draw_region.yMin = center.y - ( bitmap->rows  * status.scale) / 2;
+    draw_region.yMax = center.y + ( bitmap->rows  * status.scale) / 2;
+
+    /* add position offset so that we can move the image */
+    draw_region.xMin += status.x_offset;
+    draw_region.xMax += status.x_offset;
+    draw_region.yMin += status.y_offset;
+    draw_region.yMax += status.y_offset;
+
+    /* Sample region is the region of the bitmap that gets */
+    /* sampled to the display buffer.                      */
+    sample_region.xMin = 0;
+    sample_region.xMax = bitmap->width * status.scale;
+    sample_region.yMin = 0;
+    sample_region.yMax = bitmap->rows * status.scale;
+
+    /* Adjust sample region in case our draw region */
+    /* goes outside of the display.                 */
+
+    /* adjust in -y */
+    if ( draw_region.yMin < 0 )
+    {
+      sample_region.yMax -= draw_region.yMin;
+      draw_region.yMin    = 0;
+    }
+
+    /* adjust in +y */
+    if ( draw_region.yMax > display->bitmap->rows )
+    {
+      sample_region.yMin += draw_region.yMax - display->bitmap->rows;
+      draw_region.yMax    = display->bitmap->rows;
+    }
+
+    /* adjust in -x */
+    if ( draw_region.xMin < 0 )
+    {
+      sample_region.xMin -= draw_region.xMin;
+      draw_region.xMin    = 0;
+    }
+
+    /* adjust in +x */
+    if ( draw_region.xMax > display->bitmap->width )
+    {
+      sample_region.xMax += draw_region.xMax - display->bitmap->width;
+      draw_region.xMax    = display->bitmap->width;
+    }
+
+    buffer = (FT_Short*)bitmap->buffer;
+
+    /* Finally loop over all pixels inside the draw region        */
+    /* and copy pixels from the sample region to the draw region. */
+    for ( FT_Int  j = draw_region.yMax - 1, y = sample_region.yMin;
+          j >= draw_region.yMin;
+          j--, y++ )
+    {
+      for ( FT_Int  i = draw_region.xMin, x = sample_region.xMin;
+            i < draw_region.xMax;
+            i++, x++ )
+      {
+        FT_UInt  display_index = j * display->bitmap->width + i;
+        float    min_dist;
+
+
+        if ( status.nearest_filtering )
+        {
+          FT_UInt   bitmap_index = ( y / status.scale ) * bitmap->width +
+                                     x / status.scale;
+          FT_Short  pixel_value  = buffer[bitmap_index];
+
+
+          /* If nearest filtering then simply take the value of the */
+          /* nearest sampling pixel.                                */
+          min_dist = (float)pixel_value / 1024.0f;
+        }
+        else
+        {
+          /* for simplicity use floats */
+          float  bi_x;
+          float  bi_y;
+
+          float  nbi_x;
+          float  nbi_y;
+
+          int    indc[4]; /* [0,0] [0,1] [1,0] [1,1] */
+          float  dist[4];
+
+          float  m1, m2;
+
+          int width = (int)bitmap->width;
+          int rows  = (int)bitmap->rows;
+
+
+          /* If bilinear filtering then compute the bilinear      */
+          /* interpolation of the current draw pixel using        */
+          /* the nearby sampling pixel values.                    */
+          /*                                                      */
+          /* Again the concept is taken from Wikipedia.           */
+          /*                                                      */
+          /* https://en.wikipedia.org/wiki/Bilinear_interpolation */
+
+          bi_x = (float)x / (float)status.scale;
+          bi_y = (float)y / (float)status.scale;
+
+          nbi_x = bi_x - (int)bi_x;
+          nbi_y = bi_y - (int)bi_y;
+
+          indc[0] = (int)bi_y * width + (int)bi_x;
+          indc[1] = ( (int)bi_y + 1 ) * width + (int)bi_x;
+          indc[2] = (int)bi_y * width + (int)bi_x + 1;
+          indc[3] = ( (int)bi_y + 1 ) * width + (int)bi_x + 1;
+
+          dist[0] = (float)buffer[indc[0]] / 1024.0f;
+
+          if ( indc[1] >= width * rows )
+            dist[1] = -status.spread;
+          else
+            dist[1] = (float)buffer[indc[1]] / 1024.0f;
+
+          if ( indc[2] >= width * rows )
+            dist[2] = -status.spread;
+          else
+            dist[2] = (float)buffer[indc[2]] / 1024.0f;
+
+          if ( indc[3] >= width * rows )
+            dist[3] = -status.spread;
+          else
+            dist[3] = (float)buffer[indc[3]] / 1024.0f;
+
+          m1 = dist[0] * ( 1.0f - nbi_y ) + dist[1] * nbi_y;
+          m2 = dist[2] * ( 1.0f - nbi_y ) + dist[3] * nbi_y;
+
+          /* This is our final display after bilinear interpolation. */
+          min_dist = ( 1.0f - nbi_x ) * m1 + nbi_x * m2;
+        }
+
+        if ( status.reconstruct )
+        {
+          float  alpha;
+
+
+          /* If we are reconstructing then discard all values outside of  */
+          /* the range defined by `status.width` and use `status.edge' to */
+          /* make smooth anti-aliased edges.                              */
+
+          /* This is similar to an OpenGL implementation to draw SDF. */
+          alpha  = 1.0f - smoothstep( status.width,
+                                      status.width + status.edge,
+                                      -min_dist );
+          alpha *= 255;
+
+          /* finally copy the target value to the display buffer */
+          display_index *= 3;
+          display->bitmap->buffer[display_index + 0] = (unsigned char)alpha;
+          display->bitmap->buffer[display_index + 1] = (unsigned char)alpha;
+          display->bitmap->buffer[display_index + 2] = (unsigned char)alpha;
+        }
+        else
+        {
+          float final_dist = min_dist;
+
+
+          /* If not reconstructing then normalize the values between */
+          /* [0, 255] and copy to the display buffer.                */
+
+          /* normalize using `status.spread` */
+          final_dist  = final_dist < 0 ? -final_dist : final_dist;
+          final_dist /= (float)status.spread;
+
+          /* invert the values */
+          final_dist  = 1.0f - final_dist;
+          final_dist *= 255;
+
+          /* finally copy the target value to the display buffer */
+          display_index *= 3;
+          display->bitmap->buffer[display_index + 0] = (unsigned char)final_dist;
+          display->bitmap->buffer[display_index + 1] = (unsigned char)final_dist;
+          display->bitmap->buffer[display_index + 2] = (unsigned char)final_dist;
+        }
+      }
+    }
+
+    return FT_Err_Ok;
+  }
+
+
 /* END */
