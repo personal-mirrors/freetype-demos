@@ -1,5 +1,11 @@
 2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
 
+	[ftsdf] Add main function.
+
+	* src/ftsdf.c (main): New function.
+
+2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
+
 	[ftsdf] Draw SDF to display.
 
 	* src/ftsdf.c (clamp, smoothstep, draw): New function.

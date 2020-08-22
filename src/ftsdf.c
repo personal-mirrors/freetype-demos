@@ -634,4 +634,68 @@
   }
 
 
+  int
+  main( int     argc,
+        char**  argv )
+  {
+    FT_Error  err = FT_Err_Ok;
+
+
+    if ( argc != 3 )
+    {
+      printf( "Usage: [ptsize] [font file]\n" );
+      exit( -1 );
+    }
+
+    status.ptsize = atoi( argv[1] );
+
+    handle = FTDemo_New();
+    if ( !handle )
+    {
+      printf( "Failed to create FTDemo_Handle\n" );
+      goto Exit;
+    }
+
+    display = FTDemo_Display_New( NULL, "800x600x24" );
+    if ( !display )
+    {
+      printf( "Failed to create FTDemo_Display\n" );
+      goto Exit;
+    }
+
+#ifdef __linux__
+    int  flip_y = 1;
+
+    FT_CALL( FT_Property_Set( handle->library, "sdf", "flip_y", &flip_y ) );
+    FT_CALL( FT_Property_Set( handle->library, "bsdf", "flip_y", &flip_y ) );
+#endif
+
+    grSetTitle( display->surface, "Signed Distance Field Viewer" );
+    event_color_change();
+
+    FT_CALL( FT_New_Face( handle->library, argv[2], 0, &status.face ) );
+    FT_CALL( event_font_update() );
+
+    do
+    {
+      FTDemo_Display_Clear( display );
+
+      draw();
+      write_header();
+
+      grRefreshSurface( display->surface );
+
+    } while ( !Process_Event() );
+
+  Exit:
+    if ( status.face )
+      FT_Done_Face( status.face );
+    if ( display )
+      FTDemo_Display_Done( display );
+    if ( handle )
+      FTDemo_Done( handle );
+
+    exit( err );
+  }
+
 /* END */
