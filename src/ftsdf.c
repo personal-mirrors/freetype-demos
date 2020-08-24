@@ -571,16 +571,32 @@
     return FT_Err_Ok;
   }
 
+  static void
+  print_usage( char*  exec_name )
+  {
+    printf( "\nftsdf: Signed Distance Field Viewer\n" );
+    printf( "-----------------------------------\n\n" );
+    printf( "Usage: %s pt font\n\n", exec_name );
+    printf( "  pt    The point size for the given resolution.\n" );
+    printf( "        If the resolution is 72dpi, this directly gives the\n" );
+    printf( "        ppem value (pixels per EM). This gives the size of the\n" );
+    printf( "        glyph from which SDF will be generated.\n" );
+    printf( "  font  The font file to use for generating SDF.\n" );
+  }
+
   int
   main( int     argc,
         char**  argv )
   {
     FT_Error  err = FT_Err_Ok;
+    char*     exec_name = NULL;
 
+
+    exec_name = ft_basename( argv[0] );
 
     if ( argc != 3 )
     {
-      printf( "Usage: [ptsize] [font file]\n" );
+      print_usage( exec_name );
       exit( -1 );
     }
 
