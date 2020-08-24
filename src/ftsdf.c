@@ -12,10 +12,10 @@
   typedef FT_BBox    Box;
 
   #define FT_CALL(X)\
-    error = X;\
-    if (error != FT_Err_Ok) {\
+    err = X;\
+    if (err != FT_Err_Ok) {\
         printf("FreeType error: %s [LINE: %d, FILE: %s]\n",\
-          FT_Error_String(error), __LINE__, __FILE__);\
+          FT_Error_String(err), __LINE__, __FILE__);\
         goto Exit;\
     }
 
@@ -73,11 +73,11 @@
   };
 
   static FT_Error
-  event_font_update()
+  event_font_update( void )
   {
     /* This event is triggered when the prooperties of the rasterizer */
     /* is updated or the glyph index / size is updated.               */
-    FT_Error  error = FT_Err_Ok;
+    FT_Error  err = FT_Err_Ok;
     clock_t   start, end;
 
     /* Set various properties of the renderers. */
@@ -109,11 +109,11 @@
     printf( "Generation Time: %.0f ms\n", status.generation_time );
 
   Exit:
-    return error;
+    return err;
   }
 
   static void
-  event_color_change()
+  event_color_change( void )
   {
     /* This event is triggered when we create a new display, */
     /* in this event we set various colors for the display   */ 
@@ -124,7 +124,7 @@
   }
 
   static void
-  event_help()
+  event_help( void )
   {
     /* This event is triggered when the user presses the help */
     /* screen button that is either '?' or F1. It basically   */
@@ -190,7 +190,7 @@
   }
 
   static void
-  write_header()
+  write_header( void )
   {
     /* This function simply prints some information to the top */
     /* left of the screen. The information contains various    */
@@ -222,7 +222,7 @@
   }
 
   static int
-  Process_Event()
+  Process_Event( void )
   {
     /* The function listens to the events on the display */
     /* and processes them if any event is received.      */
@@ -248,6 +248,7 @@
       break;
     case grKeyPageUp:
       status.ptsize += 24;
+      /* fall through */
     case grKeyUp:
       status.ptsize++;
       if ( status.ptsize > 512 )
@@ -256,6 +257,7 @@
       break;
     case grKeyPageDown:
       status.ptsize -= 24;
+      /* fall through */
     case grKeyDown:
       status.ptsize--;
       if ( status.ptsize < 8 )
@@ -276,16 +278,20 @@
       break;
     case grKeyF8:
       status.glyph_index += 450;
+      /* fall through */
     case grKeyF6:
       status.glyph_index += 49;
+      /* fall through */
     case grKeyRight:
       status.glyph_index++;
       event_font_update();
       break;
     case grKeyF7:
       status.glyph_index -= 450;
+      /* fall through */
     case grKeyF5:
       status.glyph_index -= 49;
+      /* fall through */
     case grKeyLeft:
       status.glyph_index--;
       if ( status.glyph_index < 0 )
@@ -369,7 +375,7 @@
   }
 
   static FT_Error
-  draw()
+  draw( void )
   {
     /* The function draws a SDF image to the display. */
 
@@ -471,6 +477,9 @@
 
           float  m1, m2;
 
+          int width = (int)bitmap->width;
+          int rows  = (int)bitmap->rows;
+
           /* If bilinear filtering then compute the bilinear */
           /* interpolation of the current draw pixel using   */
           /* the nearby sampling pixel values.               */
@@ -484,24 +493,24 @@
           nbi_x = bi_x - (int)bi_x;
           nbi_y = bi_y - (int)bi_y;
 
-          indc[0] = (int)bi_y * bitmap->width + (int)bi_x;
-          indc[1] = ( (int)bi_y + 1 ) * bitmap->width + (int)bi_x;
-          indc[2] = (int)bi_y * bitmap->width + (int)bi_x + 1;
-          indc[3] = ( (int)bi_y + 1 ) * bitmap->width + (int)bi_x + 1;
+          indc[0] = (int)bi_y * width + (int)bi_x;
+          indc[1] = ( (int)bi_y + 1 ) * width + (int)bi_x;
+          indc[2] = (int)bi_y * width + (int)bi_x + 1;
+          indc[3] = ( (int)bi_y + 1 ) * width + (int)bi_x + 1;
 
           dist[0] = (float)buffer[indc[0]] / 1024.0f;
 
-          if ( indc[1] >= bitmap->width * bitmap->rows )
+          if ( indc[1] >= width * rows )
             dist[1] = -status.spread;
           else
             dist[1] = (float)buffer[indc[1]] / 1024.0f;
 
-          if ( indc[2] >= bitmap->width * bitmap->rows )
+          if ( indc[2] >= width * rows )
             dist[2] = -status.spread;
           else
             dist[2] = (float)buffer[indc[2]] / 1024.0f;
 
-          if ( indc[3] >= bitmap->width * bitmap->rows )
+          if ( indc[3] >= width * rows )
             dist[3] = -status.spread;
           else
             dist[3] = (float)buffer[indc[3]] / 1024.0f;
@@ -566,7 +575,7 @@
   main( int     argc,
         char**  argv )
   {
-    FT_Error  error = FT_Err_Ok;
+    FT_Error  err = FT_Err_Ok;
 
 
     if ( argc != 3 )
@@ -622,7 +631,7 @@
       FTDemo_Display_Done( display );
     if ( handle )
       FTDemo_Done( handle );
-    exit( error );
+    exit( err );
   }
 
 /* END */
