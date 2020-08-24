@@ -634,18 +634,41 @@
   }
 
 
+  static void
+  usage( char*  exec_name )
+  {
+    fprintf( stderr,
+      "\n"
+      "ftsdf: Signed Distance Field viewer -- part of the FreeType project\n"
+      "-------------------------------------------------------------------\n"
+      "\n" );
+    fprintf( stderr,
+      "Usage: %s pt font\n"
+      "\n",
+             exec_name );
+    fprintf( stderr,
+      "  pt    The point size for the given resolution.\n"
+      "        If resolution is 72dpi, this directly gives the\n"
+      "        ppem value (pixels per EM).\n" );
+    fprintf( stderr,
+      "  font  The font file to use for generating SDF.\n" );
+
+    exit( 1 );
+  }
+
+
   int
   main( int     argc,
         char**  argv )
   {
-    FT_Error  err = FT_Err_Ok;
+    FT_Error  err       = FT_Err_Ok;
+    char*     exec_name = NULL;
 
+
+    exec_name = ft_basename( argv[0] );
 
     if ( argc != 3 )
-    {
-      printf( "Usage: [ptsize] [font file]\n" );
-      exit( -1 );
-    }
+      usage( exec_name );
 
     status.ptsize = atoi( argv[1] );
 

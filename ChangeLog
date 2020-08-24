@@ -1,3 +1,10 @@
+2020-08-24  Anuj Verma  <anujv@iitbhilai.ac.in>
+
+	[ftsdf] Add better usage section.
+
+	* src/ftsdf.c (usage): New function.
+	(main): Use it.
+
 2020-08-22  Anuj Verma  <anujv@iitbhilai.ac.in>
 
 	Add `ftsdf` to the build system.
