@@ -1385,6 +1385,7 @@
       if ( event.type == gr_event_resize )
       {
         grid_status_display( &status, display );
+        grid_status_rescale_initial( &status, handle );
         return ret;
       }
     }

@@ -1,3 +1,7 @@
+2020-08-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftgrid.c (Process_Event): Rescale after resize.
+
 2020-08-22  Werner Lemberg  <wl@gnu.org>
 
 	ttdebug: Make it work again.
