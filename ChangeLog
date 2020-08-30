@@ -1,3 +1,11 @@
+2020-12-01  Priyesh Kumar  <priyeshkkumar@gmail.com>
+
+	Synchronize with recent FreeType changes.
+
+	* Makefile (FT_INCLUDES): Add `$(TOP_DIR)/src/dlg` to include 'dlg'
+	header files.
+	(LINK_LIBS): Add `-lpthread'.
+
 2020-11-18  Werner Lemberg  <wl@gnu.org>
 
 	[ftmulti]: Keys 'i' and 'I' now control the axis increment.

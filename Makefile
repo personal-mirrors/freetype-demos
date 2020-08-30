@@ -128,6 +128,7 @@ else
   FT_INCLUDES := $(OBJ_BUILD) \
                  $(DEVEL_DIR) \
                  $(TOP_DIR)/include \
+                 $(TOP_DIR)/src/dlg \
                  $(SRC_DIR)
 
   COMPILE = $(CC) $(ANSIFLAGS) \
@@ -172,7 +173,7 @@ else
   else
     LINK_CMD = $(CC) $(subst /,$(COMPILER_SEP),$(LDFLAGS))
     ifeq ($(PLATFORM),unixdev)
-      LINK_LIBS := $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) -lm -lrt -lz -lbz2
+      LINK_LIBS := $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) -lm -lrt -lz -lbz2 -lpthread
       LINK_LIBS += $(shell pkg-config --libs libpng)
       LINK_LIBS += $(shell pkg-config --libs harfbuzz)
       LINK_LIBS += $(shell pkg-config --libs libbrotlidec)
