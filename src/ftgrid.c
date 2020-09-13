@@ -254,6 +254,9 @@
       FT_F26Dot6  x_scale, y_scale;
 
 
+      if ( ymax < size->metrics.y_ppem << 6 )
+        ymax = size->metrics.y_ppem << 6;
+
       if ( xmax - xmin )
         x_scale = st->disp_width  * ( 64 - 2 * margin ) / ( xmax - xmin );
       else
