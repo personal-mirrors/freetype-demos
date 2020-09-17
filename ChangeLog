@@ -1,3 +1,15 @@
+2020-09-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftbench] Permit reverse order of indices.
+
+	Some compressed streams are really bad in rewinding.
+
+	* src/ftbench.c (FOREACH): General loop in either direction.
+	(test_*): Use it.
+	(main): Parse forward and reverse index ranges.
+	(usage): Document it.
+	* man/ftbench.1: Ditto.
+
 2020-09-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/*: Fix some -Wformat-signedness warnings.
