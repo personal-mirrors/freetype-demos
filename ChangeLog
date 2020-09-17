@@ -1,4 +1,8 @@
-2020-08-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-09-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/*: Fix some -Wformat-signedness warnings.
+
+2020-09-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (grid_status_rescale_initial): Deal with low ascender.
 

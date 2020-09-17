@@ -1076,7 +1076,7 @@
     /* set the current position to the default of each axis */
     if ( multimaster->num_axis > MAX_MM_AXES )
     {
-      fprintf( stderr, "only handling first %d variation axes (of %d)\n",
+      fprintf( stderr, "only handling first %u variation axes (of %u)\n",
                        MAX_MM_AXES, multimaster->num_axis );
       used_num_axis = MAX_MM_AXES;
     }

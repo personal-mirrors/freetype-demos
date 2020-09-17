@@ -836,12 +836,12 @@
     /* we expect that at least one interpreter version is available */
     if ( num_tt_interpreter_versions == 2 )
       snprintf( interpreter_versions, sizeof ( interpreter_versions ),
-                "%d and %d",
+                "%u and %u",
                 tt_interpreter_versions[0],
                 tt_interpreter_versions[1] );
     else
       snprintf( interpreter_versions, sizeof ( interpreter_versions ),
-                "%d, %d, and %d",
+                "%u, %u, and %u",
                 tt_interpreter_versions[0],
                 tt_interpreter_versions[1],
                 tt_interpreter_versions[2] );
@@ -872,7 +872,7 @@
       "  -H NAME   Use PS hinting engine NAME.\n"
       "            Available versions are %s; default is `%s'.\n"
       "  -I VER    Use TT interpreter version VER.\n"
-      "            Available versions are %s; default is version %d.\n"
+      "            Available versions are %s; default is version %u.\n"
       "  -i IDX    Start with index IDX (default is 0).\n"
       "  -j IDX    End with index IDX (default is number of glyphs minus one).\n"
       "  -l N      Set LCD filter to N\n"
@@ -1193,7 +1193,7 @@
       {
         if ( FT_Set_Pixel_Sizes( face, size, size ) )
         {
-          fprintf( stderr, "failed to set pixel size to %d\n", size );
+          fprintf( stderr, "failed to set pixel size to %u\n", size );
 
           return 1;
         }
@@ -1202,7 +1202,7 @@
       {
         size = (unsigned int)face->available_sizes[0].size >> 6;
         fprintf( stderr,
-                 "using size of first bitmap strike (%dpx)\n", size );
+                 "using size of first bitmap strike (%upx)\n", size );
         FT_Select_Size( face, 0 );
       }
     }
@@ -1243,9 +1243,9 @@
              max_time );
 
     printf( "\n"
-            "first glyph index: %d\n"
-            "last glyph index: %d\n"
-            "face size: %dppem\n"
+            "first glyph index: %u\n"
+            "last glyph index: %u\n"
+            "face size: %uppem\n"
             "font preloading into memory: %s\n",
             first_index,
             last_index,
@@ -1254,13 +1254,13 @@
 
     printf( "\n"
             "load flags: 0x%X\n"
-            "render mode: %d\n",
+            "render mode: %u\n",
             load_flags,
             render_mode );
     printf( "\n"
             "CFF hinting engine set to `%s'\n"
             "TrueType interpreter set to version %d\n"
-            "maximum cache size: %ldKiByte\n",
+            "maximum cache size: %luKiByte\n",
             engine,
             version,
             max_bytes / 1024 );

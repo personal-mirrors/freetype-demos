@@ -1487,7 +1487,7 @@
 
     if ( adisplay->gamma != 0.0 )
       snprintf( gamma, sizeof ( gamma ), "%.1f", adisplay->gamma );
-    snprintf( buf, sizeof ( buf ), "%.1fpt (%dppem) at %ddpi, gamma: %s",
+    snprintf( buf, sizeof ( buf ), "%.1fpt (%dppem) at %udpi, gamma: %s",
               state->char_size,
               (int)( state->char_size * state->resolution / 72 + 0.5 ),
               state->resolution,

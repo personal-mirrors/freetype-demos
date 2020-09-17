@@ -984,7 +984,7 @@
 
     if ( status.mm->num_axis >= MAX_MM_AXES )
     {
-      fprintf( stderr, "only handling first %d GX axes (of %d)\n",
+      fprintf( stderr, "only handling first %u GX axes (of %u)\n",
                        MAX_MM_AXES, status.mm->num_axis );
       status.used_num_axis = MAX_MM_AXES;
     }
@@ -1119,7 +1119,7 @@
     }
 
     snprintf( status.header_buffer, sizeof ( status.header_buffer ),
-              "TrueType engine changed to version %d",
+              "TrueType engine changed to version %u",
               status.tt_interpreter_versions[
                 status.tt_interpreter_version_idx] );
 

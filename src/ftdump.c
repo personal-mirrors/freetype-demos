@@ -551,7 +551,7 @@
           else
             buf[0] = '\0';
 
-          printf( "      0x%04lx => %d %s\n", charcode, gindex, buf );
+          printf( "      0x%04lx => %u %s\n", charcode, gindex, buf );
           charcode = FT_Get_Next_Char( face, charcode, &gindex );
         }
         printf( "\n" );
