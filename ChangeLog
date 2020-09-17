@@ -1,3 +1,17 @@
+2020-09-17  Werner Lemberg  <wl@gnu.org>
+
+	[ttdebug] Introduce 64th format for displaying values.
+
+	* src/ttdebug.c (FORMAT_INTEGER, FORMAT_FLOAT, FORMAT_64TH): New
+	enum values.
+	(use_float): Global variable replaced by...
+	(num_format): ... this one.  Update all caller.
+	(print_number): New function.
+	(display_changed_points, show_points_table): Use it.
+	(RunIns) <'h'>: Update help screen.
+	(RunIns) <'F'>: Replace toggling by cycling.
+	(RunIns) <'V'>, <'G'>, <'C'>, <'S'>, <'K'>: Updated.
+
 2020-09-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftbench] Permit reverse order of indices.
