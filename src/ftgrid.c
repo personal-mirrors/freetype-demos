@@ -1139,8 +1139,19 @@
 
     status.scale = ldexpf( frc / 8.0f, exp );
 
-    snprintf( status.header_buffer, sizeof ( status.header_buffer ),
-              "zoom scale %g", status.scale );
+    exp -= 3;
+    while ( ~frc & 1 )
+    {
+      frc >>= 1;
+      exp ++;
+    }
+
+    if ( exp >= 0 )
+      snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+                "zoom scale %d:1", frc << exp );
+    else
+      snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+                "zoom scale %d:%d", frc, 1 << -exp );
 
     status.header = (const char *)status.header_buffer;
   }

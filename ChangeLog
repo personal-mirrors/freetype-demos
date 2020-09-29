@@ -1,5 +1,9 @@
 2020-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftgrid.c (event_grid_zoom): Pretty scale formatting.
+
+2020-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid] Implement reversible floating zoom.
 
 	The floating zoom is neccessary to display extremely large sizes
