@@ -1,3 +1,18 @@
+2020-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftgrid] Implement reversible floating zoom.
+
+	The floating zoom is neccessary to display extremely large sizes
+	after scaling them down, but it has to stay rounded to integers when
+	displaying grids and bitmaps for small sizes. All this can be
+	achievied by truncating and bit-adjusting numbers in IEEE 754 format.
+	To make it portable too, we rely on C99 `frexpf' and `ldexpf'.
+
+	* src/ftgid.c (status): Change type of `scale'.
+	(ZOOM, grid_status_init, grid_status_rescale,
+	grid_status_draw_{grid,outline}): Updated accordingly.
+	(event_grid_zoom): Implement truncated reversible zoom.
+
 2020-09-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (ZOOM, *): Macro to zoom metrics.

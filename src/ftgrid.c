@@ -18,6 +18,7 @@
 #include "output.h"
 #include "mlgetopt.h"
 #include <stdlib.h>
+#include <math.h>
 
   /* the following header shouldn't be used in normal programs */
 #include <freetype/internal/ftdebug.h>
@@ -94,7 +95,7 @@
 #define DO_DOTS         8
 #define DO_DOTNUMBERS  16
 
-#define ZOOM( x )  ( ( (x) * st->scale ) >> 6 )
+#define ZOOM( x )  ( (FT_Pos)( (x) * st->scale ) >> 6 )
 
   typedef struct  GridStatusRec_
   {
@@ -107,11 +108,11 @@
     int          Num;  /* glyph index */
     int          font_index;
 
-    int          scale;
+    float        scale;
     int          x_origin;
     int          y_origin;
 
-    int          scale_0;
+    float        scale_0;
     int          x_origin_0;
     int          y_origin_0;
 
@@ -174,7 +175,7 @@
     st->device        = NULL;  /* default */
     st->res           = 72;
 
-    st->scale         = 64;
+    st->scale         = 64.0f;
     st->x_origin      = 0;
     st->y_origin      = 0;
 
@@ -242,10 +243,10 @@
   {
     int  x_org   = st->x_origin;
     int  y_org   = st->y_origin;
-    int  xy_incr = st->scale;
+    int  xy_incr = (int)st->scale;
 
 
-    if ( xy_incr >= 2 )
+    if ( xy_incr >= 4 )
     {
       int  x2 = x_org;
       int  y2 = y_org;
@@ -530,7 +531,7 @@
     FT_Size       size;
     FT_GlyphSlot  slot;
     FT_UInt       glyph_idx;
-    int           scale = st->scale;
+    int           scale = (int)st->scale;
     int           ox    = st->x_origin;
     int           oy    = st->y_origin;
 
@@ -579,7 +580,7 @@
     }
 
     /* render scaled bitmap */
-    if ( st->work & DO_BITMAP )
+    if ( st->work & DO_BITMAP && scale == st->scale )
     {
       FT_Glyph        glyph, glyf;
       int             left, top, x_advance, y_advance;
@@ -627,8 +628,8 @@
 
 
         /* half-pixel shift hints the stroked path */
-        vec->x = vec->x * scale + 32;
-        vec->y = vec->y * scale - 32;
+        vec->x = (FT_Pos)( vec->x * st->scale ) + 32;
+        vec->y = (FT_Pos)( vec->y * st->scale ) - 32;
       }
 
       /* stroke then draw it */
@@ -1123,20 +1124,23 @@
 
 
   static void
-  event_grid_zoom( double  zoom )
+  event_grid_zoom( int  step )
   {
-    int  scale_old = status.scale;
+    int  frc, exp;
 
+    /* The floating scale is reversibly adjusted after decomposing it into */
+    /* fraction and exponent. Direct bit manipulation is less portable.    */
+    frc = 8 * frexpf( status.scale, &exp );
 
-    status.scale *= zoom;
+    frc  = ( frc & 3 ) | ( exp << 2 );
+    frc += step;
+    exp  = frc >> 2;
+    frc  = ( frc & 3 ) | 4;
 
-    /* avoid same zoom value due to truncation */
-    /* to integer in above multiplication      */
-    if ( status.scale == scale_old && zoom > 1.0 )
-      status.scale++;
+    status.scale = ldexpf( frc / 8.0f, exp );
 
     snprintf( status.header_buffer, sizeof ( status.header_buffer ),
-              "zoom scale %d:1", status.scale );
+              "zoom scale %g", status.scale );
 
     status.header = (const char *)status.header_buffer;
   }
@@ -1334,33 +1338,37 @@
       int  xmax = size->metrics.max_advance;
       int  ymax = size->metrics.ascender;
 
-      FT_F26Dot6  x_scale, y_scale;
+      float  x_scale, y_scale;
 
 
       if ( ymax < size->metrics.y_ppem << 6 )
         ymax = size->metrics.y_ppem << 6;
 
       if ( xmax - xmin )
-        x_scale = st->disp_width  * ( 64 - 2 * margin ) / ( xmax - xmin );
+        x_scale = st->disp_width  * ( 64.0f - 2 * margin ) / ( xmax - xmin );
       else
-        x_scale = 64;
+        x_scale = 64.0f;
 
       if ( ymax - ymin )
-        y_scale = st->disp_height * ( 64 - 2 * margin ) / ( ymax - ymin );
+        y_scale = st->disp_height * ( 64.0f - 2 * margin ) / ( ymax - ymin );
       else
-        y_scale = 64;
+        y_scale = 64.0f;
 
       if ( x_scale <= y_scale )
         st->scale = x_scale;
       else
         st->scale = y_scale;
 
-      st->x_origin = 32 * st->disp_width  - ( xmax + xmin ) * st->scale / 2;
-      st->y_origin = 32 * st->disp_height + ( ymax + ymin ) * st->scale / 2;
+      event_grid_zoom( 0 );
+
+      st->x_origin = 32 * st->disp_width  -
+                     (FT_Pos)( ( xmax + xmin ) * st->scale ) / 2;
+      st->y_origin = 32 * st->disp_height +
+                     (FT_Pos)( ( ymax + ymin ) * st->scale ) / 2;
     }
     else
     {
-      st->scale    = 64;
+      st->scale    = 64.0f;
       st->x_origin = st->disp_width  * margin;
       st->y_origin = st->disp_height * ( 64 - margin );
     }
@@ -1683,8 +1691,8 @@
     case grKEY( 'j' ):  event_grid_translate( -1,  0 ); break;
     case grKEY( 'l' ):  event_grid_translate(  1,  0 ); break;
 
-    case grKeyPageUp:   event_grid_zoom( 1.25     ); break;
-    case grKeyPageDown: event_grid_zoom( 1 / 1.25 ); break;
+    case grKeyPageUp:   event_grid_zoom(  1 ); break;
+    case grKeyPageDown: event_grid_zoom( -1 ); break;
 
     case grKeyF2:       if ( status.mm )
                         {
