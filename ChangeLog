@@ -1,5 +1,9 @@
 2020-09-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftgrid.c (ZOOM, *): Macro to zoom metrics.
+
+2020-09-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftgrid.c (grid_status_rescale): Move and rename.
 
 2020-09-17  Werner Lemberg  <wl@gnu.org>

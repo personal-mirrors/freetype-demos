@@ -94,6 +94,8 @@
 #define DO_DOTS         8
 #define DO_DOTNUMBERS  16
 
+#define ZOOM( x )  ( ( (x) * st->scale ) >> 6 )
+
   typedef struct  GridStatusRec_
   {
     const char*  keys;
@@ -311,14 +313,14 @@
         if ( dimension == 0 ) /* AF_DIMENSION_HORZ is 0 */
         {
           offset = FT_MulFix( offset, x_scale );
-          pos    = x_org + ( ( offset * st->scale ) >> 6 );
+          pos    = x_org + ZOOM( offset );
           grFillVLine( st->disp_bitmap, pos, 0,
                        st->disp_height, st->segment_color );
         }
         else
         {
           offset = FT_MulFix( offset, y_scale );
-          pos    = y_org - ( ( offset * st->scale ) >> 6 );
+          pos    = y_org - ZOOM( offset );
 
           if ( is_blue )
           {
@@ -326,7 +328,7 @@
 
 
             blue_offset = FT_MulFix( blue_offset, y_scale );
-            blue_pos    = y_org - ( ( blue_offset * st->scale ) >> 6 );
+            blue_pos    = y_org - ZOOM( blue_offset );
 
             if ( blue_pos == pos )
               grFillHLine( st->disp_bitmap, 0, blue_pos,
@@ -556,9 +558,9 @@
       /* show advance width */
       grFillVLine( st->disp_bitmap,
                    st->x_origin +
-                     ( ( slot->metrics.horiAdvance +
+                   ZOOM( slot->metrics.horiAdvance +
                          slot->lsb_delta           -
-                         slot->rsb_delta           ) * scale >> 6 ),
+                         slot->rsb_delta           ),
                    0,
                    st->disp_height,
                    st->axis_color );
@@ -566,12 +568,12 @@
       /* show ascender and descender */
       grFillHLine( st->disp_bitmap,
                    0,
-                   st->y_origin - ( size->metrics.ascender  * scale >> 6 ),
+                   st->y_origin - ZOOM( size->metrics.ascender ),
                    st->disp_width,
                    st->axis_color );
       grFillHLine( st->disp_bitmap,
                    0,
-                   st->y_origin - ( size->metrics.descender * scale >> 6 ),
+                   st->y_origin - ZOOM( size->metrics.descender ),
                    st->disp_width,
                    st->axis_color );
     }
