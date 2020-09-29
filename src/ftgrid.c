@@ -236,62 +236,6 @@
 
 
   static void
-  grid_status_rescale_initial( GridStatus      st,
-                               FTDemo_Handle*  handle )
-  {
-    FT_Size     size;
-    FT_Error    err    = FTDemo_Get_Size( handle, &size );
-    FT_F26Dot6  margin = 6;
-
-
-    if ( !err )
-    {
-      int  xmin = 0;
-      int  ymin = size->metrics.descender;
-      int  xmax = size->metrics.max_advance;
-      int  ymax = size->metrics.ascender;
-
-      FT_F26Dot6  x_scale, y_scale;
-
-
-      if ( ymax < size->metrics.y_ppem << 6 )
-        ymax = size->metrics.y_ppem << 6;
-
-      if ( xmax - xmin )
-        x_scale = st->disp_width  * ( 64 - 2 * margin ) / ( xmax - xmin );
-      else
-        x_scale = 64;
-
-      if ( ymax - ymin )
-        y_scale = st->disp_height * ( 64 - 2 * margin ) / ( ymax - ymin );
-      else
-        y_scale = 64;
-
-      if ( x_scale <= y_scale )
-        st->scale = x_scale;
-      else
-        st->scale = y_scale;
-
-      st->x_origin = 32 * st->disp_width  - ( xmax + xmin ) * st->scale / 2;
-      st->y_origin = 32 * st->disp_height + ( ymax + ymin ) * st->scale / 2;
-    }
-    else
-    {
-      st->scale    = 64;
-      st->x_origin = st->disp_width  * margin;
-      st->y_origin = st->disp_height * ( 64 - margin );
-    }
-
-    st->x_origin >>= 6;
-    st->y_origin >>= 6;
-
-    st->scale_0    = st->scale;
-    st->x_origin_0 = st->x_origin;
-    st->y_origin_0 = st->y_origin;
-  }
-
-
-  static void
   grid_status_draw_grid( GridStatus  st )
   {
     int  x_org   = st->x_origin;
@@ -1373,6 +1317,61 @@
   }
 
 
+  static void
+  grid_status_rescale( GridStatus  st )
+  {
+    FT_Size     size;
+    FT_Error    err    = FTDemo_Get_Size( handle, &size );
+    FT_F26Dot6  margin = 6;
+
+
+    if ( !err )
+    {
+      int  xmin = 0;
+      int  ymin = size->metrics.descender;
+      int  xmax = size->metrics.max_advance;
+      int  ymax = size->metrics.ascender;
+
+      FT_F26Dot6  x_scale, y_scale;
+
+
+      if ( ymax < size->metrics.y_ppem << 6 )
+        ymax = size->metrics.y_ppem << 6;
+
+      if ( xmax - xmin )
+        x_scale = st->disp_width  * ( 64 - 2 * margin ) / ( xmax - xmin );
+      else
+        x_scale = 64;
+
+      if ( ymax - ymin )
+        y_scale = st->disp_height * ( 64 - 2 * margin ) / ( ymax - ymin );
+      else
+        y_scale = 64;
+
+      if ( x_scale <= y_scale )
+        st->scale = x_scale;
+      else
+        st->scale = y_scale;
+
+      st->x_origin = 32 * st->disp_width  - ( xmax + xmin ) * st->scale / 2;
+      st->y_origin = 32 * st->disp_height + ( ymax + ymin ) * st->scale / 2;
+    }
+    else
+    {
+      st->scale    = 64;
+      st->x_origin = st->disp_width  * margin;
+      st->y_origin = st->disp_height * ( 64 - margin );
+    }
+
+    st->x_origin >>= 6;
+    st->y_origin >>= 6;
+
+    st->scale_0    = st->scale;
+    st->x_origin_0 = st->x_origin;
+    st->y_origin_0 = st->y_origin;
+  }
+
+
   static int
   Process_Event( void )
   {
@@ -1388,7 +1387,7 @@
       if ( event.type == gr_event_resize )
       {
         grid_status_display( &status, display );
-        grid_status_rescale_initial( &status, handle );
+        grid_status_rescale( &status );
         return ret;
       }
     }
@@ -1962,7 +1961,7 @@
 
     event_font_change( 0 );
 
-    grid_status_rescale_initial( &status, handle );
+    grid_status_rescale( &status );
 
     do
     {

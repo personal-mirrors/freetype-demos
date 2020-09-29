@@ -1,3 +1,7 @@
+2020-09-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftgrid.c (grid_status_rescale): Move and rename.
+
 2020-09-17  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Introduce 64th format for displaying values.
