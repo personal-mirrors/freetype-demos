@@ -82,6 +82,13 @@ for rendering.
 .BI \-k \ keys
 Emulate sequence of keystrokes upon start-up.
 If the keystrokes contain 'q', the program operates in batch mode.
+Function keys
+.RI F x
+are mapped to character codes
+.RI 0xF x ;
+as an example,
+.B \-k\ $'\exF3q'
+is function key 'F3' followed by character 'q'.
 .
 .TP
 .B \-v
