@@ -1,3 +1,14 @@
+2020-10-10  Werner Lemberg  <wl@gnu.org>
+
+	* Version 2.10.3 released.
+	==========================
+
+
+	Tag sources with `VER-2-10-3.
+
+	* README: Updated.
+	* man/*.1: Updated.
+
 2020-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgrid.c (event_grid_zoom): Pretty scale formatting.
@@ -437,7 +448,7 @@
 
 	* src/ftcommon.c (FTDemo_Install_Font): Remove unused buffer.
 
-2029-05-09  Werner Lemberg  <wl@gnu.org>
+2020-05-09  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.10.2 released.
 	==========================
