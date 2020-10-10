@@ -176,7 +176,7 @@
   FTDemo_Display_Gamma_Change( FTDemo_Display*  display,
                                int              dir )
   {
-    /* the sequence of gamma values is limited between 0.3 and 3.0 and */ 
+    /* the sequence of gamma values is limited between 0.3 and 3.0 and */
     /* interrupted between 2.2 and 2.3 to apply sRGB transformation    */
     if ( dir > 0 )
     {
