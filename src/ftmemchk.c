@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+  /* the following header shouldn't be used in normal programs */
+#include <freetype/internal/compiler-macros.h>
+
+
   FT_Error      error;
 
   FT_Library    library;

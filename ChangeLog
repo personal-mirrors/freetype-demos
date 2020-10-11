@@ -1,3 +1,7 @@
+2020-10-11  Werner Lemberg  <wl@gnu.org>
+
+	* src/ftmemchk.c: Include `compiler-macros.h'.
+
 2020-10-10  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.10.3 released.
