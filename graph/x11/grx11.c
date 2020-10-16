@@ -1092,6 +1092,58 @@ typedef  unsigned long   uint32;
   }
 
 
+  static int
+  gr_x11_surface_set_icon( grX11Surface*  surface,
+                           grBitmap*      icon )
+  {
+    const unsigned char*  s = (const unsigned char*)"\x80\x40\x20\x10";
+    unsigned long*        buffer;
+    unsigned long*        dst;
+    uint32*               src;
+    int                   sz, i, j;
+
+
+    if ( !icon )
+      return s[0];
+
+    if ( icon->mode != gr_pixel_mode_rgb32 )
+      return 0;
+
+    sz = icon->rows * icon->width;
+
+    buffer = (unsigned long*)malloc( ( 2 + sz ) * sizeof( long) );
+    if ( !buffer )
+      return 0;
+
+    buffer[0] = icon->width;
+    buffer[1] = icon->rows;
+
+    /* must convert to long array */
+    dst = buffer + 2;
+    src = (uint32*)icon->buffer;
+    if ( icon->pitch < 0 )
+       src -= ( icon->rows - 1 ) * icon->pitch / 4;
+
+    for ( i = 0; i < icon->rows; i++,
+          dst += icon->width, src += icon->pitch / 4 )
+      for ( j = 0; j < icon->width; j++ )
+        dst[j] = src[j];
+
+    XChangeProperty( surface->display,
+                     surface->win,
+                     XInternAtom( surface->display, "_NET_WM_ICON", False ),
+                     XA_CARDINAL, 32, PropModeAppend,
+                     (unsigned char*)buffer, 2 + sz );
+
+    free( buffer );
+
+    while ( *s * *s >= sz )
+      s++;
+
+    return  *s;
+  }
+
+
   static grKey
   KeySymTogrKey( KeySym  key )
   {
@@ -1424,6 +1476,7 @@ typedef  unsigned long   uint32;
     surface->root.done         = (grDoneSurfaceFunc)gr_x11_surface_done;
     surface->root.refresh_rect = (grRefreshRectFunc)gr_x11_surface_refresh_rect;
     surface->root.set_title    = (grSetTitleFunc)   gr_x11_surface_set_title;
+    surface->root.set_icon     = (grSetIconFunc)    gr_x11_surface_set_icon;
     surface->root.listen_event = (grListenEventFunc)gr_x11_surface_listen_event;
 
     return 1;

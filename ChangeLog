@@ -1,5 +1,12 @@
 2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph/x11] Icon support.
+
+	* graph/x11/grx11.c (gr_x11_surface_set_icon): Implement it.
+	(gr_x11_surface_init): Initialize the driver backend.
+
+2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph] Icon support framework.
 
 	* graph/grdevice.c (grSetIcon): Define new function.
