@@ -106,6 +106,8 @@
   {
     grSurface     root;
     HWND          window;
+    HICON         sIcon;
+    HICON         bIcon;
     LPBITMAPINFO  pbmi;
     char          bmi[ sizeof(BITMAPINFO) + 256*sizeof(RGBQUAD) ];
     grBitmap      bgrBitmap;  /* windows wants data in BGR format !! */
@@ -125,6 +127,9 @@ gr_win32_surface_done( grWin32Surface*  surface )
     DestroyWindow ( surface->window );
     PostMessage( surface->window, WM_QUIT, 0, 0 );
   }
+
+  DestroyIcon( surface->sIcon );
+  DestroyIcon( surface->bIcon );
 #ifdef SWIZZLE
   grDoneBitmap( &surface->swizzle_bitmap );
 #endif
@@ -253,6 +258,63 @@ gr_win32_surface_set_title( grWin32Surface*  surface,
                             const char*      title )
 {
   SetWindowText( surface->window, title );
+}
+
+
+static int
+gr_win32_surface_set_icon( grWin32Surface*  surface,
+                           grBitmap*        icon )
+{
+  int       s[] = { GetSystemMetrics( SM_CYSMICON ),
+                    GetSystemMetrics( SM_CYICON ) };
+  WPARAM    wParam;
+  HDC       hDC;
+  VOID*     bts;
+  ICONINFO  ici = { TRUE };
+  HICON     hIcon;
+
+  BITMAPV4HEADER  hdr = { sizeof( BITMAPV4HEADER ),
+                          0, 0, 1, 32, BI_BITFIELDS, 0, 0, 0, 0, 0,
+                          0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
+                          LCS_sRGB };
+
+
+  if ( !icon )
+    return s[1];
+  else if ( icon->mode != gr_pixel_mode_rgb32 )
+    return 0;
+  else if ( icon->rows == s[0] )
+    wParam = ICON_SMALL;
+  else if ( icon->rows == s[1] )
+    wParam = ICON_BIG;
+  else
+    return 0;
+
+  ici.hbmMask  = CreateBitmap( icon->width, icon->rows, 1, 1, NULL);
+
+  hdr.bV4Width  =  icon->width;
+  hdr.bV4Height = -icon->rows;
+
+  hDC = GetDC( NULL );
+  ici.hbmColor = CreateDIBSection( hDC, (LPBITMAPINFO)&hdr,
+                                   DIB_RGB_COLORS, &bts, NULL, 0 );
+  ReleaseDC( NULL, hDC );
+
+  memcpy( bts, icon->buffer, icon->rows * icon->width * 4 );
+
+  hIcon = CreateIconIndirect( &ici );
+
+  PostMessage( surface->window, WM_SETICON, wParam, (LPARAM)hIcon );
+
+  switch( wParam )
+  {
+  case ICON_SMALL:
+    surface->sIcon = hIcon;
+    return 0;
+  case ICON_BIG:
+    surface->bIcon = hIcon;
+    return s[0];
+  }
 }
 
 
@@ -508,6 +570,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
   surface->root.done         = (grDoneSurfaceFunc) gr_win32_surface_done;
   surface->root.refresh_rect = (grRefreshRectFunc) gr_win32_surface_refresh_rectangle;
   surface->root.set_title    = (grSetTitleFunc)    gr_win32_surface_set_title;
+  surface->root.set_icon     = (grSetIconFunc)     gr_win32_surface_set_icon;
   surface->root.listen_event = (grListenEventFunc) gr_win32_surface_listen_event;
 
   return surface;

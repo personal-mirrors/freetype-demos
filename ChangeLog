@@ -1,5 +1,13 @@
 2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph/win32] Icon support.
+
+	* graph/win32/grwin32.c (gr_win32_surface_set_icon): Implement it.
+	(gr_win32_surface_init): Initialize the driver backend.
+	(gr_win32_surface_done): Destroy icons.
+
+2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph/x11] Icon support.
 
 	* graph/x11/grx11.c (gr_x11_surface_set_icon): Implement it.
