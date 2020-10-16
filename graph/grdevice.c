@@ -309,7 +309,6 @@
   }
 
 
-
  /**********************************************************************
   *
   * <Function>
@@ -332,6 +331,35 @@
   }
 
 
+ /**********************************************************************
+ *
+ * <Function>
+ *    grSetIcon
+ *
+ * <Description>
+ *    set the icon of a given windowed surface.
+ *
+ * <Input>
+ *    surface :: handle to target surface
+ *    icon    :: handle to icon bitmap
+ *
+ * <Return>
+ *    the next appropriate icon size in pixels.
+ *
+ * <Note>
+ *    Returns the largest appropriate icon size if icon is NULL.
+ *
+ *
+ **********************************************************************/
+
+  extern int  grSetIcon( grSurface*  surface,
+                         grBitmap*   icon )
+  {
+    if (surface->set_icon)
+      return surface->set_icon( surface, icon );
+
+    return 0;
+  }
 
 
  /**********************************************************************

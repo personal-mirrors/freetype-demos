@@ -96,6 +96,9 @@
   typedef void (*grSetTitleFunc)( grSurface*   surface,
                                   const char*  title_string );
 
+  typedef int  (*grSetIconFunc)( grSurface*  surface,
+                                 grBitmap*   icon );
+
   typedef void (*grRefreshRectFunc)( grSurface*  surface,
                                      int         x,
                                      int         y,
@@ -144,6 +147,7 @@
 
     grRefreshRectFunc  refresh_rect;
     grSetTitleFunc     set_title;
+    grSetIconFunc      set_icon;
     grListenEventFunc  listen_event;
     grDoneSurfaceFunc  done;
   };

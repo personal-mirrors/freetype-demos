@@ -1,3 +1,12 @@
+2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Icon support framework.
+
+	* graph/grdevice.c (grSetIcon): Define new function.
+	* graph/graph.h (grSetIcon): Declare it.
+	* graph/grobjs.c (grSetIconFunc): Declare the driver backend.
+	(grSurface): Add it.
+
 2020-10-11  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftmemchk.c: Include `compiler-macros.h'.
