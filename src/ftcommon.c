@@ -571,6 +571,76 @@
   }
 
 
+  static void
+  icon_span( int              y,
+             int              count,
+             const FT_Span*   spans,
+             grBitmap*        icon )
+  {
+    FT_UInt32*      dst_line;
+    FT_UInt32*      dst;
+    FT_UInt32       color = 0xFF7F00;
+    unsigned short  w;
+
+
+    if ( icon->pitch > 0 )
+      y -= icon->rows - 1;
+
+    dst_line = (FT_UInt32*)( icon->buffer - y * icon->pitch );
+
+    for ( ; count--; spans++ )
+      for ( dst = dst_line + spans->x, w = spans->len; w--; dst++ )
+        *dst = ( spans->coverage << 24 ) | color;
+  }
+
+
+  void
+  FTDemo_Icon( FTDemo_Handle*   handle,
+               FTDemo_Display*  display )
+  {
+    FT_Vector   p[] = { { 4, 4}, { 4, 6}, { 8, 8}, { 8,56}, { 4,58},
+                        { 4,60}, {60,60}, {60,48}, {58,48}, {56,56},
+                        {44,56}, {44, 8}, {48, 6}, {48, 4}, {32, 4},
+                        {32, 6}, {36, 8}, {36,56}, {16,56}, {16,36},
+                        {24,36}, {26,40}, {28,40}, {28,28}, {26,28},
+                        {24,32}, {16,32}, {16, 8}, {20, 6}, {20, 4} };
+    char        t[] = { 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1,
+                        1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1 };
+    short       c[] = {29};
+    FT_Outline  FT  = { sizeof( c ) / sizeof( c[0] ),
+                        sizeof( p ) / sizeof( p[0] ),
+                        p, t, c, FT_OUTLINE_NONE };
+    grBitmap    icon = { 0 };
+    grBitmap*   picon = NULL;
+    int         size, i;
+
+    FT_Raster_Params  params = { NULL, NULL,
+                                 FT_RASTER_FLAG_AA | FT_RASTER_FLAG_DIRECT,
+                                 (FT_SpanFunc)icon_span, NULL, NULL, NULL,
+                                 &icon, { 0, 0, 0, 0 } };
+
+
+    while ( ( size = grSetIcon( display->surface, picon ) ) )
+    {
+      grNewBitmap( gr_pixel_mode_rgb32, 256, size, size, &icon );
+      memset( icon.buffer, 0, (size_t)icon.rows * (size_t)icon.pitch );
+
+      for ( i = 0; i < FT.n_points; i++ )
+        FT.points[i].x *= size, FT.points[i].y *= size;
+
+      FT_Outline_Render( handle->library, &FT, &params );
+
+      for ( i = 0; i < FT.n_points; i++ )
+        FT.points[i].x /= size, FT.points[i].y /= size;
+
+      picon = &icon;
+    }
+
+    if ( picon )
+      grDoneBitmap( picon );
+  }
+
+
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,
                        const char*     filepath,

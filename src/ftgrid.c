@@ -1976,6 +1976,7 @@
 
     grSetTitle( display->surface,
                 "FreeType Glyph Grid Viewer - press ? for help" );
+    FTDemo_Icon( handle, display );
 
     grid_status_display( &status, display );
     grid_status_colors(  &status, display );

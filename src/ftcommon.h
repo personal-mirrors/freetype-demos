@@ -246,6 +246,12 @@
                   FT_String*      str );
 
 
+  /* add FT window icon */
+  void
+  FTDemo_Icon( FTDemo_Handle*   handle,
+               FTDemo_Display*  display );
+
+
   /* install a font */
   FT_Error
   FTDemo_Install_Font( FTDemo_Handle*  handle,

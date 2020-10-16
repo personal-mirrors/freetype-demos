@@ -972,6 +972,7 @@
 
     grSetTitle( display->surface,
                 "FreeType String Viewer - press ? for help" );
+    FTDemo_Icon( handle, display );
 
     status.header = NULL;
 

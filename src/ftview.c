@@ -2025,6 +2025,7 @@
 
     grSetTitle( display->surface,
                 "FreeType Glyph Viewer - press ? for help" );
+    FTDemo_Icon( handle, display );
 
     status.num_fails = 0;
 

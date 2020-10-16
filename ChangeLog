@@ -1,5 +1,12 @@
 2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid,ftview,ftstring] Add icons.
+
+	* src/ftcommon.[ch] (FTDemo_Icon, icon_span): Draw and set icons.
+	* src/ftgrid.c, src/ftview.c, src/ftstring.c (main): Add icons.
+
+2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph/win32] Icon support.
 
 	* graph/win32/grwin32.c (gr_win32_surface_set_icon): Implement it.
