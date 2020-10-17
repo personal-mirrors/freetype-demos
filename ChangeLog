@@ -1,3 +1,8 @@
+2020-10-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/strbuf.c (strbuf_init): Adjust to fix `FTDemo_Version'.
+	* src/ftcommon.[ch] (FTDemo_Version): Clarify argument.
+
 2020-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftgrid,ftview,ftstring] Add icons.

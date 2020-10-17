@@ -243,7 +243,7 @@
   /* append version information */
   void
   FTDemo_Version( FTDemo_Handle*  handle,
-                  FT_String*      str );
+                  FT_String       str[64] );
 
 
   /* add FT window icon */

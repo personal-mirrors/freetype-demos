@@ -46,7 +46,7 @@ extern "C" {
   /*
    * Initialize a `StrBuf' instance that allows to append strings to
    * `buffer'.  Note that `buffer_len' *must* be > 0, or the behaviour is
-   * undefined.
+   * undefined.  The `buffer' content must be null-terminated.
    */
   extern void
   strbuf_init( StrBuf*  sb,

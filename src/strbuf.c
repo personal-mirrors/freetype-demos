@@ -25,10 +25,9 @@
   {
     assert( buffer_len > 0 );
 
-    sb->pos    = 0;
+    sb->pos    = strlen( buffer );
     sb->limit  = buffer_len - 1;  /* Reserve one char. for the final '\0'. */
     sb->buffer = buffer;
-    buffer[0]  = '\0';
   }
 
 

@@ -553,7 +553,7 @@
 
   void
   FTDemo_Version( FTDemo_Handle*  handle,
-                  FT_String*      str )
+                  FT_String       str[64] )
   {
     FT_Int     major, minor, patch;
     FT_String  format[] = "%d.%d.%d";
@@ -566,7 +566,7 @@
       format[5] = '\0';   /* terminate early */
 
     /* append the version string */
-    strbuf_init( &sb, str, sizeof ( str ) );
+    strbuf_init( &sb, str, 64 );
     strbuf_format( &sb, format, major, minor, patch );
   }
 
@@ -1034,7 +1034,7 @@
                       int              error_code )
   {
     FT_Face      face;
-    char         buffer[256];
+    char         buffer[256] = "";
     StrBuf       buf[1];
     const char*  basename;
     int          ppem;
