@@ -61,8 +61,6 @@
 /*  Custom messages. */
 #define WM_RESIZE  WM_USER+517
 
-/* These values can be changed, but WIN_WIDTH should remain for now a  */
-/* multiple of 32 to avoid padding issues.                             */
 
   typedef struct  Translator_
   {
@@ -108,8 +106,8 @@
     HWND          window;
     HICON         sIcon;
     HICON         bIcon;
-    LPBITMAPINFO  pbmi;
-    char          bmi[ sizeof(BITMAPINFO) + 256*sizeof(RGBQUAD) ];
+    BITMAPINFOHEADER  bmiHeader;
+    RGBQUAD           bmiColors[256];
     grBitmap      bgrBitmap;  /* windows wants data in BGR format !! */
 #ifdef SWIZZLE
     grBitmap      swizzle_bitmap;
@@ -330,7 +328,6 @@ gr_win32_surface_resize( grWin32Surface*  surface,
                          int              height )
 {
   grBitmap*       bitmap = &surface->root.bitmap;
-  LPBITMAPINFO    pbmi = surface->pbmi;
 
   /* resize root bitmap */
   if ( grNewBitmap( bitmap->mode,
@@ -364,8 +361,8 @@ gr_win32_surface_resize( grWin32Surface*  surface,
 #endif
 
   /* update the header to appropriate values */
-  pbmi->bmiHeader.biWidth  = width;
-  pbmi->bmiHeader.biHeight = height;
+  surface->bmiHeader.biWidth  = width;
+  surface->bmiHeader.biHeight = height;
 
   return surface;
 }
@@ -442,7 +439,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
 {
   static RGBQUAD  black = {    0,    0,    0, 0 };
   static RGBQUAD  white = { 0xFF, 0xFF, 0xFF, 0 };
-  LPBITMAPINFO    pbmi;
 
   LOG(( "Win32: init_surface( %p, %p )\n", surface, bitmap ));
 
@@ -490,37 +486,31 @@ gr_win32_surface_init( grWin32Surface*  surface,
   LOG(( "       --   width  = %d\n", bitmap->width ));
   LOG(( "       --   height = %d\n", bitmap->rows ));
 
-  /* find some memory for the bitmap header */
-  surface->pbmi = pbmi = (LPBITMAPINFO) surface->bmi;
-
-  /* initialize the header to appropriate values */
-  memset( pbmi, 0, sizeof ( BITMAPINFO ) + sizeof ( RGBQUAD ) * 256 );
-
-  pbmi->bmiHeader.biSize   = sizeof ( BITMAPINFOHEADER );
-  pbmi->bmiHeader.biWidth  = bitmap->width;
-  pbmi->bmiHeader.biHeight = bitmap->rows;
-  pbmi->bmiHeader.biPlanes = 1;
+  surface->bmiHeader.biSize   = sizeof( BITMAPINFOHEADER );
+  surface->bmiHeader.biWidth  = bitmap->width;
+  surface->bmiHeader.biHeight = bitmap->rows;
+  surface->bmiHeader.biPlanes = 1;
 
   switch ( bitmap->mode )
   {
   case gr_pixel_mode_mono:
-    pbmi->bmiHeader.biBitCount = 1;
-    pbmi->bmiColors[0] = white;
-    pbmi->bmiColors[1] = black;
+    surface->bmiHeader.biBitCount = 1;
+    surface->bmiColors[0] = white;
+    surface->bmiColors[1] = black;
     break;
 
   case gr_pixel_mode_rgb24:
-    pbmi->bmiHeader.biBitCount    = 24;
-    pbmi->bmiHeader.biCompression = BI_RGB;
+    surface->bmiHeader.biBitCount    = 24;
+    surface->bmiHeader.biCompression = BI_RGB;
     break;
 
   case gr_pixel_mode_gray:
-    pbmi->bmiHeader.biBitCount = 8;
-    pbmi->bmiHeader.biClrUsed  = bitmap->grays;
+    surface->bmiHeader.biBitCount = 8;
+    surface->bmiHeader.biClrUsed  = bitmap->grays;
     {
       int   count = bitmap->grays;
       int   x;
-      RGBQUAD*  color = pbmi->bmiColors;
+      RGBQUAD*  color = surface->bmiColors;
 
       for ( x = 0; x < count; x++, color++ )
       {
@@ -628,28 +618,24 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
 
     case WM_PAINT:
       {
-      HDC           hDC;
-      PAINTSTRUCT   ps;
-      LPBITMAPINFO  pbmi = surface->pbmi;
+        HDC           hDC;
+        PAINTSTRUCT   ps;
 
-      hDC   = BeginPaint ( handle, &ps );
-      if ( pbmi )
-      {
+        hDC   = BeginPaint ( handle, &ps );
         SetDIBitsToDevice( hDC, 0, 0,
-                           pbmi->bmiHeader.biWidth,
-                           pbmi->bmiHeader.biHeight,
+                           surface->bmiHeader.biWidth,
+                           surface->bmiHeader.biHeight,
                            0, 0, 0,
-                           pbmi->bmiHeader.biHeight,
+                           surface->bmiHeader.biHeight,
                            surface->bgrBitmap.buffer,
-                           pbmi,
+                           (LPBITMAPINFO)&surface->bmiHeader,
                            DIB_RGB_COLORS );
-      }
-      EndPaint ( handle, &ps );
-      return 0;
+        EndPaint ( handle, &ps );
+        return 0;
       }
 
     default:
-       return DefWindowProc( handle, mess, wParam, lParam );
+      return DefWindowProc( handle, mess, wParam, lParam );
     }
     return 0;
   }

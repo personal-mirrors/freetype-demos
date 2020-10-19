@@ -1,3 +1,11 @@
+2020-10-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/win32] Explicitly use BITMAPINFO.
+
+	* graph/win32/grwin32.c (grWin32Surface): Replace `pbmi' and `bmi'
+	with `bmiHeader' and `bmiColors'.
+	(gr_win32_surface_{init,resize}, Message_Process): Updated.
+
 2020-10-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/strbuf.c (strbuf_init): Adjust to fix `FTDemo_Version'.
