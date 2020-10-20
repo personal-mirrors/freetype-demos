@@ -1,3 +1,7 @@
+2020-10-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftcommon.c (FTDemo_Icon): Decrease the glyph height.
+
 2020-10-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph/win32] Explicitly use BITMAPINFO.
