@@ -119,7 +119,7 @@ gr_fill_hline_32( unsigned char*  _line,
 {
   uint32_t*  line = (uint32_t*)_line + x;
 
-  for (; width > 0; width--, line += 4)
+  for ( ; width > 0; width-- )
     *line++ = color.value;
 }
 
