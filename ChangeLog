@@ -1,3 +1,11 @@
+2020-10-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] s/uint32/uint32_t/ and popularize it.
+
+	* graph/grconfig.h: Define uint32_t here...
+	* graph/x11/grx11.c: ...  instead of uint32 here and update all users.
+	* graph/graph.h: Include "grconfig.h".
+
 2020-10-20  Werner Lemberg  <wl@gnu.org>
 
 	* Version 2.10.4 released.

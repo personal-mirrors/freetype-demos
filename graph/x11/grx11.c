@@ -20,9 +20,6 @@
 #include <vms_x_fix.h>
 #endif
 
-#include <grobjs.h>
-#include <grdevice.h>
-
 #define xxTEST
 
 #ifdef TEST
@@ -50,6 +47,8 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 
+#include "grobjs.h"
+#include "grdevice.h"
 #include "grx11.h"
 
 
@@ -57,39 +56,6 @@
 #define Class  c_class
 #else
 #define Class  class
-#endif
-
-  /* old trick to determine 32-bit integer type */
-#include <limits.h>
-
-  /* The number of bytes in an `int' type.  */
-#if   UINT_MAX == 0xFFFFFFFFUL
-#define GR_SIZEOF_INT  4
-#elif UINT_MAX == 0xFFFFU
-#define GR_SIZEOF_INT  2
-#elif UINT_MAX > 0xFFFFFFFFU && UINT_MAX == 0xFFFFFFFFFFFFFFFFU
-#define GR_SIZEOF_INT  8
-#else
-#error "Unsupported number of bytes in `int' type!"
-#endif
-
-  /* The number of bytes in a `long' type.  */
-#if   ULONG_MAX == 0xFFFFFFFFUL
-#define GR_SIZEOF_LONG  4
-#elif ULONG_MAX > 0xFFFFFFFFU && ULONG_MAX == 0xFFFFFFFFFFFFFFFFU
-#define GR_SIZEOF_LONG  8
-#else
-#error "Unsupported number of bytes in `long' type!"
-#endif
-
-#if GR_SIZEOF_INT == 4
-typedef  int             int32;
-typedef  unsigned int    uint32;
-#elif GR_SIZEOF_LONG == 4
-typedef  long            int32;
-typedef  unsigned long   uint32;
-#else
-#error  "could not find a 32-bit integer type"
 #endif
 
 
@@ -629,15 +595,15 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*   lread  = line_read;
-      uint32*          lwrite = (uint32*)line_write;
+      uint32_t*        lwrite = (uint32_t*)line_write;
       int              x      = blit->width;
 
 
       for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
-        uint32  r = lread[0];
-        uint32  g = lread[1];
-        uint32  b = lread[2];
+        uint32_t  r = lread[0];
+        uint32_t  g = lread[1];
+        uint32_t  b = lread[2];
 
 
         *lwrite = ( r << 24 ) |
@@ -662,13 +628,13 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      uint32*         lwrite = (uint32*)line_write;
+      uint32_t*       lwrite = (uint32_t*)line_write;
       int             x      = blit->width;
 
 
       for ( ; x > 0; x--, lread++, lwrite++ )
       {
-        uint32  p = lread[0];
+        uint32_t  p = lread[0];
 
 
         *lwrite = ( p << 24 ) |
@@ -709,15 +675,15 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      uint32*         lwrite = (uint32*)line_write;
+      uint32_t*       lwrite = (uint32_t*)line_write;
       int             x      = blit->width;
 
 
       for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
-        uint32  r = lread[0];
-        uint32  g = lread[1];
-        uint32  b = lread[2];
+        uint32_t  r = lread[0];
+        uint32_t  g = lread[1];
+        uint32_t  b = lread[2];
 
 
         *lwrite = ( r << 16 ) |
@@ -742,13 +708,13 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      uint32*         lwrite = (uint32*)line_write;
+      uint32_t*       lwrite = (uint32_t*)line_write;
       int             x      = blit->width;
 
 
       for ( ; x > 0; x--, lread++, lwrite++ )
       {
-        uint32  p = lread[0];
+        uint32_t  p = lread[0];
 
 
         *lwrite = ( p << 16 ) |
@@ -789,15 +755,15 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      uint32*         lwrite = (uint32*)line_write;
+      uint32_t*       lwrite = (uint32_t*)line_write;
       int             x      = blit->width;
 
 
       for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
-        uint32  r = lread[0];
-        uint32  g = lread[1];
-        uint32  b = lread[2];
+        uint32_t  r = lread[0];
+        uint32_t  g = lread[1];
+        uint32_t  b = lread[2];
 
 
         *lwrite = ( r <<  8 ) |
@@ -838,15 +804,15 @@ typedef  unsigned long   uint32;
     for ( ; h > 0; h-- )
     {
       unsigned char*  lread  = line_read;
-      uint32*         lwrite = (uint32*)line_write;
+      uint32_t*       lwrite = (uint32_t*)line_write;
       int             x      = blit->width;
 
 
       for ( ; x > 0; x--, lread += 3, lwrite++ )
       {
-        uint32  r = lread[0];
-        uint32  g = lread[1];
-        uint32  b = lread[2];
+        uint32_t  r = lread[0];
+        uint32_t  g = lread[1];
+        uint32_t  b = lread[2];
 
 
         *lwrite = ( r <<  0 ) |
@@ -1099,7 +1065,7 @@ typedef  unsigned long   uint32;
     const unsigned char*  s = (const unsigned char*)"\x80\x40\x20\x10";
     unsigned long*        buffer;
     unsigned long*        dst;
-    uint32*               src;
+    uint32_t*             src;
     int                   sz, i, j;
 
 
@@ -1120,7 +1086,7 @@ typedef  unsigned long   uint32;
 
     /* must convert to long array */
     dst = buffer + 2;
-    src = (uint32*)icon->buffer;
+    src = (uint32_t*)icon->buffer;
     if ( icon->pitch < 0 )
        src -= ( icon->rows - 1 ) * icon->pitch / 4;
 
