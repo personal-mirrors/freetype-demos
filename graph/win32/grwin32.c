@@ -196,12 +196,13 @@ gr_win32_surface_refresh_rectangle(
   }
 #endif
 
-  /* copy to BGR buffer */
+  /* copy the buffer */
   {
     unsigned char*  read_line   = (unsigned char*)bitmap->buffer;
     int             read_pitch  = bitmap->pitch;
     unsigned char*  write_line  = (unsigned char*)surface->bgrBitmap.buffer;
     int             write_pitch = surface->bgrBitmap.pitch;
+    int             bytes = 0;
 
     if ( read_pitch < 0 )
       read_line -= ( bitmap->rows - 1 ) * read_pitch;
@@ -212,20 +213,28 @@ gr_win32_surface_refresh_rectangle(
     read_line  += y * read_pitch;
     write_line += y * write_pitch;
 
-    if ( bitmap->mode == gr_pixel_mode_gray )
+    switch ( bitmap->mode )
     {
-      read_line  += x;
-      write_line += x;
+    case gr_pixel_mode_rgb32:
+      bytes += 2;
+      /* fall through */
+    case gr_pixel_mode_rgb555:
+    case gr_pixel_mode_rgb565:
+      bytes += 1;
+      /* fall through */
+    case gr_pixel_mode_gray:
+      bytes += 1;
+      read_line  += x * bytes;
+      write_line += x * bytes;
       for ( ; h > 0; h-- )
       {
-        memcpy( write_line, read_line, w );
+        memcpy( write_line, read_line, w * bytes );
 
         read_line  += read_pitch;
         write_line += write_pitch;
       }
-    }
-    else
-    {
+      break;
+    case gr_pixel_mode_rgb24:
       read_line  += 3 * x;
       write_line += 3 * x;
       for ( ; h > 0; h-- )
@@ -234,6 +243,7 @@ gr_win32_surface_refresh_rectangle(
         unsigned char*  read_limit = read + 3 * w;
         unsigned char*  write      = write_line;
 
+        /* convert RGB to BGR */
         for ( ; read < read_limit; read += 3, write += 3 )
         {
           write[0] = read[2];
@@ -519,6 +529,28 @@ gr_win32_surface_init( grWin32Surface*  surface,
         color->rgbBlue  = (unsigned char)(x*255/(count-1));
         color->rgbReserved = 0;
       }
+    }
+    break;
+
+  case gr_pixel_mode_rgb32:
+    surface->bmiHeader.biBitCount    = 32;
+    surface->bmiHeader.biCompression = BI_RGB;
+    break;
+
+  case gr_pixel_mode_rgb555:
+    surface->bmiHeader.biBitCount    = 16;
+    surface->bmiHeader.biCompression = BI_RGB;
+    break;
+
+  case gr_pixel_mode_rgb565:
+    surface->bmiHeader.biBitCount    = 16;
+    surface->bmiHeader.biCompression = BI_BITFIELDS;
+    {
+       LPDWORD  mask = (LPDWORD)surface->bmiColors;
+
+       mask[0] = 0xF800;
+       mask[1] = 0x07E0;
+       mask[2] = 0x001F;
     }
     break;
 
