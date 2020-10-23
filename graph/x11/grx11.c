@@ -20,26 +20,9 @@
 #include <vms_x_fix.h>
 #endif
 
-#define xxTEST
-
-#ifdef TEST
-#include <ctype.h>
-#define LOG(x)  printf x
-#define visualClass(x)  ( x == StaticGray  ? "StaticGray"  : \
-                          x == GrayScale   ? "GrayScale"   : \
-                          x == StaticColor ? "StaticColor" : \
-                          x == PseudoColor ? "PseudoColor" : \
-                          x == TrueColor   ? "TrueColor"   : \
-                          x == DirectColor ? "DirectColor" : "unknown" )
-#define grAlloc  malloc
-#else
-#define LOG(x)  /* nothing */
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -47,15 +30,16 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 
-#include "grobjs.h"
-#include "grdevice.h"
 #include "grx11.h"
 
+#define xxTEST
 
-#if defined( __cplusplus ) || defined( c_plusplus )
-#define Class  c_class
+#ifdef TEST
+#include <ctype.h>
+#define LOG(x)  printf x
+#define grAlloc  malloc
 #else
-#define Class  class
+#define LOG(x)  /* nothing */
 #endif
 
 
@@ -954,7 +938,7 @@
             LOG(( ", colors %3d, bits %2d, %s\n",
                                visual->colormap_size,
                                visual->bits_per_rgb,
-                  visualClass( visual->Class ) ));
+                               visualClass( visual ) ));
 
             x11dev.format       = *pformat;
             x11dev.visual       = visual->visual;
