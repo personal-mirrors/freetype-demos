@@ -110,7 +110,7 @@
 
   typedef union grColor_
   {
-    long           value;
+    uint32_t       value;
     unsigned char  chroma[4];
 
   } grColor;

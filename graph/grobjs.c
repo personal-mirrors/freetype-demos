@@ -48,10 +48,10 @@
         break;
 
       case gr_pixel_mode_rgb32:
-        color.chroma[0] = (unsigned char)red;
-        color.chroma[1] = (unsigned char)green;
-        color.chroma[2] = (unsigned char)blue;
-        color.chroma[3] = (unsigned char)alpha;
+        color.value = ((alpha & 0xFF) << 24) |
+                      ((red   & 0xFF) << 16) |
+                      ((green & 0xFF) <<  8) |
+                      ((blue  & 0xFF)      );
         break;
 
       default:

@@ -1,5 +1,18 @@
 2020-10-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Rearrange 32-bit color.
+
+	Both Windows and X11 interpret 32-bit color using masks rather than
+	byte order. We ned to align with that.
+
+	* graph.h (grColor): Update value type.
+	* graph/grobjs.c (grFindColor),
+	graph/grfill.c (gr_fill_hline_32),
+	graph/gblblit.c (grSetTargetPenBrush),
+	graph/grblit.c (blit_mono_to_rgb32): Updated.
+
+2020-10-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph] s/uint32/uint32_t/ and popularize it.
 
 	* graph/grconfig.h: Define uint32_t here...

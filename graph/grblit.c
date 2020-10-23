@@ -456,7 +456,7 @@
     do
     {
       unsigned char*  _read  = read;
-      unsigned char*  _write = write;
+      uint32_t*       _write = (uint32_t*)write;
       unsigned long   val    = ((unsigned long)*_read++ | 0x100L ) << shift;
 
       x = blit->width;
@@ -466,20 +466,10 @@
           val = *_read++ | 0x100L;
 
         if ( val & 0x80 )
-        {
-          /* this could be greatly optimized as                         */
-          /*                                                            */
-          /*   *(long*)_write = color.value                             */
-          /*                                                            */
-          /* but it wouldn't work on 64-bits systems... stupid C types! */
-          _write[0] = color.chroma[0];
-          _write[1] = color.chroma[1];
-          _write[2] = color.chroma[2];
-          _write[3] = color.chroma[3];
-        }
+          *_write = color.value;
 
         val   <<= 1;
-        _write += 4;
+        _write++;
         x--;
 
       } while ( x > 0 );

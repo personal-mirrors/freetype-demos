@@ -395,9 +395,7 @@ grSetTargetPenBrush( grBitmap*  target,
   case gr_pixel_mode_rgb32:
     surface->origin    += x * 4;
     surface->gray_spans = _gblender_spans_rgb32;
-    surface->gcolor     = GRGB_PACK( color.chroma[0],
-                                     color.chroma[1],
-                                     color.chroma[2] );
+    surface->gcolor     = color.value;
     break;
   default:
     (void)_gblender_spans_bgr565;  /* unused */
