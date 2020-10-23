@@ -1,5 +1,9 @@
 2020-10-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/grobjs.c (grNewBitmap): Add padding to 15/16-bit bitmaps.
+
+2020-10-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph/win32] Enable 15/16/32-bit modes.
 
 	The rgb555 mode uses legacy blitting and is somewhat broken.
