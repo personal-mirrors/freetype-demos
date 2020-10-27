@@ -108,7 +108,7 @@
     HICON         bIcon;
     BITMAPINFOHEADER  bmiHeader;
     RGBQUAD           bmiColors[256];
-    grBitmap      bgrBitmap;  /* windows wants data in BGR format !! */
+    grBitmap      shadow_bitmap;  /* windows wants 24-bit BGR format !! */
 #ifdef SWIZZLE
     grBitmap      swizzle_bitmap;
 #endif
@@ -128,10 +128,13 @@ gr_win32_surface_done( grWin32Surface*  surface )
 
   DestroyIcon( surface->sIcon );
   DestroyIcon( surface->bIcon );
+  if ( surface->root.bitmap.mode == gr_pixel_mode_rgb24 )
+  {
 #ifdef SWIZZLE
-  grDoneBitmap( &surface->swizzle_bitmap );
+    grDoneBitmap( &surface->swizzle_bitmap );
 #endif
-  grDoneBitmap( &surface->bgrBitmap );
+    grDoneBitmap( &surface->shadow_bitmap );
+  }
   grDoneBitmap( &surface->root.bitmap );
 }
 
@@ -183,6 +186,7 @@ gr_win32_surface_refresh_rectangle(
   rect.bottom = y + h;
 
 #ifdef SWIZZLE
+  if ( bitmap->mode == gr_pixel_mode_rgb24 )
   {
     grBitmap*  swizzle = &surface->swizzle_bitmap;
 
@@ -197,11 +201,12 @@ gr_win32_surface_refresh_rectangle(
 #endif
 
   /* copy the buffer */
+  if ( bitmap->mode == gr_pixel_mode_rgb24 )
   {
     unsigned char*  read_line   = (unsigned char*)bitmap->buffer;
     int             read_pitch  = bitmap->pitch;
-    unsigned char*  write_line  = (unsigned char*)surface->bgrBitmap.buffer;
-    int             write_pitch = surface->bgrBitmap.pitch;
+    unsigned char*  write_line  = (unsigned char*)surface->shadow_bitmap.buffer;
+    int             write_pitch = surface->shadow_bitmap.pitch;
     int             bytes = 0;
 
     if ( read_pitch < 0 )
@@ -210,50 +215,25 @@ gr_win32_surface_refresh_rectangle(
     if ( write_pitch < 0 )
       write_line -= ( bitmap->rows - 1 ) * write_pitch;
 
-    read_line  += y * read_pitch;
-    write_line += y * write_pitch;
+    read_line  += y * read_pitch  + 3 * x;
+    write_line += y * write_pitch + 3 * x;
 
-    switch ( bitmap->mode )
+    for ( ; h > 0; h-- )
     {
-    case gr_pixel_mode_rgb32:
-      bytes += 2;
-      /* fall through */
-    case gr_pixel_mode_rgb555:
-    case gr_pixel_mode_rgb565:
-      bytes += 1;
-      /* fall through */
-    case gr_pixel_mode_gray:
-      bytes += 1;
-      read_line  += x * bytes;
-      write_line += x * bytes;
-      for ( ; h > 0; h-- )
+      unsigned char*  read       = read_line;
+      unsigned char*  read_limit = read + 3 * w;
+      unsigned char*  write      = write_line;
+
+      /* convert RGB to BGR */
+      for ( ; read < read_limit; read += 3, write += 3 )
       {
-        memcpy( write_line, read_line, w * bytes );
-
-        read_line  += read_pitch;
-        write_line += write_pitch;
+        write[0] = read[2];
+        write[1] = read[1];
+        write[2] = read[0];
       }
-      break;
-    case gr_pixel_mode_rgb24:
-      read_line  += 3 * x;
-      write_line += 3 * x;
-      for ( ; h > 0; h-- )
-      {
-        unsigned char*  read       = read_line;
-        unsigned char*  read_limit = read + 3 * w;
-        unsigned char*  write      = write_line;
 
-        /* convert RGB to BGR */
-        for ( ; read < read_limit; read += 3, write += 3 )
-        {
-          write[0] = read[2];
-          write[1] = read[1];
-          write[2] = read[0];
-        }
-
-        read_line  += read_pitch;
-        write_line += write_pitch;
-      }
+      read_line  += read_pitch;
+      write_line += write_pitch;
     }
   }
 
@@ -349,17 +329,17 @@ gr_win32_surface_resize( grWin32Surface*  surface,
   bitmap->pitch = -bitmap->pitch;
 
   /* resize BGR shadow bitmap */
-  if ( grNewBitmap( bitmap->mode,
-                    bitmap->grays,
-                    width,
-                    height,
-                    &surface->bgrBitmap ) )
-    return 0;
-  surface->bgrBitmap.pitch = -surface->bgrBitmap.pitch;
-
-#ifdef SWIZZLE
   if ( bitmap->mode == gr_pixel_mode_rgb24 )
   {
+    if ( grNewBitmap( bitmap->mode,
+                      bitmap->grays,
+                      width,
+                      height,
+                      &surface->shadow_bitmap ) )
+    return 0;
+    surface->shadow_bitmap.pitch = -surface->shadow_bitmap.pitch;
+
+#ifdef SWIZZLE
     if ( grNewBitmap( bitmap->mode,
                       bitmap->grays,
                       width,
@@ -367,8 +347,10 @@ gr_win32_surface_resize( grWin32Surface*  surface,
                       &surface->swizzle_bitmap ) )
       return 0;
     surface->swizzle_bitmap.pitch = -surface->swizzle_bitmap.pitch;
-  }
 #endif
+  }
+  else
+    surface->shadow_bitmap.buffer = bitmap->buffer;
 
   /* update the header to appropriate values */
   surface->bmiHeader.biWidth  = width;
@@ -469,17 +451,17 @@ gr_win32_surface_init( grWin32Surface*  surface,
   bitmap->pitch = -bitmap->pitch;
 
   /* allocate the BGR shadow bitmap */
-  if ( grNewBitmap( bitmap->mode,
-                    bitmap->grays,
-                    bitmap->width,
-                    bitmap->rows,
-                    &surface->bgrBitmap ) )
-    return 0;
-  surface->bgrBitmap.pitch = -surface->bgrBitmap.pitch;
-
-#ifdef SWIZZLE
   if ( bitmap->mode == gr_pixel_mode_rgb24 )
   {
+    if ( grNewBitmap( bitmap->mode,
+                      bitmap->grays,
+                      bitmap->width,
+                      bitmap->rows,
+                      &surface->shadow_bitmap ) )
+      return 0;
+    surface->shadow_bitmap.pitch = -surface->shadow_bitmap.pitch;
+
+#ifdef SWIZZLE
     if ( grNewBitmap( bitmap->mode,
                       bitmap->grays,
                       bitmap->width,
@@ -487,8 +469,10 @@ gr_win32_surface_init( grWin32Surface*  surface,
                       &surface->swizzle_bitmap ) )
       return 0;
     surface->swizzle_bitmap.pitch = -surface->swizzle_bitmap.pitch;
-  }
 #endif
+  }
+  else
+    surface->shadow_bitmap.buffer = bitmap->buffer;
 
   LOG(( "       -- output bitmap =\n" ));
   LOG(( "       --   mode   = %d\n", bitmap->mode ));
@@ -659,7 +643,7 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
                            surface->bmiHeader.biHeight,
                            0, 0, 0,
                            surface->bmiHeader.biHeight,
-                           surface->bgrBitmap.buffer,
+                           surface->shadow_bitmap.buffer,
                            (LPBITMAPINFO)&surface->bmiHeader,
                            DIB_RGB_COLORS );
         EndPaint ( handle, &ps );

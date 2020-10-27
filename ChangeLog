@@ -1,5 +1,18 @@
 2020-10-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph/win32] Zero-copy 15/16/32-bit modes.
+
+	We can use the data in 15/16/32-bit formats directly without copying
+	into a shadow buffer. It is only 24-bit mode that needs conversion
+	rgb24 -> bgr24, back to little endian order typical for Windows.
+
+	* graph/win32/grwin32.c (grWin32Surface): s/bgrBitmap/shadow_bitmap/.
+	(gr_win32_surface_{init,resize,refresh_rectangle,done}): Handle it
+	conditionally for rgb24 only, and link the data otherwise.
+	(Message_Process): Updated.
+
+2020-10-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/x11/grx11.[ch]: Header clean-up.
 
 2020-10-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
