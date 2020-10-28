@@ -1,5 +1,20 @@
 2020-10-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Let the driver set convenient depth.
+
+	Let the driver change `gr_pixel_mode_none' to whatever depth is
+	convenient and make that the default.  You can still force an
+	alternative depth from the command line.
+
+	* graph/batch/grbatch.c (gr_batch_surface_init): Default to rgb24.
+	* graph/win32/grwin32.c (gr_win32_surface_init): Default to rgb32.
+	* graph/x11/grx11.c (gr_x11_surface_init): Match the visual depth.
+
+	* graph/graph.h (grNewSurface): Document `gr_pixel_mode_none' request.
+	* src/ftcommon.c (FTDemo_Display_New): Use `gr_pixel_mode_none'.
+
+2020-10-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph/x11] Zero-copy 15/16/32-bit modes.
 
 	We opportunistically rely on XPutImage that can perform minimal

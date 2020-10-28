@@ -1321,6 +1321,22 @@
     surface->display    = display = x11dev.display;
     surface->visual     = x11dev.visual;
 
+    /* Select default mode */
+    if ( bitmap->mode == gr_pixel_mode_none )
+    {
+      if (      x11dev.format->x_bits_per_pixel == 32 &&
+                x11dev.format->x_depth          == 24 )
+        bitmap->mode = gr_pixel_mode_rgb32;
+      else if ( x11dev.format->x_bits_per_pixel == 16 &&
+                x11dev.format->x_depth          == 16 )
+        bitmap->mode = gr_pixel_mode_rgb565;
+      else if ( x11dev.format->x_bits_per_pixel == 16 &&
+                x11dev.format->x_depth          == 15 )
+        bitmap->mode = gr_pixel_mode_rgb555;
+      else
+        bitmap->mode = gr_pixel_mode_rgb24;
+    }
+
     /* Set up conversion routines or opportunistic zero-copy */
     switch ( bitmap->mode )
     {

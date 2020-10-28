@@ -481,6 +481,9 @@
   *    handle to the corresponding surface object. 0 in case of error
   *
   * <Note>
+  *    If the requsted mode is gr_pixel_mode_mono, the driver can choose
+  *    a mode that is convenient for the driver.
+  *
   *    All drivers are _required_ to support at least the following
   *    pixel formats :
   *

@@ -432,6 +432,11 @@ gr_win32_surface_init( grWin32Surface*  surface,
   static RGBQUAD  black = {    0,    0,    0, 0 };
   static RGBQUAD  white = { 0xFF, 0xFF, 0xFF, 0 };
 
+
+  /* Set default mode */
+  if ( bitmap->mode == gr_pixel_mode_none )
+    bitmap->mode = gr_pixel_mode_rgb32;
+
   LOG(( "Win32: init_surface( %p, %p )\n", surface, bitmap ));
 
   LOG(( "       -- input bitmap =\n" ));

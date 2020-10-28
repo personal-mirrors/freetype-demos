@@ -110,7 +110,7 @@
     grPixelMode      mode;
     grSurface*       surface;
     grBitmap         bit;
-    int              width, height, depth = 24;
+    int              width, height, depth = 0;
 
 
     if ( sscanf( dims, "%dx%dx%d", &width, &height, &depth ) < 2 )
@@ -127,11 +127,14 @@
     case 16:
       mode = gr_pixel_mode_rgb565;
       break;
+    case 24:
+      mode = gr_pixel_mode_rgb24;
+      break;
     case 32:
       mode = gr_pixel_mode_rgb32;
       break;
     default:
-      mode = gr_pixel_mode_rgb24;
+      mode = gr_pixel_mode_none;
       break;
     }
 

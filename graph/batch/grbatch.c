@@ -72,6 +72,10 @@
   gr_batch_surface_init( grSurface*  surface,
                          grBitmap*   bitmap )
   {
+    /* Set default mode */
+    if ( bitmap->mode == gr_pixel_mode_none )
+      bitmap->mode = gr_pixel_mode_rgb24;
+
     if ( grNewBitmap( bitmap->mode, bitmap->grays,
                       bitmap->width, bitmap->rows, bitmap ) )
       return 0;
