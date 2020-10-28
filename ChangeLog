@@ -1,4 +1,18 @@
-2020-10-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-10-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/x11] Zero-copy 15/16/32-bit modes.
+
+	We opportunistically rely on XPutImage that can perform minimal
+	conversions if ZPixmap matches depth and bits_per_pixel.  We check if
+	the requested 15/16/32-bit mode matches the visual format and send
+	the data as is.
+
+	* graph/x11/grx11.c (gr_x11_surface_init): Handle 15/16/32-bit modes.
+	(gr_x11_surface_resize): Ditto.
+	(gr_x11_surface_done): Unlink the data before `XDestroyImage'.
+	(gr_x11_surface_refresh_rect): Check if conversion is requested.
+
+2020-10-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph/win32] Zero-copy 15/16/32-bit modes.
 
@@ -7,7 +21,7 @@
 	rgb24 -> bgr24, back to little endian order typical for Windows.
 
 	* graph/win32/grwin32.c (grWin32Surface): s/bgrBitmap/shadow_bitmap/.
-	(gr_win32_surface_{init,resize,refresh_rectangle,done}): Handle it
+	(gr_win32_surface_{init,resize,refresh_rect,done}): Handle it
 	conditionally for rgb24 only, and link the data otherwise.
 	(Message_Process): Updated.
 

@@ -1000,8 +1000,10 @@
 
       if ( surface->ximage )
       {
+        if ( !surface->convert )
+          surface->ximage->data = NULL;
         XDestroyImage( surface->ximage );
-        surface->ximage = 0;
+        surface->ximage = NULL;
       }
 
       if ( surface->win )
@@ -1023,14 +1025,13 @@
     grX11Blitter  blit;
 
 
-    if ( !gr_x11_blitter_reset( &blit, &surface->root.bitmap, surface->ximage,
+    if ( surface->convert                    &&
+         !gr_x11_blitter_reset( &blit, &surface->root.bitmap, surface->ximage,
                                 x, y, w, h ) )
-    {
       surface->convert( &blit );
 
-      /* without background defined, this only generates Expose event */
-      XClearArea( surface->display, surface->win, x, y, w, h, True );
-    }
+    /* without background defined, this only generates Expose event */
+    XClearArea( surface->display, surface->win, x, y, w, h, True );
   }
 
 
@@ -1151,11 +1152,17 @@
         pitch += ( ximage->bitmap_pad - over ) >> 3;
     }
 
-    buffer = (char*)realloc( ximage->data, (size_t)height * (size_t)pitch );
-    if ( !buffer && height && pitch )
-      return 0;
+    if ( surface->convert )
+    {
+      buffer = (char*)realloc( ximage->data, (size_t)height * (size_t)pitch );
+      if ( !buffer && height && pitch )
+        return 0;
 
-    ximage->data           = buffer;
+      ximage->data = buffer;
+    }
+    else
+      ximage->data = (char*)bitmap->buffer;
+
     ximage->bytes_per_line = pitch;
     ximage->width          = width;
     ximage->height         = height;
@@ -1314,8 +1321,30 @@
     surface->display    = display = x11dev.display;
     surface->visual     = x11dev.visual;
 
+    /* Set up conversion routines or opportunistic zero-copy */
     switch ( bitmap->mode )
     {
+    case gr_pixel_mode_rgb32:
+      if ( x11dev.format->x_bits_per_pixel != 32 ||
+           x11dev.format->x_depth          != 24 )
+        return 0;
+      x11dev.format = &gr_x11_format_rgb0888;
+      break;
+
+    case gr_pixel_mode_rgb565:
+      if ( x11dev.format->x_bits_per_pixel != 16 ||
+           x11dev.format->x_depth          != 16 )
+        return 0;
+      x11dev.format = &gr_x11_format_rgb565;
+      break;
+
+    case gr_pixel_mode_rgb555:
+      if ( x11dev.format->x_bits_per_pixel != 16 ||
+           x11dev.format->x_depth          != 15 )
+        return 0;
+      x11dev.format = &gr_x11_format_rgb555;
+      break;
+
     case gr_pixel_mode_rgb24:
       surface->convert = x11dev.format->rgb_convert;
       break;
@@ -1334,7 +1363,7 @@
       return 0;
     }
 
-    /* create the bitmap */
+    /* Create the bitmap */
     if ( grNewBitmap( bitmap->mode,
                       bitmap->grays,
                       bitmap->width,
@@ -1358,11 +1387,25 @@
     if ( !surface->ximage )
       return 0;
 
-    /* allocate surface image data */
-    surface->ximage->data = (char*)grAlloc( (size_t)bitmap->rows *
-                         (size_t)surface->ximage->bytes_per_line );
-    if ( !surface->ximage->data )
-      return 0;
+    /* Allocate or link surface image data */
+    if ( surface->convert )
+    {
+      surface->ximage->data = (char*)grAlloc( (size_t)bitmap->rows *
+                              (size_t)surface->ximage->bytes_per_line );
+      if ( !surface->ximage->data )
+        return 0;
+    }
+    else
+    {
+      const int x = 1;
+
+      surface->ximage->byte_order = *(char*)&x ? LSBFirst : MSBFirst;
+      surface->ximage->bitmap_pad = 32;
+      surface->ximage->red_mask   = x11dev.format->x_red_mask;
+      surface->ximage->green_mask = x11dev.format->x_green_mask;
+      surface->ximage->blue_mask  = x11dev.format->x_blue_mask;
+      surface->ximage->data       = (char*)bitmap->buffer;
+    }
 
     {
       int                   screen = DefaultScreen( display );
