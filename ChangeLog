@@ -1,3 +1,7 @@
+2020-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/win32/grwin32.c (gr_win32_surface_init): Default to BITSPIXEL.
+
 2020-10-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Let the driver set convenient depth.

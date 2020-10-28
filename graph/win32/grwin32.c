@@ -435,7 +435,30 @@ gr_win32_surface_init( grWin32Surface*  surface,
 
   /* Set default mode */
   if ( bitmap->mode == gr_pixel_mode_none )
-    bitmap->mode = gr_pixel_mode_rgb32;
+  {
+    HDC  hDC;
+    int  bpp;
+
+    hDC = GetDC( NULL );
+    bpp = GetDeviceCaps( hDC, BITSPIXEL ) * GetDeviceCaps( hDC, PLANES );
+    ReleaseDC( NULL, hDC );
+
+    switch ( bpp )
+    {
+    case 8:
+      bitmap->mode = gr_pixel_mode_gray;
+      break;
+    case 16:
+      bitmap->mode = gr_pixel_mode_rgb565;
+      break;
+    case 24:
+      bitmap->mode = gr_pixel_mode_rgb24;
+      break;
+    case 32:
+    default:
+      bitmap->mode = gr_pixel_mode_rgb32;
+    }
+  }
 
   LOG(( "Win32: init_surface( %p, %p )\n", surface, bitmap ));
 
