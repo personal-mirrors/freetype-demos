@@ -261,10 +261,8 @@
       color_type = PNG_COLOR_TYPE_GRAY;
       break;
     case gr_pixel_mode_rgb24:
-      color_type = PNG_COLOR_TYPE_RGB;
-      break;
     case gr_pixel_mode_rgb32:
-      color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+      color_type = PNG_COLOR_TYPE_RGB;
       break;
     default:
       fprintf( stderr, "Unsupported color type\n" );
@@ -326,6 +324,20 @@
     png_set_gAMA( png_ptr, info_ptr, 1.0 / display->gamma );
 
     png_write_info( png_ptr, info_ptr );
+
+    if ( bit->mode == gr_pixel_mode_rgb32 )
+    {
+      const int  x = 1;
+
+
+      if ( *(char*)&x )  /* little endian */
+      {
+        png_set_filler( png_ptr, 0, PNG_FILLER_AFTER );
+        png_set_bgr( png_ptr );
+      }
+      else
+        png_set_filler( png_ptr, 0, PNG_FILLER_BEFORE );
+    }
 
     /* Write image rows */
     row = bit->buffer;
