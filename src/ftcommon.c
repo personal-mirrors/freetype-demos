@@ -214,7 +214,7 @@
     if ( !display )
       return;
 
-    grDoneBitmap( display->bitmap );
+    display->bitmap = NULL;
     grDoneSurface( display->surface );
 
     grDoneDevices();

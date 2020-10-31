@@ -247,7 +247,7 @@
   extern  void  grDoneBitmap( grBitmap*  bit )
   {
     grFree( bit->buffer );
-    bit->buffer = 0;
+    bit->buffer = NULL;
   }
 
 

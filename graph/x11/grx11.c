@@ -1012,6 +1012,8 @@
         surface->win = 0;
       }
     }
+
+    grDoneBitmap( &surface->root.bitmap );
   }
 
 

@@ -1,5 +1,10 @@
 2020-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/x11/grx11.c (gr_x11_surface_done): Free the bitmap here...
+	* src/ftcommon.c (FTDemo_Display_Done): ... rather than here.
+
+2020-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Fix PNG dump from 32-bit display.
 
 	* src/ftcommon.c (FTDemo_Display_Print): The 32-bit mode needs
