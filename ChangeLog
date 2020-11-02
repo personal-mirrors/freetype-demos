@@ -1,5 +1,9 @@
 2020-11-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/grblit.c (blit_gray8_to_{555,565}): Fix color.
+
+2020-11-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph] Add 15-bit mode to `gblblit'.
 
 	No target depths left for legacy `grblit' except mono, pal4, pal8.

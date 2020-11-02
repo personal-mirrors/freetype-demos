@@ -854,9 +854,9 @@
                            grColor     color )
   {
     int             y;
-    int             sr = (color.chroma[0] << 7) & 0x7C00;
-    int             sg = (color.chroma[1] << 2) & 0x03E0;
-    int             sb = (color.chroma[2] >> 3) & 0x001F;
+    int             sr = color.value & 0x7C00;
+    int             sg = color.value & 0x03E0;
+    int             sb = color.value & 0x001F;
     unsigned char*  read;
     unsigned char*  write;
 
@@ -987,9 +987,9 @@
                            grColor     color )
   {
     int             y;
-    int             sr = (color.chroma[0] << 8) & 0xF800;
-    int             sg = (color.chroma[1] << 3) & 0x07E0;
-    int             sb = (color.chroma[2] >> 3) & 0x001F;
+    int             sr = color.value & 0xF800;
+    int             sg = color.value & 0x07E0;
+    int             sb = color.value & 0x001F;
     unsigned char*  read;
     unsigned char*  write;
 
