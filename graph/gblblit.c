@@ -44,18 +44,21 @@
 
 /* */
 
-#define  GRGB_TO_BGR565(r,g,b)    GRGB_TO_RGB565(b,g,r)
+#define  GRGB_TO_RGB555(r,g,b)   ((unsigned short)( (((r) << 7) & 0x7C00) |  \
+                                                    (((g) << 2) & 0x03E0) |  \
+                                                    (((b) >> 3) & 0x001F) ) )
 
-#define  GBGR565_TO_RGB24(p)   ( ( ((p) << 19) & 0xF80000 ) |             \
-                                 ( ((p) << 12) & 0x070000 ) |             \
-                                 ( ((p) <<  5) & 0x00FC00 ) |             \
-                                 ( ((p) >>  1) & 0x000300 ) |             \
-                                 ( ((p) >>  8) & 0x0000F8 ) |             \
-                                 ( ((p) >> 13) & 0x000007 ) )
 
-#define  GRGB24_TO_BGR565(p)   ( (unsigned short)( (((p) <<  8) & 0xF800 ) |  \
-                                                   (((p) >>  5) & 0x07E0 ) |  \
-                                                   (((p) >> 19) & 0x001F ) ) )
+#define  GRGB555_TO_RGB24(p)   ( ( ((p) << 9) & 0xF80000 ) |             \
+                                 ( ((p) << 4) & 0x070000 ) |             \
+                                 ( ((p) << 6) & 0x00F800 ) |             \
+                                 ( ((p) << 1) & 0x000700 ) |             \
+                                 ( ((p) << 3) & 0x0000F8 ) |             \
+                                 ( ((p) >> 2) & 0x000007 ) )
+
+#define  GRGB24_TO_RGB555(p)   ( (unsigned short)( (((p) >> 9) & 0x7C00 ) |  \
+                                                   (((p) >> 6) & 0x03E0 ) |  \
+                                                   (((p) >> 3) & 0x001F ) ) )
 
 /* */
 
@@ -147,32 +150,32 @@
 
 #include "gblany.h"
 
-/* Bgr565 blitting routines
+/* Rgb555 blitting routines
  */
-#define  GDST_TYPE               bgr565
+#define  GDST_TYPE               rgb555
 #define  GDST_INCR               2
 
 #define  GDST_READ(d,p)          p = (GBlenderPixel)*(unsigned short*)(d);  \
-                                 p = GBGR565_TO_RGB24(p)
+                                 p = GRGB555_TO_RGB24(p)
 
-#define  GDST_COPY_VAR           unsigned short  pix = GRGB_TO_BGR565(r,g,b);
-#define  GDST_COPY(d)            *(d) = (unsigned char)pix
+#define  GDST_COPY_VAR           unsigned short  pix = GRGB_TO_RGB555(r,g,b);
+#define  GDST_COPY(d)            *(unsigned short*)(d) = pix
 
 #define  GDST_STOREB(d,cells,a)                                   \
     {                                                             \
       GBlenderCell*  _g = (cells) + (a)*3;                        \
                                                                   \
-      *(unsigned short*)(d) = GRGB_TO_BGR565(_g[0],_g[1],_g[2]);  \
+      *(unsigned short*)(d) = GRGB_TO_RGB555(_g[0],_g[1],_g[2]);  \
     }
 
 #define  GDST_STOREP(d,cells,a)                         \
     {                                                   \
       GBlenderPixel  _pix = (cells)[(a)];               \
                                                         \
-      *(unsigned short*)(d) = GRGB24_TO_BGR565(_pix);   \
+      *(unsigned short*)(d) = GRGB24_TO_RGB555(_pix);   \
     }
 
-#define  GDST_STOREC(d,r,g,b)   *(unsigned short*)(d) = GRGB_TO_BGR565(r,g,b)
+#define  GDST_STOREC(d,r,g,b)   *(unsigned short*)(d) = GRGB_TO_RGB555(r,g,b)
 
 #include "gblany.h"
 
@@ -212,7 +215,7 @@ blit_funcs[GBLENDER_TARGET_MAX] =
   blit_funcs_rgb32,
   blit_funcs_rgb24,
   blit_funcs_rgb565,
-  blit_funcs_bgr565
+  blit_funcs_rgb555
 };
 
 
@@ -271,6 +274,7 @@ gblender_blit_init( GBlenderBlit           blit,
   case gr_pixel_mode_rgb32:  dst_format = GBLENDER_TARGET_RGB32; break;
   case gr_pixel_mode_rgb24:  dst_format = GBLENDER_TARGET_RGB24; break;
   case gr_pixel_mode_rgb565: dst_format = GBLENDER_TARGET_RGB565; break;
+  case gr_pixel_mode_rgb555: dst_format = GBLENDER_TARGET_RGB555; break;
   default:
     return -2;
   }
@@ -380,6 +384,11 @@ grSetTargetPenBrush( grBitmap*  target,
     surface->gray_spans = _gblender_spans_gray8;
     surface->gcolor     = GGRAY8_TO_RGB24( color.value );
     break;
+  case gr_pixel_mode_rgb555:
+    surface->origin    += x * 2;
+    surface->gray_spans = _gblender_spans_rgb555;
+    surface->gcolor     = GRGB555_TO_RGB24( color.value );
+    break;
   case gr_pixel_mode_rgb565:
     surface->origin    += x * 2;
     surface->gray_spans = _gblender_spans_rgb565;
@@ -398,7 +407,6 @@ grSetTargetPenBrush( grBitmap*  target,
     surface->gcolor     = color.value;
     break;
   default:
-    (void)_gblender_spans_bgr565;  /* unused */
     surface->origin     = NULL;
     surface->gray_spans = (grSpanFunc)NULL;
     surface->gcolor     = 0;
