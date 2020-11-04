@@ -1670,6 +1670,7 @@
     op = CUR.code[CUR.IP];
 
     strbuf_init( bs, tempStr, sizeof ( tempStr ) );
+    strbuf_reset( bs );
     strbuf_add( bs, OpStr[op] );
 
     if ( op == 0x40 )  /* NPUSHB */
@@ -2083,7 +2084,8 @@
           int     args;
 
 
-          strbuf_init( temp, temqStr, sizeof ( tempStr ) );
+          strbuf_init( temp, temqStr, sizeof ( temqStr ) );
+          strbuf_reset( temp );
 
           /* first letter of location */
           switch ( CUR.curRange )

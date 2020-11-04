@@ -1,4 +1,8 @@
-2020-09-17  Werner Lemberg  <wl@gnu.org>
+2020-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ttdebug.c (Cur_U_Line, RunIns): Reset buffers explicitly.
+
+2020-11-04  Werner Lemberg  <wl@gnu.org>
 
 	[ttdebug] Fix typos introduced 2020-09-17.
 
