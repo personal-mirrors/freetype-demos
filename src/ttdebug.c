@@ -1886,25 +1886,25 @@
                 curr->tags[A] & FT_CURVE_TAG_TOUCH_Y ? 'Y' : ' ' );
 
         if ( diff & 1 )
-          print_number( prev->org[A].x,
+          print_number( curr->org[A].x,
                         "[%5ld'%2ld]", "[   -0'%2ld]", "[%8.2f]", "[%8ld]" );
         else
           printf( "          ");
 
         if ( diff & 2 )
-          print_number( prev->org[A].y,
+          print_number( curr->org[A].y,
                         "[%5ld'%2ld]", "[   -0'%2ld]", "[%8.2f]", "[%8ld]" );
         else
           printf( "          ");
 
         if ( diff & 4 )
-          print_number( prev->cur[A].x,
+          print_number( curr->cur[A].x,
                         "[%5ld'%2ld]", "[   -0'%2ld]", "[%8.2f]", "[%8ld]" );
         else
           printf( "          ");
 
         if ( diff & 8 )
-          print_number( prev->cur[A].y,
+          print_number( curr->cur[A].y,
                         "[%5ld'%2ld]", "[   -0'%2ld]", "[%8.2f]", "[%8ld]" );
         else
           printf( "          ");
