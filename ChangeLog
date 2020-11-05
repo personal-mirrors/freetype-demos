@@ -1,5 +1,9 @@
 2020-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/*.*: Rearrange some headers.
+
+2020-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ttdebug.c (Cur_U_Line, RunIns): Reset buffers explicitly.
 
 2020-11-04  Werner Lemberg  <wl@gnu.org>

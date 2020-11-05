@@ -32,7 +32,6 @@
 #define Class  class
 #endif
 
-#include "grobjs.h"
 #include "grdevice.h"
 
   extern

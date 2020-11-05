@@ -30,6 +30,8 @@
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
 
+#include "grtypes.h"
+#include "grobjs.h"
 #include "grx11.h"
 
 #define xxTEST

@@ -29,10 +29,10 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include <grobjs.h>
-#include <grdevice.h>
+#include "grobjs.h"
+#include "grdevice.h"
 #ifdef SWIZZLE
-#include <grswizzle.h>
+#include "grswizzle.h"
 #endif
 
 /* logging facility */
