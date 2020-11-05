@@ -1,5 +1,9 @@
 2020-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/*.*: s/0/NULL/ where appropriate.
+
+2020-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/*.*: Rearrange some headers.
 
 2020-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>

@@ -139,17 +139,17 @@
 
     /* Now find the device */
     device = find_device( device_name );
-    if (!device) return 0;
+    if (!device) return NULL;
 
     surface = (grSurface*)grAlloc( device->surface_objsize );
-    if (!surface) return 0;
+    if (!surface) return NULL;
 
     bitmap->buffer = NULL;
 
     if ( !device->init_surface( surface, bitmap ) )
     {
       grFree( (void *)surface );
-      surface = 0;
+      surface = NULL;
     }
     else
       grSetTargetGamma( (grBitmap*)surface, 1.8 );
@@ -172,7 +172,7 @@
         grFree( surface->bitmap.buffer );
 
       surface->owner         = 0;
-      surface->bitmap.buffer = 0;
+      surface->bitmap.buffer = NULL;
       grFree( surface );
     }
   }

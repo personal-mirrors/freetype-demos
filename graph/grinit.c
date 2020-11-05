@@ -2,8 +2,8 @@
 #include "grdevice.h"
 #include <stdio.h>
 
-#define GR_INIT_DEVICE_CHAIN   ((grDeviceChain*)0)
 #define GR_INIT_BUILD
+#define GR_INIT_DEVICE_CHAIN   ((grDeviceChain*)NULL)
 
 #ifdef DEVICE_BATCH
 #include "batch/grbatch.h"

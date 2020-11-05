@@ -273,7 +273,7 @@
     1,                    /* pitch */
     gr_pixel_mode_mono,   /* mode  */
     0,                    /* grays */
-    0                     /* buffer */
+    NULL                  /* buffer */
   };
 
 
@@ -313,7 +313,7 @@
   static int        gr_cursor_x     = 0;
   static int        gr_cursor_y     = 0;
   static int        gr_line_height  = 8;
-  static grBitmap*  gr_text_bitmap  = 0;
+  static grBitmap*  gr_text_bitmap  = NULL;
   static grColor    gr_color        = { 0 };
   static int        gr_margin_right = 0;
   static int        gr_margin_top   = 0;
