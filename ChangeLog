@@ -1,4 +1,8 @@
-2020-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-11-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftgamma.c (main): Enforce rgb24.
+
+2020-11-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/*, graph/*: s/unsigned int/size_t/ where appropriate.
 

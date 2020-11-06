@@ -372,7 +372,7 @@
     char  buf[4];
     int   i;
 
-    display = FTDemo_Display_New( NULL, DIM );
+    display = FTDemo_Display_New( NULL, DIM "x24" );
     if ( !display )
     {
       PanicZ( "could not allocate display surface" );
