@@ -1,3 +1,10 @@
+2020-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Switch to larger 8x14 font.
+
+	* graph/grconfig.h (GR_FONT_SIZE): New option defined as 14.
+	* graph/grfont.[ch]: Add another font size.
+
 2020-11-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftgamma.c (main): Enforce rgb24.

@@ -5,8 +5,6 @@
 
 #include "graph.h"
 
-  extern const unsigned char  font_8x8[];
-
 
   void
   grGotobitmap( grBitmap*  bitmap );
