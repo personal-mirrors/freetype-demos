@@ -1034,7 +1034,7 @@
     if ( bit->mode == gr_pixel_mode_gray )
       memset( bit->buffer,
               display->back_color.value,
-              (unsigned int)( pitch * bit->rows ) );
+              (size_t)pitch * (size_t)bit->rows );
     else
     {
       unsigned char*  p = bit->buffer;
@@ -1593,18 +1593,18 @@
         fprintf( stderr, "could not read textfile '%s'\n", textfile );
       else
       {
-        int  tsize;
+        size_t  tsize;
 
 
         fseek( tfile, 0, SEEK_END );
-        tsize = ftell( tfile );
+        tsize = (size_t)ftell( tfile );
 
         fseek( tfile, 0, SEEK_SET );
-        text = (char*)malloc( (unsigned int)( tsize + 1 ) );
+        text = (char*)malloc( tsize + 1 );
 
         if ( text )
         {
-          if ( !fread( text, (unsigned int)tsize, 1, tfile ) )
+          if ( !fread( text, tsize, 1, tfile ) )
           {
             fprintf( stderr, "read error\n" );
             text = (char *)default_text;

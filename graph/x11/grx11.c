@@ -472,7 +472,7 @@
 
     for ( ; h > 0; h-- )
     {
-      memcpy( line_write, line_read, (unsigned int)( blit->width * 3 ) );
+      memcpy( line_write, line_read, (size_t)blit->width * 3 );
       line_read  += blit->src_pitch;
       line_write += blit->dst_pitch;
     }

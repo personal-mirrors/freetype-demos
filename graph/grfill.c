@@ -71,7 +71,7 @@ gr_fill_hline_8( unsigned char*   line,
                  int              width,
                  grColor          color )
 {
-  memset( line+x, color.value, (unsigned int)width );
+  memset( line+x, color.value, (size_t)width );
 }
 
 static void
@@ -99,7 +99,7 @@ gr_fill_hline_24( unsigned char*  line,
   line += 3*x;
 
   if (r == g && g == b)
-    memset( line, r, (unsigned int)(width*3) );
+    memset( line, r, (size_t)(width*3) );
   else
   {
     for ( ; width > 0; width--, line += 3 )

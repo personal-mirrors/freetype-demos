@@ -227,7 +227,7 @@
 
     memset( display->bitmap->buffer,
             100,
-            (unsigned int)( pitch * display->bitmap->rows ) );
+            (size_t)pitch * (size_t)display->bitmap->rows );
 
     grWriteCellString( display->bitmap, 0, 0, "Gamma grid",
                        display->fore_color );
