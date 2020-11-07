@@ -1482,7 +1482,7 @@
               face->family_name,
               face->style_name,
               basename );
-    grWriteCellString( adisplay->bitmap, 0, 5,
+    grWriteCellString( adisplay->bitmap, 0, 2,
                        buf, adisplay->fore_color );
 
     if ( adisplay->gamma != 0.0 )
@@ -1492,7 +1492,7 @@
               (int)( state->char_size * state->resolution / 72 + 0.5 ),
               state->resolution,
               gamma );
-    grWriteCellString( adisplay->bitmap, 0, 5 + HEADER_HEIGHT,
+    grWriteCellString( adisplay->bitmap, 0, 2 + HEADER_HEIGHT,
                        buf, adisplay->fore_color );
 
   }

@@ -34,6 +34,8 @@
 #define  DIM_X   640
 #define  DIM_Y   480
 
+#define  HEADER_HEIGHT  12
+
 #define  MAXPTSIZE    500               /* dtp */
 #define  MAX_MM_AXES    6
 
@@ -390,7 +392,8 @@
 
 
     start_x = 4;
-    start_y = pt_size + ( num_shown_axes > MAX_MM_AXES / 2 ? 52 : 44 );
+    start_y = pt_size + HEADER_HEIGHT *
+                        ( num_shown_axes > MAX_MM_AXES / 2 ? 6 : 5 );
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -1181,7 +1184,7 @@
         strbuf_reset( header );
         strbuf_format( header, "PS name: %s",
                        FT_Get_Postscript_Name( face ) );
-        grWriteCellString( bit, 0, 16, Header, fore_color );
+        grWriteCellString( bit, 0, 2 * HEADER_HEIGHT, Header, fore_color );
 
         strbuf_reset( header );
         strbuf_add( header, "axes:" );
@@ -1203,7 +1206,7 @@
                            design_pos[axis] / 65536.0 );
           }
         }
-        grWriteCellString( bit, 0, 24, Header, fore_color );
+        grWriteCellString( bit, 0, 3 * HEADER_HEIGHT, Header, fore_color );
 
         if ( num_shown_axes > MAX_MM_AXES / 2 )
         {
@@ -1224,7 +1227,7 @@
                            design_pos[axis] / 65536.0 );
           }
 
-          grWriteCellString( bit, 0, 32, Header, fore_color );
+          grWriteCellString( bit, 0, 4 * HEADER_HEIGHT, Header, fore_color );
         }
 
         {
@@ -1265,7 +1268,7 @@
                        "%.100s: not an MM font file, or could not be opened",
                        ft_basename( argv[file] ) );
 
-      grWriteCellString( bit, 0, 8, Header, fore_color );
+      grWriteCellString( bit, 0, HEADER_HEIGHT, Header, fore_color );
       grRefreshSurface( surface );
 
       if ( !( key = Process_Event() ) )

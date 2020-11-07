@@ -775,7 +775,7 @@
                                                 : 2 ),
                                st->y_origin -
                                  ( ( ( points[n].y - middle.y ) >> 6 ) +
-                                   8 / 2 ),
+                                   GR_FONT_SIZE / 2 ),
                                number_string,
                                ( tags[n] & FT_CURVE_TAG_ON )
                                  ? st->on_color
