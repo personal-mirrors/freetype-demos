@@ -1,5 +1,9 @@
 2020-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftmulti.c (Clear_Display): Use size_t.
+
+2020-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftgrid,ftmulti,ftdiff] Fix up layout for the larger font.
 
 	* src/ftgrid.c (DO_DOTNUMBERS): Rely on GR_FONT_SIZE.

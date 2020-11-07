@@ -280,12 +280,8 @@
   static void
   Clear_Display( void )
   {
-    long  bitmap_size = (long)bit->pitch * bit->rows;
-
-
-    if ( bitmap_size < 0 )
-      bitmap_size = -bitmap_size;
-    memset( bit->buffer, 0, (unsigned long)bitmap_size );
+    memset( bit->buffer, 0, (size_t)bit->rows *
+                            ( bit->pitch < 0 ? -bit->pitch : bit->pitch ) );
   }
 
 
