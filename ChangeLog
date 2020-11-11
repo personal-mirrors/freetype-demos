@@ -1,5 +1,9 @@
 2020-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftmemchk.c: Remove internal dependency.
+
+2020-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Revert 6ef15ce5aecc, FT_UNUSED is public again.
 
 	* mac/ftoldmac.c, src/ftbench.c, src/ftchkwd.c, src/ftcommon.c:

@@ -7,9 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-  /* the following header shouldn't be used in normal programs */
-#include <freetype/internal/compiler-macros.h>
-
 
   FT_Error      error;
 
@@ -115,9 +112,9 @@ void  forget_my_block( void*  base )
   exit(1);
 }
 
-
-FT_CALLBACK_DEF( void* )  my_alloc( FT_Memory  memory,
-                                    long       size )
+static
+void*  my_alloc( FT_Memory  memory,
+                 long       size )
 {
   void*  p = malloc(size);
   if (p)
@@ -127,20 +124,20 @@ FT_CALLBACK_DEF( void* )  my_alloc( FT_Memory  memory,
   return p;
 }
 
-
-FT_CALLBACK_DEF( void )  my_free( FT_Memory  memory,
-                                  void*      block )
+static
+void  my_free( FT_Memory  memory,
+               void*      block )
 {
   memory=memory;
   forget_my_block(block);
   /* free(block);  WE DO NOT REALLY FREE THE BLOCK */
 }
 
-
-FT_CALLBACK_DEF( void* )  my_realloc( FT_Memory  memory,
-                                      long       cur_size,
-                                      long       new_size,
-                                      void*      block )
+static
+void*  my_realloc( FT_Memory  memory,
+                   long       cur_size,
+                   long       new_size,
+                   void*      block )
 {
   void*  p;
 
