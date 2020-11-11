@@ -1,3 +1,10 @@
+2020-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Add hinting info to the standard header.
+
+	* src/ftcommon.c (FTDemo_Get_Info): Extract some driver settings.
+	(FTDemo_Draw_Header): Report hinting and target info.
+
 2020-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftmulti.c (Clear_Display): Use size_t.

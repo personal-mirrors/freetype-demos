@@ -19,6 +19,10 @@
 #include FT_FREETYPE_H
 #include FT_MODULE_H
 
+  /* access driver name and properties */
+#include FT_DRIVER_H
+#include <freetype/internal/ftobjs.h>
+
 #include FT_CACHE_H
 #include FT_CACHE_MANAGER_H
 
@@ -1040,6 +1044,128 @@
   }
 
 
+  static FT_Error
+  FTDemo_Get_Info( FTDemo_Handle*  handle,
+                   StrBuf*         buf )
+  {
+    FT_Library   library = handle->library;
+    FT_Face      face;
+    FT_Module    module;
+    FT_UInt      prop = 0;
+    const char*  hinting_engine = "";
+    const char*  lcd_mode;
+
+
+    error = FTC_Manager_LookupFace( handle->cache_manager,
+                                    handle->scaler.face_id, &face );
+
+    module = &face->driver->root;
+
+    if ( !handle->hinted )
+      hinting_engine = "unhinted";
+
+    else if ( handle->lcd_mode == LCD_MODE_LIGHT )
+      hinting_engine = "auto";
+
+    else if ( handle->autohint )
+    {
+      FT_Property_Get( library, "autofitter", "warping", &prop );
+      hinting_engine = prop ? "warp" : "auto";
+    }
+
+    else if ( !strcmp( module->clazz->module_name, "cff" ) )
+    {
+      FT_Property_Get( library, "cff", "hinting-engine", &prop );
+      switch ( prop )
+      {
+      case FT_HINTING_FREETYPE:
+        hinting_engine = "FreeType";
+        break;
+      case FT_HINTING_ADOBE:
+        hinting_engine = "Adobe";
+        break;
+      }
+    }
+
+    else if ( !strcmp( module->clazz->module_name, "type1" ) )
+    {
+      FT_Property_Get( library, "type1", "hinting-engine", &prop );
+      switch ( prop )
+      {
+      case FT_HINTING_FREETYPE:
+        hinting_engine = "FreeType";
+        break;
+      case FT_HINTING_ADOBE:
+        hinting_engine = "Adobe";
+        break;
+      }
+    }
+
+    else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+    {
+      FT_Property_Get( library, "t1cid", "hinting-engine", &prop );
+      switch ( prop )
+      {
+      case FT_HINTING_FREETYPE:
+        hinting_engine = "FreeType";
+        break;
+      case FT_HINTING_ADOBE:
+        hinting_engine = "Adobe";
+        break;
+      }
+    }
+
+    else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+    {
+      FT_Property_Get( library, "truetype", "interpreter-version", &prop );
+      switch ( prop )
+      {
+      case TT_INTERPRETER_VERSION_35:
+        hinting_engine = "v35";
+        break;
+      case TT_INTERPRETER_VERSION_38:
+        hinting_engine = "v38";
+        break;
+      case TT_INTERPRETER_VERSION_40:
+        hinting_engine = "v40";
+        break;
+      }
+    }
+
+    switch ( handle->lcd_mode )
+    {
+    case LCD_MODE_AA:
+      lcd_mode = "normal";
+      break;
+    case LCD_MODE_LIGHT:
+    case LCD_MODE_LIGHT_SUBPIXEL:
+      lcd_mode = " light";
+      break;
+    case LCD_MODE_RGB:
+      lcd_mode = " h-RGB";
+      break;
+    case LCD_MODE_BGR:
+      lcd_mode = " h-BGR";
+      break;
+    case LCD_MODE_VRGB:
+      lcd_mode = " v-RGB";
+      break;
+    case LCD_MODE_VBGR:
+      lcd_mode = " v-BGR";
+      break;
+    default:
+      handle->lcd_mode = 0;
+      lcd_mode = "  mono";
+    }
+
+    strbuf_add( buf, hinting_engine );
+    strbuf_add( buf,  " \032 " );
+    strbuf_add( buf, lcd_mode );
+
+    return error;
+  }
+
+
   void
   FTDemo_Draw_Header( FTDemo_Handle*   handle,
                       FTDemo_Display*  display,
@@ -1124,6 +1250,16 @@
                          strbuf_value( buf ), display->warn_color );
     }
 
+    /* target and hinting details */
+    strbuf_reset( buf );
+    FTDemo_Get_Info( handle, buf );
+    grWriteCellString( display->bitmap,
+                       display->bitmap->width - 8 * strbuf_len( buf ),
+                       line * HEADER_HEIGHT,
+                       strbuf_value( buf ), display->fore_color );
+
+    line++;
+
     /* gamma */
     strbuf_reset( buf );
     if ( display->gamma == 0.0 )
@@ -1133,8 +1269,6 @@
     grWriteCellString( display->bitmap,
                        display->bitmap->width - 8 * 11, line * HEADER_HEIGHT,
                        strbuf_value( buf ), display->fore_color );
-
-    line++;
 
     /* encoding charcode or glyph index, glyph name */
     if ( idx >= 0 )
@@ -1214,10 +1348,9 @@
         strbuf_skip_over( buf, strlen( strbuf_end( buf ) ) );
       }
 
-      grWriteCellString( display->bitmap, 0, (line++) * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
                          strbuf_value( buf ), display->fore_color );
     }
-
   }
 
 
