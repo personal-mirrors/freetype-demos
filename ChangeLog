@@ -1,5 +1,12 @@
 2020-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	Revert 6ef15ce5aecc, FT_UNUSED is public again.
+
+	* mac/ftoldmac.c, src/ftbench.c, src/ftchkwd.c, src/ftcommon.c:
+	Do not need `compiler-macros.h'.
+
+2020-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Add hinting info to the standard header.
 
 	* src/ftcommon.c (FTDemo_Get_Info): Extract some driver settings.

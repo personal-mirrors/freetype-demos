@@ -29,9 +29,6 @@
 #include FT_BITMAP_H
 #include FT_FONT_FORMATS_H
 
-  /* the following header shouldn't be used in normal programs */
-#include <freetype/internal/compiler-macros.h>
-
   /* error messages */
 #undef FTERRORS_H_
 #define FT_ERROR_START_LIST     {

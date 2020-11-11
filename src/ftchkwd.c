@@ -15,9 +15,6 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-  /* the following header shouldn't be used in normal programs */
-#include <freetype/internal/compiler-macros.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
