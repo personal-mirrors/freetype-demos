@@ -28,13 +28,9 @@
 #include FT_SFNT_NAMES_H
 #include FT_TRUETYPE_IDS_H
 
-  /* the following header shouldn't be used in normal programs */
-#include <freetype/internal/ftdebug.h>
-
   /* showing driver name */
 #include FT_MODULE_H
 #include <freetype/internal/ftobjs.h>
-#include <freetype/internal/ftdrv.h>
 
   /* FSSpec functions are deprecated since Mac OS X 10.4 */
 #ifndef HAVE_FSSPEC

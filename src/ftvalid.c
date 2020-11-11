@@ -26,7 +26,6 @@
 #include FT_GX_VALIDATE_H
 
   /* the following four header files shouldn't be used in normal programs */
-#include <freetype/internal/ftdebug.h>
 #include <freetype/internal/ftvalid.h>
 #include <freetype/internal/ftmemory.h>
 #include <freetype/internal/ftobjs.h>

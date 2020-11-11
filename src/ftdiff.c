@@ -21,11 +21,10 @@
 #include FT_LCD_FILTER_H
 #include FT_DRIVER_H
 
-  /* showing driver name -- the two internal header files */
-  /* shouldn't be used in normal programs                 */
+  /* showing driver name -- the internal header file */
+  /* shouldn't be used in normal programs            */
 #include FT_MODULE_H
 #include <freetype/internal/ftobjs.h>
-#include <freetype/internal/ftdrv.h>
 
 #include <stdarg.h>
 #include <stdio.h>

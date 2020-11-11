@@ -20,13 +20,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-  /* the following header shouldn't be used in normal programs */
-#include <freetype/internal/ftdebug.h>
-
   /* showing driver name */
 #include FT_MODULE_H
 #include <freetype/internal/ftobjs.h>
-#include <freetype/internal/ftdrv.h>
 
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H

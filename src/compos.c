@@ -17,7 +17,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <freetype/internal/internal/ftgloadr.h>
+#include <freetype/internal/ftgloadr.h>
 
 #include <stdio.h>
 #include <stdlib.h>
