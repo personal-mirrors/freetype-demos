@@ -21,7 +21,6 @@
 
   /* access driver name and properties */
 #include FT_DRIVER_H
-#include <freetype/internal/ftobjs.h>
 
 #include FT_CACHE_H
 #include FT_CACHE_MANAGER_H
@@ -1045,23 +1044,27 @@
   FTDemo_Get_Info( FTDemo_Handle*  handle,
                    StrBuf*         buf )
   {
-    FT_Library   library = handle->library;
-    FT_Face      face;
-    FT_Module    module;
-    FT_UInt      prop = 0;
-    const char*  hinting_engine = "";
-    const char*  lcd_mode;
+    FT_Library        library = handle->library;
+    FT_Face           face;
+    const FT_String*  module_name;
+    FT_UInt           prop = 0;
+    const char*       hinting_engine = "";
+    const char*       lcd_mode;
 
 
     error = FTC_Manager_LookupFace( handle->cache_manager,
                                     handle->scaler.face_id, &face );
 
-    module = &face->driver->root;
+    module_name = (*(FT_Module_Class**)(face->driver))->module_name;
 
-    if ( !handle->hinted )
+    if ( !FT_IS_SCALABLE( face ) )
+      hinting_engine = "bitmap";
+
+    else if ( !handle->hinted )
       hinting_engine = "unhinted";
 
-    else if ( handle->lcd_mode == LCD_MODE_LIGHT )
+    else if ( handle->lcd_mode == LCD_MODE_LIGHT          ||
+              handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
       hinting_engine = "auto";
 
     else if ( handle->autohint )
@@ -1070,51 +1073,9 @@
       hinting_engine = prop ? "warp" : "auto";
     }
 
-    else if ( !strcmp( module->clazz->module_name, "cff" ) )
+    else if ( !FT_Property_Get( library, module_name,
+                                         "interpreter-version", &prop ) )
     {
-      FT_Property_Get( library, "cff", "hinting-engine", &prop );
-      switch ( prop )
-      {
-      case FT_HINTING_FREETYPE:
-        hinting_engine = "FreeType";
-        break;
-      case FT_HINTING_ADOBE:
-        hinting_engine = "Adobe";
-        break;
-      }
-    }
-
-    else if ( !strcmp( module->clazz->module_name, "type1" ) )
-    {
-      FT_Property_Get( library, "type1", "hinting-engine", &prop );
-      switch ( prop )
-      {
-      case FT_HINTING_FREETYPE:
-        hinting_engine = "FreeType";
-        break;
-      case FT_HINTING_ADOBE:
-        hinting_engine = "Adobe";
-        break;
-      }
-    }
-
-    else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
-    {
-      FT_Property_Get( library, "t1cid", "hinting-engine", &prop );
-      switch ( prop )
-      {
-      case FT_HINTING_FREETYPE:
-        hinting_engine = "FreeType";
-        break;
-      case FT_HINTING_ADOBE:
-        hinting_engine = "Adobe";
-        break;
-      }
-    }
-
-    else if ( !strcmp( module->clazz->module_name, "truetype" ) )
-    {
-      FT_Property_Get( library, "truetype", "interpreter-version", &prop );
       switch ( prop )
       {
       case TT_INTERPRETER_VERSION_35:
@@ -1125,6 +1086,20 @@
         break;
       case TT_INTERPRETER_VERSION_40:
         hinting_engine = "v40";
+        break;
+      }
+    }
+
+    else if ( !FT_Property_Get( library, module_name,
+                                         "hinting-engine", &prop ) )
+    {
+      switch ( prop )
+      {
+      case FT_HINTING_FREETYPE:
+        hinting_engine = "FreeType";
+        break;
+      case FT_HINTING_ADOBE:
+        hinting_engine = "Adobe";
         break;
       }
     }

@@ -1,3 +1,7 @@
+2020-11-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftcommon.c (FTDemo_Get_Info): Simplify the code.
+
 2020-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftmemchk.c: Remove internal dependency.
