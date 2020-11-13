@@ -1,5 +1,13 @@
 2020-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftview] Simplify engine management.
+
+	* src/ftview.c (Process_Event): Use `FTDemo_Hinting_Engine_Change'.
+	(write_header): Do not report engine and reformat to make more room.
+	(main): Remove engine accounting.
+
+2020-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	Universal hinting engine switch.
 
 	* src/ftcommon.[ch] (FTDemo_Hinting_Engine_Change): Implement it.
