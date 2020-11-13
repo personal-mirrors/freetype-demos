@@ -1,5 +1,12 @@
 2020-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftgrid] Simplify engine management.
+
+	* src/ftview.c (Process_Event): Use `FTDemo_Hinting_Engine_Change'.
+	(main): Remove engine accounting.
+
+2020-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftview] Simplify engine management.
 
 	* src/ftview.c (Process_Event): Use `FTDemo_Hinting_Engine_Change'.

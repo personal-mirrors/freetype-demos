@@ -20,10 +20,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-  /* showing driver name */
-#include FT_MODULE_H
-#include <freetype/internal/ftobjs.h>
-
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 #include FT_LCD_FILTER_H
@@ -137,14 +133,6 @@
     char         header_buffer[BUFSIZE];
 
     FT_Stroker   stroker;
-
-    unsigned int cff_hinting_engine;
-    unsigned int type1_hinting_engine;
-    unsigned int t1cid_hinting_engine;
-    unsigned int tt_interpreter_versions[3];
-    int          num_tt_interpreter_versions;
-    int          tt_interpreter_version_idx;
-    FT_Bool      warping;
 
     FT_MM_Var*   mm;
     char*        axis_name[MAX_MM_AXES];
@@ -1041,67 +1029,6 @@
 
 
   static void
-  event_tt_interpreter_version_change( void )
-  {
-    status.tt_interpreter_version_idx += 1;
-    status.tt_interpreter_version_idx %= status.num_tt_interpreter_versions;
-
-    error = FT_Property_Set( handle->library,
-                             "truetype",
-                             "interpreter-version",
-                             &status.tt_interpreter_versions[
-                               status.tt_interpreter_version_idx] );
-
-    if ( !error )
-    {
-      /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-      /* lazy to walk over all loaded fonts to check whether they */
-      /* are of type TTF, then unloading them explicitly.         */
-      FTC_Manager_Reset( handle->cache_manager );
-      event_font_change( 0 );
-    }
-
-    snprintf( status.header_buffer, sizeof ( status.header_buffer ),
-              "TrueType engine changed to version %u",
-              status.tt_interpreter_versions[
-                status.tt_interpreter_version_idx] );
-
-    status.header = (const char *)status.header_buffer;
-  }
-
-
-  static void
-  event_warping_change( void )
-  {
-    if ( handle->lcd_mode == LCD_MODE_AA && handle->autohint )
-    {
-      FT_Bool  new_warping_state = !status.warping;
-
-
-      error = FT_Property_Set( handle->library,
-                               "autofitter",
-                               "warping",
-                               &new_warping_state );
-
-      if ( !error )
-      {
-        /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-        /* lazy to walk over all loaded fonts to check whether they */
-        /* are auto-hinted, then unloading them explicitly.         */
-        FTC_Manager_Reset( handle->cache_manager );
-        status.warping = new_warping_state;
-        event_font_change( 0 );
-      }
-
-      status.header = status.warping ? "warping enabled"
-                                     : "warping disabled";
-    }
-    else
-      status.header = "need normal anti-aliasing mode to toggle warping";
-  }
-
-
-  static void
   event_grid_reset( GridStatus  st )
   {
     st->x_origin = st->x_origin_0;
@@ -1548,82 +1475,8 @@
               handle->lcd_mode == LCD_MODE_LIGHT          ||
               handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
-        FT_Face    face;
-        FT_Module  module;
-
-
-        error = FTC_Manager_LookupFace( handle->cache_manager,
-                                        handle->scaler.face_id, &face );
-        if ( !error )
-        {
-          module = &face->driver->root;
-
-          if ( !strcmp( module->clazz->module_name, "cff" ) )
-          {
-            if ( FTDemo_Event_Cff_Hinting_Engine_Change(
-                   handle->library,
-                   &status.cff_hinting_engine,
-                   1 ) )
-            {
-              /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-              /* lazy to walk over all loaded fonts to check whether they */
-              /* are of type CFF, then unloading them explicitly.         */
-              FTC_Manager_Reset( handle->cache_manager );
-              event_font_change( 0 );
-            }
-
-            snprintf( status.header_buffer, sizeof ( status.header_buffer ),
-                      "CFF engine changed to %s",
-                      status.cff_hinting_engine == FT_HINTING_FREETYPE
-                        ? "FreeType" : "Adobe" );
-
-            status.header = (const char *)status.header_buffer;
-          }
-          else if ( !strcmp( module->clazz->module_name, "type1" ) )
-          {
-            if ( FTDemo_Event_Type1_Hinting_Engine_Change(
-                   handle->library,
-                   &status.type1_hinting_engine,
-                   1 ) )
-            {
-              /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-              /* lazy to walk over all loaded fonts to check whether they */
-              /* are of type Type1, then unloading them explicitly.       */
-              FTC_Manager_Reset( handle->cache_manager );
-              event_font_change( 0 );
-            }
-
-            snprintf( status.header_buffer, sizeof ( status.header_buffer ),
-                      "Type 1 engine changed to %s",
-                      status.type1_hinting_engine == FT_HINTING_FREETYPE
-                        ? "FreeType" : "Adobe" );
-
-            status.header = (const char *)status.header_buffer;
-          }
-          else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
-          {
-            if ( FTDemo_Event_T1cid_Hinting_Engine_Change(
-                   handle->library,
-                   &status.t1cid_hinting_engine,
-                   1 ) )
-            {
-              /* Resetting the cache is perhaps a bit harsh, but I'm too  */
-              /* lazy to walk over all loaded fonts to check whether they */
-              /* are of type CID, then unloading them explicitly.         */
-              FTC_Manager_Reset( handle->cache_manager );
-              event_font_change( 0 );
-            }
-
-            snprintf( status.header_buffer, sizeof ( status.header_buffer ),
-                      "CID engine changed to %s",
-                      status.t1cid_hinting_engine == FT_HINTING_FREETYPE
-                        ? "FreeType" : "Adobe" );
-
-            status.header = (const char *)status.header_buffer;
-          }
-          else if ( !strcmp( module->clazz->module_name, "truetype" ) )
-            event_tt_interpreter_version_change();
-        }
+        FTDemo_Hinting_Engine_Change( handle );
+        event_font_change( 0 );
       }
 #ifdef FT_DEBUG_AUTOFIT
       else
@@ -1636,7 +1489,13 @@
       break;
 
     case grKEY( 'w' ):
-      event_warping_change();
+      if ( handle->autohint                            &&
+           handle->lcd_mode != LCD_MODE_LIGHT          &&
+           handle->lcd_mode != LCD_MODE_LIGHT_SUBPIXEL )
+      {
+        FTDemo_Hinting_Engine_Change( handle );
+        event_font_change( 0 );
+      }
       break;
 
 #ifdef FT_DEBUG_AUTOFIT
@@ -1903,11 +1762,7 @@
   main( int    argc,
         char*  argv[] )
   {
-    int           n;
-    unsigned int  dflt_tt_interpreter_version;
-    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
-                                  TT_INTERPRETER_VERSION_38,
-                                  TT_INTERPRETER_VERSION_40 };
+    int  n;
 
 
     /* initialize engine */
@@ -1916,41 +1771,6 @@
     grid_status_init( &status );
     circle_init( handle, 128 );
     parse_cmdline( &argc, &argv );
-
-    /* get the default value as compiled into FreeType */
-    FT_Property_Get( handle->library,
-                     "cff",
-                     "hinting-engine", &status.cff_hinting_engine );
-    FT_Property_Get( handle->library,
-                     "type1",
-                     "hinting-engine", &status.type1_hinting_engine );
-    FT_Property_Get( handle->library,
-                     "t1cid",
-                     "hinting-engine", &status.t1cid_hinting_engine );
-
-
-    /* collect all available versions, then set again the default */
-    FT_Property_Get( handle->library,
-                     "truetype",
-                     "interpreter-version", &dflt_tt_interpreter_version );
-    for ( n = 0; n < 3; n++ )
-    {
-      error = FT_Property_Set( handle->library,
-                               "truetype",
-                               "interpreter-version", &versions[n] );
-      if ( !error )
-        status.tt_interpreter_versions[
-          status.num_tt_interpreter_versions++] = versions[n];
-      if ( versions[n] == dflt_tt_interpreter_version )
-        status.tt_interpreter_version_idx = n;
-    }
-    FT_Property_Set( handle->library,
-                     "truetype",
-                     "interpreter-version", &dflt_tt_interpreter_version );
-
-    FT_Property_Get( handle->library,
-                     "autofitter",
-                     "warping", &status.warping );
 
     FT_Library_SetLcdFilter( handle->library, status.lcd_filter );
 
