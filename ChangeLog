@@ -1,3 +1,10 @@
+2020-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Universal hinting engine switch.
+
+	* src/ftcommon.[ch] (FTDemo_Hinting_Engine_Change): Implement it.
+	(FTDemo_Get_Info): Minor.
+
 2020-11-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftcommon.c (FTDemo_Get_Info): Simplify the code.

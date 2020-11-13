@@ -293,6 +293,11 @@
                    FT_Size*        asize );
 
 
+  /* switch to a different engine if possible, including warping */
+  int
+  FTDemo_Hinting_Engine_Change( FTDemo_Handle*  handle );
+
+
   /* draw common header */
   void
   FTDemo_Draw_Header( FTDemo_Handle*   handle,

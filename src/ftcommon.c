@@ -1040,6 +1040,95 @@
   }
 
 
+  /* switch to a different engine if possible, including warping */
+  int
+  FTDemo_Hinting_Engine_Change( FTDemo_Handle*  handle )
+  {
+    FT_Library        library = handle->library;
+    FT_Face           face;
+    const FT_String*  module_name;
+    FT_UInt           prop = 0;
+
+
+    error = FTC_Manager_LookupFace( handle->cache_manager,
+                                    handle->scaler.face_id, &face );
+
+    if ( error                                       ||
+         !FT_IS_SCALABLE( face )                     ||
+         !handle->hinted                             ||
+         handle->lcd_mode == LCD_MODE_LIGHT          ||
+         handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
+      return 0;  /* do nothing */
+
+    module_name = (*(FT_Module_Class**)(face->driver))->module_name;
+
+    if ( handle->autohint )
+    {
+      FT_Bool  warp;
+
+
+      FT_Property_Get( library, "autofitter", "warping", &warp );
+      warp = !warp;
+      FT_Property_Set( library, "autofitter", "warping", &warp );
+    }
+
+    else if ( !FT_Property_Get( library, module_name,
+                                         "interpreter-version", &prop ) )
+    {
+      switch ( prop )
+      {
+      S1:
+      case TT_INTERPRETER_VERSION_35:
+        prop = TT_INTERPRETER_VERSION_38;
+        if ( !FT_Property_Set( library, module_name,
+                                        "interpreter-version", &prop ) )
+          break;
+        /* fall through */
+      case TT_INTERPRETER_VERSION_38:
+        prop = TT_INTERPRETER_VERSION_40;
+        if ( !FT_Property_Set( library, module_name,
+                                        "interpreter-version", &prop ) )
+          break;
+        /* fall through */
+      case TT_INTERPRETER_VERSION_40:
+        prop = TT_INTERPRETER_VERSION_35;
+        if ( !FT_Property_Set( library, module_name,
+                                        "interpreter-version", &prop ) )
+          break;
+        goto S1;
+      }
+    }
+
+    else if ( !FT_Property_Get( library, module_name,
+                                         "hinting-engine", &prop ) )
+    {
+      switch ( prop )
+      {
+      S2:
+      case FT_HINTING_FREETYPE:
+        prop = FT_HINTING_ADOBE;
+        if ( !FT_Property_Set( library, module_name,
+                                        "hinting-engine", &prop ) )
+          break;
+        /* fall through */
+      case FT_HINTING_ADOBE:
+        prop = FT_HINTING_FREETYPE;
+        if ( !FT_Property_Set( library, module_name,
+                                        "hinting-engine", &prop ) )
+          break;
+        goto S2;
+      }
+    }
+
+    /* Resetting the cache is perhaps a bit harsh, but I'm too  */
+    /* lazy to walk over all loaded fonts to check whether they */
+    /* are of appropriate type, then unloading them explicitly. */
+    FTC_Manager_Reset( handle->cache_manager );
+
+    return 1;
+  }
+
+
   static FT_Error
   FTDemo_Get_Info( FTDemo_Handle*  handle,
                    StrBuf*         buf )
@@ -1130,6 +1219,8 @@
       lcd_mode = "  mono";
     }
 
+    strbuf_add( buf, module_name );
+    strbuf_add( buf, " ");
     strbuf_add( buf, hinting_engine );
     strbuf_add( buf,  " \032 " );
     strbuf_add( buf, lcd_mode );
