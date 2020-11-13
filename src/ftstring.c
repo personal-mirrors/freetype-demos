@@ -265,6 +265,7 @@
     grWriteln( "  b         : toggle embedded bitmaps (and disable rotation)" );
     grWriteln( "  f         : toggle forced auto-hinting" );
     grWriteln( "  h         : toggle outline hinting" );
+    grWriteln( "  H         : change hinting engine" );
     grLn();
     grWriteln( "  1-4       : select rendering mode" );
     grWriteln( "  l         : cycle through anti-aliasing modes" );
@@ -274,8 +275,7 @@
     grWriteln( "  Tab       : cycle through sample strings" );
     grWriteln( "  V         : toggle vertical rendering" );
     grLn();
-    grWriteln( "  g         : increase gamma by 0.1" );
-    grWriteln( "  v         : decrease gamma by 0.1" );
+    grWriteln( "  g, v      : adjust gamma by 0.1" );
     grLn();
     grWriteln( "  n         : next font" );
     grWriteln( "  p         : previous font" );
@@ -543,6 +543,10 @@
       status.header   = handle->hinted
                         ? "glyph hinting is now active"
                         : "glyph hinting is now ignored";
+      goto Flags;
+
+    case grKEY( 'H' ):
+      FTDemo_Hinting_Engine_Change( handle );
       goto Flags;
 
     case grKEY( 'l' ):
