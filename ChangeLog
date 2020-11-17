@@ -1,3 +1,7 @@
+2020-11-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftcommon.c (FTDemo_Get_Info): Improve formatting.
+
 2020-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftstring] Add engine management.

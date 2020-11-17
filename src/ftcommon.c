@@ -1147,19 +1147,19 @@
     module_name = (*(FT_Module_Class**)(face->driver))->module_name;
 
     if ( !FT_IS_SCALABLE( face ) )
-      hinting_engine = "bitmap";
+      hinting_engine = " bitmap";
 
     else if ( !handle->hinted )
-      hinting_engine = "unhinted";
+      hinting_engine = " unhinted";
 
     else if ( handle->lcd_mode == LCD_MODE_LIGHT          ||
               handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
-      hinting_engine = "auto";
+      hinting_engine = " auto";
 
     else if ( handle->autohint )
     {
       FT_Property_Get( library, "autofitter", "warping", &prop );
-      hinting_engine = prop ? "warp" : "auto";
+      hinting_engine = prop ? " warp" : " auto";
     }
 
     else if ( !FT_Property_Get( library, module_name,
@@ -1168,13 +1168,13 @@
       switch ( prop )
       {
       case TT_INTERPRETER_VERSION_35:
-        hinting_engine = "v35";
+        hinting_engine = "\372v35";
         break;
       case TT_INTERPRETER_VERSION_38:
-        hinting_engine = "v38";
+        hinting_engine = "\372v38";
         break;
       case TT_INTERPRETER_VERSION_40:
-        hinting_engine = "v40";
+        hinting_engine = "\372v40";
         break;
       }
     }
@@ -1185,10 +1185,10 @@
       switch ( prop )
       {
       case FT_HINTING_FREETYPE:
-        hinting_engine = "FreeType";
+        hinting_engine = "\372FT";
         break;
       case FT_HINTING_ADOBE:
-        hinting_engine = "Adobe";
+        hinting_engine = "\372Adobe";
         break;
       }
     }
@@ -1220,7 +1220,6 @@
     }
 
     strbuf_add( buf, module_name );
-    strbuf_add( buf, " ");
     strbuf_add( buf, hinting_engine );
     strbuf_add( buf,  " \032 " );
     strbuf_add( buf, lcd_mode );
