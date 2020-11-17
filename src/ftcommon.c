@@ -1221,7 +1221,7 @@
 
     strbuf_add( buf, module_name );
     strbuf_add( buf, hinting_engine );
-    strbuf_add( buf,  " \032 " );
+    strbuf_add( buf, " \032 " );
     strbuf_add( buf, lcd_mode );
 
     return error;
@@ -1241,6 +1241,7 @@
     StrBuf       buf[1];
     const char*  basename;
     int          ppem;
+    const char*  encoding;
 
     int          line = 0;
     int          x;
@@ -1332,75 +1333,74 @@
                        display->bitmap->width - 8 * 11, line * HEADER_HEIGHT,
                        strbuf_value( buf ), display->fore_color );
 
-    /* encoding charcode or glyph index, glyph name */
+    /* encoding, charcode or glyph index, glyph name */
+    strbuf_reset( buf );
+    switch ( handle->encoding )
+    {
+    case FT_ENCODING_ORDER:
+      encoding = "glyph order";
+      break;
+    case FT_ENCODING_MS_SYMBOL:
+      encoding = "MS Symbol";
+      break;
+    case FT_ENCODING_UNICODE:
+      encoding = "Unicode";
+      break;
+    case FT_ENCODING_SJIS:
+      encoding = "SJIS";
+      break;
+    case FT_ENCODING_PRC:
+      encoding = "PRC";
+      break;
+    case FT_ENCODING_BIG5:
+      encoding = "Big5";
+      break;
+    case FT_ENCODING_WANSUNG:
+      encoding = "Wansung";
+      break;
+    case FT_ENCODING_JOHAB:
+      encoding = "Johab";
+      break;
+    case FT_ENCODING_ADOBE_STANDARD:
+      encoding = "Adobe Standard";
+      break;
+    case FT_ENCODING_ADOBE_EXPERT:
+      encoding = "Adobe Expert";
+      break;
+    case FT_ENCODING_ADOBE_CUSTOM:
+      encoding = "Adobe Custom";
+      break;
+    case FT_ENCODING_ADOBE_LATIN_1:
+      encoding = "Latin 1";
+      break;
+    case FT_ENCODING_OLD_LATIN_2:
+      encoding = "Latin 2";
+      break;
+    case FT_ENCODING_APPLE_ROMAN:
+      encoding = "Apple Roman";
+      break;
+    default:
+      encoding = "Other";
+    }
+    strbuf_add( buf, encoding );
+
     if ( idx >= 0 )
     {
-      const char*  encoding = NULL;
       FT_UInt      glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)idx );
 
 
-      switch ( handle->encoding )
-      {
-      case FT_ENCODING_ORDER:
-        encoding = "glyph order";
-        break;
-      case FT_ENCODING_MS_SYMBOL:
-        encoding = "MS Symbol";
-        break;
-      case FT_ENCODING_UNICODE:
-        encoding = "Unicode";
-        break;
-      case FT_ENCODING_SJIS:
-        encoding = "SJIS";
-        break;
-      case FT_ENCODING_PRC:
-        encoding = "PRC";
-        break;
-      case FT_ENCODING_BIG5:
-        encoding = "Big5";
-        break;
-      case FT_ENCODING_WANSUNG:
-        encoding = "Wansung";
-        break;
-      case FT_ENCODING_JOHAB:
-        encoding = "Johab";
-        break;
-      case FT_ENCODING_ADOBE_STANDARD:
-        encoding = "Adobe Standard";
-        break;
-      case FT_ENCODING_ADOBE_EXPERT:
-        encoding = "Adobe Expert";
-        break;
-      case FT_ENCODING_ADOBE_CUSTOM:
-        encoding = "Adobe Custom";
-        break;
-      case FT_ENCODING_ADOBE_LATIN_1:
-        encoding = "Latin 1";
-        break;
-      case FT_ENCODING_OLD_LATIN_2:
-        encoding = "Latin 2";
-        break;
-      case FT_ENCODING_APPLE_ROMAN:
-        encoding = "Apple Roman";
-        break;
-      default:
-        encoding = "Other";
-      }
-
-      strbuf_reset( buf );
       if ( handle->encoding == FT_ENCODING_ORDER )
-        x = strbuf_format( buf, "%s idx: %d",
-                           encoding, idx );
+        strbuf_format( buf, " idx: %d", idx );
       else if ( handle->encoding == FT_ENCODING_UNICODE )
-        x = strbuf_format( buf, "%s charcode: U+%04X (glyph idx %d)",
-                           encoding, idx, glyph_idx );
+        strbuf_format( buf, " charcode: U+%04X (glyph idx %d)",
+                            idx, glyph_idx );
       else
-        x = strbuf_format( buf, "%s charcode: 0x%X (glyph idx %d)",
-                           encoding, idx, glyph_idx );
+        strbuf_format( buf, " charcode: 0x%X (glyph idx %d)",
+                            idx, glyph_idx );
 
       if ( FT_HAS_GLYPH_NAMES( face ) )
       {
-        x += strbuf_add( buf, ", name: " );
+        strbuf_add( buf, ", name: " );
 
         /* NOTE: This relies on the fact that `FT_Get_Glyph_Name' */
         /* always appends a terminating zero to the input.        */
@@ -1409,10 +1409,10 @@
                            (FT_UInt)( strbuf_available( buf ) + 1 ) );
         strbuf_skip_over( buf, strlen( strbuf_end( buf ) ) );
       }
-
-      grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
-                         strbuf_value( buf ), display->fore_color );
     }
+
+    grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
+                       strbuf_value( buf ), display->fore_color );
   }
 
 

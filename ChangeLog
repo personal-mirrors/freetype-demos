@@ -1,4 +1,8 @@
-2020-11-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2020-11-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftcommon.c (FTDemo_Draw_Header): Always show encoding.
+
+2020-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftcommon.c (FTDemo_Get_Info): Improve formatting.
 
