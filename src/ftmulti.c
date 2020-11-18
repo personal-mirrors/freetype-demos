@@ -1166,6 +1166,8 @@
         }
 
         strbuf_init( header, Header, sizeof ( Header ) );
+
+        strbuf_reset( header );
         strbuf_format( header, "%.50s %.50s (file %.100s)",
                        face->family_name,
                        face->style_name,
@@ -1231,6 +1233,7 @@
                                    tt_interpreter_version_idx];
 
           const char*  format_str = NULL;
+
 
           if ( !strcmp( font_format, "CFF" ) )
             format_str = ( cff_hinting_engine == FT_HINTING_FREETYPE
