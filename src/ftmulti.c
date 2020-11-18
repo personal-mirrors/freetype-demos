@@ -111,6 +111,7 @@
   static FT_Fixed      requested_pos[MAX_MM_AXES];
   static unsigned int  requested_cnt = 0;
   static unsigned int  used_num_axis = 0;
+  static int           increment = 20;  /* for axes */
 
   /*
    * We use the following arrays to support both the display of all axes and
@@ -568,12 +569,14 @@
     grWriteln( "F9, F10     adjust index by 100" );
     grWriteln( "F11, F12    adjust index by 1000" );
     grLn();
-    grWriteln( "F1, F2      adjust first axis by 1/50th of its range" );
-    grWriteln( "F3, F4      adjust second axis by 1/50th of its range" );
-    grWriteln( "F5, F6      adjust third axis by 1/50th of its range" );
-    grWriteln( "1, 2        adjust fourth axis by 1/50th of its range" );
-    grWriteln( "3, 4        adjust fifth axis by 1/50th of its range" );
-    grWriteln( "5, 6        adjust sixth axis by 1/50th of its range" );
+    grWriteln( "F1, F2      adjust first axis" );
+    grWriteln( "F3, F4      adjust second axis" );
+    grWriteln( "F5, F6      adjust third axis" );
+    grWriteln( "1, 2        adjust fourth axis" );
+    grWriteln( "3, 4        adjust fifth axis" );
+    grWriteln( "5, 6        adjust sixth axis" );
+    grLn();
+    grWriteln( "i, I        adjust axis range increment" );
     grLn();
     grWriteln( "Axes marked with an asterisk are hidden." );
     grLn();
@@ -678,63 +681,74 @@
 
     /* MM related keys */
 
+    case 'i':
+      /* value 100 is arbitrary */
+      if ( increment < 100 )
+        increment += 1;
+      break;
+
+    case 'I':
+      if ( increment > 1 )
+        increment -= 1;
+      break;
+
     case grKeyF1:
-      i = -20;
+      i = -increment;
       axis = 0;
       goto Do_Axis;
 
     case grKeyF2:
-      i = 20;
+      i = increment;
       axis = 0;
       goto Do_Axis;
 
     case grKeyF3:
-      i = -20;
+      i = -increment;
       axis = 1;
       goto Do_Axis;
 
     case grKeyF4:
-      i = 20;
+      i = increment;
       axis = 1;
       goto Do_Axis;
 
     case grKeyF5:
-      i = -20;
+      i = -increment;
       axis = 2;
       goto Do_Axis;
 
     case grKeyF6:
-      i = 20;
+      i = increment;
       axis = 2;
       goto Do_Axis;
 
     case grKEY( '1' ):
-      i = -20;
+      i = -increment;
       axis = 3;
       goto Do_Axis;
 
     case grKEY( '2' ):
-      i = 20;
+      i = increment;
       axis = 3;
       goto Do_Axis;
 
     case grKEY( '3' ):
-      i = -20;
+      i = -increment;
       axis = 4;
       goto Do_Axis;
 
     case grKEY( '4' ):
-      i = 20;
+      i = increment;
       axis = 4;
       goto Do_Axis;
 
     case grKEY( '5' ):
-      i = -20;
+      i = -increment;
       axis = 5;
       goto Do_Axis;
 
     case grKEY( '6' ):
-      i = 20;
+      i = increment;
       axis = 5;
       goto Do_Axis;
 
@@ -1255,11 +1269,13 @@
                                        : "TrueType (v40)" ) );
 
           strbuf_reset( header );
-          strbuf_format( header,
-                         "at %d points, first glyph = %d, format = %s",
-                         ptsize,
-                         Num,
-                         format_str );
+          strbuf_format(
+            header,
+            "size: %dpt, first glyph: %d, format: %s, axis incr.: %.1f%%",
+            ptsize,
+            Num,
+            format_str,
+            increment / 10.0 );
         }
       }
       else

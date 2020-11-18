@@ -1,5 +1,15 @@
 2020-11-18  Werner Lemberg  <wl@gnu.org>
 
+	[ftmulti]: Keys 'i' and 'I' now control the axis increment.
+
+	* src/ftmulti.c (increment): New global variable.
+	(Help): Updated.
+	(Process_Event): Handle 'i' and 'I' keys.
+	Update related code.
+	(main): Show axis increment in header.
+
+2020-11-18  Werner Lemberg  <wl@gnu.org>
+
 	* src/ftmulti.c (main): Fix header re-display.
 
 	The `header` string buffer must always be reset.
