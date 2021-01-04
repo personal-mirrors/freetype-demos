@@ -149,7 +149,6 @@ gr_win32_surface_refresh_rectangle(
 {
   int        delta;
   RECT       rect;
-  HANDLE     window = surface->window;
   grBitmap*  bitmap = &surface->root.bitmap;
 
   LOG(( "gr_win32_surface_refresh_rectangle: ( %p, %d, %d, %d, %d )\n",
@@ -237,7 +236,8 @@ gr_win32_surface_refresh_rectangle(
     }
   }
 
-  InvalidateRect( window, &rect, FALSE );
+  InvalidateRect( surface->window, &rect, FALSE );
+  UpdateWindow( surface->window );
 }
 
 
@@ -365,12 +365,14 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
                                grEvent*         grevent )
 {
   MSG     msg;
-  HANDLE  window = surface->window;
 
   event_mask=event_mask;  /* unused parameter */
 
-  while (GetMessage( &msg, NULL, 0, 0 ) > 0)
+  while ( GetMessage( &msg, NULL, 0, 0 ) > 0 )
   {
+    TranslateMessage( &msg );
+    DispatchMessage( &msg );
+
     switch ( msg.message )
     {
     case WM_RESIZE:
@@ -419,9 +421,6 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
       }
       break;
     }
-
-    TranslateMessage( &msg );
-    DispatchMessage( &msg );
   }
 }
 

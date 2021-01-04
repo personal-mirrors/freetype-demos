@@ -1,3 +1,11 @@
+2021-01-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/win32] Improve driver.
+
+	* graph/win32/grwin32.c (gr_win32_surface_refresh_rectangle):
+	Explicitly UpdateWindow to avoid delays and minor clean-up.
+	(gr_win32_surface_listen_event): Minor clean-up.
+
 2020-08-24  Anuj Verma  <anujv@iitbhilai.ac.in>
 
 	[ftsdf] Add better usage section.
