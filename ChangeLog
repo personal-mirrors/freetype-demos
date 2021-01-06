@@ -1,3 +1,7 @@
+2021-01-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/win32/grwin32.c (gr_win32_surface_init): Clean up.
+
 2021-01-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph/win32] Improve driver.

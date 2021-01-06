@@ -428,10 +428,6 @@ static grWin32Surface*
 gr_win32_surface_init( grWin32Surface*  surface,
                        grBitmap*        bitmap )
 {
-  static RGBQUAD  black = {    0,    0,    0, 0 };
-  static RGBQUAD  white = { 0xFF, 0xFF, 0xFF, 0 };
-
-
   /* Set default mode */
   if ( bitmap->mode == gr_pixel_mode_none )
   {
@@ -461,7 +457,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
 
   LOG(( "Win32: init_surface( %p, %p )\n", surface, bitmap ));
 
-  LOG(( "       -- input bitmap =\n" ));
   LOG(( "       --   mode   = %d\n", bitmap->mode ));
   LOG(( "       --   grays  = %d\n", bitmap->grays ));
   LOG(( "       --   width  = %d\n", bitmap->width ));
@@ -501,12 +496,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
   else
     surface->shadow_bitmap.buffer = bitmap->buffer;
 
-  LOG(( "       -- output bitmap =\n" ));
-  LOG(( "       --   mode   = %d\n", bitmap->mode ));
-  LOG(( "       --   grays  = %d\n", bitmap->grays ));
-  LOG(( "       --   width  = %d\n", bitmap->width ));
-  LOG(( "       --   height = %d\n", bitmap->rows ));
-
   surface->bmiHeader.biSize   = sizeof( BITMAPINFOHEADER );
   surface->bmiHeader.biWidth  = bitmap->width;
   surface->bmiHeader.biHeight = bitmap->rows;
@@ -516,13 +505,13 @@ gr_win32_surface_init( grWin32Surface*  surface,
   {
   case gr_pixel_mode_mono:
     surface->bmiHeader.biBitCount = 1;
-    surface->bmiColors[0] = white;
-    surface->bmiColors[1] = black;
-    break;
+    {
+      RGBQUAD  white = { 0xFF, 0xFF, 0xFF, 0 };
+      RGBQUAD  black = {    0,    0,    0, 0 };
 
-  case gr_pixel_mode_rgb24:
-    surface->bmiHeader.biBitCount    = 24;
-    surface->bmiHeader.biCompression = BI_RGB;
+      surface->bmiColors[0] = white;
+      surface->bmiColors[1] = black;
+    }
     break;
 
   case gr_pixel_mode_gray:
@@ -545,6 +534,11 @@ gr_win32_surface_init( grWin32Surface*  surface,
 
   case gr_pixel_mode_rgb32:
     surface->bmiHeader.biBitCount    = 32;
+    surface->bmiHeader.biCompression = BI_RGB;
+    break;
+
+  case gr_pixel_mode_rgb24:
+    surface->bmiHeader.biBitCount    = 24;
     surface->bmiHeader.biCompression = BI_RGB;
     break;
 
