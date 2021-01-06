@@ -1,3 +1,10 @@
+2021-01-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/win32] Use top-down DIBs.
+
+	* graph/win32/grwin32.c (Message_Process): Tweak WM_PAINT.
+	(gr_win32_surface_{init,resize}): Set negative `biHeight'.
+
 2021-01-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/win32/grwin32.c (gr_win32_surface_init): Clean up.

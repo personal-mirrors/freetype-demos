@@ -326,7 +326,6 @@ gr_win32_surface_resize( grWin32Surface*  surface,
                     height,
                     bitmap ) )
     return 0;
-  bitmap->pitch = -bitmap->pitch;
 
   /* resize BGR shadow bitmap */
   if ( bitmap->mode == gr_pixel_mode_rgb24 )
@@ -337,7 +336,6 @@ gr_win32_surface_resize( grWin32Surface*  surface,
                       height,
                       &surface->shadow_bitmap ) )
     return 0;
-    surface->shadow_bitmap.pitch = -surface->shadow_bitmap.pitch;
 
 #ifdef SWIZZLE
     if ( grNewBitmap( bitmap->mode,
@@ -346,7 +344,6 @@ gr_win32_surface_resize( grWin32Surface*  surface,
                       height,
                       &surface->swizzle_bitmap ) )
       return 0;
-    surface->swizzle_bitmap.pitch = -surface->swizzle_bitmap.pitch;
 #endif
   }
   else
@@ -354,7 +351,7 @@ gr_win32_surface_resize( grWin32Surface*  surface,
 
   /* update the header to appropriate values */
   surface->bmiHeader.biWidth  = width;
-  surface->bmiHeader.biHeight = height;
+  surface->bmiHeader.biHeight = -height;
 
   return surface;
 }
@@ -470,7 +467,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
                     bitmap->rows,
                     bitmap ) )
     return 0;
-  bitmap->pitch = -bitmap->pitch;
 
   /* allocate the BGR shadow bitmap */
   if ( bitmap->mode == gr_pixel_mode_rgb24 )
@@ -481,7 +477,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
                       bitmap->rows,
                       &surface->shadow_bitmap ) )
       return 0;
-    surface->shadow_bitmap.pitch = -surface->shadow_bitmap.pitch;
 
 #ifdef SWIZZLE
     if ( grNewBitmap( bitmap->mode,
@@ -490,7 +485,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
                       bitmap->rows,
                       &surface->swizzle_bitmap ) )
       return 0;
-    surface->swizzle_bitmap.pitch = -surface->swizzle_bitmap.pitch;
 #endif
   }
   else
@@ -498,7 +492,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
 
   surface->bmiHeader.biSize   = sizeof( BITMAPINFOHEADER );
   surface->bmiHeader.biWidth  = bitmap->width;
-  surface->bmiHeader.biHeight = bitmap->rows;
+  surface->bmiHeader.biHeight = -bitmap->rows;
   surface->bmiHeader.biPlanes = 1;
 
   switch ( bitmap->mode )
@@ -636,7 +630,7 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
     case WM_CLOSE:
       /* warn the main thread to quit if it didn't know */
       PostMessage( handle, WM_CHAR, (WPARAM)grKeyEsc, 0 );
-      return 0;
+      break;
 
     case WM_SIZE:
       if ( wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED )
@@ -660,16 +654,16 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
 
         hDC   = BeginPaint ( handle, &ps );
         SetDIBitsToDevice( hDC, 0, 0,
-                           surface->bmiHeader.biWidth,
-                           surface->bmiHeader.biHeight,
+                           surface->root.bitmap.width,
+                           surface->root.bitmap.rows,
                            0, 0, 0,
-                           surface->bmiHeader.biHeight,
+                           surface->root.bitmap.rows,
                            surface->shadow_bitmap.buffer,
                            (LPBITMAPINFO)&surface->bmiHeader,
                            DIB_RGB_COLORS );
         EndPaint ( handle, &ps );
-        return 0;
       }
+      break;
 
     default:
       return DefWindowProc( handle, mess, wParam, lParam );
