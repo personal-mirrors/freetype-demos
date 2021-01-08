@@ -98,8 +98,6 @@
     { VK_F12,       grKeyF12       }
   };
 
-  static ATOM  ourAtom;
-
   typedef struct grWin32SurfaceRec_
   {
     grSurface     root;
@@ -206,7 +204,6 @@ gr_win32_surface_refresh_rectangle(
     int             read_pitch  = bitmap->pitch;
     unsigned char*  write_line  = (unsigned char*)surface->shadow_bitmap.buffer;
     int             write_pitch = surface->shadow_bitmap.pitch;
-    int             bytes = 0;
 
     if ( read_pitch < 0 )
       read_line -= ( bitmap->rows - 1 ) * read_pitch;
@@ -605,7 +602,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
 LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
                                   WPARAM wParam, LPARAM lParam )
   {
-    grWin32Surface*  surface = NULL;
+    grWin32Surface*  surface;
 
     if ( mess == WM_CREATE )
     {
@@ -615,14 +612,14 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
       /*                                                               */
       surface = ((LPCREATESTRUCT)lParam)->lpCreateParams;
 
-      SetProp( handle, (LPCSTR)(LONG)ourAtom, surface );
+      SetWindowLongPtr( handle, GWLP_USERDATA, (LONG_PTR)surface );
     }
     else
     {
       /* for other calls, we retrieve the surface handle from the window */
       /* property.. ugly, isn't it ??                                    */
       /*                                                                 */
-      surface = (grWin32Surface*) GetProp( handle, (LPCSTR)(LONG)ourAtom );
+      surface = (grWin32Surface*)GetWindowLongPtr( handle, GWLP_USERDATA );
     }
 
     switch( mess )
@@ -697,16 +694,13 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
     if ( RegisterClass(&ourClass) == 0 )
       return -1;
 
-    /* add global atom */
-    ourAtom = GlobalAddAtom( "FreeType.Surface" );
-
     return 0;
   }
 
   static void
   gr_win32_device_done( void )
   {
-    GlobalDeleteAtom( ourAtom );
+    /* Nothing to do. */
   }
 
 

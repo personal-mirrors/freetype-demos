@@ -1,3 +1,11 @@
+2021-01-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/win32] Use faster Set/GetWindowLongPtr.
+
+	* graph/win32/grwin32.c (Message_Process): s/SetProp/SetWindowLongPtr/
+	and s/GetProp/GetWindowLongPtr/ essentially.
+	(gr_win32_device_init, gr_win32_device_done): Get rid of `ourAtom'.
+
 2021-01-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph/win32] Use top-down DIBs.
@@ -750,7 +758,7 @@
 
 	[graph] Clean up win32 driver.
 
-	This removes `BitBlt' and a related bitmap copy. Instead the driver 
+	This removes `BitBlt' and a related bitmap copy. Instead the driver
 	now uses direct `SetDIBitsToDevice' which is similar to `XPutImage'.
 
 	* graph/win32/grwin32.c (grWin32Surface): Remove `hbn'.
