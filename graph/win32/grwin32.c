@@ -39,7 +39,7 @@
 /* logging facility */
 #define  xxDEBUG
 
-#ifndef DEBUG
+#ifdef DEBUG
 #include <stdarg.h>
 
   static void  LogMessage( const char*  fmt, ... )
