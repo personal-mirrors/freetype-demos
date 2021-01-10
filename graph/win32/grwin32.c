@@ -23,30 +23,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* define to activate OLPC swizzle */
-#define xxSWIZZLE
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 #include "grobjs.h"
 #include "grdevice.h"
+
+/* define to activate OLPC swizzle */
+#define xxSWIZZLE
+
 #ifdef SWIZZLE
 #include "grswizzle.h"
 #endif
 
 /* logging facility */
+#define  xxDEBUG
+
+#ifndef DEBUG
 #include <stdarg.h>
 
-#define  DEBUGxxx
-
-#ifdef DEBUG
-#define LOG(x)  LogMessage##x
-#else
-#define LOG(x)  /* rien */
-#endif
-
-#ifdef DEBUG
   static void  LogMessage( const char*  fmt, ... )
   {
     va_list  ap;
@@ -55,8 +50,11 @@
     vfprintf( stderr, fmt, ap );
     va_end( ap );
   }
+
+#define LOG(x)  LogMessage##x
+#else
+#define LOG(x)  /* rien */
 #endif
-/*-------------------*/
 
 /*  Custom messages. */
 #define WM_RESIZE  WM_USER+517
@@ -633,6 +631,30 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
       if ( wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED )
         PostMessage( handle, WM_RESIZE, wParam, lParam );
       break;
+
+#ifdef DEBUG
+    case WM_SIZING:
+      {
+        PRECT  r = (PRECT)lParam;
+        RECT   WndRect;
+        int    x, y;
+
+        GetClientRect( handle, &WndRect );
+
+        y = wParam >= 6 ? wParam -= 6, 'B' :
+            wParam >= 3 ? wParam -= 3, 'T' : ' ';
+        x = wParam == 2 ? 'R' :
+            wParam == 1 ? 'L' : ' ';
+
+        LOG(( "WM_SIZING %c%c : ( %d %d %d %d )   "
+              "ClientArea : ( %d %d )\n",
+              y, x, r->left, r->top, r->right, r->bottom,
+              WndRect.right, WndRect.bottom ));
+
+        /* XXX: We cannot simply interrupt here and resize the image. */
+      }
+      break;
+#endif
 
     case WM_EXITSIZEMOVE:
       {
