@@ -1,3 +1,11 @@
+2021-01-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Do not preset blending cache.
+
+	* graph/gblender.c (gblender_init, gblender_use_channels):
+	Use `gblender_clear' instead of...
+	(gblender_reset): Removed.
+
 2021-01-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph/win32] Use faster Set/GetWindowLongPtr.

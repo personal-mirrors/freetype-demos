@@ -154,46 +154,6 @@ gblender_clear( GBlender  blender )
 }
 
 GBLENDER_APIDEF( void )
-gblender_reset( GBlender  blender )
-{
-  gblender_clear( blender );
-
-  if ( blender->channels )
-  {
-    blender->cache_r_back  = 0;
-    blender->cache_r_fore  = 0xFFFFFF;
-    blender->cache_r_cells = gblender_lookup_channel( blender,
-                                                      blender->cache_r_back,
-                                                      blender->cache_r_fore );
-    blender->cache_g_back  = 0;
-    blender->cache_g_fore  = 0xFFFFFF;
-    blender->cache_g_cells = gblender_lookup_channel( blender,
-                                                      blender->cache_g_back,
-                                                      blender->cache_g_fore );
-    blender->cache_b_back  = 0;
-    blender->cache_b_fore  = 0xFFFFFF;
-    blender->cache_b_cells = gblender_lookup_channel( blender,
-                                                      blender->cache_b_back,
-                                                      blender->cache_b_fore );
-  }
-  else
-  {
-    blender->cache_back  = 0;
-    blender->cache_fore  = 0xFFFFFF;
-    blender->cache_cells = gblender_lookup( blender,
-                                            blender->cache_back,
-                                            blender->cache_fore );
-  }
-
-#ifdef GBLENDER_STATS
-  blender->stat_hits    = 0;
-  blender->stat_lookups = 0;
-  blender->stat_keys    = 0;
-  blender->stat_clears  = 0;
-#endif
-}
-
-GBLENDER_APIDEF( void )
 gblender_init( GBlender   blender,
                double     gamma_value )
 {
@@ -203,7 +163,14 @@ gblender_init( GBlender   blender,
                              blender->gamma_ramp,
                              blender->gamma_ramp_inv );
 
-  gblender_reset( blender );
+  gblender_clear( blender );
+
+#ifdef GBLENDER_STATS
+  blender->stat_hits    = 0;
+  blender->stat_lookups = 0;
+  blender->stat_keys    = 0;
+  blender->stat_clears  = 0;
+#endif
 }
 
 
@@ -216,7 +183,7 @@ gblender_use_channels( GBlender  blender,
   if ( blender->channels != channels )
   {
     blender->channels = channels;
-    gblender_reset( blender );
+    gblender_clear( blender );
   }
 }
 
@@ -305,15 +272,6 @@ gblender_lookup( GBlender       blender,
 #ifdef GBLENDER_STATS
   blender->stat_hits--;
   blender->stat_lookups++;
-#endif
-
-#if 0
-  if ( blender->channels )
-  {
-    /* set to normal mode */
-    blender->channels = 0;
-    gblender_reset( blender );
-  }
 #endif
 
   idx0 = ( background + foreground*63 ) & (GBLENDER_KEY_COUNT-1);
@@ -408,15 +366,6 @@ gblender_lookup_channel( GBlender      blender,
 #ifdef GBLENDER_STATS
   blender->stat_hits--;
   blender->stat_lookups++;
-#endif
-
-#if 0
-  if ( !blender->channels )
-  {
-    /* set to normal mode */
-    blender->channels = 1;
-    gblender_reset( blender );
-  }
 #endif
 
   idx0 = ( background + foreground*17 ) & (GBLENDER_KEY_COUNT-1);
