@@ -1167,6 +1167,9 @@
 
       Clear_Display();
 
+      strbuf_init( header, Header, sizeof ( Header ) );
+      strbuf_reset( header );
+
       if ( file_loaded >= 1 )
       {
         switch ( render_mode )
@@ -1179,9 +1182,6 @@
           Render_All( (unsigned int)Num, ptsize );
         }
 
-        strbuf_init( header, Header, sizeof ( Header ) );
-
-        strbuf_reset( header );
         strbuf_format( header, "%.50s %.50s (file %.100s)",
                        face->family_name,
                        face->style_name,

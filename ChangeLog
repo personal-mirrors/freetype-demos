@@ -1,3 +1,7 @@
+2021-01-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftmulti.c (main): Fix crash.
+
 2021-01-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Do not preset blending cache.
