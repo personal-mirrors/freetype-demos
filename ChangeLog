@@ -1,3 +1,9 @@
+2021-01-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/gblany.h: Consolidate for easier editing.
+	* graph/gblhbgr.h, graph/gblhrgb.h, graph/gblvbgr.h, graph/gblvrgb.h,
+	graph/gblcolor.h, graph/gblbgra.h, graph/gblspans.h: Deleted.
+
 2021-01-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftmulti.c (main): Fix crash.
