@@ -274,12 +274,27 @@ gblender_blit_init( GBlenderBlit           blit,
 
   switch ( glyph->mode )
   {
-  case gr_pixel_mode_gray:  src_format = GBLENDER_SOURCE_GRAY8; break;
-  case gr_pixel_mode_lcd:   src_format = GBLENDER_SOURCE_HRGB;  break;
-  case gr_pixel_mode_lcdv:  src_format = GBLENDER_SOURCE_VRGB;  break;
-  case gr_pixel_mode_lcd2:  src_format = GBLENDER_SOURCE_HBGR;  break;
-  case gr_pixel_mode_lcdv2: src_format = GBLENDER_SOURCE_VBGR;  break;
-  case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;  break;
+  case gr_pixel_mode_gray:  src_format = GBLENDER_SOURCE_GRAY8;
+    gblender_use_channels( surface->gblender, 0 );
+    break;
+  case gr_pixel_mode_lcd:   src_format = GBLENDER_SOURCE_HRGB;
+    src_width /= 3;
+    gblender_use_channels( surface->gblender, 1 );
+    break;
+  case gr_pixel_mode_lcd2:  src_format = GBLENDER_SOURCE_HBGR;
+    src_width /= 3;
+    gblender_use_channels( surface->gblender, 1 );
+    break;
+  case gr_pixel_mode_lcdv:  src_format = GBLENDER_SOURCE_VRGB;
+    src_height /= 3;
+    gblender_use_channels( surface->gblender, 1 );
+    break;
+  case gr_pixel_mode_lcdv2: src_format = GBLENDER_SOURCE_VBGR;
+    src_height /= 3;
+    gblender_use_channels( surface->gblender, 1 );
+    break;
+  case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;
+    break;
   default:
     return -2;
   }
@@ -305,14 +320,6 @@ gblender_blit_init( GBlenderBlit           blit,
     blit->blit_func = _gblender_blit_dummy;
     return -2;
   }
-
-  if ( glyph->mode == gr_pixel_mode_lcd  ||
-       glyph->mode == gr_pixel_mode_lcd2 )
-    src_width /= 3;
-
-  if ( glyph->mode == gr_pixel_mode_lcdv  ||
-       glyph->mode == gr_pixel_mode_lcdv2 )
-    src_height /= 3;
 
   if ( dst_x < 0 )
   {
@@ -421,6 +428,8 @@ grSetTargetPenBrush( grBitmap*  target,
   }
 
   surface->color = color;
+
+  gblender_use_channels( surface->gblender, 0 );
 }
 
 

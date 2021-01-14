@@ -52,15 +52,12 @@ GCONCAT( _gblender_spans_, GDST_TYPE )( int            y,
 {
   grColor         color   = surface->color;
   GBlender        blender = surface->gblender;
-  unsigned char*  dst_origin = surface->origin - y * surface->bitmap.pitch;
 
   GDST_PIX;
 
-  GBLENDER_VARS;
+  GBLENDER_VARS(blender,pix);
 
-  gblender_use_channels( blender, 0 );
-
-  GBLENDER_VARS_SET(blender,pix);
+  unsigned char*  dst_origin = surface->origin - y * surface->bitmap.pitch;
 
   for ( ; count--; spans++ )
   {
@@ -102,15 +99,11 @@ GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit  blit,
 
   GDST_PIX;
 
-  GBLENDER_VARS;
+  GBLENDER_VARS(blender,pix);
 
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line;
   unsigned char*        dst_line = blit->dst_line;
-
-  gblender_use_channels( blender, 0 );
-
-  GBLENDER_VARS_SET(blender,pix);
 
   do
   {
@@ -167,15 +160,11 @@ GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit  blit,
 
   GDST_CHANNELS;
 
-  GBLENDER_CHANNEL_VARS;
+  GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line;
   unsigned char*        dst_line = blit->dst_line;
-
-  gblender_use_channels( blender, 1 );
-
-  GBLENDER_CHANNEL_VARS_SET(blender,r,g,b);
 
   do
   {
@@ -256,15 +245,11 @@ GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit  blit,
 
   GDST_CHANNELS;
 
-  GBLENDER_CHANNEL_VARS;
+  GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line;
   unsigned char*        dst_line = blit->dst_line;
-
-  gblender_use_channels( blender, 1 );
-
-  GBLENDER_CHANNEL_VARS_SET(blender,r,g,b);
 
   do
   {
@@ -345,16 +330,12 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
 
   GDST_CHANNELS;
 
-  GBLENDER_CHANNEL_VARS;
+  GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h         = blit->height;
   const unsigned char*  src_line  = blit->src_line;
   int                   src_pitch = blit->src_pitch;
   unsigned char*        dst_line  = blit->dst_line;
-
-  gblender_use_channels( blender, 1 );
-
-  GBLENDER_CHANNEL_VARS_SET(blender,r,g,b);
 
   do
   {
@@ -435,16 +416,12 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
 
   GDST_CHANNELS;
 
-  GBLENDER_CHANNEL_VARS;
+  GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h         = blit->height;
   const unsigned char*  src_line  = blit->src_line;
   int                   src_pitch = blit->src_pitch;
   unsigned char*        dst_line  = blit->dst_line;
-
-  gblender_use_channels( blender, 1 );
-
-  GBLENDER_CHANNEL_VARS_SET(blender,r,g,b);
 
   do
   {

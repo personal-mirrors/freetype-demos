@@ -149,15 +149,10 @@
 
 
   /* no final `;'! */
-#define  GBLENDER_VARS    \
-  GBlenderPixel  _gback;  \
-  GBlenderCell*  _gcells; \
-  GBlenderPixel  _gfore
-
-#define  GBLENDER_VARS_SET(_gb,_fore)                                                                         \
-  _gback  = (_gb)->cache_back;                                                                                \
-  _gcells = ( (_fore) == (_gb)->cache_fore ? (_gb)->cache_cells : gblender_lookup( (_gb), _gback, _fore ) );  \
-  _gfore  = (_fore)
+#define  GBLENDER_VARS(_gb,_fore)                                                                                              \
+  GBlenderPixel    _gback  = (_gb)->cache_back;                                                                                \
+  GBlenderCell*    _gcells = ( (_fore) == (_gb)->cache_fore ? (_gb)->cache_cells : gblender_lookup( (_gb), _gback, _fore ) );  \
+  GBlenderPixel    _gfore  = (_fore)
 
 #define  GBLENDER_LOOKUP(gb,back)                        \
    GBLENDER_STAT_HIT(gb);                                \
@@ -175,27 +170,16 @@
 
 
   /* no final `;'! */
-#define  GBLENDER_CHANNEL_VARS \
-  unsigned int    _grback;     \
-  unsigned char*  _grcells;    \
-  unsigned int    _grfore;     \
-  unsigned int    _ggback;     \
-  unsigned char*  _ggcells;    \
-  unsigned int    _ggfore;     \
-  unsigned int    _gbback;     \
-  unsigned char*  _gbcells;    \
-  unsigned int    _gbfore
-
-#define  GBLENDER_CHANNEL_VARS_SET(_gb,_rfore,_gfore,_bfore)                                                                \
-  _grback  = (_gb)->cache_r_back;                                                                                           \
-  _grcells = ( (_rfore) == (_gb)->cache_r_fore ? (_gb)->cache_r_cells : gblender_lookup_channel( (_gb), _grback, _rfore )); \
-  _grfore  = (_rfore);                                                                                                      \
-  _ggback  = (_gb)->cache_g_back;                                                                                           \
-  _ggcells = ( (_gfore) == (_gb)->cache_g_fore ? (_gb)->cache_g_cells : gblender_lookup_channel( (_gb), _ggback, _gfore )); \
-  _ggfore  = (_gfore);                                                                                                      \
-  _gbback  = (_gb)->cache_b_back;                                                                                           \
-  _gbcells = ( (_bfore) == (_gb)->cache_b_fore ? (_gb)->cache_b_cells : gblender_lookup_channel( (_gb), _gbback, _bfore )); \
-  _gbfore  = (_bfore);
+#define  GBLENDER_CHANNEL_VARS(_gb,_rfore,_gfore,_bfore)                                                                                        \
+  unsigned int     _grback  = (_gb)->cache_r_back;                                                                                              \
+  unsigned char*   _grcells = ( (_rfore) == (_gb)->cache_r_fore ? (_gb)->cache_r_cells : gblender_lookup_channel( (_gb), _grback, _rfore ));    \
+  unsigned int     _grfore  = (_rfore);                                                                                                         \
+  unsigned int     _ggback  = (_gb)->cache_g_back;                                                                                              \
+  unsigned char*   _ggcells = ( (_gfore) == (_gb)->cache_g_fore ? (_gb)->cache_g_cells : gblender_lookup_channel( (_gb), _ggback, _gfore ));    \
+  unsigned int     _ggfore  = (_rfore);                                                                                                         \
+  unsigned int     _gbback  = (_gb)->cache_b_back;                                                                                              \
+  unsigned char*   _gbcells = ( (_bfore) == (_gb)->cache_b_fore ? (_gb)->cache_b_cells : gblender_lookup_channel( (_gb), _gbback, _bfore ));    \
+  unsigned int     _gbfore  = (_bfore)
 
 #define  GBLENDER_CHANNEL_CLOSE(_gb)   \
   (_gb)->cache_r_back  = _grback;      \
