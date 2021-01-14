@@ -32,6 +32,10 @@
                                                     (((g) << 3) & 0x07E0) |  \
                                                     (((b) >> 3) & 0x001F) ) )
 
+#define  GRGB565_TO_RED(p)     ( ((p) >> 8 & 0xF8) | ((p) >> 13 & 0x07) )
+#define  GRGB565_TO_GREEN(p)   ( ((p) >> 3 & 0xFC) | ((p) >>  9 & 0x03) )
+#define  GRGB565_TO_BLUE(p)    ( ((p) << 3 & 0xF8) | ((p) >>  2 & 0x07) )
+
 #define  GRGB565_TO_RGB24(p)   ( ( ((p) << 8) & 0xF80000 ) |             \
                                  ( ((p) << 3) & 0x0700F8 ) |             \
                                  ( ((p) << 5) & 0x00FC00 ) |             \
@@ -48,6 +52,9 @@
                                                     (((g) << 2) & 0x03E0) |  \
                                                     (((b) >> 3) & 0x001F) ) )
 
+#define  GRGB555_TO_RED(p)     ( ((p) >> 7 & 0xF8) | ((p) >> 12 & 0x07) )
+#define  GRGB555_TO_GREEN(p)   ( ((p) >> 2 & 0xF8) | ((p) >>  7 & 0x07) )
+#define  GRGB555_TO_BLUE(p)    ( ((p) << 3 & 0xF8) | ((p) >>  2 & 0x07) )
 
 #define  GRGB555_TO_RGB24(p)   ( ( ((p) << 9) & 0xF80000 ) |             \
                                  ( ((p) << 4) & 0x070000 ) |             \
@@ -77,8 +84,12 @@
 
 #define  GDST_TYPE                rgb32
 #define  GDST_INCR                4
+#define  GDST_CHANNELS            unsigned int  b = color.value       & 255, \
+                                                g = color.value >>  8 & 255, \
+                                                r = color.value >> 16 & 255
+#define  GDST_PIX                 unsigned int  pix = color.value & 0xFFFFFF
 #define  GDST_READ(d,p)           (p) = *(GBlenderPixel*)(d) & 0xFFFFFF
-#define  GDST_COPY(d)             *(GBlenderPixel*)(d) = color
+#define  GDST_COPY(d)             *(GBlenderPixel*)(d) = color.value
 #define  GDST_STOREP(d,cells,a)   *(GBlenderPixel*)(d) = (cells)[(a)]
 #define  GDST_STOREB(d,cells,a)              \
   {                                          \
@@ -87,7 +98,6 @@
     GDST_STOREC(d,_g[0],_g[1],_g[2]);        \
   }
 #define  GDST_STOREC(d,r,g,b)     *(GBlenderPixel*)(d) = GRGB_PACK(r,g,b)
-#define  GDST_COPY_VAR            /* nothing */
 
 #include "gblany.h"
 
@@ -96,8 +106,12 @@
 
 #define  GDST_TYPE                 rgb24
 #define  GDST_INCR                 3
+#define  GDST_CHANNELS             unsigned int  b = color.chroma[2], \
+                                                 g = color.chroma[1], \
+                                                 r = color.chroma[0]
+#define  GDST_PIX                  unsigned int  pix = GRGB_PACK(color.chroma[0],color.chroma[1],color.chroma[2])
 #define  GDST_READ(d,p)            (p) = GRGB_PACK((d)[0],(d)[1],(d)[2])
-#define  GDST_COPY(d)              GDST_STORE3(d,r,g,b)
+#define  GDST_COPY(d)              GDST_STORE3(d,color.chroma[0],color.chroma[1],color.chroma[2])
 #define  GDST_STOREC(d,r,g,b)      GDST_STORE3(d,r,g,b)
 
 #define  GDST_STOREB(d,cells,a)                \
@@ -116,8 +130,6 @@
       GDST_STORE3(d,_pix >> 16,_pix >> 8,_pix); \
     }
 
-#define  GDST_COPY_VAR            /* nothing */
-
 #include "gblany.h"
 
 /* Rgb565 blitting routines
@@ -125,12 +137,13 @@
 
 #define  GDST_TYPE               rgb565
 #define  GDST_INCR               2
-
+#define  GDST_CHANNELS           unsigned int  b = GRGB565_TO_BLUE(color.value),  \
+                                               g = GRGB565_TO_GREEN(color.value), \
+                                               r = GRGB565_TO_RED(color.value)
+#define  GDST_PIX                unsigned int  pix = GRGB565_TO_RGB24(color.value)
 #define  GDST_READ(d,p)          p = (GBlenderPixel)*(unsigned short*)(d);  \
                                  p = GRGB565_TO_RGB24(p)
-
-#define  GDST_COPY_VAR           unsigned short  pix = GRGB_TO_RGB565(r,g,b);
-#define  GDST_COPY(d)            *(unsigned short*)(d) = pix
+#define  GDST_COPY(d)            *(unsigned short*)(d) = (unsigned short)color.value
 
 #define  GDST_STOREB(d,cells,a)                                   \
     {                                                             \
@@ -154,12 +167,13 @@
  */
 #define  GDST_TYPE               rgb555
 #define  GDST_INCR               2
-
+#define  GDST_CHANNELS           unsigned int  b = GRGB555_TO_BLUE(color.value),  \
+                                               g = GRGB555_TO_GREEN(color.value), \
+                                               r = GRGB555_TO_RED(color.value)
+#define  GDST_PIX                unsigned int  pix = GRGB555_TO_RGB24(color.value)
 #define  GDST_READ(d,p)          p = (GBlenderPixel)*(unsigned short*)(d);  \
                                  p = GRGB555_TO_RGB24(p)
-
-#define  GDST_COPY_VAR           unsigned short  pix = GRGB_TO_RGB555(r,g,b);
-#define  GDST_COPY(d)            *(unsigned short*)(d) = pix
+#define  GDST_COPY(d)            *(unsigned short*)(d) = (unsigned short)color.value
 
 #define  GDST_STOREB(d,cells,a)                                   \
     {                                                             \
@@ -183,10 +197,12 @@
  */
 #define  GDST_TYPE               gray8
 #define  GDST_INCR               1
-#define  GDST_READ(d,p)          (p) = GRGB_PACK((d)[0],(d)[0],(d)[0])
-
-#define  GDST_COPY_VAR           /* nothing */
-#define  GDST_COPY(d)            *(d) = GRGB_TO_GRAY8(r,g,b)
+#define  GDST_CHANNELS           unsigned int  b = color.value, \
+                                               g = color.value, \
+                                               r = color.value
+#define  GDST_PIX                unsigned int  pix = GGRAY8_TO_RGB24(color.value)
+#define  GDST_READ(d,p)          (p) = GGRAY8_TO_RGB24((d)[0])
+#define  GDST_COPY(d)            *(d) = (unsigned char)color.value
 
 #define  GDST_STOREB(d,cells,a)                 \
     {                                           \
@@ -220,8 +236,8 @@ blit_funcs[GBLENDER_TARGET_MAX] =
 
 
 static void
-_gblender_blit_dummy( GBlenderBlit   blit,
-                      GBlenderPixel  color )
+_gblender_blit_dummy( GBlenderBlit  blit,
+                      grColor       color )
 {
   (void)blit;
   (void)color;
@@ -382,35 +398,29 @@ grSetTargetPenBrush( grBitmap*  target,
   case gr_pixel_mode_gray:
     surface->origin    += x;
     surface->gray_spans = _gblender_spans_gray8;
-    surface->gcolor     = GGRAY8_TO_RGB24( color.value );
     break;
   case gr_pixel_mode_rgb555:
     surface->origin    += x * 2;
     surface->gray_spans = _gblender_spans_rgb555;
-    surface->gcolor     = GRGB555_TO_RGB24( color.value );
     break;
   case gr_pixel_mode_rgb565:
     surface->origin    += x * 2;
     surface->gray_spans = _gblender_spans_rgb565;
-    surface->gcolor     = GRGB565_TO_RGB24( color.value );
     break;
   case gr_pixel_mode_rgb24:
     surface->origin    += x * 3;
     surface->gray_spans = _gblender_spans_rgb24;
-    surface->gcolor     = GRGB_PACK( color.chroma[0],
-                                     color.chroma[1],
-                                     color.chroma[2] );
     break;
   case gr_pixel_mode_rgb32:
     surface->origin    += x * 4;
     surface->gray_spans = _gblender_spans_rgb32;
-    surface->gcolor     = color.value;
     break;
   default:
     surface->origin     = NULL;
     surface->gray_spans = (grSpanFunc)NULL;
-    surface->gcolor     = 0;
   }
+
+  surface->color = color;
 }
 
 
@@ -445,9 +455,6 @@ grBlitGlyphToSurface( grSurface*  surface,
     return -1;
   }
 
-  /* this is not a direct mode but we need to decode color */
-  grSetTargetPenBrush( (grBitmap*)surface, 0, 0, color );
-
-  gblender_blit_run( gblit, surface->gcolor );
+  gblender_blit_run( gblit, color );
   return 1;
 }

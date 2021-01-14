@@ -1,3 +1,14 @@
+2021-01-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Reduce color conversions in the blender.
+
+	* graph/gblblit.c (GDST_COPY_VAR): Removed.
+	(GDST_PIX, GDST_CHANNEL): New macros to convert color.
+	(grBlitGlyphToSurface, grSetTargetPenBrush): Pass `grColor' unchanged.
+	* graph/gblany.h (*): Use new marcos here.
+	* graph/gblblit.h (GBlenderBlitFunc): Accept `grColor'. 
+	* graph/grobjs.h (grSurface): Use `grColor'. 
+
 2021-01-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/gblany.h: Consolidate for easier editing.

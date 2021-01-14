@@ -37,8 +37,8 @@ typedef enum
 
 typedef struct GBlenderBlitRec_*    GBlenderBlit;
 
-typedef void  (*GBlenderBlitFunc)( GBlenderBlit   blit,
-                                   GBlenderPixel  color );
+typedef void  (*GBlenderBlitFunc)( GBlenderBlit  blit,
+                                   grColor       color );
 
 typedef struct GBlenderBlitRec_
 {

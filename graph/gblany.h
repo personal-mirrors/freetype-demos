@@ -30,8 +30,12 @@
 #error "GDST_COPY not defined"
 #endif
 
-#ifndef GDST_COPY_VAR
-#error  "GDST_COPY_VAR not defined"
+#ifndef GDST_PIX
+#error  "GDST_PIX not defined"
+#endif
+
+#ifndef GDST_CHANNELS
+#error  "GDST_CHANNELS not defined"
 #endif
 
 #undef  GCONCAT
@@ -46,26 +50,17 @@ GCONCAT( _gblender_spans_, GDST_TYPE )( int            y,
                                         const grSpan*  spans,
                                         grSurface*     surface )
 {
-  GBlenderPixel  color   = surface->gcolor;
-  GBlender       blender = surface->gblender;
-  unsigned int   r       = (color >> 16) & 255;
-  unsigned int   g       = (color >> 8)  & 255;
-  unsigned int   b       = (color)       & 255;
+  grColor         color   = surface->color;
+  GBlender        blender = surface->gblender;
+  unsigned char*  dst_origin = surface->origin - y * surface->bitmap.pitch;
 
-  GDST_COPY_VAR
+  GDST_PIX;
 
   GBLENDER_VARS;
 
-  unsigned char*  dst_origin = surface->origin - y * surface->bitmap.pitch;
-
   gblender_use_channels( blender, 0 );
 
-  GBLENDER_VARS_SET(blender,color);
-
-  /* make compiler happy */
-  (void)(r);
-  (void)(g);
-  (void)(b);
+  GBLENDER_VARS_SET(blender,pix);
 
   for ( ; count--; spans++ )
   {
@@ -100,15 +95,12 @@ GCONCAT( _gblender_spans_, GDST_TYPE )( int            y,
 
 
 static void
-GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit   blit,
-                                             GBlenderPixel  color )
+GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit  blit,
+                                             grColor       color )
 {
-  GBlender      blender = blit->blender;
-  unsigned int  r       = (color >> 16) & 255;
-  unsigned int  g       = (color >> 8)  & 255;
-  unsigned int  b       = (color)       & 255;
+  GBlender  blender = blit->blender;
 
-  GDST_COPY_VAR
+  GDST_PIX;
 
   GBLENDER_VARS;
 
@@ -118,12 +110,7 @@ GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit   blit,
 
   gblender_use_channels( blender, 0 );
 
-  GBLENDER_VARS_SET(blender,color);
-
-  /* make compiler happy */
-  (void)(r);
-  (void)(g);
-  (void)(b);
+  GBLENDER_VARS_SET(blender,pix);
 
   do
   {
@@ -173,15 +160,12 @@ GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit   blit,
 
 
 static void
-GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit   blit,
-                                            GBlenderPixel  color )
+GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit  blit,
+                                            grColor       color )
 {
   GBlender      blender = blit->blender;
-  unsigned int  r       = (color >> 16) & 255;
-  unsigned int  g       = (color >> 8)  & 255;
-  unsigned int  b       = (color)       & 255;
 
-  GDST_COPY_VAR
+  GDST_CHANNELS;
 
   GBLENDER_CHANNEL_VARS;
 
@@ -265,15 +249,12 @@ GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit   blit,
 
 
 static void
-GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit   blit,
-                                            GBlenderPixel  color )
+GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit  blit,
+                                            grColor       color )
 {
   GBlender      blender = blit->blender;
-  unsigned int  r       = (color >> 16) & 255;
-  unsigned int  g       = (color >> 8)  & 255;
-  unsigned int  b       = (color)       & 255;
 
-  GDST_COPY_VAR
+  GDST_CHANNELS;
 
   GBLENDER_CHANNEL_VARS;
 
@@ -357,15 +338,12 @@ GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit   blit,
 
 
 static void
-GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit   blit,
-                                            GBlenderPixel  color )
+GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
+                                            grColor       color )
 {
   GBlender      blender = blit->blender;
-  unsigned int  r       = (color >> 16) & 255;
-  unsigned int  g       = (color >> 8)  & 255;
-  unsigned int  b       = (color)       & 255;
 
-  GDST_COPY_VAR
+  GDST_CHANNELS;
 
   GBLENDER_CHANNEL_VARS;
 
@@ -450,15 +428,12 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit   blit,
 
 
 static void
-GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit   blit,
-                                            GBlenderPixel  color )
+GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
+                                            grColor       color )
 {
   GBlender      blender = blit->blender;
-  unsigned int  r       = (color >> 16) & 255;
-  unsigned int  g       = (color >> 8)  & 255;
-  unsigned int  b       = (color)       & 255;
 
-  GDST_COPY_VAR
+  GDST_CHANNELS;
 
   GBLENDER_CHANNEL_VARS;
 
@@ -543,8 +518,8 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit   blit,
 
 
 static void
-GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit   blit,
-                                            GBlenderPixel  color )
+GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit  blit,
+                                            grColor       color )
 {
   (void)color; /* unused */
 
@@ -649,6 +624,7 @@ GCONCAT( blit_funcs_, GDST_TYPE )[GBLENDER_SOURCE_MAX] =
 #undef GDST_STOREB
 #undef GDST_STOREP
 #undef GDST_STOREC
-#undef GDST_COPY_VAR
+#undef GDST_PIX
+#undef GDST_CHANNELS
 
 /* EOF */
