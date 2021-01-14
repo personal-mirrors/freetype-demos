@@ -102,13 +102,13 @@ GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit  blit,
   GBLENDER_VARS(blender,pix);
 
   int                   h        = blit->height;
-  const unsigned char*  src_line = blit->src_line;
-  unsigned char*        dst_line = blit->dst_line;
+  const unsigned char*  src_line = blit->src_line + blit->src_x;
+  unsigned char*        dst_line = blit->dst_line + blit->dst_x*GDST_INCR;
 
   do
   {
-    const unsigned char*  src = src_line + (blit->src_x);
-    unsigned char*        dst = dst_line + blit->dst_x*GDST_INCR;
+    const unsigned char*  src = src_line;
+    unsigned char*        dst = dst_line;
     int                   w   = blit->width;
 
     do
@@ -163,13 +163,13 @@ GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit  blit,
   GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h        = blit->height;
-  const unsigned char*  src_line = blit->src_line;
-  unsigned char*        dst_line = blit->dst_line;
+  const unsigned char*  src_line = blit->src_line + blit->src_x*3;
+  unsigned char*        dst_line = blit->dst_line + blit->dst_x*GDST_INCR;
 
   do
   {
-    const unsigned char*  src = src_line + blit->src_x*3;
-    unsigned char*        dst = dst_line + blit->dst_x*GDST_INCR;
+    const unsigned char*  src = src_line;
+    unsigned char*        dst = dst_line;
     int                   w   = blit->width;
 
     do
@@ -248,13 +248,13 @@ GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit  blit,
   GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h        = blit->height;
-  const unsigned char*  src_line = blit->src_line;
-  unsigned char*        dst_line = blit->dst_line;
+  const unsigned char*  src_line = blit->src_line + blit->src_x*3;
+  unsigned char*        dst_line = blit->dst_line + blit->dst_x*GDST_INCR;
 
   do
   {
-    const unsigned char*  src = src_line + blit->src_x*3;
-    unsigned char*        dst = dst_line + blit->dst_x*GDST_INCR;
+    const unsigned char*  src = src_line;
+    unsigned char*        dst = dst_line;
     int                   w   = blit->width;
 
     do
@@ -333,14 +333,14 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
   GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h         = blit->height;
-  const unsigned char*  src_line  = blit->src_line;
   int                   src_pitch = blit->src_pitch;
-  unsigned char*        dst_line  = blit->dst_line;
+  const unsigned char*  src_line  = blit->src_line + blit->src_x;
+  unsigned char*        dst_line  = blit->dst_line + blit->dst_x*GDST_INCR;
 
   do
   {
-    const unsigned char*  src = src_line + blit->src_x;
-    unsigned char*        dst = dst_line + blit->dst_x*GDST_INCR;
+    const unsigned char*  src = src_line;
+    unsigned char*        dst = dst_line;
     int                   w   = blit->width;
 
     do
@@ -419,14 +419,14 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
   GBLENDER_CHANNEL_VARS(blender,r,g,b);
 
   int                   h         = blit->height;
-  const unsigned char*  src_line  = blit->src_line;
   int                   src_pitch = blit->src_pitch;
-  unsigned char*        dst_line  = blit->dst_line;
+  const unsigned char*  src_line  = blit->src_line + blit->src_x;
+  unsigned char*        dst_line  = blit->dst_line + blit->dst_x*GDST_INCR;
 
   do
   {
-    const unsigned char*  src = src_line + blit->src_x;
-    unsigned char*        dst = dst_line + blit->dst_x*GDST_INCR;
+    const unsigned char*  src = src_line;
+    unsigned char*        dst = dst_line;
     int                   w   = blit->width;
 
     do
@@ -501,13 +501,13 @@ GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit  blit,
   (void)color; /* unused */
 
   int                   h        = blit->height;
-  const unsigned char*  src_line = blit->src_line;
-  unsigned char*        dst_line = blit->dst_line;
+  const unsigned char*  src_line = blit->src_line + blit->src_x*4;
+  unsigned char*        dst_line = blit->dst_line + blit->dst_x*GDST_INCR;
 
   do
   {
-    const unsigned char*  src = src_line + blit->src_x * 4;
-    unsigned char*        dst = dst_line + blit->dst_x * GDST_INCR;
+    const unsigned char*  src = src_line;
+    unsigned char*        dst = dst_line;
     int                   w   = blit->width;
 
     do

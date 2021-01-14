@@ -1,5 +1,9 @@
 2021-01-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* graph/gblamy.h (*): Blend a bit faster.
+
+2021-01-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[graph] Check blending cache earlier.
 
 	This slightly reworks commit bfbd78261beff2d6 by moving the cache
@@ -7,9 +11,9 @@
 	to keep the direct span rendering light.
 
 	* graph/gblany.h (*): Move the cache check from here...
-        * graph/gblblit.c (gblender_blit_init, grSetTargetPenBrush): ... to
+	* graph/gblblit.c (gblender_blit_init, grSetTargetPenBrush): ... to
 	here.
-        * graph/gblender.h (GBLANDER_VARS, GBLENDER_CHANNEL_VARS): Restore old
+	* graph/gblender.h (GBLANDER_VARS, GBLENDER_CHANNEL_VARS): Restore old
 	macros.
 
 2021-01-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
