@@ -75,9 +75,9 @@ MainGUI::about()
        " all rendering parameters.</p>"
        ""
        "<p>License:"
-       " <a href='http://git.savannah.gnu.org/cgit/freetype/freetype2.git/tree/docs/FTL.TXT'>FreeType"
+       " <a href='https://gitlab.freedesktop.org/freetype/freetype/-/blob/master/docs/FTL.TXT'>FreeType"
        " License (FTL)</a> or"
-       " <a href='http://git.savannah.gnu.org/cgit/freetype/freetype2.git/tree/docs/GPLv2.TXT'>GNU"
+       " <a href='https://gitlab.freedesktop.org/freetype/freetype/-/blob/master/docs/GPLv2.TXT'>GNU"
        " GPLv2</a></p>")
        .arg(QApplication::applicationVersion())
        .arg(QChar(0xA9)));

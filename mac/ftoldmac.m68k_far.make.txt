@@ -6,7 +6,7 @@
 MAKEFILE        = ftoldmac.m68k_far.make
 \xA5MondoBuild\xA5    = {MAKEFILE}  # Make blank to avoid rebuilds when makefile is modified
 
-FT2Dir		= ::freetype2:
+FT2Dir		= ::freetype:
 ObjDir          = :objs:
 Includes        =  \xB6
 			-i "{FT2Dir}include:" \xB6

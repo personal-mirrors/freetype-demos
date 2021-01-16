@@ -36,9 +36,9 @@ $!
 $ open/write optf 'optfile'
 $ If f$getsyi("HW_MODEL") .gt. 1024
 $ Then
-$  write optf "[-.freetype2.lib]freetype2shr.exe/share"
+$  write optf "[-.freetype.lib]freetype2shr.exe/share"
 $ else
-$   write optf "[-.freetype2.lib]freetype.olb/lib"
+$   write optf "[-.freetype.lib]freetype.olb/lib"
 $ endif
 $ gosub check_create_vmslib
 $ write optf "sys$share:decw$xlibshr.exe/share"
@@ -51,7 +51,7 @@ $!
 $ exit
 $!
 $ERR_LIB:
-$ write sys$output "Error reading config file [-.freetype2]vmslib.dat"
+$ write sys$output "Error reading config file [-.freetype]vmslib.dat"
 $ goto err_exit
 $FT2_ERR:
 $ write sys$output "Could not locate FreeType 2 include files"
@@ -86,7 +86,7 @@ $ deck
 
 .FIRST
 
-        define freetype [-.freetype2.include.freetype]
+        define freetype [-.freetype.include.freetype]
 
 CC = cc
 
@@ -97,7 +97,7 @@ GRX11SRC = [.graph.x11]
 OBJDIR = [.objs]
 
 # include paths
-INCLUDES = /include=([-.freetype2.include],[.graph])
+INCLUDES = /include=([-.freetype.include],[.graph])
 
 GRAPHOBJ = $(OBJDIR)grblit.obj,  \
            $(OBJDIR)grobjs.obj,  \
@@ -214,9 +214,9 @@ $! ---> Attention slightly changed version to take into account special
 $!      situation for FreeType 2 demos
 $CHECK_CREATE_VMSLIB:
 $!
-$ if f$search("[-.freetype2]VMSLIB.DAT") .eqs. ""
+$ if f$search("[-.freetype]VMSLIB.DAT") .eqs. ""
 $ then
-$   write sys$output "FreeType 2 driver file [-.freetype2]vmslib.dat not found."
+$   write sys$output "FreeType 2 driver file [-.freetype]vmslib.dat not found."
 $   write sys$output "Either Ft2demos have been installed in the wrong location"
 $   write sys$output "or FreeType 2 has not yet been configured."
 $   write sys$output "Exiting..."
@@ -230,7 +230,7 @@ $ libincs = ""
 $!
 $! Open data file with location of libraries
 $!
-$ open/read/end=end_lib/err=err_lib libdata [-.freetype2]VMSLIB.DAT
+$ open/read/end=end_lib/err=err_lib libdata [-.freetype]VMSLIB.DAT
 $LIB_LOOP:
 $ read/end=end_lib libdata libline
 $ libline = f$edit(libline, "UNCOMMENT,COLLAPSE")

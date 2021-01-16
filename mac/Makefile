@@ -13,7 +13,7 @@ all: exes
 empty :=
 space := $(empty) $(empty)
 
-TOP_DIR       ?= ../../freetype2
+TOP_DIR       ?= ../../freetype
 OBJ_DIR       ?= $(TOP_DIR)/objs
 TOP_DIR_2     ?= ..
 OBJ_DIR_2     ?= $(TOP_DIR_2)/objs

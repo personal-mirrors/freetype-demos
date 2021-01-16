@@ -24,7 +24,7 @@ space := $(empty) $(empty)
 # versions of the FreeType configuration header files `ft2build.h'
 # and `ftoption.h' given in this directory).
 #
-TOP_DIR   ?= ../freetype2
+TOP_DIR   ?= ../freetype
 TOP_DIR_2 ?= .
 OBJ_DIR   ?= $(TOP_DIR)/objs
 
@@ -575,7 +575,7 @@ endif
 
 # we check for `dist', not `distclean'
 ifneq ($(findstring distx,$(MAKECMDGOALS)x),)
-  FT_H := ../freetype2/include/freetype/freetype.h
+  FT_H := ../freetype/include/freetype/freetype.h
 
   major := $(shell sed -n 's/.*FREETYPE_MAJOR[^0-9]*\([0-9]\+\)/\1/p' < $(FT_H))
   minor := $(shell sed -n 's/.*FREETYPE_MINOR[^0-9]*\([0-9]\+\)/\1/p' < $(FT_H))

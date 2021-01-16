@@ -61,7 +61,7 @@
 #include FT_DRIVER_H
 
   /* The following header shouldn't be used in normal programs.    */
-  /* `freetype2/src/truetype' must be in the current include path. */
+  /* `freetype/src/truetype' must be in the current include path. */
 #include "ttobjs.h"
 #include "ttdriver.h"
 #include "ttinterp.h"
