@@ -1,6 +1,14 @@
+2021-01-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph] Implement much faster vertical grid lines.
+
+	* graph/gbfill.c (gr_fill_hline_*): Accept pitch increment as
+	additional argument and act accordingly.
+	(grFillVLine, grFillHLine, grFillRect): Updated all callers.
+
 2021-01-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* graph/gblamy.h (*): Blend a bit faster.
+	* graph/gblany.h (*): Blend a bit faster.
 
 2021-01-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
@@ -24,8 +32,8 @@
 	(GDST_PIX, GDST_CHANNEL): New macros to convert color.
 	(grBlitGlyphToSurface, grSetTargetPenBrush): Pass `grColor' unchanged.
 	* graph/gblany.h (*): Use new marcos here.
-	* graph/gblblit.h (GBlenderBlitFunc): Accept `grColor'. 
-	* graph/grobjs.h (grSurface): Use `grColor'. 
+	* graph/gblblit.h (GBlenderBlitFunc): Accept `grColor'.
+	* graph/grobjs.h (grSurface): Use `grColor'.
 
 2021-01-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
