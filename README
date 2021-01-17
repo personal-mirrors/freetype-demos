@@ -50,11 +50,9 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
     variable as described in the top-level Makefile.
 
     Recent versions of Mac OS X  no longer deliver X11 by default; you
-    have to install 'XQuartz', see
-
-      https://support.apple.com/en-us/HT201341
-
-    for more details.
+    have  to  install 'XQuartz'  or  'xorg-server'  (the successor  of
+    XQuartz).   Those  bundles  are  provided  by  distributions  like
+    MacPorts or homebrew.
 
 
     Using a different build directory
