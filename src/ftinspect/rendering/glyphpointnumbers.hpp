@@ -1,6 +1,6 @@
 // glyphpointnumbers.hpp
 
-// Copyright (C) 2016-2020 by Werner Lemberg.
+// Copyright (C) 2016-2021 by Werner Lemberg.
 
 
 #pragma once

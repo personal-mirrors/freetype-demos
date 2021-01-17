@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project - a Free and Portable Quality TrueType Renderer.   */
 /*                                                                          */
-/*  Copyright (C) 1996-2020 by                                              */
+/*  Copyright (C) 1996-2021 by                                              */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
 /*  fttimer: A simple performance benchmark.  Now with graylevel rendering  */

@@ -6,7 +6,7 @@
  *  used by the graphics utility of the FreeType test suite.
  *
  *  Written by Michael Pfeiffer.
- *  Copyright (C) 2001-2020 by
+ *  Copyright (C) 2001-2021 by
  *  Michael Pfeiffer
  *
  *  This file is part of the FreeType project, and may only be used
