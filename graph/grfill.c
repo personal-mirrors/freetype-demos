@@ -61,33 +61,28 @@ gr_fill_hline_4( unsigned char*  line,
                  grColor         color )
 {
   int  col = color.value | (color.value << 4);
+  int  height;
 
   line += (x >> 1);
 
   if ( incr & ~3 )  /* vertical */
   {
-    if ( x & 1 )
-      for ( ; width > 0; width--, line += incr )
-        line[0] = (unsigned char)((line[0] & 0xF0) | (col & 0x0F));
-    else
-      for ( ; width > 0; width--, line += incr )
-        line[0] = (unsigned char)((line[0] & 0x0F) | (col & 0xF0));
+    height = width;
+    width  = 1;
   }
   else              /* horizontal */
-  {
-    if ( x & 1 )
-    {
+    height = 1;
+
+  if ( x & 1 )
+    for ( ; height > 0; height--, width--, line += incr )
       line[0] = (unsigned char)((line[0] & 0xF0) | (col & 0x0F));
-      line++;
-      width--;
-    }
 
-    for ( ; width >= 2; width -= 2, line ++ )
-      line[0] = (unsigned char)col;
+  for ( ; width > 1; width -= 2, line++ )
+    line[0] = (unsigned char)col;
 
-    if ( width > 0 )
+  if ( width > 0 )
+    for ( ; height > 0; height--, line += incr )
       line[0] = (unsigned char)((line[0] & 0x0F) | (col & 0xF0));
-  }
 }
 
 static void

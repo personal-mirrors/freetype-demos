@@ -1,8 +1,12 @@
+2021-01-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/grfill.c (gr_fill_hline_4): Clean up.
+
 2021-01-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Implement much faster vertical grid lines.
 
-	* graph/gbfill.c (gr_fill_hline_*): Accept pitch increment as
+	* graph/grfill.c (gr_fill_hline_*): Accept pitch increment as
 	additional argument and act accordingly.
 	(grFillVLine, grFillHLine, grFillRect): Updated all callers.
 
