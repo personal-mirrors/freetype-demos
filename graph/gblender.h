@@ -176,7 +176,7 @@
   unsigned int     _grfore  = (_rfore);                                                                                                         \
   unsigned int     _ggback  = (_gb)->cache_g_back;                                                                                              \
   unsigned char*   _ggcells = ( (_gfore) == (_gb)->cache_g_fore ? (_gb)->cache_g_cells : gblender_lookup_channel( (_gb), _ggback, _gfore ));    \
-  unsigned int     _ggfore  = (_rfore);                                                                                                         \
+  unsigned int     _ggfore  = (_gfore);                                                                                                         \
   unsigned int     _gbback  = (_gb)->cache_b_back;                                                                                              \
   unsigned char*   _gbcells = ( (_bfore) == (_gb)->cache_b_fore ? (_gb)->cache_b_cells : gblender_lookup_channel( (_gb), _gbback, _bfore ));    \
   unsigned int     _gbfore  = (_bfore)
