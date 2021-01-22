@@ -8,10 +8,6 @@
 #error "GDST_TYPE not defined"
 #endif
 
-#ifndef GDST_READ
-#error "GDST_READ not defined"
-#endif
-
 #ifdef GBLENDER_STORE_BYTES
 #  ifndef GDST_STOREB
 #    error "GDST_STOREB not defined"
@@ -53,9 +49,9 @@ GCONCAT( _gblender_spans_, GDST_TYPE )( int            y,
   grColor         color   = surface->color;
   GBlender        blender = surface->gblender;
 
-  GDST_PIX;
+  GDST_PIX( fore, &color );
 
-  GBLENDER_VARS(blender,pix);
+  GBLENDER_VARS( blender, fore );
 
   unsigned char*  dst_origin = surface->origin - y * surface->bitmap.pitch;
 
@@ -73,9 +69,7 @@ GCONCAT( _gblender_spans_, GDST_TYPE )( int            y,
     else if ( a )
       for ( ; w-- ; dst += GDST_INCR )
       {
-        GBlenderPixel  back;
-
-        GDST_READ(dst,back);
+        GDST_PIX( back, dst);
 
         GBLENDER_LOOKUP( blender, back );
 
@@ -97,9 +91,9 @@ GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit  blit,
 {
   GBlender  blender = blit->blender;
 
-  GDST_PIX;
+  GDST_PIX( fore, &color );
 
-  GBLENDER_VARS(blender,pix);
+  GBLENDER_VARS( blender, fore );
 
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line + blit->src_x;
@@ -125,9 +119,7 @@ GCONCAT( _gblender_blit_gray8_, GDST_TYPE )( GBlenderBlit  blit,
       }
       else
       {
-        GBlenderPixel  back;
-
-        GDST_READ(dst,back);
+        GDST_PIX( back, dst );
 
         GBLENDER_LOOKUP( blender, back );
 
@@ -158,9 +150,9 @@ GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit  blit,
 {
   GBlender      blender = blit->blender;
 
-  GDST_CHANNELS;
+  GDST_CHANNELS( fore, &color );
 
-  GBLENDER_CHANNEL_VARS(blender,r,g,b);
+  GBLENDER_CHANNEL_VARS( blender, fore.r, fore.g, fore.b );
 
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line + blit->src_x*3;
@@ -191,36 +183,15 @@ GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit  blit,
       }
       else
       {
-        GBlenderPixel  back;
-        int            pix_r, pix_g, pix_b;
+        GDST_CHANNELS( back, dst );
 
-        GDST_READ(dst,back);
+        GBLENDER_LOOKUP_R( blender, back.r );
 
-        {
-          unsigned int  back_r = (back >> 16) & 255;
+        GBLENDER_LOOKUP_G( blender, back.g );
 
-          GBLENDER_LOOKUP_R( blender, back_r );
+        GBLENDER_LOOKUP_B( blender, back.b );
 
-          pix_r = _grcells[ar];
-        }
-
-        {
-          unsigned int  back_g = (back >> 8) & 255;
-
-          GBLENDER_LOOKUP_G( blender, back_g );
-
-          pix_g = _ggcells[ag];
-        }
-
-        {
-          unsigned int  back_b = (back) & 255;
-
-          GBLENDER_LOOKUP_B( blender, back_b );
-
-          pix_b = _gbcells[ab];
-        }
-
-        GDST_STOREC(dst,pix_r,pix_g,pix_b);
+        GDST_STOREC( dst, _grcells[ar], _ggcells[ag], _gbcells[ab] );
       }
 
       src += 3;
@@ -243,9 +214,9 @@ GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit  blit,
 {
   GBlender      blender = blit->blender;
 
-  GDST_CHANNELS;
+  GDST_CHANNELS( fore, &color );
 
-  GBLENDER_CHANNEL_VARS(blender,r,g,b);
+  GBLENDER_CHANNEL_VARS( blender, fore.r, fore.g, fore.b );
 
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line + blit->src_x*3;
@@ -276,36 +247,15 @@ GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit  blit,
       }
       else
       {
-        GBlenderPixel  back;
-        int            pix_r, pix_g, pix_b;
+        GDST_CHANNELS( back, dst );
 
-        GDST_READ(dst,back);
+        GBLENDER_LOOKUP_R( blender, back.r );
 
-        {
-          unsigned int  back_r = (back >> 16) & 255;
+        GBLENDER_LOOKUP_G( blender, back.g );
 
-          GBLENDER_LOOKUP_R( blender, back_r );
+        GBLENDER_LOOKUP_B( blender, back.b );
 
-          pix_r = _grcells[ar];
-        }
-
-        {
-          unsigned int  back_g = (back >> 8) & 255;
-
-          GBLENDER_LOOKUP_G( blender, back_g );
-
-          pix_g = _ggcells[ag];
-        }
-
-        {
-          unsigned int  back_b = (back) & 255;
-
-          GBLENDER_LOOKUP_B( blender, back_b );
-
-          pix_b = _gbcells[ab];
-        }
-
-        GDST_STOREC(dst,pix_r,pix_g,pix_b);
+        GDST_STOREC( dst, _grcells[ar], _ggcells[ag], _gbcells[ab] );
       }
 
       src += 3;
@@ -328,9 +278,9 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
 {
   GBlender      blender = blit->blender;
 
-  GDST_CHANNELS;
+  GDST_CHANNELS( fore, &color );
 
-  GBLENDER_CHANNEL_VARS(blender,r,g,b);
+  GBLENDER_CHANNEL_VARS( blender, fore.r, fore.g, fore.b );
 
   int                   h         = blit->height;
   int                   src_pitch = blit->src_pitch;
@@ -362,36 +312,15 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
       }
       else
       {
-        GBlenderPixel  back;
-        int            pix_r, pix_g, pix_b;
+        GDST_CHANNELS( back, dst );
 
-        GDST_READ(dst,back);
+        GBLENDER_LOOKUP_R( blender, back.r );
 
-        {
-          unsigned int  back_r = (back >> 16) & 255;
+        GBLENDER_LOOKUP_G( blender, back.g );
 
-          GBLENDER_LOOKUP_R( blender, back_r );
+        GBLENDER_LOOKUP_B( blender, back.b );
 
-          pix_r = _grcells[ar];
-        }
-
-        {
-          unsigned int  back_g = (back >> 8) & 255;
-
-          GBLENDER_LOOKUP_G( blender, back_g );
-
-          pix_g = _ggcells[ag];
-        }
-
-        {
-          unsigned int  back_b = (back) & 255;
-
-          GBLENDER_LOOKUP_B( blender, back_b );
-
-          pix_b = _gbcells[ab];
-        }
-
-        GDST_STOREC(dst,pix_r,pix_g,pix_b);
+        GDST_STOREC( dst, _grcells[ar], _ggcells[ag], _gbcells[ab] );
       }
 
       src += 1;
@@ -414,9 +343,9 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
 {
   GBlender      blender = blit->blender;
 
-  GDST_CHANNELS;
+  GDST_CHANNELS( fore, &color );
 
-  GBLENDER_CHANNEL_VARS(blender,r,g,b);
+  GBLENDER_CHANNEL_VARS( blender, fore.r, fore.g, fore.b );
 
   int                   h         = blit->height;
   int                   src_pitch = blit->src_pitch;
@@ -448,36 +377,15 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
       }
       else
       {
-        GBlenderPixel  back;
-        int            pix_r, pix_g, pix_b;
+        GDST_CHANNELS( back, dst );
 
-        GDST_READ(dst,back);
+        GBLENDER_LOOKUP_R( blender, back.r );
 
-        {
-          unsigned int  back_r = (back >> 16) & 255;
+        GBLENDER_LOOKUP_G( blender, back.g );
 
-          GBLENDER_LOOKUP_R( blender, back_r );
+        GBLENDER_LOOKUP_B( blender, back.b );
 
-          pix_r = _grcells[ar];
-        }
-
-        {
-          unsigned int  back_g = (back >> 8) & 255;
-
-          GBLENDER_LOOKUP_G( blender, back_g );
-
-          pix_g = _ggcells[ag];
-        }
-
-        {
-          unsigned int  back_b = (back) & 255;
-
-          GBLENDER_LOOKUP_B( blender, back_b );
-
-          pix_b = _gbcells[ab];
-        }
-
-        GDST_STOREC(dst,pix_r,pix_g,pix_b);
+        GDST_STOREC( dst, _grcells[ar], _ggcells[ag], _gbcells[ab] );
       }
 
       src += 1;
@@ -512,9 +420,7 @@ GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit  blit,
 
     do
     {
-      unsigned int  pix_b = src[0];
-      unsigned int  pix_g = src[1];
-      unsigned int  pix_r = src[2];
+      GBlenderBGR   pix = { src[0], src[1], src[2] };
       unsigned int  a = src[3];
 
 
@@ -524,45 +430,38 @@ GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit  blit,
       }
       else if ( a == 255 )
       {
-        GDST_STOREC(dst,pix_r,pix_g,pix_b);
+        GDST_STOREC( dst, pix.r, pix.g, pix.b );
       }
       else
       {
-        GBlenderPixel  back;
+        unsigned int  ba = 255 - a;
 
-        GDST_READ(dst,back);
+        GDST_CHANNELS( back, dst );
 
-        {
-          unsigned int  ba = 255 - a;
-          unsigned int  back_r = (back >> 16) & 255;
-          unsigned int  back_g = (back >> 8) & 255;
-          unsigned int  back_b = (back) & 255;
-
-#if 1     /* premultiplied blending without gamma correction */
-          pix_r = (back_r * ba / 255 + pix_r);
-          pix_g = (back_g * ba / 255 + pix_g);
-          pix_b = (back_b * ba / 255 + pix_b);
+#if 1   /* premultiplied blending without gamma correction */
+        pix.r = ( back.r * ba / 255 + pix.r );
+        pix.g = ( back.g * ba / 255 + pix.g );
+        pix.b = ( back.b * ba / 255 + pix.b );
 
 #else     /* gamma-corrected blending */
-          const unsigned char*   gamma_ramp_inv = blit->blender->gamma_ramp_inv;
-          const unsigned short*  gamma_ramp     = blit->blender->gamma_ramp;
+        const unsigned char*   gamma_ramp_inv = blit->blender->gamma_ramp_inv;
+        const unsigned short*  gamma_ramp     = blit->blender->gamma_ramp;
 
-          back_r = gamma_ramp[back_r];
-          back_g = gamma_ramp[back_g];
-          back_b = gamma_ramp[back_b];
+        back.r = gamma_ramp[back.r];
+        back.g = gamma_ramp[back.g];
+        back.b = gamma_ramp[back.b];
 
-          /* premultiplication undone */
-          pix_r = gamma_ramp[pix_r * 255 / a];
-          pix_g = gamma_ramp[pix_g * 255 / a];
-          pix_b = gamma_ramp[pix_b * 255 / a];
+        /* premultiplication undone */
+        pix.r = gamma_ramp[pix.r * 255 / a];
+        pix.g = gamma_ramp[pix.g * 255 / a];
+        pix.b = gamma_ramp[pix.b * 255 / a];
 
-          pix_r = gamma_ramp_inv[(back_r * ba + pix_r * a + 127) / 255];
-          pix_g = gamma_ramp_inv[(back_g * ba + pix_g * a + 127) / 255];
-          pix_b = gamma_ramp_inv[(back_b * ba + pix_b * a + 127) / 255];
+        pix.r = gamma_ramp_inv[( back.r * ba + pix.r * a + 127 ) / 255];
+        pix.g = gamma_ramp_inv[( back.g * ba + pix.g * a + 127 ) / 255];
+        pix.b = gamma_ramp_inv[( back.b * ba + pix.b * a + 127 ) / 255];
 #endif
-        }
 
-        GDST_STOREC(dst,pix_r,pix_g,pix_b);
+        GDST_STOREC( dst, pix.r, pix.g, pix.b );
       }
 
       src += 4;
@@ -596,7 +495,6 @@ GCONCAT( blit_funcs_, GDST_TYPE )[GBLENDER_SOURCE_MAX] =
 #undef GCONCAT
 #undef GDST_TYPE
 #undef GDST_INCR
-#undef GDST_READ
 #undef GDST_COPY
 #undef GDST_STOREB
 #undef GDST_STOREP

@@ -84,11 +84,10 @@
 
 #define  GDST_TYPE                rgb32
 #define  GDST_INCR                4
-#define  GDST_CHANNELS            unsigned int  b = color.value       & 255, \
-                                                g = color.value >>  8 & 255, \
-                                                r = color.value >> 16 & 255
-#define  GDST_PIX                 unsigned int  pix = color.value & 0xFFFFFF
-#define  GDST_READ(d,p)           (p) = *(GBlenderPixel*)(d) & 0xFFFFFF
+#define  GDST_CHANNELS(p,d)       GBlenderBGR  p = { *(unsigned int*)(d)       & 255, \
+                                                     *(unsigned int*)(d) >>  8 & 255, \
+                                                     *(unsigned int*)(d) >> 16 & 255 }
+#define  GDST_PIX(p,d)            unsigned int  p = *(GBlenderPixel*)(d) & 0xFFFFFF
 #define  GDST_COPY(d)             *(GBlenderPixel*)(d) = color.value
 #define  GDST_STOREP(d,cells,a)   *(GBlenderPixel*)(d) = (cells)[(a)]
 #define  GDST_STOREB(d,cells,a)              \
@@ -106,11 +105,10 @@
 
 #define  GDST_TYPE                 rgb24
 #define  GDST_INCR                 3
-#define  GDST_CHANNELS             unsigned int  b = color.chroma[2], \
-                                                 g = color.chroma[1], \
-                                                 r = color.chroma[0]
-#define  GDST_PIX                  unsigned int  pix = GRGB_PACK(color.chroma[0],color.chroma[1],color.chroma[2])
-#define  GDST_READ(d,p)            (p) = GRGB_PACK((d)[0],(d)[1],(d)[2])
+#define  GDST_CHANNELS(p,d)        GBlenderBGR  p = { ((unsigned char*)(d))[2], \
+                                                      ((unsigned char*)(d))[1], \
+                                                      ((unsigned char*)(d))[0] }
+#define  GDST_PIX(p,d)             unsigned int  p = GRGB_PACK(((unsigned char*)(d))[0],((unsigned char*)(d))[1],((unsigned char*)(d))[2])
 #define  GDST_COPY(d)              GDST_STORE3(d,color.chroma[0],color.chroma[1],color.chroma[2])
 #define  GDST_STOREC(d,r,g,b)      GDST_STORE3(d,r,g,b)
 
@@ -137,12 +135,10 @@
 
 #define  GDST_TYPE               rgb565
 #define  GDST_INCR               2
-#define  GDST_CHANNELS           unsigned int  b = GRGB565_TO_BLUE(color.value),  \
-                                               g = GRGB565_TO_GREEN(color.value), \
-                                               r = GRGB565_TO_RED(color.value)
-#define  GDST_PIX                unsigned int  pix = GRGB565_TO_RGB24(color.value)
-#define  GDST_READ(d,p)          p = (GBlenderPixel)*(unsigned short*)(d);  \
-                                 p = GRGB565_TO_RGB24(p)
+#define  GDST_CHANNELS(p,d)      GBlenderBGR  p  = { GRGB565_TO_BLUE (*(unsigned short*)(d)), \
+                                                     GRGB565_TO_GREEN(*(unsigned short*)(d)), \
+                                                     GRGB565_TO_RED  (*(unsigned short*)(d)) }
+#define  GDST_PIX(p,d)           unsigned int  p = GRGB565_TO_RGB24(*(unsigned short*)(d))
 #define  GDST_COPY(d)            *(unsigned short*)(d) = (unsigned short)color.value
 
 #define  GDST_STOREB(d,cells,a)                                   \
@@ -167,12 +163,10 @@
  */
 #define  GDST_TYPE               rgb555
 #define  GDST_INCR               2
-#define  GDST_CHANNELS           unsigned int  b = GRGB555_TO_BLUE(color.value),  \
-                                               g = GRGB555_TO_GREEN(color.value), \
-                                               r = GRGB555_TO_RED(color.value)
-#define  GDST_PIX                unsigned int  pix = GRGB555_TO_RGB24(color.value)
-#define  GDST_READ(d,p)          p = (GBlenderPixel)*(unsigned short*)(d);  \
-                                 p = GRGB555_TO_RGB24(p)
+#define  GDST_CHANNELS(p,d)      GBlenderBGR  p  = { GRGB555_TO_BLUE (*(unsigned short*)(d)), \
+                                                     GRGB555_TO_GREEN(*(unsigned short*)(d)), \
+                                                     GRGB555_TO_RED  (*(unsigned short*)(d)) }
+#define  GDST_PIX(p,d)           unsigned int  p = GRGB555_TO_RGB24(*(unsigned short*)(d))
 #define  GDST_COPY(d)            *(unsigned short*)(d) = (unsigned short)color.value
 
 #define  GDST_STOREB(d,cells,a)                                   \
@@ -197,11 +191,10 @@
  */
 #define  GDST_TYPE               gray8
 #define  GDST_INCR               1
-#define  GDST_CHANNELS           unsigned int  b = color.value, \
-                                               g = color.value, \
-                                               r = color.value
-#define  GDST_PIX                unsigned int  pix = GGRAY8_TO_RGB24(color.value)
-#define  GDST_READ(d,p)          (p) = GGRAY8_TO_RGB24((d)[0])
+#define  GDST_CHANNELS(p,d)      GBlenderBGR  p = { *(unsigned char*)(d), \
+                                                    *(unsigned char*)(d), \
+                                                    *(unsigned char*)(d) }
+#define  GDST_PIX(p,d)           unsigned int  p = GGRAY8_TO_RGB24(*(unsigned char*)(d))
 #define  GDST_COPY(d)            *(d) = (unsigned char)color.value
 
 #define  GDST_STOREB(d,cells,a)                 \

@@ -1,5 +1,15 @@
 2021-01-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Reduce color conversions in the blender (part 2).
+
+	* graph/gblender.h (GBlenderBGR): Define color channel storage.
+	* graph/gblblit.c (GDST_CHANNELS): Redefined.
+	(GDST_READ): Merged into...
+	(GDST_PIX): Redefined.
+	* graph/gblany.h (*): Major revisions.
+
+2021-01-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/gblender.h (GBLENDER_CHANNEL_VARS): Squash reintroduced bug.
 
 2021-01-17  Alexei Podtelezhnikov  <apodtele@gmail.com>

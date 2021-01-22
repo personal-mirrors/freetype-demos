@@ -48,6 +48,13 @@
 
   typedef struct
   {
+    unsigned int  b, g, r;
+
+  } GBlenderBGR;
+
+
+  typedef struct
+  {
     GBlenderPixel  background;
     GBlenderPixel  foreground;
     GBlenderCell*  cells;
