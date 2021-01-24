@@ -1,3 +1,7 @@
+2021-01-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* Makefile (FT_INCLUDES): Drop `$(TOP_DIR)/src/dlg`.
+
 2021-01-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph] Reduce color conversions in the blender (part 2).

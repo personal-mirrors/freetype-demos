@@ -128,7 +128,6 @@ else
   FT_INCLUDES := $(OBJ_BUILD) \
                  $(DEVEL_DIR) \
                  $(TOP_DIR)/include \
-                 $(TOP_DIR)/src/dlg \
                  $(SRC_DIR)
 
   COMPILE = $(CC) $(ANSIFLAGS) \
