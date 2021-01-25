@@ -262,9 +262,6 @@ gblender_blit_init( GBlenderBlit           blit,
   int                    dst_height = target->rows;
 
 
-  if ( glyph->grays != 256 )
-    return -2;
-
   switch ( glyph->mode )
   {
   case gr_pixel_mode_gray:  src_format = GBLENDER_SOURCE_GRAY8;
@@ -287,6 +284,8 @@ gblender_blit_init( GBlenderBlit           blit,
     gblender_use_channels( surface->gblender, 1 );
     break;
   case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;
+    break;
+  case gr_pixel_mode_mono:  src_format = GBLENDER_SOURCE_MONO;
     break;
   default:
     return -2;

@@ -476,6 +476,48 @@ GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit  blit,
 }
 
 
+static void
+GCONCAT( _gblender_blit_mono_, GDST_TYPE )( GBlenderBlit  blit,
+                                            grColor       color )
+{
+  int                   h        = blit->height;
+  unsigned char*        dst_line = blit->dst_line + blit->dst_x*GDST_INCR;
+  const unsigned char*  src_line = blit->src_line + ( blit->src_x >> 3 );
+  unsigned int          src_mask = 0x80 >> ( blit->src_x & 7 );
+
+  do
+  {
+    const unsigned char*  src = src_line;
+    unsigned int          a8  = *src;
+    unsigned int          msk = src_mask;
+    unsigned char*        dst = dst_line;
+    int                   w   = blit->width;
+
+    do
+    {
+      if ( !msk )
+      {
+         a8  = *++src;
+         msk = 0x80;
+      }
+
+      if ( a8 & msk )
+      {
+        GDST_COPY(dst);
+      }
+
+      msk >>= 1;
+      dst  += GDST_INCR;
+    }
+    while (--w > 0);
+
+    src_line += blit->src_pitch;
+    dst_line += blit->dst_pitch;
+  }
+  while (--h > 0);
+}
+
+
 static const GBlenderBlitFunc
 GCONCAT( blit_funcs_, GDST_TYPE )[GBLENDER_SOURCE_MAX] =
 {
@@ -484,7 +526,8 @@ GCONCAT( blit_funcs_, GDST_TYPE )[GBLENDER_SOURCE_MAX] =
   GCONCAT( _gblender_blit_hbgr_, GDST_TYPE ),
   GCONCAT( _gblender_blit_vrgb_, GDST_TYPE ),
   GCONCAT( _gblender_blit_vbgr_, GDST_TYPE ),
-  GCONCAT( _gblender_blit_bgra_, GDST_TYPE )
+  GCONCAT( _gblender_blit_bgra_, GDST_TYPE ),
+  GCONCAT( _gblender_blit_mono_, GDST_TYPE )
 };
 
 
