@@ -96,7 +96,6 @@
   } grBitmap;
 
 
-
   typedef long   grPos;
   typedef char   grBool;
 
@@ -108,12 +107,53 @@
   } grVector;
 
 
+ /*********************************************************************
+  *
+  * <Union>
+  *   grColor
+  *
+  * <Description>
+  *   a generic color pixel with arbitrary depth up to 32 bits.
+  *
+  * <Fields>
+  *   value  :: for colors represented using bitfields
+  *   chroma :: for colors in a particular byte order
+  *
+  * <Note>
+  *   Use grFindColor to set grColor corresponding to grBitmap.
+  *
+  ********************************************************************/
+
   typedef union grColor_
   {
     uint32_t       value;
     unsigned char  chroma[4];
 
   } grColor;
+
+
+ /**********************************************************************
+  *
+  * <Function>
+  *    grFindColor
+  *
+  * <Description>
+  *    return grColor pixel appropriate for a target mode.
+  *
+  * <Input>
+  *    target  :: used to match the pixel mode
+  *    red     :: red value in 0..255 range
+  *    green   :: green value in 0..255 range
+  *    blue    :: blue value in 0..255 range
+  *    alpha   :: alpha value in 0..255 range
+  *
+  ********************************************************************/
+  extern grColor
+  grFindColor( grBitmap*  target,
+               int        red,
+               int        green,
+               int        blue,
+               int        alpha );
 
 
  /**********************************************************************
@@ -181,7 +221,7 @@
   *   bitmap with fewer levels of grays, as this would much probably
   *   give unpleasant results..
   *
-  *   This function performs clipping
+  *   This function performs clipping.
   *
   **********************************************************************/
 
@@ -193,32 +233,22 @@
                        grColor    color );
 
 
-  /* values must be in 0..255 range */
-  extern grColor
-  grFindColor( grBitmap*  target,
-               int        red,
-               int        green,
-               int        blue,
-               int        alpha );
-
-
  /**********************************************************************
   *
   * <Function>
   *    grWriteCellChar
   *
   * <Description>
-  *    The graphics sub-system contains an internal CP437 8x8 font
-  *    which can be used to display simple strings of text without
-  *    using FreeType.
+  *    The graphics sub-system contains an internal CP437 font which can
+  *    be used to display simple strings of text without using FreeType.
   *
-  *    This function writes a single 8x8 character on the target bitmap.
+  *    This function writes a single character on the target bitmap.
   *
   * <Input>
   *    target   :: handle to target surface
   *    x        :: x pixel position of character cell's top left corner
   *    y        :: y pixel position of character cell's top left corner
-  *    charcode :: Latin-1 character code
+  *    charcode :: CP437 character code
   *    color    :: color to be used to draw the character
   *
   **********************************************************************/
@@ -237,17 +267,16 @@
   *    grWriteCellString
   *
   * <Description>
-  *    The graphics sub-system contains an internal CP437 8x8 font
-  *    which can be used to display simple strings of text without
-  *    using FreeType.
+  *    The graphics sub-system contains an internal CP437 font which can
+  *    be used to display simple strings of text without using FreeType.
   *
-  *    This function writes a string with the internal font
+  *    This function writes a string with the internal font.
   *
   * <Input>
   *    target       :: handle to target bitmap
   *    x            :: x pixel position of string's top left corner
   *    y            :: y pixel position of string's top left corner
-  *    string       :: Latin-1 text string
+  *    string       :: CP437 text string
   *    color        :: color to be used to draw the character
   *
   **********************************************************************/
@@ -554,23 +583,60 @@
  /**********************************************************************
   *
   * <Function>
+  *    grBlitGlyphToSurface
+  *
+  * <Description>
+  *    writes a given glyph bitmap to a target surface.
+  *
+  * <Input>
+  *    surface :: handle to surface
+  *    glyph   :: handle to source glyph bitmap
+  *    x       :: position of left-most pixel of glyph image in target surface
+  *    y       :: position of top-most pixel of glyph image in target surface
+  *    color   :: color to be used to draw a monochrome glyph
+  *
+  * <Return>
+  *   Error code. 0 means success
+  *
+  * <Note>
+  *   The function performs gamma-corrected alpha blending using the source
+  *   bitmap as an alpha channel(s), which can be specified for each pixel
+  *   as 8-bit (gray) bitmaps, or for individual color channels in various
+  *   LCD arrangements.
+  *
+  *   It also handles mono and BGRA bitmaps as special cases.
+  *
+  *   This function performs clipping.
+  *
+  **********************************************************************/
+
+  extern int
+  grBlitGlyphToSurface( grSurface*  surface,
+                        grBitmap*   glyph,
+                        grPos       x,
+                        grPos       y,
+                        grColor     color );
+
+
+ /**********************************************************************
+  *
+  * <Function>
   *    grWriteSurfaceChar
   *
   * <Description>
   *    This function is equivalent to calling grWriteCellChar on the
   *    surface's bitmap, then invoking grRefreshRectangle.
   *
-  *    The graphics sub-system contains an internal CP437 8x8 font
-  *    which can be used to display simple strings of text without
-  *    using FreeType.
+  *    The graphics sub-system contains an internal CP437 font which can
+  *    be used to display simple strings of text without using FreeType.
   *
-  *    This function writes a single 8x8 character on the target bitmap.
+  *    This function writes a single character on the target bitmap.
   *
   * <Input>
   *    target   :: handle to target surface
   *    x        :: x pixel position of character cell's top left corner
   *    y        :: y pixel position of character cell's top left corner
-  *    charcode :: Latin-1 character code
+  *    charcode :: CP437 character code
   *    color    :: color to be used to draw the character
   *
   **********************************************************************/
@@ -592,17 +658,16 @@
   *    This function is equivalent to calling grWriteCellString on the
   *    surface's bitmap, then invoking grRefreshRectangle.
   *
-  *    The graphics sub-system contains an internal CP437 8x8 font
-  *    which can be used to display simple strings of text without
-  *    using FreeType.
+  *    The graphics sub-system contains an internal CP437 font which can
+  *    be used to display simple strings of text without using FreeType.
   *
-  *    This function writes a string with the internal font
+  *    This function writes a string with the internal font.
   *
   * <Input>
   *    target       :: handle to target bitmap
   *    x            :: x pixel position of string's top left corner
   *    y            :: y pixel position of string's top left corner
-  *    string       :: Latin-1 text string
+  *    string       :: CP437 text string
   *    color        :: color to be used to draw the character
   *
   **********************************************************************/
@@ -673,7 +738,7 @@
   *    event  :: the returned event
   *
   * <Note>
-  *    XXX : For now, only keypresses are supported.
+  *    Only keypresses and resizing events are supported.
   *
   **********************************************************************/
 

@@ -218,17 +218,16 @@
   *    This function is equivalent to calling grWriteCellChar on the
   *    surface's bitmap, then invoking grRefreshRectangle.
   *
-  *    The graphics sub-system contains an internal CP437 8x8 font
-  *    which can be used to display simple strings of text without
-  *    using FreeType.
+  *    The graphics sub-system contains an internal CP437 font which can
+  *    be used to display simple strings of text without using FreeType.
   *
-  *    This function writes a single 8x8 character on the target bitmap.
+  *    This function writes a single character on the target bitmap.
   *
   * <Input>
   *    target   :: handle to target surface
   *    x        :: x pixel position of character cell's top left corner
   *    y        :: y pixel position of character cell's top left corner
-  *    charcode :: Latin-1 character code
+  *    charcode :: CP437 character code
   *    color    :: color to be used to draw the character
   *
   **********************************************************************/
@@ -255,9 +254,8 @@
   *    This function is equivalent to calling grWriteCellString on the
   *    surface's bitmap, then invoking grRefreshRectangle.
   *
-  *    The graphics sub-system contains an internal CP437 8x8 font
-  *    which can be used to display simple strings of text without
-  *    using FreeType.
+  *    The graphics sub-system contains an internal CP437 font which can
+  *    be used to display simple strings of text without using FreeType.
   *
   *    This function writes a string with the internal font
   *
@@ -265,7 +263,7 @@
   *    target       :: handle to target bitmap
   *    x            :: x pixel position of string's top left corner
   *    y            :: y pixel position of string's top left corner
-  *    string       :: Latin-1 text string
+  *    string       :: CP437 text string
   *    color        :: color to be used to draw the character
   *
   **********************************************************************/
