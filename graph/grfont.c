@@ -544,7 +544,7 @@
     8,                    /* width */
     1,                    /* pitch */
     gr_pixel_mode_mono,   /* mode  */
-    0,                    /* grays */
+    2,                    /* grays */
     NULL                  /* buffer */
   };
 
