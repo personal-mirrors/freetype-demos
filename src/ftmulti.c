@@ -345,8 +345,8 @@
     x_top = x_offset + glyph->bitmap_left;
     y_top = y_offset - glyph->bitmap_top;
 
-    grBlitGlyphToBitmap( bit, &bit3,
-                         x_top, y_top, fore_color );
+    grBlitGlyphToSurface( surface, &bit3,
+                          x_top, y_top, fore_color );
 
     return 0;
   }

@@ -10,7 +10,6 @@
 /****************************************************************************/
 
 #include "grblit.h"
-#include "gblblit.h"
 
 #define  GRAY8
 
@@ -1797,15 +1796,6 @@
     if ( !glyph->rows || !glyph->width )
     {
       /* nothing to do */
-      return 0;
-    }
-
-    /* short cut to alpha blender for certain glyph types */
-    switch ( grBlitGlyphToSurface( (grSurface*)target, glyph, x, y, color ) )
-    {
-    case 1:
-      return 1;
-    case 0:
       return 0;
     }
 

@@ -1090,8 +1090,8 @@
     else if ( mode == DISPLAY_MODE_LCD )
       glyph.mode = gr_pixel_mode_lcd;
 
-    grBlitGlyphToBitmap( display->bitmap, &glyph,
-                         x, y, display->fore_color );
+    grBlitGlyphToSurface( display->surface, &glyph,
+                          x, y, display->fore_color );
   }
 
 

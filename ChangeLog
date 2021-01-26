@@ -1,5 +1,13 @@
 2021-01-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[graph] Decouple the legacy and alpha blenders.
+
+	* graph/grblit.c (grBlitGlyphToBitmap): Do not call
+	`grBlitGlyphToSurface'.
+	* src/*: s/grBlitGlyphToBitmap/grBlitGlyphToSurface/.
+
+2021-01-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/grfont.c (gr_charcell): Minor.
 
 2021-01-25  Alexei Podtelezhnikov  <apodtele@gmail.com>

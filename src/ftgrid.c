@@ -579,9 +579,9 @@
       {
         bitmap_scale( st, &bitg, scale );
 
-        grBlitGlyphToBitmap( display->bitmap, &bitg,
-                             ox + left * scale, oy - top * scale,
-                             st->axis_color );
+        grBlitGlyphToSurface( display->surface, &bitg,
+                              ox + left * scale, oy - top * scale,
+                              st->axis_color );
 
         free( bitg.buffer );
 

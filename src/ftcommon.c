@@ -1693,8 +1693,8 @@
       return error;
 
     /* now render the bitmap into the display surface */
-    grBlitGlyphToBitmap( display->bitmap, &bit3, *pen_x + left,
-                         *pen_y - top, display->fore_color );
+    grBlitGlyphToSurface( display->surface, &bit3, *pen_x + left,
+                          *pen_y - top, display->fore_color );
 
     if ( glyf )
       FT_Done_Glyph( glyf );
@@ -1728,8 +1728,8 @@
     }
 
     /* now render the bitmap into the display surface */
-    grBlitGlyphToBitmap( display->bitmap, &bit3, *pen_x + left,
-                         *pen_y - top, color );
+    grBlitGlyphToSurface( display->surface, &bit3, *pen_x + left,
+                          *pen_y - top, color );
 
     if ( glyf )
       FT_Done_Glyph( glyf );
@@ -2060,8 +2060,8 @@
           top = display->bitmap->rows - top;
 
           /* now render the bitmap into the display surface */
-          grBlitGlyphToBitmap( display->bitmap, &bit3, left, top,
-                               display->fore_color );
+          grBlitGlyphToSurface( display->surface, &bit3, left, top,
+                                display->fore_color );
 
           if ( glyf )
             FT_Done_Glyph( glyf );
