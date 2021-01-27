@@ -237,31 +237,31 @@
                            grColor     color )
   {
     int             x, y;
-    unsigned int    shift;
-    unsigned char*  read;
-    unsigned char*  write;
-
-    read  = blit->read  + (blit->xread >> 3);
-    write = blit->write +  blit->xwrite;
-    shift = blit->xread & 7;
+    unsigned char*  write = blit->write + blit->xwrite;
+    unsigned char*  read  = blit->read  + ( blit->xread >> 3 );
+    unsigned int    mask  = 0x80 >> ( blit->xread & 7 );
 
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
       unsigned char*  _write = write;
-      unsigned long    val   = ((unsigned long)*_read++ | 0x100) << shift;
+      unsigned char*  _read  = read;
+      unsigned int    _mask  = mask;
+      unsigned int     val   = *_read;
 
       x = blit->width;
       do
       {
-        if (val & 0x10000)
-          val = *_read++ | 0x100;
+        if ( !_mask )
+        {
+          val   = *++_read;
+          _mask = 0x80;
+        }
 
-        if ( val & 0x80 )
+        if ( val & _mask )
           *_write = (unsigned char)color.value;
 
-        val <<= 1;
+        _mask >>= 1;
         _write++;
 
       } while ( --x > 0 );
@@ -283,47 +283,37 @@
   void  blit_mono_to_pal4( grBlitter*  blit,
                            grColor     color )
   {
-    int             x, y, phase;
-    unsigned int    shift;
-    unsigned char*  read;
-    unsigned char*  write;
-    unsigned int    col;
-
-
-    col   = color.value & 15;
-    read  = blit->read  + (blit->xread >> 3);
-    write = blit->write + (blit->xwrite >> 1);
-
-    /* now begin blit */
-    shift = blit->xread & 7;
-    phase = blit->xwrite & 1;
+    int             x, y;
+    unsigned char*  write = blit->write + ( blit->xwrite >> 1 );
+    unsigned int    phase = blit->xwrite & 1 ? 0x0F : 0xF0;
+    unsigned char*  read  = blit->read  + ( blit->xread >> 3 );
+    unsigned int    mask  = 0x80 >> ( blit->xread & 7 );
+    unsigned int    col = color.value | ( color.value << 4 );
 
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
       unsigned char*  _write = write;
-      int             _phase = phase;
-      unsigned long    val   = ((unsigned long)*_read++ | 0x100) << shift;
+      unsigned int    _phase = phase;
+      unsigned char*  _read  = read;
+      unsigned int    _mask  = mask;
+      unsigned int     val   = *_read;
 
       x = blit->width;
       do
       {
-        if (val & 0x10000)
-          val = *_read++ | 0x100;
-
-        if ( val & 0x80 )
+        if ( !_mask )
         {
-          if ( _phase )
-            *_write = (unsigned char)((*_write & 0xF0) | col);
-          else
-            *_write = (unsigned char)((*_write & 0x0F) | (col << 4));
+          val   = *++_read;
+          _mask = 0x80;
         }
 
-        val <<= 1;
+        if ( val & _mask )
+          *_write = (unsigned char)( (col & _phase) | (*_write & ~_phase) );
 
-        _write += _phase;
-        _phase ^= 1;
+        _mask >>= 1;
+        _write += _phase & 1;
+        _phase  = ~_phase;
         x--;
       } while ( x > 0 );
 
@@ -345,32 +335,32 @@
                             grColor     color )
   {
     int              x, y;
-    unsigned int     shift;
-    unsigned char*   read;
-    unsigned char*   write;
-
-    read  = blit->read + (blit->xread >> 3);
-    write = blit->write + blit->xwrite*2;
-    shift = blit->xread & 7;
+    unsigned char*   write = blit->write + blit->xwrite * 2;
+    unsigned char*   read  = blit->read  + ( blit->xread >> 3 );
+    unsigned int     mask  = 0x80 >> ( blit->xread & 7 );
 
     y = blit->height;
     do
     {
+      unsigned short* _write = (unsigned short*)write;
       unsigned char*  _read  = read;
-      unsigned char*  _write = write;
-      unsigned long    val   = ((unsigned long)*_read++ | 0x100) << shift;
+      unsigned int    _mask  = mask;
+      unsigned int     val   = *_read;
 
       x = blit->width;
       do
       {
-        if (val & 0x10000)
-          val = *_read++ | 0x100;
+        if ( !_mask )
+        {
+          val   = *++_read;
+          _mask = 0x80;
+        }
 
-        if ( val & 0x80 )
-          *(short*)_write = (short)color.value;
+        if ( val & _mask )
+          *_write = (unsigned short)color.value;
 
-        val   <<= 1;
-        _write +=2;
+        _mask >>= 1;
+        _write++;
         x--;
       } while ( x > 0 );
 
@@ -392,35 +382,35 @@
                             grColor     color )
   {
     int             x, y;
-    unsigned int    shift;
-    unsigned char*  read;
-    unsigned char*  write;
-
-    read  = blit->read  + (blit->xread >> 3);
-    write = blit->write + blit->xwrite*3;
-    shift = blit->xread & 7;
+    unsigned char*  write = blit->write + blit->xwrite * 3;
+    unsigned char*  read  = blit->read  + ( blit->xread >> 3 );
+    unsigned int    mask  = 0x80 >> ( blit->xread & 7 );
 
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
       unsigned char*  _write = write;
-      unsigned long    val   = ((unsigned long)*_read++ | 0x100) << shift;
+      unsigned char*  _read  = read;
+      unsigned int    _mask  = mask;
+      unsigned int     val   = *_read;
 
       x = blit->width;
       do
       {
-        if (val & 0x10000)
-          val = *_read++ | 0x100;
+        if ( !_mask )
+        {
+          val   = *++_read;
+          _mask = 0x80;
+        }
 
-        if ( val & 0x80 )
+        if ( val & _mask )
         {
           _write[0] = color.chroma[0];
           _write[1] = color.chroma[1];
           _write[2] = color.chroma[2];
         }
 
-        val   <<= 1;
+        _mask >>= 1;
         _write += 3;
         x--;
       } while ( x > 0 );
@@ -443,31 +433,31 @@
                             grColor     color )
   {
     int             x, y;
-    unsigned int    shift;
-    unsigned char*  read;
-    unsigned char*  write;
-
-    read  = blit->read  + ( blit->xread >> 3 );
-    write = blit->write + blit->xwrite*4;
-    shift = blit->xread & 7;
+    unsigned char*  write = blit->write + blit->xwrite * 4;
+    unsigned char*  read  = blit->read  + ( blit->xread >> 3 );
+    unsigned int    mask  = 0x80 >> ( blit->xread & 7 );
 
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
       uint32_t*       _write = (uint32_t*)write;
-      unsigned long   val    = ((unsigned long)*_read++ | 0x100L ) << shift;
+      unsigned char*  _read  = read;
+      unsigned int    _mask  = mask;
+      unsigned int     val   = *_read;
 
       x = blit->width;
       do
       {
-        if ( val & 0x10000 )
-          val = *_read++ | 0x100L;
+        if ( !_mask )
+        {
+          val   = *++_read;
+          _mask = 0x80;
+        }
 
-        if ( val & 0x80 )
+        if ( val & _mask )
           *_write = color.value;
 
-        val   <<= 1;
+        _mask >>= 1;
         _write++;
         x--;
 
