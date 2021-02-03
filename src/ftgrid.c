@@ -97,7 +97,7 @@
 
     int          ptsize;
     int          res;
-    int          Num;  /* glyph index */
+    int          Num;  /* glyph index or character code */
     int          font_index;
 
     float        scale;
@@ -1662,6 +1662,8 @@
   {
     char*  execname;
     int    option;
+    int    have_encoding = 0;
+    int    have_index    = 0;
 
 
     execname = ft_basename( (*argv)[0] );
@@ -1701,11 +1703,12 @@
 
       case 'e':
         handle->encoding = FTDemo_Make_Encoding_Tag( optarg );
-        status.Num       = 0x20;
+        have_encoding    = 1;
         break;
 
       case 'f':
         status.Num = atoi( optarg );
+        have_index = 1;
         break;
 
       case 'k':
@@ -1748,6 +1751,9 @@
 
     if ( *argc <= 1 )
       usage( execname );
+
+    if ( have_encoding && !have_index )
+      status.Num = 0x20;
 
     status.ptsize = (int)( atof( *argv[0] ) * 64.0 );
     if ( status.ptsize == 0 )
