@@ -34,7 +34,7 @@
   /* pixel mode constants */
   typedef enum grPixelMode
   {
-    gr_pixel_mode_none = 0,
+    gr_pixel_mode_none = 0,    /* driver inquiry mode              */
     gr_pixel_mode_mono,        /* monochrome bitmaps               */
     gr_pixel_mode_pal4,        /* 4-bit paletted - 16 colors       */
     gr_pixel_mode_pal8,        /* 8-bit paletted - 256 colors      */
@@ -221,7 +221,8 @@
   *   bitmap with fewer levels of grays, as this would much probably
   *   give unpleasant results..
   *
-  *   This function performs clipping.
+  *   This function performs clipping.  This function does not implement
+  *   gamma correction.
   *
   **********************************************************************/
 
@@ -378,7 +379,7 @@
   *    "device chain"
   *
   * <Fields>
-  *    name   :: ASCII name of the device, e.g. "x11", "os2pm", etc..
+  *    name   :: ASCII name of the device, e.g. "x11", "win32", etc..
   *    device :: handle to the device descriptor.
   *    next   :: next element in chain
   *
@@ -467,17 +468,9 @@
   *    error code. 0 means success. invalid device name otherwise
   *
   * <Note>
-  *    All drivers are _required_ to support at least the following
-  *    pixel formats :
-  *
-  *    - gr_pixel_mode_mono : i.e. monochrome bitmaps
-  *    - gr_pixel_mode_gray : with any number of gray levels between
-  *                           2 and 256.
-  *
-  *    the pixel modes do not provide the number of grays in the case
-  *    of "gray" devices. You should try to create a surface with the
-  *    maximal number (256, that is) and see the value returned in
-  *    the bitmap descriptor.
+  *    This feature is not implemented in the common drivers.  Use
+  *    grNewSurface with gr_pixel_mode.none instead to let the driver
+  *    set the mode.
   *
   **********************************************************************/
 
@@ -510,15 +503,11 @@
   *    handle to the corresponding surface object. 0 in case of error
   *
   * <Note>
-  *    If the requsted mode is gr_pixel_mode_mono, the driver can choose
-  *    a mode that is convenient for the driver.
+  *    If the requsted mode is gr_pixel_mode_none, the driver chooses
+  *    a mode that is convenient for the device.
   *
   *    All drivers are _required_ to support at least the following
-  *    pixel formats :
-  *
-  *    - gr_pixel_mode_mono : i.e. monochrome bitmaps
-  *    - gr_pixel_mode_gray : with any number of gray levels between
-  *                           2 and 256.
+  *    pixel formats: gray, rgb555, rgb565, rgb24, or rgb32.
   *
   *    This function might change the bitmap descriptor's fields. For
   *    example, when displaying a full-screen surface, the bitmap's
@@ -604,9 +593,8 @@
   *   as 8-bit (gray) bitmaps, or for individual color channels in various
   *   LCD arrangements.
   *
-  *   It also handles mono and BGRA bitmaps as special cases.
-  *
-  *   This function performs clipping.
+  *   This function performs clipping.  It also handles mono and BGRA
+  *   bitmaps without ganna correction.
   *
   **********************************************************************/
 

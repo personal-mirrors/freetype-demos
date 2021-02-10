@@ -64,13 +64,4 @@ typedef struct GBlenderBlitRec_
 
 #define  gblender_blit_run(b,color)  (b)->blit_func( (b), (color) )
 
-
-GBLENDER_API( int )
-grBlitGlyphToSurface( grSurface*  surface,
-                      grBitmap*   glyph,
-                      grPos       x,
-                      grPos       y,
-                      grColor     color );
-
-
 #endif /* GBLBLIT_H_ */
