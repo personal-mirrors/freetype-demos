@@ -206,11 +206,10 @@
         x = count;
         while ( x > 0 )
         {
-          unsigned char val;
+          unsigned int  val = *_read++;
 
-          val = *_read++;
           *_write++ |= (unsigned char)( (val >> shift) | old );
-          old = (unsigned int)val << shift2;
+          old = val << shift2;
           x--;
         }
 
@@ -536,7 +535,7 @@
     if ( num_grays < 2 )
     {
       grError = gr_err_bad_argument;
-      return 0;
+      return NULL;
     }
 
     for ( ; sat < limit; sat++ )
@@ -551,28 +550,28 @@
     /* not found, simply create a new entry if there is room */
     if (gr_num_saturations < GR_MAX_SATURATIONS)
     {
-      int          i;
-      const byte*  table;
+      int    i;
+      byte*  table;
 
-      table = (const byte*)grAlloc( (size_t)( 3 * num_grays - 1 ) *
-                                    sizeof ( byte ) );
-      if (!table) return 0;
+      table = grAlloc( (size_t)( 3 * num_grays - 1 ) * sizeof ( byte ) );
+      if (!table)
+        return NULL;
 
       sat->count = num_grays;
       sat->table = table;
 
       for ( i = 0; i < num_grays; i++, table++ )
-        *(unsigned char*)table = (unsigned char)i;
+        *table = (byte)i;
 
       for ( i = 2*num_grays-1; i > 0; i--, table++ )
-        *(unsigned char*)table = (unsigned char)(num_grays-1);
+        *table = (byte)(num_grays-1);
 
       gr_num_saturations++;
       gr_last_saturation = sat;
-      return sat->table;
+      return table;
     }
     grError = gr_err_saturation_overflow;
-    return 0;
+    return NULL;
   }
 
 
@@ -632,7 +631,7 @@
     if ( target_grays < 2 || source_grays < 2 )
     {
       grError = gr_err_bad_argument;
-      return 0;
+      return NULL;
     }
 
     /* otherwise, scan table */
@@ -649,27 +648,26 @@
     /* not found, add a new conversion to the table */
     if (gr_num_conversions < GR_MAX_CONVERSIONS)
     {
-      const byte*  table;
-      int          n;
+      byte*  table;
+      int    n;
 
-      table = (const byte*)grAlloc( (size_t)source_grays * sizeof ( byte ) );
+      table = grAlloc( (size_t)source_grays * sizeof ( byte ) );
       if (!table)
-        return 0;
+        return NULL;
 
       conv->target_grays = target_grays;
       conv->source_grays = source_grays;
       conv->table        = table;
 
       for ( n = 0; n < source_grays; n++ )
-        ((unsigned char*)table)[n] = (unsigned char)(n*(target_grays-1) /
-                                         (source_grays-1));
+        table[n] = (byte)(n*(target_grays-1) / (source_grays-1));
 
       gr_num_conversions++;
       gr_last_conversion = conv;
       return table;
     }
     grError = gr_err_conversion_overflow;
-    return 0;
+    return NULL;
   }
 
 
@@ -689,7 +687,10 @@
     int             y;
     unsigned char*  read;
     unsigned char*  write;
-
+#ifdef GR_CONFIG_GRAY_SKIP_WHITE
+    int  max = blit->source.grays - 1;
+    int  max2 = blit-target.grays - 1;
+#endif
 
     read  = blit->read  + blit->xread;
     write = blit->write + blit->xwrite;
@@ -704,12 +705,12 @@
       while (x > 0)
       {
 #ifdef GR_CONFIG_GRAY_SKIP_WHITE
-        unsigned char val = *_read;
+        int  val = *_read;
 
         if (val)
         {
           if (val == max)
-            *_write = max2;
+            *_write = (byte)max2;
           else
             *_write = saturation[ (int)*_write + conversion[ *_read ] ];
         }
@@ -743,10 +744,7 @@
     unsigned char*  read;
     unsigned char*  write;
 #ifdef GR_CONFIG_GRAY_SKIP_WHITE
-    unsigned char   max;
-
-
-    max = (unsigned char)( blit->source.grays - 1 );
+    int  max = blit->source.grays - 1;
 #endif
 
     read  = blit->read  + blit->xread;
@@ -762,7 +760,7 @@
       while (x > 0)
       {
 #ifdef GR_CONFIG_GRAY_SKIP_WHITE
-        unsigned char val = *_read;
+        int  val = *_read;
 
         if (val)
         {
@@ -820,15 +818,15 @@
 
 
 #define inject555( color )                          \
-   ( ( (unsigned short)color.chroma[0] << 10 ) |    \
-     ( (unsigned short)color.chroma[1] <<  5 ) |    \
-       color.chroma[2]                         )
+   (unsigned short)( ( color.chroma[0] << 10 ) |    \
+                     ( color.chroma[1] <<  5 ) |    \
+                       color.chroma[2]           )
 
 
 #define inject565( color )                          \
-   ( ( (unsigned short)color.chroma[0] << 11 ) |    \
-     ( (unsigned short)color.chroma[1] <<  5 ) |    \
-       color.chroma[2]                         )
+   (unsigned short)( ( color.chroma[0] << 11 ) |    \
+                     ( color.chroma[1] <<  5 ) |    \
+                       color.chroma[2]           )
 
 
 /**************************************************************************/
@@ -855,25 +853,22 @@
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
-      unsigned char*  _write = write;
-      int             x      = blit->width;
+      unsigned char*   _read  = read;
+      unsigned short*  _write = (unsigned short*)write;
+      int              x      = blit->width;
 
       while (x > 0)
       {
-        unsigned char    val;
+        unsigned char  val = *_read;
 
-        val = *_read;
         if (val)
         {
-          unsigned short* pixel = (unsigned short*)_write;
-
           if (val >= 254 )
-            *pixel = (unsigned short)( sr | sg | sb );
+            *_write = (unsigned short)( sr | sg | sb );
           else if ( val >= 2 )
           {
             /* compose gray value */
-            int   pix = (int)*pixel;
+            int   pix = (int)*_write;
             int   dr  = pix & 0x7C00;
             int   dg  = pix & 0x03E0;
             int   db  = pix & 0x001F;
@@ -887,10 +882,10 @@
             db += ((sb-db)*val) >> 8;
             db &= 0x001F;
 
-            *pixel = (unsigned short)( dr | dg | db );
+            *_write = (unsigned short)( dr | dg | db );
           }
         }
-        _write +=2;
+        _write ++;
         _read  ++;
         x--;
       }
@@ -924,34 +919,31 @@
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
-      unsigned char*  _write = write;
-      int             x      = blit->width;
+      unsigned char*   _read  = read;
+      unsigned short*  _write = (unsigned short*)write;
+      int              x      = blit->width;
 
       while (x > 0)
       {
-        unsigned char   val;
+        int  val = *_read;
 
-        val = *_read;
         if (val)
         {
-          unsigned short* pixel = (unsigned short*)_write;
-
           if (val == max)
-            *pixel = (unsigned short)(inject555( color ));
+            *_write = inject555( color );
           else
           {
             /* compose gray value */
-            unsigned short  pix16 = *pixel;
+            unsigned short  pix16 = *_write;
             grColor         pix;
 
             extract555( pix16, pix );
 
             compose_pixel( pix, color, val, max );
-            *pixel = (unsigned short)(inject555( pix ));
+            *_write = inject555( pix );
           }
         }
-        _write += 2;
+        _write ++;
         _read  ++;
         x--;
       }
@@ -988,25 +980,22 @@
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
-      unsigned char*  _write = write;
-      int             x      = blit->width;
+      unsigned char*   _read  = read;
+      unsigned short*  _write = (unsigned short*)write;
+      int              x      = blit->width;
 
       while (x > 0)
       {
-        unsigned char    val;
+        unsigned char  val = *_read;
 
-        val = *_read;
         if (val)
         {
-          unsigned short* pixel = (unsigned short*)_write;
-
           if (val >= 254 )
-            *pixel = (unsigned short)( sr | sg | sb );
+            *_write = (unsigned short)( sr | sg | sb );
           else if ( val >= 2 )
           {
             /* compose gray value */
-            int   pix = (int)*pixel;
+            int   pix = (int)*_write;
             int   dr  = pix & 0xF800;
             int   dg  = pix & 0x07E0;
             int   db  = pix & 0x001F;
@@ -1020,10 +1009,10 @@
             db += ((sb-db)*val) >> 8;
             db &= 0x001F;
 
-            *pixel = (unsigned short)( dr | dg | db );
+            *_write = (unsigned short)( dr | dg | db );
           }
         }
-        _write +=2;
+        _write ++;
         _read  ++;
         x--;
       }
@@ -1056,34 +1045,31 @@
     y = blit->height;
     do
     {
-      unsigned char*  _read  = read;
-      unsigned char*  _write = write;
-      int             x      = blit->width;
+      unsigned char*   _read  = read;
+      unsigned short*  _write = (unsigned short*)write;
+      int              x      = blit->width;
 
       while (x > 0)
       {
-        unsigned char    val;
+        int  val = *_read;
 
-        val = *_read;
         if (val)
         {
-          unsigned short* pixel = (unsigned short*)_write;
-
           if (val == max)
-            *pixel = (unsigned short)inject565( color );
+            *_write = inject565( color );
           else
           {
             /* compose gray value */
-            unsigned short  pix16 = *pixel;
+            unsigned short  pix16 = *_write;
             grColor         pix;
 
             extract565( pix16, pix );
 
             compose_pixel( pix, color, val, max );
-            *pixel = (unsigned short)inject565( pix );
+            *_write = inject565( pix );
           }
         }
-        _write +=2;
+        _write ++;
         _read  ++;
         x--;
       }
@@ -1126,9 +1112,8 @@
 
       while (x > 0)
       {
-        unsigned char    val;
+        unsigned char  val = *_read;
 
-        val = *_read;
         if (val)
         {
           if (val >= 254)
@@ -1187,9 +1172,8 @@
 
       while (x > 0)
       {
-        unsigned char    val;
+        int  val = *_read;
 
-        val = *_read;
         if (val)
         {
           if (val == max)
@@ -1254,9 +1238,8 @@
 
       while (x > 0)
       {
-        unsigned char  val;
+        int  val = *_read;
 
-        val = *_read;
         if (val)
         {
           if (val == max)
@@ -1333,11 +1316,9 @@
 
       while (x > 0)
       {
-        int    val0, val1, val2;
-
-        val0 = _read[0];
-        val1 = _read[1];
-        val2 = _read[2];
+        int  val0 = _read[0];
+        int  val1 = _read[1];
+        int  val2 = _read[2];
 
         if ( val0 | val1 | val2 )
         {
@@ -1402,11 +1383,9 @@
 
       while (x > 0)
       {
-        int    val0, val1, val2;
-
-        val0 = _read[0];
-        val1 = _read[1];
-        val2 = _read[2];
+        int  val0 = _read[0];
+        int  val1 = _read[1];
+        int  val2 = _read[2];
 
         if ( val0 | val1 | val2 )
         {
@@ -1471,11 +1450,9 @@
 
       while (x > 0)
       {
-        int    val0, val1, val2;
-
-        val0 = _read[2];
-        val1 = _read[1];
-        val2 = _read[0];
+        int  val0 = _read[2];
+        int  val1 = _read[1];
+        int  val2 = _read[0];
 
         if ( val0 | val1 | val2 )
         {
@@ -1540,11 +1517,9 @@
 
       while (x > 0)
       {
-        int    val0, val1, val2;
-
-        val0 = _read[2];
-        val1 = _read[1];
-        val2 = _read[0];
+        int  val0 = _read[2];
+        int  val1 = _read[1];
+        int  val2 = _read[0];
 
         if ( val0 | val1 | val2 )
         {
@@ -1614,11 +1589,9 @@
 
       while (x > 0)
       {
-        unsigned char    val0, val1, val2;
-
-        val0 = _read[0*line];
-        val1 = _read[1*line];
-        val2 = _read[2*line];
+        int  val0 = _read[0*line];
+        int  val1 = _read[1*line];
+        int  val2 = _read[2*line];
 
         if ( val0 | val1 | val2 )
         {
@@ -1682,11 +1655,9 @@
 
       while (x > 0)
       {
-        unsigned char    val0, val1, val2;
-
-        val0 = _read[2*line];
-        val1 = _read[1*line];
-        val2 = _read[0*line];
+        int  val0 = _read[2*line];
+        int  val1 = _read[1*line];
+        int  val2 = _read[0*line];
 
         if ( val0 | val1 | val2 )
         {
