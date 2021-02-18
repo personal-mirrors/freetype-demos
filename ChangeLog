@@ -1,5 +1,9 @@
 2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftstring.c (write_header): Fix header formatting.
+
+2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* graph/grblit.c: Clean up pointer and variable types.
 
 2021-02-03  Werner Lemberg  <wl@gnu.org>

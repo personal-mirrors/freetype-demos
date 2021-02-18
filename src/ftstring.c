@@ -646,7 +646,7 @@
                         -1, error_code );
 
     if ( status.header )
-      grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, 0, 3 * HEADER_HEIGHT,
                          status.header, display->fore_color );
 
     grRefreshSurface( display->surface );
