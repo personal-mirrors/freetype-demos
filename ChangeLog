@@ -1,5 +1,9 @@
 2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftcommon.c (FTDemo_String_Draw): Control pen position better.
+
+2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftstring.c (write_header): Fix header formatting.
 
 2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>

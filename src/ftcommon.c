@@ -1966,13 +1966,14 @@
         pen.y += handle->string[n].hadvance.y;
       }
 
-    pen.x = FT_MulFix( pen.x, sc->center );
-    pen.y = FT_MulFix( pen.y, sc->center );
+    /* round to control initial pen position and preserve hinting... */
+    pen.x = FT_MulFix( pen.x, sc->center ) & ~63;
+    pen.y = FT_MulFix( pen.y, sc->center ) & ~63;
 
-    /* XXX sbits */
-    /* get pen position */
+    /* ... unless rotating; XXX sbits */
     FT_Vector_Transform( &pen, sc->matrix );
 
+    /* get pen position */
     pen.x = ( x << 6 ) - pen.x;
     pen.y = ( y << 6 ) - pen.y;
 
