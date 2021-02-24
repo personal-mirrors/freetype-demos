@@ -1,5 +1,13 @@
 2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	Split out PNG writing routines.
+
+	* src/ftcommon.c (FTDemo_Display_Print): Move from here...
+	* src/ftpngout.c (FTDemo_Display_Print): ... to here.
+	* Makefile: Updated accordingly.
+
+2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftcommon.c (FTDemo_String_Draw): Control pen position better.
 
 2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>

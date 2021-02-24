@@ -342,12 +342,16 @@ else
                 $(OBJ_DIR_2)/output.$(SO) \
                 $(OBJ_DIR_2)/mlgetopt.$(SO)
 
-
-  FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO)
-  $(FTCOMMON_OBJ): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h
+  $(OBJ_DIR_2)/ftcommon.$(SO): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
+  $(OBJ_DIR_2)/ftpngout.$(SO): $(SRC_DIR)/ftpngout.c $(SRC_DIR)/ftcommon.h
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+  FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
+                  $(OBJ_DIR_2)/ftpngout.$(SO)
 
   $(OBJ_DIR_2)/ftlint.$(SO): $(SRC_DIR)/ftlint.c
 	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
