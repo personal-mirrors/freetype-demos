@@ -1,4 +1,10 @@
-2021-02-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2021-02-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	PNG writing routines using GDI+.
+
+	* src/ftpngout.c (FTDemo_Display_Print) [_WIN32]: Implement it.
+
+2021-02-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	Split out PNG writing routines.
 
