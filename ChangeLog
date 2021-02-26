@@ -1,3 +1,7 @@
+2021-02-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/gblany.h, graph/gblblit.c: Multiply by 0x010101U.
+
 2021-02-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	PNG writing routines using GDI+.

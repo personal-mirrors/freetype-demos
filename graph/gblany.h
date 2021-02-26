@@ -175,9 +175,7 @@ GCONCAT( _gblender_blit_hrgb_, GDST_TYPE )( GBlenderBlit  blit,
       {
         /* nothing */
       }
-      else if ( aa == (((GBLENDER_SHADE_COUNT-1) << 16) |
-                       ((GBLENDER_SHADE_COUNT-1) << 8)  |
-                        (GBLENDER_SHADE_COUNT-1)        ) )
+      else if ( aa == (GBLENDER_SHADE_COUNT-1) * 0x010101U )
       {
         GDST_COPY(dst);
       }
@@ -239,9 +237,7 @@ GCONCAT( _gblender_blit_hbgr_, GDST_TYPE )( GBlenderBlit  blit,
       {
         /* nothing */
       }
-      else if ( aa == (((GBLENDER_SHADE_COUNT-1) << 16) |
-                       ((GBLENDER_SHADE_COUNT-1) << 8)  |
-                        (GBLENDER_SHADE_COUNT-1)        ) )
+      else if ( aa == (GBLENDER_SHADE_COUNT-1) * 0x010101U )
       {
         GDST_COPY(dst);
       }
@@ -304,9 +300,7 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
       {
         /* nothing */
       }
-      else if ( aa == (((GBLENDER_SHADE_COUNT-1) << 16) |
-                       ((GBLENDER_SHADE_COUNT-1) << 8)  |
-                        (GBLENDER_SHADE_COUNT-1)        ) )
+      else if ( aa == (GBLENDER_SHADE_COUNT-1) * 0x010101U )
       {
         GDST_COPY(dst);
       }
@@ -369,9 +363,7 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
       {
         /* nothing */
       }
-      else if ( aa == (((GBLENDER_SHADE_COUNT-1) << 16) |
-                       ((GBLENDER_SHADE_COUNT-1) << 8)  |
-                        (GBLENDER_SHADE_COUNT-1)        ) )
+      else if ( aa == (GBLENDER_SHADE_COUNT-1) * 0x010101U )
       {
         GDST_COPY(dst);
       }

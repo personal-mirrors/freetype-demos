@@ -71,7 +71,7 @@
 
 #define  GRGB_TO_GRAY8(r,g,b)  ( (unsigned char)( ( 3*(r) + 6*(g) + (b) ) / 10 ) )
 
-#define  GGRAY8_TO_RGB24(p)    GRGB_PACK(p,p,p)
+#define  GGRAY8_TO_RGB24(p)   ( (p) * 0x010101U )
 
 #define  GRGB24_TO_GRAY8(p)   ( (unsigned char)( ( 3*( ((p) >> 16) & 0xFF ) +         \
                                                    6*( ((p) >>  8) & 0xFF ) +         \
