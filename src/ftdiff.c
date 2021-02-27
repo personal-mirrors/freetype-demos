@@ -989,10 +989,6 @@
     grBitmap    bit;
 
 
-    if ( mode != gr_pixel_mode_gray  &&
-         mode != gr_pixel_mode_rgb24 )
-      return -1;
-
     grInitDevices();
 
     bit.mode  = mode;
@@ -1013,8 +1009,8 @@
 
     grSetTargetGamma( display->bitmap, display->gamma );
 
-    memset( &display->fore_color, 0, sizeof( grColor ) );
-    memset( &display->back_color, 0xff, sizeof( grColor ) );
+    display->fore_color = grFindColor( display->bitmap,   0,   0,   0, 255 );
+    display->back_color = grFindColor( display->bitmap, 255, 255, 255, 255 );
 
     return 0;
   }
@@ -1024,30 +1020,9 @@
   adisplay_clear( ADisplay  display )
   {
     grBitmap*  bit   = display->bitmap;
-    int        pitch = bit->pitch;
 
 
-    if ( pitch < 0 )
-      pitch = -pitch;
-
-    if ( bit->mode == gr_pixel_mode_gray )
-      memset( bit->buffer,
-              display->back_color.value,
-              (size_t)pitch * (size_t)bit->rows );
-    else
-    {
-      unsigned char*  p = bit->buffer;
-      int             i, j;
-
-
-      for ( i = 0; i < bit->rows; i++ )
-      {
-        for ( j = 0; j < bit->width; j++ )
-          memcpy( p + 3 * j, display->back_color.chroma, 3 );
-
-        p += pitch;
-      }
-    }
+    grFillRect( bit, 0, 0, bit->width, bit->rows, display->back_color );
   }
 
 
@@ -1622,7 +1597,7 @@
     }
 
     /* Initialize display */
-    if ( adisplay_init( adisplay, gr_pixel_mode_rgb24,
+    if ( adisplay_init( adisplay, gr_pixel_mode_none,
                         width, height ) < 0 )
     {
       fprintf( stderr, "could not initialize display!  Aborting.\n" );

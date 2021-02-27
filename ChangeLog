@@ -1,3 +1,11 @@
+2021-02-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftdiff] Make it agnostic to display mode.
+
+	* src/ftdiff.c (main): Let the driver choose the mode.
+	(adisplay_init): Call `grFindColor' to set colors.
+	(adisplay_clear): Call `grFillRect' to clear display.
+
 2021-02-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/gblany.h, graph/gblblit.c: Multiply by 0x010101U.
