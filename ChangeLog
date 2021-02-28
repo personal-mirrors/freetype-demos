@@ -1,3 +1,10 @@
+2021-02-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/x11] Gray multiplication tricks.
+
+	* graph/x11/grx11.c (gr_x11_convert_gray_to_rgb{555,565,0888,8880}):
+	Combine multiple shifts into multiplication.
+
 2021-02-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftdiff] Make it agnostic to display mode.

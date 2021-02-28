@@ -257,9 +257,8 @@
         unsigned int  p = lread[0];
 
 
-        lwrite[0] = (unsigned short)( ( ( p << 8 ) & 0xF800U ) |
-                                      ( ( p << 3 ) & 0x07E0  ) |
-                                      ( ( p >> 3 ) & 0x001F  ) );
+        lwrite[0] = (unsigned short)( ( ( p >> 3 ) * 0x0801U ) |
+                                      ( ( p >> 2 ) * 0x0020U ) );
       }
 
       line_read  += blit->src_pitch;
@@ -382,14 +381,7 @@
 
 
       for ( ; x > 0; x--, lread++, lwrite++ )
-      {
-        unsigned int  p = lread[0];
-
-
-        lwrite[0] = (unsigned short)( ( ( p << 7 ) & 0x7C00 ) |
-                                      ( ( p << 2 ) & 0x03E0 ) |
-                                      ( ( p >> 3 ) & 0x001F ) );
-      }
+        *lwrite = (unsigned short)( ( *lread >> 3 ) * 0x0421U );
 
       line_read  += blit->src_pitch;
       line_write += blit->dst_pitch;
@@ -619,14 +611,7 @@
 
 
       for ( ; x > 0; x--, lread++, lwrite++ )
-      {
-        uint32_t  p = lread[0];
-
-
-        *lwrite = ( p << 24 ) |
-                  ( p << 16 ) |
-                  ( p <<  8 );
-      }
+        *lwrite = *lread * 0x01010100U;
 
       line_read  += blit->src_pitch;
       line_write += blit->dst_pitch;
@@ -699,14 +684,7 @@
 
 
       for ( ; x > 0; x--, lread++, lwrite++ )
-      {
-        uint32_t  p = lread[0];
-
-
-        *lwrite = ( p << 16 ) |
-                  ( p <<  8 ) |
-                  ( p <<  0 );
-      }
+        *lwrite = *lread * 0x010101U;
 
       line_read  += blit->src_pitch;
       line_write += blit->dst_pitch;
