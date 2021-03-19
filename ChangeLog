@@ -1,3 +1,11 @@
+2021-03-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftbench] Add Windows performance timers.
+
+	* src/ftbench.c (get_time) [_WIN32]: Add QPC, GPT, and QPCT timing
+	tools.
+	(main) [_WIN32]: Initialize interval for QPC.
+
 2021-02-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph/x11] Gray multiplication tricks.

@@ -43,6 +43,20 @@
 
 #include "common.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+/* Specify the timer: QPC for accurate wall time, GPT for user-mode time. */
+/* Otherwise, QPCT cycles are measured accurately but with huge overhead. */
+#define QPC
+
+#ifdef QPC
+  double  interval;
+#endif
+
+#endif
+
 
   typedef struct  btimer_t_ {
     double  t0;
@@ -195,6 +209,35 @@
 #endif /* _POSIX_CPUTIME */
 
     return 1E6 * (double)tv.tv_sec + 1E-3 * (double)tv.tv_nsec;
+
+#elif defined _WIN32
+
+#ifdef QPC
+    LARGE_INTEGER  ticks;
+
+
+    QueryPerformanceCounter( &ticks );
+
+    return  interval * ticks.QuadPart;
+
+#elif defined GPT
+    FILETIME  start, end, kern, user;
+
+
+    GetProcessTimes( GetCurrentProcess(), &start, &end, &kern, &user );
+
+    return  0.1 * user.dwLowDateTime + 429496729.6 * user.dwHighDateTime;
+
+#else
+    ULONG64  cycles;
+
+
+    QueryProcessCycleTime( GetCurrentProcess(), &cycles );
+
+    return  1e-3 * cycles; /* at 1GHz */
+
+#endif
+
 #else
     /* clock() accuracy has improved since glibc 2.18 */
     return 1E6 * (double)clock() / (double)CLOCKS_PER_SEC;
@@ -953,6 +996,13 @@
                                   FT_HINTING_ADOBE };
     int           version;
     char         *engine;
+
+#if defined _WIN32 && defined QPC
+    LARGE_INTEGER  freq;
+
+    QueryPerformanceFrequency( &freq );
+    interval = 1e6 / freq.QuadPart;
+#endif
 
 
     if ( FT_Init_FreeType( &lib ) )
