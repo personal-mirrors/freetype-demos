@@ -68,8 +68,7 @@ else
   LINK_ITEMS = $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   CC        = $(CCraw)
-  LINK_CMD  = $(subst /,$(SEP),$(OBJ_BUILD)/libtool) \
-		--mode=link $(CC) \
+  LINK_CMD  = $(LIBTOOL) --mode=link $(CC) \
 		$(subst /,$(COMPILER_SEP),$(LDFLAGS))
   ifeq ($(findstring CoreServices,$(LDFLAGS)),)
     LINK_LIBS = $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) $(MATH) \
