@@ -12,7 +12,6 @@
 
 
 GRAPH_INCLUDES := $(subst /,$(COMPILER_SEP),$(TOP_DIR_2)/graph)
-GRAPH_LIB      := $(OBJ_DIR_2)/graph.$(SA)
 
 GRAPH := $(TOP_DIR_2)/graph
 
@@ -46,9 +45,11 @@ GRAPH_OBJS := $(OBJ_DIR_2)/gblblit.$(O)   \
 # this value can be modified by the system-specific graphics drivers.
 #
 ifneq ($(LIBTOOL),)
-  COMPILE_GRAPH_LIB = $(LIBTOOL) --mode=link $(CCraw) -static \
+  GRAPH_LIB        := $(OBJ_DIR_2)/graph.$(A)
+  COMPILE_GRAPH_LIB = $(LIBTOOL) --mode=link $(CCraw) -module -static \
                                  -o $(subst /,$(COMPILER_SEP),$@ $(GRAPH_OBJS))
 else
+  GRAPH_LIB        := $(OBJ_DIR_2)/graph.$(SA)
   COMPILE_GRAPH_LIB = ar -r $(subst /,$(COMPILER_SEP),$@ $(GRAPH_OBJS))
 endif
 

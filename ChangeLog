@@ -1,3 +1,11 @@
+2021-03-24  orbea  <orbea@riseup.net>
+
+	[graph] Fix build with `slibtool`.
+
+	* graph/rules.mk (GRAPH_LIB): Handle the case specially where
+	`LIBTOOL` is defined.
+	(COMPILE_GRAPH_LIB) <LIBTOOL>: Enable use of `dlopen`.
+
 2021-03-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftbench] Add Windows performance timers.
