@@ -1,5 +1,9 @@
 2021-03-24  orbea  <orbea@riseup.net>
 
+	* Makefile, mac/Makefile (LINK_CMD): Don't hard-code `libtool`.
+
+2021-03-24  orbea  <orbea@riseup.net>
+
 	[graph] Fix build with `slibtool`.
 
 	* graph/rules.mk (GRAPH_LIB): Handle the case specially where

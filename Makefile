@@ -165,8 +165,7 @@ else
 
   ifeq ($(PLATFORM),unix)
     override CC = $(CCraw)
-    LINK_CMD    = $(subst /,$(SEP),$(OBJ_BUILD)/libtool) \
-                  --mode=link $(CC) \
+    LINK_CMD    = $(LIBTOOL) --mode=link $(CC) \
                   $(subst /,$(COMPILER_SEP),$(LDFLAGS))
     LINK_LIBS   = $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) $(LIB_CLOCK_GETTIME)
   else
