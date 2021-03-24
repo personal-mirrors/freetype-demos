@@ -1,3 +1,10 @@
+2021-03-30  orbea  <orbea@riseup.net>
+
+	[build] Add an `install` target for binaries and man pages.
+
+	* Makefile (MANPAGES): New variable.
+	(install) <unix>: New target.
+
 2021-03-26  Werner Lemberg  <wl@gnu.org>
 
 	* man/ftbench.1, man/ftview.1: Improve line breaking.

@@ -194,7 +194,7 @@ else
                 $(LINK_LIBS) $(subst /,$(COMPILER_SEP),$(GRAPH_LIB)) \
                 $(GRAPH_LINK) $(MATH)
 
-  .PHONY: exes clean distclean
+  .PHONY: exes clean distclean install
 
 
   ###################################################################
@@ -316,6 +316,11 @@ else
   # EXES += ftpatchk
   # EXES += fttimer
   # EXES += testname
+
+  # Not all demo programs have a man page; we thus check for existence in a
+  # loop.
+  #
+  MANPAGES := $(foreach man,$(EXES),$(wildcard $(TOP_DIR_2)/man/$(man).1))
 
   exes: $(EXES:%=$(BIN_DIR_2)/%$E)
 
@@ -567,6 +572,18 @@ else
                         $(GRAPH_LIB) $(COMMON_OBJ) $(FTCOMMON_OBJ)
 	  $(LINK_NEW)
 
+  ifeq ($(PLATFORM),unix)
+    install: exes
+	    $(MKINSTALLDIRS) $(DESTDIR)$(bindir) \
+                             $(DESTDIR)$(mandir)/man1
+	    $(foreach bin,$(EXES), \
+              $(LIBTOOL) --mode=install \
+                $(INSTALL) $(BIN_DIR_2)/$(bin) \
+                           $(DESTDIR)$(bindir)/$(bin);)
+	    $(foreach man,$(MANPAGES), \
+              $(INSTALL) $(man) \
+                         $(DESTDIR)$(mandir)/man1/$(notdir $(man));)
+  endif
 endif
 
 
