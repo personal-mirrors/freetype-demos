@@ -78,7 +78,7 @@ Use
 (not decimal) number
 .I l
 as load flags (see the
-.RB ` FT_LOAD_XXX '
+.RB ` \%FT_\:LOAD_\:XXX '
 macros in the FreeType reference).
 .
 .TP
@@ -113,9 +113,9 @@ KiByte (default is 1024).
 .TP
 .B \-p
 Preload font file in memory (this is, testing
-.B FT_New_Memory_Face
+.B \%FT_\:New_\:Memory_\:Face
 instead of
-.BR FT_New_Face ).
+.BR \%FT_\:New_\:Face ).
 .
 .TP
 .BI \-r \ n
@@ -137,7 +137,7 @@ rB l.
 .IP
 (default is 0).
 This corresponds to the values of the
-.RB ` FT_RENDER_MODE_XXX '
+.RB ` \%FT_\:RENDER_\:MODE_\:XXX '
 flags.
 .
 .TP
@@ -146,7 +146,7 @@ Use
 .I s
 ppem as face size (default is 10ppem).
 If set to zero, don't call
-.BR FT_Set_Pixel_Sizes .
+.BR \%FT_\:Set_\:Pixel_\:Sizes .
 Use value\ 0 with option
 .RB ` "-f\ 1" '
 or something similar to load the glyphs unscaled,
