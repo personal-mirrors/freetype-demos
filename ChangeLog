@@ -1,3 +1,7 @@
+2021-04-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/rules.mk: Warn about missing graphics driver.
+
 2021-03-30  orbea  <orbea@riseup.net>
 
 	[build] Add an `install` target for binaries and man pages.

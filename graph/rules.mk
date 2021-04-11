@@ -59,6 +59,11 @@ endif
 #
 include $(wildcard $(TOP_DIR_2)/graph/*/rules.mk)
 
+ifeq ($(DEVICES),BATCH)
+  $(info )
+  $(info Batch driver only, no graphics driver identified.)
+  $(info )
+endif
 
 #########################################################################
 #
