@@ -15,6 +15,8 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_TRUETYPE_TAGS_H
 #include FT_MULTIPLE_MASTERS_H
+#include FT_BDF_H
+#include FT_WINFONTS_H
 
   /* showing driver name */
 #include FT_MODULE_H
@@ -503,30 +505,36 @@
 
     for( i = 0; i < face->num_charmaps; i++ )
     {
-      FT_Long   format  = FT_Get_CMap_Format( face->charmaps[i] );
-      FT_ULong  lang_id = FT_Get_CMap_Language_ID( face->charmaps[i] );
+      FT_CharMap   cmap = face->charmaps[i];
+      FT_Long      format  = FT_Get_CMap_Format( cmap );
+      FT_ULong     lang_id = FT_Get_CMap_Language_ID( cmap );
+      const char*  encoding;
+      const char*  registry;
 
+      FT_WinFNT_HeaderRec  header;
+
+
+      printf( cmap->encoding ? " %c%2d: %c%c%c%c"
+                             : " %c%2d: none",
+              i == active ? '*' : ' ',
+              i,
+              cmap->encoding >> 24,
+              cmap->encoding >> 16,
+              cmap->encoding >> 8,
+              cmap->encoding );
+
+      printf( ", platform %u, encoding %2u",
+              cmap->platform_id,
+              cmap->encoding_id );
 
       if ( format >= 0 )
-        printf( "  %2d: format %2ld, platform %u, encoding %2u",
-                i,
-                format,
-                face->charmaps[i]->platform_id,
-                face->charmaps[i]->encoding_id );
-      else
-        printf( "  %2d: synthetic, platform %u, encoding %2u",
-                i,
-                face->charmaps[i]->platform_id,
-                face->charmaps[i]->encoding_id );
-
-      if ( lang_id == 0xFFFFFFFFUL )
-        printf( "   (Unicode Variation Sequences)" );
-      else
-        printf( "   language %lu",
-                lang_id );
-
-      if ( i == active )
-        printf( " (active)" );
+        printf( lang_id != 0xFFFFFFFFUL ? ", format %2lu, language %lu "
+                                        : ", format %2lu, UVS",
+                format, lang_id );
+      else if ( !FT_Get_BDF_Charset_ID( face, &encoding, &registry ) )
+        printf( ", charset %s-%s", registry, encoding );
+      else if ( !FT_Get_WinFNT_Header( face, &header ) )
+        printf( ", charset %d", header.charset );
 
       printf ( "\n" );
 
@@ -537,7 +545,7 @@
         FT_String  buf[32];
 
 
-        FT_Set_Charmap( face, face->charmaps[i] );
+        FT_Set_Charmap( face, cmap );
 
         charcode = FT_Get_First_Char( face, &gindex );
         while ( gindex )
@@ -562,7 +570,7 @@
         const char*  f3 = "";
 
 
-        FT_Set_Charmap( face, face->charmaps[i] );
+        FT_Set_Charmap( face, cmap );
 
         next = FT_Get_First_Char( face, &gindex );
         while ( gindex )
