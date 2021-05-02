@@ -1,5 +1,9 @@
 2021-04-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftdump.c (Print_Charmaps): Add hexadecimal FNT charset.
+
+2021-04-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftdump.c (Print_Charmaps): Add PCF/BDF/FNT charset info.
 
 2021-04-10  Alexei Podtelezhnikov  <apodtele@gmail.com>

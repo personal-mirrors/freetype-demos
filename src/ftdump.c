@@ -534,7 +534,9 @@
       else if ( !FT_Get_BDF_Charset_ID( face, &encoding, &registry ) )
         printf( ", charset %s-%s", registry, encoding );
       else if ( !FT_Get_WinFNT_Header( face, &header ) )
-        printf( ", charset %d", header.charset );
+        printf( header.charset < 10 ? ", charset %hu"
+                                    : ", charset %hu <%hX>",
+                header.charset, header.charset );
 
       printf ( "\n" );
 
