@@ -19,12 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <ftcommon.h>
 
 #define  xxTEST_PSNAMES
-
-
-  static FT_Error  error;
 
   static FT_Library    library;
   static FT_Face       face;
@@ -133,6 +130,7 @@
           i--;
 
       printf( "%s: ", fname );
+      
 
       /* Load face */
       error = FT_New_Face( library, filename, 0, &face );
@@ -159,12 +157,37 @@
 
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
       if (error) Panic( "Could not set character size" );
-
+      
+      FT_Bitmap  bitmap;
+      FT_Error err;
+      FT_Bitmap_Init( &bitmap );
+      
       Fail = 0;
       {
         for ( id = 0; id < num_glyphs; id++ )
         {
           error = FT_Load_Glyph( face, id, FT_LOAD_DEFAULT );
+          err = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL);
+          err = FT_Bitmap_Convert( library, &face->glyph->bitmap, &bitmap, 1 );
+          if ( !err )
+      {
+        MD5_CTX        ctx;
+        unsigned char  md5[16];
+        int            i;
+        int            rows  = (int)bitmap.rows;
+        int            pitch = bitmap.pitch;
+
+        MD5_Init( &ctx );
+        if ( bitmap.buffer )
+          MD5_Update( &ctx, bitmap.buffer,
+                      (unsigned long)rows * (unsigned long)pitch );
+        MD5_Final( md5, &ctx );
+
+        printf( "%d ", id );
+        for ( i = 0; i < 16; i++ )
+          printf( "%02X", md5[i] );
+        printf( "\n" );
+      }
           if (error)
           {
             if ( Fail < 10 )
@@ -183,6 +206,7 @@
           printf( "%d fails.\n", Fail );
 
       FT_Done_Face( face );
+      FT_Bitmap_Done( library, &bitmap );
     }
 
     FT_Done_FreeType(library);
@@ -190,6 +214,5 @@
 
     /* return 0; */ /* never reached */
   }
-
 
 /* End */

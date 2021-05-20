@@ -303,7 +303,8 @@ else
           ftmulti  \
           ftsdf    \
           ftstring \
-          ftview
+          ftview \
+          ftlint
 
   # ftvalid requires ftgxval.c and ftotval.c
   #
@@ -359,11 +360,13 @@ else
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
-                  $(OBJ_DIR_2)/ftpngout.$(SO)
+  $(OBJ_DIR_2)/md5.$(SO): $(SRC_DIR)/md5.c $(SRC_DIR)/ftcommon.h
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  $(OBJ_DIR_2)/ftlint.$(SO): $(SRC_DIR)/ftlint.c
-	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
+  FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
+                  $(OBJ_DIR_2)/ftpngout.$(SO) \
+                  $(OBJ_DIR_2)/md5.$(SO)
 
   $(OBJ_DIR_2)/ftbench.$(SO): $(SRC_DIR)/ftbench.c
 	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<) $(EXTRAFLAGS)
@@ -489,6 +492,12 @@ else
                      $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
 
 
+ $(OBJ_DIR_2)/ftlint.$(SO): $(SRC_DIR)/ftlint.c \
+                             $(SRC_DIR)/ftcommon.h \
+                             $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
+                     
   ####################################################################
   #
   # Special rule to compile the `ttdebug' program as it includes
@@ -506,8 +515,9 @@ else
   # Rules used to link the executables.  Note that they could be
   # overridden by system-specific things.
   #
-  $(BIN_DIR_2)/ftlint$E: $(OBJ_DIR_2)/ftlint.$(SO) $(FTLIB) $(COMMON_OBJ)
-	  $(LINK_COMMON)
+  $(BIN_DIR_2)/ftlint$E: $(OBJ_DIR_2)/ftlint.$(SO) $(FTLIB) $(COMMON_OBJ) \
+                      $(GRAPH_LIB) $(FTCOMMON_OBJ)
+	  $(LINK_NEW)
 
   $(BIN_DIR_2)/ftbench$E: $(OBJ_DIR_2)/ftbench.$(SO) $(FTLIB) $(COMMON_OBJ)
 	  $(LINK_COMMON)
