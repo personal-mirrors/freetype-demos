@@ -1,3 +1,12 @@
+2021-05-23  David Turner  <david@freetype.org>
+
+        * graph/win32/grwin32.c: Fix compiler warnings
+
+        - Redefine the LCS_sRGB macro to properly compile with the Mingw64
+         toolchain and the -Wmultichar warning enabled.
+
+        - Add missing return code paths in function.
+
 2021-05-22  David Turner  <david@freetype.org>
 
         * src/ftbench.c: Fix get_time() for Mingw64
