@@ -1,3 +1,11 @@
+2021-05-22  David Turner  <david@freetype.org>
+
+        * src/ftbench.c: Fix get_time() for Mingw64
+
+        clock_gettime() cannot be used when cross-compiling for Windows 
+        using the Linux Mingw64 toolchain, so ensure the Win32-specific 
+        timer code is always used when _WIN32 is defined.
+
 2021-05-24  David Turner  <david@freetype.org>
 
 	[build] Add Meson build files and documentation.
