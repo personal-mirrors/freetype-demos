@@ -180,6 +180,11 @@ else
     endif
   endif
 
+  # Only on Windows we might fall back on GDI+ for PNG saving
+  ifeq ($(OS),Windows_NT)
+    LINK_LIBS += -lgdiplus
+  endif
+
   LINK        = $(LINK_CMD) \
                 $(LINK_ITEMS) \
                 $(LINK_LIBS)

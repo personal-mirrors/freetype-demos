@@ -1,3 +1,9 @@
+2021-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* Makefile (LINK_LIBS): Add `-lgdiplus' for PNG saving on Windows.
+
+	Reported by Anuj Verma.
+
 2021-04-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftdump.c (Print_Charmaps): Add hexadecimal FNT charset.
