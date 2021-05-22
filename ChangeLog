@@ -1,5 +1,11 @@
 2021-05-23  David Turner  <david@freetype.org>
 
+        * src/ftpngout.c: Remove compiler warning for Mingw64 toolchain.
+
+        The #pragma statement is only valid with Microsoft Visual C++
+
+2021-05-23  David Turner  <david@freetype.org>
+
         * graph/win32/grwin32.c: Fix compiler warnings
 
         - Redefine the LCS_sRGB macro to properly compile with the Mingw64
