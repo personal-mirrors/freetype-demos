@@ -1,5 +1,7 @@
 This package contains example programs for the FreeType 2 library.
 
+You can build it either using the Meson build tool (see README.meson
+for more details), or using GNU Make, following the instructions below.
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
