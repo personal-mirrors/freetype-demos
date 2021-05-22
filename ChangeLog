@@ -1,5 +1,11 @@
 2021-05-23  David Turner  <david@freetype.org>
 
+        * src/ftmemchk.c: Remove minor compiler warning.
+
+        Casting a pointer to (long) isn't always correct.
+
+2021-05-23  David Turner  <david@freetype.org>
+
         * src/ftpngout.c: Remove compiler warning for Mingw64 toolchain.
 
         The #pragma statement is only valid with Microsoft Visual C++
