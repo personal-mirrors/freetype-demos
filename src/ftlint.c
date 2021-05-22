@@ -84,7 +84,7 @@
       error = FT_New_Face( library, fname, 0, &face );
       if (!error)
       {
-        printf( "%s: ", fname );
+        printf( "%s: \n", fname );
         goto Success;
       }
 
@@ -129,8 +129,7 @@
         else
           i--;
 
-      printf( "%s: ", fname );
-      
+      printf( "%s: \n", fname );
 
       /* Load face */
       error = FT_New_Face( library, filename, 0, &face );
@@ -157,11 +156,9 @@
 
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
       if (error) Panic( "Could not set character size" );
-      
       FT_Bitmap  bitmap;
       FT_Error err;
       FT_Bitmap_Init( &bitmap );
-      
       Fail = 0;
       {
         for ( id = 0; id < num_glyphs; id++ )
@@ -183,9 +180,10 @@
                       (unsigned long)rows * (unsigned long)pitch );
         MD5_Final( md5, &ctx );
 
-        printf( "%d ", id );
-        for ( i = 0; i < 16; i++ )
+        printf( "#%d ", id );
+        for ( i = 0; i < 16; i++ ){
           printf( "%02X", md5[i] );
+        }
         printf( "\n" );
       }
           if (error)
