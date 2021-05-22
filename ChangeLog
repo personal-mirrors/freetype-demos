@@ -1,3 +1,17 @@
+2021-05-24  David Turner  <david@freetype.org>
+
+	[build] Add Meson build files and documentation.
+
+	This commit adds files necessary to build the demo programs,
+	including `ftinspect`, with the Meson build system.
+
+	* meson.build, graph/meson.build, src/ftinspect/meson.build: New
+	build files for Meson.
+	* subprojects/freetype2.wrap, subprojects/libpng.wrap,
+	subprojects/zlib.wrap: New subproject files for Meson.
+	* README.meson: New file.
+	* README, .gitignore: Updated.
+
 2021-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* Makefile (LINK_LIBS): Add `-lgdiplus' for PNG saving on Windows.
