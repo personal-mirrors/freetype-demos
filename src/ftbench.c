@@ -198,11 +198,11 @@
   static double
   get_time( void )
   {
-/* NOTE: When building with the Mingw64 toolchain, _POSIX_TIMERS
- * will be defined, but clock_gettime() won't, so ensure that the
- * _WIN32 specific timer code appears first here.
- */
-#if defined _WIN32
+    /* NOTE: When building with the Mingw64 toolchain, `_POSIX_TIMERS` is
+     * defined, but function `clock_gettime` is not.  Ensure that the
+     * `_WIN32` specific timer code appears first here.
+     */
+#if defined  _WIN32
 
 #ifdef QPC
     LARGE_INTEGER  ticks;

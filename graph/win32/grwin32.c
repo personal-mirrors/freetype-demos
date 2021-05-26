@@ -33,14 +33,14 @@
 #define xxSWIZZLE
 
 #ifdef SWIZZLE
-#include "grswizzle.h"
+# include "grswizzle.h"
 #endif
 
 /* logging facility */
 #define  xxDEBUG
 
 #ifdef DEBUG
-#include <stdarg.h>
+# include <stdarg.h>
 
   static void  LogMessage( const char*  fmt, ... )
   {
@@ -256,13 +256,13 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
   ICONINFO  ici = { TRUE };
   HICON     hIcon;
 
-/* NOTE: The Mingw64 wingdi.h defines this macro as 'sRGB'
- * which triggers the -Wmultichar warning during compilation,
- * so replace it with the corresponding numerical value.
- */
+  /* NOTE: The Mingw64 header file `wingdi.h` defines this macro as `sRGB`,
+   * which triggers the `-Wmultichar` warning during compilation, so replace
+   * it with the corresponding numerical value.
+   */
 #ifdef __MINGW64__
-#undef  LCS_sRGB
-#define LCS_sRGB 0x73524742
+# undef  LCS_sRGB
+# define LCS_sRGB  0x73524742
 #endif
 
   BITMAPV4HEADER  hdr = { sizeof( BITMAPV4HEADER ),
