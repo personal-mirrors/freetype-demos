@@ -256,6 +256,15 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
   ICONINFO  ici = { TRUE };
   HICON     hIcon;
 
+/* NOTE: The Mingw64 wingdi.h defines this macro as 'sRGB'
+ * which triggers the -Wmultichar warning during compilation,
+ * so replace it with the corresponding numerical value.
+ */
+#ifdef __MINGW64__
+#undef  LCS_sRGB
+#define LCS_sRGB 0x73524742
+#endif
+
   BITMAPV4HEADER  hdr = { sizeof( BITMAPV4HEADER ),
                           0, 0, 1, 32, BI_BITFIELDS, 0, 0, 0, 0, 0,
                           0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
@@ -297,6 +306,8 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
   case ICON_BIG:
     surface->bIcon = hIcon;
     return s[0];
+  default:
+    return 0;  /* should not happen */
   }
 }
 

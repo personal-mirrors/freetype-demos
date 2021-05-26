@@ -1,3 +1,32 @@
+2021-05-23  David Turner  <david@freetype.org>
+
+        * src/ftmemchk.c: Remove minor compiler warning.
+
+        Casting a pointer to (long) isn't always correct.
+
+2021-05-23  David Turner  <david@freetype.org>
+
+        * src/ftpngout.c: Remove compiler warning for Mingw64 toolchain.
+
+        The #pragma statement is only valid with Microsoft Visual C++
+
+2021-05-23  David Turner  <david@freetype.org>
+
+        * graph/win32/grwin32.c: Fix compiler warnings
+
+        - Redefine the LCS_sRGB macro to properly compile with the Mingw64
+         toolchain and the -Wmultichar warning enabled.
+
+        - Add missing return code paths in function.
+
+2021-05-22  David Turner  <david@freetype.org>
+
+        * src/ftbench.c: Fix get_time() for Mingw64
+
+        clock_gettime() cannot be used when cross-compiling for Windows 
+        using the Linux Mingw64 toolchain, so ensure the Win32-specific 
+        timer code is always used when _WIN32 is defined.
+
 2021-05-24  David Turner  <david@freetype.org>
 
 	[build] Add Meson build files and documentation.

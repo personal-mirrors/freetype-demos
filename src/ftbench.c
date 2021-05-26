@@ -198,19 +198,11 @@
   static double
   get_time( void )
   {
-#if defined _POSIX_TIMERS && _POSIX_TIMERS > 0
-    struct timespec  tv;
-
-
-#ifdef _POSIX_CPUTIME
-    clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &tv );
-#else
-    clock_gettime( CLOCK_REALTIME, &tv );
-#endif /* _POSIX_CPUTIME */
-
-    return 1E6 * (double)tv.tv_sec + 1E-3 * (double)tv.tv_nsec;
-
-#elif defined _WIN32
+/* NOTE: When building with the Mingw64 toolchain, _POSIX_TIMERS
+ * will be defined, but clock_gettime() won't, so ensure that the
+ * _WIN32 specific timer code appears first here.
+ */
+#if defined _WIN32
 
 #ifdef QPC
     LARGE_INTEGER  ticks;
@@ -237,6 +229,18 @@
     return  1e-3 * cycles; /* at 1GHz */
 
 #endif
+
+#elif defined _POSIX_TIMERS && _POSIX_TIMERS > 0
+    struct timespec  tv;
+
+
+#ifdef _POSIX_CPUTIME
+    clock_gettime( CLOCK_PROCESS_CPUTIME_ID, &tv );
+#else
+    clock_gettime( CLOCK_REALTIME, &tv );
+#endif /* _POSIX_CPUTIME */
+
+    return 1E6 * (double)tv.tv_sec + 1E-3 * (double)tv.tv_nsec;
 
 #else
     /* clock() accuracy has improved since glibc 2.18 */

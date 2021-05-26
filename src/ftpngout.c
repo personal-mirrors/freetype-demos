@@ -147,7 +147,10 @@
 #define WIN32_LEAN_AND_MEAN
 #include<windows.h>
 
+/* Microsoft Visual C++ specific pragma */
+#ifdef _MSC_VER
 #pragma comment (lib,"Gdiplus.lib")
+#endif
 
  /* Barebone definitions and opaque types to avoid GDI+ (C++) headers */
 

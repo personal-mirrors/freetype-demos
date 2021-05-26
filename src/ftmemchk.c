@@ -66,7 +66,7 @@ void  record_my_block( void*  base, long  size )
     {
       if ( block->base == base && block->size != 0 )
       {
-        fprintf( stderr, "duplicate memory block at %08lx\n", (long)block->base );
+        fprintf( stderr, "duplicate memory block at %p\n", block->base );
         exit(1);
       }
     }
