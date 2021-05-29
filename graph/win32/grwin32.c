@@ -373,9 +373,6 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
 
   while ( GetMessage( &msg, NULL, 0, 0 ) > 0 )
   {
-    TranslateMessage( &msg );
-    DispatchMessage( &msg );
-
     switch ( msg.message )
     {
     case WM_RESIZE:
@@ -424,6 +421,9 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
       }
       break;
     }
+
+    TranslateMessage( &msg );
+    DispatchMessage( &msg );
   }
 }
 

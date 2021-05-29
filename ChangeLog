@@ -1,3 +1,10 @@
+2021-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[graph/win32] Fix double-dealing of some keystrokes.
+
+	* graph/grwin32.c (gr_win32_surface_listen_event): Deprioritize
+	`TranslateMessage' to avoid double-dealing of Tab, Esc, Return.
+
 2021-05-23  David Turner  <david@freetype.org>
 
 	* src/ftmemchk.c: Remove minor compiler warning.
