@@ -268,7 +268,7 @@
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
   };
 
-  unsigned char  (*font)[8] = (unsigned char (*)[8])font_8x8;
+  static unsigned char  (*font)[8] = (unsigned char (*)[8])font_8x8;
 
 #elif GR_FONT_SIZE == 14
 
@@ -534,7 +534,7 @@
      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
   };
 
-  unsigned char  (*font)[14] = (unsigned char (*)[14])font_8x14;
+  static unsigned char  (*font)[14] = (unsigned char (*)[14])font_8x14;
 
 #endif
 

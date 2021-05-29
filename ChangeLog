@@ -1,3 +1,22 @@
+2021-05-29  Werner Lemberg  <wl@gnu.org>
+
+	Fix compilation errors and (some) warnings for clang++.
+
+	* graph/gblblit.c (GRGB5[56]5_TO_{RED,GREEN,BLUE}): Add casts.
+	(GDST_STOREP): Use `while {} (0)`.
+	* graph/gblender.h (GBLENDER_LOOKUP, GBLENDER_LOOKUP_[GBR]): Use
+	`while {} (0)`.
+	(GBLENDER_CLOSE, GBLENDER_CHANNEL_CLOSE): Remove final semicolon.
+	* graph/grblit.c (compose_pixel_full): Use `while {} (0)`.
+	(extract5[56]5): Remove final semicolon.
+	(blit_gray8_to_24): Fix typo.
+	* graph/grfont.c (font): Make it static.
+
+	* src/ftcommon.c (FTDemo_Icon): Don't use obfuscating comma
+	operator.
+	* src/ftsdf.c (main): Move definition of `flip_y` before `goto`
+	instructions.
+
 2021-05-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[graph/win32] Fix double-dealing of some keystrokes.

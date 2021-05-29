@@ -786,20 +786,21 @@
 
 
 
-#define compose_pixel_full( a, b, n0, n1, n2, max )          \
-  {                                                          \
-    int  d, half = max >> 1;                                 \
-                                                             \
-                                                             \
-    d = (int)b.chroma[0] - a.chroma[0];                      \
-    a.chroma[0] += (unsigned char)((n0*d + half)/max);       \
-                                                             \
-    d = (int)b.chroma[1] - a.chroma[1];                      \
-    a.chroma[1] += (unsigned char)((n1*d + half)/max);       \
-                                                             \
-    d = (int)b.chroma[2] - a.chroma[2];                      \
-    a.chroma[2] += (unsigned char)((n2*d + half)/max);       \
-  }
+#define compose_pixel_full( a, b, n0, n1, n2, max )    \
+  do                                                   \
+  {                                                    \
+    int  d, half = max >> 1;                           \
+                                                       \
+                                                       \
+    d = (int)b.chroma[0] - a.chroma[0];                \
+    a.chroma[0] += (unsigned char)((n0*d + half)/max); \
+                                                       \
+    d = (int)b.chroma[1] - a.chroma[1];                \
+    a.chroma[1] += (unsigned char)((n1*d + half)/max); \
+                                                       \
+    d = (int)b.chroma[2] - a.chroma[2];                \
+    a.chroma[2] += (unsigned char)((n2*d + half)/max); \
+  } while ( 0 )
 
 #define compose_pixel( a, b, n, max )  \
     compose_pixel_full( a, b, n, n, n, max )
@@ -808,13 +809,13 @@
 #define extract555( pixel, color )                           \
    color.chroma[0] = (unsigned char)((pixel >> 10) & 0x1F);  \
    color.chroma[1] = (unsigned char)((pixel >>  5) & 0x1F);  \
-   color.chroma[2] = (unsigned char)((pixel      ) & 0x1F);
+   color.chroma[2] = (unsigned char)((pixel      ) & 0x1F)
 
 
 #define extract565( pixel, color )                           \
    color.chroma[0] = (unsigned char)((pixel >> 11) & 0x1F);  \
    color.chroma[1] = (unsigned char)((pixel >>  5) & 0x3F);  \
-   color.chroma[2] = (unsigned char)((pixel      ) & 0x1F);
+   color.chroma[2] = (unsigned char)((pixel      ) & 0x1F)
 
 
 #define inject555( color )                          \
@@ -1133,7 +1134,7 @@
             db += ((sb-db)*val) >> 8;
 
             _write[0] = (unsigned char)dr;
-            _write[1] = (unsigned char)dg,
+            _write[1] = (unsigned char)dg;
             _write[2] = (unsigned char)db;
           }
         }

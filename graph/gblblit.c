@@ -28,44 +28,60 @@
 
 /* */
 
-#define  GRGB_TO_RGB565(r,g,b)   ((unsigned short)( (((r) << 8) & 0xF800) |  \
-                                                    (((g) << 3) & 0x07E0) |  \
-                                                    (((b) >> 3) & 0x001F) ) )
+#define  GRGB_TO_RGB565(r,g,b)                          \
+           (unsigned short)( ( ( (r) << 8 ) & 0xF800) | \
+                             ( ( (g) << 3 ) & 0x07E0) | \
+                             ( ( (b) >> 3 ) & 0x001F) )
 
-#define  GRGB565_TO_RED(p)     ( ((p) >> 8 & 0xF8) | ((p) >> 13 & 0x07) )
-#define  GRGB565_TO_GREEN(p)   ( ((p) >> 3 & 0xFC) | ((p) >>  9 & 0x03) )
-#define  GRGB565_TO_BLUE(p)    ( ((p) << 3 & 0xF8) | ((p) >>  2 & 0x07) )
+#define  GRGB565_TO_RED(p)                          \
+           (unsigned short)( ( (p) >>  8 & 0xF8 ) | \
+                             ( (p) >> 13 & 0x07 ) )
+#define  GRGB565_TO_GREEN(p)                       \
+           (unsigned short)( ( (p) >> 3 & 0xFC ) | \
+                             ( (p) >> 9 & 0x03 ) )
+#define  GRGB565_TO_BLUE(p)                        \
+           (unsigned short)( ( (p) << 3 & 0xF8 ) | \
+                             ( (p) >> 2 & 0x07 ) )
 
-#define  GRGB565_TO_RGB24(p)   ( ( ((p) << 8) & 0xF80000 ) |             \
-                                 ( ((p) << 3) & 0x0700F8 ) |             \
-                                 ( ((p) << 5) & 0x00FC00 ) |             \
-                                 ( ((p) >> 1) & 0x000300 ) |             \
-                                 ( ((p) >> 2) & 0x000007 ) )
+#define  GRGB565_TO_RGB24(p) ( ( ( (p) << 8 ) & 0xF80000 ) | \
+                               ( ( (p) << 3 ) & 0x0700F8 ) | \
+                               ( ( (p) << 5 ) & 0x00FC00 ) | \
+                               ( ( (p) >> 1 ) & 0x000300 ) | \
+                               ( ( (p) >> 2 ) & 0x000007 ) )
 
-#define  GRGB24_TO_RGB565(p)   ( (unsigned short)( (((p) >> 8) & 0xF800 ) |   \
-                                                   (((p) >> 5) & 0x07E0 ) |   \
-                                                   (((p) >> 3) & 0x001F ) ) )
+#define  GRGB24_TO_RGB565(p)                             \
+           (unsigned short)( ( ( (p) >> 8 ) & 0xF800 ) | \
+                             ( ( (p) >> 5 ) & 0x07E0 ) | \
+                             ( ( (p) >> 3 ) & 0x001F ) )
 
 /* */
 
-#define  GRGB_TO_RGB555(r,g,b)   ((unsigned short)( (((r) << 7) & 0x7C00) |  \
-                                                    (((g) << 2) & 0x03E0) |  \
-                                                    (((b) >> 3) & 0x001F) ) )
+#define  GRGB_TO_RGB555(r,g,b)                          \
+           (unsigned short)( ( ( (r) << 7 ) & 0x7C00) | \
+                             ( ( (g) << 2 ) & 0x03E0) | \
+                             ( ( (b) >> 3 ) & 0x001F) )
 
-#define  GRGB555_TO_RED(p)     ( ((p) >> 7 & 0xF8) | ((p) >> 12 & 0x07) )
-#define  GRGB555_TO_GREEN(p)   ( ((p) >> 2 & 0xF8) | ((p) >>  7 & 0x07) )
-#define  GRGB555_TO_BLUE(p)    ( ((p) << 3 & 0xF8) | ((p) >>  2 & 0x07) )
+#define  GRGB555_TO_RED(p)                          \
+           (unsigned short)( ( (p) >>  7 & 0xF8 ) | \
+                             ( (p) >> 12 & 0x07 ) )
+#define  GRGB555_TO_GREEN(p)                       \
+           (unsigned short)( ( (p) >> 2 & 0xF8 ) | \
+                             ( (p) >> 7 & 0x07 ) )
+#define  GRGB555_TO_BLUE(p)                        \
+           (unsigned short)( ( (p) << 3 & 0xF8 ) | \
+                             ( (p) >> 2 & 0x07 ) )
 
-#define  GRGB555_TO_RGB24(p)   ( ( ((p) << 9) & 0xF80000 ) |             \
-                                 ( ((p) << 4) & 0x070000 ) |             \
-                                 ( ((p) << 6) & 0x00F800 ) |             \
-                                 ( ((p) << 1) & 0x000700 ) |             \
-                                 ( ((p) << 3) & 0x0000F8 ) |             \
-                                 ( ((p) >> 2) & 0x000007 ) )
+#define  GRGB555_TO_RGB24(p) ( ( ( (p) << 9 ) & 0xF80000 ) | \
+                               ( ( (p) << 4 ) & 0x070000 ) | \
+                               ( ( (p) << 6 ) & 0x00F800 ) | \
+                               ( ( (p) << 1 ) & 0x000700 ) | \
+                               ( ( (p) << 3 ) & 0x0000F8 ) | \
+                               ( ( (p) >> 2 ) & 0x000007 ) )
 
-#define  GRGB24_TO_RGB555(p)   ( (unsigned short)( (((p) >> 9) & 0x7C00 ) |  \
-                                                   (((p) >> 6) & 0x03E0 ) |  \
-                                                   (((p) >> 3) & 0x001F ) ) )
+#define  GRGB24_TO_RGB555(p)                             \
+           (unsigned short)( ( ( (p) >> 9 ) & 0x7C00 ) | \
+                             ( ( (p) >> 6 ) & 0x03E0 ) | \
+                             ( ( (p) >> 3 ) & 0x001F ) )
 
 /* */
 
@@ -122,11 +138,12 @@
     }
 
 #define  GDST_STOREP(d,cells,a)                 \
+    do                                          \
     {                                           \
       GBlenderPixel  _pix = (cells)[(a)];       \
                                                 \
       GDST_STORE3(d,_pix >> 16,_pix >> 8,_pix); \
-    }
+    } while ( 0 )
 
 #include "gblany.h"
 
@@ -149,11 +166,12 @@
     }
 
 #define  GDST_STOREP(d,cells,a)                         \
+    do                                                  \
     {                                                   \
       GBlenderPixel  _pix = (cells)[(a)];               \
                                                         \
       *(unsigned short*)(d) = GRGB24_TO_RGB565(_pix);   \
-    }
+    } while ( 0 )
 
 #define  GDST_STOREC(d,r,g,b)   *(unsigned short*)(d) = GRGB_TO_RGB565(r,g,b)
 
@@ -177,11 +195,12 @@
     }
 
 #define  GDST_STOREP(d,cells,a)                         \
+    do                                                  \
     {                                                   \
       GBlenderPixel  _pix = (cells)[(a)];               \
                                                         \
       *(unsigned short*)(d) = GRGB24_TO_RGB555(_pix);   \
-    }
+    } while ( 0 )
 
 #define  GDST_STOREC(d,r,g,b)   *(unsigned short*)(d) = GRGB_TO_RGB555(r,g,b)
 
@@ -205,11 +224,12 @@
     }
 
 #define  GDST_STOREP(d,cells,a)           \
+    do                                    \
     {                                     \
       GBlenderPixel  _pix = (cells)[(a)]; \
                                           \
       *(d) = GRGB24_TO_GRAY8(_pix);       \
-    }
+    } while ( 0 )
 
 #define  GDST_STOREC(d,r,g,b)   *(d) = GRGB_TO_GRAY8(r,g,b)
 

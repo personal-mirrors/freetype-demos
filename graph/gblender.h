@@ -161,18 +161,21 @@
   GBlenderCell*    _gcells = ( (_fore) == (_gb)->cache_fore ? (_gb)->cache_cells : gblender_lookup( (_gb), _gback, _fore ) );  \
   GBlenderPixel    _gfore  = (_fore)
 
-#define  GBLENDER_LOOKUP(gb,back)                        \
-   GBLENDER_STAT_HIT(gb);                                \
-   if ( _gback != (GBlenderPixel)(back) )                \
-   {                                                     \
-     _gback  = (GBlenderPixel)(back);                    \
-     _gcells = gblender_lookup( (gb), _gback, _gfore );  \
-   }
+#define  GBLENDER_LOOKUP(gb,back)                         \
+   GBLENDER_STAT_HIT(gb);                                 \
+   do                                                     \
+   {                                                      \
+     if ( _gback != (GBlenderPixel)(back) )               \
+     {                                                    \
+       _gback  = (GBlenderPixel)(back);                   \
+       _gcells = gblender_lookup( (gb), _gback, _gfore ); \
+     }                                                    \
+   } while ( 0 )
 
 #define  GBLENDER_CLOSE(_gb)     \
   (_gb)->cache_back  = _gback;   \
   (_gb)->cache_fore  = _gfore;   \
-  (_gb)->cache_cells = _gcells;
+  (_gb)->cache_cells = _gcells
 
 
 
@@ -197,32 +200,41 @@
   (_gb)->cache_g_cells = _ggcells;     \
   (_gb)->cache_b_back  = _gbback;      \
   (_gb)->cache_b_fore  = _gbfore;      \
-  (_gb)->cache_b_cells = _gbcells;
+  (_gb)->cache_b_cells = _gbcells
 
 
-#define  GBLENDER_LOOKUP_R(gb,back)                                 \
-   GBLENDER_STAT_HIT(gb);                                           \
-   if ( _grback != (back) )                                         \
-   {                                                                \
-     _grback  = (GBlenderPixel)(back);                              \
-     _grcells = gblender_lookup_channel( (gb), _grback, _grfore );  \
-   }
+#define  GBLENDER_LOOKUP_R(gb,back)                                  \
+   GBLENDER_STAT_HIT(gb);                                            \
+   do                                                                \
+   {                                                                 \
+     if ( _grback != (back) )                                        \
+     {                                                               \
+       _grback  = (GBlenderPixel)(back);                             \
+       _grcells = gblender_lookup_channel( (gb), _grback, _grfore ); \
+     }                                                               \
+   } while ( 0 )
 
-#define  GBLENDER_LOOKUP_G(gb,back)                                 \
-   GBLENDER_STAT_HIT(gb);                                           \
-   if ( _ggback != (back) )                                         \
-   {                                                                \
-     _ggback  = (GBlenderPixel)(back);                              \
-     _ggcells = gblender_lookup_channel( (gb), _ggback, _ggfore );  \
-   }
+#define  GBLENDER_LOOKUP_G(gb,back)                                  \
+   GBLENDER_STAT_HIT(gb);                                            \
+   do                                                                \
+   {                                                                 \
+     if ( _ggback != (back) )                                        \
+     {                                                               \
+       _ggback  = (GBlenderPixel)(back);                             \
+       _ggcells = gblender_lookup_channel( (gb), _ggback, _ggfore ); \
+     }                                                               \
+   } while ( 0 )
 
-#define  GBLENDER_LOOKUP_B(gb,back)                                 \
-   GBLENDER_STAT_HIT(gb);                                           \
-   if ( _gbback != (back) )                                         \
-   {                                                                \
-     _gbback  = (GBlenderPixel)(back);                              \
-     _gbcells = gblender_lookup_channel( (gb), _gbback, _gbfore );  \
-   }
+#define  GBLENDER_LOOKUP_B(gb,back)                                  \
+   GBLENDER_STAT_HIT(gb);                                            \
+   do                                                                \
+   {                                                                 \
+     if ( _gbback != (back) )                                        \
+     {                                                               \
+       _gbback  = (GBlenderPixel)(back);                             \
+       _gbcells = gblender_lookup_channel( (gb), _gbback, _gbfore ); \
+     }                                                               \
+   } while ( 0 )
 
 
 #endif /* GBLENDER_H_ */

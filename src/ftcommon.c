@@ -502,12 +502,18 @@
       memset( icon.buffer, 0, (size_t)icon.rows * (size_t)icon.pitch );
 
       for ( i = 0; i < FT.n_points; i++ )
-        FT.points[i].x *= size, FT.points[i].y *= size;
+      {
+        FT.points[i].x *= size;
+        FT.points[i].y *= size;
+      }
 
       FT_Outline_Render( handle->library, &FT, &params );
 
       for ( i = 0; i < FT.n_points; i++ )
-        FT.points[i].x /= size, FT.points[i].y /= size;
+      {
+        FT.points[i].x /= size;
+        FT.points[i].y /= size;
+      }
 
       picon = &icon;
     }

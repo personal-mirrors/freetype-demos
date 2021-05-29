@@ -664,6 +664,10 @@
     FT_Error  err       = FT_Err_Ok;
     char*     exec_name = NULL;
 
+#ifdef __linux__
+    int  flip_y = 1;
+#endif
+
 
     exec_name = ft_basename( argv[0] );
 
@@ -687,8 +691,6 @@
     }
 
 #ifdef __linux__
-    int  flip_y = 1;
-
     FT_CALL( FT_Property_Set( handle->library, "sdf", "flip_y", &flip_y ) );
     FT_CALL( FT_Property_Set( handle->library, "bsdf", "flip_y", &flip_y ) );
 #endif
