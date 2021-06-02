@@ -412,12 +412,19 @@ Exit:
 GBLENDER_APIDEF( void )
 gblender_dump_stats( GBlender  blender )
 {
-  printf( "hits = %ld, miss1 = %ld, miss2 = %ld, rate1=%.2f%%, rate2=%.2f%%\n",
-           blender->stat_hits,
-           blender->stat_lookups,
-           blender->stat_keys,
-           (100.0*blender->stat_hits) / (double)(blender->stat_hits + blender->stat_lookups),
-           (100.0*blender->stat_lookups) / (double)( blender->stat_lookups + blender->stat_keys)
-           );
+  printf( "GBlender cache statistics:\n" );
+  printf( "  Hit rate:    %.2f ( %ld out of %ld )\n",
+          100.0f * blender->stat_hits /
+                   ( blender->stat_hits + blender->stat_lookups ),
+          blender->stat_hits,
+          blender->stat_hits + blender->stat_lookups );
+
+  printf( "  Lookup rate: %.2f ( %ld out of %ld )\n",
+          100.0f * blender->stat_lookups /
+                   ( blender->stat_lookups + blender->stat_keys ),
+          blender->stat_lookups,
+          blender->stat_keys + blender->stat_lookups );
+  printf( "  Keys used:   %ld\n  Caches full: %ld\n",
+          blender->stat_keys, blender->stat_clears );
 }
 #endif

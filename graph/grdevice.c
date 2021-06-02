@@ -164,6 +164,11 @@
   {
     if (surface)
     {
+
+#ifdef GBLENDER_STATS
+      gblender_dump_stats( surface->gblender );
+#endif
+
       /* first of all, call the device-specific destructor */
       surface->done(surface);
 
