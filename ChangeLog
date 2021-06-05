@@ -1,3 +1,7 @@
+2021-06-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* graph/gblender.c (gblender_dump_stats): Fix the lookup rate.
+
 2021-06-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* graph/grdevice.c (grDoneSurface) [GBLENDER_STATS]: Report stats.
