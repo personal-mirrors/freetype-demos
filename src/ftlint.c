@@ -21,10 +21,19 @@
 #include <string.h>
 #include <ftcommon.h>
 
+#ifdef UNIX
+#include <unistd.h>
+#else
+#include "mlgetopt.h"
+#endif
+
+
 #define  xxTEST_PSNAMES
 
-  static FT_Library    library;
-  static FT_Face       face;
+  static FT_Library      library;
+  static FT_Face         face;
+  static FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
+  static FT_Int32        load_flags  = FT_LOAD_DEFAULT;
 
   static unsigned int  num_glyphs;
   static int           ptsize;
@@ -38,8 +47,10 @@
     printf( "ftlint: simple font tester -- part of the FreeType project\n" );
     printf( "----------------------------------------------------------\n" );
     printf( "\n" );
-    printf( "Usage: %s ppem fontname[.ttf|.ttc] [fontname2..]\n", name );
+    printf( "Usage: %s [options] ppem fontname[.ttf|.ttc] [fontname2..]\n", name );
     printf( "\n" );
+    printf( "  -f L      Use hex number L as load flags (see `FT_LOAD_XXX').\n" );
+    printf( "  -r N      Set render mode to N\n" );
 
     exit( 1 );
   }
@@ -55,12 +66,12 @@
   static void
   Checksum( int id, FT_Face face )
   {
-  	FT_Bitmap  bitmap;
+      FT_Bitmap  bitmap;
       FT_Error err;
       FT_Bitmap_Init( &bitmap );
       
       
-  	err = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL);
+      err = FT_Render_Glyph( face->glyph, render_mode);
       err = FT_Bitmap_Convert( library, &face->glyph->bitmap, &bitmap, 1 );
       if ( !err )
       {
@@ -97,21 +108,54 @@
     char          filename[1024];
     char*         execname;
     char*         fname;
-
+    int opt;
 
     execname = argv[0];
-
-    if ( argc < 3 )
+    
+    if (argc < 3 )
       Usage( execname );
 
-    if ( sscanf( argv[1], "%d", &ptsize ) != 1 )
-      Usage( execname );
+    while ( (opt =  getopt( argc, argv, "f:r:")) != -1)
+    {
+
+      switch ( opt )
+      {
+
+      case 'f':
+        load_flags = strtol( optarg, NULL, 16 );
+        break;
+
+      case 'r':
+        {
+         int  rm = atoi( optarg );
+
+
+         if ( rm < 0 || rm >= FT_RENDER_MODE_MAX )
+            render_mode = FT_RENDER_MODE_NORMAL;
+          else
+            render_mode = (FT_Render_Mode)rm;
+        }
+        break;
+
+      default:
+        Usage( execname );
+        break;
+      }
+    }
+    
+    argc -= optind;
+    argv += optind;
+
+
+    if( sscanf( argv[0], "%d", &ptsize) != 1)
+      Usage( execname );       
 
     error = FT_Init_FreeType( &library );
     if (error) Panic( "Could not create library object" );
 
+
     /* Now check all files */
-    for ( file_index = 2; file_index < argc; file_index++ )
+    for ( file_index = 1; file_index < argc; file_index++ )
     {
       fname = argv[file_index];
 
@@ -195,7 +239,7 @@
       {
         for ( id = 0; id < num_glyphs; id++ )
         {
-          error = FT_Load_Glyph( face, id, FT_LOAD_DEFAULT );
+          error = FT_Load_Glyph( face, id, load_flags );
           Checksum(id, face);
           
           if (error)
