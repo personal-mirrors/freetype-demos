@@ -303,8 +303,7 @@ else
           ftmulti  \
           ftsdf    \
           ftstring \
-          ftview \
-          ftlint
+          ftview
 
   # ftvalid requires ftgxval.c and ftotval.c
   #
@@ -362,8 +361,7 @@ else
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   $(OBJ_DIR_2)/md5.$(SO): $(SRC_DIR)/md5.c $(SRC_DIR)/md5.h
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<)
+	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
                   $(OBJ_DIR_2)/ftpngout.$(SO)
