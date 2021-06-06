@@ -41,6 +41,8 @@ common_files = files([
   'src/common.h',
   'src/strbuf.c',
   'src/strbuf.h',
+  'src/md5.c',
+  'src/md5.h',
 ])
 
 # Use `mlgetopt.h` on non-Unix platforms.
@@ -108,7 +110,8 @@ executable('ftdump',
 executable('ftlint',
   'src/ftlint.c',
   dependencies: libfreetype2_dep,
-  link_with: common_lib,
+  include_directories: graph_include_dir,
+  link_with: ftcommon_lib,
   install: true)
 
 executable('ftdiff',

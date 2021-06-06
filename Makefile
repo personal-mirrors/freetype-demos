@@ -350,7 +350,8 @@ else
   COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO) \
                 $(OBJ_DIR_2)/strbuf.$(SO) \
                 $(OBJ_DIR_2)/output.$(SO) \
-                $(OBJ_DIR_2)/mlgetopt.$(SO)
+                $(OBJ_DIR_2)/mlgetopt.$(SO) \
+                $(OBJ_DIR_2)/md5.$(SO)
 
   $(OBJ_DIR_2)/ftcommon.$(SO): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
@@ -360,13 +361,12 @@ else
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  $(OBJ_DIR_2)/md5.$(SO): $(SRC_DIR)/md5.c $(SRC_DIR)/ftcommon.h
+  $(OBJ_DIR_2)/md5.$(SO): $(SRC_DIR)/md5.c $(SRC_DIR)/md5.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
-                  $(OBJ_DIR_2)/ftpngout.$(SO) \
-                  $(OBJ_DIR_2)/md5.$(SO)
+                  $(OBJ_DIR_2)/ftpngout.$(SO)
 
   $(OBJ_DIR_2)/ftbench.$(SO): $(SRC_DIR)/ftbench.c
 	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<) $(EXTRAFLAGS)
