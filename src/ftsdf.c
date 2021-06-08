@@ -426,6 +426,15 @@
   }
 
 
+  /* Convert normalized unsigned distance values to signed pixel */
+  /* values, also cast the values to floating point.             */
+  static float
+  map_sdf_to_float( FT_Byte value )
+  {
+    float signed_dist = (float)value - 128.0f;
+    return ( signed_dist / 128.0f ) * (float)status.spread;
+  }
+
   /* Draw an SDF image to the display. */
   static FT_Error
   draw( void )
@@ -436,7 +445,7 @@
     Box  sample_region;
 
     Vec2       center;
-    FT_Short*  buffer;
+    FT_Byte*   buffer;
 
 
     if ( !bitmap || !bitmap->buffer )
@@ -496,7 +505,7 @@
       draw_region.xMax    = display->bitmap->width;
     }
 
-    buffer = (FT_Short*)bitmap->buffer;
+    buffer = (FT_Byte*)bitmap->buffer;
 
     /* Finally loop over all pixels inside the draw region        */
     /* and copy pixels from the sample region to the draw region. */
@@ -514,14 +523,14 @@
 
         if ( status.nearest_filtering )
         {
-          FT_UInt   bitmap_index = ( y / status.scale ) * bitmap->width +
-                                     x / status.scale;
-          FT_Short  pixel_value  = buffer[bitmap_index];
+          FT_UInt  bitmap_index = ( y / status.scale ) * bitmap->width +
+                                    x / status.scale;
+          FT_Byte  pixel_value  = buffer[bitmap_index];
 
 
           /* If nearest filtering then simply take the value of the */
           /* nearest sampling pixel.                                */
-          min_dist = (float)pixel_value / 1024.0f;
+          min_dist = map_sdf_to_float( pixel_value );
         }
         else
         {
@@ -560,22 +569,22 @@
           indc[2] = (int)bi_y * width + (int)bi_x + 1;
           indc[3] = ( (int)bi_y + 1 ) * width + (int)bi_x + 1;
 
-          dist[0] = (float)buffer[indc[0]] / 1024.0f;
+          dist[0] = map_sdf_to_float( buffer[indc[0]] );
 
           if ( indc[1] >= width * rows )
             dist[1] = -status.spread;
           else
-            dist[1] = (float)buffer[indc[1]] / 1024.0f;
+            dist[1] = map_sdf_to_float( buffer[indc[1]] );
 
           if ( indc[2] >= width * rows )
             dist[2] = -status.spread;
           else
-            dist[2] = (float)buffer[indc[2]] / 1024.0f;
+            dist[2] = map_sdf_to_float( buffer[indc[2]] );
 
           if ( indc[3] >= width * rows )
             dist[3] = -status.spread;
           else
-            dist[3] = (float)buffer[indc[3]] / 1024.0f;
+            dist[3] = map_sdf_to_float( buffer[indc[3]] );
 
           m1 = dist[0] * ( 1.0f - nbi_y ) + dist[1] * nbi_y;
           m2 = dist[2] * ( 1.0f - nbi_y ) + dist[3] * nbi_y;
@@ -613,12 +622,11 @@
           /* If not reconstructing then normalize the values between */
           /* [0, 255] and copy to the display buffer.                */
 
-          /* normalize using `status.spread` */
+          /* get absolute distance */
           final_dist  = final_dist < 0 ? -final_dist : final_dist;
-          final_dist /= (float)status.spread;
 
           /* invert the values */
-          final_dist  = 1.0f - final_dist;
+          final_dist  = 1.0f - final_dist / status.spread;
           final_dist *= 255;
 
           /* finally copy the target value to the display buffer */
@@ -664,9 +672,7 @@
     FT_Error  err       = FT_Err_Ok;
     char*     exec_name = NULL;
 
-#ifdef __linux__
     int  flip_y = 1;
-#endif
 
 
     exec_name = ft_basename( argv[0] );
@@ -690,10 +696,8 @@
       goto Exit;
     }
 
-#ifdef __linux__
     FT_CALL( FT_Property_Set( handle->library, "sdf", "flip_y", &flip_y ) );
     FT_CALL( FT_Property_Set( handle->library, "bsdf", "flip_y", &flip_y ) );
-#endif
 
     grSetTitle( display->surface, "Signed Distance Field Viewer" );
     event_color_change();
