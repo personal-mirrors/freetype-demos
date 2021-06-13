@@ -41,6 +41,8 @@ common_files = files([
   'src/common.h',
   'src/strbuf.c',
   'src/strbuf.h',
+  'src/md5.c',
+  'src/md5.h',
 ])
 
 # Use `mlgetopt.h` on non-Unix platforms.

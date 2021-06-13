@@ -345,10 +345,12 @@ else
   $(OBJ_DIR_2)/common.$(SO): $(SRC_DIR)/common.c
   $(OBJ_DIR_2)/strbuf.$(SO): $(SRC_DIR)/strbuf.c
   $(OBJ_DIR_2)/output.$(SO): $(SRC_DIR)/output.c
+  $(OBJ_DIR_2)/md5.$(SO): $(SRC_DIR)/md5.c
   $(OBJ_DIR_2)/mlgetopt.$(SO): $(SRC_DIR)/mlgetopt.c
   COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO) \
                 $(OBJ_DIR_2)/strbuf.$(SO) \
                 $(OBJ_DIR_2)/output.$(SO) \
+                $(OBJ_DIR_2)/md5.$(SO) \
                 $(OBJ_DIR_2)/mlgetopt.$(SO)
 
   $(OBJ_DIR_2)/ftcommon.$(SO): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h

@@ -1,3 +1,14 @@
+2021-06-13  Sarthak Bhardwaj  <1sarthakbhardwaj@gmail.com>
+            Anurag Thakur  <devanuragthakur@gmail.com>
+
+	[ftlint] Render and calculate MD5 checksum.
+
+	* src/ftlint.c (main): Handle the load flags and the render mode from
+	the command line.
+	(Checksum): Calculate MD5 sum.
+	* src/md5.c, src/md5.h: MD5 source code.
+	* Makefile, messon.build: Update the build systems.
+
 2021-06-06  Anuj Verma  <anujv@iitbhilai.ac.in>
 
 	[ftsdf] Synchronize with the change made in the `sdf` renderer.
