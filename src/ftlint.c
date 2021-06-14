@@ -39,7 +39,6 @@
   static FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
   static FT_Int32        load_flags  = FT_LOAD_DEFAULT;
 
-  static unsigned int  num_glyphs;
   static int           ptsize;
 
   static int  Fail;
@@ -54,8 +53,9 @@
     printf( "Usage: %s [options] ppem fontname[.ttf|.ttc] [fontname2..]\n",
             name );
     printf( "\n" );
-    printf( "  -f L   Use hex number L as load flags (see `FT_LOAD_XXX').\n" );
-    printf( "  -r N   Set render mode to N\n" );
+    printf( "  -f L    Use hex number L as load flags (see `FT_LOAD_XXX')\n" );
+    printf( "  -r N    Set render mode to N\n" );
+    printf( "  -i I-J  Range of glyph indices to use (default: all)\n" );
 
     exit( 1 );
   }
@@ -116,6 +116,8 @@
     char*         execname;
     char*         fname;
     int           opt;
+    int           first_index = 0;
+    int           last_index = ~0;
 
 
     execname = argv[0];
@@ -123,7 +125,7 @@
     if ( argc < 3 )
       Usage( execname );
 
-    while ( ( opt =  getopt( argc, argv, "f:r:") ) != -1)
+    while ( ( opt =  getopt( argc, argv, "f:r:i:") ) != -1)
     {
 
       switch ( opt )
@@ -142,6 +144,23 @@
             render_mode = FT_RENDER_MODE_NORMAL;
           else
             render_mode = (FT_Render_Mode)rm;
+        }
+        break;
+
+      case 'i':
+        {
+          int           j;
+          unsigned int  fi, li;
+
+          j = sscanf( optarg, "%u%*[,:-]%u", &fi, &li );
+
+          if ( j == 2 )
+          {
+            first_index = fi;
+            last_index  = li >= fi ? li : ~0;
+          }
+          else if ( j == 1 )
+            first_index = last_index = fi;
         }
         break;
 
@@ -232,7 +251,11 @@
       if (error) Panic( "Could not open file" );
 
   Success:
-      num_glyphs = (unsigned int)face->num_glyphs;
+      if ( first_index > (unsigned int)face->num_glyphs )
+        first_index = 0;
+      if ( last_index > (unsigned int)face->num_glyphs )
+        last_index = (unsigned int)face->num_glyphs - 1;
+
 
 #ifdef  TEST_PSNAMES
       {
@@ -248,7 +271,7 @@
 
       Fail = 0;
       {
-        for ( id = 0; id < num_glyphs; id++ )
+        for ( id = first_index; id <= last_index; id++ )
         {
           error = FT_Load_Glyph( face, id, load_flags );
           if ( error )
