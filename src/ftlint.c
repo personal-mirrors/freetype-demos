@@ -69,6 +69,55 @@
   }
 
 
+  /* Analyze X- and Y-acutance; bitmap should have positive pitch */
+  static void
+  Analyze( FT_Bitmap* bitmap )
+  {
+    unsigned int   i, j;
+    unsigned char  *b;
+    unsigned long  s1, s2;
+    long           d0, d1;
+
+
+    /* X-acutance */
+    for ( b = bitmap->buffer, s1 = s2 = 0, i = 0; i < bitmap->rows; i++ )
+    {
+      for ( d0 = d1 = 0, j = 0; j < bitmap->pitch; j++, b++ )
+      {
+        d1 -= *b;
+        s2 += d1 >= d0 ? d1 - d0 : d0 - d1;  /* second derivative sum */
+        s1 += d1 >= 0 ? d1 : -d1;            /*  first derivative sum */
+        d0  = d1;
+        d1  = *b;
+      }
+      s2 += d1 > d0 ? d1 - d0 : d0 - d1;
+      s2 += d1;
+      s1 += d1;
+    }
+
+    printf( "X=%.4lf  ", s1 ? (double)s2 / s1 : 2.0 );
+
+    /* Y-acutance */
+    for ( s1 = s2 = 0, j = 0; j < bitmap->pitch; j++ )
+    {
+      b = bitmap->buffer + j;
+      for ( d0 = d1 = 0, i = 0; i < bitmap->rows; i++, b += bitmap->pitch )
+      {
+        d1 -= *b;
+        s2 += d1 >= d0 ? d1 - d0 : d0 - d1;  /* second derivative sum */
+        s1 += d1 >= 0 ? d1 : -d1;            /*  first derivative sum */
+        d0  = d1;
+        d1  = *b;
+      }
+      s2 += d1 > d0 ? d1 - d0 : d0 - d1;
+      s2 += d1;
+      s1 += d1;
+    }
+
+    printf( "Y=%.4lf  ", s1 ? (double)s2 / s1 : 2.0 );
+  }
+
+
   /* Calculate MD5 checksum; bitmap should have positive pitch */
   static void
   Checksum( FT_Bitmap* bitmap )
@@ -278,6 +327,7 @@
         else
           printf( "%3ux%-4u ", bitmap.width, bitmap.rows );
 
+        Analyze( &bitmap );
         Checksum( &bitmap );
 
         FT_Bitmap_Done( library, &bitmap );

@@ -1,5 +1,18 @@
 2021-06-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftlint] Report integral X- and Y-acutance.
+
+	Acutance is a measure of how quickly the intensity changes between
+	the minimum and maximum value at the edges.  We calculate is as a
+	ratio of the integrals for the absolute second derivative and the
+	absolute first derivative.  It equals to 2.0 for bitmap fonts and
+	approahes this value for well hinted fonts.
+
+	* src/ftlint.c (Analyze): Implement it.
+	(main): Use it.
+
+2021-06-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftlint.c (main): Report bitmap size, improve output formatting.
 	(Checksum): Updated.
 
