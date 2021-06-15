@@ -68,41 +68,23 @@
     exit(1);
   }
 
+
+  /* Calculate MD5 checksum; bitmap should have positive pitch */
   static void
-  Checksum( FT_GlyphSlot glyph )
+  Checksum( FT_Bitmap* bitmap )
   {
-      FT_Bitmap  bitmap;
-      FT_Error err;
-      FT_Bitmap_Init( &bitmap );
+    MD5_CTX        ctx;
+    unsigned char  md5[16];
+    int            i;
 
+    MD5_Init( &ctx );
+    if ( bitmap->buffer )
+      MD5_Update( &ctx, bitmap->buffer,
+                  (unsigned long)bitmap->rows * (unsigned long)bitmap->pitch );
+    MD5_Final( md5, &ctx );
 
-      printf( "#%u ", glyph->glyph_index );
-
-      err = FT_Bitmap_Convert( library, &glyph->bitmap, &bitmap, 1 );
-      if ( !err )
-      {
-        MD5_CTX        ctx;
-        unsigned char  md5[16];
-        int            i;
-        int            rows  = (int)bitmap.rows;
-        int            pitch = bitmap.pitch;
-
-        MD5_Init( &ctx );
-        if ( bitmap.buffer )
-          MD5_Update( &ctx, bitmap.buffer,
-                      (unsigned long)rows * (unsigned long)pitch );
-        MD5_Final( md5, &ctx );
-
-        for ( i = 0; i < 16; i++ )
-        {
-          printf( "%02X", md5[i] );
-        }
-        printf( "\n" );
-      }
-      else
-        printf("Error generating checksums\n");
-
-      FT_Bitmap_Done( library, &bitmap );
+    for ( i = 0; i < 16; i++ )
+       printf( "%02X", md5[i] );
   }
 
 
@@ -270,21 +252,37 @@
         Panic( "Could not set character size" );
 
       Fail = 0;
+      for ( id = first_index; id <= last_index; id++ )
       {
-        for ( id = first_index; id <= last_index; id++ )
-        {
-          error = FT_Load_Glyph( face, id, load_flags );
-          if ( error )
-          {
-            if ( Fail < 10 )
-              printf( "glyph %4u: 0x%04x\n" , id, error );
-            Fail++;
-            continue;
-          }
+        FT_Bitmap  bitmap;
 
-          FT_Render_Glyph( face->glyph, render_mode );
-          Checksum( face->glyph );
+
+        printf( "%5u: ", id );
+
+        error = FT_Load_Glyph( face, id, load_flags );
+        if ( error )
+        {
+          printf( "error = 0x%04x\n" , error );
+          Fail++;
+          continue;
         }
+
+        FT_Render_Glyph( face->glyph, render_mode );
+
+        FT_Bitmap_Init( &bitmap );
+
+        /* convert to an 8-bit bitmap with a positive pitch */
+        error = FT_Bitmap_Convert( library, &face->glyph->bitmap, &bitmap, 1 );
+        if ( error )
+          printf( "error = 0x%04x", error );
+        else
+          printf( "%3ux%-4u ", bitmap.width, bitmap.rows );
+
+        Checksum( &bitmap );
+
+        FT_Bitmap_Done( library, &bitmap );
+
+        printf( "\n" );
       }
 
       if ( Fail == 0 )

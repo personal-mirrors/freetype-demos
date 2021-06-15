@@ -1,6 +1,11 @@
 2021-06-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* bin/ftlint.c (main): Implement limited indexing.
+	* src/ftlint.c (main): Report bitmap size, improve output formatting.
+	(Checksum): Updated.
+
+2021-06-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftlint.c (main): Implement limited indexing.
 	(Usage): Document it.
 
 2021-06-13  Sarthak Bhardwaj  <1sarthakbhardwaj@gmail.com>
