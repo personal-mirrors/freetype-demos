@@ -728,7 +728,7 @@
   {
     FT_ULong    fpgm_length = 0;
     FT_ULong    prep_length = 0;
-    FT_ULong    loca_length = 0;
+    FT_ULong    loca_length;
     FT_ULong    glyf_length = 0;
     FT_UShort   i;
     FT_Byte*    buffer = NULL;
@@ -770,6 +770,23 @@
     Print_Bytecode( buffer, (FT_UShort)prep_length, "prep" );
 
   Glyf:
+    head =     (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
+    maxp = (TT_MaxProfile*)FT_Get_Sfnt_Table( face, FT_SFNT_MAXP );
+
+    if ( head == NULL || maxp == NULL )
+      goto Exit;
+
+    loca_length = head->Index_To_Loc_Format ? 4 * maxp->numGlyphs + 4
+                                            : 2 * maxp->numGlyphs + 2;
+
+    offset = (FT_Byte*)malloc( loca_length );
+    if ( offset == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &loca_length );
+    if ( error )
+      goto Exit;
+
     error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, NULL, &glyf_length );
     if ( error || glyf_length == 0 )
       goto Exit;
@@ -782,38 +799,39 @@
     if ( error )
       goto Exit;
 
-    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, NULL, &loca_length );
-    if ( error || loca_length == 0 )
-      goto Exit;
-
-    offset = (FT_Byte*)malloc( loca_length );
-    if ( offset == NULL )
-      goto Exit;
-
-    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &loca_length );
-    if ( error )
-      goto Exit;
-
-    head =     (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
-    maxp = (TT_MaxProfile*)FT_Get_Sfnt_Table( face, FT_SFNT_MAXP );
-
     for ( i = 0; i < maxp->numGlyphs; i++ )
     {
-      FT_UInt32  loc;
+      FT_UInt32  loc, end;
       FT_UInt16  len;
       char       tag[5];
 
 
       if ( head->Index_To_Loc_Format )
+      {
         loc = (FT_UInt32)offset[4 * i    ] << 24 |
               (FT_UInt32)offset[4 * i + 1] << 16 |
               (FT_UInt32)offset[4 * i + 2] << 8  |
               (FT_UInt32)offset[4 * i + 3];
+        end = (FT_UInt32)offset[4 * i + 4] << 24 |
+              (FT_UInt32)offset[4 * i + 5] << 16 |
+              (FT_UInt32)offset[4 * i + 6] << 8  |
+              (FT_UInt32)offset[4 * i + 7];
+      }
       else
+      {
         loc = (FT_UInt32)offset[2 * i    ] << 9 |
               (FT_UInt32)offset[2 * i + 1] << 1;
+        end = (FT_UInt32)offset[2 * i + 2] << 9 |
+              (FT_UInt32)offset[2 * i + 3] << 1;
+      }
 
-      if ( loc >= glyf_length )
+      if ( end > glyf_length )
+        end = glyf_length;
+
+      if ( loc == end )
+        continue;
+
+      if ( loc + 1 >= end )
       {
         printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
         continue;
@@ -829,7 +847,7 @@
 
         do
         {
-          if ( loc >= glyf_length )
+          if ( loc + 1 >= end )
           {
             printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
             goto Continue;
@@ -852,7 +870,7 @@
       else
         loc += 2 * len;
 
-      if ( loc >= glyf_length )
+      if ( loc + 1 >= end )
       {
         printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
         continue;
@@ -865,7 +883,7 @@
 
       loc += 2;
 
-      if ( len >= glyf_length || loc >= glyf_length - len )
+      if ( loc + len > end )
       {
         printf( "\nglyf program %hd: invalid size (%d)\n", i, len );
         continue;
@@ -888,7 +906,7 @@
   static void
   Print_Glyfs( FT_Face  face )
   {
-    FT_ULong    loca_length = 0;
+    FT_ULong    loca_length;
     FT_ULong    glyf_length = 0;
     FT_UShort   i;
     FT_Byte*    buffer = NULL;
@@ -898,10 +916,28 @@
     FT_Int      simple_overlap    = 0;
     FT_Int      composite         = 0;
     FT_Int      composite_overlap = 0;
+    FT_Int      empty             = 0;
 
     TT_Header*      head;
     TT_MaxProfile*  maxp;
 
+
+    head =     (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
+    maxp = (TT_MaxProfile*)FT_Get_Sfnt_Table( face, FT_SFNT_MAXP );
+
+    if ( head == NULL || maxp == NULL )
+      return;
+
+    loca_length = head->Index_To_Loc_Format ? 4 * maxp->numGlyphs + 4
+                                            : 2 * maxp->numGlyphs + 2;
+
+    offset = (FT_Byte*)malloc( loca_length );
+    if ( offset == NULL )
+      goto Exit;
+
+    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &loca_length );
+    if ( error )
+      goto Exit;
 
     error = FT_Load_Sfnt_Table( face, TTAG_glyf, 0, NULL, &glyf_length );
     if ( error || glyf_length == 0 )
@@ -915,38 +951,42 @@
     if ( error )
       goto Exit;
 
-    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, NULL, &loca_length );
-    if ( error || loca_length == 0 )
-      goto Exit;
-
-    offset = (FT_Byte*)malloc( loca_length );
-    if ( offset == NULL )
-      goto Exit;
-
-    error = FT_Load_Sfnt_Table( face, TTAG_loca, 0, offset, &loca_length );
-    if ( error )
-      goto Exit;
-
-    head =     (TT_Header*)FT_Get_Sfnt_Table( face, FT_SFNT_HEAD );
-    maxp = (TT_MaxProfile*)FT_Get_Sfnt_Table( face, FT_SFNT_MAXP );
-
     for ( i = 0; i < maxp->numGlyphs; i++ )
     {
-      FT_UInt32  loc;
+      FT_UInt32  loc, end;
       FT_UInt16  len;
       FT_UShort  flags;
 
 
       if ( head->Index_To_Loc_Format )
+      {
         loc = (FT_UInt32)offset[4 * i    ] << 24 |
               (FT_UInt32)offset[4 * i + 1] << 16 |
               (FT_UInt32)offset[4 * i + 2] << 8  |
               (FT_UInt32)offset[4 * i + 3];
+        end = (FT_UInt32)offset[4 * i + 4] << 24 |
+              (FT_UInt32)offset[4 * i + 5] << 16 |
+              (FT_UInt32)offset[4 * i + 6] << 8  |
+              (FT_UInt32)offset[4 * i + 7];
+      }
       else
+      {
         loc = (FT_UInt32)offset[2 * i    ] << 9 |
               (FT_UInt32)offset[2 * i + 1] << 1;
+        end = (FT_UInt32)offset[2 * i + 2] << 9 |
+              (FT_UInt32)offset[2 * i + 3] << 1;
+      }
 
-      if ( loc >= glyf_length )
+      if ( end > glyf_length )
+        end = glyf_length;
+
+      if ( loc == end )
+      {
+        empty++;
+        continue;
+      }
+
+      if ( loc + 1 >= end )
       {
         printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
         continue;
@@ -959,7 +999,7 @@
       {
         composite++;
 
-        if ( loc >= glyf_length )
+        if ( loc + 1 >= end )
         {
           printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
           continue;
@@ -976,7 +1016,7 @@
 
       loc += 2 * len;
 
-      if ( loc >= glyf_length )
+      if ( loc + 1 >= end )
       {
         printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
         continue;
@@ -986,7 +1026,7 @@
 
       loc += 2 + len;
 
-      if ( len >= glyf_length )
+      if ( len >= end )
       {
         printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
         continue;
@@ -1005,6 +1045,8 @@
     printf( composite_overlap ? ", with overlap flagged in %d\n"
                               : "\n",
             composite_overlap );
+    if ( empty )
+      printf( "%s%d\n", Name_Field( "   empty" ), empty );
 
   Exit:
     free( buffer );

@@ -1,3 +1,7 @@
+2021-06-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/ftdump.c (Print_Glyfs, Print_Programs): Handle empty glyphs.
+
 2021-06-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	[ftlint] Report integral X- and Y-acutance.
