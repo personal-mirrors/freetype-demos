@@ -1,5 +1,9 @@
 2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftlint.c (main, Analyze): Fix signed/unsigned mismatch.
+
+2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftlint] Handle font collections.
 
 	* src/ftlint.c (main): Increment face_index when possible.

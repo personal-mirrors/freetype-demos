@@ -81,7 +81,7 @@
     /* X-acutance */
     for ( b = bitmap->buffer, s1 = s2 = 0, i = 0; i < bitmap->rows; i++ )
     {
-      for ( d0 = d1 = 0, j = 0; j < bitmap->pitch; j++, b++ )
+      for ( d0 = d1 = 0, j = 0; j < bitmap->width; j++, b++ )
       {
         d1 -= *b;
         s2 += d1 >= d0 ? d1 - d0 : d0 - d1;  /* second derivative sum */
@@ -97,7 +97,7 @@
     printf( "X=%.4lf  ", s1 ? (double)s2 / s1 : 2.0 );
 
     /* Y-acutance */
-    for ( s1 = s2 = 0, j = 0; j < bitmap->pitch; j++ )
+    for ( s1 = s2 = 0, j = 0; j < bitmap->width; j++ )
     {
       b = bitmap->buffer + j;
       for ( d0 = d1 = 0, i = 0; i < bitmap->rows; i++, b += bitmap->pitch )
@@ -145,8 +145,8 @@
     char*         execname;
     char*         fname;
     int           opt;
-    int           first_index = 0;
-    int           last_index = ~0;
+    unsigned int  first_index = 0;
+    unsigned int  last_index = ~0;
     int           quiet = 0;
 
 
@@ -208,7 +208,7 @@
     argv += optind;
 
 
-    if( sscanf( argv[0], "%d", &ptsize) != 1)
+    if( sscanf( argv[0], "%d", &ptsize) != 1 )
       Usage( execname );
 
     error = FT_Init_FreeType( &library );
