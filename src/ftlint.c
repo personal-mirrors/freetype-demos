@@ -141,7 +141,6 @@
         char**  argv )
   {
     int           file_index, face_index;
-    unsigned int  id;
     char*         execname;
     char*         fname;
     int           opt;
@@ -219,6 +218,9 @@
     /* Now check all files */
     for ( face_index = 0, file_index = 1; file_index < argc; file_index++ )
     {
+      unsigned int  id, fi, li;
+
+
       fname = argv[file_index];
 
       printf( "%s:\n", fname );
@@ -243,13 +245,12 @@
       if ( error )
         Panic( "Could not set character size" );
 
-      if ( first_index > (unsigned int)face->num_glyphs )
-        first_index = 0;
-      if ( last_index > (unsigned int)face->num_glyphs )
-        last_index = (unsigned int)face->num_glyphs - 1;
+      fi = first_index > 0 ? first_index : 0;
+      li = last_index < (unsigned int)face->num_glyphs ?
+                        last_index : (unsigned int)face->num_glyphs - 1;
 
       Fail = 0;
-      for ( id = first_index; id <= last_index; id++ )
+      for ( id = fi; id <= li; id++ )
       {
         FT_Bitmap  bitmap;
 
