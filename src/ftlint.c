@@ -31,8 +31,6 @@
 #endif
 
 
-#define  xxTEST_PSNAMES
-
   static FT_Error        error;
   static FT_Library      library;
   static FT_Face         face;
@@ -50,12 +48,13 @@
     printf( "ftlint: simple font tester -- part of the FreeType project\n" );
     printf( "----------------------------------------------------------\n" );
     printf( "\n" );
-    printf( "Usage: %s [options] ppem fontname[.ttf|.ttc] [fontname2..]\n",
+    printf( "Usage: %s [options] ppem fontname [fontname2..]\n",
             name );
     printf( "\n" );
     printf( "  -f L    Use hex number L as load flags (see `FT_LOAD_XXX')\n" );
     printf( "  -r N    Set render mode to N\n" );
     printf( "  -i I-J  Range of glyph indices to use (default: all)\n" );
+    printf( "  -q      Quiet mode without the rendering analysis\n" );
 
     exit( 1 );
   }
@@ -141,14 +140,14 @@
   main( int     argc,
         char**  argv )
   {
-    int           i, file_index;
+    int           file_index;
     unsigned int  id;
-    char          filename[1024];
     char*         execname;
     char*         fname;
     int           opt;
     int           first_index = 0;
     int           last_index = ~0;
+    int           quiet = 0;
 
 
     execname = argv[0];
@@ -156,7 +155,7 @@
     if ( argc < 3 )
       Usage( execname );
 
-    while ( ( opt =  getopt( argc, argv, "f:r:i:") ) != -1)
+    while ( ( opt =  getopt( argc, argv, "f:r:i:q") ) != -1)
     {
 
       switch ( opt )
@@ -195,6 +194,10 @@
         }
         break;
 
+      case 'q':
+        quiet = 1;
+        break;
+
       default:
         Usage( execname );
         break;
@@ -218,87 +221,31 @@
     {
       fname = argv[file_index];
 
-      /* try to open the file with no extra extension first */
+      printf( "%s:", fname );
+
       error = FT_New_Face( library, fname, 0, &face );
-      if ( !error )
-      {
-        printf( "%s: \n", fname );
-        goto Success;
-      }
-
-
       if ( error == FT_Err_Unknown_File_Format )
       {
-        printf( "unknown format\n" );
+        printf( " unknown format\n" );
+        continue;
+      }
+      else if ( error )
+      {
+        printf( " error = 0x%04x\n" , error );
         continue;
       }
 
-      /* ok, we could not load the file, try to add an extension to */
-      /* its name if possible..                                     */
-
-      i = (int)strlen( fname );
-      while ( i > 0 && fname[i] != '\\' && fname[i] != '/' )
-      {
-        if ( fname[i] == '.' )
-          i = 0;
-        i--;
-      }
-
-#ifndef macintosh
-      snprintf( filename, sizeof ( filename ), "%s%s", fname,
-                ( i >= 0 ) ? ".ttf" : "" );
-#else
-      snprintf( filename, sizeof ( filename ), "%s", fname );
-#endif
-
-      i     = (int)strlen( filename );
-      fname = filename;
-
-      while ( i >= 0 )
-#ifndef macintosh
-        if ( filename[i] == '/' || filename[i] == '\\' )
-#else
-        if ( filename[i] == ':' )
-#endif
-        {
-          fname = filename + i + 1;
-          i = -1;
-        }
-        else
-          i--;
-
-      printf( "%s: \n", fname );
-
-      /* Load face */
-      error = FT_New_Face( library, filename, 0, &face );
-      if (error)
-      {
-        if (error == FT_Err_Unknown_File_Format)
-          printf( "unknown format\n" );
-        else
-          printf( "could not find/open file (error: %d)\n", error );
-        continue;
-      }
-      if (error) Panic( "Could not open file" );
-
-  Success:
-      if ( first_index > (unsigned int)face->num_glyphs )
-        first_index = 0;
-      if ( last_index > (unsigned int)face->num_glyphs )
-        last_index = (unsigned int)face->num_glyphs - 1;
-
-
-#ifdef  TEST_PSNAMES
-      {
-        const char*  ps_name = FT_Get_Postscript_Name( face );
-
-        printf( "[%s] ", ps_name ? ps_name : "." );
-      }
-#endif
+      printf( quiet ? "\n  %s %s:" : "\n  %s %s:\n",
+              face->family_name, face->style_name );
 
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
       if ( error )
         Panic( "Could not set character size" );
+
+      if ( first_index > (unsigned int)face->num_glyphs )
+        first_index = 0;
+      if ( last_index > (unsigned int)face->num_glyphs )
+        last_index = (unsigned int)face->num_glyphs - 1;
 
       Fail = 0;
       for ( id = first_index; id <= last_index; id++ )
@@ -306,15 +253,16 @@
         FT_Bitmap  bitmap;
 
 
-        printf( "%5u: ", id );
-
         error = FT_Load_Glyph( face, id, load_flags );
         if ( error )
         {
-          printf( "error = 0x%04x\n" , error );
+          printf( "%5u: error = 0x%04x\n", id, error );
           Fail++;
           continue;
         }
+
+        if ( quiet )
+          continue;
 
         FT_Render_Glyph( face->glyph, render_mode );
 
@@ -323,9 +271,12 @@
         /* convert to an 8-bit bitmap with a positive pitch */
         error = FT_Bitmap_Convert( library, &face->glyph->bitmap, &bitmap, 1 );
         if ( error )
-          printf( "error = 0x%04x", error );
+        {
+          printf( "%5u: error = 0x%04x\n", id, error );
+          continue;
+        }
         else
-          printf( "%3ux%-4u ", bitmap.width, bitmap.rows );
+          printf( "%5u: %3ux%-4u ", id, bitmap.width, bitmap.rows );
 
         Analyze( &bitmap );
         Checksum( &bitmap );
@@ -336,11 +287,11 @@
       }
 
       if ( Fail == 0 )
-        printf( "OK.\n" );
+        printf( "  OK.\n" );
       else if ( Fail == 1 )
-        printf( "1 fail.\n" );
+        printf( "  1 fail.\n" );
       else
-        printf( "%d fails.\n", Fail );
+        printf( "  %d fails.\n", Fail );
 
       FT_Done_Face( face );
     }
