@@ -1,5 +1,9 @@
 2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftlint.c (main): Fix signed/unsigned mismatch.
+
+2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	* src/ftlint.c (main): Fortify custom indexing.
 
 2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>

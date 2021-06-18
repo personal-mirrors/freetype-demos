@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <limits.h>
 
 #include "md5.h"
 
@@ -145,7 +145,7 @@
     char*         fname;
     int           opt;
     unsigned int  first_index = 0;
-    unsigned int  last_index = ~0;
+    unsigned int  last_index = UINT_MAX;
     int           quiet = 0;
 
 
@@ -186,7 +186,7 @@
           if ( j == 2 )
           {
             first_index = fi;
-            last_index  = li >= fi ? li : ~0;
+            last_index  = li >= fi ? li : UINT_MAX;
           }
           else if ( j == 1 )
             first_index = last_index = fi;
