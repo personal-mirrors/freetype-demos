@@ -1,5 +1,11 @@
 2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[ftlint] Handle font collections.
+
+	* src/ftlint.c (main): Increment face_index when possible.
+
+2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftlint] Introduce quiet mode, remove extension guessing.
 
 	With so many supported font formats, it does not make sense to guess

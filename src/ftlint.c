@@ -140,7 +140,7 @@
   main( int     argc,
         char**  argv )
   {
-    int           file_index;
+    int           file_index, face_index;
     unsigned int  id;
     char*         execname;
     char*         fname;
@@ -217,25 +217,26 @@
 
 
     /* Now check all files */
-    for ( file_index = 1; file_index < argc; file_index++ )
+    for ( face_index = 0, file_index = 1; file_index < argc; file_index++ )
     {
       fname = argv[file_index];
 
-      printf( "%s:", fname );
+      printf( "%s:\n", fname );
 
-      error = FT_New_Face( library, fname, 0, &face );
+    Next_Face:
+      error = FT_New_Face( library, fname, face_index, &face );
       if ( error == FT_Err_Unknown_File_Format )
       {
-        printf( " unknown format\n" );
+        printf( "  unknown format\n" );
         continue;
       }
       else if ( error )
       {
-        printf( " error = 0x%04x\n" , error );
+        printf( "  error = 0x%04x\n" , error );
         continue;
       }
 
-      printf( quiet ? "\n  %s %s:" : "\n  %s %s:\n",
+      printf( quiet ? "  %s %s:" : "  %s %s:\n",
               face->family_name, face->style_name );
 
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
@@ -293,10 +294,16 @@
       else
         printf( "  %d fails.\n", Fail );
 
+      if ( ++face_index == face->num_faces )
+        face_index = 0;
+
       FT_Done_Face( face );
+
+      if ( face_index )
+        goto Next_Face;
     }
 
-    FT_Done_FreeType(library);
+    FT_Done_FreeType( library );
     exit( 0 );      /* for safety reasons */
 
     /* return 0; */ /* never reached */
