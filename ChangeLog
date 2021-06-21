@@ -1,5 +1,9 @@
 2021-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	* src/ftlint.c (main): Use `ft_basename'.
+
+2021-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
 	[ftlint] Improve error handling.
 
 	* src/ftlint.c (main): Never panic, call `Error', and proceed.

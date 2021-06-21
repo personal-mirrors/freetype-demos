@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#include "common.h"
 #include "md5.h"
 
 #ifdef UNIX
@@ -161,7 +162,7 @@
     int           quiet = 0;
 
 
-    execname = argv[0];
+    execname = ft_basename( argv[0] );
 
     if ( argc < 3 )
       Usage( execname );
