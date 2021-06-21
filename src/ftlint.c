@@ -42,6 +42,26 @@
   static int  Fail;
 
 
+  /* error messages */
+#undef FTERRORS_H_
+#define FT_ERROR_START_LIST     {
+#define FT_ERRORDEF( e, v, s )  case v: str = s; break;
+#define FT_ERROR_END_LIST       default: str = "unknown error"; }
+
+
+  static void
+  Error( void )
+  {
+    const FT_String  *str;
+
+
+    switch( error )
+    #include <freetype/fterrors.h>
+
+    printf( "  error = 0x%04x, %s\n", error, str );
+  }
+
+
   static void
   Usage( char*  name )
   {
@@ -57,14 +77,6 @@
     printf( "  -q      Quiet mode without the rendering analysis\n" );
 
     exit( 1 );
-  }
-
-
-  static void
-  Panic( const char*  message )
-  {
-    fprintf( stderr, "%s\n  error code = 0x%04x\n", message, error );
-    exit(1);
   }
 
 
@@ -212,8 +224,10 @@
 
     error = FT_Init_FreeType( &library );
     if ( error )
-      Panic( "Could not create library object" );
-
+    {
+      Error();
+      exit( 1 );
+    }
 
     /* Now check all files */
     for ( face_index = 0, file_index = 1; file_index < argc; file_index++ )
@@ -227,14 +241,9 @@
 
     Next_Face:
       error = FT_New_Face( library, fname, face_index, &face );
-      if ( error == FT_Err_Unknown_File_Format )
+      if ( error )
       {
-        printf( "  unknown format\n" );
-        continue;
-      }
-      else if ( error )
-      {
-        printf( "  error = 0x%04x\n" , error );
+        Error();
         continue;
       }
 
@@ -243,7 +252,10 @@
 
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
       if ( error )
-        Panic( "Could not set character size" );
+      {
+        Error();
+        goto Finalize;
+      }
 
       fi = first_index > 0 ? first_index : 0;
       li = last_index < (unsigned int)face->num_glyphs ?
@@ -258,7 +270,8 @@
         error = FT_Load_Glyph( face, id, load_flags );
         if ( error )
         {
-          printf( "%5u: error = 0x%04x\n", id, error );
+          printf( "%5u:", id );
+          Error();
           Fail++;
           continue;
         }
@@ -266,7 +279,15 @@
         if ( quiet )
           continue;
 
-        FT_Render_Glyph( face->glyph, render_mode );
+        printf( "%5u:", id );
+
+        error = FT_Render_Glyph( face->glyph, render_mode );
+        if ( error && error != FT_Err_Cannot_Render_Glyph )
+        {
+          Error();
+          Fail++;
+          continue;
+        }
 
         FT_Bitmap_Init( &bitmap );
 
@@ -274,11 +295,11 @@
         error = FT_Bitmap_Convert( library, &face->glyph->bitmap, &bitmap, 1 );
         if ( error )
         {
-          printf( "%5u: error = 0x%04x\n", id, error );
+          Error();
           continue;
         }
         else
-          printf( "%5u: %3ux%-4u ", id, bitmap.width, bitmap.rows );
+          printf( " %3ux%-4u ", bitmap.width, bitmap.rows );
 
         Analyze( &bitmap );
         Checksum( &bitmap );
@@ -294,6 +315,8 @@
         printf( "  1 fail.\n" );
       else
         printf( "  %d fails.\n", Fail );
+
+    Finalize:
 
       if ( ++face_index == face->num_faces )
         face_index = 0;

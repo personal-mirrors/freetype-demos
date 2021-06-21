@@ -1,3 +1,11 @@
+2021-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[ftlint] Improve error handling.
+
+	* src/ftlint.c (main): Never panic, call `Error', and proceed.
+	(Error): Desipher and print an error message instead of...
+	(Panic): ...removed.
+
 2021-06-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
 	* src/ftlint.c (main): Fix signed/unsigned mismatch.
