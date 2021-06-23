@@ -51,7 +51,7 @@
 
 
   static void
-  Error( void )
+  Error( const FT_String  *msg )
   {
     const FT_String  *str;
 
@@ -59,7 +59,7 @@
     switch( error )
     #include <freetype/fterrors.h>
 
-    printf( "  error = 0x%04x, %s\n", error, str );
+    printf( "%serror = 0x%04x, %s\n", msg, error, str );
   }
 
 
@@ -226,7 +226,7 @@
     error = FT_Init_FreeType( &library );
     if ( error )
     {
-      Error();
+      Error( "" );
       exit( 1 );
     }
 
@@ -244,7 +244,7 @@
       error = FT_New_Face( library, fname, face_index, &face );
       if ( error )
       {
-        Error();
+        Error( "  " );
         continue;
       }
 
@@ -254,7 +254,7 @@
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
       if ( error )
       {
-        Error();
+        Error( "  " );
         goto Finalize;
       }
 
@@ -271,8 +271,11 @@
         error = FT_Load_Glyph( face, id, load_flags );
         if ( error )
         {
-          printf( "%5u:", id );
-          Error();
+          if ( !quiet )
+          {
+            printf( "%5u: ", id );
+            Error( "loading " );
+          }
           Fail++;
           continue;
         }
@@ -280,12 +283,12 @@
         if ( quiet )
           continue;
 
-        printf( "%5u:", id );
+        printf( "%5u: ", id );
 
         error = FT_Render_Glyph( face->glyph, render_mode );
         if ( error && error != FT_Err_Cannot_Render_Glyph )
         {
-          Error();
+          Error( "rendering " );
           Fail++;
           continue;
         }
@@ -296,11 +299,11 @@
         error = FT_Bitmap_Convert( library, &face->glyph->bitmap, &bitmap, 1 );
         if ( error )
         {
-          Error();
+          Error( "converting " );
           continue;
         }
         else
-          printf( " %3ux%-4u ", bitmap.width, bitmap.rows );
+          printf( "%3ux%-4u ", bitmap.width, bitmap.rows );
 
         Analyze( &bitmap );
         Checksum( &bitmap );
