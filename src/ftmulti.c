@@ -109,9 +109,9 @@
   static FT_MM_Var    *multimaster   = NULL;
   static FT_Fixed      design_pos   [MAX_MM_AXES];
   static FT_Fixed      requested_pos[MAX_MM_AXES];
-  static unsigned int  requested_cnt = 0;
-  static unsigned int  used_num_axis = 0;
-  static int           increment = 20;  /* for axes */
+  static unsigned int  requested_cnt =  0;
+  static unsigned int  used_num_axis =  0;
+  static int           increment     = 20;  /* for axes */
 
   /*
    * We use the following arrays to support both the display of all axes and

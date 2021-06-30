@@ -107,7 +107,7 @@
       s1 += d1;
     }
 
-    printf( "X=%.4lf  ", s1 ? (double)s2 / s1 : 2.0 );
+    printf( "%.4lf ", s1 ? (double)s2 / s1 : 2.0 );
 
     /* Y-acutance */
     for ( s1 = s2 = 0, j = 0; j < bitmap->width; j++ )
@@ -126,7 +126,7 @@
       s1 += d1;
     }
 
-    printf( "Y=%.4lf  ", s1 ? (double)s2 / s1 : 2.0 );
+    printf( "%.4lf ", s1 ? (double)s2 / s1 : 2.0 );
   }
 
 
@@ -248,7 +248,7 @@
         continue;
       }
 
-      printf( quiet ? "  %s %s:" : "  %s %s:\n",
+      printf( quiet ? "  %s %s:" : "  %s %s\n\n",
               face->family_name, face->style_name );
 
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
@@ -261,6 +261,13 @@
       fi = first_index > 0 ? first_index : 0;
       li = last_index < (unsigned int)face->num_glyphs ?
                         last_index : (unsigned int)face->num_glyphs - 1;
+
+      if ( !quiet )
+      {
+        /*      "NNNNN AAAxBBBB X.XXXX Y.YYYY MMDD55MMDD55MMDD55MMDD55MMDD55MM" */
+        printf( " GID  imgsize  Xacut  Yacut  MD5 hashsum\n" );
+        printf( "-------------------------------------------------------------\n" );
+      }
 
       Fail = 0;
       for ( id = fi; id <= li; id++ )
@@ -283,7 +290,7 @@
         if ( quiet )
           continue;
 
-        printf( "%5u: ", id );
+        printf( "%5u ", id );
 
         error = FT_Render_Glyph( face->glyph, render_mode );
         if ( error && error != FT_Err_Cannot_Render_Glyph )
