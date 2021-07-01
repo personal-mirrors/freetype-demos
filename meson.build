@@ -12,11 +12,12 @@
 # fully.
 
 
+# Ideally, the version string of the 'freetype' subproject should be the
+# source of the version string of 'freetype-demos'.  However, this is not
+# possible since the subproject might not be cloned yet, so we have to
+# hard-code the string.
 project('freetype-demos', 'c', 'cpp',
-  version: run_command(
-    'subprojects/freetype2/builds/meson/extract_freetype_version.py',
-    'subprojects/freetype2/include/freetype/freetype.h').stdout().strip(),
-)
+  version: '2.10.4')
 
 
 # Access to the FreeType 2 source tree is required, since some of the demo
