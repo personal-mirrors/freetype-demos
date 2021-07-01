@@ -1,5 +1,9 @@
 2021-07-01  Werner Lemberg  <wl@gnu.org>
 
+	* src/ftlint.c (main): Minor output improvement.
+
+2021-07-01  Werner Lemberg  <wl@gnu.org>
+
 	* meson.build: Fix version string.
 
 2021-07-01  Werner Lemberg  <wl@gnu.org>

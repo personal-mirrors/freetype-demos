@@ -280,7 +280,7 @@
         {
           if ( !quiet )
           {
-            printf( "%5u: ", id );
+            printf( "%5u ", id );
             Error( "loading " );
           }
           Fail++;
