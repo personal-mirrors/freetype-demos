@@ -907,7 +907,7 @@
   }
 
 
-  /* switch to a different engine if possible, including warping */
+  /* switch to a different engine if possible */
   int
   FTDemo_Hinting_Engine_Change( FTDemo_Handle*  handle )
   {
@@ -929,18 +929,9 @@
 
     module_name = (*(FT_Module_Class**)(face->driver))->module_name;
 
-    if ( handle->autohint )
-    {
-      FT_Bool  warp;
-
-
-      FT_Property_Get( library, "autofitter", "warping", &warp );
-      warp = !warp;
-      FT_Property_Set( library, "autofitter", "warping", &warp );
-    }
-
-    else if ( !FT_Property_Get( library, module_name,
-                                         "interpreter-version", &prop ) )
+    if ( !handle->autohint                                         &&
+         !FT_Property_Get( library, module_name,
+                                    "interpreter-version", &prop ) )
     {
       switch ( prop )
       {
@@ -1024,10 +1015,7 @@
       hinting_engine = " auto";
 
     else if ( handle->autohint )
-    {
-      FT_Property_Get( library, "autofitter", "warping", &prop );
-      hinting_engine = prop ? " warp" : " auto";
-    }
+      hinting_engine = " auto";
 
     else if ( !FT_Property_Get( library, module_name,
                                          "interpreter-version", &prop ) )

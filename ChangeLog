@@ -1,3 +1,24 @@
+2021-07-17  Werner Lemberg  <wl@gnu.org>
+
+	Remove code related to warping.
+
+	This synchronizes the demo programs with commit 2f11522a from the
+	FreeType repository.
+
+	* src/ftcommon.c (FTDemo_Hinting_Engine_Change, FTDemo_Get_Info):
+	Updated.
+
+	* src/ftdiff.c (ColumnStateRec, render_state_init,
+	render_state_draw, event_help, process_event): Updated.
+
+	* src/ftgrid.c (event_help): Updated.
+
+	* src/ftinspect/engine/engine.cpp (Engine::Engine, Engine::update),
+	src/ftinspect/engine/engine.hpp (Engine): Updated.
+	* src/ftinspect/maingui.cpp (MainGUI::checkHinting,
+	MainGUI::checkAutoHinting, MainGUI::createLayout),
+	src/ftinspect/maingui.hpp (MainGUI): Updated.
+
 2021-07-01  Werner Lemberg  <wl@gnu.org>
 
 	* src/ftlint.c (main): Minor output improvement.

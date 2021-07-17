@@ -133,7 +133,6 @@ private:
   QCheckBox *showPointNumbersCheckBox;
   QCheckBox *showPointsCheckBox;
   QCheckBox *verticalHintingCheckBox;
-  QCheckBox *warpingCheckBox;
 
   QComboBoxx *antiAliasingComboBoxx;
   QComboBoxx *hintingModeComboBoxx;
@@ -167,7 +166,6 @@ private:
   QHBoxLayout *segmentDrawingLayout;
   QHBoxLayout *sizeLayout;
   QHBoxLayout *verticalHintingLayout;
-  QHBoxLayout *warpingLayout;
 
   QLabel *antiAliasingLabel;
   QLabel *dpiLabel;

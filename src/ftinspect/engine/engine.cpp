@@ -244,28 +244,6 @@ Engine::Engine(MainGUI* g)
                     "interpreter-version",
                     &ttInterpreterVersionDefault);
   }
-
-  // auto-hinter
-  error = FT_Property_Get(library,
-                          "autofitter",
-                          "warping",
-                          &doWarping);
-  if (error)
-  {
-    // no warping
-    haveWarping = 0;
-    doWarping = 0;
-  }
-  else
-  {
-    haveWarping = 1;
-    doWarping = 0; // we don't do warping by default
-
-    FT_Property_Set(library,
-                    "autofitter",
-                    "warping",
-                    &doWarping);
-  }
 }
 
 
@@ -573,7 +551,6 @@ Engine::update()
   doVerticalHinting = gui->verticalHintingCheckBox->isChecked();
   doBlueZoneHinting = gui->blueZoneHintingCheckBox->isChecked();
   showSegments = gui->segmentDrawingCheckBox->isChecked();
-  doWarping = gui->warpingCheckBox->isChecked();
 
   gamma = gui->gammaSlider->value();
 

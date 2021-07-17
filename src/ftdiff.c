@@ -188,7 +188,6 @@
     unsigned int   tt_interpreter_versions[3];
     int            num_tt_interpreter_versions;
     int            tt_interpreter_version_idx;
-    FT_Bool        warping;
 
   } ColumnStateRec, *ColumnState;
 
@@ -233,7 +232,6 @@
     FT_UInt  cff_hinting_engine;
     FT_UInt  type1_hinting_engine;
     FT_UInt  t1cid_hinting_engine;
-    FT_Bool  warping;
 
     unsigned int  tt_interpreter_versions[3]  = { 0, 0, 0 };
     int           num_tt_interpreter_versions = 0;
@@ -287,10 +285,6 @@
                      "truetype",
                      "interpreter-version", &dflt_tt_interpreter_version );
 
-    FT_Property_Get( library,
-                     "autofitter",
-                     "warping", &warping );
-
     state->columns[0].use_cboxes             = 0;
     state->columns[0].use_kerning            = 1;
     state->columns[0].use_deltas             = 1;
@@ -312,7 +306,6 @@
     state->columns[0].tt_interpreter_version_idx =
       tt_interpreter_version_idx;
 
-    state->columns[0].warping                = warping;
     state->columns[0].use_custom_lcd_filter  = 0;
     state->columns[0].fw_index               = 2;
     /* FreeType default filter weights */
@@ -572,7 +565,6 @@
     FT_Pos       prev_rsb_delta = 0;
     FT_Pos       x_origin       = x << 6;
     HintMode     rmode          = column->hint_mode;
-    FT_Bool      warping        = column->warping;
     FT_Bool      have_0x0A      = 0;
     FT_Bool      have_0x0D      = 0;
 
@@ -596,10 +588,6 @@
                      "interpreter-version",
                      &column->tt_interpreter_versions
                        [column->tt_interpreter_version_idx] );
-    FT_Property_Set( state->library,
-                     "autofitter",
-                     "warping",
-                     &column->warping );
 
     /* changing a property is in most cases a global operation; */
     /* we are on the safe side if we reload the face completely */
@@ -870,8 +858,6 @@
           }
         }
       }
-      else if ( rmode == HINT_MODE_AUTOHINT )
-        extra = warping ? " (+warp)" : " (-warp)";
 
       snprintf( temp, sizeof ( temp ), "%s%s",
                 render_mode_names[column->hint_mode], extra );
@@ -1145,11 +1131,9 @@
     grWriteln( "  h           cycle hinting mode          A          unhinted               " );
     grWriteln( "  H           cycle hinting engine        B          auto-hinter            " );
     grWriteln( "               (if CFF or TTF)            C          light auto-hinter      " );
-    grWriteln( "  w           toggle warping (if          D          light auto-hinter      " );
-    grWriteln( "               normal auto-hinting)                   (subpixel)            " );
-    grWriteln( "  k           toggle kerning (only        E          native hinter          " );
-    grWriteln( "               from `kern' table)                                           " );
-    grWriteln( "  r           toggle rendering mode                                         " );
+    grWriteln( "  k           toggle kerning (only        D          light auto-hinter      " );
+    grWriteln( "               from `kern' table)                     (subpixel)            " );
+    grWriteln( "  r           toggle rendering mode       E          native hinter          " );
     grWriteln( "  x           toggle layout mode                                            " );
     grWriteln( "                                                                            " );
     grWriteln( "  l           cycle LCD filtering                                           " );
@@ -1328,20 +1312,6 @@
                                column->tt_interpreter_version_idx] );
           }
         }
-      }
-      break;
-
-    case grKEY( 'w' ):
-      {
-        FT_Bool  new_warping_state = !column->warping;
-
-
-        error = FT_Property_Set( state->library,
-                                 "autofitter",
-                                 "warping",
-                                 &new_warping_state );
-        if ( !error )
-          column->warping = new_warping_state;
       }
       break;
 

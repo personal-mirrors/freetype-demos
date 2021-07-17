@@ -99,8 +99,6 @@ private:
 
   int fontType;
 
-  int haveWarping;
-
   double pointSize;
   double pixelSize;
   unsigned int dpi;
@@ -111,7 +109,6 @@ private:
   bool doVerticalHinting;
   bool doBlueZoneHinting;
   bool showSegments;
-  bool doWarping;
 
   double gamma;
 

@@ -270,7 +270,6 @@ MainGUI::checkHinting()
     verticalHintingCheckBox->setEnabled(false);
     blueZoneHintingCheckBox->setEnabled(false);
     segmentDrawingCheckBox->setEnabled(false);
-    warpingCheckBox->setEnabled(false);
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
   }
@@ -312,8 +311,6 @@ MainGUI::checkAutoHinting()
     verticalHintingCheckBox->setEnabled(true);
     blueZoneHintingCheckBox->setEnabled(true);
     segmentDrawingCheckBox->setEnabled(true);
-    if (engine->haveWarping)
-      warpingCheckBox->setEnabled(true);
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, true);
   }
@@ -330,7 +327,6 @@ MainGUI::checkAutoHinting()
     verticalHintingCheckBox->setEnabled(false);
     blueZoneHintingCheckBox->setEnabled(false);
     segmentDrawingCheckBox->setEnabled(false);
-    warpingCheckBox->setEnabled(false);
 
     antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
 
@@ -740,7 +736,6 @@ MainGUI::createLayout()
   verticalHintingCheckBox = new QCheckBox(tr("Vertical Hinting"));
   blueZoneHintingCheckBox = new QCheckBox(tr("Blue-Zone Hinting"));
   segmentDrawingCheckBox = new QCheckBox(tr("Segment Drawing"));
-  warpingCheckBox = new QCheckBox(tr("Warping"));
 
   antiAliasingLabel = new QLabel(tr("Anti-Aliasing"));
   antiAliasingLabel->setAlignment(Qt::AlignRight);
@@ -824,10 +819,6 @@ MainGUI::createLayout()
   segmentDrawingLayout->addSpacing(20); // XXX px
   segmentDrawingLayout->addWidget(segmentDrawingCheckBox);
 
-  warpingLayout = new QHBoxLayout;
-  warpingLayout->addSpacing(20); // XXX px
-  warpingLayout->addWidget(warpingCheckBox);
-
   antiAliasingLayout = new QHBoxLayout;
   antiAliasingLayout->addWidget(antiAliasingLabel);
   antiAliasingLayout->addWidget(antiAliasingComboBoxx);
@@ -852,7 +843,6 @@ MainGUI::createLayout()
   generalTabLayout->addLayout(verticalHintingLayout);
   generalTabLayout->addLayout(blueZoneHintingLayout);
   generalTabLayout->addLayout(segmentDrawingLayout);
-  generalTabLayout->addLayout(warpingLayout);
   generalTabLayout->addSpacing(20); // XXX px
   generalTabLayout->addStretch(1);
   generalTabLayout->addLayout(antiAliasingLayout);

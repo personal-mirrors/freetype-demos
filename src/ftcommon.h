@@ -293,7 +293,7 @@
                    FT_Size*        asize );
 
 
-  /* switch to a different engine if possible, including warping */
+  /* switch to a different engine if possible */
   int
   FTDemo_Hinting_Engine_Change( FTDemo_Handle*  handle );
 
