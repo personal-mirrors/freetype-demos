@@ -623,6 +623,7 @@ dist:
 	rm -f ftdmo$(winversion).zip
 
 	for d in `find . -wholename '*/.git' -prune \
+	                 -o -wholename '*/subprojects/freetype2' -prune \
 	                 -o -type f \
 	                 -o -print` ; do \
 	  mkdir -p tmp/$$d ; \
@@ -630,6 +631,7 @@ dist:
 
 	currdir=`pwd` ; \
 	for f in `find . -wholename '*/.git' -prune \
+	                 -o -wholename '*/subprojects/freetype2' -prune \
 	                 -o -name .gitignore \
 	                 -o -name .mailmap \
 	                 -o -type d \
