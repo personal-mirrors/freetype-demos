@@ -1,5 +1,17 @@
 2021-07-18  Werner Lemberg  <wl@gnu.org>
 
+	* Version 2.11.0 released.
+	==========================
+
+
+	Tag sources with `VER-2-11-0.
+
+	* README: Updated.
+	* meson.build: Updated.
+	* man/*.1: Updated.
+
+2021-07-18  Werner Lemberg  <wl@gnu.org>
+
 	* Makefile (dist): Ignore `subprojects/freetype2`.
 
 2021-07-18  Werner Lemberg  <wl@gnu.org>
