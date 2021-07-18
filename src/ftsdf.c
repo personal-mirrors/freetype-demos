@@ -655,9 +655,7 @@
       "\n",
              exec_name );
     fprintf( stderr,
-      "  pt    The point size for the given resolution.\n"
-      "        If resolution is 72dpi, this directly gives the\n"
-      "        ppem value (pixels per EM).\n" );
+      "  pt    The point size for the given resolution.\n" );
     fprintf( stderr,
       "  font  The font file to use for generating SDF.\n" );
 

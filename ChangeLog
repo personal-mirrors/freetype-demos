@@ -1,3 +1,10 @@
+2021-07-18  Werner Lemberg  <wl@gnu.org>
+
+	[ftsdf] Add man page, other minor improvement.
+
+	* man/ftsdf.1: New file.
+	* src/fdsdf.c (usage): Resolution can't be changed currently.
+
 2021-07-17  Werner Lemberg  <wl@gnu.org>
 
 	Remove code related to warping.
