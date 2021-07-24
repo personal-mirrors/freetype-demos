@@ -172,6 +172,19 @@ executable('ftview',
   link_with: ftcommon_lib,
   install: true)
 
+# This program only works if FreeType has been compiled with enabled option
+# `TT_CONFIG_OPTION_BYTECODE_INTERPRETER` (which is the default).
+#
+# We need a path into FreeType's `src/truetype` directory.  This is
+# something normal applications should never need.
+executable('ttdebug',
+  'src/ttdebug.c',
+  dependencies: libfreetype2_dep,
+  c_args: '-DFT2_BUILD_LIBRARY=1',
+  include_directories: 'subprojects/freetype2/src/truetype',
+  link_with: common_lib,
+  install: true)
+
 
 install_man([
   'man/ftbench.1',
