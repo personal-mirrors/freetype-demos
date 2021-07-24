@@ -76,25 +76,8 @@ ftcommon_lib = static_library('ftcommon',
   link_with: [common_lib, graph_lib],
 )
 
-executable('fttimer',
-  'src/fttimer.c',
-  dependencies: libfreetype2_dep,
-  install: false)
 
-executable('ftchkwd',
-  'src/ftchkwd.c',
-  dependencies: libfreetype2_dep,
-  install: false)
-
-executable('ftmemchk',
-  'src/ftmemchk.c',
-  dependencies: libfreetype2_dep,
-  install: false)
-
-executable('ftpatchk',
-  'src/ftpatchk.c',
-  dependencies: libfreetype2_dep,
-  install: false)
+# programs
 
 executable('ftbench',
   'src/ftbench.c',
@@ -102,23 +85,22 @@ executable('ftbench',
   link_with: common_lib,
   install: true)
 
-executable('ftdump',
-  'src/ftdump.c',
+executable('ftchkwd',
+  'src/ftchkwd.c',
   dependencies: libfreetype2_dep,
-  link_with: [common_lib, output_lib],
-  install: true)
-
-executable('ftlint',
-  'src/ftlint.c',
-  dependencies: libfreetype2_dep,
-  link_with: common_lib,
-  install: true)
+  install: false)
 
 executable('ftdiff',
   'src/ftdiff.c',
   dependencies: libfreetype2_dep,
   include_directories: graph_include_dir,
   link_with: ftcommon_lib,
+  install: true)
+
+executable('ftdump',
+  'src/ftdump.c',
+  dependencies: libfreetype2_dep,
+  link_with: [common_lib, output_lib],
   install: true)
 
 executable('ftgamma',
@@ -135,12 +117,28 @@ executable('ftgrid',
   link_with: [ftcommon_lib, output_lib],
   install: true)
 
+executable('ftlint',
+  'src/ftlint.c',
+  dependencies: libfreetype2_dep,
+  link_with: common_lib,
+  install: true)
+
+executable('ftmemchk',
+  'src/ftmemchk.c',
+  dependencies: libfreetype2_dep,
+  install: false)
+
 executable('ftmulti',
   'src/ftmulti.c',
   dependencies: libfreetype2_dep,
   include_directories: graph_include_dir,
   link_with: ftcommon_lib,
   install: true)
+
+executable('ftpatchk',
+  'src/ftpatchk.c',
+  dependencies: libfreetype2_dep,
+  install: false)
 
 executable('ftsdf',
   'src/ftsdf.c',
@@ -156,6 +154,17 @@ executable('ftstring',
   link_with: ftcommon_lib,
   install: true)
 
+executable('fttimer',
+  'src/fttimer.c',
+  dependencies: libfreetype2_dep,
+  install: false)
+
+executable('ftvalid',
+  'src/ftvalid.c',
+  dependencies: libfreetype2_dep,
+  link_with: common_lib,
+  install: true)
+
 executable('ftview',
   'src/ftview.c',
   dependencies: libfreetype2_dep,
@@ -163,11 +172,6 @@ executable('ftview',
   link_with: ftcommon_lib,
   install: true)
 
-executable('ftvalid',
-  'src/ftvalid.c',
-  dependencies: libfreetype2_dep,
-  link_with: common_lib,
-  install: true)
 
 install_man([
   'man/ftbench.1',
