@@ -72,6 +72,8 @@
     "\uC220\uC740 \uD544\uC694\uCE58 \uC54A\uB2E4"
   };
 
+  static char * providedtext = NULL;
+
   enum
   {
     RENDER_MODE_STRING,
@@ -430,11 +432,14 @@
   {
     static int  i = 0;
 
-    status.text = Sample[i];
+    if (i < 0)
+       status.text = providedtext;
+    else
+       status.text = Sample[i];
 
     i++;
     if ( i >= (int)( sizeof( Sample ) / sizeof( Sample[0] ) ) )
-      i = 0;
+      i = -1;
   }
 
 
@@ -732,7 +737,8 @@
       case 'm':
         if ( *argc < 3 )
           usage( execname );
-        status.text = optarg;
+        providedtext = optarg;
+        status.text = providedtext;
         break;
 
       case 'r':
