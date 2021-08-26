@@ -30,6 +30,9 @@
 
   static const char*  Sample[] =
   {
+    /* Custom string if any */
+    NULL,
+
     "The quick brown fox jumps over the lazy dog",
 
     /* Luís argüia à Júlia que «brações, fé, chá, óxido, pôr, zângão» */
@@ -428,15 +431,14 @@
   static void
   event_text_change( void )
   {
-    static int  i = 0;
+    static int  i = INT_MAX - 1;
+
+
+    if ( ++i >= (int)( sizeof( Sample ) / sizeof( Sample[0] ) ) )
+      i = Sample[0] == NULL ? 1 : 0;
 
     status.text = Sample[i];
-
-    i++;
-    if ( i >= (int)( sizeof( Sample ) / sizeof( Sample[0] ) ) )
-      i = 0;
   }
-
 
   static void
   event_size_change( int  delta )
@@ -732,7 +734,7 @@
       case 'm':
         if ( *argc < 3 )
           usage( execname );
-        status.text = optarg;
+        Sample[0] = optarg;
         break;
 
       case 'r':
@@ -980,8 +982,7 @@
 
     status.header = NULL;
 
-    if ( !status.text )
-      event_text_change();
+    event_text_change();
 
     event_color_change();
 
