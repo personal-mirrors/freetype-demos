@@ -872,7 +872,9 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+        /* zero-contour glyphs can have no data */
+        if ( len )
+          printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -1018,7 +1020,9 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+        /* zero-contour glyphs can have no data */
+        if ( len )
+          printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
