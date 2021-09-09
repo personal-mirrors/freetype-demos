@@ -833,7 +833,7 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -849,7 +849,7 @@
         {
           if ( loc + 1 >= end )
           {
-            printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+            printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
             goto Continue;
           }
 
@@ -872,7 +872,7 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -885,12 +885,12 @@
 
       if ( loc + len > end )
       {
-        printf( "\nglyf program %hd: invalid size (%d)\n", i, len );
+        printf( "\nglyf %hd: invalid size (%d)\n", i, len );
         continue;
       }
 
       snprintf( tag, sizeof ( tag ), "%04hx", i );
-      printf( "\nglyf program %hd (%.4s)", i, tag );
+      printf( "\nglyf %hd (%.4s)", i, tag );
       Print_Bytecode( buffer + loc, len, tag );
 
     Continue:
@@ -988,7 +988,7 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -1001,7 +1001,7 @@
 
         if ( loc + 1 >= end )
         {
-          printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+          printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
           continue;
         }
 
@@ -1018,7 +1018,7 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -1028,7 +1028,7 @@
 
       if ( len >= end )
       {
-        printf( "\nglyf program %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
