@@ -160,16 +160,17 @@
       modified = head->Modified[0] == 1 ? modified + 2212122496U
                                         : modified - 2082844800U;
 
-      /* gmtime cannot deal with negative times on some systems */
-      if ( created  < 0 )
-        created  = 0;
-      if ( modified < 0 )
-        modified = 0;
-
-      strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &created  ) );
-      printf( "%s%s\n", Name_Field( "created" ), buf );
-      strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &modified ) );
-      printf( "%s%s\n", Name_Field( "modified" ), buf );
+      /* ignore pre-epoch time that gmtime cannot handle on some systems */
+      if ( created  >= 0 )
+      {
+        strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &created  ) );
+        printf( "%s%s\n", Name_Field( "created" ), buf );
+      }
+      if ( modified >= 0 )
+      {
+        strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &modified ) );
+        printf( "%s%s\n", Name_Field( "modified" ), buf );
+      }
 
       printf( "%s%.2f\n", Name_Field( "revision" ),
               head->Font_Revision / 65536.0 );
