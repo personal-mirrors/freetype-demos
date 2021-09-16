@@ -172,8 +172,8 @@
         printf( "%s%s\n", Name_Field( "modified" ), buf );
       }
 
-      printf( "%s%.2f\n", Name_Field( "revision" ),
-              head->Font_Revision / 65536.0 );
+      printf( head->Font_Revision & 0xFFC0 ? "%s%.4g\n" : "%s%.2f\n",
+              Name_Field( "revision" ), head->Font_Revision / 65536.0 );
     }
   }
 
