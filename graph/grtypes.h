@@ -19,11 +19,11 @@
 
 #include <stdint.h>
 
-#ifndef UINT32_MAX
-#error  "could not find a 32-bit integer type"
 #endif
 
-#else  /* old trick to determine 32-bit integer type */
+/* If UINT32_MAX is not defined and uint32_t is not available, */
+/* we perform old trick to determine 32-bit integer type       */
+#ifndef UINT32_MAX
 
 #include <limits.h>
 
@@ -57,7 +57,7 @@
 #error  "could not find a 32-bit integer type"
 #endif
 
-#endif  /* old trick to determine 32-bit integer type */
+#endif  /* !UINT32_MAX */
 
 
   typedef unsigned char  byte;
