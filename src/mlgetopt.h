@@ -11,9 +11,11 @@
 #define MLGETOPT_H_
 
 #ifdef VMS
+#include <stdio.h>
 #define getopt local_getopt
 #define optind local_optind
 #define opterr local_opterr
+#define optarg local_optarg
 #endif
 
 #ifdef __cplusplus

@@ -1,8 +1,8 @@
-$!---------------vms_make.com for FreeType 2 demos -----------------------------
-$! make FreeType 2 under OpenVMS
+$!---------------vms_make.com for Freetype2 demos ------------------------------
+$! make Freetype2 under OpenVMS
 $!
 $! In case of problems with the build you might want to contact me at
-$! zinser@zinser.no-ip.info (preferred) or
+$! zinser@zinser.no-ip.info (preferred) or 
 $! zinser@sysdev.deutsche-boerse.com (Work)
 $!
 $!------------------------------------------------------------------------------
@@ -36,11 +36,13 @@ $!
 $ open/write optf 'optfile'
 $ If f$getsyi("HW_MODEL") .gt. 1024
 $ Then
-$  write optf "[-.freetype.lib]freetype2shr.exe/share"
+$  write optf "[-.freetype2.lib]freetype2shr.exe/share"
 $ else
-$   write optf "[-.freetype.lib]freetype.olb/lib"
+$   write optf "[-.freetype2.lib]freetype.olb/lib"
 $ endif
 $ gosub check_create_vmslib
+$ write optf "sys$library:libpng.olb/lib"
+$ write optf "sys$library:libz.olb/lib"
 $ write optf "sys$share:decw$xlibshr.exe/share"
 $ close optf
 $!
@@ -51,10 +53,10 @@ $!
 $ exit
 $!
 $ERR_LIB:
-$ write sys$output "Error reading config file [-.freetype]vmslib.dat"
+$ write sys$output "Error reading config file [-.freetype2]vmslib.dat"
 $ goto err_exit
 $FT2_ERR:
-$ write sys$output "Could not locate FreeType 2 include files"
+$ write sys$output "Could not locate Freetype 2 include files"
 $ goto err_exit
 $ERR_EXIT:
 $ set message/facil/ident/sever/text
@@ -86,7 +88,9 @@ $ deck
 
 .FIRST
 
-        define freetype [-.freetype.include.freetype]
+        define freetype [-.freetype2.include.freetype]
+        define config [-.freetype2.include.freetype.config]
+        define internal [-.freetype2.include.freetype.internal]
 
 CC = cc
 
@@ -97,7 +101,7 @@ GRX11SRC = [.graph.x11]
 OBJDIR = [.objs]
 
 # include paths
-INCLUDES = /include=([-.freetype.include],[.graph])
+INCLUDES = /include=([-.freetype2.include],[.graph],[.src])
 
 GRAPHOBJ = $(OBJDIR)grblit.obj,  \
            $(OBJDIR)grobjs.obj,  \
@@ -106,39 +110,109 @@ GRAPHOBJ = $(OBJDIR)grblit.obj,  \
            $(OBJDIR)grdevice.obj,\
            $(OBJDIR)grx11.obj,   \
            $(OBJDIR)gblender.obj, \
-           $(OBJDIR)gblblit.obj
+           $(OBJDIR)gblblit.obj,$(OBJDIR)grfill.obj
+
+GRAPHOBJ64 = $(OBJDIR)grblit_64.obj,  \
+           $(OBJDIR)grobjs_64.obj,  \
+           $(OBJDIR)grfont_64.obj,  \
+           $(OBJDIR)grinit_64.obj,  \
+           $(OBJDIR)grdevice_64.obj,\
+           $(OBJDIR)grx11_64.obj,   \
+           $(OBJDIR)gblender_64.obj, \
+           $(OBJDIR)gblblit_64.obj,$(OBJDIR)grfill_64.obj
 
 # C flags
-CFLAGS = $(CCOPT)$(INCLUDES)/obj=$(OBJDIR)
+CFLAGS = $(CCOPT)$(INCLUDES)/obj=$(OBJDIR)/define=("FT2_BUILD_LIBRARY=1")
+
+.c.obj :
+	cc$(CFLAGS)/point=32/list=$(MMS$TARGET_NAME).lis/show=all $(MMS$SOURCE)
+	pipe link/map=$(MMS$TARGET_NAME).map/full/exec=nl: $(MMS$TARGET_NAME)\
+	| copy sys$input nl:
+	copy $(MMS$SOURCE) []
+	mc sys$library:vms_auto64 $(MMS$TARGET_NAME).map $(MMS$TARGET_NAME).lis
+	ren *64.c $(OBJDIR)
+	cc$(CFLAGS)/point=64=arg/obj=$(MMS$TARGET_NAME)_64.obj\
+	$(MMS$TARGET_NAME)_64.c
+	del []*.c;
+	delete $(MMS$TARGET_NAME)_64.c;*
 
 ALL : ftchkwd.exe ftdump.exe ftlint.exe ftmemchk.exe ftmulti.exe ftview.exe \
-      ftstring.exe fttimer.exe ftbench.exe testname.exe
+      ftstring.exe fttimer.exe ftbench.exe testname.exe ftchkwd_64.exe\
+      ftdump_64.exe ftlint_64.exe ftmemchk_64.exe \
+      fttimer_64.exe ftbench_64.exe testname_64.exe 
 
 
-ftbench.exe    : $(OBJDIR)ftbench.obj,$(OBJDIR)common.obj
-        link $(LOPTS) $(OBJDIR)ftbench.obj,$(OBJDIR)common.obj,-
+ftbench.exe    : $(OBJDIR)ftbench.obj,$(OBJDIR)common.obj,$(OBJDIR)mlgetopt.obj
+        link $(LOPTS) $(OBJDIR)ftbench.obj,$(OBJDIR)common.obj,mlgetopt,-
                      []ft2demos.opt/opt
+ftbench_64.exe    : $(OBJDIR)ftbench.obj,$(OBJDIR)common.obj,$(OBJDIR)mlgetopt.obj
+        link $(LOPTS) $(OBJDIR)ftbench_64.obj,$(OBJDIR)common_64.obj,\
+	mlgetopt_64,[]ft2demos.opt/opt
 ftchkwd.exe    : $(OBJDIR)ftchkwd.obj,$(OBJDIR)common.obj
         link $(LOPTS) $(OBJDIR)ftchkwd.obj,$(OBJDIR)common.obj,-
 	             []ft2demos.opt/opt
-ftdump.exe    : $(OBJDIR)ftdump.obj,$(OBJDIR)common.obj
-        link $(LOPTS) $(OBJDIR)ftdump.obj,common.obj,[]ft2demos.opt/opt
-ftlint.exe    : $(OBJDIR)ftlint.obj
-        link $(LOPTS) $(OBJDIR)ftlint.obj,[]ft2demos.opt/opt
+ftchkwd_64.exe    : $(OBJDIR)ftchkwd.obj,$(OBJDIR)common.obj
+        link $(LOPTS) $(OBJDIR)ftchkwd_64.obj,$(OBJDIR)common_64.obj,-
+	             []ft2demos.opt/opt
+ftdump.exe    : $(OBJDIR)ftdump.obj,$(OBJDIR)common.obj,$(OBJDIR)output.obj,\
+  	$(OBJDIR)mlgetopt.obj
+        link $(LOPTS) $(OBJDIR)ftdump.obj,common.obj,output,mlgetopt,\
+	[]ft2demos.opt/opt
+ftdump_64.exe    : $(OBJDIR)ftdump.obj,$(OBJDIR)common.obj,$(OBJDIR)output.obj,\
+  	$(OBJDIR)mlgetopt.obj
+        link $(LOPTS) $(OBJDIR)ftdump_64.obj,common_64.obj,output_64,mlgetopt_64,\
+	[]ft2demos.opt/opt
+ftlint.exe    : $(OBJDIR)ftlint.obj,$(OBJDIR)common.obj,$(OBJDIR)md5.obj,\
+	$(OBJDIR)mlgetopt.obj
+        link $(LOPTS) $(OBJDIR)ftlint.obj,common.obj,md5,mlgetopt,\
+	[]ft2demos.opt/opt
+ftlint_64.exe    : $(OBJDIR)ftlint.obj,$(OBJDIR)common.obj,$(OBJDIR)md5.obj,\
+	$(OBJDIR)mlgetopt.obj
+        link $(LOPTS) $(OBJDIR)ftlint_64.obj,common_64.obj,md5_64,mlgetopt_64,\
+	[]ft2demos.opt/opt
 ftmemchk.exe  : $(OBJDIR)ftmemchk.obj
         link $(LOPTS) $(OBJDIR)ftmemchk.obj,[]ft2demos.opt/opt
-ftmulti.exe   : $(OBJDIR)ftmulti.obj,$(OBJDIR)common.obj,$(GRAPHOBJ)
-        link $(LOPTS) $(OBJDIR)ftmulti.obj,common.obj,$(GRAPHOBJ),[]ft2demos.opt/opt
-ftview.exe    : $(OBJDIR)ftview.obj,$(OBJDIR)common.obj,$(GRAPHOBJ)
-        link $(LOPTS) $(OBJDIR)ftview.obj,common.obj,$(GRAPHOBJ),[]ft2demos.opt/opt
-ftstring.exe  : $(OBJDIR)ftstring.obj,$(OBJDIR)common.obj,$(GRAPHOBJ)
-        link $(LOPTS) $(OBJDIR)ftstring.obj,common.obj,$(GRAPHOBJ),[]ft2demos.opt/opt
+ftmemchk_64.exe  : $(OBJDIR)ftmemchk.obj
+        link $(LOPTS) $(OBJDIR)ftmemchk_64.obj,[]ft2demos.opt/opt
+ftmulti.exe   : $(OBJDIR)ftmulti.obj,$(OBJDIR)common.obj,$(OBJDIR)mlgetopt.obj\
+	,$(OBJDIR)ftcommon.obj,$(OBJDIR)strbuf.obj,$(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftmulti.obj,common.obj,mlgetopt,ftcommon,\
+	strbuf,$(GRAPHOBJ),[]ft2demos.opt/opt
+ftmulti_64.exe   : $(OBJDIR)ftmulti.obj,$(OBJDIR)common.obj,\
+	$(OBJDIR)mlgetopt.obj,$(OBJDIR)ftcommon.obj,$(OBJDIR)strbuf.obj,\
+        $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftmulti_64.obj,common_64.obj,mlgetopt_64,ftcommon_64,\
+	strbuf_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
+ftview.exe    : $(OBJDIR)ftview.obj,$(OBJDIR)common.obj,$(OBJDIR)ftcommon.obj,\
+	,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,$(OBJDIR)ftpngout.obj,\
+        $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftview.obj,common.obj,ftcommon.obj,mlgetopt.obj\
+	,strbuf,ftpngout,$(GRAPHOBJ),[]ft2demos.opt/opt
+ftview_64.exe    : $(OBJDIR)ftview.obj,$(OBJDIR)common.obj,$(OBJDIR)ftcommon.obj,\
+	,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,$(OBJDIR)ftpngout.obj,$(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftview_64.obj,common_64.obj,ftcommon_64.obj,\
+	mlgetopt_64.obj,strbuf_64,ftpngout_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
+ftstring.exe  : $(OBJDIR)ftstring.obj,$(OBJDIR)common.obj,\
+	$(OBJDIR)ftcommon.obj,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,\
+        $(OBJDIR)ftpngout.obj,$(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftstring.obj,common.obj,ftcommon.obj,\
+	mlgetopt.obj,strbuf,ftpngout,$(GRAPHOBJ),[]ft2demos.opt/opt
+ftstring_64.exe  : $(OBJDIR)ftstring.obj,$(OBJDIR)common.obj,\
+	$(OBJDIR)ftcommon.obj,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,\
+        $(OBJDIR)ftpngout.obj,$(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftstring_64.obj,common_64.obj,ftcommon_64.obj,\
+	mlgetopt_64.obj,strbuf_64,ftpngout_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
 fttimer.exe   : $(OBJDIR)fttimer.obj
         link $(LOPTS) $(OBJDIR)fttimer.obj,[]ft2demos.opt/opt
+fttimer_64.exe   : $(OBJDIR)fttimer.obj
+        link $(LOPTS) $(OBJDIR)fttimer_64.obj,[]ft2demos.opt/opt
 testname.exe  : $(OBJDIR)testname.obj
         link $(LOPTS) $(OBJDIR)testname.obj,[]ft2demos.opt/opt
+testname_64.exe  : $(OBJDIR)testname.obj
+        link $(LOPTS) $(OBJDIR)testname_64.obj,[]ft2demos.opt/opt
 
 $(OBJDIR)common.obj    : $(SRCDIR)common.c , $(SRCDIR)common.h
+$(OBJDIR)ftcommon.obj  : $(SRCDIR)ftcommon.c
 $(OBJDIR)ftbench.obj   : $(SRCDIR)ftbench.c
 $(OBJDIR)ftchkwd.obj   : $(SRCDIR)ftchkwd.c
 $(OBJDIR)ftlint.obj    : $(SRCDIR)ftlint.c
@@ -153,16 +227,32 @@ $(OBJDIR)gblender.obj  : $(GRAPHSRC)gblender.c
 $(OBJDIR)gblblit.obj   : $(GRAPHSRC)gblblit.c
 $(OBJDIR)grinit.obj    : $(GRAPHSRC)grinit.c
         set def $(GRAPHSRC)
-        $(CC)$(CCOPT)/include=([.x11],[])/define=(DEVICE_X11)/obj=[-.objs] grinit.c
+        $(CC)$(CCOPT)/include=([.x11],[])/point=32/list/show=all\
+	/define=(DEVICE_X11,"FT2_BUILD_LIBRARY=1")/obj=[-.objs] grinit.c
+	pipe link/map/full/exec=nl: [-.objs]grinit.obj | copy sys$input nl:
+	mc sys$library:vms_auto64 grinit.map grinit.lis
+	$(CC)$(CCOPT)/include=([.x11],[])/point=64/obj=[-.objs] grinit_64.c
+	delete grinit_64.c;*
         set def [-]
 $(OBJDIR)grx11.obj     : $(GRX11SRC)grx11.c
         set def $(GRX11SRC)
-        $(CC)$(CCOPT)/obj=[--.objs]/include=([-]) grx11.c
+        $(CC)$(CCOPT)/include=([-])/point=32/list/show=all\
+	/define=(DEVICE_X11,"FT2_BUILD_LIBRARY=1")/obj=[--.objs] grx11.c
+	pipe link/map/full/exec=nl: [--.objs]grx11.obj | copy sys$input nl:
+	mc sys$library:vms_auto64 grx11.map grx11.lis
+	$(CC)$(CCOPT)/include=([-])/point=64/obj=[--.objs] grx11_64.c
+	delete grx11_64.c;*
         set def [--]
 $(OBJDIR)grdevice.obj  : $(GRAPHSRC)grdevice.c
+$(OBJDIR)grfill.obj  : $(GRAPHSRC)grfill.c
 $(OBJDIR)ftmulti.obj   : $(SRCDIR)ftmulti.c
 $(OBJDIR)ftstring.obj  : $(SRCDIR)ftstring.c
 $(OBJDIR)fttimer.obj   : $(SRCDIR)fttimer.c
+$(OBJDIR)mlgetopt.obj  : $(SRCDIR)mlgetopt.c
+$(OBJDIR)output.obj    : $(SRCDIR)output.c
+$(OBJDIR)md5.obj    : $(SRCDIR)md5.c
+$(OBJDIR)strbuf.obj    : $(SRCDIR)strbuf.c
+$(OBJDIR)ftpngout.obj    : $(SRCDIR)ftpngout.c
 
 CLEAN :
        delete $(OBJDIR)*.obj;*,[]ft2demos.opt;*
@@ -209,107 +299,18 @@ $!
 $! Version history
 $! 0.01 20040220 First version to receive a number
 $! 0.02 20040229 Echo current procedure name; use general error exit handler
-$!               Remove xpm hack -> Replaced by more general dnsrl handling
-$! ---> Attention slightly changed version to take into account special
-$!      situation for FreeType 2 demos
+$!               Remove xpm hack -> Replaced by more general dnsrl handling 
+$! ---> Attention slightly changed version to take into account special 
+$!      Situation for Freetype2 demos
 $CHECK_CREATE_VMSLIB:
 $!
-$ if f$search("[-.freetype]VMSLIB.DAT") .eqs. ""
+$ if f$search("[-.freetype2]libs.opt") .eqs. ""
 $ then
-$   write sys$output "FreeType 2 driver file [-.freetype]vmslib.dat not found."
+$   write sys$output "Freetype2 driver file [-.freetype2]libs.opt not found."
 $   write sys$output "Either Ft2demos have been installed in the wrong location"
-$   write sys$output "or FreeType 2 has not yet been configured."
+$   write sys$output "or Freetype2 has not yet been configured."
 $   write sys$output "Exiting..."
 $   goto err_exit
 $ endif
 $!
-$! Init symbols used to hold CPP definitions and include path
-$!
-$ libdefs = ""
-$ libincs = ""
-$!
-$! Open data file with location of libraries
-$!
-$ open/read/end=end_lib/err=err_lib libdata [-.freetype]VMSLIB.DAT
-$LIB_LOOP:
-$ read/end=end_lib libdata libline
-$ libline = f$edit(libline, "UNCOMMENT,COLLAPSE")
-$ if libline .eqs. "" then goto LIB_LOOP ! Comment line
-$ libname = f$edit(f$element(0,"#",libline),"UPCASE")
-$ write sys$output "Processing ''libname' setup ..."
-$ libloc  = f$element(1,"#",libline)
-$ libsrc  = f$element(2,"#",libline)
-$ testinc = f$element(3,"#",libline)
-$ cppdef  = f$element(4,"#",libline)
-$ old_cpp = f$locate("=1",cppdef)
-$ if old_cpp.lt.f$length(cppdef) then cppdef = f$extract(0,old_cpp,cppdef)
-$ if f$search("''libloc'").eqs. ""
-$ then
-$   write sys$output "Can not find library ''libloc' - Skipping ''libname'"
-$   goto LIB_LOOP
-$ endif
-$ libsrc_elem = 0
-$ libsrc_found = false
-$LIBSRC_LOOP:
-$ libsrcdir = f$element(libsrc_elem,",",libsrc)
-$ if (libsrcdir .eqs. ",") then goto END_LIBSRC
-$ if f$search("''libsrcdir'''testinc'") .nes. "" then libsrc_found = true
-$ libsrc_elem = libsrc_elem + 1
-$ goto LIBSRC_LOOP
-$END_LIBSRC:
-$ if .not. libsrc_found
-$ then
-$   write sys$output "Can not find includes at ''libsrc' - Skipping ''libname'"
-$   goto LIB_LOOP
-$ endif
-$ if (cppdef .nes. "") then libdefs = libdefs +  cppdef + ","
-$ libincs = libincs + "," + libsrc
-$ lqual = "/lib"
-$ libtype = f$edit(f$parse(libloc,,,"TYPE"),"UPCASE")
-$ if f$locate("EXE",libtype) .lt. f$length(libtype) then lqual = "/share"
-$ write optf libloc , lqual
-$ if (f$trnlnm("topt") .nes. "") then write topt libloc , lqual
-$!
-$! Nasty hack to get the FreeType includes to work
-$!
-$ ft2def = false
-$ if ((libname .eqs. "FREETYPE") .and. -
-      (f$locate("FREETYPE2",cppdef) .lt. f$length(cppdef)))
-$ then
-$   if ((f$search("freetype:freetype.h") .nes. "") .and. -
-        (f$search("freetype:[internal]ftobjs.h") .nes. ""))
-$   then
-$     write sys$output "Will use local definition of freetype logical"
-$   else
-$     ft2elem = 0
-$FT2_LOOP:
-$     ft2srcdir = f$element(ft2elem,",",libsrc)
-$     if f$search("''ft2srcdir'''testinc'") .nes. ""
-$     then
-$        if f$search("''ft2srcdir'internal.dir") .nes. ""
-$        then
-$          ft2dev  = f$parse("''ft2srcdir'",,,"device","no_conceal")
-$          ft2dir  = f$parse("''ft2srcdir'",,,"directory","no_conceal")
-$          ft2conc = f$locate("][",ft2dir)
-$          ft2len  = f$length(ft2dir)
-$          if ft2conc .lt. ft2len
-$          then
-$             ft2dir = f$extract(0,ft2conc,ft2dir) + -
-                       f$extract(ft2conc+2,ft2len-2,ft2dir)
-$          endif
-$          ft2dir = ft2dir - "]" + ".]"
-$          define freetype 'ft2dev''ft2dir','ft2srcdir'
-$          ft2def = true
-$        else
-$          goto ft2_err
-$        endif
-$     else
-$       ft2elem = ft2elem + 1
-$       goto ft2_loop
-$     endif
-$   endif
-$ endif
-$ goto LIB_LOOP
-$END_LIB:
-$ close libdata
 $ return
