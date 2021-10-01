@@ -722,7 +722,7 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
     ourClass.hInstance    = GetModuleHandle( NULL );
     ourClass.hIcon        = LoadIcon(0, IDI_APPLICATION);
     ourClass.hCursor      = LoadCursor(0, IDC_ARROW);
-    ourClass.hbrBackground= GetStockObject(BLACK_BRUSH);
+    ourClass.hbrBackground= GetStockObject( LTGRAY_BRUSH );
 
     if ( RegisterClass(&ourClass) == 0 )
       return -1;
