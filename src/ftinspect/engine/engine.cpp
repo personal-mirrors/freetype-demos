@@ -12,9 +12,6 @@
 #include FT_DRIVER_H
 #include FT_LCD_FILTER_H
 
-// internal FreeType header files; only available in the source code bundle
-#include <freetype/internal/ftobjs.h>
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -384,8 +381,7 @@ Engine::loadFont(int fontIndex,
     curFamilyName = QString(ftSize->face->family_name);
     curStyleName = QString(ftSize->face->style_name);
 
-    FT_Module module = &ftSize->face->driver->root;
-    const char* moduleName = module->clazz->module_name;
+    const char* moduleName = FT_FACE_DRIVER_NAME( ftSize->face );
 
     // XXX cover all available modules
     if (!strcmp(moduleName, "cff"))

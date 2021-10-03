@@ -927,7 +927,7 @@
          handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
       return 0;  /* do nothing */
 
-    module_name = (*(FT_Module_Class**)(face->driver))->module_name;
+    module_name = FT_FACE_DRIVER_NAME( face );
 
     if ( !handle->autohint                                         &&
          !FT_Property_Get( library, module_name,
@@ -1002,7 +1002,7 @@
     error = FTC_Manager_LookupFace( handle->cache_manager,
                                     handle->scaler.face_id, &face );
 
-    module_name = (*(FT_Module_Class**)(face->driver))->module_name;
+    module_name = FT_FACE_DRIVER_NAME( face );
 
     if ( !FT_IS_SCALABLE( face ) )
       hinting_engine = " bitmap";

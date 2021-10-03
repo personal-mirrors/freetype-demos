@@ -20,7 +20,6 @@
 
   /* showing driver name */
 #include FT_MODULE_H
-#include <freetype/internal/ftobjs.h>
 
   /* error messages */
 #undef FTERRORS_H_
@@ -181,14 +180,10 @@
   static void
   Print_Type( FT_Face  face )
   {
-    FT_Module  module;
-
-
     printf( "font type entries\n" );
 
-    module = &face->driver->root;
     printf( "%s%s\n", Name_Field( "FreeType driver" ),
-            module->clazz->module_name );
+            FT_FACE_DRIVER_NAME( face ) );
 
     /* Is it better to dump all sfnt tag names? */
     printf( "%s%s\n", Name_Field( "sfnt wrapped" ),

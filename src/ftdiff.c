@@ -21,10 +21,8 @@
 #include FT_LCD_FILTER_H
 #include FT_DRIVER_H
 
-  /* showing driver name -- the internal header file */
-  /* shouldn't be used in normal programs            */
+  /* showing driver name */
 #include FT_MODULE_H
-#include <freetype/internal/ftobjs.h>
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -791,8 +789,8 @@
 
     /* display footer on this column */
     {
-      FT_Module    module = &state->face->driver->root;
-      void*        disp   = state->display.disp;
+      const char*  module_name = FT_FACE_DRIVER_NAME( state->face );
+      void*        disp        = state->display.disp;
 
       const char*  extra;
       const char*  msg;
@@ -802,7 +800,7 @@
       extra = "";
       if ( rmode == HINT_MODE_BYTECODE )
       {
-        if ( !strcmp( module->clazz->module_name, "cff" ) )
+        if ( !strcmp( module_name, "cff" ) )
         {
           switch ( column->cff_hinting_engine )
           {
@@ -815,7 +813,7 @@
           }
         }
 
-        else if ( !strcmp( module->clazz->module_name, "type1" ) )
+        else if ( !strcmp( module_name, "type1" ) )
         {
           switch ( column->type1_hinting_engine )
           {
@@ -828,7 +826,7 @@
           }
         }
 
-        else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+        else if ( !strcmp( module_name, "t1cid" ) )
         {
           switch ( column->t1cid_hinting_engine )
           {
@@ -841,7 +839,7 @@
           }
         }
 
-        else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+        else if ( !strcmp( module_name, "truetype" ) )
         {
           switch ( column->tt_interpreter_versions[
                      column->tt_interpreter_version_idx] )
@@ -1273,33 +1271,33 @@
 
     case grKEY( 'H' ):
       {
-        FT_Module  module = &state->face->driver->root;
+        const char*  module_name = FT_FACE_DRIVER_NAME( state->face );
 
 
         if ( column->hint_mode == HINT_MODE_BYTECODE )
         {
-          if ( !strcmp( module->clazz->module_name, "cff" ) )
+          if ( !strcmp( module_name, "cff" ) )
           {
             FTDemo_Event_Cff_Hinting_Engine_Change(
               state->library,
               &column->cff_hinting_engine,
               1 );
           }
-          else if ( !strcmp( module->clazz->module_name, "type1" ) )
+          else if ( !strcmp( module_name, "type1" ) )
           {
             FTDemo_Event_Type1_Hinting_Engine_Change(
               state->library,
               &column->type1_hinting_engine,
               1 );
           }
-          else if ( !strcmp( module->clazz->module_name, "t1cid" ) )
+          else if ( !strcmp( module_name, "t1cid" ) )
           {
             FTDemo_Event_T1cid_Hinting_Engine_Change(
               state->library,
               &column->t1cid_hinting_engine,
               1 );
           }
-          else if ( !strcmp( module->clazz->module_name, "truetype" ) )
+          else if ( !strcmp( module_name, "truetype" ) )
           {
             column->tt_interpreter_version_idx += 1;
             column->tt_interpreter_version_idx %=
