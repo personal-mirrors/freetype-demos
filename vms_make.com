@@ -122,7 +122,8 @@ GRAPHOBJ64 = $(OBJDIR)grblit_64.obj,  \
            $(OBJDIR)gblblit_64.obj,$(OBJDIR)grfill_64.obj
 
 # C flags
-CFLAGS = $(CCOPT)$(INCLUDES)/obj=$(OBJDIR)/define=("FT2_BUILD_LIBRARY=1")
+CFLAGS = $(CCOPT)$(INCLUDES)/obj=$(OBJDIR)/define=("FT2_BUILD_LIBRARY=1")\
+  	/warn=disable=("MACROREDEF")
 
 .c.obj :
 	cc$(CFLAGS)/point=32/list=$(MMS$TARGET_NAME).lis/show=all $(MMS$SOURCE)
@@ -138,9 +139,10 @@ CFLAGS = $(CCOPT)$(INCLUDES)/obj=$(OBJDIR)/define=("FT2_BUILD_LIBRARY=1")
 
 ALL : ftchkwd.exe ftdump.exe ftlint.exe ftmemchk.exe ftmulti.exe ftview.exe \
       ftstring.exe fttimer.exe ftbench.exe testname.exe ftchkwd_64.exe\
-      ftdump_64.exe ftlint_64.exe ftmemchk_64.exe \
-      fttimer_64.exe ftbench_64.exe testname_64.exe 
-
+      ftdump_64.exe ftlint_64.exe ftmemchk_64.exe fttimer_64.exe\
+      ftbench_64.exe testname_64.exe compos.exe compos_64.exe ftdiff.exe\
+      ftgamma.exe ftgrid.exe ftpatchk.exe ftpatchk_64.exe ftsdf.exe fttry.exe\
+      fttry_64.exe gbench.exe gbench_64.exe
 
 ftbench.exe    : $(OBJDIR)ftbench.obj,$(OBJDIR)common.obj,$(OBJDIR)mlgetopt.obj
         link $(LOPTS) $(OBJDIR)ftbench.obj,$(OBJDIR)common.obj,mlgetopt,-
@@ -210,6 +212,56 @@ testname.exe  : $(OBJDIR)testname.obj
         link $(LOPTS) $(OBJDIR)testname.obj,[]ft2demos.opt/opt
 testname_64.exe  : $(OBJDIR)testname.obj
         link $(LOPTS) $(OBJDIR)testname_64.obj,[]ft2demos.opt/opt
+compos.exe  : $(OBJDIR)compos.obj
+        link $(LOPTS) $(OBJDIR)compos.obj,[]ft2demos.opt/opt
+compos_64.exe  : $(OBJDIR)compos.obj
+        link $(LOPTS) $(OBJDIR)compos_64.obj,[]ft2demos.opt/opt
+ftdiff.exe  : $(OBJDIR)ftdiff.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
+	$(OBJDIR)mlgetopt.obj $(OBJDIR)strbuf.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftdiff.obj,ftcommon.obj,common.obj,mlgetopt.obj\
+        ,strbuf.obj,$(GRAPHOBJ),[]ft2demos.opt/opt
+ftdiff_64.exe  : $(OBJDIR)ftdiff.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
+	$(OBJDIR)mlgetopt.obj $(OBJDIR)strbuf.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftdiff_64.obj,ftcommon_64.obj,common_64.obj,\
+	mlgetopt_64.obj,strbuf_64.obj,$(GRAPHOBJ64),[]ft2demos.opt/opt
+ftgamma.exe  : $(OBJDIR)ftgamma.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
+	$(OBJDIR)strbuf.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftgamma.obj,ftcommon,common,strbuf,$(GRAPHOBJ),\
+	[]ft2demos.opt/opt
+ftgamma_64.exe  : $(OBJDIR)ftgamma.obj $(OBJDIR)ftcommon.obj\
+	$(OBJDIR)common.obj $(OBJDIR)strbuf.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftgamma_64.obj,ftcommon_64,common_64,strbuf_64,\
+        $(GRAPHOBJ64),[]ft2demos.opt/opt
+ftgrid.exe  : $(OBJDIR)ftgrid.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
+	$(OBJDIR)strbuf.obj $(OBJDIR)output.obj $(OBJDIR)mlgetopt.obj\
+	$(OBJDIR)ftpngout.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftgrid.obj,ftcommon,common,strbuf,output,\
+	mlgetopt,ftpngout,$(GRAPHOBJ),[]ft2demos.opt/opt
+ftgrid_64.exe  : $(OBJDIR)ftgrid.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
+	$(OBJDIR)strbuf.obj $(OBJDIR)output.obj $(OBJDIR)mlgetopt.obj\
+	$(OBJDIR)ftpngout.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftgrid_64.obj,ftcommon_64,common_64,strbuf_64,\
+	output_64,mlgetopt_64,ftpngout_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
+ftpatchk.exe  : $(OBJDIR)ftpatchk.obj
+        link $(LOPTS) $(OBJDIR)ftpatchk.obj,[]ft2demos.opt/opt
+ftpatchk_64.exe  : $(OBJDIR)ftpatchk.obj
+        link $(LOPTS) $(OBJDIR)ftpatchk_64.obj,[]ft2demos.opt/opt
+ftsdf.exe  : $(OBJDIR)ftsdf.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
+  	$(OBJDIR)strbuf.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftsdf.obj,ftcommon,common,strbuf,$(GRAPHOBJ),\
+	[]ft2demos.opt/opt
+ftsdf_64.exe  : $(OBJDIR)ftsdf.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
+  	$(OBJDIR)strbuf.obj $(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftsdf_64.obj,ftcommon_64,common_64,strbuf_64,\
+	$(GRAPHOBJ64),[]ft2demos.opt/opt
+fttry.exe  : $(OBJDIR)fttry.obj
+        link $(LOPTS) $(OBJDIR)fttry.obj,[]ft2demos.opt/opt
+fttry_64.exe  : $(OBJDIR)fttry.obj
+        link $(LOPTS) $(OBJDIR)fttry_64.obj,[]ft2demos.opt/opt
+gbench.exe  : $(OBJDIR)gbench.obj
+        link $(LOPTS) $(OBJDIR)gbench.obj,[]ft2demos.opt/opt
+gbench_64.exe  : $(OBJDIR)gbench.obj
+        link $(LOPTS) $(OBJDIR)gbench_64.obj,[]ft2demos.opt/opt
 
 $(OBJDIR)common.obj    : $(SRCDIR)common.c , $(SRCDIR)common.h
 $(OBJDIR)ftcommon.obj  : $(SRCDIR)ftcommon.c
@@ -253,6 +305,14 @@ $(OBJDIR)output.obj    : $(SRCDIR)output.c
 $(OBJDIR)md5.obj    : $(SRCDIR)md5.c
 $(OBJDIR)strbuf.obj    : $(SRCDIR)strbuf.c
 $(OBJDIR)ftpngout.obj    : $(SRCDIR)ftpngout.c
+$(OBJDIR)compos.obj    : $(SRCDIR)compos.c
+$(OBJDIR)ftdiff.obj    : $(SRCDIR)ftdiff.c
+$(OBJDIR)ftgamma.obj    : $(SRCDIR)ftgamma.c
+$(OBJDIR)ftgrid.obj    : $(SRCDIR)ftgrid.c
+$(OBJDIR)ftpatchk.obj    : $(SRCDIR)ftpatchk.c
+$(OBJDIR)ftsdf.obj    : $(SRCDIR)ftsdf.c
+$(OBJDIR)fttry.obj    : $(SRCDIR)fttry.c
+$(OBJDIR)gbench.obj    : $(SRCDIR)gbench.c
 
 CLEAN :
        delete $(OBJDIR)*.obj;*,[]ft2demos.opt;*
