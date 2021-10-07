@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <stdint.h>
 
+#include FT_MODULE_H
 #include FT_DRIVER_H
 #include FT_LCD_FILTER_H
 
