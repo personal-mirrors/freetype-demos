@@ -30,6 +30,10 @@ libfreetype2_dep = libfreetype2.get_variable('freetype_dep')
 libpng_dep = dependency('libpng',
   required: true)
 
+librsvg_dep = dependency('librsvg-2.0',
+  required: true)
+
+
 cc = meson.get_compiler('c')
 
 math_dep = cc.find_library('m',
@@ -70,8 +74,10 @@ ftcommon_lib = static_library('ftcommon',
     'src/ftcommon.c',
     'src/ftcommon.h',
     'src/ftpngout.c',
+    'src/rsvg-port.c',
+    'src/rsvg-port.h',
   ],
-  dependencies: [libpng_dep, libfreetype2_dep],
+  dependencies: [libpng_dep, librsvg_dep, libfreetype2_dep],
   include_directories: graph_include_dir,
   link_with: [common_lib, graph_lib],
 )
