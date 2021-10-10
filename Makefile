@@ -28,6 +28,7 @@ TOP_DIR   ?= ../freetype
 TOP_DIR_2 ?= .
 OBJ_DIR   ?= $(TOP_DIR)/objs
 
+LIBRSVG_INCLUDES=$(shell pkg-config librsvg-2.0 --cflags)
 
 ######################################################################
 #
@@ -168,6 +169,7 @@ else
     LINK_CMD    = $(LIBTOOL) --mode=link $(CC) \
                   $(subst /,$(COMPILER_SEP),$(LDFLAGS))
     LINK_LIBS   = $(subst /,$(COMPILER_SEP),$(FTLIB) $(EFENCE)) $(LIB_CLOCK_GETTIME)
+    LINK_LIBS += $(shell pkg-config --libs librsvg-2.0 cairo)
   else
     LINK_CMD = $(CC) $(subst /,$(COMPILER_SEP),$(LDFLAGS))
     ifeq ($(PLATFORM),unixdev)
@@ -349,12 +351,19 @@ else
   $(OBJ_DIR_2)/mlgetopt.$(SO): $(SRC_DIR)/mlgetopt.c
   COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO) \
                 $(OBJ_DIR_2)/strbuf.$(SO) \
+                $(OBJ_DIR_2)/rsvg_port.$(SO) \
                 $(OBJ_DIR_2)/output.$(SO) \
                 $(OBJ_DIR_2)/md5.$(SO) \
                 $(OBJ_DIR_2)/mlgetopt.$(SO)
 
   $(OBJ_DIR_2)/ftcommon.$(SO): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+										 $(LIBRSVG_INCLUDES) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+  $(OBJ_DIR_2)/rsvg_port.$(SO): $(SRC_DIR)/rsvg_port.c $(SRC_DIR)/rsvg_port.h
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+										 $(LIBRSVG_INCLUDES) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   $(OBJ_DIR_2)/ftpngout.$(SO): $(SRC_DIR)/ftpngout.c $(SRC_DIR)/ftcommon.h
@@ -452,6 +461,7 @@ else
                              $(SRC_DIR)/ftcommon.h \
                              $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $(LIBRSVG_INCLUDES) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
 
 

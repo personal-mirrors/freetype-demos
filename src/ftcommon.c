@@ -27,6 +27,9 @@
 
 #include FT_BITMAP_H
 #include FT_FONT_FORMATS_H
+#include FT_OTSVG_H
+
+#include <rsvg_port.h>
 
   /* error messages */
 #undef FTERRORS_H_
@@ -347,6 +350,13 @@
     error = FT_Init_FreeType( &handle->library );
     if ( error )
       PanicZ( "could not initialize FreeType" );
+
+    SVG_RendererHooks  hooks;
+    hooks.init_svg        = (SVG_Lib_Init_Func)rsvg_port_init;
+    hooks.free_svg        = (SVG_Lib_Free_Func)rsvg_port_free;
+    hooks.render_svg      = (SVG_Lib_Render_Func)rsvg_port_render;
+    hooks.preset_slot     = (SVG_Lib_Preset_Slot_Func)rsvg_port_preset_slot;
+    FT_Property_Set( handle->library, "ot-svg", "svg_hooks", &hooks );
 
     error = FTC_Manager_New( handle->library, 0, 0, 0,
                              my_face_requester, 0, &handle->cache_manager );
@@ -1289,7 +1299,7 @@
 
     error = FT_Err_Ok;
 
-    if ( glyf->format == FT_GLYPH_FORMAT_OUTLINE )
+    if ( glyf->format == FT_GLYPH_FORMAT_OUTLINE || glyf->format == FT_GLYPH_FORMAT_SVG )
     {
       FT_Render_Mode  render_mode;
 
