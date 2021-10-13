@@ -36,6 +36,10 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
     using pkg-config. If X11 is not found, some demo programs will
     not be able to display graphics and will fail.
 
+    Users with X11 installed in a non-standard location can specify
+    the paths to the development headers and library by passing the
+    X11_CFLAGS and X11_LIBS variables on the command line.
+
     If you  don't have X11  at all, fix  the definition of  the `EXES`
     variable as described in the top-level Makefile.
 

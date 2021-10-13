@@ -9,14 +9,14 @@ ifeq ($(PKG_CONFIG),)
   PKG_CONFIG = pkg-config
 endif
 
-X11_INCLUDE := $(shell $(PKG_CONFIG) --cflags x11)
-X11_LIB     := $(shell $(PKG_CONFIG) --libs x11)
+X11_CFLAGS ?= $(shell $(PKG_CONFIG) --cflags x11)
+X11_LIBS   ?= $(shell $(PKG_CONFIG) --libs x11)
 
-ifneq ($(X11_LIB),)
+ifneq ($(X11_LIBS),)
   # The GRAPH_LINK variable is expanded each time an executable is linked
   # against the graphics library.
   #
-  GRAPH_LINK += $(X11_LIB)
+  GRAPH_LINK += $(X11_LIBS)
 
   # Solaris needs a -lsocket in GRAPH_LINK.
   #
@@ -41,12 +41,12 @@ ifneq ($(X11_LIB),)
 	  $(LIBTOOL) --mode=compile $(CC) -static $(CFLAGS) \
                      $(GRAPH_INCLUDES:%=$I%) \
                      $I$(subst /,$(COMPILER_SEP),$(GR_X11)) \
-                     $(X11_INCLUDE:%=$I%) \
+                     $(X11_CFLAGS:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
   else
 	  $(CC) $(CFLAGS) $(GRAPH_INCLUDES:%=$I%) \
                 $I$(subst /,$(COMPILER_SEP),$(GR_X11)) \
-                $(X11_INCLUDE:%=$I%) \
+                $(X11_CFLAGS:%=$I%) \
                 $T$(subst /,$(COMPILER_SEP),$@ $<)
   endif
 endif
