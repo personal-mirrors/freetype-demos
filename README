@@ -32,22 +32,9 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
     X11 issues
     ----------
 
-    When building the demos, the build system tries to detect your X11
-    path  by  looking for  the  patterns  `X11/bin`, `X11R6/bin`,  and
-    `X11R5/bin` in your current path (in  this order).  If no X11 path
-    is found, some demo programs will  not be able to display graphics
-    and  will fail.   If you  have X11  in an  unusual place,  use the
-    `X11_PATH` make variable.  More  than one directory, if necessary,
-    must be separated with spaces.  Example:
-
-        make X11_PATH="/usr/openwin /usr/local/X11R6"
-
-    The build system then derives  the `X11_INCLUDE` include file path
-    from `X11_PATH`  by appending  `/include` to all  path components.
-    It  also derives  the `X11_LIB`  library path  from `X11_PATH`  by
-    appending `/lib64` and  `/lib` to all components  (in that order).
-    You  might  override  those  variables similar  to  `X11_PATH`  as
-    arguments to `make`.
+    When building the demos, the build system tries to detect X11 by
+    using pkg-config. If X11 is not found, some demo programs will
+    not be able to display graphics and will fail.
 
     If you  don't have X11  at all, fix  the definition of  the `EXES`
     variable as described in the top-level Makefile.
