@@ -246,7 +246,7 @@
   {
     grWriteCellChar( &target->bitmap, x, y, charcode, color );
     if (target->refresh_rect)
-      target->refresh_rect( target, x, y, 8, 8 );
+      target->refresh_rect( target, x, y, 8, GR_FONT_SIZE );
   }
 
 
@@ -285,7 +285,7 @@
     len = (int)strlen(string);
     grWriteCellString( &target->bitmap, x, y, string, color );
     if (target->refresh_rect)
-      target->refresh_rect( target, x, y, 8*len, 8 );
+      target->refresh_rect( target, x, y, 8*len, GR_FONT_SIZE );
   }
 
 
