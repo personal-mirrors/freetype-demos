@@ -162,7 +162,8 @@
   *    grNewBitmap
   *
   * <Description>
-  *    creates a new bitmap or resizes an existing one
+  *    Creates a new bitmap or resizes an existing one.  The allocated
+  *    pixel buffer is not initialized.
   *
   * <Input>
   *    pixel_mode   :: the target surface's pixel_mode
@@ -177,8 +178,8 @@
   *    Error code. 0 means success.
   *
   * <Note>
-  *    This function really allocates a pixel buffer, zero it, then
-  *    returns a descriptor for it.
+  *    This function really allocates a pixel buffer, then returns
+  *    a descriptor for it.
   *
   *    An existing bitmap will be resized.
   *

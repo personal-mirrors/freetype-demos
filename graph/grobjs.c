@@ -140,7 +140,8 @@
   *    grNewBitmap
   *
   * <Description>
-  *    creates a new bitmap or resizes an existing one
+  *    Creates a new bitmap or resizes an existing one.  The allocated
+  *    pixel buffer is not initialized.
   *
   * <Input>
   *    pixel_mode   :: the target surface's pixel_mode
@@ -162,7 +163,9 @@
                             int          height,
                             grBitmap    *bit )
   {
-    int  pitch;
+    int             pitch;
+    unsigned char*  buffer;
+
 
     /* check mode */
     if (check_mode(pixel_mode,num_grays))
@@ -197,29 +200,20 @@
         return 0;
     }
 
-    if ( !bit->buffer )
+    buffer = (unsigned char*)realloc( bit->buffer,
+                                      (size_t)pitch * (size_t)height );
+    if ( !buffer && pitch && height )
     {
-       bit->buffer = grAlloc( (size_t)pitch * (size_t)height );
-       if (!bit->buffer) goto Fail;
-    }
-    else  /* resize */
-    {
-       unsigned char*  buffer;
-
-
-       buffer = (unsigned char*)realloc( bit->buffer,
-                                         (size_t)pitch * (size_t)height );
-       if ( buffer || !pitch || !height )
-         bit->buffer = buffer;
-       else
-         goto Fail;
+      grError = gr_err_memory;
+      goto Fail;
     }
 
-    bit->width = width;
-    bit->rows  = height;
-    bit->pitch = pitch;
-    bit->mode  = pixel_mode;
-    bit->grays = num_grays;
+    bit->buffer = buffer;
+    bit->width  = width;
+    bit->rows   = height;
+    bit->pitch  = pitch;
+    bit->mode   = pixel_mode;
+    bit->grays  = num_grays;
 
     return 0;
 
