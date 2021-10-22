@@ -595,7 +595,7 @@
   *   LCD arrangements.
   *
   *   This function performs clipping.  It also handles mono and BGRA
-  *   bitmaps without ganna correction.
+  *   bitmaps without gamma correction.
   *
   **********************************************************************/
 
