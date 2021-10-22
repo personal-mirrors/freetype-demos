@@ -561,7 +561,7 @@
       sat->count = num_grays;
       sat->table = table;
 
-      for ( i = 0; i < num_grays; i++, table++ )
+      for ( i = 0; i < num_grays; i++ )
         table[i] = (byte)i;
 
       memset( table+num_grays, num_grays-1, 2*num_grays-1 );
@@ -1894,6 +1894,17 @@
     }
 
     return 0;
+  }
+
+
+  void
+  grBlitClean( void )
+  {
+    while ( gr_num_saturations > 2 )
+      free( gr_saturations[gr_num_saturations--].table );
+
+    while ( gr_num_conversions > 3 )
+      free( gr_conversions[gr_num_conversions--].table );
   }
 
 
