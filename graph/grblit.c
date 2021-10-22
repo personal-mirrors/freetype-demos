@@ -10,6 +10,7 @@
 /****************************************************************************/
 
 #include "grblit.h"
+#include <string.h>
 
 #define  GRAY8
 
@@ -553,7 +554,7 @@
       int    i;
       byte*  table;
 
-      table = grAlloc( (size_t)( 3 * num_grays - 1 ) * sizeof ( byte ) );
+      table = (byte*)malloc( (size_t)( 3 * num_grays - 1 ) * sizeof ( byte ) );
       if (!table)
         return NULL;
 
@@ -563,8 +564,7 @@
       for ( i = 0; i < num_grays; i++, table++ )
         *table = (byte)i;
 
-      for ( i = 2*num_grays-1; i > 0; i--, table++ )
-        *table = (byte)(num_grays-1);
+      memset( table, num_grays-1, 2*num_grays-1 );
 
       gr_num_saturations++;
       gr_last_saturation = sat;
@@ -651,7 +651,7 @@
       byte*  table;
       int    n;
 
-      table = grAlloc( (size_t)source_grays * sizeof ( byte ) );
+      table = (byte*)malloc( (size_t)source_grays * sizeof ( byte ) );
       if (!table)
         return NULL;
 

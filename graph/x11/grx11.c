@@ -39,7 +39,6 @@
 #ifdef TEST
 #include <ctype.h>
 #define LOG(x)  printf x
-#define grAlloc  malloc
 #else
 #define LOG(x)  /* nothing */
 #endif
@@ -1388,7 +1387,7 @@
     /* Allocate or link surface image data */
     if ( surface->convert )
     {
-      surface->ximage->data = (char*)grAlloc( (size_t)bitmap->rows *
+      surface->ximage->data = (char*)malloc( (size_t)bitmap->rows *
                               (size_t)surface->ximage->bytes_per_line );
       if ( !surface->ximage->data )
         return 0;
