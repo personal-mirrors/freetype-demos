@@ -562,9 +562,9 @@
       sat->table = table;
 
       for ( i = 0; i < num_grays; i++, table++ )
-        *table = (byte)i;
+        table[i] = (byte)i;
 
-      memset( table, num_grays-1, 2*num_grays-1 );
+      memset( table+num_grays, num_grays-1, 2*num_grays-1 );
 
       gr_num_saturations++;
       gr_last_saturation = sat;
