@@ -601,7 +601,7 @@
 
 
   static
-  const unsigned char  gr_gray17_to_gray128[17] =
+  const byte  gr_gray17_to_gray128[17] =
   {
     0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 127
   };
@@ -1901,10 +1901,10 @@
   grBlitClean( void )
   {
     while ( gr_num_saturations > 2 )
-      free( gr_saturations[gr_num_saturations--].table );
+      free( (byte*)gr_saturations[gr_num_saturations--].table );
 
     while ( gr_num_conversions > 3 )
-      free( gr_conversions[gr_num_conversions--].table );
+      free( (byte*)gr_conversions[gr_num_conversions--].table );
   }
 
 
