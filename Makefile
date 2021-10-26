@@ -502,9 +502,6 @@ else
 #  $(BIN_DIR_2)/ftsbit$E: $(OBJ_DIR_2)/ftsbit.$(SO) $(FTLIB)
 #	  $(LINK)
 
-  $(BIN_DIR_2)/t1dump$E: $(OBJ_DIR_2)/t1dump.$(SO) $(FTLIB)
-	  $(LINK)
-
   $(BIN_DIR_2)/ttdebug$E: $(OBJ_DIR_2)/ttdebug.$(SO) $(FTLIB) $(COMMON_OBJ)
 	  $(LINK_COMMON)
 
