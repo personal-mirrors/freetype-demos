@@ -364,6 +364,9 @@ else
   FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
                   $(OBJ_DIR_2)/ftpngout.$(SO)
 
+  $(OBJ_DIR_2)/ftdump.$(SO): $(SRC_DIR)/ftdump.c
+	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
+
   $(OBJ_DIR_2)/ftlint.$(SO): $(SRC_DIR)/ftlint.c
 	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
 
@@ -404,34 +407,40 @@ else
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  $(OBJ_DIR_2)/ftmulti.$(SO): $(SRC_DIR)/ftmulti.c \
-                              $(GRAPH_LIB)
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<)
-
   $(OBJ_DIR_2)/ftstring.$(SO): $(SRC_DIR)/ftstring.c \
                                $(SRC_DIR)/ftcommon.h \
                                $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
+  $(OBJ_DIR_2)/ftview.$(SO): $(SRC_DIR)/ftview.c \
+                             $(SRC_DIR)/ftcommon.h \
+                             $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  ####################################################################
-  #
-  # Special rule to compile the `ftdump' program as it includes
-  # internal header files.
-  #
-  $(OBJ_DIR_2)/ftdump.$(SO): $(SRC_DIR)/ftdump.c
-	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
+  $(OBJ_DIR_2)/ftsdf.$(SO): $(SRC_DIR)/ftsdf.c \
+                            $(SRC_DIR)/ftcommon.h \
+                            $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
 
+  $(OBJ_DIR_2)/ftdiff.$(SO): $(SRC_DIR)/ftdiff.c \
+                             $(SRC_DIR)/ftcommon.h \
+                             $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  ####################################################################
-  #
-  # Special rule to compile the `t1dump' program as it includes
-  # the Type1 source path.
-  #
-  $(OBJ_DIR_2)/t1dump.$(SO): $(SRC_DIR)/t1dump.c
-	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
+  $(OBJ_DIR_2)/ftgrid.$(SO): $(SRC_DIR)/ftgrid.c \
+                             $(SRC_DIR)/ftcommon.h \
+                             $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+  $(OBJ_DIR_2)/ftmulti.$(SO): $(SRC_DIR)/ftmulti.c \
+                              $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
 
 
   ####################################################################
@@ -441,54 +450,6 @@ else
   #
   $(OBJ_DIR_2)/ftvalid.$(SO): $(SRC_DIR)/ftvalid.c
 	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
-
-
-  ####################################################################
-  #
-  # Special rule to compile the `ftview' program as it includes
-  # internal header files.
-  #
-  $(OBJ_DIR_2)/ftview.$(SO): $(SRC_DIR)/ftview.c \
-                             $(SRC_DIR)/ftcommon.h \
-                             $(GRAPH_LIB)
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
-
-
-  ####################################################################
-  #
-  # Special rule to compile the `ftsdf' program as it includes
-  # internal header files.
-  #
-  $(OBJ_DIR_2)/ftsdf.$(SO): $(SRC_DIR)/ftsdf.c \
-                            $(SRC_DIR)/ftcommon.h \
-                            $(GRAPH_LIB)
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
-
-
-  ####################################################################
-  #
-  # Special rule to compile the `ftdiff' program as it includes
-  # internal header files.
-  #
-  $(OBJ_DIR_2)/ftdiff.$(SO): $(SRC_DIR)/ftdiff.c \
-                             $(SRC_DIR)/ftcommon.h \
-                             $(GRAPH_LIB)
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
-
-
-  ####################################################################
-  #
-  # Special rule to compile the `ftgrid' program as it includes
-  # internal header files.
-  #
-  $(OBJ_DIR_2)/ftgrid.$(SO): $(SRC_DIR)/ftgrid.c \
-                             $(SRC_DIR)/ftcommon.h \
-                             $(GRAPH_LIB)
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<) $DFT2_BUILD_LIBRARY
 
 
   ####################################################################

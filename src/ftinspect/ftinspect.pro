@@ -19,9 +19,6 @@ win32 {
 
 CONFIG += qt debug
 
-# we need access to internal FreeType header files
-DEFINES += FT2_BUILD_LIBRARY
-
 SOURCES += \
   engine/engine.cpp \
   rendering/glyphbitmap.cpp \
