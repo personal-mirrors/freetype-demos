@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\..\freetype\include;..\..\..\graph</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\graph</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /b ..\..\..\objs\$(Platform)\$(Configuration)\$(TargetFileName) ..\..\..\bin\</Command>
@@ -100,7 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\..\freetype\include;..\..\..\graph</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\graph</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy /b ..\..\..\objs\$(Platform)\$(Configuration)\$(TargetFileName) ..\..\..\bin\</Command>
@@ -114,7 +114,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\..\freetype\include;..\..\..\graph</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\graph</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -132,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\..\freetype\include;..\..\..\graph</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\graph</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -158,10 +158,10 @@
       <Project>{5f517bbd-326a-4dc6-a42f-872d58501383}</Project>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\..\..\freetype\objs\freetype.lib" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ImportGroup Label="Dependencies">
+    <Import Project="freetype.props" />
   </ImportGroup>
 </Project>
