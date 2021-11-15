@@ -1053,7 +1053,7 @@
 
     /* The floating scale is reversibly adjusted after decomposing it into */
     /* fraction and exponent. Direct bit manipulation is less portable.    */
-    frc = 8 * frexpf( status.scale, &exp );
+    frc = (int)( 8 * frexpf( status.scale, &exp ) );
 
     frc  = ( frc & 3 ) | ( exp << 2 );
     frc += step;

@@ -97,14 +97,16 @@
       for ( d0 = d1 = 0, j = 0; j < bitmap->width; j++, b++ )
       {
         d1 -= *b;
-        s2 += d1 >= d0 ? d1 - d0 : d0 - d1;  /* second derivative sum */
-        s1 += d1 >= 0 ? d1 : -d1;            /*  first derivative sum */
+        /* second derivative sum */
+        s2 += (unsigned long)( d1 >= d0 ? d1 - d0 : d0 - d1 );
+        /*  first derivative sum */
+        s1 += (unsigned long)( d1 >= 0 ? d1 : -d1 );
         d0  = d1;
         d1  = *b;
       }
-      s2 += d1 > d0 ? d1 - d0 : d0 - d1;
-      s2 += d1;
-      s1 += d1;
+      s2 += (unsigned long)( d1 > d0 ? d1 - d0 : d0 - d1 );
+      s2 += (unsigned long)d1;
+      s1 += (unsigned long)d1;
     }
 
     printf( "%.4lf ", s1 ? (double)s2 / s1 : 2.0 );
@@ -116,14 +118,16 @@
       for ( d0 = d1 = 0, i = 0; i < bitmap->rows; i++, b += bitmap->pitch )
       {
         d1 -= *b;
-        s2 += d1 >= d0 ? d1 - d0 : d0 - d1;  /* second derivative sum */
-        s1 += d1 >= 0 ? d1 : -d1;            /*  first derivative sum */
+        /* second derivative sum */
+        s2 += (unsigned long)( d1 >= d0 ? d1 - d0 : d0 - d1 );
+        /*  first derivative sum */
+        s1 += (unsigned long)( d1 >= 0 ? d1 : -d1 );
         d0  = d1;
         d1  = *b;
       }
-      s2 += d1 > d0 ? d1 - d0 : d0 - d1;
-      s2 += d1;
-      s1 += d1;
+      s2 += (unsigned long)( d1 > d0 ? d1 - d0 : d0 - d1 );
+      s2 += (unsigned long)d1;
+      s1 += (unsigned long)d1;
     }
 
     printf( "%.4lf ", s1 ? (double)s2 / s1 : 2.0 );

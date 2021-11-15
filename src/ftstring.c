@@ -217,7 +217,7 @@
 
     outline = &((FT_OutlineGlyph)*glyph)->outline;
 
-    FT_Outline_New( handle->library, points, contours, outline );
+    FT_Outline_New( handle->library, points, (FT_Int)contours, outline );
     outline->n_points = outline->n_contours = 0;
 
     FT_Stroker_Export( handle->stroker, outline );

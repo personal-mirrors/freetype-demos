@@ -1,3 +1,17 @@
+/****************************************************************************/
+/*                                                                          */
+/*  The FreeType project -- a free and portable quality TrueType renderer.  */
+/*                                                                          */
+/*  Copyright (C) 2021 by                                                   */
+/*  D. Turner, R.Wilhelm, W. Lemberg, and Anuj Verma                        */
+/*                                                                          */
+/*                                                                          */
+/*  FTSdf - a simple font viewer for FreeType's SDF output.                 */
+/*                                                                          */
+/*  Press ? when running this program to have a list of key-bindings.       */
+/*                                                                          */
+/****************************************************************************/
+
 
 #include <freetype/ftmodapi.h>
 
@@ -31,7 +45,7 @@
     FT_Face  face;
     FT_Int   ptsize;
     FT_Int   glyph_index;
-    FT_Int   scale;
+    FT_UInt  scale;
     FT_Int   spread;
     FT_Int   x_offset;
     FT_Int   y_offset;
@@ -89,8 +103,8 @@
                               &status.overlaps ) );
 
     /* Set pixel size and load the glyph index. */
-    FT_CALL( FT_Set_Pixel_Sizes( status.face, 0, status.ptsize ) );
-    FT_CALL( FT_Load_Glyph( status.face, status.glyph_index,
+    FT_CALL( FT_Set_Pixel_Sizes( status.face, 0, (FT_UInt)status.ptsize ) );
+    FT_CALL( FT_Load_Glyph( status.face, (FT_UInt)status.glyph_index,
                             FT_LOAD_DEFAULT ) );
 
     /* This is just to measure the generation time. */
@@ -209,7 +223,7 @@
 
 
     sprintf( header_string,
-             "Glyph Index: %d, Pt Size: %d, Spread: %d, Scale: %d",
+             "Glyph Index: %d, Pt Size: %d, Spread: %d, Scale: %u",
              status.glyph_index,
              status.ptsize,
              status.spread,
@@ -258,7 +272,7 @@
     grEvent  event;
 
     int  ret   = 0;
-    int  speed = 10 * status.scale;
+    int  speed = 10 * (int)status.scale;
 
 
     grListenSurface( display->surface, 0, &event );
@@ -393,7 +407,7 @@
 
 
   /* Clamp value `x` between `lower_limit` and `upper_limit`. */
-  float
+  static float
   clamp( float  x,
          float  lower_limit,
          float  upper_limit )
@@ -413,7 +427,7 @@
   /* This implementation is taken from Wikipedia.                     */
   /*                                                                  */
   /*   https://en.wikipedia.org/wiki/Smoothstep                       */
-  float
+  static float
   smoothstep( float  edge0,
               float  edge1,
               float  x )
@@ -456,10 +470,10 @@
     center.y = display->bitmap->rows  / 2;
 
     /* compute draw region around `center` */
-    draw_region.xMin = center.x - ( bitmap->width * status.scale) / 2;
-    draw_region.xMax = center.x + ( bitmap->width * status.scale) / 2;
-    draw_region.yMin = center.y - ( bitmap->rows  * status.scale) / 2;
-    draw_region.yMax = center.y + ( bitmap->rows  * status.scale) / 2;
+    draw_region.xMin = center.x - ( bitmap->width * status.scale ) / 2;
+    draw_region.xMax = center.x + ( bitmap->width * status.scale ) / 2;
+    draw_region.yMin = center.y - ( bitmap->rows  * status.scale ) / 2;
+    draw_region.yMax = center.y + ( bitmap->rows  * status.scale ) / 2;
 
     /* add position offset so that we can move the image */
     draw_region.xMin += status.x_offset;
@@ -509,23 +523,25 @@
 
     /* Finally loop over all pixels inside the draw region        */
     /* and copy pixels from the sample region to the draw region. */
-    for ( FT_Int  j = draw_region.yMax - 1, y = sample_region.yMin;
+    for ( FT_UInt  j = (FT_UInt)( draw_region.yMax - 1 ),
+                   y = (FT_UInt)sample_region.yMin;
           j >= draw_region.yMin;
           j--, y++ )
     {
-      for ( FT_Int  i = draw_region.xMin, x = sample_region.xMin;
+      for ( FT_UInt  i = (FT_UInt)draw_region.xMin,
+                     x = (FT_UInt)sample_region.xMin;
             i < draw_region.xMax;
             i++, x++ )
       {
-        FT_UInt  display_index = j * display->bitmap->width + i;
+        FT_UInt  display_index = j * (FT_UInt)display->bitmap->width + i;
         float    min_dist;
 
 
         if ( status.nearest_filtering )
         {
           FT_UInt  bitmap_index = ( y / status.scale ) * bitmap->width +
-                                    x / status.scale;
-          FT_Byte  pixel_value  = buffer[bitmap_index];
+                                  x / status.scale;
+          FT_Byte  pixel_value = buffer[bitmap_index];
 
 
           /* If nearest filtering then simply take the value of the */

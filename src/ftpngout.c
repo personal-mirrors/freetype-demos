@@ -84,7 +84,8 @@
     png_init_io( png_ptr, fp );
 
     /* Write header (8 bit colour depth) */
-    png_set_IHDR( png_ptr, info_ptr, width, height,
+    png_set_IHDR( png_ptr, info_ptr,
+                  (png_uint_32)width, (png_uint_32)height,
                   8, color_type, PNG_INTERLACE_NONE,
                   PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE );
 

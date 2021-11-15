@@ -149,8 +149,8 @@
     if ( head )
     {
       char    buf[11];
-      time_t  created  = head->Created [1];
-      time_t  modified = head->Modified[1];
+      time_t  created  = (time_t)head->Created [1];
+      time_t  modified = (time_t)head->Modified[1];
 
 
       /* ignore most of upper bits until 2176 and adjust epoch */
@@ -536,8 +536,8 @@
       else if ( !FT_Get_BDF_Charset_ID( face, &encoding, &registry ) )
         printf( ", charset %s-%s", registry, encoding );
       else if ( !FT_Get_WinFNT_Header( face, &header ) )
-        printf( header.charset < 10 ? ", charset %hu"
-                                    : ", charset %hu <%hX>",
+        printf( header.charset < 10 ? ", charset %hhu"
+                                    : ", charset %hhu <%hhX>",
                 header.charset, header.charset );
 
       printf ( "\n" );
@@ -566,7 +566,7 @@
       }
       else if ( coverage == 1 )
       {
-        FT_ULong  next, last = ~1;
+        FT_ULong  next, last = ~1U;
         FT_UInt   gindex;
 
         const char*  f1 = "";

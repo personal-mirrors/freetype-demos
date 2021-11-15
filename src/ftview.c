@@ -430,7 +430,7 @@
     slot = face->glyph;
 
     error = FT_Palette_Select( face,
-                               handle->current_font->palette_index,
+                               (FT_UShort)handle->current_font->palette_index,
                                &palette );
     if ( error )
       palette = NULL;

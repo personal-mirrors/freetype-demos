@@ -261,7 +261,7 @@
         }
       }
 
-      num_shown_axes = idx + 1;
+      num_shown_axes = (unsigned int)( idx + 1 );
     }
     else
     {
@@ -270,7 +270,7 @@
 
       /* show all axes */
       for ( i = 0; i < used_num_axis; i++ )
-        shown_axes[i] = i;
+        shown_axes[i] = (int)i;
 
       num_shown_axes = used_num_axis;
     }
@@ -282,7 +282,8 @@
   Clear_Display( void )
   {
     memset( bit->buffer, 0, (size_t)bit->rows *
-                            ( bit->pitch < 0 ? -bit->pitch : bit->pitch ) );
+                            (size_t)( bit->pitch < 0 ? -bit->pitch
+                                                     : bit->pitch ) );
   }
 
 

@@ -171,9 +171,9 @@
       return (int)available;
     }
 
-    sb->pos += ret;
+    sb->pos += (unsigned)ret;
 
-    return (int)ret;
+    return ret;
   }
 
 

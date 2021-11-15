@@ -466,7 +466,7 @@
 
     for ( ; count--; spans++ )
       for ( dst = dst_line + spans->x, w = spans->len; w--; dst++ )
-        *dst = ( spans->coverage << 24 ) | color;
+        *dst = (FT_UInt32)( spans->coverage << 24 ) | color;
   }
 
 
@@ -1172,7 +1172,7 @@
     strbuf_reset( buf );
     FTDemo_Get_Info( handle, buf );
     grWriteCellString( display->bitmap,
-                       display->bitmap->width - 8 * strbuf_len( buf ),
+                       display->bitmap->width - 8 * (int)strbuf_len( buf ),
                        line * HEADER_HEIGHT,
                        strbuf_value( buf ), display->fore_color );
 
