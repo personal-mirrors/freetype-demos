@@ -20,8 +20,6 @@ graph_sources = files([
   'gblender.c',
   'gblender.h',
   'graph.h',
-  'grblit.c',
-  'grblit.h',
   'grconfig.h',
   'grdevice.c',
   'grdevice.h',

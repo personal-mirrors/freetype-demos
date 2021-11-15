@@ -197,47 +197,6 @@
  /**********************************************************************
   *
   * <Function>
-  *    grBlitGlyphToBitmap
-  *
-  * <Description>
-  *    writes a given glyph bitmap to a target surface.
-  *
-  * <Input>
-  *    target  :: handle to target bitmap that belongs to surface
-  *    glyph   :: handle to source glyph bitmap
-  *    x       :: position of left-most pixel of glyph image in target surface
-  *    y       :: position of top-most pixel of glyph image in target surface
-  *    color   :: color to be used to draw a monochrome glyph
-  *
-  * <Return>
-  *   Error code. 0 means success
-  *
-  * <Note>
-  *   There are only two supported source pixel modes : monochrome
-  *   and gray. The 8-bit images can have any number of grays between
-  *   2 and 128, and conversions to the target surface is handled
-  *   _automatically_.
-  *
-  *   Note however that you should avoid blitting a gray glyph to a gray
-  *   bitmap with fewer levels of grays, as this would much probably
-  *   give unpleasant results..
-  *
-  *   This function performs clipping.  This function does not implement
-  *   gamma correction.
-  *
-  **********************************************************************/
-
-  extern int
-  grBlitGlyphToBitmap( grBitmap*  target,
-                       grBitmap*  glyph,
-                       grPos      x,
-                       grPos      y,
-                       grColor    color );
-
-
- /**********************************************************************
-  *
-  * <Function>
   *    grWriteCellChar
   *
   * <Description>
