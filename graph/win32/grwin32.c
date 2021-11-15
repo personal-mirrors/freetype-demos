@@ -305,6 +305,8 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
     return 0;
   case ICON_BIG:
     surface->bIcon = hIcon;
+    SetClassLongPtr( surface->window, GCLP_HBRBACKGROUND,
+                     (LONG_PTR)CreatePatternBrush( ici.hbmColor ) );
     return s[0];
   default:
     return 0;  /* should not happen */
