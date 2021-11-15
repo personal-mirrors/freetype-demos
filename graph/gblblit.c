@@ -5,7 +5,7 @@
 /*  Copyright (C) 1996-2021 by                                              */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
-/*  grblit.c: Support for alpha blending with gamma correction and caching. */
+/*  gblblit.c: Alpha blending with gamma correction and caching.            */
 /*                                                                          */
 /****************************************************************************/
 
