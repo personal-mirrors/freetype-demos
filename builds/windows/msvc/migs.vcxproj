@@ -142,7 +142,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\graph\gblblit.c" />
     <ClCompile Include="..\..\..\graph\gblender.c" />
-    <ClCompile Include="..\..\..\graph\grblit.c" />
     <ClCompile Include="..\..\..\graph\grdevice.c" />
     <ClCompile Include="..\..\..\graph\grfill.c" />
     <ClCompile Include="..\..\..\graph\grfont.c" />
@@ -166,7 +165,6 @@
     <ClInclude Include="..\..\..\graph\gblvbgr.h" />
     <ClInclude Include="..\..\..\graph\gblvrgb.h" />
     <ClInclude Include="..\..\..\graph\graph.h" />
-    <ClInclude Include="..\..\..\graph\grblit.h" />
     <ClInclude Include="..\..\..\graph\grconfig.h" />
     <ClInclude Include="..\..\..\graph\grdevice.h" />
     <ClInclude Include="..\..\..\graph\grevents.h" />

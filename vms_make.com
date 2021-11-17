@@ -103,8 +103,7 @@ OBJDIR = [.objs]
 # include paths
 INCLUDES = /include=([-.freetype2.include],[.graph],[.src])
 
-GRAPHOBJ = $(OBJDIR)grblit.obj,  \
-           $(OBJDIR)grobjs.obj,  \
+GRAPHOBJ = $(OBJDIR)grobjs.obj,  \
            $(OBJDIR)grfont.obj,  \
            $(OBJDIR)grinit.obj,  \
            $(OBJDIR)grdevice.obj,\
@@ -112,8 +111,7 @@ GRAPHOBJ = $(OBJDIR)grblit.obj,  \
            $(OBJDIR)gblender.obj, \
            $(OBJDIR)gblblit.obj,$(OBJDIR)grfill.obj
 
-GRAPHOBJ64 = $(OBJDIR)grblit_64.obj,  \
-           $(OBJDIR)grobjs_64.obj,  \
+GRAPHOBJ64 = $(OBJDIR)grobjs_64.obj,  \
            $(OBJDIR)grfont_64.obj,  \
            $(OBJDIR)grinit_64.obj,  \
            $(OBJDIR)grdevice_64.obj,\
@@ -272,7 +270,6 @@ $(OBJDIR)ftmemchk.obj  : $(SRCDIR)ftmemchk.c
 $(OBJDIR)ftdump.obj    : $(SRCDIR)ftdump.c
 $(OBJDIR)testname.obj  : $(SRCDIR)testname.c
 $(OBJDIR)ftview.obj    : $(SRCDIR)ftview.c
-$(OBJDIR)grblit.obj    : $(GRAPHSRC)grblit.c
 $(OBJDIR)grobjs.obj    : $(GRAPHSRC)grobjs.c
 $(OBJDIR)grfont.obj    : $(GRAPHSRC)grfont.c
 $(OBJDIR)gblender.obj  : $(GRAPHSRC)gblender.c

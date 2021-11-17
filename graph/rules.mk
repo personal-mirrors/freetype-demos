@@ -19,7 +19,6 @@ GRAPH_H := $(GRAPH)/gblany.h    \
            $(GRAPH)/gblblit.h   \
            $(GRAPH)/gblender.h  \
            $(GRAPH)/graph.h     \
-           $(GRAPH)/grblit.h    \
            $(GRAPH)/grconfig.h  \
            $(GRAPH)/grdevice.h  \
            $(GRAPH)/grevents.h  \
@@ -31,7 +30,6 @@ GRAPH_H := $(GRAPH)/gblany.h    \
 
 GRAPH_OBJS := $(OBJ_DIR_2)/gblblit.$(O)   \
               $(OBJ_DIR_2)/gblender.$(O)  \
-              $(OBJ_DIR_2)/grblit.$(O)    \
               $(OBJ_DIR_2)/grdevice.$(O)  \
               $(OBJ_DIR_2)/grfill.$(O)    \
               $(OBJ_DIR_2)/grfont.$(O)    \

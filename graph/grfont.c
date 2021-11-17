@@ -561,7 +561,7 @@
       return;
 
     gr_charcell.buffer = font[charcode];
-    grBlitGlyphToBitmap( target, &gr_charcell, x, y, color );
+    grBlitGlyphToSurface( (grSurface*)target, &gr_charcell, x, y, color );
   }
 
 
@@ -575,7 +575,7 @@
     while ( *string )
     {
       gr_charcell.buffer = font[*(unsigned char*)string++];
-      grBlitGlyphToBitmap( target, &gr_charcell, x, y, color );
+      grBlitGlyphToSurface( (grSurface*)target, &gr_charcell, x, y, color );
       x += 8;
     }
   }
