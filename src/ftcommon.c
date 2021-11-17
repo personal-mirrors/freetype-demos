@@ -671,11 +671,40 @@
   }
 
 
+  /* binary search for the last charcode */
+  static int
+  get_last_char( FT_Face     face,
+                 FT_Int      idx,
+                 FT_ULong    max )
+  {
+    FT_ULong  res, mid, min = 0;
+    FT_UInt   gidx;
+
+
+    /* activate charmap */
+    face->charmap = face->charmaps[idx];
+
+    do
+    {
+      mid = ( min + max ) >> 1;
+      res = FT_Get_Next_Char( face, mid, &gidx );
+
+      if ( gidx )
+        min = res;
+      else
+        max = mid;
+    } while ( max > min );
+
+    return (int)max;
+  }
+
+
   void
   FTDemo_Set_Current_Font( FTDemo_Handle*  handle,
                            PFont           font )
   {
     FT_Face  face;
+    int      index = font->cmap_index;
 
 
     handle->current_font   = font;
@@ -684,8 +713,8 @@
     error = FTC_Manager_LookupFace( handle->cache_manager,
                                     handle->scaler.face_id, &face );
 
-    if ( font->cmap_index < face->num_charmaps )
-      handle->encoding = face->charmaps[font->cmap_index]->encoding;
+    if ( index < face->num_charmaps )
+      handle->encoding = face->charmaps[index]->encoding;
     else
       handle->encoding = FT_ENCODING_ORDER;
 
@@ -696,7 +725,7 @@
       break;
 
     case FT_ENCODING_UNICODE:
-      font->num_indices = 0x110000L;
+      font->num_indices = get_last_char( face, index, 0x110000 ) + 1;
       break;
 
     case FT_ENCODING_ADOBE_LATIN_1:
@@ -704,16 +733,16 @@
     case FT_ENCODING_ADOBE_EXPERT:
     case FT_ENCODING_ADOBE_CUSTOM:
     case FT_ENCODING_APPLE_ROMAN:
-      font->num_indices = 0x100L;
+      font->num_indices = 0x100;
       break;
 
     /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
     case FT_ENCODING_MS_SYMBOL:
-      font->num_indices = 0x10000L;
+      font->num_indices = get_last_char( face, index, 0x10000 ) + 1;
       break;
 
     default:
-      font->num_indices = 0x10000L;
+      font->num_indices = get_last_char( face, index, 0x10000 ) + 1;
     }
   }
 

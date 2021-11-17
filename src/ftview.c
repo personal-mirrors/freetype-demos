@@ -1573,6 +1573,15 @@
       }
     }
 
+    /* Last index or charcode */
+    snprintf( buf, sizeof ( buf ),
+              handle->encoding == FT_ENCODING_ORDER   ? "last: %d" :
+              handle->encoding == FT_ENCODING_UNICODE ? "last: U+%04X" :
+                                                        "last: 0x%X",
+              handle->current_font->num_indices - 1 );
+    grWriteCellString( display->bitmap, 0, display->bitmap->rows - GR_FONT_SIZE,
+                       buf, display->fore_color );
+
     grRefreshSurface( display->surface );
   }
 
