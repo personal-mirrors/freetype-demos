@@ -692,7 +692,20 @@
       if ( gidx )
         min = res;
       else
+      {
         max = mid;
+
+        /* once moved, it helps to advance min through sparse regions */
+        if ( min )
+        {
+          res = FT_Get_Next_Char( face, min, &gidx );
+
+          if ( gidx )
+            min = res;
+          else
+            max = min;  /* found it */
+        }
+      }
     } while ( max > min );
 
     return (int)max;
