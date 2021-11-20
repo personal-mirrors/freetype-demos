@@ -30,15 +30,15 @@
         break;
 
       case gr_pixel_mode_rgb555:
-        color.value = ((red   & 0xF8) << 7) |
-                      ((green & 0xF8) << 2) |
-                      ((blue  & 0xF8) >> 3);
+        color.value = (uint32_t)( ( red   & 0xF8 ) << 7 ) |
+                      (uint32_t)( ( green & 0xF8 ) << 2 ) |
+                      (uint32_t)( ( blue  & 0xF8 ) >> 3 );
         break;
 
       case gr_pixel_mode_rgb565:
-        color.value = ((red   & 0xF8) << 8) |
-                      ((green & 0xFC) << 3) |
-                      ((blue  & 0xF8) >> 3);
+        color.value = (uint32_t)( ( red   & 0xF8 ) << 8 ) |
+                      (uint32_t)( ( green & 0xFC ) << 3 ) |
+                      (uint32_t)( ( blue  & 0xF8 ) >> 3 );
         break;
 
       case gr_pixel_mode_rgb24:
@@ -48,10 +48,10 @@
         break;
 
       case gr_pixel_mode_rgb32:
-        color.value = ((alpha & 0xFF) << 24) |
-                      ((red   & 0xFF) << 16) |
-                      ((green & 0xFF) <<  8) |
-                      ((blue  & 0xFF)      );
+        color.value = (uint32_t)( ( alpha & 0xFF ) << 24 ) |
+                      (uint32_t)( ( red   & 0xFF ) << 16 ) |
+                      (uint32_t)( ( green & 0xFF ) <<  8 ) |
+                      (uint32_t)( ( blue  & 0xFF )       );
         break;
 
       default:

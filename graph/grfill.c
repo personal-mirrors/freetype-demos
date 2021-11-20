@@ -60,7 +60,7 @@ gr_fill_hline_4( unsigned char*  line,
                  int             incr,
                  grColor         color )
 {
-  int  col = color.value | (color.value << 4);
+  int  col = (int)( color.value | ( color.value << 4 ) );
   int  height;
 
   line += (x >> 1);
@@ -95,7 +95,7 @@ gr_fill_hline_8( unsigned char*   line,
   line += x;
 
   if ( incr == 1 )
-    memset( line, color.value, (size_t)width );
+    memset( line, (int)color.value, (size_t)width );
   else
   {
     /* there might be some pitch */

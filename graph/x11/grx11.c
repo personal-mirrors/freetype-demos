@@ -1012,7 +1012,10 @@
       surface->convert( &blit );
 
     /* without background defined, this only generates Expose event */
-    XClearArea( surface->display, surface->win, x, y, w, h, True );
+    XClearArea( surface->display, surface->win,
+                x, y,
+                (unsigned)w, (unsigned)h,
+                True );
   }
 
 
@@ -1043,12 +1046,12 @@
 
     sz = icon->rows * icon->width;
 
-    buffer = (unsigned long*)malloc( ( 2 + sz ) * sizeof( long) );
+    buffer = (unsigned long*)malloc( (size_t)( 2 + sz ) * sizeof ( long ) );
     if ( !buffer )
       return 0;
 
-    buffer[0] = icon->width;
-    buffer[1] = icon->rows;
+    buffer[0] = (unsigned long)icon->width;
+    buffer[1] = (unsigned long)icon->rows;
 
     /* must convert to long array */
     dst = buffer + 2;

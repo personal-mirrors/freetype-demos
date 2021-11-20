@@ -21,6 +21,7 @@
 /* FT graphics subsystem */
 #include "grobjs.h"
 #include "grdevice.h"
+#include "grbatch.h"
 
 
   static int
