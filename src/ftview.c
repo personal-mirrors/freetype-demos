@@ -157,7 +157,7 @@
   }
 
 
-  static FT_Error
+  static int
   Render_Stroke( int  num_indices,
                  int  offset )
   {
@@ -174,7 +174,7 @@
     if ( error )
     {
       /* probably a non-existent bitmap font size */
-      return error;
+      return -1;
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
@@ -258,11 +258,11 @@
       status.num_fails++;
     }
 
-    return error;
+    return i - 1;
   }
 
 
-  static FT_Error
+  static int
   Render_Fancy( int  num_indices,
                 int  offset )
   {
@@ -280,7 +280,7 @@
     if ( error )
     {
       /* probably a non-existent bitmap font size */
-      return error;
+      return -1;
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
@@ -402,11 +402,11 @@
       status.num_fails++;
     }
 
-    return error;
+    return i - 1;
   }
 
 
-  static FT_Error
+  static int
   Render_All( int  num_indices,
               int  offset )
   {
@@ -422,7 +422,7 @@
     if ( error )
     {
       /* probably a non-existent bitmap font size */
-      return error;
+      return -1;
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
@@ -561,11 +561,11 @@
       status.num_fails++;
     }
 
-    return FT_Err_Ok;
+    return i - 1;
   }
 
 
-  static FT_Error
+  static int
   Render_Text( int  num_indices,
                int  offset )
   {
@@ -582,7 +582,7 @@
     if ( error )
     {
       /* probably a non-existent bitmap font size */
-      return error;
+      return -1;
     }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
@@ -646,11 +646,11 @@
       status.num_fails++;
     }
 
-    return FT_Err_Ok;
+    return -1;
   }
 
 
-  static FT_Error
+  static int
   Render_Waterfall( int  mid_size,
                     int  offset )
   {
@@ -760,7 +760,7 @@
     FTDemo_Set_Current_Charsize( handle, mid_size, status.res );
     FTDemo_Get_Size( handle, &size );
 
-    return FT_Err_Ok;
+    return -1;
   }
 
 
@@ -1379,7 +1379,7 @@
 
 
   static void
-  write_header( FT_Error  error_code )
+  write_header( int  last )
   {
     char  buf[256];
     int   line = 4;
@@ -1393,7 +1393,7 @@
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
                         status.render_mode != RENDER_MODE_TEXT      &&
                         status.render_mode != RENDER_MODE_WATERFALL ?
-                        status.topleft : -1, error_code );
+                        status.topleft : -1, error );
 
     /* render mode */
     {
@@ -1573,14 +1573,28 @@
       }
     }
 
-    /* Last index or charcode */
-    snprintf( buf, sizeof ( buf ),
-              handle->encoding == FT_ENCODING_ORDER   ? "last: %d" :
-              handle->encoding == FT_ENCODING_UNICODE ? "last: U+%04X" :
-                                                        "last: 0x%X",
-              handle->current_font->num_indices - 1 );
-    grWriteCellString( display->bitmap, 0, display->bitmap->rows - GR_FONT_SIZE,
-                       buf, display->fore_color );
+    /* last and limit indices or charcodes */
+    if ( last >= 0 )
+    {
+      snprintf( buf, sizeof ( buf ),
+                handle->encoding == FT_ENCODING_ORDER   ? "last:  %d" :
+                handle->encoding == FT_ENCODING_UNICODE ? "last:  U+%04X" :
+                                                          "last:  0x%X",
+                last );
+      grWriteCellString( display->bitmap,
+                         0, display->bitmap->rows - GR_FONT_SIZE
+                                                  - HEADER_HEIGHT,
+                         buf, display->fore_color );
+
+      snprintf( buf, sizeof ( buf ),
+                handle->encoding == FT_ENCODING_ORDER   ? "limit: %d" :
+                handle->encoding == FT_ENCODING_UNICODE ? "limit: U+%04X" :
+                                                          "limit: 0x%X",
+                handle->current_font->num_indices - 1 );
+      grWriteCellString( display->bitmap,
+                         0, display->bitmap->rows - GR_FONT_SIZE,
+                         buf, display->fore_color );
+    }
 
     grRefreshSurface( display->surface );
   }
@@ -1771,6 +1785,9 @@
   main( int    argc,
         char*  argv[] )
   {
+    int  last = -1;
+
+
     /* Initialize engine */
     handle = FTDemo_New();
 
@@ -1811,30 +1828,30 @@
       switch ( status.render_mode )
       {
       case RENDER_MODE_ALL:
-        error = Render_All( handle->current_font->num_indices,
-                            status.offset );
+        last = Render_All( handle->current_font->num_indices,
+                           status.offset );
         break;
 
       case RENDER_MODE_FANCY:
-        error = Render_Fancy( handle->current_font->num_indices,
-                              status.offset );
+        last = Render_Fancy( handle->current_font->num_indices,
+                             status.offset );
         break;
 
       case RENDER_MODE_STROKE:
-        error = Render_Stroke( handle->current_font->num_indices,
-                               status.offset );
+        last = Render_Stroke( handle->current_font->num_indices,
+                              status.offset );
         break;
 
       case RENDER_MODE_TEXT:
-        error = Render_Text( -1, status.offset );
+        last = Render_Text( -1, status.offset );
         break;
 
       case RENDER_MODE_WATERFALL:
-        error = Render_Waterfall( status.ptsize, status.offset );
+        last = Render_Waterfall( status.ptsize, status.offset );
         break;
       }
 
-      write_header( error );
+      write_header( last );
 
     } while ( Process_Event() == 0 );
 
