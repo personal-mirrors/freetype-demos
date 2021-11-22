@@ -160,9 +160,9 @@
                                         : modified - 2082844800U;
 
       /* ignore pre-epoch time that gmtime cannot handle on some systems */
-      if ( created  >= 0 )
+      if ( created >= 0 )
       {
-        strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &created  ) );
+        strftime( buf, sizeof ( buf ), "%Y-%m-%d", gmtime( &created ) );
         printf( "%s%s\n", Name_Field( "created" ), buf );
       }
       if ( modified >= 0 )
@@ -838,7 +838,7 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyph %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -854,7 +854,7 @@
         {
           if ( loc + 1 >= end )
           {
-            printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+            printf( "\nglyph %hd: invalid offset (%d)\n", i, loc );
             goto Continue;
           }
 
@@ -879,7 +879,7 @@
       {
         /* zero-contour glyphs can have no data */
         if ( len )
-          printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+          printf( "\nglyph %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -892,12 +892,12 @@
 
       if ( loc + len > end )
       {
-        printf( "\nglyf %hd: invalid size (%d)\n", i, len );
+        printf( "\nglyph %hd: invalid size (%d)\n", i, len );
         continue;
       }
 
       snprintf( tag, sizeof ( tag ), "%04hx", i );
-      printf( "\nglyf %hd (%.4s)", i, tag );
+      printf( "\nglyph %hd (%.4s)", i, tag );
       Print_Bytecode( buffer + loc, len, tag );
 
     Continue:
@@ -995,7 +995,7 @@
 
       if ( loc + 1 >= end )
       {
-        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyph %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -1008,7 +1008,7 @@
 
         if ( loc + 1 >= end )
         {
-          printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+          printf( "\nglyph %hd: invalid offset (%d)\n", i, loc );
           continue;
         }
 
@@ -1027,7 +1027,7 @@
       {
         /* zero-contour glyphs can have no data */
         if ( len )
-          printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+          printf( "\nglyph %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 
@@ -1037,7 +1037,7 @@
 
       if ( len >= end )
       {
-        printf( "\nglyf %hd: invalid offset (%d)\n", i, loc );
+        printf( "\nglyph %hd: invalid offset (%d)\n", i, loc );
         continue;
       }
 

@@ -304,9 +304,9 @@
                            { 0x9a,0x73,0x00,0x00,0xf8,0x1e,0xf3,0x2e } };
 
     ULONG         gg[2] =    { display->gamma * 0x10000, 0x10000 };
-    PropertyItem  gamma =    { PropertyTagGamma, 2 * sizeof(ULONG),
+    PropertyItem  gamma =    { PropertyTagGamma, 2 * sizeof ( ULONG ),
                                PropertyTagTypeRational, gg };
-    PropertyItem  software = { PropertyTagSoftwareUsed, strlen(ver_str) + 1,
+    PropertyItem  software = { PropertyTagSoftwareUsed, strlen( ver_str ) + 1,
                                PropertyTagTypeASCII, ver_str };
 
 

@@ -434,7 +434,7 @@
     static int  i = INT_MAX - 1;
 
 
-    if ( ++i >= (int)( sizeof( Sample ) / sizeof( Sample[0] ) ) )
+    if ( ++i >= (int)( sizeof ( Sample ) / sizeof ( Sample[0] ) ) )
       i = Sample[0] == NULL ? 1 : 0;
 
     status.text = Sample[i];

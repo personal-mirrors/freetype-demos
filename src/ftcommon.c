@@ -483,8 +483,8 @@
     char        t[] = { 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1,
                         1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1 };
     short       c[] = {29};
-    FT_Outline  FT  = { sizeof( c ) / sizeof( c[0] ),
-                        sizeof( p ) / sizeof( p[0] ),
+    FT_Outline  FT  = { sizeof ( c ) / sizeof ( c[0] ),
+                        sizeof ( p ) / sizeof ( p[0] ),
                         p, t, c, FT_OUTLINE_NONE };
     grBitmap    icon = { 0 };
     grBitmap*   picon = NULL;

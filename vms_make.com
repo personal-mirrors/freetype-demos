@@ -2,7 +2,7 @@ $!---------------vms_make.com for Freetype2 demos ------------------------------
 $! make Freetype2 under OpenVMS
 $!
 $! In case of problems with the build you might want to contact me at
-$! zinser@zinser.no-ip.info (preferred) or 
+$! zinser@zinser.no-ip.info (preferred) or
 $! zinser@sysdev.deutsche-boerse.com (Work)
 $!
 $!------------------------------------------------------------------------------
@@ -356,8 +356,8 @@ $!
 $! Version history
 $! 0.01 20040220 First version to receive a number
 $! 0.02 20040229 Echo current procedure name; use general error exit handler
-$!               Remove xpm hack -> Replaced by more general dnsrl handling 
-$! ---> Attention slightly changed version to take into account special 
+$!               Remove xpm hack -> Replaced by more general dnsrl handling
+$! ---> Attention slightly changed version to take into account special
 $!      Situation for Freetype2 demos
 $CHECK_CREATE_VMSLIB:
 $!

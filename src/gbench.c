@@ -727,19 +727,19 @@ main(int argc,
 
   ggamma_set( gamma );
 
-  memset( buffer, 0, sizeof(buffer) );
+  memset( buffer, 0, sizeof ( buffer ) );
   if (TEST('a')) bench( do_glyph, 0, "direct white glyph", 0 );
 
   chits = cmiss1 = cmiss2 = 0;
-  memset( buffer, 0, sizeof(buffer) );
+  memset( buffer, 0, sizeof ( buffer ) );
   if (TEST('b')) bench( do_glyph, 1, "cache white glyph", 0 );
   dump_cache_stats();
 
-  memset( buffer, 0, sizeof(buffer) );
+  memset( buffer, 0, sizeof ( buffer ) );
   if (TEST('c')) bench( do_glyph_color, 0, "direct color glyph", 0 );
 
   chits = cmiss1 = cmiss2 = 0;
-  memset( buffer, 0, sizeof(buffer) );
+  memset( buffer, 0, sizeof ( buffer ) );
   if (TEST('d')) bench( do_glyph_color, 1, "cache color glyph", 0 );
   dump_cache_stats();
 
