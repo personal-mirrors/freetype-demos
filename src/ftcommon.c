@@ -681,8 +681,8 @@
     FT_UInt   gidx;
 
 
-    /* activate charmap */
-    face->charmap = face->charmaps[idx];
+    if ( FT_Set_Charmap ( face, face->charmaps[idx] ) )
+      return -1;
 
     do
     {

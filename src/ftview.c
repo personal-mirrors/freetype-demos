@@ -956,7 +956,7 @@
 
     if ( status.offset < 0 )
       status.offset = 0;
-    else if ( status.offset >= num_indices )
+    if ( status.offset >= num_indices )
       status.offset = num_indices - 1;
 
     return old_offset == status.offset ? 0 : 1;
@@ -986,7 +986,12 @@
 
     FTDemo_Set_Current_Font( handle, font );
 
-    status.offset = handle->encoding == FT_ENCODING_ORDER ? 0 : 0x20;
+    if ( handle->encoding == FT_ENCODING_ORDER )
+      status.offset = 0;
+    else if ( font->num_indices <= 0x20 )  /* including UVS */
+      status.offset = font->num_indices - 1;
+    else
+      status.offset = 0x20;
 
     return 1;
   }
