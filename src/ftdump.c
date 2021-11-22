@@ -542,6 +542,9 @@
 
       printf ( "\n" );
 
+      if ( lang_id == 0xFFFFFFFFUL )  /* nothing further for UVS */
+        continue;
+
       if ( coverage == 2 )
       {
         FT_ULong   charcode;
