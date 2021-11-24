@@ -387,23 +387,20 @@ gblender_blit_init( GBlenderBlit           blit,
 
 
 GBLENDER_APIDEF( void )
-grSetTargetGamma( grBitmap*  target,
-                  double     gamma )
+grSetTargetGamma( grSurface*  surface,
+                  double      gamma )
 {
-  grSurface*  surface = (grSurface*)target;
-
-
   gblender_init( surface->gblender, gamma );
 }
 
 
 GBLENDER_APIDEF( void )
-grSetTargetPenBrush( grBitmap*  target,
-                     int        x,
-                     int        y,
-                     grColor    color )
+grSetTargetPenBrush( grSurface*  surface,
+                     int         x,
+                     int         y,
+                     grColor     color )
 {
-  grSurface*  surface = (grSurface*)target;
+  grBitmap*  target = &surface->bitmap;
 
 
   surface->origin = target->buffer;

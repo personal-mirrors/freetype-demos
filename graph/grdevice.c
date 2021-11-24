@@ -152,7 +152,7 @@
       surface = NULL;
     }
     else
-      grSetTargetGamma( (grBitmap*)surface, 1.8 );
+      grSetTargetGamma( surface, 1.8 );
 
     return surface;
   }

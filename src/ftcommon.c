@@ -165,7 +165,7 @@
 
     display->gamma = GAMMA;
 
-    grSetTargetGamma( display->bitmap, display->gamma );
+    grSetTargetGamma( display->surface, display->gamma );
 
     return display;
   }
@@ -200,7 +200,7 @@
         display->gamma  = 2.2;
     }
 
-    grSetTargetGamma( display->bitmap, display->gamma );
+    grSetTargetGamma( display->surface, display->gamma );
   }
 
 
@@ -1981,7 +1981,7 @@
                              FT_Pos             y,
                              grColor            color )
   {
-    grSurface*        surface = (grSurface*)display->surface;
+    grSurface*        surface = display->surface;
     grBitmap*         target = display->bitmap;
     FT_Outline*       outline;
     FT_Raster_Params  params;
@@ -1990,7 +1990,7 @@
     if ( glyph->format != FT_GLYPH_FORMAT_OUTLINE )
       return FT_Err_Ok;
 
-    grSetTargetPenBrush( target, x, y, color );
+    grSetTargetPenBrush( surface, x, y, color );
 
     outline = &((FT_OutlineGlyph)glyph)->outline;
 
