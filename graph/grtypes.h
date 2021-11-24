@@ -86,9 +86,7 @@
 #define gr_err_bad_argument         -2
 #define gr_err_bad_target_depth     -3
 #define gr_err_bad_source_depth     -4
-#define gr_err_saturation_overflow  -5
-#define gr_err_conversion_overflow  -6
-#define gr_err_invalid_device       -7
+#define gr_err_invalid_device       -5
 
 
 #ifdef GR_MAKE_OPTION_SINGLE_OBJECT

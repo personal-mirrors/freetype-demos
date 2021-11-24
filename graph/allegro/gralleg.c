@@ -192,8 +192,6 @@ static int init_surface(grSurface* surface, grBitmap* bitmap)
     surface->bitmap = *bitmap;
     surface->refresh = 0;
     surface->owner = 0;
-    surface->saturation = 0;
-    surface->blit_mono = 0;
 
     surface->refresh_rect = alrefresh_rect;
     surface->set_title = alset_title;

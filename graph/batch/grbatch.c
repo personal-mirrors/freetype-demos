@@ -84,8 +84,6 @@
     surface->bitmap     = *bitmap;
     surface->refresh    = 0;
     surface->owner      = 0;
-    surface->saturation = 0;
-    surface->blit_mono  = 0;
 
     surface->refresh_rect = (grRefreshRectFunc)NULL;  /* nothing to refresh */
     surface->set_title    = gr_batch_surface_set_title;
