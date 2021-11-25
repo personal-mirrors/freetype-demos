@@ -248,15 +248,6 @@ blit_funcs[GBLENDER_TARGET_MAX] =
 };
 
 
-static void
-_gblender_blit_dummy( GBlenderBlit  blit,
-                      grColor       color )
-{
-  (void)blit;
-  (void)color;
-}
-
-
 static int
 gblender_blit_init( GBlenderBlit           blit,
                     int                    dst_x,
@@ -308,6 +299,7 @@ gblender_blit_init( GBlenderBlit           blit,
   case gr_pixel_mode_mono:  src_format = GBLENDER_SOURCE_MONO;
     break;
   default:
+    grError = gr_err_bad_source_depth;
     return -2;
   }
 
@@ -319,19 +311,12 @@ gblender_blit_init( GBlenderBlit           blit,
   case gr_pixel_mode_rgb565: dst_format = GBLENDER_TARGET_RGB565; break;
   case gr_pixel_mode_rgb555: dst_format = GBLENDER_TARGET_RGB555; break;
   default:
+    grError = gr_err_bad_target_depth;
     return -2;
   }
 
   blit->blender   = surface->gblender;
   blit->blit_func = blit_funcs[dst_format][src_format];
-
-  if ( blit->blit_func == 0 )
-  {
-   /* unsupported blit mode
-    */
-    blit->blit_func = _gblender_blit_dummy;
-    return -2;
-  }
 
   if ( dst_x < 0 )
   {
@@ -358,10 +343,7 @@ gblender_blit_init( GBlenderBlit           blit,
  /* nothing to blit
   */
   if ( src_width <= 0 || src_height <= 0 )
-  {
-    blit->blit_func = _gblender_blit_dummy;
     return -1;
-  }
 
   blit->width      = src_width;
   blit->height     = src_height;
