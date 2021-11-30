@@ -251,10 +251,8 @@ gblender_reset_key( GBlender     blender,
     gr[2] = (unsigned char)b;
     gr   += 3;
 #else
-    gr[0] = (( r & 255 ) << 16) |
-            (( g & 255 ) << 8 ) |
-            (( b & 255 )      ) ;
-    gr ++;
+    gr[0] = ( r << 16 ) | ( g << 8 ) | b;
+    gr   += 1;
 #endif
   }
 }
