@@ -11,8 +11,8 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
   of the stable  FreeType 2 source packages from our  server, you most
   probably have to rename its directory, for example:
 
-    mv freetype-2.11.0 freetype       on Unix
-    rename freetype-2.11.0 freetype   on Windows
+    mv freetype-2.11.1 freetype       on Unix
+    rename freetype-2.11.1 freetype   on Windows
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
@@ -32,12 +32,12 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
     X11 issues
     ----------
 
-    When building the demos, the build system tries to detect X11 by
-    using pkg-config. If X11 is not found, some demo programs will
+    When building the  demos, the build system tries to  detect X11 by
+    using pkg-config.   If X11 is  not found, some demo  programs will
     not be able to display graphics and will fail.
 
-    Users with X11 installed in a non-standard location can specify
-    the paths to the development headers and library by passing the
+    Users with  X11 installed in  a non-standard location  can specify
+    the paths  to the development  headers and library by  passing the
     X11_CFLAGS and X11_LIBS variables on the command line.
 
     If you  don't have X11  at all, fix  the definition of  the `EXES`

@@ -571,8 +571,15 @@ ifneq ($(findstring distx,$(MAKECMDGOALS)x),)
 #  else
     version := $(major).$(minor).$(patch)
     winversion := $(major)$(minor)$(patch)
+    version_tag := VER-$(major)-$(minor)-$(patch)
 #  endif
 endif
+
+
+# Use the GNU 'config' repository to access the gnulib script that converts
+# git commit messages to a ChangeLog file.
+CHANGELOG_SCRIPT = ~/git/config/gitlog-to-changelog
+
 
 dist:
 	-rm -rf tmp
@@ -599,6 +606,15 @@ dist:
 
 	cd tmp ; \
 	$(MAKE) distclean
+
+	@# Generate `ChangeLog' file with commits since previous release.
+	$(CHANGELOG_SCRIPT) \
+	  --format='%B%n' \
+	  --no-cluster \
+	  -- `git describe --tags \
+	                   --abbrev=0 \
+	                   $(version_tag)^`..$(version_tag) \
+	> tmp/ChangeLog
 
 	mv tmp ft2demos-$(version)
 
