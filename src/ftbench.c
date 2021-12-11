@@ -460,6 +460,8 @@
       done++;
     }
 
+    FT_Stroker_Done( stroker );
+
     return done;
   }
 
