@@ -358,12 +358,12 @@ else
 
   $(OBJ_DIR_2)/ftcommon.$(SO): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-										 $(LIBRSVG_INCLUDES) \
+                     $(LIBRSVG_INCLUDES) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   $(OBJ_DIR_2)/rsvg-port.$(SO): $(SRC_DIR)/rsvg-port.c $(SRC_DIR)/rsvg-port.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-										 $(LIBRSVG_INCLUDES) \
+                     $(LIBRSVG_INCLUDES) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
   $(OBJ_DIR_2)/ftpngout.$(SO): $(SRC_DIR)/ftpngout.c $(SRC_DIR)/ftcommon.h

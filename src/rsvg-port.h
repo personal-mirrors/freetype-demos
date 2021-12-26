@@ -24,7 +24,7 @@
 #include <freetype/freetype.h>
 
   /* Different hook functions can persist data by creating a state structure
-   * and putting its address in `library->svg_renderer_state'. Functions can
+   * and putting its address in `library->svg_renderer_state`.  Functions can
    * store and retrieve data from this structure
    */
   typedef struct Rsvg_Port_StateRec_
