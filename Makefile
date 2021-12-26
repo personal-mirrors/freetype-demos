@@ -351,7 +351,7 @@ else
   $(OBJ_DIR_2)/mlgetopt.$(SO): $(SRC_DIR)/mlgetopt.c
   COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO) \
                 $(OBJ_DIR_2)/strbuf.$(SO) \
-                $(OBJ_DIR_2)/rsvg_port.$(SO) \
+                $(OBJ_DIR_2)/rsvg-port.$(SO) \
                 $(OBJ_DIR_2)/output.$(SO) \
                 $(OBJ_DIR_2)/md5.$(SO) \
                 $(OBJ_DIR_2)/mlgetopt.$(SO)
@@ -361,7 +361,7 @@ else
 										 $(LIBRSVG_INCLUDES) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
 
-  $(OBJ_DIR_2)/rsvg_port.$(SO): $(SRC_DIR)/rsvg_port.c $(SRC_DIR)/rsvg_port.h
+  $(OBJ_DIR_2)/rsvg-port.$(SO): $(SRC_DIR)/rsvg-port.c $(SRC_DIR)/rsvg-port.h
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
 										 $(LIBRSVG_INCLUDES) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)

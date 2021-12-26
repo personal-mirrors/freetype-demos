@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * rsvg_port.h
+ * rsvg-port.h
  *
  *   Librsvg based hook functions for OT-SVG rendering in FreeType. (headers)
  *
@@ -40,15 +40,15 @@
   rsvg_port_init( FT_Pointer *state);
 
   void
-  rsvg_port_free( FT_Pointer state );
+  rsvg_port_free( FT_Pointer *state );
 
   FT_Error
   rsvg_port_render( FT_GlyphSlot slot,
-                    FT_Pointer state );
+                    FT_Pointer *state );
 
   FT_Error
   rsvg_port_preset_slot( FT_GlyphSlot  slot,
                          FT_Bool  cache,
-                         FT_Pointer state);
+                         FT_Pointer *state);
 
 #endif

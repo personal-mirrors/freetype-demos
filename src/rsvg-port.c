@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * rsvg_port.h
+ * rsvg-port.h
  *
  *   Librsvg based hook functions for OT-SVG rendering in FreeType.
  *   (implementation)
@@ -18,7 +18,7 @@
 
 #include <cairo.h>
 #include <librsvg/rsvg.h>
-#include <rsvg_port.h>
+#include <rsvg-port.h>
 #include <ft2build.h>
 #include <stdlib.h>
 #include <math.h>
@@ -47,10 +47,10 @@
    * Freeing up the state structure.
    */
   void
-  rsvg_port_free( FT_Pointer  state)
+  rsvg_port_free( FT_Pointer  *state)
   {
     /* free the memory of the state structure */
-    free( state );
+    free( *state );
   }
 
   /**
@@ -61,7 +61,7 @@
    */
 
   FT_Error
-  rsvg_port_render( FT_GlyphSlot slot, FT_Pointer  _state )
+  rsvg_port_render( FT_GlyphSlot slot, FT_Pointer * _state )
   {
     FT_Error         error = FT_Err_Ok;
 
@@ -70,7 +70,7 @@
     cairo_t            *cr;
     cairo_surface_t    *surface;
 
-    state = (Rsvg_Port_State)_state;
+    state = *(Rsvg_Port_State*)_state;
 
     /* create an image surface to store the rendered image, however,
      * don't allocate memory, instead use the space already provided
@@ -136,7 +136,7 @@
    * client applications.
    */
   FT_Error
-  rsvg_port_preset_slot( FT_GlyphSlot  slot, FT_Bool  cache, FT_Pointer _state )
+  rsvg_port_preset_slot( FT_GlyphSlot  slot, FT_Bool  cache, FT_Pointer *_state )
   {
     /* FreeType variables */
     FT_Error         error          = FT_Err_Ok;
@@ -178,12 +178,20 @@
     double  x_svg_to_out;
     double  y_svg_to_out;
 
+    float metrics_width;
+    float metrics_height;
+    float horiBearingX;
+    float horiBearingY;
+    float vertBearingX;
+    float vertBearingY;
+    float vertical_advance;
+
     /* if cache is `TRUE` we store calculations in the actual port
      * state variable, otherwise we just create a dummy variable and
      * store there. This saves from too many if statements.
      */
     if ( cache )
-      state = (Rsvg_Port_State)_state;
+      state = *(Rsvg_Port_State*)_state;
     else
       state = &state_dummy;
 
@@ -333,6 +341,25 @@
     slot->bitmap.pitch  = slot->bitmap.width * 4;
 
     slot->bitmap.pixel_mode = FT_PIXEL_MODE_BGRA;
+
+    /* let's compute all the bearings and set them correctly.
+     * The outline is scaled already, we just need to use the
+     * bounding box now.
+     */
+    metrics_width = width;
+    metrics_height = height;
+    horiBearingX = state->x;
+    horiBearingY = state->y * -1;
+    vertBearingX = (slot->metrics.horiBearingX / (1 << 6)) - ((slot->metrics.horiAdvance / (1 << 6)) / 2.0);
+    vertBearingY = ((slot->metrics.vertAdvance / (1 << 6)) - (slot->metrics.height / (1 << 6)))/2.0;
+    slot->metrics.width =  round(metrics_width * (1 << 6));
+    slot->metrics.height = round(metrics_height * (1 << 6));
+    slot->metrics.horiBearingX = horiBearingX * (1 << 6);
+    slot->metrics.horiBearingY = horiBearingY * (1 << 6);
+    slot->metrics.vertBearingX = vertBearingX * (1 << 6);
+    slot->metrics.vertBearingY = vertBearingY * (1 << 6);
+    if(slot->metrics.vertAdvance == 0)
+        slot->metrics.vertAdvance = metrics_height * 1.2 * (1 << 6);
 
     /* if a render call is to follow, just destroy the context for the
      * recording surface, since no more drawing will be done on it, but,
