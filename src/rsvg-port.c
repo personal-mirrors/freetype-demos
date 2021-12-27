@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- * rsvg-port.h
+ * rsvg-port.c
  *
  *   Librsvg based hook functions for OT-SVG rendering in FreeType.
  *   (implementation)
@@ -30,7 +30,7 @@
   /**
    * The init hook is called when the first OT-SVG glyph is rendered.
    * All we do is allocate an internal state structure and set the pointer
-   * in `library->svg_renderer_state`. This state structure becomes very
+   * in `library->svg_renderer_state`.  This state structure becomes very
    * useful to cache some of the results obtained by one hook function that
    * the other one might use.
    */
@@ -54,14 +54,14 @@
   }
 
   /**
-   * The render hook that's called to render. The job of this hook is to
+   * The render hook that's called to render.  The job of this hook is to
    * simply render the glyph in the buffer that has been allocated on
-   * the FreeType side. Here we simply use the recording surface by playing
+   * the FreeType side.  Here we simply use the recording surface by playing
    * it back against the surface.
    */
-
   FT_Error
-  rsvg_port_render( FT_GlyphSlot slot, FT_Pointer * _state )
+  rsvg_port_render( FT_GlyphSlot slot,
+                    FT_Pointer * _state )
   {
     FT_Error         error = FT_Err_Ok;
 
@@ -106,7 +106,7 @@
      * a way that we get a tight rendering with least redundant white
      * space */
     cairo_translate( cr, -1 * (state->x), -1 * (state->y) );
-    /* replay from the recorded surface. Saves us from parsing the document
+    /* replay from the recorded surface.  Saves us from parsing the document
      * again and redoing this already done in the preset hook. */
     cairo_set_source_surface( cr, state->rec_surface, 0.0, 0.0 );
     cairo_paint( cr );
@@ -125,13 +125,13 @@
   }
 
   /**
-   * This hook is called at two different locations. Firstly, it is called
-   * when presetting the glyphslot when FT_Load_Glyph is called. Secondly, it is
-   * called right before the render hook is called. When `cache` is false, it's
-   * the former while when `cache` is true, it's the latter.
+   * This hook is called at two different locations.  Firstly, it is called
+   * when presetting the glyphslot when FT_Load_Glyph is called.  Secondly,
+   * it is called right before the render hook is called.  When `cache` is
+   * false, it's the former while when `cache` is true, it's the latter.
    *
    * The job of this function is to preset the slot setting the width, height,
-   * pitch, bitmap.left and bitmap.top. These are all necessary for appropriate
+   * pitch, bitmap.left and bitmap.top.  These are all necessary for appropriate
    * memory allocation as well as ultimately compositing the glyph later on by
    * client applications.
    */
@@ -188,7 +188,7 @@
 
     /* if cache is `TRUE` we store calculations in the actual port
      * state variable, otherwise we just create a dummy variable and
-     * store there. This saves from too many if statements.
+     * store there.  This saves from too many if statements.
      */
     if ( cache )
       state = *(Rsvg_Port_State*)_state;
@@ -205,7 +205,7 @@
       goto CleanLibrsvg;
     }
 
-    /* get attributes like `viewBox' and `width/height'. */
+    /* get attributes like `viewBox` and `width/height`. */
     rsvg_handle_get_intrinsic_dimensions( handle,
                                           &out_has_width,
                                           &out_width,
@@ -215,7 +215,7 @@
                                           &out_viewbox );
 
     /**
-     * Figure out the units in the EM square in the SVG document. This is
+     * Figure out the units in the EM square in the SVG document.  This is
      * specified by the ViewBox or the width/height attributes, if present,
      * otherwise it should be assumed that the units in the EM square are
      * the same as in the TTF/CFF outlines.
@@ -236,8 +236,8 @@
     }
     else
     {
-      /* if no `viewBox' and `width/height' are present, the `units_per_EM'
-       * in SVG coordinates must be the same as `units_per_EM' of the TTF/CFF
+      /* if no `viewBox` and `width/height` are present, the `units_per_EM`
+       * in SVG coordinates must be the same as `units_per_EM` of the TTF/CFF
        * outlines.
        */
       dimension_svg.width  = units_per_EM;
@@ -248,12 +248,12 @@
     x_svg_to_out = (float)metrics.x_ppem/(float)dimension_svg.width;
     y_svg_to_out = (float)metrics.y_ppem/(float)dimension_svg.height;
 
-    /* create a cairo recording surface. This is done for two reasons. Firstly,
-     * it is required to get the bounding box of the final drawing so we can
-     * use appropriate translate transform to get a tight rendering. Secondly,
-     * if `cache' is true, we can save this surface and later replay it
-     * against an image surface for the final rendering. This saves us from
-     * loading and parsing the document again.
+    /* create a cairo recording surface.  This is done for two reasons.
+     * Firstly, it is required to get the bounding box of the final drawing
+     * so we can use appropriate translate transform to get a tight rendering.
+     * Secondly, if `cache` is true, we can save this surface and later
+     * replay it against an image surface for the final rendering.  This save
+     * us from loading and parsing the document again.
      */
     state->rec_surface = cairo_recording_surface_create( CAIRO_CONTENT_COLOR_ALPHA,
                                                          NULL );
@@ -261,10 +261,10 @@
     rec_cr = cairo_create( state->rec_surface );
 
 
-    /* we need to take into account any transformations applied. The end
+    /* we need to take into account any transformations applied.  The end
      * user who applied the transformation doesn't know the internal details
-     * of the SVG document. Thus, we expect that the end user should just
-     * write the transformation as if the glyph is a traditional one. We then,
+     * of the SVG document.  Thus, we expect that the end user should just
+     * write the transformation as if the glyph is a traditional one.  We then,
      * do some maths on this to get the equivalent transformation in SVG
      * coordinates.
      */
@@ -288,7 +288,7 @@
     /* set up a scale transfromation to scale up the document to the
      * required output size */
     cairo_scale( rec_cr, x_svg_to_out, y_svg_to_out );
-    /* setup a transformation matrix */
+    /* set up a transformation matrix */
     cairo_transform( rec_cr, &transform_matrix );
 
     /* if the document contains only one glyph, `start_glyph_id' and
@@ -327,11 +327,11 @@
     cairo_recording_surface_ink_extents( state->rec_surface, &x, &y,
                                          &width, &height);
 
-    /* we store the bounding box's `x' and `y' so that the render hook
+    /* we store the bounding box's `x` and `y` so that the render hook
      * can apply a translation to get a tight rendering.
      */
-    state->x            = x;
-    state->y            = y;
+    state->x = x;
+    state->y = y;
 
     /* preset the values */
     slot->bitmap_left   = state->x ;
