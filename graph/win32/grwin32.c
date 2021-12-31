@@ -472,7 +472,8 @@ gr_win32_surface_init( grWin32Surface*  surface,
   LOG(( "       --   width  = %d\n", bitmap->width ));
   LOG(( "       --   height = %d\n", bitmap->rows ));
 
-  gr_win32_surface_resize( surface, bitmap->width, bitmap->rows );
+  if ( !gr_win32_surface_resize( surface, bitmap->width, bitmap->rows ) )
+    return 0;
 
   surface->bmiHeader.biSize   = sizeof( BITMAPINFOHEADER );
   surface->bmiHeader.biPlanes = 1;
