@@ -433,6 +433,8 @@ static grWin32Surface*
 gr_win32_surface_init( grWin32Surface*  surface,
                        grBitmap*        bitmap )
 {
+  surface->root.bitmap.grays = bitmap->grays;
+
   /* Set default mode */
   if ( bitmap->mode == gr_pixel_mode_none )
   {
@@ -446,19 +448,22 @@ gr_win32_surface_init( grWin32Surface*  surface,
     switch ( bpp )
     {
     case 8:
-      bitmap->mode = gr_pixel_mode_gray;
+      surface->root.bitmap.mode = gr_pixel_mode_gray;
       break;
     case 16:
-      bitmap->mode = gr_pixel_mode_rgb565;
+      surface->root.bitmap.mode = gr_pixel_mode_rgb565;
       break;
     case 24:
-      bitmap->mode = gr_pixel_mode_rgb24;
+      surface->root.bitmap.mode = gr_pixel_mode_rgb24;
       break;
     case 32:
     default:
-      bitmap->mode = gr_pixel_mode_rgb32;
+      surface->root.bitmap.mode = gr_pixel_mode_rgb32;
     }
   }
+  else
+    surface->root.bitmap.mode  = bitmap->mode;
+
 
   LOG(( "Win32: init_surface( %p, %p )\n", surface, bitmap ));
 
@@ -467,43 +472,12 @@ gr_win32_surface_init( grWin32Surface*  surface,
   LOG(( "       --   width  = %d\n", bitmap->width ));
   LOG(( "       --   height = %d\n", bitmap->rows ));
 
-  /* create the bitmap - under Win32, we support all modes as the GDI */
-  /* handles all conversions automatically..                          */
-  if ( grNewBitmap( bitmap->mode,
-                    bitmap->grays,
-                    bitmap->width,
-                    bitmap->rows,
-                    bitmap ) )
-    return 0;
-
-  /* allocate the BGR shadow bitmap */
-  if ( bitmap->mode == gr_pixel_mode_rgb24 )
-  {
-    if ( grNewBitmap( bitmap->mode,
-                      bitmap->grays,
-                      bitmap->width,
-                      bitmap->rows,
-                      &surface->shadow_bitmap ) )
-      return 0;
-
-#ifdef SWIZZLE
-    if ( grNewBitmap( bitmap->mode,
-                      bitmap->grays,
-                      bitmap->width,
-                      bitmap->rows,
-                      &surface->swizzle_bitmap ) )
-      return 0;
-#endif
-  }
-  else
-    surface->shadow_bitmap.buffer = bitmap->buffer;
+  gr_win32_surface_resize( surface, bitmap->width, bitmap->rows );
 
   surface->bmiHeader.biSize   = sizeof( BITMAPINFOHEADER );
-  surface->bmiHeader.biWidth  = bitmap->width;
-  surface->bmiHeader.biHeight = -bitmap->rows;
   surface->bmiHeader.biPlanes = 1;
 
-  switch ( bitmap->mode )
+  switch ( surface->root.bitmap.mode )
   {
   case gr_pixel_mode_mono:
     surface->bmiHeader.biBitCount = 1;
@@ -595,7 +569,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
 
   ShowWindow( surface->window, SW_SHOWNORMAL );
 
-  surface->root.bitmap       = *bitmap;
   surface->root.done         = (grDoneSurfaceFunc) gr_win32_surface_done;
   surface->root.refresh_rect = (grRefreshRectFunc) gr_win32_surface_refresh_rectangle;
   surface->root.set_title    = (grSetTitleFunc)    gr_win32_surface_set_title;
