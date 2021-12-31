@@ -57,6 +57,7 @@
 #endif
 
 /*  Custom messages. */
+#define WM_STATUS  WM_USER+512
 #define WM_RESIZE  WM_USER+517
 
 
@@ -99,6 +100,7 @@
   typedef struct grWin32SurfaceRec_
   {
     grSurface     root;
+    DWORD         host;
     HWND          window;
     HICON         sIcon;
     HICON         bIcon;
@@ -305,8 +307,6 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
     return 0;
   case ICON_BIG:
     surface->bIcon = hIcon;
-    SetClassLongPtr( surface->window, GCLP_HBRBACKGROUND,
-                     (LONG_PTR)CreatePatternBrush( ici.hbmColor ) );
     return s[0];
   default:
     return 0;  /* should not happen */
@@ -373,7 +373,7 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
 
   event_mask=event_mask;  /* unused parameter */
 
-  while ( GetMessage( &msg, NULL, 0, 0 ) > 0 )
+  while ( GetMessage( &msg, (HWND)-1, 0, 0 ) > 0 )
   {
     switch ( msg.message )
     {
@@ -423,16 +423,61 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
       }
       break;
     }
+  }
+}
 
+
+DWORD WINAPI Window_ThreadProc( LPVOID lpParameter )
+{
+  grWin32Surface*  surface = (grWin32Surface*)lpParameter;
+  DWORD            style   = WS_OVERLAPPEDWINDOW;
+  RECT             WndRect;
+  MSG              msg;
+
+  WndRect.left   = 0;
+  WndRect.top    = 0;
+  WndRect.right  = surface->root.bitmap.width;
+  WndRect.bottom = surface->root.bitmap.rows;
+
+  AdjustWindowRect( &WndRect, style, FALSE );
+
+  surface->window = CreateWindow(
+       /* LPCSTR lpszClassName;    */ "FreeTypeTestGraphicDriver",
+       /* LPCSTR lpszWindowName;   */ "FreeType Test Graphic Driver",
+       /* DWORD dwStyle;           */  style,
+       /* int x;                   */  CW_USEDEFAULT,
+       /* int y;                   */  CW_USEDEFAULT,
+       /* int nWidth;              */  WndRect.right - WndRect.left,
+       /* int nHeight;             */  WndRect.bottom - WndRect.top,
+       /* HWND hwndParent;         */  HWND_DESKTOP,
+       /* HMENU hmenu;             */  0,
+       /* HINSTANCE hinst;         */  GetModuleHandle( NULL ),
+       /* void FAR* lpvParam;      */  surface );
+
+  PostThreadMessage( surface->host, WM_STATUS, (WPARAM)surface->window, 0 );
+
+  if ( surface->window == 0 )
+    return -1;
+
+  ShowWindow( surface->window, SW_SHOWNORMAL );
+
+  while ( GetMessage( &msg, surface->window, 0, 0 ) > 0 )
+  {
     TranslateMessage( &msg );
     DispatchMessage( &msg );
   }
+
+  LOG(("Window thread done.\n"));
+  return 0;
 }
+
 
 static grWin32Surface*
 gr_win32_surface_init( grWin32Surface*  surface,
                        grBitmap*        bitmap )
 {
+  MSG  msg;
+
   surface->root.bitmap.grays = bitmap->grays;
 
   /* Set default mode */
@@ -540,36 +585,18 @@ gr_win32_surface_init( grWin32Surface*  surface,
     return 0;         /* Unknown mode */
   }
 
-  {
-    DWORD  style = WS_OVERLAPPEDWINDOW;
-    RECT   WndRect;
+  /* set up the main message queue and spin off the window thread */
+  PeekMessage( &msg, (HWND)-1, WM_USER, WM_USER, PM_NOREMOVE );
+  surface->host = GetCurrentThreadId();
 
-    WndRect.left   = 0;
-    WndRect.top    = 0;
-    WndRect.right  = bitmap->width;
-    WndRect.bottom = bitmap->rows;
+  CreateThread( NULL, 0, Window_ThreadProc, (LPVOID)surface, 0, NULL );
 
-    AdjustWindowRect( &WndRect, style, FALSE );
+  /* listen if window is created */
+  if ( GetMessage ( &msg, (HWND)-1, WM_STATUS, WM_STATUS ) < 0 ||
+       !msg.wParam )
+    return 0;
 
-    surface->window = CreateWindow(
-            /* LPCSTR lpszClassName;    */ "FreeTypeTestGraphicDriver",
-            /* LPCSTR lpszWindowName;   */ "FreeType Test Graphic Driver",
-            /* DWORD dwStyle;           */  style,
-            /* int x;                   */  CW_USEDEFAULT,
-            /* int y;                   */  CW_USEDEFAULT,
-            /* int nWidth;              */  WndRect.right - WndRect.left,
-            /* int nHeight;             */  WndRect.bottom - WndRect.top,
-            /* HWND hwndParent;         */  HWND_DESKTOP,
-            /* HMENU hmenu;             */  0,
-            /* HINSTANCE hinst;         */  GetModuleHandle( NULL ),
-            /* void FAR* lpvParam;      */  surface );
-  }
-
-  if ( surface->window == 0 )
-    return  0;
-
-  ShowWindow( surface->window, SW_SHOWNORMAL );
-
+  /* wrap up */
   surface->root.done         = (grDoneSurfaceFunc) gr_win32_surface_done;
   surface->root.refresh_rect = (grRefreshRectFunc) gr_win32_surface_refresh_rectangle;
   surface->root.set_title    = (grSetTitleFunc)    gr_win32_surface_set_title;
@@ -611,15 +638,14 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
     {
     case WM_CLOSE:
       /* warn the main thread to quit if it didn't know */
-      PostMessage( handle, WM_CHAR, (WPARAM)grKeyEsc, 0 );
+      PostThreadMessage( surface->host, WM_CHAR, (WPARAM)grKeyEsc, 0 );
       break;
 
     case WM_SIZE:
       if ( wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED )
-        PostMessage( handle, WM_RESIZE, wParam, lParam );
+        PostThreadMessage( surface->host, WM_RESIZE, wParam, lParam );
       break;
 
-#ifdef DEBUG
     case WM_SIZING:
       {
         PRECT  r = (PRECT)lParam;
@@ -638,19 +664,26 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
               y, x, r->left, r->top, r->right, r->bottom,
               WndRect.right, WndRect.bottom ));
 
-        /* XXX: We cannot simply interrupt here and resize the image. */
+        PostThreadMessage( surface->host, WM_RESIZE, SIZE_RESTORED,
+                           MAKELPARAM( WndRect.right, WndRect.bottom ) );
       }
       break;
-#endif
 
     case WM_EXITSIZEMOVE:
       {
         RECT  WndRect;
 
         GetClientRect( handle, &WndRect );
-        PostMessage( handle, WM_RESIZE, SIZE_RESTORED,
-                     MAKELPARAM( WndRect.right, WndRect.bottom ) );
+        PostThreadMessage( surface->host, WM_RESIZE, SIZE_RESTORED,
+                           MAKELPARAM( WndRect.right, WndRect.bottom ) );
       }
+      break;
+
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+    case WM_CHAR:
+      /* repost to the main thread */
+      PostThreadMessage( surface->host, mess, wParam, lParam );
       break;
 
     case WM_PAINT:
