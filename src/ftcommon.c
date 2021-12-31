@@ -424,6 +424,8 @@
     FT_Done_FreeType( handle->library );
 
     free( handle );
+
+    fflush( stdout );  /* clean mintty pipes */
   }
 
 
