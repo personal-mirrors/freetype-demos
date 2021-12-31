@@ -150,7 +150,7 @@ gr_win32_surface_refresh_rectangle(
   grBitmap*  bitmap = &surface->root.bitmap;
 
   LOG(( "gr_win32_surface_refresh_rectangle: ( %p, %d, %d, %d, %d )\n",
-        (long)surface, x, y, w, h ));
+        surface->root.bitmap.buffer, x, y, w, h ));
 
   /* clip update rectangle */
 
@@ -509,14 +509,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
   else
     surface->root.bitmap.mode  = bitmap->mode;
 
-
-  LOG(( "Win32: init_surface( %p, %p )\n", surface, bitmap ));
-
-  LOG(( "       --   mode   = %d\n", bitmap->mode ));
-  LOG(( "       --   grays  = %d\n", bitmap->grays ));
-  LOG(( "       --   width  = %d\n", bitmap->width ));
-  LOG(( "       --   height = %d\n", bitmap->rows ));
-
   if ( !gr_win32_surface_resize( surface, bitmap->width, bitmap->rows ) )
     return 0;
 
@@ -603,6 +595,10 @@ gr_win32_surface_init( grWin32Surface*  surface,
   surface->root.set_icon     = (grSetIconFunc)     gr_win32_surface_set_icon;
   surface->root.listen_event = (grListenEventFunc) gr_win32_surface_listen_event;
 
+  LOG(( "Surface initialized: %dx%dx%d\n",
+        surface->root.bitmap.width, surface->root.bitmap.rows,
+        surface->bmiHeader.biBitCount ));
+
   return surface;
 }
 
@@ -688,10 +684,10 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
 
     case WM_PAINT:
       {
-        HDC           hDC;
-        PAINTSTRUCT   ps;
+        HDC          hDC;
+        PAINTSTRUCT  ps;
 
-        hDC   = BeginPaint ( handle, &ps );
+        hDC = BeginPaint ( handle, &ps );
         SetDIBitsToDevice( hDC, 0, 0,
                            surface->root.bitmap.width,
                            surface->root.bitmap.rows,
