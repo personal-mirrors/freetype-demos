@@ -378,6 +378,9 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
     switch ( msg.message )
     {
     case WM_RESIZE:
+      while( PeekMessage( &msg, (HWND)-1, WM_RESIZE, WM_RESIZE, PM_REMOVE ) )
+        continue;
+
       {
         int  width  = LOWORD(msg.lParam);
         int  height = HIWORD(msg.lParam);
