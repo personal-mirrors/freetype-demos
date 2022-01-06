@@ -14,31 +14,32 @@
   {
     grColor  color;
 
+
     color.value = 0;
 
-    switch (target->mode)
+    switch ( target->mode )
     {
       case gr_pixel_mode_mono:
-        if ( (red|green|blue) )
+        if ( ( red | green | blue ) )
           color.value = 1;
         break;
 
       case gr_pixel_mode_gray:
-        color.value = ( 3*(red   & 0xFF) +
-                        6*(green & 0xFF) +
-                          (blue  & 0xFF) ) / 10;
+        color.value = ( 3 * ( red   & 0xFF ) +
+                        6 * ( green & 0xFF ) +
+                            ( blue  & 0xFF ) ) / 10;
         break;
 
       case gr_pixel_mode_rgb555:
-        color.value = (uint32_t)( ( red   & 0xF8 ) << 7 ) |
-                      (uint32_t)( ( green & 0xF8 ) << 2 ) |
-                      (uint32_t)( ( blue  & 0xF8 ) >> 3 );
+        color.value = ( ( (uint32_t)red   & 0xF8 ) << 7 ) |
+                      ( ( (uint32_t)green & 0xF8 ) << 2 ) |
+                      ( ( (uint32_t)blue  & 0xF8 ) >> 3 );
         break;
 
       case gr_pixel_mode_rgb565:
-        color.value = (uint32_t)( ( red   & 0xF8 ) << 8 ) |
-                      (uint32_t)( ( green & 0xFC ) << 3 ) |
-                      (uint32_t)( ( blue  & 0xF8 ) >> 3 );
+        color.value = ( ( (uint32_t)red   & 0xF8 ) << 8 ) |
+                      ( ( (uint32_t)green & 0xFC ) << 3 ) |
+                      ( ( (uint32_t)blue  & 0xF8 ) >> 3 );
         break;
 
       case gr_pixel_mode_rgb24:
@@ -48,15 +49,16 @@
         break;
 
       case gr_pixel_mode_rgb32:
-        color.value = (uint32_t)( ( alpha & 0xFF ) << 24 ) |
-                      (uint32_t)( ( red   & 0xFF ) << 16 ) |
-                      (uint32_t)( ( green & 0xFF ) <<  8 ) |
-                      (uint32_t)( ( blue  & 0xFF )       );
+        color.value = ( ( (uint32_t)alpha & 0xFF ) << 24 ) |
+                      ( ( (uint32_t)red   & 0xFF ) << 16 ) |
+                      ( ( (uint32_t)green & 0xFF ) <<  8 ) |
+                      ( ( (uint32_t)blue  & 0xFF )       );
         break;
 
       default:
         ;
     }
+
     return color;
   }
 
