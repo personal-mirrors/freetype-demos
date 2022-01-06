@@ -468,7 +468,7 @@
 
     for ( ; count--; spans++ )
       for ( dst = dst_line + spans->x, w = spans->len; w--; dst++ )
-        *dst = (FT_UInt32)( spans->coverage << 24 ) | color;
+        *dst = ( (FT_UInt32)spans->coverage << 24 ) | color;
   }
 
 
