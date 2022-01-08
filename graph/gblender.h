@@ -145,7 +145,7 @@
   GBLENDER_API( void )
   gblender_dump_stats( GBlender  blender );
 #else
-# define gblender_dump_stats(b)  do { } while (0);
+# define gblender_dump_stats(b)  do { } while (0)
 #endif
 
 #ifdef GBLENDER_STATS

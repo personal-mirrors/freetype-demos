@@ -48,13 +48,9 @@ typedef struct GBlenderBlitRec_
   const unsigned char*  src_line;
   int                   src_pitch;
   int                   src_x;
-  int                   src_y;
   unsigned char*        dst_line;
   int                   dst_pitch;
   int                   dst_x;
-  int                   dst_y;
-  GBlenderSourceFormat  src_format;
-  GBlenderTargetFormat  dst_format;
 
   GBlender              blender;
   GBlenderBlitFunc      blit_func;

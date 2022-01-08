@@ -263,14 +263,14 @@ gblender_blit_init( GBlenderBlit           blit,
 
   GBlenderSourceFormat   src_format;
   const unsigned char*   src_buffer = glyph->buffer;
-  int                    src_pitch  = glyph->pitch;
+  const int              src_pitch  = glyph->pitch;
   int                    src_width  = glyph->width;
   int                    src_height = glyph->rows;
   GBlenderTargetFormat   dst_format;
   unsigned char*         dst_buffer = target->buffer;
-  int                    dst_pitch  = target->pitch;
-  int                    dst_width  = target->width;
-  int                    dst_height = target->rows;
+  const int              dst_pitch  = target->pitch;
+  const int              dst_width  = target->width;
+  const int              dst_height = target->rows;
 
 
   switch ( glyph->mode )
@@ -345,24 +345,20 @@ gblender_blit_init( GBlenderBlit           blit,
   if ( src_width <= 0 || src_height <= 0 )
     return -1;
 
-  blit->width      = src_width;
-  blit->height     = src_height;
-  blit->src_format = src_format;
-  blit->dst_format = dst_format;
+  blit->width     = src_width;
+  blit->height    = src_height;
 
-  blit->src_x     = src_x;
-  blit->src_y     = src_y;
-  blit->src_line  = src_buffer + src_pitch*src_y;
   blit->src_pitch = src_pitch;
   if ( src_pitch < 0 )
-    blit->src_line -= (src_height-1)*src_pitch;
+    src_y -= glyph->rows - 1;
+  blit->src_line  = src_buffer + src_pitch * src_y;
+  blit->src_x     = src_x;
 
-  blit->dst_x     = dst_x;
-  blit->dst_y     = dst_y;
-  blit->dst_line  = dst_buffer + dst_pitch*dst_y;
   blit->dst_pitch = dst_pitch;
   if ( dst_pitch < 0 )
-    blit->dst_line -= (dst_height-1)*dst_pitch;
+    dst_y -= dst_height - 1;
+  blit->dst_line  = dst_buffer + dst_pitch * dst_y;
+  blit->dst_x     = dst_x;
 
   return 0;
 }
