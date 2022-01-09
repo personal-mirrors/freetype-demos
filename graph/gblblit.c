@@ -237,17 +237,6 @@
 
 /* */
 
-static const GBlenderBlitFunc*
-blit_funcs[GBLENDER_TARGET_MAX] =
-{
-  blit_funcs_gray8,
-  blit_funcs_rgb32,
-  blit_funcs_rgb24,
-  blit_funcs_rgb565,
-  blit_funcs_rgb555
-};
-
-
 static int
 gblender_blit_init( GBlenderBlit           blit,
                     int                    dst_x,
@@ -266,7 +255,6 @@ gblender_blit_init( GBlenderBlit           blit,
   const int              src_pitch  = glyph->pitch;
   int                    src_width  = glyph->width;
   int                    src_height = glyph->rows;
-  GBlenderTargetFormat   dst_format;
   unsigned char*         dst_buffer = target->buffer;
   const int              dst_pitch  = target->pitch;
   const int              dst_width  = target->width;
@@ -305,18 +293,27 @@ gblender_blit_init( GBlenderBlit           blit,
 
   switch ( target->mode )
   {
-  case gr_pixel_mode_gray:   dst_format = GBLENDER_TARGET_GRAY8; break;
-  case gr_pixel_mode_rgb32:  dst_format = GBLENDER_TARGET_RGB32; break;
-  case gr_pixel_mode_rgb24:  dst_format = GBLENDER_TARGET_RGB24; break;
-  case gr_pixel_mode_rgb565: dst_format = GBLENDER_TARGET_RGB565; break;
-  case gr_pixel_mode_rgb555: dst_format = GBLENDER_TARGET_RGB555; break;
+  case gr_pixel_mode_gray:
+    blit->blit_func = blit_funcs_gray8[src_format];
+    break;
+  case gr_pixel_mode_rgb32:
+    blit->blit_func = blit_funcs_rgb32[src_format];
+    break;
+  case gr_pixel_mode_rgb24:
+    blit->blit_func = blit_funcs_rgb24[src_format];
+    break;
+  case gr_pixel_mode_rgb565:
+    blit->blit_func = blit_funcs_rgb565[src_format];
+    break;
+  case gr_pixel_mode_rgb555:
+    blit->blit_func = blit_funcs_rgb555[src_format];
+    break;
   default:
     grError = gr_err_bad_target_depth;
     return -2;
   }
 
   blit->blender   = surface->gblender;
-  blit->blit_func = blit_funcs[dst_format][src_format];
 
   if ( dst_x < 0 )
   {
