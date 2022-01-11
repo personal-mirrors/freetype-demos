@@ -1591,6 +1591,23 @@
       grWriteCellString( display->bitmap, 0, 3 * HEADER_HEIGHT,
                          status.header, display->fore_color );
 
+    if ( handle->current_font->num_indices )
+    {
+      int  x;
+
+
+      x = snprintf( status.header_buffer, BUFSIZE,
+                    handle->encoding == FT_ENCODING_ORDER   ? "%d/%d" :
+                    handle->encoding == FT_ENCODING_UNICODE ? "U+%04X/U+%04X" :
+                                                              "0x%X/0x%X",
+                    status.Num, handle->current_font->num_indices - 1 );
+
+      grWriteCellString( display->bitmap,
+                         display->bitmap->width - 8 * x,
+                         display->bitmap->rows - GR_FONT_SIZE,
+                         status.header_buffer, display->fore_color );
+    }
+
     if ( status.mm )
     {
       const char*  format = "%s axis: %.02f";
