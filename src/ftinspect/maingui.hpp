@@ -1,6 +1,6 @@
 // maingui.hpp
 
-// Copyright (C) 2016-2021 by Werner Lemberg.
+// Copyright (C) 2016-2022 by Werner Lemberg.
 
 
 #pragma once

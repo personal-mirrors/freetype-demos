@@ -1,6 +1,6 @@
 // qspinboxx.cpp
 
-// Copyright (C) 2016-2021 by Werner Lemberg.
+// Copyright (C) 2016-2022 by Werner Lemberg.
 
 
 #include "qspinboxx.hpp"
