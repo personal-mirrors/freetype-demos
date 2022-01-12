@@ -197,7 +197,7 @@
                       FTDemo_Display*  display )
   {
     st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 ); /* black       */
-    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 ); /* gray        */
+    st->grid_color    = grFindColor( display->bitmap, 216, 216, 216, 255 ); /* gray        */
     st->outline_color = grFindColor( display->bitmap, 255,   0,   0, 255 ); /* red         */
     st->on_color      = grFindColor( display->bitmap, 255,   0,   0, 255 ); /* red         */
     st->off_color     = grFindColor( display->bitmap,   0, 128,   0, 255 ); /* dark green  */
@@ -213,7 +213,7 @@
     /* colours are adjusted for color-blind people, */
     /* cf. http://jfly.iam.u-tokyo.ac.jp/color      */
     st->axis_color    = grFindColor( display->bitmap,   0,   0,   0, 255 ); /* black          */
-    st->grid_color    = grFindColor( display->bitmap, 192, 192, 192, 255 ); /* gray           */
+    st->grid_color    = grFindColor( display->bitmap, 216, 216, 216, 255 ); /* gray           */
     st->outline_color = grFindColor( display->bitmap, 230, 159,   0, 255 ); /* orange         */
     st->on_color      = grFindColor( display->bitmap, 230, 159,   0, 255 ); /* orange         */
     st->off_color     = grFindColor( display->bitmap,  86, 180, 233, 255 ); /* sky blue       */
