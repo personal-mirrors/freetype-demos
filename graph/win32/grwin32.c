@@ -71,10 +71,6 @@
   static
   Translator  key_translators[] =
   {
-    { VK_BACK,      grKeyBackSpace },
-    { VK_TAB,       grKeyTab       },
-    { VK_RETURN,    grKeyReturn    },
-    { VK_ESCAPE,    grKeyEsc       },
     { VK_HOME,      grKeyHome      },
     { VK_LEFT,      grKeyLeft      },
     { VK_UP,        grKeyUp        },
@@ -398,23 +394,6 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
       }
       break;
 
-    case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
-      {
-        Translator*  trans = key_translators;
-        Translator*  limit = trans + sizeof( key_translators ) /
-                                     sizeof( key_translators[0] );
-        for ( ; trans < limit; trans++ )
-          if ( msg.wParam == trans->winkey )
-          {
-            grevent->type = gr_event_key;
-            grevent->key  = trans->grkey;
-            LOG(( "KeyPress: VK = 0x%02x\n", msg.wParam ));
-            return;
-          }
-      }
-      break;
-
     case WM_CHAR:
       {
         grevent->type = gr_event_key;
@@ -680,6 +659,22 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
 
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
+      {
+        Translator*  trans = key_translators;
+        Translator*  limit = trans + sizeof( key_translators ) /
+                                     sizeof( key_translators[0] );
+
+        for ( ; trans < limit; trans++ )
+          if ( wParam == trans->winkey )
+          {
+            /* repost to the main thread */
+            PostThreadMessage( surface->host, WM_CHAR, trans->grkey, 0 );
+            LOG(( "KeyPress: VK = 0x%02x\n", wParam ));
+            break;
+          }
+      }
+      break;
+
     case WM_CHAR:
       /* repost to the main thread */
       PostThreadMessage( surface->host, mess, wParam, lParam );
