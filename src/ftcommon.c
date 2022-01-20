@@ -27,7 +27,6 @@
 
 #include FT_BITMAP_H
 #include FT_FONT_FORMATS_H
-#include FT_OTSVG_H
 
 
   /* error messages */
@@ -340,12 +339,6 @@
   {
     FTDemo_Handle*  handle;
 
-    SVG_RendererHooks  hooks = {
-                         (SVG_Lib_Init_Func)rsvg_port_init,
-                         (SVG_Lib_Free_Func)rsvg_port_free,
-                         (SVG_Lib_Render_Func)rsvg_port_render,
-                         (SVG_Lib_Preset_Slot_Func)rsvg_port_preset_slot };
-
 
     handle = (FTDemo_Handle *)malloc( sizeof ( FTDemo_Handle ) );
     if ( !handle )
@@ -357,8 +350,9 @@
     if ( error )
       PanicZ( "could not initialize FreeType" );
 
-    /* XXX error handling? */
-    FT_Property_Set( handle->library, "ot-svg", "svg-hooks", &hooks );
+    /* The use of an external SVG rendering library is optional. */
+    (void)FT_Property_Set( handle->library,
+                           "ot-svg", "svg-hooks", &rsvg_hooks );
 
     error = FTC_Manager_New( handle->library, 0, 0, 0,
                              my_face_requester, 0, &handle->cache_manager );

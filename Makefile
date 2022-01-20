@@ -132,7 +132,8 @@ else
     #
     # For the pure `make` call (without using `configure`) we have to add
     # all needed cflags manually.
-    FT_DEMO_CFLAGS := $(shell pkg-config --cflags librsvg-2.0)
+    FT_DEMO_CFLAGS := $(shell pkg-config --cflags librsvg-2.0) \
+                      -DHAVE_LIBRSVG
   endif
 
   FT_INCLUDES := $(OBJ_BUILD) \

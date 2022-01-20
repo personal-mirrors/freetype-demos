@@ -16,6 +16,11 @@
  *
  */
 
+#include <ft2build.h>
+#include FT_OTSVG_H
+
+#ifdef HAVE_LIBRSVG
+
 #include <cairo.h>
 #include <librsvg/rsvg.h>
 #include <stdlib.h>
@@ -395,6 +400,20 @@
 
     return error;
   }
+
+
+  SVG_RendererHooks  rsvg_hooks = {
+                       (SVG_Lib_Init_Func)rsvg_port_init,
+                       (SVG_Lib_Free_Func)rsvg_port_free,
+                       (SVG_Lib_Render_Func)rsvg_port_render,
+                       (SVG_Lib_Preset_Slot_Func)rsvg_port_preset_slot
+                     };
+
+#else /* !HAVE_LIBRSVG */
+
+  SVG_RendererHooks  rsvg_hooks = { NULL, NULL, NULL, NULL };
+
+#endif /* !HAVE_LIBRSVG */
 
 
 /* End */
