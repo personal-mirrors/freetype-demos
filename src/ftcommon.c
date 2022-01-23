@@ -358,7 +358,7 @@
       PanicZ( "could not initialize FreeType" );
 
     /* XXX error handling? */
-    FT_Property_Set( handle->library, "ot-svg", "svg_hooks", &hooks );
+    FT_Property_Set( handle->library, "ot-svg", "svg-hooks", &hooks );
 
     error = FTC_Manager_New( handle->library, 0, 0, 0,
                              my_face_requester, 0, &handle->cache_manager );
