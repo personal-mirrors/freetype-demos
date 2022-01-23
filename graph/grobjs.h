@@ -15,7 +15,7 @@
 #ifndef GROBJS_H_
 #define GROBJS_H_
 
-#include <stdlib.h>
+#include <stddef.h>
 
 #include "graph.h"
 #include "grconfig.h"

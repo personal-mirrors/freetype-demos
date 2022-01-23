@@ -19,8 +19,6 @@
  *
  ******************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define WIN32_LEAN_AND_MEAN
@@ -40,7 +38,9 @@
 #define  xxDEBUG
 
 #ifdef DEBUG
+# include <stdio.h>
 # include <stdarg.h>
+# include <ctype.h>
 
   static void  LogMessage( const char*  fmt, ... )
   {

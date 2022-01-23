@@ -1,4 +1,5 @@
 #include "grobjs.h"
+#include <stdlib.h>
 #include <string.h>
 
   int  grError = 0;
