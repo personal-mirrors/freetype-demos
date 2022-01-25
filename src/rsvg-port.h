@@ -19,6 +19,11 @@
 #ifndef RSVG_PORT_H
 #define RSVG_PORT_H
 
+#include <ft2build.h>
+#include FT_OTSVG_H
+
+#ifdef HAVE_LIBRSVG
+
 #include <cairo.h>
 #include <librsvg/rsvg.h>
 #include <ft2build.h>
@@ -56,6 +61,11 @@
   rsvg_port_preset_slot( FT_GlyphSlot  slot,
                          FT_Bool       cache,
                          FT_Pointer   *state );
+
+#endif /* HAVE_LIBRSVG */
+
+
+  extern SVG_RendererHooks  rsvg_hooks;
 
 #endif /* RSVG_PORT_H */
 
