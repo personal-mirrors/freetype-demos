@@ -28,6 +28,13 @@ methods *before* running `meson setup`:
   - Alternatively,  create or  replace `subprojects/freetype2`  with a
     symlink to or a copy of the FreeType2 source tree of your chosing.
 
+In case meson  cloned FreeType already, and new commits were added  to
+its git repository, say
+
+  meson subprojects update
+
+to update it.
+
 
 Quick compilation instructions
 ------------------------------
