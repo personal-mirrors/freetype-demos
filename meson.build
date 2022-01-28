@@ -31,6 +31,7 @@ libpng_dep = dependency('libpng',
   required: true)
 
 librsvg_dep = dependency('librsvg-2.0',
+  version: '>= 2.46.0',
   required: true)
 
 
