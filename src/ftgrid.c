@@ -82,7 +82,7 @@
 #define BUFSIZE  256
 
 #define DO_BITMAP       1
-#define DO_GRAY_BITMAP  2
+#define DO_GRAY_BITMAP  2  /* needs DO_BITMAP */
 #define DO_OUTLINE      4
 #define DO_DOTS         8
 #define DO_DOTNUMBERS  16
@@ -515,6 +515,7 @@
     FT_Size       size;
     FT_GlyphSlot  slot;
     FT_UInt       glyph_idx;
+    FT_Int32      load_flags;
     int           scale = (int)st->scale;
     int           ox    = st->x_origin;
     int           oy    = st->y_origin;
@@ -532,8 +533,11 @@
     _af_debug_disable_blue_hints = !st->do_blue_hints;
 #endif
 
-    if ( FT_Load_Glyph( size->face, glyph_idx,
-                        handle->load_flags | FT_LOAD_NO_BITMAP ) )
+    load_flags = handle->load_flags;
+    if ( !( st->work & DO_BITMAP ) )
+      load_flags |= FT_LOAD_NO_BITMAP;
+
+    if ( FT_Load_Glyph( size->face, glyph_idx, load_flags ) )
       return;
 
     slot = size->face->glyph;
