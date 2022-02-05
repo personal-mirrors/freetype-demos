@@ -495,6 +495,22 @@
         }
         break;
 
+      case gr_pixel_mode_bgra:
+        for ( i = 0; i < bit->rows; i++ )
+        {
+          FT_UInt32*  l4 = (FT_UInt32*)line;
+          FT_UInt32*  s4 = (FT_UInt32*)( s + i * pitch );
+
+          for ( j = 0; j < width; j++, s4++ )
+            for ( k = 0; k < scale; k++, l4++ )
+              *l4 = *s4;
+
+          for ( k = 1; k < scale; k++, line += pitch * scale )
+            memcpy( line + pitch * scale, line, (size_t)( pitch * scale ) );
+          line += pitch * scale;
+        }
+        break;
+
       default:
         return;
     }
@@ -565,9 +581,9 @@
     /* render scaled bitmap */
     if ( st->work & DO_BITMAP && scale == st->scale )
     {
-      FT_Glyph        glyph, glyf;
-      int             left, top, x_advance, y_advance;
-      grBitmap        bitg;
+      FT_Glyph  glyph, glyf;
+      int       left, top, x_advance, y_advance;
+      grBitmap  bitg;
 
 
       FT_Get_Glyph( slot, &glyph );
