@@ -515,7 +515,6 @@
     FT_Size       size;
     FT_GlyphSlot  slot;
     FT_UInt       glyph_idx;
-    FT_Int32      load_flags;
     int           scale = (int)st->scale;
     int           ox    = st->x_origin;
     int           oy    = st->y_origin;
@@ -533,11 +532,7 @@
     _af_debug_disable_blue_hints = !st->do_blue_hints;
 #endif
 
-    load_flags = handle->load_flags;
-    if ( !( st->work & DO_BITMAP ) )
-      load_flags |= FT_LOAD_NO_BITMAP;
-
-    if ( FT_Load_Glyph( size->face, glyph_idx, load_flags ) )
+    if ( FT_Load_Glyph( size->face, glyph_idx, handle->load_flags ) )
       return;
 
     slot = size->face->glyph;
@@ -839,7 +834,7 @@
     grWriteln( "F1, ?       display this help screen    if autohinting:                     " );
     grWriteln( "                                          H         toggle horiz. hinting   " );
     grWriteln( "i, k        move grid up/down             V         toggle vert. hinting    " );
-    grWriteln( "j, l        move grid left/right          B         toggle blue zone hinting" );
+    grWriteln( "j, l        move grid left/right          Z         toggle blue zone hinting" );
     grWriteln( "PgUp, PgDn  zoom in/out grid              s         toggle segment drawing  " );
     grWriteln( "SPC         reset zoom and position                  (unfitted, with blues) " );
     grWriteln( "                                          1         dump edge hints         " );
@@ -855,19 +850,19 @@
     grWriteln( "                                          H         cycle through hinting   " );
     grWriteln( "Left, Right adjust index by 1                        engines (if available) " );
     grWriteln( "F7, F8      adjust index by 16                                              " );
-    grWriteln( "F9, F10     adjust index by 256         b           toggle bitmap           " );
-    grWriteln( "F11, F12    adjust index by 4096        d           toggle dot display      " );
+    grWriteln( "F9, F10     adjust index by 256         b           toggle embedded bitmap  " );
+    grWriteln( "F11, F12    adjust index by 4096        B           toggle bitmap display   " );
     grWriteln( "                                        o           toggle outline display  " );
-    grWriteln( "h           toggle hinting              D           toggle dotnumber display" );
-    grWriteln( "f           toggle forced auto-                                             " );
-    grWriteln( "             hinting (if hinting)       if Multiple Master or GX font:      " );
-    grWriteln( "G           toggle grid display           F2        cycle through axes      " );
-    grWriteln( "C           change color palette          F3, F4    adjust current axis by  " );
-    grWriteln( "                                                     1/50th of its range    " );
-    grWriteln( "F5, F6      cycle through                                                   " );
-    grWriteln( "             anti-aliasing modes        P           print PNG file          " );
-    grWriteln( "L           cycle through LCD           q, ESC      quit ftgrid             " );
-    grWriteln( "             filters" );
+    grWriteln( "h           toggle hinting              d           toggle dot display      " );
+    grWriteln( "f           toggle forced auto-         D           toggle dotnumber display" );
+    grWriteln( "             hinting (if hinting)                                           " );
+    grWriteln( "G           toggle grid display         if Multiple Master or GX font:      " );
+    grWriteln( "C           change color palette          F2        cycle through axes      " );
+    grWriteln( "                                          F3, F4    adjust current axis by  " );
+    grWriteln( "F5, F6      cycle through                            1/50th of its range    " );
+    grWriteln( "             anti-aliasing modes                                            " );
+    grWriteln( "L           cycle through LCD           P           print PNG file          " );
+    grWriteln( "             filters                    q, ESC      quit ftgrid             " );
     grLn();
     grWriteln( "g, v        adjust gamma value" );
     /*          |----------------------------------|    |----------------------------------| */
@@ -1372,6 +1367,14 @@
       FTDemo_Update_Current_Flags( handle );
       break;
 
+    case grKEY( 'b' ):
+      handle->use_sbits = !handle->use_sbits;
+      status.header    = handle->use_sbits ? "embedded bitmaps are now on"
+                                           : "embedded bitmaps are now off";
+
+      FTDemo_Update_Current_Flags( handle );
+      break;
+
 #ifdef FT_DEBUG_AUTOFIT
     case grKEY( '1' ):
       if ( handle->hinted                                  &&
@@ -1464,7 +1467,7 @@
       status.work ^= DO_OUTLINE;
       break;
 
-    case grKEY( 'b' ):
+    case grKEY( 'B' ):
       status.work ^= DO_BITMAP;
       if ( status.work & DO_BITMAP )
         status.work ^= DO_GRAY_BITMAP;
@@ -1516,7 +1519,7 @@
         status.header = "need autofit mode to toggle vertical hinting";
       break;
 
-    case grKEY( 'B' ):
+    case grKEY( 'Z' ):
       if ( handle->autohint                            ||
            handle->lcd_mode == LCD_MODE_LIGHT          ||
            handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
@@ -1794,6 +1797,7 @@
 
     /* initialize engine */
     handle = FTDemo_New();
+    handle->use_sbits = 0;
 
     grid_status_init( &status );
     circle_init( handle, 128 );
