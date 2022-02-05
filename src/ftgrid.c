@@ -399,7 +399,6 @@
                 int         scale )
   {
     unsigned char*  s = bit->buffer;
-    unsigned char*  t;
     unsigned char*  line;
     int             pitch;
     int             width;
@@ -409,12 +408,13 @@
                            : -bit->pitch;
     width = bit->width;
 
-    t = (unsigned char*)malloc( (size_t)( pitch * bit->rows *
-                                          scale * scale ) );
-    if ( !t )
-      return;
+    line = (unsigned char*)malloc( (size_t)( pitch * bit->rows *
+                                             scale * scale ) );
 
-    line = t;
+    bit->buffer = line;  /* the bitmap now owns this buffer */
+
+    if ( !line )
+      return;
 
     switch( bit->mode )
     {
@@ -515,7 +515,6 @@
         return;
     }
 
-    bit->buffer = t;
     bit->rows  *= scale;
     bit->width *= scale;
     bit->pitch *= scale;
@@ -598,7 +597,7 @@
                               ox + left * scale, oy - top * scale,
                               st->axis_color );
 
-        free( bitg.buffer );
+        grDoneBitmap( &bitg );
 
         if ( glyf )
           FT_Done_Glyph( glyf );

@@ -1387,7 +1387,7 @@
     target->rows   = (int)source->rows;
     target->width  = (int)source->width;
     target->pitch  = source->pitch;
-    target->buffer = source->buffer;
+    target->buffer = source->buffer;  /* source glyf still owns it */
     target->grays  = source->num_grays;
 
     switch ( source->pixel_mode )
