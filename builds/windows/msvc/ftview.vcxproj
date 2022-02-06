@@ -146,6 +146,7 @@
     <ClCompile Include="..\..\..\src\common.c" />
     <ClCompile Include="..\..\..\src\mlgetopt.c" />
     <ClCompile Include="..\..\..\src\strbuf.c" />
+    <ClCompile Include="..\..\..\src\rsvg-port.c" />
     <ClCompile Include="..\..\..\src\ftpngout.c" />
     <ClCompile Include="..\..\..\src\ftcommon.c" />
     <ClCompile Include="..\..\..\src\ftview.c" />
@@ -154,6 +155,7 @@
     <ClInclude Include="..\..\..\src\common.h" />
     <ClInclude Include="..\..\..\src\mlgetopt.h" />
     <ClInclude Include="..\..\..\src\strbuf.h" />
+    <ClInclude Include="..\..\..\src\rsvg-port.h" />
     <ClInclude Include="..\..\..\src\ftcommon.h" />
   </ItemGroup>
   <ItemGroup>
