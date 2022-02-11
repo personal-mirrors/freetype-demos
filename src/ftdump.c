@@ -13,6 +13,7 @@
 #include FT_SFNT_NAMES_H
 #include FT_TRUETYPE_IDS_H
 #include FT_TRUETYPE_TABLES_H
+#include FT_TYPE1_TABLES_H
 #include FT_TRUETYPE_TAGS_H
 #include FT_MULTIPLE_MASTERS_H
 #include FT_BDF_H
@@ -77,6 +78,24 @@
 
 
   static void
+  Print_Array( FT_Short*  data,
+               FT_Byte    num_data )
+  {
+    FT_Int  i;
+
+
+    printf( "[" );
+    if ( num_data )
+    {
+      printf( "%d", data[0] );
+      for ( i = 1; i < num_data; i++ )
+        printf( ", %d", data[i] );
+    }
+    printf( "]\n" );
+  }
+
+
+  static void
   usage( FT_Library  library,
          char*       execname )
   {
@@ -93,7 +112,7 @@
 
     fprintf( stderr,
       "  -c, -C    Print charmap coverage.\n"
-      "  -n        Print SFNT name tables.\n"
+      "  -n        Print SFNT 'name' table or Type1 font info.\n"
       "  -p        Print TrueType programs.\n"
       "  -t        Print SFNT table list.\n"
       "  -u        Emit UTF8.\n"
@@ -429,6 +448,88 @@
         printf( "\n" );
       }
     }
+  }
+
+
+  static void
+  Print_FontInfo_Dictionary( PS_FontInfo  fi )
+  {
+    printf( "/FontInfo dictionary\n" );
+
+    printf( "%s%s\n", Name_Field( "FamilyName" ),
+            fi->family_name );
+    printf( "%s%s\n", Name_Field( "FullName" ),
+            fi->full_name );
+    printf( "%s%d\n", Name_Field( "isFixedPitch" ),
+            fi->is_fixed_pitch );
+    printf( "%s%ld\n", Name_Field( "ItalicAngle" ),
+            fi->italic_angle );
+    printf( "%s%s\n", Name_Field( "Notice" ),
+            fi->notice );
+    printf( "%s%d\n", Name_Field( "UnderlinePosition" ),
+            fi->underline_position );
+    printf( "%s%u\n", Name_Field( "UnderlineThickness" ),
+            fi->underline_thickness );
+    printf( "%s%s\n", Name_Field( "version" ),
+            fi->version );
+    printf( "%s%s\n", Name_Field( "Weight" ),
+            fi->weight );
+  }
+
+
+  static void
+  Print_FontPrivate_Dictionary( PS_Private  fp )
+  {
+    printf( "/Private dictionary\n" );
+
+    printf( "%s%d\n", Name_Field( "BlueFuzz" ),
+            fp->blue_fuzz );
+    printf( "%s%.6f\n", Name_Field( "BlueScale" ),
+            (double)fp->blue_scale / 65536 / 1000 );
+    printf( "%s%d\n", Name_Field( "BlueShift" ),
+            fp->blue_shift );
+    printf( "%s", Name_Field( "BlueValues" ) );
+    Print_Array( fp->blue_values,
+                 fp->num_blue_values );
+    printf( "%s%.4f\n", Name_Field( "ExpansionFactor" ),
+            (double)fp->expansion_factor / 65536 );
+    printf( "%s", Name_Field( "FamilyBlues" ) );
+    Print_Array( fp->family_blues,
+                 fp->num_family_blues );
+    printf( "%s", Name_Field( "FamilyOtherBlues" ) );
+    Print_Array( fp->family_other_blues,
+                 fp->num_family_other_blues );
+    printf( "%s%s\n", Name_Field( "ForceBold" ),
+            fp->force_bold ? "true" : "false" );
+    printf( "%s%ld\n", Name_Field( "LanguageGroup" ),
+            fp->language_group );
+    printf( "%s%d\n", Name_Field( "lenIV" ),
+            fp->lenIV );
+    printf( "%s", Name_Field( "MinFeature" ) );
+    Print_Array( fp->min_feature,
+                 2 );
+    printf( "%s", Name_Field( "OtherBlues" ) );
+    Print_Array( fp->other_blues,
+                 fp->num_other_blues );
+    printf( "%s%ld\n", Name_Field( "password" ),
+            fp->password );
+    printf( "%s%s\n", Name_Field( "RndStemUp" ),
+            fp->round_stem_up ? "true" : "false" );
+    /* casting to `FT_Short` is not really correct, but... */
+    printf( "%s", Name_Field( "StdHW" ) );
+    Print_Array( (FT_Short*)fp->standard_width,
+                 1 );
+    printf( "%s", Name_Field( "StdVW" ) );
+    Print_Array( (FT_Short*)fp->standard_height,
+                 1 );
+    printf( "%s", Name_Field( "StemSnapH" ) );
+    Print_Array( fp->snap_widths,
+                 fp->num_snap_widths );
+    printf( "%s", Name_Field( "StemSnapV" ) );
+    Print_Array( fp->snap_heights,
+                 fp->num_snap_heights );
+    printf( "%s%d\n", Name_Field( "UniqueID" ),
+            fp->unique_id );
   }
 
 
@@ -1199,10 +1300,29 @@
       printf( "\n" );
       Print_Type( face );
 
-      if ( name_tables && FT_IS_SFNT( face ) )
+      if ( name_tables )
       {
-        printf( "\n" );
-        Print_Sfnt_Names( face );
+        PS_FontInfoRec  font_info;
+        PS_PrivateRec   font_private;
+
+
+        if ( FT_IS_SFNT( face ) )
+        {
+          printf( "\n" );
+          Print_Sfnt_Names( face );
+        }
+
+        if ( FT_Get_PS_Font_Info( face, &font_info ) == FT_Err_Ok )
+        {
+          printf( "\n" );
+          Print_FontInfo_Dictionary( &font_info );
+        }
+
+        if ( FT_Get_PS_Font_Private( face, &font_private ) == FT_Err_Ok )
+        {
+          printf( "\n" );
+          Print_FontPrivate_Dictionary( &font_private );
+        }
       }
 
       if ( tables && FT_IS_SFNT( face ) )
