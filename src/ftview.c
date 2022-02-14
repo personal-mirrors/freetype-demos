@@ -410,12 +410,16 @@
   Render_All( int  num_indices,
               int  offset )
   {
-    int           start_x, start_y, step_y, x, y, width;
-    int           i, have_topleft;
+    int  start_x, start_y, step_y, x, y, width;
+    int  i, have_topleft;
+
     FT_Size       size;
     FT_Face       face;
     FT_GlyphSlot  slot;
-    FT_Color*     palette;
+
+    FT_Color*        palette;
+    FT_Palette_Data  palette_data;
+    FT_UShort        palette_index;
 
 
     error = FTDemo_Get_Size( handle, &size );
@@ -429,11 +433,11 @@
     face = size->face;
     slot = face->glyph;
 
-    error = FT_Palette_Select( face,
-                               (FT_UShort)handle->current_font->palette_index,
-                               &palette );
-    if ( error )
+    palette_index = (FT_UShort)handle->current_font->palette_index;
+    if ( FT_Palette_Select( face, palette_index, &palette ) )
       palette = NULL;
+    if ( FT_Palette_Data_Get( face, &palette_data ) )
+      return -1;
 
     have_topleft = 0;
 
@@ -480,6 +484,7 @@
         do
         {
           FT_Vector  slot_offset;
+          FT_Color   color;
 
 
           error = FT_Load_Glyph( face, layer_glyph_idx, load_flags );
@@ -489,12 +494,39 @@
           slot_offset.x = slot->bitmap_left * 64;
           slot_offset.y = slot->bitmap_top * 64;
 
+          if ( layer_color_idx == 0xFFFF )
+          {
+            // TODO: FT_Palette_Get_Foreground_Color
+            if ( palette_data.palette_flags                  &&
+               ( palette_data.palette_flags[palette_index] &
+                   FT_PALETTE_FOR_DARK_BACKGROUND          ) )
+            {
+              /* white opaque */
+              color.blue  = 0xFF;
+              color.green = 0xFF;
+              color.red   = 0xFF;
+              color.alpha = 0xFF;
+            }
+            else
+            {
+              /* black opaque */
+              color.blue  = 0x00;
+              color.green = 0x00;
+              color.red   = 0x00;
+              color.alpha = 0xFF;
+            }
+          }
+          else if ( layer_color_idx < palette_data.num_palette_entries )
+            color = palette[layer_color_idx];
+          else
+            continue;
+
           error = FT_Bitmap_Blend( handle->library,
                                    &slot->bitmap,
                                    slot_offset,
                                    &bitmap,
                                    &bitmap_offset,
-                                   palette[layer_color_idx] );
+                                   color );
 
         } while ( FT_Get_Color_Glyph_Layer( face,
                                             glyph_idx,
