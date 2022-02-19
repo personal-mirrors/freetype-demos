@@ -43,7 +43,7 @@
 #include <QVBoxLayout>
 
 #include <ft2build.h>
-#include FT_LCD_FILTER_H
+#include <freetype/ftlcdfil.h>
 
 
 class MainGUI

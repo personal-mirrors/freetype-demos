@@ -9,18 +9,18 @@
 
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_SFNT_NAMES_H
-#include FT_TRUETYPE_IDS_H
-#include FT_TRUETYPE_TABLES_H
-#include FT_TYPE1_TABLES_H
-#include FT_TRUETYPE_TAGS_H
-#include FT_MULTIPLE_MASTERS_H
-#include FT_BDF_H
-#include FT_WINFONTS_H
+#include <freetype/freetype.h>
 
-  /* showing driver name */
-#include FT_MODULE_H
+#include <freetype/ftbdf.h>
+#include <freetype/ftmm.h>
+#include <freetype/ftmodapi.h>  /* showing driver name */
+#include <freetype/ftsnames.h>
+#include <freetype/ftwinfnt.h>
+#include <freetype/ttnameid.h>
+#include <freetype/tttables.h>
+#include <freetype/tttags.h>
+#include <freetype/t1tables.h>
+
 
   /* error messages */
 #undef FTERRORS_H_
@@ -59,7 +59,7 @@
     FT_Done_FreeType( library );
 
     switch( error )
-    #include FT_ERRORS_H
+    #include <freetype/fterrors.h>
 
     fprintf( stderr, "%s\n  error = 0x%04x, %s\n", message, error, str );
     exit( 1 );

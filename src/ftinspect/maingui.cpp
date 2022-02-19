@@ -12,7 +12,7 @@
 #include <QMessageBox>
 #include <QSettings>
 
-#include FT_DRIVER_H
+#include <freetype/ftdriver.h>
 
 
 MainGUI::MainGUI()

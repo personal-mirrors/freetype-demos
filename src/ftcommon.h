@@ -15,14 +15,12 @@
 
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 
-#include FT_CACHE_H
-#include FT_CACHE_MANAGER_H
-
-#include FT_GLYPH_H
-#include FT_STROKER_H
-#include FT_BITMAP_H
+#include <freetype/ftbitmap.h>
+#include <freetype/ftcache.h>
+#include <freetype/ftglyph.h>
+#include <freetype/ftstroke.h>
 
 #include <stdlib.h>
 #include <stdarg.h>

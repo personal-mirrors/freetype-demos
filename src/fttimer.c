@@ -20,8 +20,8 @@
 /****************************************************************************/
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
+#include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
 
 #include <stdio.h>
 #include <stdlib.h>

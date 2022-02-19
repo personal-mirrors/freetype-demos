@@ -24,12 +24,12 @@
 #endif
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_SFNT_NAMES_H
-#include FT_TRUETYPE_IDS_H
+#include <freetype/freetype.h>
 
-  /* showing driver name */
-#include FT_MODULE_H
+#include <freetype/ftmodapi.h>  /* showing driver name */
+#include <freetype/ftsnames.h>
+#include <freetype/ttnameid.h>
+
 #include <freetype/internal/ftobjs.h>
 
   /* FSSpec functions are deprecated since Mac OS X 10.4 */
@@ -75,7 +75,7 @@ typedef void FSRef;
 #endif
 #endif
 
-#include FT_MAC_H
+#include <freetype/ftmac.h>
 
 #undef FT_GetFile_From_Mac_Name
 #undef FT_GetFile_From_Mac_ATS_Name

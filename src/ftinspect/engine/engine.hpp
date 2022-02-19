@@ -9,9 +9,9 @@
 #include <QMap>
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_OUTLINE_H
-#include FT_CACHE_H
+#include <freetype/freetype.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftcache.h>
 
 
 // This structure maps the (font, face, instance) index triplet to abstract

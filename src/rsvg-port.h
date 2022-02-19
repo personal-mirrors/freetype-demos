@@ -20,13 +20,12 @@
 #define RSVG_PORT_H
 
 #include <ft2build.h>
-#include FT_OTSVG_H
+#include <freetype/otsvg.h>
 
 #ifdef HAVE_LIBRSVG
 
 #include <cairo.h>
 #include <librsvg/rsvg.h>
-#include <ft2build.h>
 #include <freetype/freetype.h>
 
 

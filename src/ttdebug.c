@@ -52,13 +52,15 @@
 
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_MULTIPLE_MASTERS_H
+#include <freetype/freetype.h>
+
+#include <freetype/ftdriver.h>
+#include <freetype/ftmm.h>
+
 #include "common.h"
 #include "strbuf.h"
 #include "mlgetopt.h"
 
-#include FT_DRIVER_H
 
   /* The following header shouldn't be used in normal programs.    */
   /* `freetype/src/truetype' must be in the current include path. */
@@ -1547,7 +1549,7 @@
 
 
     switch( error )
-    #include FT_ERRORS_H
+    #include <freetype/fterrors.h>
 
     fprintf( stderr, "%s\n  error = 0x%04x, %s\n", message, error, str );
 

@@ -17,7 +17,7 @@
  */
 
 #include <ft2build.h>
-#include FT_OTSVG_H
+#include <freetype/otsvg.h>
 
 #ifdef HAVE_LIBRSVG
 
@@ -26,10 +26,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ft2build.h>
 #include <freetype/freetype.h>
 #include <freetype/ftbbox.h>
-#include <freetype/otsvg.h>
 
 #include "rsvg-port.h"
 

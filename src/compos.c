@@ -16,7 +16,7 @@
 #define FT2_BUILD_LIBRARY
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 #include <freetype/internal/ftgloadr.h>
 
 #include <stdio.h>

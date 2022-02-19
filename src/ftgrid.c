@@ -20,14 +20,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include FT_STROKER_H
-#include FT_SYNTHESIS_H
-#include FT_LCD_FILTER_H
-#include FT_DRIVER_H
-#include FT_MULTIPLE_MASTERS_H
-#include FT_SFNT_NAMES_H
-#include FT_TRUETYPE_IDS_H
-#include FT_TRIGONOMETRY_H
+#include <freetype/ftdriver.h>
+#include <freetype/ftlcdfil.h>
+#include <freetype/ftmm.h>
+#include <freetype/ftsnames.h>
+#include <freetype/ftstroke.h>
+#include <freetype/ftsynth.h>
+#include <freetype/fttrigon.h>
+#include <freetype/ttnameid.h>
 
 #define MAXPTSIZE    500                 /* dtp */
 #define MAX_MM_AXES   32

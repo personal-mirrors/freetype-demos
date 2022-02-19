@@ -13,11 +13,12 @@
 /****************************************************************************/
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_FONT_FORMATS_H
-#include FT_MODULE_H
-#include FT_DRIVER_H
-#include FT_MULTIPLE_MASTERS_H
+#include <freetype/freetype.h>
+
+#include <freetype/ftdriver.h>
+#include <freetype/ftfntfmt.h>
+#include <freetype/ftmm.h>
+#include <freetype/ftmodapi.h>
 
 #include "common.h"
 #include "mlgetopt.h"

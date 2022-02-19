@@ -17,12 +17,10 @@
 #include "common.h"
 #include "mlgetopt.h"
 
-#include FT_OUTLINE_H
-#include FT_LCD_FILTER_H
-#include FT_DRIVER_H
-
-  /* showing driver name */
-#include FT_MODULE_H
+#include <freetype/ftdriver.h>
+#include <freetype/ftmodapi.h>  /* showing driver name */
+#include <freetype/ftlcdfil.h>
+#include <freetype/ftoutln.h>
 
 #include <stdarg.h>
 #include <stdio.h>

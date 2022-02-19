@@ -19,22 +19,20 @@
 #include <limits.h>
 #include <string.h>
 #include <time.h>
-#include <ft2build.h>
 
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
-#include FT_CACHE_H
-#include FT_CACHE_CHARMAP_H
-#include FT_CACHE_IMAGE_H
-#include FT_CACHE_SMALL_BITMAPS_H
-#include FT_SYNTHESIS_H
-#include FT_ADVANCES_H
-#include FT_OUTLINE_H
-#include FT_STROKER_H
-#include FT_BBOX_H
-#include FT_MODULE_H
-#include FT_DRIVER_H
-#include FT_LCD_FILTER_H
+#include <ft2build.h>
+#include <freetype/freetype.h>
+
+#include <freetype/ftadvanc.h>
+#include <freetype/ftbbox.h>
+#include <freetype/ftcache.h>
+#include <freetype/ftdriver.h>
+#include <freetype/ftglyph.h>
+#include <freetype/ftlcdfil.h>
+#include <freetype/ftmodapi.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftstroke.h>
+#include <freetype/ftsynth.h>
 
 #ifdef UNIX
 #include <unistd.h>

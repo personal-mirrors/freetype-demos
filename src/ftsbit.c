@@ -18,7 +18,7 @@
 #include <string.h>
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 
 
 #ifdef HAVE_LIBINTL_H

@@ -1,8 +1,8 @@
 /* ftmemchk.c */
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_MODULE_H
+#include <freetype/freetype.h>
+#include <freetype/ftmodapi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

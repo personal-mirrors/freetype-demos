@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 
 
   int main( int    argc,

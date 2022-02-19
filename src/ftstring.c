@@ -21,8 +21,8 @@
 #include <stdarg.h>
 #include <math.h>
 
-#include FT_LCD_FILTER_H
-#include FT_TRIGONOMETRY_H
+#include <freetype/ftlcdfil.h>
+#include <freetype/fttrigon.h>
 
 #define CELLSTRING_HEIGHT  8
 #define MAXPTSIZE          500   /* dtp */

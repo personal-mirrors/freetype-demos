@@ -16,17 +16,13 @@
 #endif
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_MODULE_H
+#include <freetype/freetype.h>
 
-  /* access driver name and properties */
-#include FT_DRIVER_H
-
-#include FT_CACHE_H
-#include FT_CACHE_MANAGER_H
-
-#include FT_BITMAP_H
-#include FT_FONT_FORMATS_H
+#include <freetype/ftbitmap.h>
+#include <freetype/ftcache.h>
+#include <freetype/ftdriver.h>  /* access driver name and properties */
+#include <freetype/ftfntfmt.h>
+#include <freetype/ftmodapi.h>
 
 
   /* error messages */
@@ -84,7 +80,7 @@
 
 
     switch( error )
-    #include FT_ERRORS_H
+    #include <freetype/fterrors.h>
 
     fprintf( stderr, "%s\n  error = 0x%04x, %s\n", message, error, str );
     exit( 1 );

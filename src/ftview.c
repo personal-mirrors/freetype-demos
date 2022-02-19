@@ -21,13 +21,12 @@
 #include "mlgetopt.h"
 #include <stdio.h>
 
-#include FT_STROKER_H
-#include FT_SYNTHESIS_H
-#include FT_LCD_FILTER_H
-#include FT_DRIVER_H
-
-#include FT_COLOR_H
-#include FT_BITMAP_H
+#include <freetype/ftbitmap.h>
+#include <freetype/ftcolor.h>
+#include <freetype/ftdriver.h>
+#include <freetype/ftlcdfil.h>
+#include <freetype/ftstroke.h>
+#include <freetype/ftsynth.h>
 
 
 #define MAXPTSIZE  500                 /* dtp */
