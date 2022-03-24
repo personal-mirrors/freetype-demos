@@ -523,24 +523,24 @@
 
     /* Finally loop over all pixels inside the draw region        */
     /* and copy pixels from the sample region to the draw region. */
-    for ( FT_UInt  j = (FT_UInt)( draw_region.yMax - 1 ),
-                   y = (FT_UInt)sample_region.yMin;
+    for ( FT_Int  j = (FT_UInt)( draw_region.yMax - 1 ),
+                  y = (FT_UInt)sample_region.yMin;
           j >= draw_region.yMin;
           j--, y++ )
     {
-      for ( FT_UInt  i = (FT_UInt)draw_region.xMin,
-                     x = (FT_UInt)sample_region.xMin;
+      for ( FT_Int  i = (FT_UInt)draw_region.xMin,
+                    x = (FT_UInt)sample_region.xMin;
             i < draw_region.xMax;
             i++, x++ )
       {
-        FT_UInt  display_index = j * (FT_UInt)display->bitmap->width + i;
-        float    min_dist;
+        FT_Int  display_index = j * (FT_UInt)display->bitmap->width + i;
+        float   min_dist;
 
 
         if ( status.nearest_filtering )
         {
-          FT_UInt  bitmap_index = ( y / status.scale ) * bitmap->width +
-                                  x / status.scale;
+          FT_Int  bitmap_index = ( y / status.scale ) * bitmap->width +
+                                 x / status.scale;
           FT_Byte  pixel_value = buffer[bitmap_index];
 
 
