@@ -124,7 +124,7 @@
     status.generation_time = ( (float)( end - start ) /
                                (float)CLOCKS_PER_SEC ) * 1000.0f;
 
-    printf( "Generation Time: %.0f ms\n", status.generation_time );
+    printf( "Generation Time: %.0f ms\n", (double)status.generation_time );
 
   Exit:
     return err;
@@ -240,7 +240,7 @@
 
     sprintf( header_string,
              "SDF Generated in: %.0f ms, From: %s",
-             status.generation_time,
+             (double)status.generation_time,
              status.use_bitmap ? "Bitmap" : "Outline" );
     grWriteCellString( display->bitmap, 0, 2 * HEADER_HEIGHT,
                        header_string, display->fore_color );
@@ -257,8 +257,8 @@
       /* Only print these in reconstruction mode. */
       sprintf( header_string,
                "Width: %.2f, Edge: %.2f",
-               status.width,
-               status.edge );
+               (double)status.width,
+               (double)status.edge );
       grWriteCellString( display->bitmap, 0, 4 * HEADER_HEIGHT,
                          header_string, display->fore_color );
     }
@@ -523,25 +523,26 @@
 
     /* Finally loop over all pixels inside the draw region        */
     /* and copy pixels from the sample region to the draw region. */
-    for ( FT_Int  j = (FT_UInt)( draw_region.yMax - 1 ),
-                  y = (FT_UInt)sample_region.yMin;
+    for ( FT_Int  j = draw_region.yMax - 1,
+                  y = sample_region.yMin;
           j >= draw_region.yMin;
           j--, y++ )
     {
-      for ( FT_Int  i = (FT_UInt)draw_region.xMin,
-                    x = (FT_UInt)sample_region.xMin;
+      for ( FT_Int  i = draw_region.xMin,
+                    x = sample_region.xMin;
             i < draw_region.xMax;
             i++, x++ )
       {
-        FT_Int  display_index = j * (FT_UInt)display->bitmap->width + i;
+        FT_Int  display_index = j * display->bitmap->width + i;
         float   min_dist;
 
 
         if ( status.nearest_filtering )
         {
-          FT_Int  bitmap_index = ( y / status.scale ) * bitmap->width +
-                                 x / status.scale;
-          FT_Byte  pixel_value = buffer[bitmap_index];
+          FT_Int   bitmap_index =
+                     ( y / (FT_Int)status.scale ) * (FT_Int)bitmap->width +
+                     x / (FT_Int)status.scale;
+          FT_Byte  pixel_value  = buffer[bitmap_index];
 
 
           /* If nearest filtering then simply take the value of the */

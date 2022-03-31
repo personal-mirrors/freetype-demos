@@ -252,8 +252,8 @@
     }
 
     /* Scale factors from SVG coordinates to the needed output size. */
-    x_svg_to_out = (float)metrics.x_ppem / dimension_svg.width;
-    y_svg_to_out = (float)metrics.y_ppem / dimension_svg.height;
+    x_svg_to_out = (double)metrics.x_ppem / dimension_svg.width;
+    y_svg_to_out = (double)metrics.y_ppem / dimension_svg.height;
 
     /*
      * Create a cairo recording surface.  This is done for two reasons.
@@ -376,7 +376,7 @@
     slot->metrics.vertBearingY = (FT_Pos)( vertBearingY * 64 );
 
     if ( slot->metrics.vertAdvance == 0 )
-      slot->metrics.vertAdvance = (FT_Pos)( metrics_height * 1.2 * 64 );
+      slot->metrics.vertAdvance = (FT_Pos)( metrics_height * 1.2f * 64 );
 
     /* If a render call is to follow, just destroy the context for the */
     /* recording surface since no more drawing will be done on it.     */
