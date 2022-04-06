@@ -59,6 +59,7 @@
 /*  Custom messages. */
 #define WM_STATUS  WM_USER+512
 #define WM_RESIZE  WM_USER+517
+#define WM_GR_KEY  WM_USER+519
 
 
   typedef struct  Translator_
@@ -395,10 +396,12 @@ gr_win32_surface_listen_event( grWin32Surface*  surface,
       break;
 
     case WM_CHAR:
+    case WM_GR_KEY:
       {
         grevent->type = gr_event_key;
         grevent->key  = msg.wParam;
-        LOG(( isprint( msg.wParam ) ? "KeyPress: Char = '%c'\n"
+        LOG(( (msg.wParam <= 256 && isprint( msg.wParam ))
+                                    ? "KeyPress: Char = '%c'\n"
                                     : "KeyPress: Char = <%02x>\n",
               msg.wParam ));
         return;
@@ -616,7 +619,7 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
     {
     case WM_CLOSE:
       /* warn the main thread to quit if it didn't know */
-      PostThreadMessage( surface->host, WM_CHAR, (WPARAM)grKeyEsc, 0 );
+      PostThreadMessage( surface->host, WM_GR_KEY, (WPARAM)grKeyEsc, 0 );
       break;
 
     case WM_SIZE:
@@ -668,7 +671,7 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
           if ( wParam == trans->winkey )
           {
             /* repost to the main thread */
-            PostThreadMessage( surface->host, WM_CHAR, trans->grkey, 0 );
+            PostThreadMessage( surface->host, WM_GR_KEY, trans->grkey, 0 );
             LOG(( "KeyPress: VK = 0x%02x\n", wParam ));
             break;
           }
