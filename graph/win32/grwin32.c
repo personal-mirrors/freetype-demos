@@ -446,7 +446,7 @@ DWORD WINAPI Window_ThreadProc( LPVOID lpParameter )
 
   ShowWindow( surface->window, SW_SHOWNORMAL );
 
-  while ( GetMessage( &msg, surface->window, 0, 0 ) > 0 )
+  while ( GetMessage( &msg, NULL, 0, 0 ) > 0 )
   {
     TranslateMessage( &msg );
     DispatchMessage( &msg );
