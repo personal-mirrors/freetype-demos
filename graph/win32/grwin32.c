@@ -174,6 +174,11 @@ gr_win32_surface_refresh_rectangle(
   if ( w <= 0 || h <= 0 )
     return;
 
+  rect.left   = x;
+  rect.top    = y;
+  rect.right  = x + w;
+  rect.bottom = y + h;
+
 #ifdef SWIZZLE
   if ( bitmap->mode == gr_pixel_mode_rgb24 )
   {
@@ -224,11 +229,6 @@ gr_win32_surface_refresh_rectangle(
       write_line += write_pitch;
     }
   }
-
-  rect.left   = x;
-  rect.top    = y;
-  rect.right  = x + w;
-  rect.bottom = y + h;
 
   InvalidateRect( surface->window, &rect, FALSE );
   UpdateWindow( surface->window );
