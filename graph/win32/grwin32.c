@@ -250,25 +250,8 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
   int       s[] = { GetSystemMetrics( SM_CYSMICON ),
                     GetSystemMetrics( SM_CYICON ) };
   WPARAM    wParam;
-  HDC       hDC;
-  VOID*     bts;
   ICONINFO  ici = { TRUE };
   HICON     hIcon;
-
-  /* NOTE: The Mingw64 header file `wingdi.h` defines this macro as `sRGB`,
-   * which triggers the `-Wmultichar` warning during compilation, so replace
-   * it with the corresponding numerical value.
-   */
-#ifdef __MINGW64__
-# undef  LCS_sRGB
-# define LCS_sRGB  0x73524742
-#endif
-
-  BITMAPV4HEADER  hdr = { sizeof( BITMAPV4HEADER ),
-                          0, 0, 1, 32, BI_BITFIELDS, 0, 0, 0, 0, 0,
-                          0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
-                          LCS_sRGB };
-
 
   if ( !icon )
     return s[1];
@@ -281,19 +264,13 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
   else
     return 0;
 
-  ici.hbmMask  = CreateBitmap( icon->width, icon->rows, 1, 1, NULL);
-
-  hdr.bV4Width  =  icon->width;
-  hdr.bV4Height = -icon->rows;
-
-  hDC = GetDC( NULL );
-  ici.hbmColor = CreateDIBSection( hDC, (LPBITMAPINFO)&hdr,
-                                   DIB_RGB_COLORS, &bts, NULL, 0 );
-  ReleaseDC( NULL, hDC );
-
-  memcpy( bts, icon->buffer, icon->rows * icon->width * 4 );
+  ici.hbmMask  = CreateBitmap( icon->width, icon->rows, 1,  1, NULL );
+  ici.hbmColor = CreateBitmap( icon->width, icon->rows, 1, 32, icon->buffer );
 
   hIcon = CreateIconIndirect( &ici );
+
+  DeleteObject( ici.hbmMask );
+  DeleteObject( ici.hbmColor );
 
   PostMessage( surface->window, WM_SETICON, wParam, (LPARAM)hIcon );
 
