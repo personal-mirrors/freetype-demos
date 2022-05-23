@@ -247,11 +247,10 @@ static int
 gr_win32_surface_set_icon( grWin32Surface*  surface,
                            grBitmap*        icon )
 {
-  int       s[] = { GetSystemMetrics( SM_CYSMICON ),
-                    GetSystemMetrics( SM_CYICON ) };
-  WPARAM    wParam;
-  ICONINFO  ici = { TRUE };
-  HICON     hIcon;
+  int     s[] = { GetSystemMetrics( SM_CYSMICON ),
+                  GetSystemMetrics( SM_CYICON ) };
+  WPARAM  wParam;
+  HICON   hIcon;
 
   if ( !icon )
     return s[1];
@@ -264,13 +263,8 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
   else
     return 0;
 
-  ici.hbmMask  = CreateBitmap( icon->width, icon->rows, 1,  1, NULL );
-  ici.hbmColor = CreateBitmap( icon->width, icon->rows, 1, 32, icon->buffer );
-
-  hIcon = CreateIconIndirect( &ici );
-
-  DeleteObject( ici.hbmMask );
-  DeleteObject( ici.hbmColor );
+  hIcon = CreateIcon( NULL, icon->width, icon->rows, 1, 32,
+                      NULL, icon->buffer );
 
   PostMessage( surface->window, WM_SETICON, wParam, (LPARAM)hIcon );
 
