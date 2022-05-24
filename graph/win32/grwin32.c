@@ -19,8 +19,6 @@
  *
  ******************************************************************/
 
-#include <string.h>
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -311,7 +309,7 @@ gr_win32_surface_resize( grWin32Surface*  surface,
                       width,
                       height,
                       &surface->shadow_bitmap ) )
-    return 0;
+      return 0;
 
 #ifdef SWIZZLE
     if ( grNewBitmap( bitmap->mode,
