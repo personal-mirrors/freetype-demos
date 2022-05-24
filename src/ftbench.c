@@ -1305,24 +1305,24 @@
     printf( "\n"
             "glyph indices: from %d to %d\n"
             "face size: %uppem\n"
-            "font preloading into memory: %s\n",
-            first_index,
-            last_index,
+            "font preloading into memory: %s\n"
+            "maximum cache size: %luKiByte\n",
+            first_index, last_index,
             size,
-            preload ? "yes" : "no" );
+            preload ? "yes" : "no",
+            max_bytes / 1024 );
 
     printf( "\n"
             "load flags: 0x%X\n"
             "render mode: %u\n",
             load_flags,
             render_mode );
+
     printf( "\n"
-            "CFF hinting engine set to `%s'\n"
-            "TrueType interpreter set to version %d\n"
-            "maximum cache size: %luKiByte\n",
+            "T1/CFF hinting engine set to `%s'\n"
+            "TrueType interpreter set to version %d\n",
             engine,
-            version,
-            max_bytes / 1024 );
+            version );
 
     printf( "\n"
             "number of seconds for each test: %s%f\n",
