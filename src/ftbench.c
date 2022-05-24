@@ -1242,6 +1242,24 @@
     if ( get_face( &face ) )
       goto Exit;
 
+    printf( "\n"
+            "ftbench results for font `%s'\n"
+            "---------------------------",
+            filename );
+    for ( i = 0; i < strlen( filename ); i++ )
+      putchar( '-' );
+    putchar( '\n' );
+
+    printf( "\n"
+            "family: %s\n"
+            " style: %s\n"
+            "driver: %s\n"
+            "glyphs: %ld\n",
+            face->family_name,
+            face->style_name,
+            FT_FACE_DRIVER_NAME( face ),
+            face->num_glyphs );
+
     if ( !face->num_glyphs )
       goto Exit;
 
@@ -1285,28 +1303,6 @@
     font_type.flags   = load_flags;
 
     printf( "\n"
-            "ftbench results for font `%s'\n"
-            "---------------------------",
-            filename );
-    for ( i = 0; i < strlen( filename ); i++ )
-      putchar( '-' );
-    putchar( '\n' );
-
-    printf( "\n"
-            "family: %s\n"
-            " style: %s\n"
-            "\n",
-            face->family_name,
-            face->style_name );
-
-    if ( max_iter )
-      printf( "number of iterations for each test: at most %d\n",
-              max_iter );
-    printf( "number of seconds for each test: %s%f\n",
-             max_iter ? "at most " : "",
-             max_time );
-
-    printf( "\n"
             "glyph indices: from %d to %d\n"
             "face size: %uppem\n"
             "font preloading into memory: %s\n",
@@ -1327,6 +1323,14 @@
             engine,
             version,
             max_bytes / 1024 );
+
+    printf( "\n"
+            "number of seconds for each test: %s%f\n",
+            max_iter ? "at most " : "",
+            max_time );
+    if ( max_iter )
+      printf( "number of iterations for each test: at most %d\n",
+              max_iter );
 
     printf( "\n"
             "executing tests:\n" );
