@@ -1304,9 +1304,9 @@
 
     printf( "\n"
             "glyph indices: from %d to %d\n"
-            "face size: %uppem\n"
+            "face size: %u ppem\n"
             "font preloading into memory: %s\n"
-            "maximum cache size: %luKiByte\n",
+            "maximum cache size: %lu KiByte\n",
             first_index, last_index,
             size,
             preload ? "yes" : "no",
@@ -1325,7 +1325,7 @@
             version );
 
     printf( "\n"
-            "number of seconds for each test: %s%f\n",
+            "number of seconds for each test: %s%g\n",
             max_iter ? "at most " : "",
             max_time );
     if ( max_iter )
