@@ -824,6 +824,83 @@
   }
 
 
+  static void
+  header( FT_Face  face )
+  {
+    const FT_String*  target =
+                 render_mode == FT_RENDER_MODE_NORMAL ? "normal" :
+                 render_mode == FT_RENDER_MODE_LIGHT  ? "light"  :
+                 render_mode == FT_RENDER_MODE_MONO   ? "mono"   :
+                 render_mode == FT_RENDER_MODE_LCD    ? "lcd"    :
+                 render_mode == FT_RENDER_MODE_LCD_V  ? "lcd-v"  :
+                 render_mode == FT_RENDER_MODE_SDF    ? "sdf"    : "";
+    const FT_String*  module_name = FT_FACE_DRIVER_NAME( face );
+    const FT_String*  hinting_engine = "";
+    FT_UInt           prop;
+
+
+    if ( !FT_IS_SCALABLE( face ) )
+      hinting_engine = "bitmap";
+
+    else if ( load_flags & FT_LOAD_NO_SCALE )
+      hinting_engine = "unscaled";
+
+    else if ( load_flags & FT_LOAD_NO_HINTING )
+      hinting_engine = "unhinted";
+
+    else if ( render_mode == FT_RENDER_MODE_LIGHT )
+      hinting_engine = "auto";
+
+    else if ( load_flags == FT_LOAD_FORCE_AUTOHINT )
+      hinting_engine = "auto";
+
+    else if ( !FT_Property_Get( lib, module_name,
+                                     "interpreter-version", &prop ) )
+    {
+      switch ( prop )
+      {
+      case TT_INTERPRETER_VERSION_35:
+        hinting_engine = "v35";
+        break;
+      case TT_INTERPRETER_VERSION_38:
+        hinting_engine = "v38";
+        break;
+      case TT_INTERPRETER_VERSION_40:
+        hinting_engine = "v40";
+        break;
+      }
+    }
+
+    else if ( !FT_Property_Get( lib, module_name,
+                                     "hinting-engine", &prop ) )
+    {
+      switch ( prop )
+      {
+      case FT_HINTING_FREETYPE:
+        hinting_engine = "FT";
+        break;
+      case FT_HINTING_ADOBE:
+        hinting_engine = "Adobe";
+        break;
+      }
+    }
+
+    printf( "\n"
+            "family: %s\n"
+            " style: %s\n"
+            "driver: %s %s\n"
+            "target: %s\n"
+            " flags: 0x%X\n"
+            "glyphs: %ld\n",
+            face->family_name,
+            face->style_name,
+            module_name, hinting_engine,
+            target,
+            load_flags,
+            face->num_glyphs );
+  }
+
+
   static FT_Error
   get_face( FT_Face*  face )
   {
@@ -1250,15 +1327,7 @@
       putchar( '-' );
     putchar( '\n' );
 
-    printf( "\n"
-            "family: %s\n"
-            " style: %s\n"
-            "driver: %s\n"
-            "glyphs: %ld\n",
-            face->family_name,
-            face->style_name,
-            FT_FACE_DRIVER_NAME( face ),
-            face->num_glyphs );
+    header( face );
 
     if ( !face->num_glyphs )
       goto Exit;
@@ -1303,31 +1372,16 @@
     font_type.flags   = load_flags;
 
     printf( "\n"
-            "glyph indices: from %d to %d\n"
-            "face size: %u ppem\n"
             "font preloading into memory: %s\n"
             "maximum cache size: %lu KiByte\n",
-            first_index, last_index,
-            size,
             preload ? "yes" : "no",
             max_bytes / 1024 );
 
     printf( "\n"
-            "load flags: 0x%X\n"
-            "render mode: %u\n",
-            load_flags,
-            render_mode );
-
-    printf( "\n"
-            "T1/CFF hinting engine set to `%s'\n"
-            "TrueType interpreter set to version %d\n",
-            engine,
-            version );
-
-    printf( "\n"
+            "testing glyph indices from %d to %d at %u ppem\n"
             "number of seconds for each test: %s%g\n",
-            max_iter ? "at most " : "",
-            max_time );
+            first_index, last_index, size,
+            max_iter ? "at most " : "", max_time );
     if ( max_iter )
       printf( "number of iterations for each test: at most %d\n",
               max_iter );
