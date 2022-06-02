@@ -1374,7 +1374,7 @@
     printf( "\n"
             "font preloading into memory: %s\n"
             "maximum cache size: %lu KiByte\n",
-            preload ? "yes" : "no",
+            preload ? "yes" : face->stream->base ? "mapped" : "no",
             max_bytes / 1024 );
 
     printf( "\n"
