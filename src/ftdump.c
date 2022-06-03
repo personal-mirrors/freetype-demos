@@ -1279,10 +1279,9 @@
     num_faces = face->num_faces;
     FT_Done_Face( face );
 
-    printf( "There %s %d %s in this file.\n",
-            num_faces == 1 ? (char *)"is" : (char *)"are",
-            num_faces,
-            num_faces == 1 ? (char *)"face" : (char *)"faces" );
+    printf( num_faces == 1 ? "There is %d face in %s.\n"
+                           : "There are %d faces in %s.\n",
+            num_faces, ft_basename( filename ) );
 
     for ( i = 0; i < num_faces; i++ )
     {
