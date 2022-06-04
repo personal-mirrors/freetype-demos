@@ -40,8 +40,6 @@
 #include "mlgetopt.h"
 #endif
 
-#include "common.h"
-
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -1071,7 +1069,6 @@
     int            max_iter       = 0;
     double         max_time       = BENCH_TIME;
     int            compare_cached = 0;
-    size_t         i;
     int            j;
 
     unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
@@ -1319,11 +1316,10 @@
     if ( get_face( &face ) )
       goto Exit;
 
-    printf( "\n"
-            "ftbench results for font `%s'\n"
-            "---------------------------",
-            filename );
-    for ( i = 0; i < strlen( filename ); i++ )
+    j = printf( "\n"
+                "ftbench results for font `%s'\n",
+                filename );
+    while ( j-- > 2 )
       putchar( '-' );
     putchar( '\n' );
 

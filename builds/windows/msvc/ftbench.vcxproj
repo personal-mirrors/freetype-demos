@@ -139,12 +139,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\common.c" />
     <ClCompile Include="..\..\..\src\mlgetopt.c" />
     <ClCompile Include="..\..\..\src\ftbench.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\common.h" />
     <ClInclude Include="..\..\..\src\mlgetopt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
