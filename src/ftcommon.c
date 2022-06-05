@@ -969,14 +969,14 @@
     if ( error                                       ||
          !FT_IS_SCALABLE( face )                     ||
          !handle->hinted                             ||
+         handle->autohint                            ||
          handle->lcd_mode == LCD_MODE_LIGHT          ||
          handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL )
       return 0;  /* do nothing */
 
     module_name = FT_FACE_DRIVER_NAME( face );
 
-    if ( !handle->autohint                                         &&
-         !FT_Property_Get( library, module_name,
+    if ( !FT_Property_Get( library, module_name,
                                     "interpreter-version", &prop ) )
     {
       switch ( prop )
