@@ -1318,8 +1318,8 @@
 
     j = printf( "\n"
                 "ftbench results for font `%s'\n",
-                filename );
-    while ( j-- > 2 )
+                filename ) - 2;
+    while ( j-- )
       putchar( '-' );
     putchar( '\n' );
 
