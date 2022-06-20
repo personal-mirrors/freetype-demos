@@ -4,3 +4,8 @@ ftinspect
 moc_*.cpp
 moc_*.h
 .qmake.stash
+
+# Visual Studio specific
+out
+.vs
+CMakeSettings.json
