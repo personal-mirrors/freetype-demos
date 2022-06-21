@@ -125,6 +125,10 @@ else
     SRC_DIR := $(TOP_DIR_2)/src
   endif
 
+  # Append any system-defined CPPFLAGS (e.g. hardening flags) to CFLAGS.
+  #
+  CFLAGS += $(CPPFLAGS)
+
   ifeq ($(PLATFORM),unixdev)
     # `FT_DEMO_CFLAGS` comes from FreeType's `configure` script (via
     # `builds/unix/unix-cc.mk`), holding additional flags to compile the
@@ -143,7 +147,6 @@ else
 
   COMPILE = $(CC) $(ANSIFLAGS) \
                   $(INCLUDES:%=$I%) \
-                  $(CPPFLAGS) \
                   $(CFLAGS) \
                   $(FT_DEMO_CFLAGS)
 
