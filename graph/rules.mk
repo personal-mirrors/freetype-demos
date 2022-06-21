@@ -38,6 +38,9 @@ GRAPH_OBJS := $(OBJ_DIR_2)/gblblit.$(O)   \
               $(OBJ_DIR_2)/grswizzle.$(O)
 
 
+# Append any system-defined CPPFLAGS (e.g. hardening flags) to CFLAGS.
+#
+CFLAGS += $(CPPFLAGS)
 
 # Default value for COMPILE_GRAPH_LIB;
 # this value can be modified by the system-specific graphics drivers.
