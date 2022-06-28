@@ -76,8 +76,9 @@ public:
 private:
   MainGUI* gui;
 
-  int faceCounter; // a running number used to initialize `faceIDMap'
-  QMap<FaceID, int> faceIDMap;
+  using FTC_IDType = uintptr_t;
+  FTC_IDType faceCounter; // a running number used to initialize `faceIDMap'
+  QMap<FaceID, FTC_IDType> faceIDMap;
 
   QString curFamilyName;
   QString curStyleName;
