@@ -259,7 +259,7 @@ Engine::numberOfFaces(int fontIndex)
   long numFaces = -1;
 
   // search triplet (fontIndex, 0, 0)
-  FTC_FaceID ftcFaceID = reinterpret_cast<void*>
+  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>
                            (faceIDMap.value(FaceID(fontIndex,
                                                    0,
                                                    0)));
@@ -272,7 +272,7 @@ Engine::numberOfFaces(int fontIndex)
   else
   {
     // not found; try to load triplet (fontIndex, 0, 0)
-    ftcFaceID = reinterpret_cast<void*>(faceCounter);
+    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter);
     faceIDMap.insert(FaceID(fontIndex, 0, 0),
                      faceCounter++);
 
@@ -299,7 +299,7 @@ Engine::numberOfNamedInstances(int fontIndex,
   int numNamedInstances = -1;
 
   // search triplet (fontIndex, faceIndex, 0)
-  FTC_FaceID ftcFaceID = reinterpret_cast<void*>
+  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>
                            (faceIDMap.value(FaceID(fontIndex,
                                                    faceIndex,
                                                    0)));
@@ -312,7 +312,7 @@ Engine::numberOfNamedInstances(int fontIndex,
   else
   {
     // not found; try to load triplet (fontIndex, faceIndex, 0)
-    ftcFaceID = reinterpret_cast<void*>(faceCounter);
+    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter);
     faceIDMap.insert(FaceID(fontIndex, faceIndex, 0),
                      faceCounter++);
 
@@ -340,7 +340,7 @@ Engine::loadFont(int fontIndex,
   update();
 
   // search triplet (fontIndex, faceIndex, namedInstanceIndex)
-  scaler.face_id = reinterpret_cast<void*>
+  scaler.face_id = reinterpret_cast<FTC_FaceID>
                      (faceIDMap.value(FaceID(fontIndex,
                                              faceIndex,
                                              namedInstanceIndex)));
@@ -354,7 +354,7 @@ Engine::loadFont(int fontIndex,
   {
     // not found; try to load triplet
     // (fontIndex, faceIndex, namedInstanceIndex)
-    scaler.face_id = reinterpret_cast<void*>(faceCounter);
+    scaler.face_id = reinterpret_cast<FTC_FaceID>(faceCounter);
     faceIDMap.insert(FaceID(fontIndex,
                             faceIndex,
                             namedInstanceIndex),
@@ -400,7 +400,7 @@ Engine::removeFont(int fontIndex)
 {
   // we iterate over all triplets that contain the given font index
   // and remove them
-  QMap<FaceID, int>::iterator iter
+  QMap<FaceID, FTC_IDType>::iterator iter
     = faceIDMap.lowerBound(FaceID(fontIndex, 0, 0));
 
   for (;;)
@@ -412,7 +412,7 @@ Engine::removeFont(int fontIndex)
     if (faceID.fontIndex != fontIndex)
       break;
 
-    FTC_FaceID ftcFaceID = reinterpret_cast<void*>(iter.value());
+    FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(iter.value());
     FTC_Manager_RemoveFaceID(cacheManager, ftcFaceID);
 
     iter = faceIDMap.erase(iter);
