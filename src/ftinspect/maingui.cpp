@@ -174,6 +174,7 @@ MainGUI::showFont()
   else
     fontFilenameLabel->clear();
 
+  syncSettings();
   currentNumberOfFaces
     = engine->numberOfFaces(currentFontIndex);
   currentNumberOfNamedInstances
@@ -210,11 +211,44 @@ MainGUI::showFont()
 
 
 void
+MainGUI::syncSettings()
+{
+  // Spinbox value cannot become negative
+  engine->setDPI(static_cast<unsigned int>(dpiSpinBox->value()));
+
+  if (unitsComboBox->currentIndex() == Units_px)
+    engine->setSizeByPixel(sizeDoubleSpinBox->value());
+  else
+    engine->setSizeByPoint(sizeDoubleSpinBox->value());
+
+  engine->setHinting(hintingCheckBox->isChecked());
+  engine->setAutoHinting(autoHintingCheckBox->isChecked());
+  engine->setHorizontalHinting(horizontalHintingCheckBox->isChecked());
+  engine->setVerticalHinting(verticalHintingCheckBox->isChecked());
+  engine->setBlueZoneHinting(blueZoneHintingCheckBox->isChecked());
+  engine->setShowSegments(segmentDrawingCheckBox->isChecked());
+
+  engine->setGamma(gammaSlider->value());
+
+  engine->setAntiAliasingMode(static_cast<Engine::AntiAliasing>(
+      antiAliasingComboBoxx->currentIndex()));
+}
+
+
+void
+MainGUI::clearStatusBar()
+{
+  statusBar()->clearMessage();
+  statusBar()->setStyleSheet("");
+}
+
+
+void
 MainGUI::checkHinting()
 {
   if (hintingCheckBox->isChecked())
   {
-    if (engine->fontType == Engine::FontType_CFF)
+    if (engine->currentFontType() == Engine::FontType_CFF)
     {
       for (int i = 0; i < hintingModeComboBoxx->count(); i++)
       {
@@ -226,7 +260,7 @@ MainGUI::checkHinting()
 
       hintingModeComboBoxx->setCurrentIndex(currentCFFHintingMode);
     }
-    else if (engine->fontType == Engine::FontType_TrueType)
+    else if (engine->currentFontType() == Engine::FontType_TrueType)
     {
       for (int i = 0; i < hintingModeComboBoxx->count(); i++)
       {
@@ -262,7 +296,7 @@ MainGUI::checkHinting()
     blueZoneHintingCheckBox->setEnabled(false);
     segmentDrawingCheckBox->setEnabled(false);
 
-    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
+    antiAliasingComboBoxx->setItemEnabled(Engine::AntiAliasing_Light, false);
   }
 
   drawGlyph();
@@ -274,14 +308,14 @@ MainGUI::checkHintingMode()
 {
   int index = hintingModeComboBoxx->currentIndex();
 
-  if (engine->fontType == Engine::FontType_CFF)
+  if (engine->currentFontType() == Engine::FontType_CFF)
   {
-    engine->setCFFHintingMode(index);
+    engine->setCFFHintingMode(hintingModesCFFHash.key(index));
     currentCFFHintingMode = index;
   }
-  else if (engine->fontType == Engine::FontType_TrueType)
+  else if (engine->currentFontType() == Engine::FontType_TrueType)
   {
-    engine->setTTInterpreterVersion(index);
+    engine->setTTInterpreterVersion(hintingModesTrueTypeHash.key(index));
     currentTTInterpreterVersion = index;
   }
 
@@ -303,12 +337,12 @@ MainGUI::checkAutoHinting()
     blueZoneHintingCheckBox->setEnabled(true);
     segmentDrawingCheckBox->setEnabled(true);
 
-    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, true);
+    antiAliasingComboBoxx->setItemEnabled(Engine::AntiAliasing_Light, true);
   }
   else
   {
-    if (engine->fontType == Engine::FontType_CFF
-        || engine->fontType == Engine::FontType_TrueType)
+    if (engine->currentFontType() == Engine::FontType_CFF
+        || engine->currentFontType() == Engine::FontType_TrueType)
     {
       hintingModeLabel->setEnabled(true);
       hintingModeComboBoxx->setEnabled(true);
@@ -319,10 +353,10 @@ MainGUI::checkAutoHinting()
     blueZoneHintingCheckBox->setEnabled(false);
     segmentDrawingCheckBox->setEnabled(false);
 
-    antiAliasingComboBoxx->setItemEnabled(AntiAliasing_Light, false);
+    antiAliasingComboBoxx->setItemEnabled(Engine::AntiAliasing_Light, false);
 
-    if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_Light)
-      antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
+    if (antiAliasingComboBoxx->currentIndex() == Engine::AntiAliasing_Light)
+      antiAliasingComboBoxx->setCurrentIndex(Engine::AntiAliasing_Normal);
   }
 
   drawGlyph();
@@ -334,9 +368,9 @@ MainGUI::checkAntiAliasing()
 {
   int index = antiAliasingComboBoxx->currentIndex();
 
-  if (index == AntiAliasing_None
-      || index == AntiAliasing_Normal
-      || index == AntiAliasing_Light)
+  if (index == Engine::AntiAliasing_None
+      || index == Engine::AntiAliasing::AntiAliasing_Normal
+      || index == Engine::AntiAliasing_Light)
   {
     lcdFilterLabel->setEnabled(false);
     lcdFilterComboBox->setEnabled(false);
@@ -355,7 +389,7 @@ void
 MainGUI::checkLcdFilter()
 {
   int index = lcdFilterComboBox->currentIndex();
-  FT_Library_SetLcdFilter(engine->library, lcdFilterHash.key(index));
+  engine->setLcdFilter(lcdFilterHash.key(index));
 }
 
 
@@ -654,6 +688,7 @@ MainGUI::drawGlyph()
     currentGlyphPointNumbersItem = NULL;
   }
 
+  syncSettings();
   FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
   if (outline)
   {
@@ -661,11 +696,11 @@ MainGUI::drawGlyph()
     {
       // XXX support LCD
       FT_Pixel_Mode pixelMode = FT_PIXEL_MODE_GRAY;
-      if (antiAliasingComboBoxx->currentIndex() == AntiAliasing_None)
+      if (antiAliasingComboBoxx->currentIndex() == Engine::AntiAliasing_None)
         pixelMode = FT_PIXEL_MODE_MONO;
 
       currentGlyphBitmapItem = new GlyphBitmap(outline,
-                                               engine->library,
+                                               engine->ftLibrary(),
                                                pixelMode,
                                                monoColorTable,
                                                grayColorTable);
@@ -731,19 +766,19 @@ MainGUI::createLayout()
   antiAliasingLabel = new QLabel(tr("Anti-Aliasing"));
   antiAliasingLabel->setAlignment(Qt::AlignRight);
   antiAliasingComboBoxx = new QComboBoxx;
-  antiAliasingComboBoxx->insertItem(AntiAliasing_None,
+  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_None,
                                     tr("None"));
-  antiAliasingComboBoxx->insertItem(AntiAliasing_Normal,
+  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_Normal,
                                     tr("Normal"));
-  antiAliasingComboBoxx->insertItem(AntiAliasing_Light,
+  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_Light,
                                     tr("Light"));
-  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD,
+  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD,
                                     tr("LCD (RGB)"));
-  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD_BGR,
+  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD_BGR,
                                     tr("LCD (BGR)"));
-  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD_Vertical,
+  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD_Vertical,
                                     tr("LCD (vert. RGB)"));
-  antiAliasingComboBoxx->insertItem(AntiAliasing_LCD_Vertical_BGR,
+  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD_Vertical_BGR,
                                     tr("LCD (vert. BGR)"));
   antiAliasingLabel->setBuddy(antiAliasingComboBoxx);
 
@@ -1140,14 +1175,6 @@ MainGUI::createStatusBar()
 
 
 void
-MainGUI::clearStatusBar()
-{
-  statusBar()->clearMessage();
-  statusBar()->setStyleSheet("");
-}
-
-
-void
 MainGUI::setDefaults()
 {
   // set up mappings between property values and combo box indices
@@ -1163,20 +1190,22 @@ MainGUI::setDefaults()
   lcdFilterHash[FT_LCD_FILTER_NONE] = LCDFilter_None;
   lcdFilterHash[FT_LCD_FILTER_LEGACY] = LCDFilter_Legacy;
 
+  Engine::EngineDefaultValues& defaults = engine->engineDefaults();
+
   // make copies and remove existing elements...
   QHash<int, int> hmTTHash = hintingModesTrueTypeHash;
-  if (hmTTHash.contains(engine->ttInterpreterVersionDefault))
-    hmTTHash.remove(engine->ttInterpreterVersionDefault);
-  if (hmTTHash.contains(engine->ttInterpreterVersionOther))
-    hmTTHash.remove(engine->ttInterpreterVersionOther);
-  if (hmTTHash.contains(engine->ttInterpreterVersionOther1))
-    hmTTHash.remove(engine->ttInterpreterVersionOther1);
+  if (hmTTHash.contains(defaults.ttInterpreterVersionDefault))
+    hmTTHash.remove(defaults.ttInterpreterVersionDefault);
+  if (hmTTHash.contains(defaults.ttInterpreterVersionOther))
+    hmTTHash.remove(defaults.ttInterpreterVersionOther);
+  if (hmTTHash.contains(defaults.ttInterpreterVersionOther1))
+    hmTTHash.remove(defaults.ttInterpreterVersionOther1);
 
   QHash<int, int> hmCFFHash = hintingModesCFFHash;
-  if (hmCFFHash.contains(engine->cffHintingEngineDefault))
-    hmCFFHash.remove(engine->cffHintingEngineDefault);
-  if (hmCFFHash.contains(engine->cffHintingEngineOther))
-    hmCFFHash.remove(engine->cffHintingEngineOther);
+  if (hmCFFHash.contains(defaults.cffHintingEngineDefault))
+    hmCFFHash.remove(defaults.cffHintingEngineDefault);
+  if (hmCFFHash.contains(defaults.cffHintingEngineOther))
+    hmCFFHash.remove(defaults.cffHintingEngineOther);
 
   // ... to construct a list of always disabled hinting mode combo box items
   hintingModesAlwaysDisabled = hmTTHash.values();
@@ -1193,13 +1222,13 @@ MainGUI::setDefaults()
   currentGlyphIndex = 0;
 
   currentCFFHintingMode
-    = hintingModesCFFHash[engine->cffHintingEngineDefault];
+    = hintingModesCFFHash[defaults.cffHintingEngineDefault];
   currentTTInterpreterVersion
-    = hintingModesTrueTypeHash[engine->ttInterpreterVersionDefault];
+    = hintingModesTrueTypeHash[defaults.ttInterpreterVersionDefault];
 
   hintingCheckBox->setChecked(true);
 
-  antiAliasingComboBoxx->setCurrentIndex(AntiAliasing_Normal);
+  antiAliasingComboBoxx->setCurrentIndex(Engine::AntiAliasing_Normal);
   lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
 
   horizontalHintingCheckBox->setChecked(true);

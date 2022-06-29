@@ -4,7 +4,6 @@
 
 
 #include "engine.hpp"
-#include "../maingui.hpp"
 
 #include <stdexcept>
 #include <stdint.h>
@@ -77,7 +76,7 @@ faceRequester(FTC_FaceID ftcFaceID,
               FT_Pointer requestData,
               FT_Face* faceP)
 {
-  MainGUI* gui = static_cast<MainGUI*>(requestData);
+  Engine* engine = static_cast<Engine*>(requestData);
   // `ftcFaceID' is actually an integer
   // -> first convert pointer to same-width integer, then discard superfluous
   //    bits (e.g., on x86_64 where pointers are wider than int)
@@ -88,16 +87,16 @@ faceRequester(FTC_FaceID ftcFaceID,
              "Pointer size must be at least the size of int"
              " in order to treat FTC_FaceID correctly");
 
-  const FaceID& faceID = gui->engine->faceIDMap.key(val);
+  const FaceID& faceID = engine->faceIDMap.key(val);
 
   // this is the only place where we have to check the validity of the font
   // index; note that the validity of both the face and named instance index
   // is checked by FreeType itself
   if (faceID.fontIndex < 0
-      || faceID.fontIndex >= gui->engine->numberOfOpenedFonts())
+      || faceID.fontIndex >= engine->numberOfOpenedFonts())
     return FT_Err_Invalid_Argument;
 
-  QString font = gui->engine->fileManager[faceID.fontIndex].filePath();
+  QString font = engine->fileManager[faceID.fontIndex].filePath();
   long faceIndex = faceID.faceIndex;
 
   if (faceID.namedInstanceIndex > 0)
@@ -116,9 +115,8 @@ faceRequester(FTC_FaceID ftcFaceID,
 //
 /////////////////////////////////////////////////////////////////////////////
 
-Engine::Engine(MainGUI* g)
+Engine::Engine()
 {
-  gui = g;
   ftSize = NULL;
   // we reserve value 0 for the `invalid face ID'
   faceCounter = 1;
@@ -132,7 +130,7 @@ Engine::Engine(MainGUI* g)
   }
 
   error = FTC_Manager_New(library, 0, 0, 0,
-                          faceRequester, gui, &cacheManager);
+                          faceRequester, this, &cacheManager);
   if (error)
   {
     // XXX error handling
@@ -150,98 +148,7 @@ Engine::Engine(MainGUI* g)
     // XXX error handling
   }
 
-  // query engines and check for alternatives
-
-  // CFF
-  error = FT_Property_Get(library,
-                          "cff",
-                          "hinting-engine",
-                          &cffHintingEngineDefault);
-  if (error)
-  {
-    // no CFF engine
-    cffHintingEngineDefault = -1;
-    cffHintingEngineOther = -1;
-  }
-  else
-  {
-    int engines[] =
-    {
-      FT_HINTING_FREETYPE,
-      FT_HINTING_ADOBE
-    };
-
-    int i;
-    for (i = 0; i < 2; i++)
-      if (cffHintingEngineDefault == engines[i])
-        break;
-
-    cffHintingEngineOther = engines[(i + 1) % 2];
-
-    error = FT_Property_Set(library,
-                            "cff",
-                            "hinting-engine",
-                            &cffHintingEngineOther);
-    if (error)
-      cffHintingEngineOther = -1;
-
-    // reset
-    FT_Property_Set(library,
-                    "cff",
-                    "hinting-engine",
-                    &cffHintingEngineDefault);
-  }
-
-  // TrueType
-  error = FT_Property_Get(library,
-                          "truetype",
-                          "interpreter-version",
-                          &ttInterpreterVersionDefault);
-  if (error)
-  {
-    // no TrueType engine
-    ttInterpreterVersionDefault = -1;
-    ttInterpreterVersionOther = -1;
-    ttInterpreterVersionOther1 = -1;
-  }
-  else
-  {
-    int interpreters[] =
-    {
-      TT_INTERPRETER_VERSION_35,
-      TT_INTERPRETER_VERSION_38,
-      TT_INTERPRETER_VERSION_40
-    };
-
-    int i;
-    for (i = 0; i < 3; i++)
-      if (ttInterpreterVersionDefault == interpreters[i])
-        break;
-
-    ttInterpreterVersionOther = interpreters[(i + 1) % 3];
-
-    error = FT_Property_Set(library,
-                            "truetype",
-                            "interpreter-version",
-                            &ttInterpreterVersionOther);
-    if (error)
-      ttInterpreterVersionOther = -1;
-
-    ttInterpreterVersionOther1 = interpreters[(i + 2) % 3];
-
-    error = FT_Property_Set(library,
-                            "truetype",
-                            "interpreter-version",
-                            &ttInterpreterVersionOther1);
-    if (error)
-      ttInterpreterVersionOther1 = -1;
-
-    // reset
-    FT_Property_Set(library,
-                    "truetype",
-                    "interpreter-version",
-                    &ttInterpreterVersionDefault);
-  }
+  queryEngine();
 }
 
 
@@ -423,20 +330,6 @@ Engine::removeFont(int fontIndex, bool closeFile)
 }
 
 
-const QString&
-Engine::currentFamilyName()
-{
-  return curFamilyName;
-}
-
-
-const QString&
-Engine::currentStyleName()
-{
-  return curStyleName;
-}
-
-
 QString
 Engine::glyphName(int index)
 {
@@ -492,11 +385,13 @@ Engine::loadOutline(int glyphIndex)
   return &outlineGlyph->outline;
 }
 
+
 int
 Engine::numberOfOpenedFonts()
 {
   return fileManager.size();
 }
+
 
 void
 Engine::openFonts(QStringList fontFileNames)
@@ -504,15 +399,38 @@ Engine::openFonts(QStringList fontFileNames)
   fileManager.append(fontFileNames);
 }
 
+
+void
+Engine::setSizeByPixel(double pixelSize)
+{
+  this->pixelSize = pixelSize;
+  pointSize = pixelSize * 72.0 / dpi;
+  usingPixelSize = true;
+}
+
+void
+Engine::setSizeByPoint(double pointSize)
+{
+  this->pointSize = pointSize;
+  pixelSize = pointSize * dpi / 72.0;
+  usingPixelSize = false;
+}
+
+
+void
+Engine::setLcdFilter(FT_LcdFilter filter)
+{
+  FT_Library_SetLcdFilter(library, filter);
+}
+
+
 void
 Engine::setCFFHintingMode(int mode)
 {
-  int index = gui->hintingModesCFFHash.key(mode);
-
   FT_Error error = FT_Property_Set(library,
                                    "cff",
                                    "hinting-engine",
-                                   &index);
+                                   &mode);
   if (!error)
   {
     // reset the cache
@@ -522,14 +440,12 @@ Engine::setCFFHintingMode(int mode)
 
 
 void
-Engine::setTTInterpreterVersion(int mode)
+Engine::setTTInterpreterVersion(int version)
 {
-  int index = gui->hintingModesTrueTypeHash.key(mode);
-
   FT_Error error = FT_Property_Set(library,
                                    "truetype",
                                    "interpreter-version",
-                                   &index);
+                                   &version);
   if (!error)
   {
     // reset the cache
@@ -541,58 +457,32 @@ Engine::setTTInterpreterVersion(int mode)
 void
 Engine::update()
 {
-  // Spinbox value cannot become negative
-  dpi = static_cast<unsigned int>(gui->dpiSpinBox->value());
-
-  if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
-  {
-    pixelSize = gui->sizeDoubleSpinBox->value();
-    pointSize = pixelSize * 72.0 / dpi;
-  }
-  else
-  {
-    pointSize = gui->sizeDoubleSpinBox->value();
-    pixelSize = pointSize * dpi / 72.0;
-  }
-
-  doHinting = gui->hintingCheckBox->isChecked();
-
-  doAutoHinting = gui->autoHintingCheckBox->isChecked();
-  doHorizontalHinting = gui->horizontalHintingCheckBox->isChecked();
-  doVerticalHinting = gui->verticalHintingCheckBox->isChecked();
-  doBlueZoneHinting = gui->blueZoneHintingCheckBox->isChecked();
-  showSegments = gui->segmentDrawingCheckBox->isChecked();
-
-  gamma = gui->gammaSlider->value();
-
   loadFlags = FT_LOAD_DEFAULT;
   if (doAutoHinting)
     loadFlags |= FT_LOAD_FORCE_AUTOHINT;
   loadFlags |= FT_LOAD_NO_BITMAP; // XXX handle bitmap fonts also
 
-  int index = gui->antiAliasingComboBoxx->currentIndex();
-
   if (doHinting)
   {
     unsigned long target;
 
-    if (index == MainGUI::AntiAliasing_None)
+    if (antiAliasingMode == AntiAliasing_None)
       target = FT_LOAD_TARGET_MONO;
     else
     {
-      switch (index)
+      switch (antiAliasingMode)
       {
-      case MainGUI::AntiAliasing_Light:
+      case AntiAliasing_Light:
         target = FT_LOAD_TARGET_LIGHT;
         break;
 
-      case MainGUI::AntiAliasing_LCD:
-      case MainGUI::AntiAliasing_LCD_BGR:
+      case AntiAliasing_LCD:
+      case AntiAliasing_LCD_BGR: // TODO Differenate RGB/BGR here?
         target = FT_LOAD_TARGET_LCD;
         break;
 
-      case MainGUI::AntiAliasing_LCD_Vertical:
-      case MainGUI::AntiAliasing_LCD_Vertical_BGR:
+      case AntiAliasing_LCD_Vertical:
+      case AntiAliasing_LCD_Vertical_BGR:
         target = FT_LOAD_TARGET_LCD_V;
         break;
 
@@ -607,7 +497,7 @@ Engine::update()
   {
     loadFlags |= FT_LOAD_NO_HINTING;
 
-    if (index == MainGUI::AntiAliasing_None)
+    if (antiAliasingMode == AntiAliasing_None)
       loadFlags |= FT_LOAD_MONOCHROME;
   }
 
@@ -615,7 +505,7 @@ Engine::update()
 
   scaler.pixel = 0; // use 26.6 format
 
-  if (gui->unitsComboBox->currentIndex() == MainGUI::Units_px)
+  if (usingPixelSize)
   {
     scaler.width = static_cast<unsigned int>(pixelSize * 64.0);
     scaler.height = static_cast<unsigned int>(pixelSize * 64.0);
@@ -631,11 +521,104 @@ Engine::update()
   }
 }
 
-FontFileManager&
-Engine::fontFileManager()
-{
-  return fileManager;
-}
 
+void
+Engine::queryEngine()
+{
+  FT_Error error;
+
+  // query engines and check for alternatives
+
+  // CFF
+  error = FT_Property_Get(library,
+                          "cff",
+                          "hinting-engine",
+                          &defaults.cffHintingEngineDefault);
+  if (error)
+  {
+    // no CFF engine
+    defaults.cffHintingEngineDefault = -1;
+    defaults.cffHintingEngineOther = -1;
+  }
+  else
+  {
+    int engines[] =
+    {
+      FT_HINTING_FREETYPE,
+      FT_HINTING_ADOBE
+    };
+
+    int i;
+    for (i = 0; i < 2; i++)
+      if (defaults.cffHintingEngineDefault == engines[i])
+        break;
+
+    defaults.cffHintingEngineOther = engines[(i + 1) % 2];
+
+    error = FT_Property_Set(library,
+                            "cff",
+                            "hinting-engine",
+                            &defaults.cffHintingEngineOther);
+    if (error)
+      defaults.cffHintingEngineOther = -1;
+
+    // reset
+    FT_Property_Set(library,
+                    "cff",
+                    "hinting-engine",
+                    &defaults.cffHintingEngineDefault);
+  }
+
+  // TrueType
+  error = FT_Property_Get(library,
+                          "truetype",
+                          "interpreter-version",
+                          &defaults.ttInterpreterVersionDefault);
+  if (error)
+  {
+    // no TrueType engine
+    defaults.ttInterpreterVersionDefault = -1;
+    defaults.ttInterpreterVersionOther = -1;
+    defaults.ttInterpreterVersionOther1 = -1;
+  }
+  else
+  {
+    int interpreters[] =
+    {
+      TT_INTERPRETER_VERSION_35,
+      TT_INTERPRETER_VERSION_38,
+      TT_INTERPRETER_VERSION_40
+    };
+
+    int i;
+    for (i = 0; i < 3; i++)
+      if (defaults.ttInterpreterVersionDefault == interpreters[i])
+        break;
+
+    defaults.ttInterpreterVersionOther = interpreters[(i + 1) % 3];
+
+    error = FT_Property_Set(library,
+                            "truetype",
+                            "interpreter-version",
+                            &defaults.ttInterpreterVersionOther);
+    if (error)
+      defaults.ttInterpreterVersionOther = -1;
+
+    defaults.ttInterpreterVersionOther1 = interpreters[(i + 2) % 3];
+
+    error = FT_Property_Set(library,
+                            "truetype",
+                            "interpreter-version",
+                            &defaults.ttInterpreterVersionOther1);
+    if (error)
+      defaults.ttInterpreterVersionOther1 = -1;
+
+    // reset
+    FT_Property_Set(library,
+                    "truetype",
+                    "interpreter-version",
+                    &defaults.ttInterpreterVersionDefault);
+  }
+}
 
 // end of engine.cpp

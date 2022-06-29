@@ -230,17 +230,7 @@ private:
   QWidget *leftWidget;
   QWidget *rightWidget;
   QWidget *mmgxTabWidget;
-
-  enum AntiAliasing
-  {
-    AntiAliasing_None,
-    AntiAliasing_Normal,
-    AntiAliasing_Light,
-    AntiAliasing_LCD,
-    AntiAliasing_LCD_BGR,
-    AntiAliasing_LCD_Vertical,
-    AntiAliasing_LCD_Vertical_BGR
-  };
+  
   enum HintingMode
   {
     HintingMode_TrueType_v35,
@@ -262,15 +252,18 @@ private:
     Units_pt
   };
 
+  void showFont();
+  void syncSettings();
+  void clearStatusBar();
+
   void createActions();
   void createConnections();
   void createLayout();
   void createMenus();
-  void clearStatusBar();
   void createStatusBar();
-  void readSettings();
   void setGraphicsDefaults();
-  void showFont();
+
+  void readSettings();
   void writeSettings();
 };
 

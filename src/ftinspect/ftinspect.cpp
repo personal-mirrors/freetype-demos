@@ -22,7 +22,7 @@ main(int argc,
   app.setOrganizationDomain("freetype.org");
 
   MainGUI gui;
-  Engine engine(&gui);
+  Engine engine;
 
   gui.update(&engine);
   gui.setDefaults();

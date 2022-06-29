@@ -14,6 +14,7 @@
 #include <freetype/freetype.h>
 #include <freetype/ftoutln.h>
 #include <freetype/ftcache.h>
+#include <freetype/ftlcdfil.h>
 
 
 // This structure maps the (font, face, instance) index triplet to abstract
@@ -35,62 +36,103 @@ struct FaceID
   bool operator<(const FaceID& other) const;
 };
 
-
-class MainGUI;
-
 // FreeType specific data.
 
 class Engine
 {
 public:
-  Engine(MainGUI*);
+  //////// Nested definitions (forward decl)
+
+  // TODO these would be dropped with custom QAbstractItemModel
+  enum AntiAliasing : int;
+  enum FontType : int;
+
+  struct EngineDefaultValues
+  {
+    int cffHintingEngineDefault;
+    int cffHintingEngineOther;
+
+    int ttInterpreterVersionDefault;
+    int ttInterpreterVersionOther;
+    int ttInterpreterVersionOther1;
+  };
+
+  //////// Ctors & Dtors
+
+  Engine();
   ~Engine();
 
   // Disable copying
   Engine(const Engine& other) = delete;
   Engine& operator=(const Engine& other) = delete;
 
-  const QString& currentFamilyName();
-  const QString& currentStyleName();
-  QString glyphName(int glyphIndex);
-  long numberOfFaces(int fontIndex);
-  int numberOfNamedInstances(int fontIndex,
-                             long faceIndex);
+  //////// Actions
+
   int loadFont(int fontIndex,
                long faceIndex,
                int namedInstanceIndex); // return number of glyphs
   FT_Outline* loadOutline(int glyphIndex);
 
-  int numberOfOpenedFonts();
   void openFonts(QStringList fontFileNames);
   void removeFont(int fontIndex, bool closeFile = true);
-
-  void setCFFHintingMode(int mode);
-  void setTTInterpreterVersion(int version);
+  
   void update();
 
-  friend class MainGUI;
+  //////// Getters
+
+  FT_Library ftLibrary() const { return library; }
+  int currentFontType() const { return fontType; }
+  const QString& currentFamilyName() { return curFamilyName; }
+  const QString& currentStyleName() { return curStyleName; }
+  int numberOfOpenedFonts();
+  QString glyphName(int glyphIndex);
+  long numberOfFaces(int fontIndex);
+  int numberOfNamedInstances(int fontIndex,
+                             long faceIndex);
+
+  // XXX We should prepend '_' to all private member variable so we can create
+  // getter without naming conflict... e.g. var named _fontFileManager while
+  // getter named fontFileManager
+  FontFileManager& fontFileManager() { return fileManager; }
+  EngineDefaultValues& engineDefaults() { return defaults; }
+
+  //////// Setters (direct or indirect)
+
+  void setDPI(int d) { dpi = d; }
+  void setSizeByPixel(double pixelSize);
+  void setSizeByPoint(double pointSize);
+  void setHinting(bool hinting) { doHinting = hinting; }
+  void setAutoHinting(bool autoHinting) { doAutoHinting = autoHinting; }
+  void setHorizontalHinting(bool horHinting)
+  {
+    doHorizontalHinting = horHinting;
+  }
+  void setVerticalHinting(bool verticalHinting)
+  {
+    doVerticalHinting = verticalHinting;
+  }
+  void setBlueZoneHinting(bool blueZoneHinting)
+  {
+    doBlueZoneHinting = blueZoneHinting;
+  }
+  void setShowSegments(bool showSegments) { this->showSegments = showSegments; }
+  void setGamma(double gamma) { this->gamma = gamma; }
+  void setAntiAliasingMode(AntiAliasing mode) { antiAliasingMode = mode; }
+
+  // Note: These 3 functions now takes actual mode/version from FreeType,
+  // instead of values from enum in MainGUI!
+  void setLcdFilter(FT_LcdFilter filter);
+  void setCFFHintingMode(int mode);
+  void setTTInterpreterVersion(int version);
+
+  //////// Misc
+
   friend FT_Error faceRequester(FTC_FaceID,
                                 FT_Library,
                                 FT_Pointer,
                                 FT_Face*);
 
-  // XXX cover all available modules
-  enum FontType
-  {
-    FontType_CFF,
-    FontType_TrueType,
-    FontType_Other
-  };
-
-  // XXX We should prepend '_' to all private member variable so we can create
-  // getter without naming conflict... e.g. var named _fontFileManager while
-  // getter named fontFileManager
-  FontFileManager& fontFileManager();
-
 private:
-  MainGUI* gui;
-
   using FTC_IDType = uintptr_t;
   FTC_IDType faceCounter; // a running number used to initialize `faceIDMap'
   QMap<FaceID, FTC_IDType> faceIDMap;
@@ -108,15 +150,11 @@ private:
   FTC_ScalerRec scaler;
   FT_Size ftSize;
 
-  int cffHintingEngineDefault;
-  int cffHintingEngineOther;
-
-  int ttInterpreterVersionDefault;
-  int ttInterpreterVersionOther;
-  int ttInterpreterVersionOther1;
+  EngineDefaultValues defaults;
 
   int fontType;
 
+  bool usingPixelSize = false;
   double pointSize;
   double pixelSize;
   unsigned int dpi;
@@ -127,10 +165,36 @@ private:
   bool doVerticalHinting;
   bool doBlueZoneHinting;
   bool showSegments;
+  AntiAliasing antiAliasingMode;
 
   double gamma;
 
   unsigned long loadFlags;
+
+  void queryEngine();
+
+public:
+
+  /// Actual definition
+  
+  enum AntiAliasing
+  {
+    AntiAliasing_None,
+    AntiAliasing_Normal,
+    AntiAliasing_Light,
+    AntiAliasing_LCD,
+    AntiAliasing_LCD_BGR,
+    AntiAliasing_LCD_Vertical,
+    AntiAliasing_LCD_Vertical_BGR
+  };
+
+  // XXX cover all available modules
+  enum FontType
+  {
+    FontType_CFF,
+    FontType_TrueType,
+    FontType_Other
+  };
 };
 
 
