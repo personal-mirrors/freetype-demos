@@ -37,9 +37,9 @@ private slots:
   void onTimerOrWatcherFire();
 
 private:
-  QList<QFileInfo> fontFileNameList;
-  QFileSystemWatcher* fontWatcher;
-  QTimer* watchTimer;
+  QList<QFileInfo> fontFileNameList_;
+  QFileSystemWatcher* fontWatcher_;
+  QTimer* watchTimer_;
 };
 
 

@@ -7,14 +7,14 @@
 
 FontFileManager::FontFileManager()
 {
-  fontWatcher = new QFileSystemWatcher(this);
+  fontWatcher_ = new QFileSystemWatcher(this);
   // if the current input file is invalid we retry once a second to load it
-  watchTimer = new QTimer;
-  watchTimer->setInterval(1000);
+  watchTimer_ = new QTimer;
+  watchTimer_->setInterval(1000);
 
-  connect(fontWatcher, &QFileSystemWatcher::fileChanged,
+  connect(fontWatcher_, &QFileSystemWatcher::fileChanged,
           this, &FontFileManager::onTimerOrWatcherFire);
-  connect(watchTimer, &QTimer::timeout,
+  connect(watchTimer_, &QTimer::timeout,
           this, &FontFileManager::onTimerOrWatcherFire);
 }
 
@@ -27,7 +27,7 @@ FontFileManager::~FontFileManager()
 int
 FontFileManager::size()
 {
-  return fontFileNameList.size();
+  return fontFileNameList_.size();
 }
 
 
@@ -45,7 +45,7 @@ FontFileManager::append(QStringList newFileNames)
     // Uniquify elements
     auto absPath = info.absoluteFilePath();
     auto existing = false;
-    for (auto& existingName : fontFileNameList)
+    for (auto& existingName : fontFileNameList_)
       if (existingName.absoluteFilePath() == absPath)
       {
         existing = true;
@@ -54,7 +54,7 @@ FontFileManager::append(QStringList newFileNames)
     if (existing)
       continue;
 
-    fontFileNameList.append(info);
+    fontFileNameList_.append(info);
   }
 }
 
@@ -65,47 +65,47 @@ FontFileManager::remove(int index)
   if (index < 0 || index >= size())
     return;
 
-  fontWatcher->removePath(fontFileNameList[index].filePath());
-  fontFileNameList.removeAt(index);
+  fontWatcher_->removePath(fontFileNameList_[index].filePath());
+  fontFileNameList_.removeAt(index);
 }
 
 
 QFileInfo&
 FontFileManager::operator[](int index)
 {
-  return fontFileNameList[index];
+  return fontFileNameList_[index];
 }
 
 
 void
 FontFileManager::updateWatching(int index)
 {
-  QFileInfo& fileInfo = fontFileNameList[index];
+  QFileInfo& fileInfo = fontFileNameList_[index];
 
-  auto watching = fontWatcher->files();
+  auto watching = fontWatcher_->files();
   if (!watching.empty())
-    fontWatcher->removePaths(watching);
+    fontWatcher_->removePaths(watching);
 
   // Qt's file watcher doesn't handle symlinks;
   // we thus fall back to polling
   if (fileInfo.isSymLink() || !fileInfo.exists())
-    watchTimer->start();
+    watchTimer_->start();
   else
-    fontWatcher->addPath(fileInfo.filePath());
+    fontWatcher_->addPath(fileInfo.filePath());
 }
 
 
 void
 FontFileManager::timerStart()
 {
-  watchTimer->start();
+  watchTimer_->start();
 }
 
 
 void
 FontFileManager::onTimerOrWatcherFire()
 {
-  watchTimer->stop();
+  watchTimer_->stop();
   emit currentFileChanged();
 }
 

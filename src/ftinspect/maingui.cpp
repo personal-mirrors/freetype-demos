@@ -16,7 +16,7 @@
 
 MainGUI::MainGUI()
 {
-  engine = NULL;
+  engine_ = NULL;
 
   setGraphicsDefaults();
   createLayout();
@@ -40,12 +40,12 @@ MainGUI::~MainGUI()
 void
 MainGUI::update(Engine* e)
 {
-  if (engine)
-    disconnect(&engine->fontFileManager(), &FontFileManager::currentFileChanged,
+  if (engine_)
+    disconnect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
         this, &MainGUI::watchCurrentFont);
 
-  engine = e;
-  connect(&engine->fontFileManager(), &FontFileManager::currentFileChanged,
+  engine_ = e;
+  connect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
           this, &MainGUI::watchCurrentFont);
 }
 
@@ -94,7 +94,7 @@ MainGUI::aboutQt()
 void
 MainGUI::loadFonts()
 {
-  int oldSize = engine->numberOfOpenedFonts();
+  int oldSize = engine_->numberOfOpenedFonts();
 
   QStringList files = QFileDialog::getOpenFileNames(
                         this,
@@ -104,11 +104,11 @@ MainGUI::loadFonts()
                         NULL,
                         QFileDialog::ReadOnly);
 
-  engine->openFonts(files);
+  engine_->openFonts(files);
 
   // if we have new fonts, set the current index to the first new one
-  if (oldSize < engine->numberOfOpenedFonts())
-    currentFontIndex = oldSize;
+  if (oldSize < engine_->numberOfOpenedFonts())
+    currentFontIndex_ = oldSize;
 
   showFont();
 }
@@ -117,20 +117,20 @@ MainGUI::loadFonts()
 void
 MainGUI::closeFont()
 {
-  if (currentFontIndex < engine->numberOfOpenedFonts())
+  if (currentFontIndex_ < engine_->numberOfOpenedFonts())
   {
-    engine->removeFont(currentFontIndex);
+    engine_->removeFont(currentFontIndex_);
   }
 
   // show next font after deletion, i.e., retain index if possible
-  int num = engine->numberOfOpenedFonts();
+  int num = engine_->numberOfOpenedFonts();
   if (num)
   {
-    if (currentFontIndex >= num)
-      currentFontIndex = num - 1;
+    if (currentFontIndex_ >= num)
+      currentFontIndex_ = num - 1;
   }
   else
-    currentFontIndex = 0;
+    currentFontIndex_ = 0;
 
   showFont();
 }
@@ -148,12 +148,12 @@ MainGUI::showFont()
 {
   // we do lazy computation of FT_Face objects
 
-  if (currentFontIndex < engine->numberOfOpenedFonts())
+  if (currentFontIndex_ < engine_->numberOfOpenedFonts())
   {
-    QFileInfo& fileInfo = engine->fontFileManager()[currentFontIndex];
+    QFileInfo& fileInfo = engine_->fontFileManager()[currentFontIndex_];
     QString fontName = fileInfo.fileName();
 
-    engine->fontFileManager().updateWatching(currentFontIndex);
+    engine_->fontFileManager().updateWatching(currentFontIndex_);
     if (fileInfo.isSymLink())
     {
       fontName.prepend("<i>");
@@ -166,39 +166,39 @@ MainGUI::showFont()
       // implies that deletion of a symlink doesn't make `engine->loadFont'
       // fail since it operates on a file handle pointing to the target.
       // For this reason, we remove the font to enforce a reload.
-      engine->removeFont(currentFontIndex, false);
+      engine_->removeFont(currentFontIndex_, false);
     }
 
-    fontFilenameLabel->setText(fontName);
+    fontFilenameLabel_->setText(fontName);
   }
   else
-    fontFilenameLabel->clear();
+    fontFilenameLabel_->clear();
 
   syncSettings();
-  currentNumberOfFaces
-    = engine->numberOfFaces(currentFontIndex);
-  currentNumberOfNamedInstances
-    = engine->numberOfNamedInstances(currentFontIndex,
-                                     currentFaceIndex);
-  currentNumberOfGlyphs
-    = engine->loadFont(currentFontIndex,
-                       currentFaceIndex,
-                       currentNamedInstanceIndex);
+  currentNumberOfFaces_
+    = engine_->numberOfFaces(currentFontIndex_);
+  currentNumberOfNamedInstances_
+    = engine_->numberOfNamedInstances(currentFontIndex_,
+                                     currentFaceIndex_);
+  currentNumberOfGlyphs_
+    = engine_->loadFont(currentFontIndex_,
+                       currentFaceIndex_,
+                       currentNamedInstanceIndex_);
 
-  if (currentNumberOfGlyphs < 0)
+  if (currentNumberOfGlyphs_ < 0)
   {
     // there might be various reasons why the current
     // (file, face, instance) triplet is invalid or missing;
     // we thus start our timer to periodically test
     // whether the font starts working
-    if (currentFontIndex > 0
-        && currentFontIndex < engine->numberOfOpenedFonts())
-      engine->fontFileManager().timerStart();
+    if (currentFontIndex_ > 0
+        && currentFontIndex_ < engine_->numberOfOpenedFonts())
+      engine_->fontFileManager().timerStart();
   }
 
-  fontNameLabel->setText(QString("%1 %2")
-                         .arg(engine->currentFamilyName())
-                         .arg(engine->currentStyleName()));
+  fontNameLabel_->setText(QString("%1 %2")
+                         .arg(engine_->currentFamilyName())
+                         .arg(engine_->currentStyleName()));
 
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
@@ -214,24 +214,24 @@ void
 MainGUI::syncSettings()
 {
   // Spinbox value cannot become negative
-  engine->setDPI(static_cast<unsigned int>(dpiSpinBox->value()));
+  engine_->setDPI(static_cast<unsigned int>(dpiSpinBox_->value()));
 
-  if (unitsComboBox->currentIndex() == Units_px)
-    engine->setSizeByPixel(sizeDoubleSpinBox->value());
+  if (unitsComboBox_->currentIndex() == Units_px)
+    engine_->setSizeByPixel(sizeDoubleSpinBox_->value());
   else
-    engine->setSizeByPoint(sizeDoubleSpinBox->value());
+    engine_->setSizeByPoint(sizeDoubleSpinBox_->value());
 
-  engine->setHinting(hintingCheckBox->isChecked());
-  engine->setAutoHinting(autoHintingCheckBox->isChecked());
-  engine->setHorizontalHinting(horizontalHintingCheckBox->isChecked());
-  engine->setVerticalHinting(verticalHintingCheckBox->isChecked());
-  engine->setBlueZoneHinting(blueZoneHintingCheckBox->isChecked());
-  engine->setShowSegments(segmentDrawingCheckBox->isChecked());
+  engine_->setHinting(hintingCheckBox_->isChecked());
+  engine_->setAutoHinting(autoHintingCheckBox_->isChecked());
+  engine_->setHorizontalHinting(horizontalHintingCheckBox_->isChecked());
+  engine_->setVerticalHinting(verticalHintingCheckBox_->isChecked());
+  engine_->setBlueZoneHinting(blueZoneHintingCheckBox_->isChecked());
+  engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
 
-  engine->setGamma(gammaSlider->value());
+  engine_->setGamma(gammaSlider_->value());
 
-  engine->setAntiAliasingMode(static_cast<Engine::AntiAliasing>(
-      antiAliasingComboBoxx->currentIndex()));
+  engine_->setAntiAliasingMode(static_cast<Engine::AntiAliasing>(
+      antiAliasingComboBoxx_->currentIndex()));
 }
 
 
@@ -246,57 +246,57 @@ MainGUI::clearStatusBar()
 void
 MainGUI::checkHinting()
 {
-  if (hintingCheckBox->isChecked())
+  if (hintingCheckBox_->isChecked())
   {
-    if (engine->currentFontType() == Engine::FontType_CFF)
+    if (engine_->currentFontType() == Engine::FontType_CFF)
     {
-      for (int i = 0; i < hintingModeComboBoxx->count(); i++)
+      for (int i = 0; i < hintingModeComboBoxx_->count(); i++)
       {
-        if (hintingModesCFFHash.key(i, -1) != -1)
-          hintingModeComboBoxx->setItemEnabled(i, true);
+        if (hintingModesCFFHash_.key(i, -1) != -1)
+          hintingModeComboBoxx_->setItemEnabled(i, true);
         else
-          hintingModeComboBoxx->setItemEnabled(i, false);
+          hintingModeComboBoxx_->setItemEnabled(i, false);
       }
 
-      hintingModeComboBoxx->setCurrentIndex(currentCFFHintingMode);
+      hintingModeComboBoxx_->setCurrentIndex(currentCFFHintingMode_);
     }
-    else if (engine->currentFontType() == Engine::FontType_TrueType)
+    else if (engine_->currentFontType() == Engine::FontType_TrueType)
     {
-      for (int i = 0; i < hintingModeComboBoxx->count(); i++)
+      for (int i = 0; i < hintingModeComboBoxx_->count(); i++)
       {
-        if (hintingModesTrueTypeHash.key(i, -1) != -1)
-          hintingModeComboBoxx->setItemEnabled(i, true);
+        if (hintingModesTrueTypeHash_.key(i, -1) != -1)
+          hintingModeComboBoxx_->setItemEnabled(i, true);
         else
-          hintingModeComboBoxx->setItemEnabled(i, false);
+          hintingModeComboBoxx_->setItemEnabled(i, false);
       }
 
-      hintingModeComboBoxx->setCurrentIndex(currentTTInterpreterVersion);
+      hintingModeComboBoxx_->setCurrentIndex(currentTTInterpreterVersion_);
     }
     else
     {
-      hintingModeLabel->setEnabled(false);
-      hintingModeComboBoxx->setEnabled(false);
+      hintingModeLabel_->setEnabled(false);
+      hintingModeComboBoxx_->setEnabled(false);
     }
 
-    for (int i = 0; i < hintingModesAlwaysDisabled.size(); i++)
-      hintingModeComboBoxx->setItemEnabled(hintingModesAlwaysDisabled[i],
+    for (int i = 0; i < hintingModesAlwaysDisabled_.size(); i++)
+      hintingModeComboBoxx_->setItemEnabled(hintingModesAlwaysDisabled_[i],
                                            false);
 
-    autoHintingCheckBox->setEnabled(true);
+    autoHintingCheckBox_->setEnabled(true);
     checkAutoHinting();
   }
   else
   {
-    hintingModeLabel->setEnabled(false);
-    hintingModeComboBoxx->setEnabled(false);
+    hintingModeLabel_->setEnabled(false);
+    hintingModeComboBoxx_->setEnabled(false);
 
-    autoHintingCheckBox->setEnabled(false);
-    horizontalHintingCheckBox->setEnabled(false);
-    verticalHintingCheckBox->setEnabled(false);
-    blueZoneHintingCheckBox->setEnabled(false);
-    segmentDrawingCheckBox->setEnabled(false);
+    autoHintingCheckBox_->setEnabled(false);
+    horizontalHintingCheckBox_->setEnabled(false);
+    verticalHintingCheckBox_->setEnabled(false);
+    blueZoneHintingCheckBox_->setEnabled(false);
+    segmentDrawingCheckBox_->setEnabled(false);
 
-    antiAliasingComboBoxx->setItemEnabled(Engine::AntiAliasing_Light, false);
+    antiAliasingComboBoxx_->setItemEnabled(Engine::AntiAliasing_Light, false);
   }
 
   drawGlyph();
@@ -306,17 +306,17 @@ MainGUI::checkHinting()
 void
 MainGUI::checkHintingMode()
 {
-  int index = hintingModeComboBoxx->currentIndex();
+  int index = hintingModeComboBoxx_->currentIndex();
 
-  if (engine->currentFontType() == Engine::FontType_CFF)
+  if (engine_->currentFontType() == Engine::FontType_CFF)
   {
-    engine->setCFFHintingMode(hintingModesCFFHash.key(index));
-    currentCFFHintingMode = index;
+    engine_->setCFFHintingMode(hintingModesCFFHash_.key(index));
+    currentCFFHintingMode_ = index;
   }
-  else if (engine->currentFontType() == Engine::FontType_TrueType)
+  else if (engine_->currentFontType() == Engine::FontType_TrueType)
   {
-    engine->setTTInterpreterVersion(hintingModesTrueTypeHash.key(index));
-    currentTTInterpreterVersion = index;
+    engine_->setTTInterpreterVersion(hintingModesTrueTypeHash_.key(index));
+    currentTTInterpreterVersion_ = index;
   }
 
   // this enforces reloading of the font
@@ -327,36 +327,36 @@ MainGUI::checkHintingMode()
 void
 MainGUI::checkAutoHinting()
 {
-  if (autoHintingCheckBox->isChecked())
+  if (autoHintingCheckBox_->isChecked())
   {
-    hintingModeLabel->setEnabled(false);
-    hintingModeComboBoxx->setEnabled(false);
+    hintingModeLabel_->setEnabled(false);
+    hintingModeComboBoxx_->setEnabled(false);
 
-    horizontalHintingCheckBox->setEnabled(true);
-    verticalHintingCheckBox->setEnabled(true);
-    blueZoneHintingCheckBox->setEnabled(true);
-    segmentDrawingCheckBox->setEnabled(true);
+    horizontalHintingCheckBox_->setEnabled(true);
+    verticalHintingCheckBox_->setEnabled(true);
+    blueZoneHintingCheckBox_->setEnabled(true);
+    segmentDrawingCheckBox_->setEnabled(true);
 
-    antiAliasingComboBoxx->setItemEnabled(Engine::AntiAliasing_Light, true);
+    antiAliasingComboBoxx_->setItemEnabled(Engine::AntiAliasing_Light, true);
   }
   else
   {
-    if (engine->currentFontType() == Engine::FontType_CFF
-        || engine->currentFontType() == Engine::FontType_TrueType)
+    if (engine_->currentFontType() == Engine::FontType_CFF
+        || engine_->currentFontType() == Engine::FontType_TrueType)
     {
-      hintingModeLabel->setEnabled(true);
-      hintingModeComboBoxx->setEnabled(true);
+      hintingModeLabel_->setEnabled(true);
+      hintingModeComboBoxx_->setEnabled(true);
     }
 
-    horizontalHintingCheckBox->setEnabled(false);
-    verticalHintingCheckBox->setEnabled(false);
-    blueZoneHintingCheckBox->setEnabled(false);
-    segmentDrawingCheckBox->setEnabled(false);
+    horizontalHintingCheckBox_->setEnabled(false);
+    verticalHintingCheckBox_->setEnabled(false);
+    blueZoneHintingCheckBox_->setEnabled(false);
+    segmentDrawingCheckBox_->setEnabled(false);
 
-    antiAliasingComboBoxx->setItemEnabled(Engine::AntiAliasing_Light, false);
+    antiAliasingComboBoxx_->setItemEnabled(Engine::AntiAliasing_Light, false);
 
-    if (antiAliasingComboBoxx->currentIndex() == Engine::AntiAliasing_Light)
-      antiAliasingComboBoxx->setCurrentIndex(Engine::AntiAliasing_Normal);
+    if (antiAliasingComboBoxx_->currentIndex() == Engine::AntiAliasing_Light)
+      antiAliasingComboBoxx_->setCurrentIndex(Engine::AntiAliasing_Normal);
   }
 
   drawGlyph();
@@ -366,19 +366,19 @@ MainGUI::checkAutoHinting()
 void
 MainGUI::checkAntiAliasing()
 {
-  int index = antiAliasingComboBoxx->currentIndex();
+  int index = antiAliasingComboBoxx_->currentIndex();
 
   if (index == Engine::AntiAliasing_None
       || index == Engine::AntiAliasing::AntiAliasing_Normal
       || index == Engine::AntiAliasing_Light)
   {
-    lcdFilterLabel->setEnabled(false);
-    lcdFilterComboBox->setEnabled(false);
+    lcdFilterLabel_->setEnabled(false);
+    lcdFilterComboBox_->setEnabled(false);
   }
   else
   {
-    lcdFilterLabel->setEnabled(true);
-    lcdFilterComboBox->setEnabled(true);
+    lcdFilterLabel_->setEnabled(true);
+    lcdFilterComboBox_->setEnabled(true);
   }
 
   drawGlyph();
@@ -388,18 +388,18 @@ MainGUI::checkAntiAliasing()
 void
 MainGUI::checkLcdFilter()
 {
-  int index = lcdFilterComboBox->currentIndex();
-  engine->setLcdFilter(lcdFilterHash.key(index));
+  int index = lcdFilterComboBox_->currentIndex();
+  engine_->setLcdFilter(lcdFilterHash_.key(index));
 }
 
 
 void
 MainGUI::checkShowPoints()
 {
-  if (showPointsCheckBox->isChecked())
-    showPointNumbersCheckBox->setEnabled(true);
+  if (showPointsCheckBox_->isChecked())
+    showPointNumbersCheckBox_->setEnabled(true);
   else
-    showPointNumbersCheckBox->setEnabled(false);
+    showPointNumbersCheckBox_->setEnabled(false);
 
   drawGlyph();
 }
@@ -408,20 +408,20 @@ MainGUI::checkShowPoints()
 void
 MainGUI::checkUnits()
 {
-  int index = unitsComboBox->currentIndex();
+  int index = unitsComboBox_->currentIndex();
 
   if (index == Units_px)
   {
-    dpiLabel->setEnabled(false);
-    dpiSpinBox->setEnabled(false);
-    sizeDoubleSpinBox->setSingleStep(1);
-    sizeDoubleSpinBox->setValue(qRound(sizeDoubleSpinBox->value()));
+    dpiLabel_->setEnabled(false);
+    dpiSpinBox_->setEnabled(false);
+    sizeDoubleSpinBox_->setSingleStep(1);
+    sizeDoubleSpinBox_->setValue(qRound(sizeDoubleSpinBox_->value()));
   }
   else
   {
-    dpiLabel->setEnabled(true);
-    dpiSpinBox->setEnabled(true);
-    sizeDoubleSpinBox->setSingleStep(0.5);
+    dpiLabel_->setEnabled(true);
+    dpiSpinBox_->setEnabled(true);
+    sizeDoubleSpinBox_->setSingleStep(0.5);
   }
 
   drawGlyph();
@@ -432,19 +432,19 @@ void
 MainGUI::adjustGlyphIndex(int delta)
 {
   // only adjust current glyph index if we have a valid font
-  if (currentNumberOfGlyphs > 0)
+  if (currentNumberOfGlyphs_ > 0)
   {
-    currentGlyphIndex += delta;
-    currentGlyphIndex = qBound(0,
-                               currentGlyphIndex,
-                               currentNumberOfGlyphs - 1);
+    currentGlyphIndex_ += delta;
+    currentGlyphIndex_ = qBound(0,
+                               currentGlyphIndex_,
+                               currentNumberOfGlyphs_ - 1);
   }
 
-  QString upperHex = QString::number(currentGlyphIndex, 16).toUpper();
-  glyphIndexLabel->setText(QString("%1 (0x%2)")
-                                   .arg(currentGlyphIndex)
+  QString upperHex = QString::number(currentGlyphIndex_, 16).toUpper();
+  glyphIndexLabel_->setText(QString("%1 (0x%2)")
+                                   .arg(currentGlyphIndex_)
                                    .arg(upperHex));
-  glyphNameLabel->setText(engine->glyphName(currentGlyphIndex));
+  glyphNameLabel_->setText(engine_->glyphName(currentGlyphIndex_));
 
   drawGlyph();
 }
@@ -453,25 +453,25 @@ MainGUI::adjustGlyphIndex(int delta)
 void
 MainGUI::checkCurrentFontIndex()
 {
-  if (engine->numberOfOpenedFonts() < 2)
+  if (engine_->numberOfOpenedFonts() < 2)
   {
-    previousFontButton->setEnabled(false);
-    nextFontButton->setEnabled(false);
+    previousFontButton_->setEnabled(false);
+    nextFontButton_->setEnabled(false);
   }
-  else if (currentFontIndex == 0)
+  else if (currentFontIndex_ == 0)
   {
-    previousFontButton->setEnabled(false);
-    nextFontButton->setEnabled(true);
+    previousFontButton_->setEnabled(false);
+    nextFontButton_->setEnabled(true);
   }
-  else if (currentFontIndex >= engine->numberOfOpenedFonts() - 1)
+  else if (currentFontIndex_ >= engine_->numberOfOpenedFonts() - 1)
   {
-    previousFontButton->setEnabled(true);
-    nextFontButton->setEnabled(false);
+    previousFontButton_->setEnabled(true);
+    nextFontButton_->setEnabled(false);
   }
   else
   {
-    previousFontButton->setEnabled(true);
-    nextFontButton->setEnabled(true);
+    previousFontButton_->setEnabled(true);
+    nextFontButton_->setEnabled(true);
   }
 }
 
@@ -479,25 +479,25 @@ MainGUI::checkCurrentFontIndex()
 void
 MainGUI::checkCurrentFaceIndex()
 {
-  if (currentNumberOfFaces < 2)
+  if (currentNumberOfFaces_ < 2)
   {
-    previousFaceButton->setEnabled(false);
-    nextFaceButton->setEnabled(false);
+    previousFaceButton_->setEnabled(false);
+    nextFaceButton_->setEnabled(false);
   }
-  else if (currentFaceIndex == 0)
+  else if (currentFaceIndex_ == 0)
   {
-    previousFaceButton->setEnabled(false);
-    nextFaceButton->setEnabled(true);
+    previousFaceButton_->setEnabled(false);
+    nextFaceButton_->setEnabled(true);
   }
-  else if (currentFaceIndex >= currentNumberOfFaces - 1)
+  else if (currentFaceIndex_ >= currentNumberOfFaces_ - 1)
   {
-    previousFaceButton->setEnabled(true);
-    nextFaceButton->setEnabled(false);
+    previousFaceButton_->setEnabled(true);
+    nextFaceButton_->setEnabled(false);
   }
   else
   {
-    previousFaceButton->setEnabled(true);
-    nextFaceButton->setEnabled(true);
+    previousFaceButton_->setEnabled(true);
+    nextFaceButton_->setEnabled(true);
   }
 }
 
@@ -505,25 +505,25 @@ MainGUI::checkCurrentFaceIndex()
 void
 MainGUI::checkCurrentNamedInstanceIndex()
 {
-  if (currentNumberOfNamedInstances < 2)
+  if (currentNumberOfNamedInstances_ < 2)
   {
-    previousNamedInstanceButton->setEnabled(false);
-    nextNamedInstanceButton->setEnabled(false);
+    previousNamedInstanceButton_->setEnabled(false);
+    nextNamedInstanceButton_->setEnabled(false);
   }
-  else if (currentNamedInstanceIndex == 0)
+  else if (currentNamedInstanceIndex_ == 0)
   {
-    previousNamedInstanceButton->setEnabled(false);
-    nextNamedInstanceButton->setEnabled(true);
+    previousNamedInstanceButton_->setEnabled(false);
+    nextNamedInstanceButton_->setEnabled(true);
   }
-  else if (currentNamedInstanceIndex >= currentNumberOfNamedInstances - 1)
+  else if (currentNamedInstanceIndex_ >= currentNumberOfNamedInstances_ - 1)
   {
-    previousNamedInstanceButton->setEnabled(true);
-    nextNamedInstanceButton->setEnabled(false);
+    previousNamedInstanceButton_->setEnabled(true);
+    nextNamedInstanceButton_->setEnabled(false);
   }
   else
   {
-    previousNamedInstanceButton->setEnabled(true);
-    nextNamedInstanceButton->setEnabled(true);
+    previousNamedInstanceButton_->setEnabled(true);
+    nextNamedInstanceButton_->setEnabled(true);
   }
 }
 
@@ -531,11 +531,11 @@ MainGUI::checkCurrentNamedInstanceIndex()
 void
 MainGUI::previousFont()
 {
-  if (currentFontIndex > 0)
+  if (currentFontIndex_ > 0)
   {
-    currentFontIndex--;
-    currentFaceIndex = 0;
-    currentNamedInstanceIndex = 0;
+    currentFontIndex_--;
+    currentFaceIndex_ = 0;
+    currentNamedInstanceIndex_ = 0;
     showFont();
   }
 }
@@ -544,11 +544,11 @@ MainGUI::previousFont()
 void
 MainGUI::nextFont()
 {
-  if (currentFontIndex < engine->numberOfOpenedFonts() - 1)
+  if (currentFontIndex_ < engine_->numberOfOpenedFonts() - 1)
   {
-    currentFontIndex++;
-    currentFaceIndex = 0;
-    currentNamedInstanceIndex = 0;
+    currentFontIndex_++;
+    currentFaceIndex_ = 0;
+    currentNamedInstanceIndex_ = 0;
     showFont();
   }
 }
@@ -557,10 +557,10 @@ MainGUI::nextFont()
 void
 MainGUI::previousFace()
 {
-  if (currentFaceIndex > 0)
+  if (currentFaceIndex_ > 0)
   {
-    currentFaceIndex--;
-    currentNamedInstanceIndex = 0;
+    currentFaceIndex_--;
+    currentNamedInstanceIndex_ = 0;
     showFont();
   }
 }
@@ -569,10 +569,10 @@ MainGUI::previousFace()
 void
 MainGUI::nextFace()
 {
-  if (currentFaceIndex < currentNumberOfFaces - 1)
+  if (currentFaceIndex_ < currentNumberOfFaces_ - 1)
   {
-    currentFaceIndex++;
-    currentNamedInstanceIndex = 0;
+    currentFaceIndex_++;
+    currentNamedInstanceIndex_ = 0;
     showFont();
   }
 }
@@ -581,9 +581,9 @@ MainGUI::nextFace()
 void
 MainGUI::previousNamedInstance()
 {
-  if (currentNamedInstanceIndex > 0)
+  if (currentNamedInstanceIndex_ > 0)
   {
-    currentNamedInstanceIndex--;
+    currentNamedInstanceIndex_--;
     showFont();
   }
 }
@@ -592,9 +592,9 @@ MainGUI::previousNamedInstance()
 void
 MainGUI::nextNamedInstance()
 {
-  if (currentNamedInstanceIndex < currentNumberOfNamedInstances - 1)
+  if (currentNamedInstanceIndex_ < currentNumberOfNamedInstances_ - 1)
   {
-    currentNamedInstanceIndex++;
+    currentNamedInstanceIndex_++;
     showFont();
   }
 }
@@ -603,7 +603,7 @@ MainGUI::nextNamedInstance()
 void
 MainGUI::zoom()
 {
-  int scale = zoomSpinBox->value();
+  int scale = zoomSpinBox_->value();
 
   QTransform transform;
   transform.scale(scale, scale);
@@ -614,7 +614,7 @@ MainGUI::zoom()
   qreal shift = 0.5 / scale;
   transform.translate(shift, shift);
 
-  glyphView->setTransform(transform);
+  glyphView_->setTransform(transform);
 }
 
 
@@ -623,28 +623,28 @@ MainGUI::setGraphicsDefaults()
 {
   // color tables (with suitable opacity values) for converting
   // FreeType's pixmaps to something Qt understands
-  monoColorTable.append(QColor(Qt::transparent).rgba());
-  monoColorTable.append(QColor(Qt::black).rgba());
+  monoColorTable_.append(QColor(Qt::transparent).rgba());
+  monoColorTable_.append(QColor(Qt::black).rgba());
 
   for (int i = 0xFF; i >= 0; i--)
-    grayColorTable.append(qRgba(i, i, i, 0xFF - i));
+    grayColorTable_.append(qRgba(i, i, i, 0xFF - i));
 
   // XXX make this user-configurable
 
-  axisPen.setColor(Qt::black);
-  axisPen.setWidth(0);
-  blueZonePen.setColor(QColor(64, 64, 255, 64)); // light blue
-  blueZonePen.setWidth(0);
-  gridPen.setColor(Qt::lightGray);
-  gridPen.setWidth(0);
-  offPen.setColor(Qt::darkGreen);
-  offPen.setWidth(3);
-  onPen.setColor(Qt::red);
-  onPen.setWidth(3);
-  outlinePen.setColor(Qt::red);
-  outlinePen.setWidth(0);
-  segmentPen.setColor(QColor(64, 255, 128, 64)); // light green
-  segmentPen.setWidth(0);
+  axisPen_.setColor(Qt::black);
+  axisPen_.setWidth(0);
+  blueZonePen_.setColor(QColor(64, 64, 255, 64)); // light blue
+  blueZonePen_.setWidth(0);
+  gridPen_.setColor(Qt::lightGray);
+  gridPen_.setWidth(0);
+  offPen_.setColor(Qt::darkGreen);
+  offPen_.setWidth(3);
+  onPen_.setColor(Qt::red);
+  onPen_.setWidth(3);
+  outlinePen_.setColor(Qt::red);
+  outlinePen_.setWidth(0);
+  segmentPen_.setColor(QColor(64, 255, 128, 64)); // light green
+  segmentPen_.setWidth(0);
 }
 
 
@@ -653,82 +653,82 @@ MainGUI::drawGlyph()
 {
   // the call to `engine->loadOutline' updates FreeType's load flags
 
-  if (!engine)
+  if (!engine_)
     return;
 
-  if (currentGlyphBitmapItem)
+  if (currentGlyphBitmapItem_)
   {
-    glyphScene->removeItem(currentGlyphBitmapItem);
-    delete currentGlyphBitmapItem;
+    glyphScene_->removeItem(currentGlyphBitmapItem_);
+    delete currentGlyphBitmapItem_;
 
-    currentGlyphBitmapItem = NULL;
+    currentGlyphBitmapItem_ = NULL;
   }
 
-  if (currentGlyphOutlineItem)
+  if (currentGlyphOutlineItem_)
   {
-    glyphScene->removeItem(currentGlyphOutlineItem);
-    delete currentGlyphOutlineItem;
+    glyphScene_->removeItem(currentGlyphOutlineItem_);
+    delete currentGlyphOutlineItem_;
 
-    currentGlyphOutlineItem = NULL;
+    currentGlyphOutlineItem_ = NULL;
   }
 
-  if (currentGlyphPointsItem)
+  if (currentGlyphPointsItem_)
   {
-    glyphScene->removeItem(currentGlyphPointsItem);
-    delete currentGlyphPointsItem;
+    glyphScene_->removeItem(currentGlyphPointsItem_);
+    delete currentGlyphPointsItem_;
 
-    currentGlyphPointsItem = NULL;
+    currentGlyphPointsItem_ = NULL;
   }
 
-  if (currentGlyphPointNumbersItem)
+  if (currentGlyphPointNumbersItem_)
   {
-    glyphScene->removeItem(currentGlyphPointNumbersItem);
-    delete currentGlyphPointNumbersItem;
+    glyphScene_->removeItem(currentGlyphPointNumbersItem_);
+    delete currentGlyphPointNumbersItem_;
 
-    currentGlyphPointNumbersItem = NULL;
+    currentGlyphPointNumbersItem_ = NULL;
   }
 
   syncSettings();
-  FT_Outline* outline = engine->loadOutline(currentGlyphIndex);
+  FT_Outline* outline = engine_->loadOutline(currentGlyphIndex_);
   if (outline)
   {
-    if (showBitmapCheckBox->isChecked())
+    if (showBitmapCheckBox_->isChecked())
     {
       // XXX support LCD
       FT_Pixel_Mode pixelMode = FT_PIXEL_MODE_GRAY;
-      if (antiAliasingComboBoxx->currentIndex() == Engine::AntiAliasing_None)
+      if (antiAliasingComboBoxx_->currentIndex() == Engine::AntiAliasing_None)
         pixelMode = FT_PIXEL_MODE_MONO;
 
-      currentGlyphBitmapItem = new GlyphBitmap(outline,
-                                               engine->ftLibrary(),
+      currentGlyphBitmapItem_ = new GlyphBitmap(outline,
+                                               engine_->ftLibrary(),
                                                pixelMode,
-                                               monoColorTable,
-                                               grayColorTable);
-      glyphScene->addItem(currentGlyphBitmapItem);
+                                               monoColorTable_,
+                                               grayColorTable_);
+      glyphScene_->addItem(currentGlyphBitmapItem_);
     }
 
-    if (showOutlinesCheckBox->isChecked())
+    if (showOutlinesCheckBox_->isChecked())
     {
-      currentGlyphOutlineItem = new GlyphOutline(outlinePen, outline);
-      glyphScene->addItem(currentGlyphOutlineItem);
+      currentGlyphOutlineItem_ = new GlyphOutline(outlinePen_, outline);
+      glyphScene_->addItem(currentGlyphOutlineItem_);
     }
 
-    if (showPointsCheckBox->isChecked())
+    if (showPointsCheckBox_->isChecked())
     {
-      currentGlyphPointsItem = new GlyphPoints(onPen, offPen, outline);
-      glyphScene->addItem(currentGlyphPointsItem);
+      currentGlyphPointsItem_ = new GlyphPoints(onPen_, offPen_, outline);
+      glyphScene_->addItem(currentGlyphPointsItem_);
 
-      if (showPointNumbersCheckBox->isChecked())
+      if (showPointNumbersCheckBox_->isChecked())
       {
-        currentGlyphPointNumbersItem = new GlyphPointNumbers(onPen,
-                                                             offPen,
+        currentGlyphPointNumbersItem_ = new GlyphPointNumbers(onPen_,
+                                                             offPen_,
                                                              outline);
-        glyphScene->addItem(currentGlyphPointNumbersItem);
+        glyphScene_->addItem(currentGlyphPointNumbersItem_);
       }
     }
   }
 
-  glyphScene->update();
+  glyphScene_->update();
 }
 
 
@@ -738,309 +738,309 @@ void
 MainGUI::createLayout()
 {
   // left side
-  fontFilenameLabel = new QLabel;
+  fontFilenameLabel_ = new QLabel;
 
-  hintingCheckBox = new QCheckBox(tr("Hinting"));
+  hintingCheckBox_ = new QCheckBox(tr("Hinting"));
 
-  hintingModeLabel = new QLabel(tr("Hinting Mode"));
-  hintingModeLabel->setAlignment(Qt::AlignRight);
-  hintingModeComboBoxx = new QComboBoxx;
-  hintingModeComboBoxx->insertItem(HintingMode_TrueType_v35,
+  hintingModeLabel_ = new QLabel(tr("Hinting Mode"));
+  hintingModeLabel_->setAlignment(Qt::AlignRight);
+  hintingModeComboBoxx_ = new QComboBoxx;
+  hintingModeComboBoxx_->insertItem(HintingMode_TrueType_v35,
                                    tr("TrueType v35"));
-  hintingModeComboBoxx->insertItem(HintingMode_TrueType_v38,
+  hintingModeComboBoxx_->insertItem(HintingMode_TrueType_v38,
                                    tr("TrueType v38"));
-  hintingModeComboBoxx->insertItem(HintingMode_TrueType_v40,
+  hintingModeComboBoxx_->insertItem(HintingMode_TrueType_v40,
                                    tr("TrueType v40"));
-  hintingModeComboBoxx->insertItem(HintingMode_CFF_FreeType,
+  hintingModeComboBoxx_->insertItem(HintingMode_CFF_FreeType,
                                    tr("CFF (FreeType)"));
-  hintingModeComboBoxx->insertItem(HintingMode_CFF_Adobe,
+  hintingModeComboBoxx_->insertItem(HintingMode_CFF_Adobe,
                                    tr("CFF (Adobe)"));
-  hintingModeLabel->setBuddy(hintingModeComboBoxx);
+  hintingModeLabel_->setBuddy(hintingModeComboBoxx_);
 
-  autoHintingCheckBox = new QCheckBox(tr("Auto-Hinting"));
-  horizontalHintingCheckBox = new QCheckBox(tr("Horizontal Hinting"));
-  verticalHintingCheckBox = new QCheckBox(tr("Vertical Hinting"));
-  blueZoneHintingCheckBox = new QCheckBox(tr("Blue-Zone Hinting"));
-  segmentDrawingCheckBox = new QCheckBox(tr("Segment Drawing"));
+  autoHintingCheckBox_ = new QCheckBox(tr("Auto-Hinting"));
+  horizontalHintingCheckBox_ = new QCheckBox(tr("Horizontal Hinting"));
+  verticalHintingCheckBox_ = new QCheckBox(tr("Vertical Hinting"));
+  blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"));
+  segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"));
 
-  antiAliasingLabel = new QLabel(tr("Anti-Aliasing"));
-  antiAliasingLabel->setAlignment(Qt::AlignRight);
-  antiAliasingComboBoxx = new QComboBoxx;
-  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_None,
+  antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"));
+  antiAliasingLabel_->setAlignment(Qt::AlignRight);
+  antiAliasingComboBoxx_ = new QComboBoxx;
+  antiAliasingComboBoxx_->insertItem(Engine::AntiAliasing_None,
                                     tr("None"));
-  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_Normal,
+  antiAliasingComboBoxx_->insertItem(Engine::AntiAliasing_Normal,
                                     tr("Normal"));
-  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_Light,
+  antiAliasingComboBoxx_->insertItem(Engine::AntiAliasing_Light,
                                     tr("Light"));
-  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD,
+  antiAliasingComboBoxx_->insertItem(Engine::AntiAliasing_LCD,
                                     tr("LCD (RGB)"));
-  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD_BGR,
+  antiAliasingComboBoxx_->insertItem(Engine::AntiAliasing_LCD_BGR,
                                     tr("LCD (BGR)"));
-  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD_Vertical,
+  antiAliasingComboBoxx_->insertItem(Engine::AntiAliasing_LCD_Vertical,
                                     tr("LCD (vert. RGB)"));
-  antiAliasingComboBoxx->insertItem(Engine::AntiAliasing_LCD_Vertical_BGR,
+  antiAliasingComboBoxx_->insertItem(Engine::AntiAliasing_LCD_Vertical_BGR,
                                     tr("LCD (vert. BGR)"));
-  antiAliasingLabel->setBuddy(antiAliasingComboBoxx);
+  antiAliasingLabel_->setBuddy(antiAliasingComboBoxx_);
 
-  lcdFilterLabel = new QLabel(tr("LCD Filter"));
-  lcdFilterLabel->setAlignment(Qt::AlignRight);
-  lcdFilterComboBox = new QComboBox;
-  lcdFilterComboBox->insertItem(LCDFilter_Default, tr("Default"));
-  lcdFilterComboBox->insertItem(LCDFilter_Light, tr("Light"));
-  lcdFilterComboBox->insertItem(LCDFilter_None, tr("None"));
-  lcdFilterComboBox->insertItem(LCDFilter_Legacy, tr("Legacy"));
-  lcdFilterLabel->setBuddy(lcdFilterComboBox);
+  lcdFilterLabel_ = new QLabel(tr("LCD Filter"));
+  lcdFilterLabel_->setAlignment(Qt::AlignRight);
+  lcdFilterComboBox_ = new QComboBox;
+  lcdFilterComboBox_->insertItem(LCDFilter_Default, tr("Default"));
+  lcdFilterComboBox_->insertItem(LCDFilter_Light, tr("Light"));
+  lcdFilterComboBox_->insertItem(LCDFilter_None, tr("None"));
+  lcdFilterComboBox_->insertItem(LCDFilter_Legacy, tr("Legacy"));
+  lcdFilterLabel_->setBuddy(lcdFilterComboBox_);
 
   int width;
   // make all labels have the same width
-  width = hintingModeLabel->minimumSizeHint().width();
-  width = qMax(antiAliasingLabel->minimumSizeHint().width(), width);
-  width = qMax(lcdFilterLabel->minimumSizeHint().width(), width);
-  hintingModeLabel->setMinimumWidth(width);
-  antiAliasingLabel->setMinimumWidth(width);
-  lcdFilterLabel->setMinimumWidth(width);
+  width = hintingModeLabel_->minimumSizeHint().width();
+  width = qMax(antiAliasingLabel_->minimumSizeHint().width(), width);
+  width = qMax(lcdFilterLabel_->minimumSizeHint().width(), width);
+  hintingModeLabel_->setMinimumWidth(width);
+  antiAliasingLabel_->setMinimumWidth(width);
+  lcdFilterLabel_->setMinimumWidth(width);
 
   // ensure that all items in combo boxes fit completely;
   // also make all combo boxes have the same width
-  width = hintingModeComboBoxx->minimumSizeHint().width();
-  width = qMax(antiAliasingComboBoxx->minimumSizeHint().width(), width);
-  width = qMax(lcdFilterComboBox->minimumSizeHint().width(), width);
-  hintingModeComboBoxx->setMinimumWidth(width);
-  antiAliasingComboBoxx->setMinimumWidth(width);
-  lcdFilterComboBox->setMinimumWidth(width);
+  width = hintingModeComboBoxx_->minimumSizeHint().width();
+  width = qMax(antiAliasingComboBoxx_->minimumSizeHint().width(), width);
+  width = qMax(lcdFilterComboBox_->minimumSizeHint().width(), width);
+  hintingModeComboBoxx_->setMinimumWidth(width);
+  antiAliasingComboBoxx_->setMinimumWidth(width);
+  lcdFilterComboBox_->setMinimumWidth(width);
 
-  gammaLabel = new QLabel(tr("Gamma"));
-  gammaLabel->setAlignment(Qt::AlignRight);
-  gammaSlider = new QSlider(Qt::Horizontal);
-  gammaSlider->setRange(0, 30); // in 1/10th
-  gammaSlider->setTickPosition(QSlider::TicksBelow);
-  gammaSlider->setTickInterval(5);
-  gammaLabel->setBuddy(gammaSlider);
+  gammaLabel_ = new QLabel(tr("Gamma"));
+  gammaLabel_->setAlignment(Qt::AlignRight);
+  gammaSlider_ = new QSlider(Qt::Horizontal);
+  gammaSlider_->setRange(0, 30); // in 1/10th
+  gammaSlider_->setTickPosition(QSlider::TicksBelow);
+  gammaSlider_->setTickInterval(5);
+  gammaLabel_->setBuddy(gammaSlider_);
 
-  showBitmapCheckBox = new QCheckBox(tr("Show Bitmap"));
-  showPointsCheckBox = new QCheckBox(tr("Show Points"));
-  showPointNumbersCheckBox = new QCheckBox(tr("Show Point Numbers"));
-  showOutlinesCheckBox = new QCheckBox(tr("Show Outlines"));
+  showBitmapCheckBox_ = new QCheckBox(tr("Show Bitmap"));
+  showPointsCheckBox_ = new QCheckBox(tr("Show Points"));
+  showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"));
+  showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"));
 
-  infoLeftLayout = new QHBoxLayout;
-  infoLeftLayout->addWidget(fontFilenameLabel);
+  infoLeftLayout_ = new QHBoxLayout;
+  infoLeftLayout_->addWidget(fontFilenameLabel_);
 
-  hintingModeLayout = new QHBoxLayout;
-  hintingModeLayout->addWidget(hintingModeLabel);
-  hintingModeLayout->addWidget(hintingModeComboBoxx);
+  hintingModeLayout_ = new QHBoxLayout;
+  hintingModeLayout_->addWidget(hintingModeLabel_);
+  hintingModeLayout_->addWidget(hintingModeComboBoxx_);
 
-  horizontalHintingLayout = new QHBoxLayout;
-  horizontalHintingLayout->addSpacing(20); // XXX px
-  horizontalHintingLayout->addWidget(horizontalHintingCheckBox);
+  horizontalHintingLayout_ = new QHBoxLayout;
+  horizontalHintingLayout_->addSpacing(20); // XXX px
+  horizontalHintingLayout_->addWidget(horizontalHintingCheckBox_);
 
-  verticalHintingLayout = new QHBoxLayout;
-  verticalHintingLayout->addSpacing(20); // XXX px
-  verticalHintingLayout->addWidget(verticalHintingCheckBox);
+  verticalHintingLayout_ = new QHBoxLayout;
+  verticalHintingLayout_->addSpacing(20); // XXX px
+  verticalHintingLayout_->addWidget(verticalHintingCheckBox_);
 
-  blueZoneHintingLayout = new QHBoxLayout;
-  blueZoneHintingLayout->addSpacing(20); // XXX px
-  blueZoneHintingLayout->addWidget(blueZoneHintingCheckBox);
+  blueZoneHintingLayout_ = new QHBoxLayout;
+  blueZoneHintingLayout_->addSpacing(20); // XXX px
+  blueZoneHintingLayout_->addWidget(blueZoneHintingCheckBox_);
 
-  segmentDrawingLayout = new QHBoxLayout;
-  segmentDrawingLayout->addSpacing(20); // XXX px
-  segmentDrawingLayout->addWidget(segmentDrawingCheckBox);
+  segmentDrawingLayout_ = new QHBoxLayout;
+  segmentDrawingLayout_->addSpacing(20); // XXX px
+  segmentDrawingLayout_->addWidget(segmentDrawingCheckBox_);
 
-  antiAliasingLayout = new QHBoxLayout;
-  antiAliasingLayout->addWidget(antiAliasingLabel);
-  antiAliasingLayout->addWidget(antiAliasingComboBoxx);
+  antiAliasingLayout_ = new QHBoxLayout;
+  antiAliasingLayout_->addWidget(antiAliasingLabel_);
+  antiAliasingLayout_->addWidget(antiAliasingComboBoxx_);
 
-  lcdFilterLayout = new QHBoxLayout;
-  lcdFilterLayout->addWidget(lcdFilterLabel);
-  lcdFilterLayout->addWidget(lcdFilterComboBox);
+  lcdFilterLayout_ = new QHBoxLayout;
+  lcdFilterLayout_->addWidget(lcdFilterLabel_);
+  lcdFilterLayout_->addWidget(lcdFilterComboBox_);
 
-  gammaLayout = new QHBoxLayout;
-  gammaLayout->addWidget(gammaLabel);
-  gammaLayout->addWidget(gammaSlider);
+  gammaLayout_ = new QHBoxLayout;
+  gammaLayout_->addWidget(gammaLabel_);
+  gammaLayout_->addWidget(gammaSlider_);
 
-  pointNumbersLayout = new QHBoxLayout;
-  pointNumbersLayout->addSpacing(20); // XXX px
-  pointNumbersLayout->addWidget(showPointNumbersCheckBox);
+  pointNumbersLayout_ = new QHBoxLayout;
+  pointNumbersLayout_->addSpacing(20); // XXX px
+  pointNumbersLayout_->addWidget(showPointNumbersCheckBox_);
 
-  generalTabLayout = new QVBoxLayout;
-  generalTabLayout->addWidget(hintingCheckBox);
-  generalTabLayout->addLayout(hintingModeLayout);
-  generalTabLayout->addWidget(autoHintingCheckBox);
-  generalTabLayout->addLayout(horizontalHintingLayout);
-  generalTabLayout->addLayout(verticalHintingLayout);
-  generalTabLayout->addLayout(blueZoneHintingLayout);
-  generalTabLayout->addLayout(segmentDrawingLayout);
-  generalTabLayout->addSpacing(20); // XXX px
-  generalTabLayout->addStretch(1);
-  generalTabLayout->addLayout(antiAliasingLayout);
-  generalTabLayout->addLayout(lcdFilterLayout);
-  generalTabLayout->addSpacing(20); // XXX px
-  generalTabLayout->addStretch(1);
-  generalTabLayout->addLayout(gammaLayout);
-  generalTabLayout->addSpacing(20); // XXX px
-  generalTabLayout->addStretch(1);
-  generalTabLayout->addWidget(showBitmapCheckBox);
-  generalTabLayout->addWidget(showPointsCheckBox);
-  generalTabLayout->addLayout(pointNumbersLayout);
-  generalTabLayout->addWidget(showOutlinesCheckBox);
+  generalTabLayout_ = new QVBoxLayout;
+  generalTabLayout_->addWidget(hintingCheckBox_);
+  generalTabLayout_->addLayout(hintingModeLayout_);
+  generalTabLayout_->addWidget(autoHintingCheckBox_);
+  generalTabLayout_->addLayout(horizontalHintingLayout_);
+  generalTabLayout_->addLayout(verticalHintingLayout_);
+  generalTabLayout_->addLayout(blueZoneHintingLayout_);
+  generalTabLayout_->addLayout(segmentDrawingLayout_);
+  generalTabLayout_->addSpacing(20); // XXX px
+  generalTabLayout_->addStretch(1);
+  generalTabLayout_->addLayout(antiAliasingLayout_);
+  generalTabLayout_->addLayout(lcdFilterLayout_);
+  generalTabLayout_->addSpacing(20); // XXX px
+  generalTabLayout_->addStretch(1);
+  generalTabLayout_->addLayout(gammaLayout_);
+  generalTabLayout_->addSpacing(20); // XXX px
+  generalTabLayout_->addStretch(1);
+  generalTabLayout_->addWidget(showBitmapCheckBox_);
+  generalTabLayout_->addWidget(showPointsCheckBox_);
+  generalTabLayout_->addLayout(pointNumbersLayout_);
+  generalTabLayout_->addWidget(showOutlinesCheckBox_);
 
-  generalTabWidget = new QWidget;
-  generalTabWidget->setLayout(generalTabLayout);
+  generalTabWidget_ = new QWidget;
+  generalTabWidget_->setLayout(generalTabLayout_);
 
-  mmgxTabWidget = new QWidget;
+  mmgxTabWidget_ = new QWidget;
 
-  tabWidget = new QTabWidget;
-  tabWidget->addTab(generalTabWidget, tr("General"));
-  tabWidget->addTab(mmgxTabWidget, tr("MM/GX"));
+  tabWidget_ = new QTabWidget;
+  tabWidget_->addTab(generalTabWidget_, tr("General"));
+  tabWidget_->addTab(mmgxTabWidget_, tr("MM/GX"));
 
-  leftLayout = new QVBoxLayout;
-  leftLayout->addLayout(infoLeftLayout);
-  leftLayout->addWidget(tabWidget);
+  leftLayout_ = new QVBoxLayout;
+  leftLayout_->addLayout(infoLeftLayout_);
+  leftLayout_->addWidget(tabWidget_);
 
   // we don't want to expand the left side horizontally;
   // to change the policy we have to use a widget wrapper
-  leftWidget = new QWidget;
-  leftWidget->setLayout(leftLayout);
+  leftWidget_ = new QWidget;
+  leftWidget_->setLayout(leftLayout_);
 
   QSizePolicy leftWidgetPolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
   leftWidgetPolicy.setHorizontalStretch(0);
-  leftWidgetPolicy.setVerticalPolicy(leftWidget->sizePolicy().verticalPolicy());
-  leftWidgetPolicy.setHeightForWidth(leftWidget->sizePolicy().hasHeightForWidth());
+  leftWidgetPolicy.setVerticalPolicy(leftWidget_->sizePolicy().verticalPolicy());
+  leftWidgetPolicy.setHeightForWidth(leftWidget_->sizePolicy().hasHeightForWidth());
 
-  leftWidget->setSizePolicy(leftWidgetPolicy);
+  leftWidget_->setSizePolicy(leftWidgetPolicy);
 
   // right side
-  glyphIndexLabel = new QLabel;
-  glyphNameLabel = new QLabel;
-  fontNameLabel = new QLabel;
+  glyphIndexLabel_ = new QLabel;
+  glyphNameLabel_ = new QLabel;
+  fontNameLabel_ = new QLabel;
 
-  glyphScene = new QGraphicsScene;
-  glyphScene->addItem(new Grid(gridPen, axisPen));
+  glyphScene_ = new QGraphicsScene;
+  glyphScene_->addItem(new Grid(gridPen_, axisPen_));
 
-  currentGlyphBitmapItem = NULL;
-  currentGlyphOutlineItem = NULL;
-  currentGlyphPointsItem = NULL;
-  currentGlyphPointNumbersItem = NULL;
+  currentGlyphBitmapItem_ = NULL;
+  currentGlyphOutlineItem_ = NULL;
+  currentGlyphPointsItem_ = NULL;
+  currentGlyphPointNumbersItem_ = NULL;
   drawGlyph();
 
-  glyphView = new QGraphicsViewx;
-  glyphView->setRenderHint(QPainter::Antialiasing, true);
-  glyphView->setDragMode(QGraphicsView::ScrollHandDrag);
-  glyphView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
-  glyphView->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
-  glyphView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-  glyphView->setScene(glyphScene);
+  glyphView_ = new QGraphicsViewx;
+  glyphView_->setRenderHint(QPainter::Antialiasing, true);
+  glyphView_->setDragMode(QGraphicsView::ScrollHandDrag);
+  glyphView_->setOptimizationFlags(QGraphicsView::DontSavePainterState);
+  glyphView_->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
+  glyphView_->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+  glyphView_->setScene(glyphScene_);
 
-  sizeLabel = new QLabel(tr("Size "));
-  sizeLabel->setAlignment(Qt::AlignRight);
-  sizeDoubleSpinBox = new QDoubleSpinBox;
-  sizeDoubleSpinBox->setAlignment(Qt::AlignRight);
-  sizeDoubleSpinBox->setDecimals(1);
-  sizeDoubleSpinBox->setRange(1, 500);
-  sizeLabel->setBuddy(sizeDoubleSpinBox);
+  sizeLabel_ = new QLabel(tr("Size "));
+  sizeLabel_->setAlignment(Qt::AlignRight);
+  sizeDoubleSpinBox_ = new QDoubleSpinBox;
+  sizeDoubleSpinBox_->setAlignment(Qt::AlignRight);
+  sizeDoubleSpinBox_->setDecimals(1);
+  sizeDoubleSpinBox_->setRange(1, 500);
+  sizeLabel_->setBuddy(sizeDoubleSpinBox_);
 
-  unitsComboBox = new QComboBox;
-  unitsComboBox->insertItem(Units_px, "px");
-  unitsComboBox->insertItem(Units_pt, "pt");
+  unitsComboBox_ = new QComboBox;
+  unitsComboBox_->insertItem(Units_px, "px");
+  unitsComboBox_->insertItem(Units_pt, "pt");
 
-  dpiLabel = new QLabel(tr("DPI "));
-  dpiLabel->setAlignment(Qt::AlignRight);
-  dpiSpinBox = new QSpinBox;
-  dpiSpinBox->setAlignment(Qt::AlignRight);
-  dpiSpinBox->setRange(10, 600);
-  dpiLabel->setBuddy(dpiSpinBox);
+  dpiLabel_ = new QLabel(tr("DPI "));
+  dpiLabel_->setAlignment(Qt::AlignRight);
+  dpiSpinBox_ = new QSpinBox;
+  dpiSpinBox_->setAlignment(Qt::AlignRight);
+  dpiSpinBox_->setRange(10, 600);
+  dpiLabel_->setBuddy(dpiSpinBox_);
 
-  toStartButtonx = new QPushButtonx("|<");
-  toM1000Buttonx = new QPushButtonx("-1000");
-  toM100Buttonx = new QPushButtonx("-100");
-  toM10Buttonx = new QPushButtonx("-10");
-  toM1Buttonx = new QPushButtonx("-1");
-  toP1Buttonx = new QPushButtonx("+1");
-  toP10Buttonx = new QPushButtonx("+10");
-  toP100Buttonx = new QPushButtonx("+100");
-  toP1000Buttonx = new QPushButtonx("+1000");
-  toEndButtonx = new QPushButtonx(">|");
+  toStartButtonx_ = new QPushButtonx("|<");
+  toM1000Buttonx_ = new QPushButtonx("-1000");
+  toM100Buttonx_ = new QPushButtonx("-100");
+  toM10Buttonx_ = new QPushButtonx("-10");
+  toM1Buttonx_ = new QPushButtonx("-1");
+  toP1Buttonx_ = new QPushButtonx("+1");
+  toP10Buttonx_ = new QPushButtonx("+10");
+  toP100Buttonx_ = new QPushButtonx("+100");
+  toP1000Buttonx_ = new QPushButtonx("+1000");
+  toEndButtonx_ = new QPushButtonx(">|");
 
-  zoomLabel = new QLabel(tr("Zoom Factor"));
-  zoomLabel->setAlignment(Qt::AlignRight);
-  zoomSpinBox = new QSpinBoxx;
-  zoomSpinBox->setAlignment(Qt::AlignRight);
-  zoomSpinBox->setRange(1, 1000 - 1000 % 64);
-  zoomSpinBox->setKeyboardTracking(false);
-  zoomLabel->setBuddy(zoomSpinBox);
+  zoomLabel_ = new QLabel(tr("Zoom Factor"));
+  zoomLabel_->setAlignment(Qt::AlignRight);
+  zoomSpinBox_ = new QSpinBoxx;
+  zoomSpinBox_->setAlignment(Qt::AlignRight);
+  zoomSpinBox_->setRange(1, 1000 - 1000 % 64);
+  zoomSpinBox_->setKeyboardTracking(false);
+  zoomLabel_->setBuddy(zoomSpinBox_);
 
-  previousFontButton = new QPushButton(tr("Previous Font"));
-  nextFontButton = new QPushButton(tr("Next Font"));
-  previousFaceButton = new QPushButton(tr("Previous Face"));
-  nextFaceButton = new QPushButton(tr("Next Face"));
-  previousNamedInstanceButton = new QPushButton(tr("Previous Named Instance"));
-  nextNamedInstanceButton = new QPushButton(tr("Next Named Instance"));
+  previousFontButton_ = new QPushButton(tr("Previous Font"));
+  nextFontButton_ = new QPushButton(tr("Next Font"));
+  previousFaceButton_ = new QPushButton(tr("Previous Face"));
+  nextFaceButton_ = new QPushButton(tr("Next Face"));
+  previousNamedInstanceButton_ = new QPushButton(tr("Previous Named Instance"));
+  nextNamedInstanceButton_ = new QPushButton(tr("Next Named Instance"));
 
   infoRightLayout = new QGridLayout;
-  infoRightLayout->addWidget(glyphIndexLabel, 0, 0);
-  infoRightLayout->addWidget(glyphNameLabel, 0, 1);
-  infoRightLayout->addWidget(fontNameLabel, 0, 2);
+  infoRightLayout->addWidget(glyphIndexLabel_, 0, 0);
+  infoRightLayout->addWidget(glyphNameLabel_, 0, 1);
+  infoRightLayout->addWidget(fontNameLabel_, 0, 2);
 
-  navigationLayout = new QHBoxLayout;
-  navigationLayout->setSpacing(0);
-  navigationLayout->addStretch(1);
-  navigationLayout->addWidget(toStartButtonx);
-  navigationLayout->addWidget(toM1000Buttonx);
-  navigationLayout->addWidget(toM100Buttonx);
-  navigationLayout->addWidget(toM10Buttonx);
-  navigationLayout->addWidget(toM1Buttonx);
-  navigationLayout->addWidget(toP1Buttonx);
-  navigationLayout->addWidget(toP10Buttonx);
-  navigationLayout->addWidget(toP100Buttonx);
-  navigationLayout->addWidget(toP1000Buttonx);
-  navigationLayout->addWidget(toEndButtonx);
-  navigationLayout->addStretch(1);
+  navigationLayout_ = new QHBoxLayout;
+  navigationLayout_->setSpacing(0);
+  navigationLayout_->addStretch(1);
+  navigationLayout_->addWidget(toStartButtonx_);
+  navigationLayout_->addWidget(toM1000Buttonx_);
+  navigationLayout_->addWidget(toM100Buttonx_);
+  navigationLayout_->addWidget(toM10Buttonx_);
+  navigationLayout_->addWidget(toM1Buttonx_);
+  navigationLayout_->addWidget(toP1Buttonx_);
+  navigationLayout_->addWidget(toP10Buttonx_);
+  navigationLayout_->addWidget(toP100Buttonx_);
+  navigationLayout_->addWidget(toP1000Buttonx_);
+  navigationLayout_->addWidget(toEndButtonx_);
+  navigationLayout_->addStretch(1);
 
-  sizeLayout = new QHBoxLayout;
-  sizeLayout->addStretch(2);
-  sizeLayout->addWidget(sizeLabel);
-  sizeLayout->addWidget(sizeDoubleSpinBox);
-  sizeLayout->addWidget(unitsComboBox);
-  sizeLayout->addStretch(1);
-  sizeLayout->addWidget(dpiLabel);
-  sizeLayout->addWidget(dpiSpinBox);
-  sizeLayout->addStretch(1);
-  sizeLayout->addWidget(zoomLabel);
-  sizeLayout->addWidget(zoomSpinBox);
-  sizeLayout->addStretch(2);
+  sizeLayout_ = new QHBoxLayout;
+  sizeLayout_->addStretch(2);
+  sizeLayout_->addWidget(sizeLabel_);
+  sizeLayout_->addWidget(sizeDoubleSpinBox_);
+  sizeLayout_->addWidget(unitsComboBox_);
+  sizeLayout_->addStretch(1);
+  sizeLayout_->addWidget(dpiLabel_);
+  sizeLayout_->addWidget(dpiSpinBox_);
+  sizeLayout_->addStretch(1);
+  sizeLayout_->addWidget(zoomLabel_);
+  sizeLayout_->addWidget(zoomSpinBox_);
+  sizeLayout_->addStretch(2);
 
   fontLayout = new QGridLayout;
   fontLayout->setColumnStretch(0, 2);
-  fontLayout->addWidget(nextFontButton, 0, 1);
-  fontLayout->addWidget(previousFontButton, 1, 1);
+  fontLayout->addWidget(nextFontButton_, 0, 1);
+  fontLayout->addWidget(previousFontButton_, 1, 1);
   fontLayout->setColumnStretch(2, 1);
-  fontLayout->addWidget(nextFaceButton, 0, 3);
-  fontLayout->addWidget(previousFaceButton, 1, 3);
+  fontLayout->addWidget(nextFaceButton_, 0, 3);
+  fontLayout->addWidget(previousFaceButton_, 1, 3);
   fontLayout->setColumnStretch(4, 1);
-  fontLayout->addWidget(nextNamedInstanceButton, 0, 5);
-  fontLayout->addWidget(previousNamedInstanceButton, 1, 5);
+  fontLayout->addWidget(nextNamedInstanceButton_, 0, 5);
+  fontLayout->addWidget(previousNamedInstanceButton_, 1, 5);
   fontLayout->setColumnStretch(6, 2);
 
-  rightLayout = new QVBoxLayout;
-  rightLayout->addLayout(infoRightLayout);
-  rightLayout->addWidget(glyphView);
-  rightLayout->addLayout(navigationLayout);
-  rightLayout->addSpacing(10); // XXX px
-  rightLayout->addLayout(sizeLayout);
-  rightLayout->addSpacing(10); // XXX px
-  rightLayout->addLayout(fontLayout);
+  rightLayout_ = new QVBoxLayout;
+  rightLayout_->addLayout(infoRightLayout);
+  rightLayout_->addWidget(glyphView_);
+  rightLayout_->addLayout(navigationLayout_);
+  rightLayout_->addSpacing(10); // XXX px
+  rightLayout_->addLayout(sizeLayout_);
+  rightLayout_->addSpacing(10); // XXX px
+  rightLayout_->addLayout(fontLayout);
 
   // for symmetry with the left side use a widget also
-  rightWidget = new QWidget;
-  rightWidget->setLayout(rightLayout);
+  rightWidget_ = new QWidget;
+  rightWidget_->setLayout(rightLayout_);
 
   // the whole thing
-  ftinspectLayout = new QHBoxLayout;
-  ftinspectLayout->addWidget(leftWidget);
-  ftinspectLayout->addWidget(rightWidget);
+  ftinspectLayout_ = new QHBoxLayout;
+  ftinspectLayout_->addWidget(leftWidget_);
+  ftinspectLayout_->addWidget(rightWidget_);
 
-  ftinspectWidget = new QWidget;
-  ftinspectWidget->setLayout(ftinspectLayout);
-  setCentralWidget(ftinspectWidget);
+  ftinspectWidget_ = new QWidget;
+  ftinspectWidget_->setLayout(ftinspectLayout_);
+  setCentralWidget(ftinspectWidget_);
   setWindowTitle("ftinspect");
 }
 
@@ -1048,122 +1048,122 @@ MainGUI::createLayout()
 void
 MainGUI::createConnections()
 {
-  connect(hintingCheckBox, SIGNAL(clicked()),
+  connect(hintingCheckBox_, SIGNAL(clicked()),
           SLOT(checkHinting()));
 
-  connect(hintingModeComboBoxx, SIGNAL(currentIndexChanged(int)),
+  connect(hintingModeComboBoxx_, SIGNAL(currentIndexChanged(int)),
           SLOT(checkHintingMode()));
-  connect(antiAliasingComboBoxx, SIGNAL(currentIndexChanged(int)),
+  connect(antiAliasingComboBoxx_, SIGNAL(currentIndexChanged(int)),
           SLOT(checkAntiAliasing()));
-  connect(lcdFilterComboBox, SIGNAL(currentIndexChanged(int)),
+  connect(lcdFilterComboBox_, SIGNAL(currentIndexChanged(int)),
           SLOT(checkLcdFilter()));
 
-  connect(autoHintingCheckBox, SIGNAL(clicked()),
+  connect(autoHintingCheckBox_, SIGNAL(clicked()),
           SLOT(checkAutoHinting()));
-  connect(showBitmapCheckBox, SIGNAL(clicked()),
+  connect(showBitmapCheckBox_, SIGNAL(clicked()),
           SLOT(drawGlyph()));
-  connect(showPointsCheckBox, SIGNAL(clicked()),
+  connect(showPointsCheckBox_, SIGNAL(clicked()),
           SLOT(checkShowPoints()));
-  connect(showPointNumbersCheckBox, SIGNAL(clicked()),
+  connect(showPointNumbersCheckBox_, SIGNAL(clicked()),
           SLOT(drawGlyph()));
-  connect(showOutlinesCheckBox, SIGNAL(clicked()),
+  connect(showOutlinesCheckBox_, SIGNAL(clicked()),
           SLOT(drawGlyph()));
 
-  connect(sizeDoubleSpinBox, SIGNAL(valueChanged(double)),
+  connect(sizeDoubleSpinBox_, SIGNAL(valueChanged(double)),
           SLOT(drawGlyph()));
-  connect(unitsComboBox, SIGNAL(currentIndexChanged(int)),
+  connect(unitsComboBox_, SIGNAL(currentIndexChanged(int)),
           SLOT(checkUnits()));
-  connect(dpiSpinBox, SIGNAL(valueChanged(int)),
+  connect(dpiSpinBox_, SIGNAL(valueChanged(int)),
           SLOT(drawGlyph()));
 
-  connect(zoomSpinBox, SIGNAL(valueChanged(int)),
+  connect(zoomSpinBox_, SIGNAL(valueChanged(int)),
           SLOT(zoom()));
 
-  connect(previousFontButton, SIGNAL(clicked()),
+  connect(previousFontButton_, SIGNAL(clicked()),
           SLOT(previousFont()));
-  connect(nextFontButton, SIGNAL(clicked()),
+  connect(nextFontButton_, SIGNAL(clicked()),
           SLOT(nextFont()));
-  connect(previousFaceButton, SIGNAL(clicked()),
+  connect(previousFaceButton_, SIGNAL(clicked()),
           SLOT(previousFace()));
-  connect(nextFaceButton, SIGNAL(clicked()),
+  connect(nextFaceButton_, SIGNAL(clicked()),
           SLOT(nextFace()));
-  connect(previousNamedInstanceButton, SIGNAL(clicked()),
+  connect(previousNamedInstanceButton_, SIGNAL(clicked()),
           SLOT(previousNamedInstance()));
-  connect(nextNamedInstanceButton, SIGNAL(clicked()),
+  connect(nextNamedInstanceButton_, SIGNAL(clicked()),
           SLOT(nextNamedInstance()));
 
-  glyphNavigationMapper = new QSignalMapper;
-  connect(glyphNavigationMapper, SIGNAL(mapped(int)),
+  glyphNavigationMapper_ = new QSignalMapper;
+  connect(glyphNavigationMapper_, SIGNAL(mapped(int)),
           SLOT(adjustGlyphIndex(int)));
 
-  connect(toStartButtonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toM1000Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toM100Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toM10Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toM1Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toP1Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toP10Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toP100Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toP1000Buttonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
-  connect(toEndButtonx, SIGNAL(clicked()),
-          glyphNavigationMapper, SLOT(map()));
+  connect(toStartButtonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toM1000Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toM100Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toM10Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toM1Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toP1Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toP10Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toP100Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toP1000Buttonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
+  connect(toEndButtonx_, SIGNAL(clicked()),
+          glyphNavigationMapper_, SLOT(map()));
 
-  glyphNavigationMapper->setMapping(toStartButtonx, -0x10000);
-  glyphNavigationMapper->setMapping(toM1000Buttonx, -1000);
-  glyphNavigationMapper->setMapping(toM100Buttonx, -100);
-  glyphNavigationMapper->setMapping(toM10Buttonx, -10);
-  glyphNavigationMapper->setMapping(toM1Buttonx, -1);
-  glyphNavigationMapper->setMapping(toP1Buttonx, 1);
-  glyphNavigationMapper->setMapping(toP10Buttonx, 10);
-  glyphNavigationMapper->setMapping(toP100Buttonx, 100);
-  glyphNavigationMapper->setMapping(toP1000Buttonx, 1000);
-  glyphNavigationMapper->setMapping(toEndButtonx, 0x10000);
+  glyphNavigationMapper_->setMapping(toStartButtonx_, -0x10000);
+  glyphNavigationMapper_->setMapping(toM1000Buttonx_, -1000);
+  glyphNavigationMapper_->setMapping(toM100Buttonx_, -100);
+  glyphNavigationMapper_->setMapping(toM10Buttonx_, -10);
+  glyphNavigationMapper_->setMapping(toM1Buttonx_, -1);
+  glyphNavigationMapper_->setMapping(toP1Buttonx_, 1);
+  glyphNavigationMapper_->setMapping(toP10Buttonx_, 10);
+  glyphNavigationMapper_->setMapping(toP100Buttonx_, 100);
+  glyphNavigationMapper_->setMapping(toP1000Buttonx_, 1000);
+  glyphNavigationMapper_->setMapping(toEndButtonx_, 0x10000);
 }
 
 
 void
 MainGUI::createActions()
 {
-  loadFontsAct = new QAction(tr("&Load Fonts"), this);
-  loadFontsAct->setShortcuts(QKeySequence::Open);
-  connect(loadFontsAct, SIGNAL(triggered()), SLOT(loadFonts()));
+  loadFontsAct_ = new QAction(tr("&Load Fonts"), this);
+  loadFontsAct_->setShortcuts(QKeySequence::Open);
+  connect(loadFontsAct_, SIGNAL(triggered()), SLOT(loadFonts()));
 
-  closeFontAct = new QAction(tr("&Close Font"), this);
-  closeFontAct->setShortcuts(QKeySequence::Close);
-  connect(closeFontAct, SIGNAL(triggered()), SLOT(closeFont()));
+  closeFontAct_ = new QAction(tr("&Close Font"), this);
+  closeFontAct_->setShortcuts(QKeySequence::Close);
+  connect(closeFontAct_, SIGNAL(triggered()), SLOT(closeFont()));
 
-  exitAct = new QAction(tr("E&xit"), this);
-  exitAct->setShortcuts(QKeySequence::Quit);
-  connect(exitAct, SIGNAL(triggered()), SLOT(close()));
+  exitAct_ = new QAction(tr("E&xit"), this);
+  exitAct_->setShortcuts(QKeySequence::Quit);
+  connect(exitAct_, SIGNAL(triggered()), SLOT(close()));
 
-  aboutAct = new QAction(tr("&About"), this);
-  connect(aboutAct, SIGNAL(triggered()), SLOT(about()));
+  aboutAct_ = new QAction(tr("&About"), this);
+  connect(aboutAct_, SIGNAL(triggered()), SLOT(about()));
 
-  aboutQtAct = new QAction(tr("About &Qt"), this);
-  connect(aboutQtAct, SIGNAL(triggered()), SLOT(aboutQt()));
+  aboutQtAct_ = new QAction(tr("About &Qt"), this);
+  connect(aboutQtAct_, SIGNAL(triggered()), SLOT(aboutQt()));
 }
 
 
 void
 MainGUI::createMenus()
 {
-  menuFile = menuBar()->addMenu(tr("&File"));
-  menuFile->addAction(loadFontsAct);
-  menuFile->addAction(closeFontAct);
-  menuFile->addAction(exitAct);
+  menuFile_ = menuBar()->addMenu(tr("&File"));
+  menuFile_->addAction(loadFontsAct_);
+  menuFile_->addAction(closeFontAct_);
+  menuFile_->addAction(exitAct_);
 
-  menuHelp = menuBar()->addMenu(tr("&Help"));
-  menuHelp->addAction(aboutAct);
-  menuHelp->addAction(aboutQtAct);
+  menuHelp_ = menuBar()->addMenu(tr("&Help"));
+  menuHelp_->addAction(aboutAct_);
+  menuHelp_->addAction(aboutQtAct_);
 }
 
 
@@ -1178,22 +1178,22 @@ void
 MainGUI::setDefaults()
 {
   // set up mappings between property values and combo box indices
-  hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
-  hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_38] = HintingMode_TrueType_v38;
-  hintingModesTrueTypeHash[TT_INTERPRETER_VERSION_40] = HintingMode_TrueType_v40;
+  hintingModesTrueTypeHash_[TT_INTERPRETER_VERSION_35] = HintingMode_TrueType_v35;
+  hintingModesTrueTypeHash_[TT_INTERPRETER_VERSION_38] = HintingMode_TrueType_v38;
+  hintingModesTrueTypeHash_[TT_INTERPRETER_VERSION_40] = HintingMode_TrueType_v40;
 
-  hintingModesCFFHash[FT_HINTING_FREETYPE] = HintingMode_CFF_FreeType;
-  hintingModesCFFHash[FT_HINTING_ADOBE] = HintingMode_CFF_Adobe;
+  hintingModesCFFHash_[FT_HINTING_FREETYPE] = HintingMode_CFF_FreeType;
+  hintingModesCFFHash_[FT_HINTING_ADOBE] = HintingMode_CFF_Adobe;
 
-  lcdFilterHash[FT_LCD_FILTER_DEFAULT] = LCDFilter_Default;
-  lcdFilterHash[FT_LCD_FILTER_LIGHT] = LCDFilter_Light;
-  lcdFilterHash[FT_LCD_FILTER_NONE] = LCDFilter_None;
-  lcdFilterHash[FT_LCD_FILTER_LEGACY] = LCDFilter_Legacy;
+  lcdFilterHash_[FT_LCD_FILTER_DEFAULT] = LCDFilter_Default;
+  lcdFilterHash_[FT_LCD_FILTER_LIGHT] = LCDFilter_Light;
+  lcdFilterHash_[FT_LCD_FILTER_NONE] = LCDFilter_None;
+  lcdFilterHash_[FT_LCD_FILTER_LEGACY] = LCDFilter_Legacy;
 
-  Engine::EngineDefaultValues& defaults = engine->engineDefaults();
+  Engine::EngineDefaultValues& defaults = engine_->engineDefaults();
 
   // make copies and remove existing elements...
-  QHash<int, int> hmTTHash = hintingModesTrueTypeHash;
+  QHash<int, int> hmTTHash = hintingModesTrueTypeHash_;
   if (hmTTHash.contains(defaults.ttInterpreterVersionDefault))
     hmTTHash.remove(defaults.ttInterpreterVersionDefault);
   if (hmTTHash.contains(defaults.ttInterpreterVersionOther))
@@ -1201,47 +1201,47 @@ MainGUI::setDefaults()
   if (hmTTHash.contains(defaults.ttInterpreterVersionOther1))
     hmTTHash.remove(defaults.ttInterpreterVersionOther1);
 
-  QHash<int, int> hmCFFHash = hintingModesCFFHash;
+  QHash<int, int> hmCFFHash = hintingModesCFFHash_;
   if (hmCFFHash.contains(defaults.cffHintingEngineDefault))
     hmCFFHash.remove(defaults.cffHintingEngineDefault);
   if (hmCFFHash.contains(defaults.cffHintingEngineOther))
     hmCFFHash.remove(defaults.cffHintingEngineOther);
 
   // ... to construct a list of always disabled hinting mode combo box items
-  hintingModesAlwaysDisabled = hmTTHash.values();
-  hintingModesAlwaysDisabled += hmCFFHash.values();
+  hintingModesAlwaysDisabled_ = hmTTHash.values();
+  hintingModesAlwaysDisabled_ += hmCFFHash.values();
 
-  for (int i = 0; i < hintingModesAlwaysDisabled.size(); i++)
-    hintingModeComboBoxx->setItemEnabled(hintingModesAlwaysDisabled[i],
+  for (int i = 0; i < hintingModesAlwaysDisabled_.size(); i++)
+    hintingModeComboBoxx_->setItemEnabled(hintingModesAlwaysDisabled_[i],
                                          false);
 
   // the next four values always non-negative
-  currentFontIndex = 0;
-  currentFaceIndex = 0;
-  currentNamedInstanceIndex = 0;
-  currentGlyphIndex = 0;
+  currentFontIndex_ = 0;
+  currentFaceIndex_ = 0;
+  currentNamedInstanceIndex_ = 0;
+  currentGlyphIndex_ = 0;
 
-  currentCFFHintingMode
-    = hintingModesCFFHash[defaults.cffHintingEngineDefault];
-  currentTTInterpreterVersion
-    = hintingModesTrueTypeHash[defaults.ttInterpreterVersionDefault];
+  currentCFFHintingMode_
+    = hintingModesCFFHash_[defaults.cffHintingEngineDefault];
+  currentTTInterpreterVersion_
+    = hintingModesTrueTypeHash_[defaults.ttInterpreterVersionDefault];
 
-  hintingCheckBox->setChecked(true);
+  hintingCheckBox_->setChecked(true);
 
-  antiAliasingComboBoxx->setCurrentIndex(Engine::AntiAliasing_Normal);
-  lcdFilterComboBox->setCurrentIndex(LCDFilter_Light);
+  antiAliasingComboBoxx_->setCurrentIndex(Engine::AntiAliasing_Normal);
+  lcdFilterComboBox_->setCurrentIndex(LCDFilter_Light);
 
-  horizontalHintingCheckBox->setChecked(true);
-  verticalHintingCheckBox->setChecked(true);
-  blueZoneHintingCheckBox->setChecked(true);
+  horizontalHintingCheckBox_->setChecked(true);
+  verticalHintingCheckBox_->setChecked(true);
+  blueZoneHintingCheckBox_->setChecked(true);
 
-  showBitmapCheckBox->setChecked(true);
-  showOutlinesCheckBox->setChecked(true);
+  showBitmapCheckBox_->setChecked(true);
+  showOutlinesCheckBox_->setChecked(true);
 
-  gammaSlider->setValue(18); // 1.8
-  sizeDoubleSpinBox->setValue(20);
-  dpiSpinBox->setValue(96);
-  zoomSpinBox->setValue(20);
+  gammaSlider_->setValue(18); // 1.8
+  sizeDoubleSpinBox_->setValue(20);
+  dpiSpinBox_->setValue(96);
+  zoomSpinBox_->setValue(20);
 
   checkHinting();
   checkHintingMode();

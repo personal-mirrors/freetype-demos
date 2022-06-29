@@ -87,7 +87,7 @@ faceRequester(FTC_FaceID ftcFaceID,
              "Pointer size must be at least the size of int"
              " in order to treat FTC_FaceID correctly");
 
-  const FaceID& faceID = engine->faceIDMap.key(val);
+  const FaceID& faceID = engine->faceIDMap_.key(val);
 
   // this is the only place where we have to check the validity of the font
   // index; note that the validity of both the face and named instance index
@@ -96,7 +96,7 @@ faceRequester(FTC_FaceID ftcFaceID,
       || faceID.fontIndex >= engine->numberOfOpenedFonts())
     return FT_Err_Invalid_Argument;
 
-  QString font = engine->fileManager[faceID.fontIndex].filePath();
+  QString font = engine->fontFileManager_[faceID.fontIndex].filePath();
   long faceIndex = faceID.faceIndex;
 
   if (faceID.namedInstanceIndex > 0)
@@ -117,32 +117,32 @@ faceRequester(FTC_FaceID ftcFaceID,
 
 Engine::Engine()
 {
-  ftSize = NULL;
+  ftSize_ = NULL;
   // we reserve value 0 for the `invalid face ID'
-  faceCounter = 1;
+  faceCounter_ = 1;
 
   FT_Error error;
 
-  error = FT_Init_FreeType(&library);
+  error = FT_Init_FreeType(&library_);
   if (error)
   {
     // XXX error handling
   }
 
-  error = FTC_Manager_New(library, 0, 0, 0,
-                          faceRequester, this, &cacheManager);
+  error = FTC_Manager_New(library_, 0, 0, 0,
+                          faceRequester, this, &cacheManager_);
   if (error)
   {
     // XXX error handling
   }
 
-  error = FTC_SBitCache_New(cacheManager, &sbitsCache);
+  error = FTC_SBitCache_New(cacheManager_, &sbitsCache_);
   if (error)
   {
     // XXX error handling
   }
 
-  error = FTC_ImageCache_New(cacheManager, &imageCache);
+  error = FTC_ImageCache_New(cacheManager_, &imageCache_);
   if (error)
   {
     // XXX error handling
@@ -154,8 +154,8 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-  FTC_Manager_Done(cacheManager);
-  FT_Done_FreeType(library);
+  FTC_Manager_Done(cacheManager_);
+  FT_Done_FreeType(library_);
 }
 
 
@@ -167,28 +167,28 @@ Engine::numberOfFaces(int fontIndex)
 
   // search triplet (fontIndex, 0, 0)
   FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>
-                           (faceIDMap.value(FaceID(fontIndex,
+                           (faceIDMap_.value(FaceID(fontIndex,
                                                    0,
                                                    0)));
   if (ftcFaceID)
   {
     // found
-    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
       numFaces = face->num_faces;
   }
   else
   {
     // not found; try to load triplet (fontIndex, 0, 0)
-    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter);
-    faceIDMap.insert(FaceID(fontIndex, 0, 0),
-                     faceCounter++);
+    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
+    faceIDMap_.insert(FaceID(fontIndex, 0, 0),
+                     faceCounter_++);
 
-    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
       numFaces = face->num_faces;
     else
     {
-      faceIDMap.remove(FaceID(fontIndex, 0, 0));
-      faceCounter--;
+      faceIDMap_.remove(FaceID(fontIndex, 0, 0));
+      faceCounter_--;
     }
   }
 
@@ -207,28 +207,28 @@ Engine::numberOfNamedInstances(int fontIndex,
 
   // search triplet (fontIndex, faceIndex, 0)
   FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>
-                           (faceIDMap.value(FaceID(fontIndex,
+                           (faceIDMap_.value(FaceID(fontIndex,
                                                    faceIndex,
                                                    0)));
   if (ftcFaceID)
   {
     // found
-    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
       numNamedInstances = static_cast<int>((face->style_flags >> 16) + 1);
   }
   else
   {
     // not found; try to load triplet (fontIndex, faceIndex, 0)
-    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter);
-    faceIDMap.insert(FaceID(fontIndex, faceIndex, 0),
-                     faceCounter++);
+    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
+    faceIDMap_.insert(FaceID(fontIndex, faceIndex, 0),
+                     faceCounter_++);
 
-    if (!FTC_Manager_LookupFace(cacheManager, ftcFaceID, &face))
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
       numNamedInstances = static_cast<int>((face->style_flags >> 16) + 1);
     else
     {
-      faceIDMap.remove(FaceID(fontIndex, faceIndex, 0));
-      faceCounter--;
+      faceIDMap_.remove(FaceID(fontIndex, faceIndex, 0));
+      faceCounter_--;
     }
   }
 
@@ -242,60 +242,60 @@ Engine::loadFont(int fontIndex,
                  int namedInstanceIndex)
 {
   int numGlyphs = -1;
-  fontType = FontType_Other;
+  fontType_ = FontType_Other;
 
   update();
 
   // search triplet (fontIndex, faceIndex, namedInstanceIndex)
-  scaler.face_id = reinterpret_cast<FTC_FaceID>
-                     (faceIDMap.value(FaceID(fontIndex,
+  scaler_.face_id = reinterpret_cast<FTC_FaceID>
+                     (faceIDMap_.value(FaceID(fontIndex,
                                              faceIndex,
                                              namedInstanceIndex)));
-  if (scaler.face_id)
+  if (scaler_.face_id)
   {
     // found
-    if (!FTC_Manager_LookupSize(cacheManager, &scaler, &ftSize))
-      numGlyphs = ftSize->face->num_glyphs;
+    if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+      numGlyphs = ftSize_->face->num_glyphs;
   }
   else
   {
     // not found; try to load triplet
     // (fontIndex, faceIndex, namedInstanceIndex)
-    scaler.face_id = reinterpret_cast<FTC_FaceID>(faceCounter);
-    faceIDMap.insert(FaceID(fontIndex,
+    scaler_.face_id = reinterpret_cast<FTC_FaceID>(faceCounter_);
+    faceIDMap_.insert(FaceID(fontIndex,
                             faceIndex,
                             namedInstanceIndex),
-                     faceCounter++);
+                     faceCounter_++);
 
-    if (!FTC_Manager_LookupSize(cacheManager, &scaler, &ftSize))
-      numGlyphs = ftSize->face->num_glyphs;
+    if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+      numGlyphs = ftSize_->face->num_glyphs;
     else
     {
-      faceIDMap.remove(FaceID(fontIndex,
+      faceIDMap_.remove(FaceID(fontIndex,
                               faceIndex,
                               namedInstanceIndex));
-      faceCounter--;
+      faceCounter_--;
     }
   }
 
   if (numGlyphs < 0)
   {
-    ftSize = NULL;
-    curFamilyName = QString();
-    curStyleName = QString();
+    ftSize_ = NULL;
+    curFamilyName_ = QString();
+    curStyleName_ = QString();
   }
   else
   {
-    curFamilyName = QString(ftSize->face->family_name);
-    curStyleName = QString(ftSize->face->style_name);
+    curFamilyName_ = QString(ftSize_->face->family_name);
+    curStyleName_ = QString(ftSize_->face->style_name);
 
-    const char* moduleName = FT_FACE_DRIVER_NAME( ftSize->face );
+    const char* moduleName = FT_FACE_DRIVER_NAME( ftSize_->face );
 
     // XXX cover all available modules
     if (!strcmp(moduleName, "cff"))
-      fontType = FontType_CFF;
+      fontType_ = FontType_CFF;
     else if (!strcmp(moduleName, "truetype"))
-      fontType = FontType_TrueType;
+      fontType_ = FontType_TrueType;
   }
 
   return numGlyphs;
@@ -308,11 +308,11 @@ Engine::removeFont(int fontIndex, bool closeFile)
   // we iterate over all triplets that contain the given font index
   // and remove them
   QMap<FaceID, FTC_IDType>::iterator iter
-    = faceIDMap.lowerBound(FaceID(fontIndex, 0, 0));
+    = faceIDMap_.lowerBound(FaceID(fontIndex, 0, 0));
 
   for (;;)
   {
-    if (iter == faceIDMap.end())
+    if (iter == faceIDMap_.end())
       break;
 
     FaceID faceID = iter.key();
@@ -320,13 +320,13 @@ Engine::removeFont(int fontIndex, bool closeFile)
       break;
 
     FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(iter.value());
-    FTC_Manager_RemoveFaceID(cacheManager, ftcFaceID);
+    FTC_Manager_RemoveFaceID(cacheManager_, ftcFaceID);
 
-    iter = faceIDMap.erase(iter);
+    iter = faceIDMap_.erase(iter);
   }
 
   if (closeFile)
-    fileManager.remove(fontIndex);
+    fontFileManager_.remove(fontIndex);
 }
 
 
@@ -338,10 +338,10 @@ Engine::glyphName(int index)
   if (index < 0)
     throw std::runtime_error("Invalid glyph index");
 
-  if (ftSize && FT_HAS_GLYPH_NAMES(ftSize->face))
+  if (ftSize_ && FT_HAS_GLYPH_NAMES(ftSize_->face))
   {
     char buffer[256];
-    if (!FT_Get_Glyph_Name(ftSize->face,
+    if (!FT_Get_Glyph_Name(ftSize_->face,
                            static_cast<unsigned int>(index),
                            buffer,
                            sizeof(buffer)))
@@ -366,9 +366,9 @@ Engine::loadOutline(int glyphIndex)
 
   // the `scaler' object is set up by the
   // `update' and `loadFont' methods
-  if (FTC_ImageCache_LookupScaler(imageCache,
-                                  &scaler,
-                                  loadFlags | FT_LOAD_NO_BITMAP,
+  if (FTC_ImageCache_LookupScaler(imageCache_,
+                                  &scaler_,
+                                  loadFlags_ | FT_LOAD_NO_BITMAP,
                                   static_cast<unsigned int>(glyphIndex),
                                   &glyph,
                                   NULL))
@@ -389,52 +389,52 @@ Engine::loadOutline(int glyphIndex)
 int
 Engine::numberOfOpenedFonts()
 {
-  return fileManager.size();
+  return fontFileManager_.size();
 }
 
 
 void
 Engine::openFonts(QStringList fontFileNames)
 {
-  fileManager.append(fontFileNames);
+  fontFileManager_.append(fontFileNames);
 }
 
 
 void
 Engine::setSizeByPixel(double pixelSize)
 {
-  this->pixelSize = pixelSize;
-  pointSize = pixelSize * 72.0 / dpi;
-  usingPixelSize = true;
+  this->pixelSize_ = pixelSize;
+  pointSize_ = pixelSize * 72.0 / dpi_;
+  usingPixelSize_ = true;
 }
 
 void
 Engine::setSizeByPoint(double pointSize)
 {
-  this->pointSize = pointSize;
-  pixelSize = pointSize * dpi / 72.0;
-  usingPixelSize = false;
+  this->pointSize_ = pointSize;
+  pixelSize_ = pointSize * dpi_ / 72.0;
+  usingPixelSize_ = false;
 }
 
 
 void
 Engine::setLcdFilter(FT_LcdFilter filter)
 {
-  FT_Library_SetLcdFilter(library, filter);
+  FT_Library_SetLcdFilter(library_, filter);
 }
 
 
 void
 Engine::setCFFHintingMode(int mode)
 {
-  FT_Error error = FT_Property_Set(library,
+  FT_Error error = FT_Property_Set(library_,
                                    "cff",
                                    "hinting-engine",
                                    &mode);
   if (!error)
   {
     // reset the cache
-    FTC_Manager_Reset(cacheManager);
+    FTC_Manager_Reset(cacheManager_);
   }
 }
 
@@ -442,14 +442,14 @@ Engine::setCFFHintingMode(int mode)
 void
 Engine::setTTInterpreterVersion(int version)
 {
-  FT_Error error = FT_Property_Set(library,
+  FT_Error error = FT_Property_Set(library_,
                                    "truetype",
                                    "interpreter-version",
                                    &version);
   if (!error)
   {
     // reset the cache
-    FTC_Manager_Reset(cacheManager);
+    FTC_Manager_Reset(cacheManager_);
   }
 }
 
@@ -457,20 +457,20 @@ Engine::setTTInterpreterVersion(int version)
 void
 Engine::update()
 {
-  loadFlags = FT_LOAD_DEFAULT;
-  if (doAutoHinting)
-    loadFlags |= FT_LOAD_FORCE_AUTOHINT;
-  loadFlags |= FT_LOAD_NO_BITMAP; // XXX handle bitmap fonts also
+  loadFlags_ = FT_LOAD_DEFAULT;
+  if (doAutoHinting_)
+    loadFlags_ |= FT_LOAD_FORCE_AUTOHINT;
+  loadFlags_ |= FT_LOAD_NO_BITMAP; // XXX handle bitmap fonts also
 
-  if (doHinting)
+  if (doHinting_)
   {
     unsigned long target;
 
-    if (antiAliasingMode == AntiAliasing_None)
+    if (antiAliasingMode_ == AntiAliasing_None)
       target = FT_LOAD_TARGET_MONO;
     else
     {
-      switch (antiAliasingMode)
+      switch (antiAliasingMode_)
       {
       case AntiAliasing_Light:
         target = FT_LOAD_TARGET_LIGHT;
@@ -491,33 +491,33 @@ Engine::update()
       }
     }
 
-    loadFlags |= target;
+    loadFlags_ |= target;
   }
   else
   {
-    loadFlags |= FT_LOAD_NO_HINTING;
+    loadFlags_ |= FT_LOAD_NO_HINTING;
 
-    if (antiAliasingMode == AntiAliasing_None)
-      loadFlags |= FT_LOAD_MONOCHROME;
+    if (antiAliasingMode_ == AntiAliasing_None)
+      loadFlags_ |= FT_LOAD_MONOCHROME;
   }
 
   // XXX handle color fonts also
 
-  scaler.pixel = 0; // use 26.6 format
+  scaler_.pixel = 0; // use 26.6 format
 
-  if (usingPixelSize)
+  if (usingPixelSize_)
   {
-    scaler.width = static_cast<unsigned int>(pixelSize * 64.0);
-    scaler.height = static_cast<unsigned int>(pixelSize * 64.0);
-    scaler.x_res = 0;
-    scaler.y_res = 0;
+    scaler_.width = static_cast<unsigned int>(pixelSize_ * 64.0);
+    scaler_.height = static_cast<unsigned int>(pixelSize_ * 64.0);
+    scaler_.x_res = 0;
+    scaler_.y_res = 0;
   }
   else
   {
-    scaler.width = static_cast<unsigned int>(pointSize * 64.0);
-    scaler.height = static_cast<unsigned int>(pointSize * 64.0);
-    scaler.x_res = dpi;
-    scaler.y_res = dpi;
+    scaler_.width = static_cast<unsigned int>(pointSize_ * 64.0);
+    scaler_.height = static_cast<unsigned int>(pointSize_ * 64.0);
+    scaler_.x_res = dpi_;
+    scaler_.y_res = dpi_;
   }
 }
 
@@ -530,15 +530,15 @@ Engine::queryEngine()
   // query engines and check for alternatives
 
   // CFF
-  error = FT_Property_Get(library,
+  error = FT_Property_Get(library_,
                           "cff",
                           "hinting-engine",
-                          &defaults.cffHintingEngineDefault);
+                          &engineDefaults_.cffHintingEngineDefault);
   if (error)
   {
     // no CFF engine
-    defaults.cffHintingEngineDefault = -1;
-    defaults.cffHintingEngineOther = -1;
+    engineDefaults_.cffHintingEngineDefault = -1;
+    engineDefaults_.cffHintingEngineOther = -1;
   }
   else
   {
@@ -550,36 +550,36 @@ Engine::queryEngine()
 
     int i;
     for (i = 0; i < 2; i++)
-      if (defaults.cffHintingEngineDefault == engines[i])
+      if (engineDefaults_.cffHintingEngineDefault == engines[i])
         break;
 
-    defaults.cffHintingEngineOther = engines[(i + 1) % 2];
+    engineDefaults_.cffHintingEngineOther = engines[(i + 1) % 2];
 
-    error = FT_Property_Set(library,
+    error = FT_Property_Set(library_,
                             "cff",
                             "hinting-engine",
-                            &defaults.cffHintingEngineOther);
+                            &engineDefaults_.cffHintingEngineOther);
     if (error)
-      defaults.cffHintingEngineOther = -1;
+      engineDefaults_.cffHintingEngineOther = -1;
 
     // reset
-    FT_Property_Set(library,
+    FT_Property_Set(library_,
                     "cff",
                     "hinting-engine",
-                    &defaults.cffHintingEngineDefault);
+                    &engineDefaults_.cffHintingEngineDefault);
   }
 
   // TrueType
-  error = FT_Property_Get(library,
+  error = FT_Property_Get(library_,
                           "truetype",
                           "interpreter-version",
-                          &defaults.ttInterpreterVersionDefault);
+                          &engineDefaults_.ttInterpreterVersionDefault);
   if (error)
   {
     // no TrueType engine
-    defaults.ttInterpreterVersionDefault = -1;
-    defaults.ttInterpreterVersionOther = -1;
-    defaults.ttInterpreterVersionOther1 = -1;
+    engineDefaults_.ttInterpreterVersionDefault = -1;
+    engineDefaults_.ttInterpreterVersionOther = -1;
+    engineDefaults_.ttInterpreterVersionOther1 = -1;
   }
   else
   {
@@ -592,32 +592,32 @@ Engine::queryEngine()
 
     int i;
     for (i = 0; i < 3; i++)
-      if (defaults.ttInterpreterVersionDefault == interpreters[i])
+      if (engineDefaults_.ttInterpreterVersionDefault == interpreters[i])
         break;
 
-    defaults.ttInterpreterVersionOther = interpreters[(i + 1) % 3];
+    engineDefaults_.ttInterpreterVersionOther = interpreters[(i + 1) % 3];
 
-    error = FT_Property_Set(library,
+    error = FT_Property_Set(library_,
                             "truetype",
                             "interpreter-version",
-                            &defaults.ttInterpreterVersionOther);
+                            &engineDefaults_.ttInterpreterVersionOther);
     if (error)
-      defaults.ttInterpreterVersionOther = -1;
+      engineDefaults_.ttInterpreterVersionOther = -1;
 
-    defaults.ttInterpreterVersionOther1 = interpreters[(i + 2) % 3];
+    engineDefaults_.ttInterpreterVersionOther1 = interpreters[(i + 2) % 3];
 
-    error = FT_Property_Set(library,
+    error = FT_Property_Set(library_,
                             "truetype",
                             "interpreter-version",
-                            &defaults.ttInterpreterVersionOther1);
+                            &engineDefaults_.ttInterpreterVersionOther1);
     if (error)
-      defaults.ttInterpreterVersionOther1 = -1;
+      engineDefaults_.ttInterpreterVersionOther1 = -1;
 
     // reset
-    FT_Property_Set(library,
+    FT_Property_Set(library_,
                     "truetype",
                     "interpreter-version",
-                    &defaults.ttInterpreterVersionDefault);
+                    &engineDefaults_.ttInterpreterVersionDefault);
   }
 }
 

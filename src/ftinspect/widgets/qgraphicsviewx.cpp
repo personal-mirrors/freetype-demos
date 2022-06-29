@@ -9,7 +9,7 @@
 
 
 QGraphicsViewx::QGraphicsViewx()
-: lastBottomLeftPointInitialized(false)
+: lastBottomLeftPointInitialized_(false)
 {
   // empty
 }
@@ -20,7 +20,7 @@ QGraphicsViewx::scrollContentsBy(int dx,
                                  int dy)
 {
   QGraphicsView::scrollContentsBy(dx, dy);
-  lastBottomLeftPoint = viewport()->rect().bottomLeft();
+  lastBottomLeftPoint_ = viewport()->rect().bottomLeft();
 }
 
 
@@ -31,10 +31,10 @@ QGraphicsViewx::resizeEvent(QResizeEvent* event)
 
   // XXX I don't know how to properly initialize this value,
   //     thus the hack with the boolean
-  if (!lastBottomLeftPointInitialized)
+  if (!lastBottomLeftPointInitialized_)
   {
-    lastBottomLeftPoint = viewport()->rect().bottomLeft();
-    lastBottomLeftPointInitialized = true;
+    lastBottomLeftPoint_ = viewport()->rect().bottomLeft();
+    lastBottomLeftPointInitialized_ = true;
   }
 
   QPointF currentBottomLeftPoint = viewport()->rect().bottomLeft();
@@ -42,7 +42,7 @@ QGraphicsViewx::resizeEvent(QResizeEvent* event)
   verticalScrollBar()->setValue(static_cast<int>(
                                   verticalPosition
                                   - (currentBottomLeftPoint.y()
-                                     - lastBottomLeftPoint.y())));
+                                     - lastBottomLeftPoint_.y())));
 }
 
 

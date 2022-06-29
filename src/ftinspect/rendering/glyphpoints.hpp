@@ -26,10 +26,10 @@ public:
              QWidget* widget);
 
 private:
-  QPen onPen;
-  QPen offPen;
-  FT_Outline* outline;
-  QRectF bRect;
+  QPen onPen_;
+  QPen offPen_;
+  FT_Outline* outline_;
+  QRectF boundingRect_;
 };
 
 

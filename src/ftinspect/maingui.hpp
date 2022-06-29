@@ -94,142 +94,142 @@ private slots:
   void zoom();
 
 private:
-  Engine* engine;
+  Engine* engine_;
   
-  int currentFontIndex;
+  int currentFontIndex_;
 
-  long currentNumberOfFaces;
-  long currentFaceIndex;
+  long currentNumberOfFaces_;
+  long currentFaceIndex_;
 
-  int currentNumberOfNamedInstances;
-  int currentNamedInstanceIndex;
+  int currentNumberOfNamedInstances_;
+  int currentNamedInstanceIndex_;
 
-  int currentNumberOfGlyphs;
-  int currentGlyphIndex;
+  int currentNumberOfGlyphs_;
+  int currentGlyphIndex_;
 
-  int currentCFFHintingMode;
-  int currentTTInterpreterVersion;
+  int currentCFFHintingMode_;
+  int currentTTInterpreterVersion_;
 
   // layout related stuff
-  GlyphOutline *currentGlyphOutlineItem;
-  GlyphPoints *currentGlyphPointsItem;
-  GlyphPointNumbers *currentGlyphPointNumbersItem;
-  GlyphBitmap *currentGlyphBitmapItem;
+  GlyphOutline *currentGlyphOutlineItem_;
+  GlyphPoints *currentGlyphPointsItem_;
+  GlyphPointNumbers *currentGlyphPointNumbersItem_;
+  GlyphBitmap *currentGlyphBitmapItem_;
 
-  QAction *aboutAct;
-  QAction *aboutQtAct;
-  QAction *closeFontAct;
-  QAction *exitAct;
-  QAction *loadFontsAct;
+  QAction *aboutAct_;
+  QAction *aboutQtAct_;
+  QAction *closeFontAct_;
+  QAction *exitAct_;
+  QAction *loadFontsAct_;
 
-  QCheckBox *autoHintingCheckBox;
-  QCheckBox *blueZoneHintingCheckBox;
-  QCheckBox *hintingCheckBox;
-  QCheckBox *horizontalHintingCheckBox;
-  QCheckBox *segmentDrawingCheckBox;
-  QCheckBox *showBitmapCheckBox;
-  QCheckBox *showOutlinesCheckBox;
-  QCheckBox *showPointNumbersCheckBox;
-  QCheckBox *showPointsCheckBox;
-  QCheckBox *verticalHintingCheckBox;
+  QCheckBox *autoHintingCheckBox_;
+  QCheckBox *blueZoneHintingCheckBox_;
+  QCheckBox *hintingCheckBox_;
+  QCheckBox *horizontalHintingCheckBox_;
+  QCheckBox *segmentDrawingCheckBox_;
+  QCheckBox *showBitmapCheckBox_;
+  QCheckBox *showOutlinesCheckBox_;
+  QCheckBox *showPointNumbersCheckBox_;
+  QCheckBox *showPointsCheckBox_;
+  QCheckBox *verticalHintingCheckBox_;
 
-  QComboBoxx *antiAliasingComboBoxx;
-  QComboBoxx *hintingModeComboBoxx;
-  QComboBox *lcdFilterComboBox;
-  QComboBox *unitsComboBox;
+  QComboBoxx *antiAliasingComboBoxx_;
+  QComboBoxx *hintingModeComboBoxx_;
+  QComboBox *lcdFilterComboBox_;
+  QComboBox *unitsComboBox_;
 
-  QDoubleSpinBox *sizeDoubleSpinBox;
+  QDoubleSpinBox *sizeDoubleSpinBox_;
 
-  QGraphicsScene *glyphScene;
-  QGraphicsViewx *glyphView;
+  QGraphicsScene *glyphScene_;
+  QGraphicsViewx *glyphView_;
 
   QGridLayout *fontLayout;
   QGridLayout *infoRightLayout;
 
-  QHash<int, int> hintingModesTrueTypeHash;
-  QHash<int, int> hintingModesCFFHash;
-  QHash<FT_LcdFilter, int> lcdFilterHash;
+  QHash<int, int> hintingModesTrueTypeHash_;
+  QHash<int, int> hintingModesCFFHash_;
+  QHash<FT_LcdFilter, int> lcdFilterHash_;
 
-  QHBoxLayout *antiAliasingLayout;
-  QHBoxLayout *blueZoneHintingLayout;
-  QHBoxLayout *ftinspectLayout;
-  QHBoxLayout *gammaLayout;
-  QHBoxLayout *hintingModeLayout;
-  QHBoxLayout *horizontalHintingLayout;
-  QHBoxLayout *infoLeftLayout;
-  QHBoxLayout *lcdFilterLayout;
-  QHBoxLayout *navigationLayout;
-  QHBoxLayout *pointNumbersLayout;
-  QHBoxLayout *segmentDrawingLayout;
-  QHBoxLayout *sizeLayout;
-  QHBoxLayout *verticalHintingLayout;
+  QHBoxLayout *antiAliasingLayout_;
+  QHBoxLayout *blueZoneHintingLayout_;
+  QHBoxLayout *ftinspectLayout_;
+  QHBoxLayout *gammaLayout_;
+  QHBoxLayout *hintingModeLayout_;
+  QHBoxLayout *horizontalHintingLayout_;
+  QHBoxLayout *infoLeftLayout_;
+  QHBoxLayout *lcdFilterLayout_;
+  QHBoxLayout *navigationLayout_;
+  QHBoxLayout *pointNumbersLayout_;
+  QHBoxLayout *segmentDrawingLayout_;
+  QHBoxLayout *sizeLayout_;
+  QHBoxLayout *verticalHintingLayout_;
 
-  QLabel *antiAliasingLabel;
-  QLabel *dpiLabel;
-  QLabel *fontFilenameLabel;
-  QLabel *fontNameLabel;
-  QLabel *gammaLabel;
-  QLabel *glyphIndexLabel;
-  QLabel *glyphNameLabel;
-  QLabel *hintingModeLabel;
-  QLabel *lcdFilterLabel;
-  QLabel *sizeLabel;
-  QLabel *zoomLabel;
+  QLabel *antiAliasingLabel_;
+  QLabel *dpiLabel_;
+  QLabel *fontFilenameLabel_;
+  QLabel *fontNameLabel_;
+  QLabel *gammaLabel_;
+  QLabel *glyphIndexLabel_;
+  QLabel *glyphNameLabel_;
+  QLabel *hintingModeLabel_;
+  QLabel *lcdFilterLabel_;
+  QLabel *sizeLabel_;
+  QLabel *zoomLabel_;
 
-  QList<int> hintingModesAlwaysDisabled;
+  QList<int> hintingModesAlwaysDisabled_;
 
-  QLocale *locale;
+  QLocale *locale_;
 
-  QMenu *menuFile;
-  QMenu *menuHelp;
+  QMenu *menuFile_;
+  QMenu *menuHelp_;
 
-  QPen axisPen;
-  QPen blueZonePen;
-  QPen gridPen;
-  QPen offPen;
-  QPen onPen;
-  QPen outlinePen;
-  QPen segmentPen;
+  QPen axisPen_;
+  QPen blueZonePen_;
+  QPen gridPen_;
+  QPen offPen_;
+  QPen onPen_;
+  QPen outlinePen_;
+  QPen segmentPen_;
 
-  QPushButton *nextFaceButton;
-  QPushButton *nextFontButton;
-  QPushButton *nextNamedInstanceButton;
-  QPushButton *previousFaceButton;
-  QPushButton *previousFontButton;
-  QPushButton *previousNamedInstanceButton;
+  QPushButton *nextFaceButton_;
+  QPushButton *nextFontButton_;
+  QPushButton *nextNamedInstanceButton_;
+  QPushButton *previousFaceButton_;
+  QPushButton *previousFontButton_;
+  QPushButton *previousNamedInstanceButton_;
 
-  QPushButtonx *toEndButtonx;
-  QPushButtonx *toM1000Buttonx;
-  QPushButtonx *toM100Buttonx;
-  QPushButtonx *toM10Buttonx;
-  QPushButtonx *toM1Buttonx;
-  QPushButtonx *toP1000Buttonx;
-  QPushButtonx *toP100Buttonx;
-  QPushButtonx *toP10Buttonx;
-  QPushButtonx *toP1Buttonx;
-  QPushButtonx *toStartButtonx;
+  QPushButtonx *toEndButtonx_;
+  QPushButtonx *toM1000Buttonx_;
+  QPushButtonx *toM100Buttonx_;
+  QPushButtonx *toM10Buttonx_;
+  QPushButtonx *toM1Buttonx_;
+  QPushButtonx *toP1000Buttonx_;
+  QPushButtonx *toP100Buttonx_;
+  QPushButtonx *toP10Buttonx_;
+  QPushButtonx *toP1Buttonx_;
+  QPushButtonx *toStartButtonx_;
 
-  QSignalMapper *glyphNavigationMapper;
+  QSignalMapper *glyphNavigationMapper_;
 
-  QSlider *gammaSlider;
+  QSlider *gammaSlider_;
 
-  QSpinBox *dpiSpinBox;
-  QSpinBoxx *zoomSpinBox;
+  QSpinBox *dpiSpinBox_;
+  QSpinBoxx *zoomSpinBox_;
 
-  QTabWidget *tabWidget;
+  QTabWidget *tabWidget_;
 
-  QVBoxLayout *generalTabLayout;
-  QVBoxLayout *leftLayout;
-  QVBoxLayout *rightLayout;
+  QVBoxLayout *generalTabLayout_;
+  QVBoxLayout *leftLayout_;
+  QVBoxLayout *rightLayout_;
 
-  QVector<QRgb> grayColorTable;
-  QVector<QRgb> monoColorTable;
+  QVector<QRgb> grayColorTable_;
+  QVector<QRgb> monoColorTable_;
 
-  QWidget *ftinspectWidget;
-  QWidget *generalTabWidget;
-  QWidget *leftWidget;
-  QWidget *rightWidget;
-  QWidget *mmgxTabWidget;
+  QWidget *ftinspectWidget_;
+  QWidget *generalTabWidget_;
+  QWidget *leftWidget_;
+  QWidget *rightWidget_;
+  QWidget *mmgxTabWidget_;
   
   enum HintingMode
   {

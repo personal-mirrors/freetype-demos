@@ -11,8 +11,8 @@
 
 Grid::Grid(const QPen& gridP,
            const QPen& axisP)
-: gridPen(gridP),
-  axisPen(axisP)
+: gridPen_(gridP),
+  axisPen_(axisP)
 {
  // empty
 }
@@ -40,7 +40,7 @@ Grid::paint(QPainter* painter,
   const qreal lod = option->levelOfDetailFromTransform(
                               painter->worldTransform());
 
-  painter->setPen(gridPen);
+  painter->setPen(gridPen_);
 
   // don't mark pixel center with a cross if magnification is too small
   if (lod > 20)
@@ -81,7 +81,7 @@ Grid::paint(QPainter* painter,
                         100, y);
   }
 
-  painter->setPen(axisPen);
+  painter->setPen(axisPen_);
 
   painter->drawLine(0, -100,
                     0, 100);
