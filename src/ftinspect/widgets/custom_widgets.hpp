@@ -10,6 +10,12 @@
 #include <QSpinBox>
 #include <QString>
 
+// We need to define a series of custom Qt widgets to satisfy.
+// Basically those custom widgets are derived classes from Qt-provided components,
+// with minor changes.
+// Because all those derived classes are pretty tiny and not core logic, they're
+// organized into one single hpp/cpp pair.
+
 // we want to grey out items in a combo box;
 // since Qt doesn't provide a function for this we derive a class
 class QComboBoxx
