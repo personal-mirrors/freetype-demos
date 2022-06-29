@@ -10,10 +10,7 @@
 #include "rendering/glyphoutline.hpp"
 #include "rendering/glyphpointnumbers.hpp"
 #include "rendering/glyphpoints.hpp"
-#include "widgets/qcomboboxx.hpp"
-#include "widgets/qgraphicsviewx.hpp"
-#include "widgets/qpushbuttonx.hpp"
-#include "widgets/qspinboxx.hpp"
+#include "widgets/custom_widgets.hpp"
 #include "models/ttsettingscomboboxmodel.hpp"
 #include "panels/settingpanel.hpp"
 

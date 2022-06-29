@@ -28,10 +28,7 @@ add_executable(ftinspect
   "rendering/glyphpoints.cpp"
   "rendering/grid.cpp"
 
-  "widgets/qcomboboxx.cpp"
-  "widgets/qgraphicsviewx.cpp"
-  "widgets/qpushbuttonx.cpp"
-  "widgets/qspinboxx.cpp"
+  "widgets/custom_widgets.cpp"
 
   "models/ttsettingscomboboxmodel.cpp"
 
