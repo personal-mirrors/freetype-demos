@@ -7,7 +7,6 @@
 #include "rendering/grid.hpp"
 
 #include <QApplication>
-#include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
@@ -18,11 +17,6 @@
 MainGUI::MainGUI()
 {
   engine = NULL;
-
-  fontWatcher = new QFileSystemWatcher;
-  // if the current input file is invalid we retry once a second to load it
-  timer = new QTimer;
-  timer->setInterval(1000);
 
   setGraphicsDefaults();
   createLayout();
@@ -46,7 +40,13 @@ MainGUI::~MainGUI()
 void
 MainGUI::update(Engine* e)
 {
+  if (engine)
+    disconnect(&engine->fontFileManager(), &FontFileManager::currentFileChanged,
+        this, &MainGUI::watchCurrentFont);
+
   engine = e;
+  connect(&engine->fontFileManager(), &FontFileManager::currentFileChanged,
+          this, &MainGUI::watchCurrentFont);
 }
 
 
@@ -94,7 +94,7 @@ MainGUI::aboutQt()
 void
 MainGUI::loadFonts()
 {
-  int oldSize = fontList.size();
+  int oldSize = engine->numberOfOpenedFonts();
 
   QStringList files = QFileDialog::getOpenFileNames(
                         this,
@@ -104,11 +104,10 @@ MainGUI::loadFonts()
                         NULL,
                         QFileDialog::ReadOnly);
 
-  // XXX sort data, uniquify elements
-  fontList.append(files);
+  engine->openFonts(files);
 
   // if we have new fonts, set the current index to the first new one
-  if (oldSize < fontList.size())
+  if (oldSize < engine->numberOfOpenedFonts())
     currentFontIndex = oldSize;
 
   showFont();
@@ -118,18 +117,17 @@ MainGUI::loadFonts()
 void
 MainGUI::closeFont()
 {
-  if (currentFontIndex < fontList.size())
+  if (currentFontIndex < engine->numberOfOpenedFonts())
   {
     engine->removeFont(currentFontIndex);
-    fontWatcher->removePath(fontList[currentFontIndex]);
-    fontList.removeAt(currentFontIndex);
   }
 
   // show next font after deletion, i.e., retain index if possible
-  if (fontList.size())
+  int num = engine->numberOfOpenedFonts();
+  if (num)
   {
-    if (currentFontIndex >= fontList.size())
-      currentFontIndex = fontList.size() - 1;
+    if (currentFontIndex >= num)
+      currentFontIndex = num - 1;
   }
   else
     currentFontIndex = 0;
@@ -141,7 +139,6 @@ MainGUI::closeFont()
 void
 MainGUI::watchCurrentFont()
 {
-  timer->stop();
   showFont();
 }
 
@@ -151,32 +148,25 @@ MainGUI::showFont()
 {
   // we do lazy computation of FT_Face objects
 
-  if (currentFontIndex < fontList.size())
+  if (currentFontIndex < engine->numberOfOpenedFonts())
   {
-    QString& font = fontList[currentFontIndex];
-    QFileInfo fileInfo(font);
+    QFileInfo& fileInfo = engine->fontFileManager()[currentFontIndex];
     QString fontName = fileInfo.fileName();
 
-    if (fileInfo.exists())
+    engine->fontFileManager().updateWatching(currentFontIndex);
+    if (fileInfo.isSymLink())
     {
-      // Qt's file watcher doesn't handle symlinks;
-      // we thus fall back to polling
-      if (fileInfo.isSymLink())
-      {
-        fontName.prepend("<i>");
-        fontName.append("</i>");
-        timer->start();
-      }
-      else
-        fontWatcher->addPath(font);
+      fontName.prepend("<i>");
+      fontName.append("</i>");
     }
-    else
+
+    if (!fileInfo.exists())
     {
       // On Unix-like systems, the symlink's target gets opened; this
       // implies that deletion of a symlink doesn't make `engine->loadFont'
       // fail since it operates on a file handle pointing to the target.
       // For this reason, we remove the font to enforce a reload.
-      engine->removeFont(currentFontIndex);
+      engine->removeFont(currentFontIndex, false);
     }
 
     fontFilenameLabel->setText(fontName);
@@ -200,8 +190,9 @@ MainGUI::showFont()
     // (file, face, instance) triplet is invalid or missing;
     // we thus start our timer to periodically test
     // whether the font starts working
-    if (currentFontIndex < fontList.size())
-      timer->start();
+    if (currentFontIndex > 0
+        && currentFontIndex < engine->numberOfOpenedFonts())
+      engine->fontFileManager().timerStart();
   }
 
   fontNameLabel->setText(QString("%1 %2")
@@ -428,7 +419,7 @@ MainGUI::adjustGlyphIndex(int delta)
 void
 MainGUI::checkCurrentFontIndex()
 {
-  if (fontList.size() < 2)
+  if (engine->numberOfOpenedFonts() < 2)
   {
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(false);
@@ -438,7 +429,7 @@ MainGUI::checkCurrentFontIndex()
     previousFontButton->setEnabled(false);
     nextFontButton->setEnabled(true);
   }
-  else if (currentFontIndex >= fontList.size() - 1)
+  else if (currentFontIndex >= engine->numberOfOpenedFonts() - 1)
   {
     previousFontButton->setEnabled(true);
     nextFontButton->setEnabled(false);
@@ -519,7 +510,7 @@ MainGUI::previousFont()
 void
 MainGUI::nextFont()
 {
-  if (currentFontIndex < fontList.size() - 1)
+  if (currentFontIndex < engine->numberOfOpenedFonts() - 1)
   {
     currentFontIndex++;
     currentFaceIndex = 0;
@@ -1101,11 +1092,6 @@ MainGUI::createConnections()
   glyphNavigationMapper->setMapping(toP100Buttonx, 100);
   glyphNavigationMapper->setMapping(toP1000Buttonx, 1000);
   glyphNavigationMapper->setMapping(toEndButtonx, 0x10000);
-
-  connect(fontWatcher, SIGNAL(fileChanged(const QString&)),
-          SLOT(watchCurrentFont()));
-  connect(timer, SIGNAL(timeout()),
-          SLOT(watchCurrentFont()));
 }
 
 

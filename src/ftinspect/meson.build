@@ -21,15 +21,19 @@ qt5_dep = dependency('qt5',
 if qt5_dep.found()
   sources = files([
     'engine/engine.cpp',
+    'engine/fontfilemanager.cpp',
+
     'rendering/glyphbitmap.cpp',
     'rendering/glyphoutline.cpp',
     'rendering/glyphpointnumbers.cpp',
     'rendering/glyphpoints.cpp',
     'rendering/grid.cpp',
+
     'widgets/qcomboboxx.cpp',
     'widgets/qgraphicsviewx.cpp',
     'widgets/qpushbuttonx.cpp',
     'widgets/qspinboxx.cpp',
+
     'ftinspect.cpp',
     'maingui.cpp',
   ])

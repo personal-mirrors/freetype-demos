@@ -94,10 +94,10 @@ faceRequester(FTC_FaceID ftcFaceID,
   // index; note that the validity of both the face and named instance index
   // is checked by FreeType itself
   if (faceID.fontIndex < 0
-      || faceID.fontIndex >= gui->fontList.size())
+      || faceID.fontIndex >= gui->engine->numberOfOpenedFonts())
     return FT_Err_Invalid_Argument;
 
-  QString& font = gui->fontList[faceID.fontIndex];
+  QString font = gui->engine->fileManager[faceID.fontIndex].filePath();
   long faceIndex = faceID.faceIndex;
 
   if (faceID.namedInstanceIndex > 0)
@@ -396,7 +396,7 @@ Engine::loadFont(int fontIndex,
 
 
 void
-Engine::removeFont(int fontIndex)
+Engine::removeFont(int fontIndex, bool closeFile)
 {
   // we iterate over all triplets that contain the given font index
   // and remove them
@@ -417,6 +417,9 @@ Engine::removeFont(int fontIndex)
 
     iter = faceIDMap.erase(iter);
   }
+
+  if (closeFile)
+    fileManager.remove(fontIndex);
 }
 
 
@@ -489,6 +492,17 @@ Engine::loadOutline(int glyphIndex)
   return &outlineGlyph->outline;
 }
 
+int
+Engine::numberOfOpenedFonts()
+{
+  return fileManager.size();
+}
+
+void
+Engine::openFonts(QStringList fontFileNames)
+{
+  fileManager.append(fontFileNames);
+}
 
 void
 Engine::setCFFHintingMode(int mode)
@@ -615,6 +629,12 @@ Engine::update()
     scaler.x_res = dpi;
     scaler.y_res = dpi;
   }
+}
+
+FontFileManager&
+Engine::fontFileManager()
+{
+  return fileManager;
 }
 
 

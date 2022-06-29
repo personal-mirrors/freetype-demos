@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "fontfilemanager.hpp"
+
 #include <QString>
 #include <QMap>
 
@@ -44,6 +46,10 @@ public:
   Engine(MainGUI*);
   ~Engine();
 
+  // Disable copying
+  Engine(const Engine& other) = delete;
+  Engine& operator=(const Engine& other) = delete;
+
   const QString& currentFamilyName();
   const QString& currentStyleName();
   QString glyphName(int glyphIndex);
@@ -54,7 +60,11 @@ public:
                long faceIndex,
                int namedInstanceIndex); // return number of glyphs
   FT_Outline* loadOutline(int glyphIndex);
-  void removeFont(int fontIndex);
+
+  int numberOfOpenedFonts();
+  void openFonts(QStringList fontFileNames);
+  void removeFont(int fontIndex, bool closeFile = true);
+
   void setCFFHintingMode(int mode);
   void setTTInterpreterVersion(int version);
   void update();
@@ -73,12 +83,19 @@ public:
     FontType_Other
   };
 
+  // XXX We should prepend '_' to all private member variable so we can create
+  // getter without naming conflict... e.g. var named _fontFileManager while
+  // getter named fontFileManager
+  FontFileManager& fontFileManager();
+
 private:
   MainGUI* gui;
 
   using FTC_IDType = uintptr_t;
   FTC_IDType faceCounter; // a running number used to initialize `faceIDMap'
   QMap<FaceID, FTC_IDType> faceIDMap;
+
+  FontFileManager fileManager;
 
   QString curFamilyName;
   QString curStyleName;
