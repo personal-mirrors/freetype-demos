@@ -35,9 +35,11 @@ if qt5_dep.found()
     'widgets/qpushbuttonx.cpp',
     'widgets/qspinboxx.cpp',
 
+    'models/customcomboboxmodels.cpp',
+
     'ftinspect.cpp',
     'maingui.cpp',
-  ])
+])
 
   moc_files = qt5.preprocess(
     moc_headers: [
@@ -47,6 +49,7 @@ if qt5_dep.found()
       'widgets/qpushbuttonx.hpp',
       'widgets/qspinboxx.hpp',
       'maingui.hpp',
+      'models/customcomboboxmodels.hpp',
     ],
     dependencies: qt5_dep)
 
