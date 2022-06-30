@@ -464,40 +464,15 @@ Engine::update()
 
   if (doHinting_)
   {
-    unsigned long target;
-
-    if (antiAliasingMode_ == AntiAliasing_None)
-      target = FT_LOAD_TARGET_MONO;
-    else
-    {
-      switch (antiAliasingMode_)
-      {
-      case AntiAliasing_Light:
-        target = FT_LOAD_TARGET_LIGHT;
-        break;
-
-      case AntiAliasing_LCD:
-      case AntiAliasing_LCD_BGR: // TODO Differenate RGB/BGR here?
-        target = FT_LOAD_TARGET_LCD;
-        break;
-
-      case AntiAliasing_LCD_Vertical:
-      case AntiAliasing_LCD_Vertical_BGR:
-        target = FT_LOAD_TARGET_LCD_V;
-        break;
-
-      default:
-        target = FT_LOAD_TARGET_NORMAL;
-      }
-    }
-
+    // TODO Differentiate RGB/BGR here?
+    unsigned long target = antiAliasingTarget_;
     loadFlags_ |= target;
   }
   else
   {
     loadFlags_ |= FT_LOAD_NO_HINTING;
 
-    if (antiAliasingMode_ == AntiAliasing_None)
+    if (antiAliasingTarget_ | FT_LOAD_TARGET_MONO) // XXX does this hold?
       loadFlags_ |= FT_LOAD_MONOCHROME;
   }
 

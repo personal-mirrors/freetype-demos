@@ -14,6 +14,7 @@
 #include "widgets/qgraphicsviewx.hpp"
 #include "widgets/qpushbuttonx.hpp"
 #include "widgets/qspinboxx.hpp"
+#include "models/ttsettingscomboboxmodel.hpp"
 
 #include <QAction>
 #include <QCheckBox>
@@ -133,8 +134,12 @@ private:
   QCheckBox *showPointsCheckBox_;
   QCheckBox *verticalHintingCheckBox_;
 
-  QComboBoxx *antiAliasingComboBoxx_;
-  QComboBoxx *hintingModeComboBoxx_;
+  AntiAliasingComboBoxModel* antiAliasingComboBoxModel_;
+  HintingModeComboBoxModel* hintingModeComboBoxModel_;
+  LCDFilterComboBoxModel* lcdFilterComboboxModel_;
+
+  QComboBox *antiAliasingComboBox_;
+  QComboBox *hintingModeComboBox_;
   QComboBox *lcdFilterComboBox_;
   QComboBox *unitsComboBox_;
 
@@ -145,10 +150,6 @@ private:
 
   QGridLayout *fontLayout;
   QGridLayout *infoRightLayout;
-
-  QHash<int, int> hintingModesTrueTypeHash_;
-  QHash<int, int> hintingModesCFFHash_;
-  QHash<FT_LcdFilter, int> lcdFilterHash_;
 
   QHBoxLayout *antiAliasingLayout_;
   QHBoxLayout *blueZoneHintingLayout_;
@@ -175,8 +176,6 @@ private:
   QLabel *lcdFilterLabel_;
   QLabel *sizeLabel_;
   QLabel *zoomLabel_;
-
-  QList<int> hintingModesAlwaysDisabled_;
 
   QLocale *locale_;
 
@@ -230,22 +229,7 @@ private:
   QWidget *leftWidget_;
   QWidget *rightWidget_;
   QWidget *mmgxTabWidget_;
-  
-  enum HintingMode
-  {
-    HintingMode_TrueType_v35,
-    HintingMode_TrueType_v38,
-    HintingMode_TrueType_v40,
-    HintingMode_CFF_FreeType,
-    HintingMode_CFF_Adobe
-  };
-  enum LCDFilter
-  {
-    LCDFilter_Default,
-    LCDFilter_Light,
-    LCDFilter_None,
-    LCDFilter_Legacy
-  };
+
   enum Units
   {
     Units_px,

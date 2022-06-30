@@ -42,9 +42,6 @@ class Engine
 {
 public:
   //////// Nested definitions (forward decl)
-
-  // TODO these would be dropped with custom QAbstractItemModel
-  enum AntiAliasing : int;
   enum FontType : int;
 
   struct EngineDefaultValues
@@ -117,7 +114,7 @@ public:
   }
   void setShowSegments(bool showSegments) { showSegments_ = showSegments; }
   void setGamma(double gamma) { gamma_ = gamma; }
-  void setAntiAliasingMode(AntiAliasing mode) { antiAliasingMode_ = mode; }
+  void setAntiAliasingTarget(int target) { antiAliasingTarget_ = target; }
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
@@ -165,7 +162,7 @@ private:
   bool doVerticalHinting_;
   bool doBlueZoneHinting_;
   bool showSegments_;
-  AntiAliasing antiAliasingMode_;
+  int antiAliasingTarget_;
 
   double gamma_;
 
@@ -176,17 +173,6 @@ private:
 public:
 
   /// Actual definition
-  
-  enum AntiAliasing
-  {
-    AntiAliasing_None,
-    AntiAliasing_Normal,
-    AntiAliasing_Light,
-    AntiAliasing_LCD,
-    AntiAliasing_LCD_BGR,
-    AntiAliasing_LCD_Vertical,
-    AntiAliasing_LCD_Vertical_BGR
-  };
 
   // XXX cover all available modules
   enum FontType
