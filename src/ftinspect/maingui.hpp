@@ -15,6 +15,7 @@
 #include "widgets/qpushbuttonx.hpp"
 #include "widgets/qspinboxx.hpp"
 #include "models/ttsettingscomboboxmodel.hpp"
+#include "panels/settingpanel.hpp"
 
 #include <QAction>
 #include <QCheckBox>
@@ -71,17 +72,12 @@ private slots:
   void about();
   void aboutQt();
   void adjustGlyphIndex(int);
-  void checkAntiAliasing();
-  void checkAutoHinting();
   void checkCurrentFaceIndex();
   void checkCurrentFontIndex();
   void checkCurrentNamedInstanceIndex();
-  void checkHinting();
-  void checkHintingMode();
-  void checkLcdFilter();
-  void checkShowPoints();
   void checkUnits();
   void closeFont();
+  void showFont();
   void drawGlyph();
   void loadFonts();
   void nextFace();
@@ -107,9 +103,6 @@ private:
   int currentNumberOfGlyphs_;
   int currentGlyphIndex_;
 
-  int currentCFFHintingMode_;
-  int currentTTInterpreterVersion_;
-
   // layout related stuff
   GlyphOutline *currentGlyphOutlineItem_;
   GlyphPoints *currentGlyphPointsItem_;
@@ -122,24 +115,6 @@ private:
   QAction *exitAct_;
   QAction *loadFontsAct_;
 
-  QCheckBox *autoHintingCheckBox_;
-  QCheckBox *blueZoneHintingCheckBox_;
-  QCheckBox *hintingCheckBox_;
-  QCheckBox *horizontalHintingCheckBox_;
-  QCheckBox *segmentDrawingCheckBox_;
-  QCheckBox *showBitmapCheckBox_;
-  QCheckBox *showOutlinesCheckBox_;
-  QCheckBox *showPointNumbersCheckBox_;
-  QCheckBox *showPointsCheckBox_;
-  QCheckBox *verticalHintingCheckBox_;
-
-  AntiAliasingComboBoxModel* antiAliasingComboBoxModel_;
-  HintingModeComboBoxModel* hintingModeComboBoxModel_;
-  LCDFilterComboBoxModel* lcdFilterComboboxModel_;
-
-  QComboBox *antiAliasingComboBox_;
-  QComboBox *hintingModeComboBox_;
-  QComboBox *lcdFilterComboBox_;
   QComboBox *unitsComboBox_;
 
   QDoubleSpinBox *sizeDoubleSpinBox_;
@@ -150,29 +125,16 @@ private:
   QGridLayout *fontLayout;
   QGridLayout *infoRightLayout;
 
-  QHBoxLayout *antiAliasingLayout_;
-  QHBoxLayout *blueZoneHintingLayout_;
   QHBoxLayout *ftinspectLayout_;
-  QHBoxLayout *gammaLayout_;
-  QHBoxLayout *hintingModeLayout_;
-  QHBoxLayout *horizontalHintingLayout_;
   QHBoxLayout *infoLeftLayout_;
-  QHBoxLayout *lcdFilterLayout_;
   QHBoxLayout *navigationLayout_;
-  QHBoxLayout *pointNumbersLayout_;
-  QHBoxLayout *segmentDrawingLayout_;
   QHBoxLayout *sizeLayout_;
-  QHBoxLayout *verticalHintingLayout_;
 
-  QLabel *antiAliasingLabel_;
   QLabel *dpiLabel_;
   QLabel *fontFilenameLabel_;
   QLabel *fontNameLabel_;
-  QLabel *gammaLabel_;
   QLabel *glyphIndexLabel_;
   QLabel *glyphNameLabel_;
-  QLabel *hintingModeLabel_;
-  QLabel *lcdFilterLabel_;
   QLabel *sizeLabel_;
   QLabel *zoomLabel_;
 
@@ -209,14 +171,9 @@ private:
 
   QSignalMapper *glyphNavigationMapper_;
 
-  QSlider *gammaSlider_;
-
   QSpinBox *dpiSpinBox_;
   QSpinBoxx *zoomSpinBox_;
-
-  QTabWidget *tabWidget_;
-
-  QVBoxLayout *generalTabLayout_;
+  
   QVBoxLayout *leftLayout_;
   QVBoxLayout *rightLayout_;
 
@@ -224,10 +181,10 @@ private:
   QVector<QRgb> monoColorTable_;
 
   QWidget *ftinspectWidget_;
-  QWidget *generalTabWidget_;
   QWidget *leftWidget_;
   QWidget *rightWidget_;
-  QWidget *mmgxTabWidget_;
+
+  SettingPanel* settingPanel_;
 
   enum Units
   {
@@ -235,7 +192,6 @@ private:
     Units_pt
   };
 
-  void showFont();
   void syncSettings();
   void clearStatusBar();
 

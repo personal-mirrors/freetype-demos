@@ -36,6 +36,8 @@ if qt5_dep.found()
 
     'models/ttsettingscomboboxmodel.cpp',
 
+    'panels/settingpanel.cpp'
+
     'ftinspect.cpp',
     'maingui.cpp',
 ])
@@ -48,6 +50,7 @@ if qt5_dep.found()
       'widgets/qspinboxx.hpp',
       'maingui.hpp',
       'models/ttsettingscomboboxmodel.cpp',
+      'panels/settingpanel.cpp',
     ],
     dependencies: qt5_dep)
 

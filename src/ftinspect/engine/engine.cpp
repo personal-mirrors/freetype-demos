@@ -435,6 +435,7 @@ Engine::setCFFHintingMode(int mode)
   {
     // reset the cache
     FTC_Manager_Reset(cacheManager_);
+    ftSize_ = NULL;
   }
 }
 
@@ -450,6 +451,7 @@ Engine::setTTInterpreterVersion(int version)
   {
     // reset the cache
     FTC_Manager_Reset(cacheManager_);
+    ftSize_ = NULL;
   }
 }
 

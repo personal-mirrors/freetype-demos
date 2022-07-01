@@ -34,6 +34,8 @@ add_executable(ftinspect
   "widgets/qspinboxx.cpp"
 
   "models/ttsettingscomboboxmodel.cpp"
+
+  "panels/settingpanel.cpp"
 )
 target_link_libraries(ftinspect
   Qt5::Core Qt5::Widgets

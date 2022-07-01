@@ -189,10 +189,10 @@ MainGUI::showFont()
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
   checkCurrentNamedInstanceIndex();
-  checkHinting();
+  auto state = settingPanel_->blockSignals(true);
+  settingPanel_->checkHinting();
+  settingPanel_->blockSignals(state);
   adjustGlyphIndex(0);
-
-  drawGlyph();
 }
 
 
@@ -207,17 +207,7 @@ MainGUI::syncSettings()
   else
     engine_->setSizeByPoint(sizeDoubleSpinBox_->value());
 
-  engine_->setHinting(hintingCheckBox_->isChecked());
-  engine_->setAutoHinting(autoHintingCheckBox_->isChecked());
-  engine_->setHorizontalHinting(horizontalHintingCheckBox_->isChecked());
-  engine_->setVerticalHinting(verticalHintingCheckBox_->isChecked());
-  engine_->setBlueZoneHinting(blueZoneHintingCheckBox_->isChecked());
-  engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
-
-  engine_->setGamma(gammaSlider_->value());
-
-  engine_->setAntiAliasingTarget(antiAliasingComboBoxModel_->indexToValue(
-    antiAliasingComboBox_->currentIndex()));
+  settingPanel_->syncSettings();
 }
 
 
@@ -226,161 +216,6 @@ MainGUI::clearStatusBar()
 {
   statusBar()->clearMessage();
   statusBar()->setStyleSheet("");
-}
-
-
-void
-MainGUI::checkHinting()
-{
-  if (hintingCheckBox_->isChecked())
-  {
-    if (engine_->currentFontType() == Engine::FontType_CFF)
-    {
-      hintingModeComboBoxModel_->setCurrentEngineType(
-        HintingModeComboBoxModel::HintingEngineType_CFF);
-      hintingModeComboBox_->setCurrentIndex(currentCFFHintingMode_);
-    }
-    else if (engine_->currentFontType() == Engine::FontType_TrueType)
-    {
-      hintingModeComboBoxModel_->setCurrentEngineType(
-        HintingModeComboBoxModel::HintingEngineType_TrueType);
-      hintingModeComboBox_->setCurrentIndex(currentTTInterpreterVersion_);
-    }
-    else
-    {
-      hintingModeLabel_->setEnabled(false);
-      hintingModeComboBox_->setEnabled(false);
-    }
-
-    autoHintingCheckBox_->setEnabled(true);
-    checkAutoHinting();
-  }
-  else
-  {
-    hintingModeLabel_->setEnabled(false);
-    hintingModeComboBox_->setEnabled(false);
-
-    autoHintingCheckBox_->setEnabled(false);
-    horizontalHintingCheckBox_->setEnabled(false);
-    verticalHintingCheckBox_->setEnabled(false);
-    blueZoneHintingCheckBox_->setEnabled(false);
-    segmentDrawingCheckBox_->setEnabled(false);
-
-    antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(false);
-    if (antiAliasingComboBox_->currentIndex()
-      == AntiAliasingComboBoxModel::AntiAliasing_Light)
-      antiAliasingComboBox_->setCurrentIndex(
-        AntiAliasingComboBoxModel::AntiAliasing_Normal);
-  }
-
-  drawGlyph();
-}
-
-
-void
-MainGUI::checkHintingMode()
-{
-  int index = hintingModeComboBox_->currentIndex();
-
-  if (engine_->currentFontType() == Engine::FontType_CFF)
-  {
-    engine_->setCFFHintingMode(
-      hintingModeComboBoxModel_->indexToCFFMode(index));
-    currentCFFHintingMode_ = index;
-  }
-  else if (engine_->currentFontType() == Engine::FontType_TrueType)
-  {
-    engine_->setTTInterpreterVersion(
-      hintingModeComboBoxModel_->indexToTTInterpreterVersion(index));
-    currentTTInterpreterVersion_ = index;
-  }
-
-  // this enforces reloading of the font
-  showFont();
-}
-
-
-void
-MainGUI::checkAutoHinting()
-{
-  if (autoHintingCheckBox_->isChecked())
-  {
-    hintingModeLabel_->setEnabled(false);
-    hintingModeComboBox_->setEnabled(false);
-
-    horizontalHintingCheckBox_->setEnabled(true);
-    verticalHintingCheckBox_->setEnabled(true);
-    blueZoneHintingCheckBox_->setEnabled(true);
-    segmentDrawingCheckBox_->setEnabled(true);
-
-    antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(true);
-  }
-  else
-  {
-    if (engine_->currentFontType() == Engine::FontType_CFF
-        || engine_->currentFontType() == Engine::FontType_TrueType)
-    {
-      hintingModeLabel_->setEnabled(true);
-      hintingModeComboBox_->setEnabled(true);
-    }
-
-    horizontalHintingCheckBox_->setEnabled(false);
-    verticalHintingCheckBox_->setEnabled(false);
-    blueZoneHintingCheckBox_->setEnabled(false);
-    segmentDrawingCheckBox_->setEnabled(false);
-
-    antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(false);
-
-    if (antiAliasingComboBox_->currentIndex()
-        == AntiAliasingComboBoxModel::AntiAliasing_Light)
-      antiAliasingComboBox_->setCurrentIndex(
-          AntiAliasingComboBoxModel::AntiAliasing_Normal);
-  }
-
-  drawGlyph();
-}
-
-
-void
-MainGUI::checkAntiAliasing()
-{
-  int index = antiAliasingComboBox_->currentIndex();
-
-  if (index == AntiAliasingComboBoxModel::AntiAliasing_None
-      || index == AntiAliasingComboBoxModel::AntiAliasing::AntiAliasing_Normal
-      || index == AntiAliasingComboBoxModel::AntiAliasing_Light)
-  {
-    lcdFilterLabel_->setEnabled(false);
-    lcdFilterComboBox_->setEnabled(false);
-  }
-  else
-  {
-    lcdFilterLabel_->setEnabled(true);
-    lcdFilterComboBox_->setEnabled(true);
-  }
-
-  drawGlyph();
-}
-
-
-void
-MainGUI::checkLcdFilter()
-{
-  int index = lcdFilterComboBox_->currentIndex();
-  engine_->setLcdFilter(static_cast<FT_LcdFilter>(
-    lcdFilterComboboxModel_->indexToValue(index)));
-}
-
-
-void
-MainGUI::checkShowPoints()
-{
-  if (showPointsCheckBox_->isChecked())
-    showPointNumbersCheckBox_->setEnabled(true);
-  else
-    showPointNumbersCheckBox_->setEnabled(false);
-
-  drawGlyph();
 }
 
 
@@ -671,11 +506,11 @@ MainGUI::drawGlyph()
   FT_Outline* outline = engine_->loadOutline(currentGlyphIndex_);
   if (outline)
   {
-    if (showBitmapCheckBox_->isChecked())
+    if (settingPanel_->showBitmapChecked())
     {
       // XXX support LCD
       FT_Pixel_Mode pixelMode = FT_PIXEL_MODE_GRAY;
-      if (antiAliasingComboBox_->currentIndex()
+      if (settingPanel_->antiAliasingModeIndex()
           == AntiAliasingComboBoxModel::AntiAliasing_None)
         pixelMode = FT_PIXEL_MODE_MONO;
 
@@ -687,18 +522,18 @@ MainGUI::drawGlyph()
       glyphScene_->addItem(currentGlyphBitmapItem_);
     }
 
-    if (showOutlinesCheckBox_->isChecked())
+    if (settingPanel_->showOutLinesChecked())
     {
       currentGlyphOutlineItem_ = new GlyphOutline(outlinePen_, outline);
       glyphScene_->addItem(currentGlyphOutlineItem_);
     }
 
-    if (showPointsCheckBox_->isChecked())
+    if (settingPanel_->showPointsChecked())
     {
       currentGlyphPointsItem_ = new GlyphPoints(onPen_, offPen_, outline);
       glyphScene_->addItem(currentGlyphPointsItem_);
 
-      if (showPointNumbersCheckBox_->isChecked())
+      if (settingPanel_->showPointNumbersChecked())
       {
         currentGlyphPointNumbersItem_ = new GlyphPointNumbers(onPen_,
                                                              offPen_,
@@ -720,142 +555,14 @@ MainGUI::createLayout()
   // left side
   fontFilenameLabel_ = new QLabel;
 
-  hintingCheckBox_ = new QCheckBox(tr("Hinting"));
-
-  hintingModeLabel_ = new QLabel(tr("Hinting Mode"));
-  hintingModeLabel_->setAlignment(Qt::AlignRight);
-
-  hintingModeComboBoxModel_ = new HintingModeComboBoxModel;
-  hintingModeComboBox_ = new QComboBox;
-  hintingModeComboBox_->setModel(hintingModeComboBoxModel_);
-  hintingModeLabel_->setBuddy(hintingModeComboBox_);
-
-  autoHintingCheckBox_ = new QCheckBox(tr("Auto-Hinting"));
-  horizontalHintingCheckBox_ = new QCheckBox(tr("Horizontal Hinting"));
-  verticalHintingCheckBox_ = new QCheckBox(tr("Vertical Hinting"));
-  blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"));
-  segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"));
-
-  antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"));
-  antiAliasingLabel_->setAlignment(Qt::AlignRight);
-
-  antiAliasingComboBoxModel_ = new AntiAliasingComboBoxModel;
-  antiAliasingComboBox_ = new QComboBox;
-  antiAliasingComboBox_->setModel(antiAliasingComboBoxModel_);
-  antiAliasingLabel_->setBuddy(antiAliasingComboBox_);
-
-  lcdFilterLabel_ = new QLabel(tr("LCD Filter"));
-  lcdFilterLabel_->setAlignment(Qt::AlignRight);
-
-  lcdFilterComboboxModel_ = new LCDFilterComboBoxModel;
-  lcdFilterComboBox_ = new QComboBox;
-  lcdFilterComboBox_->setModel(lcdFilterComboboxModel_);
-  lcdFilterLabel_->setBuddy(lcdFilterComboBox_);
-
-  int width;
-  // make all labels have the same width
-  width = hintingModeLabel_->minimumSizeHint().width();
-  width = qMax(antiAliasingLabel_->minimumSizeHint().width(), width);
-  width = qMax(lcdFilterLabel_->minimumSizeHint().width(), width);
-  hintingModeLabel_->setMinimumWidth(width);
-  antiAliasingLabel_->setMinimumWidth(width);
-  lcdFilterLabel_->setMinimumWidth(width);
-
-  // ensure that all items in combo boxes fit completely;
-  // also make all combo boxes have the same width
-  width = hintingModeComboBox_->minimumSizeHint().width();
-  width = qMax(antiAliasingComboBox_->minimumSizeHint().width(), width);
-  width = qMax(lcdFilterComboBox_->minimumSizeHint().width(), width);
-  hintingModeComboBox_->setMinimumWidth(width);
-  antiAliasingComboBox_->setMinimumWidth(width);
-  lcdFilterComboBox_->setMinimumWidth(width);
-
-  gammaLabel_ = new QLabel(tr("Gamma"));
-  gammaLabel_->setAlignment(Qt::AlignRight);
-  gammaSlider_ = new QSlider(Qt::Horizontal);
-  gammaSlider_->setRange(0, 30); // in 1/10th
-  gammaSlider_->setTickPosition(QSlider::TicksBelow);
-  gammaSlider_->setTickInterval(5);
-  gammaLabel_->setBuddy(gammaSlider_);
-
-  showBitmapCheckBox_ = new QCheckBox(tr("Show Bitmap"));
-  showPointsCheckBox_ = new QCheckBox(tr("Show Points"));
-  showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"));
-  showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"));
-
   infoLeftLayout_ = new QHBoxLayout;
   infoLeftLayout_->addWidget(fontFilenameLabel_);
 
-  hintingModeLayout_ = new QHBoxLayout;
-  hintingModeLayout_->addWidget(hintingModeLabel_);
-  hintingModeLayout_->addWidget(hintingModeComboBox_);
-
-  horizontalHintingLayout_ = new QHBoxLayout;
-  horizontalHintingLayout_->addSpacing(20); // XXX px
-  horizontalHintingLayout_->addWidget(horizontalHintingCheckBox_);
-
-  verticalHintingLayout_ = new QHBoxLayout;
-  verticalHintingLayout_->addSpacing(20); // XXX px
-  verticalHintingLayout_->addWidget(verticalHintingCheckBox_);
-
-  blueZoneHintingLayout_ = new QHBoxLayout;
-  blueZoneHintingLayout_->addSpacing(20); // XXX px
-  blueZoneHintingLayout_->addWidget(blueZoneHintingCheckBox_);
-
-  segmentDrawingLayout_ = new QHBoxLayout;
-  segmentDrawingLayout_->addSpacing(20); // XXX px
-  segmentDrawingLayout_->addWidget(segmentDrawingCheckBox_);
-
-  antiAliasingLayout_ = new QHBoxLayout;
-  antiAliasingLayout_->addWidget(antiAliasingLabel_);
-  antiAliasingLayout_->addWidget(antiAliasingComboBox_);
-
-  lcdFilterLayout_ = new QHBoxLayout;
-  lcdFilterLayout_->addWidget(lcdFilterLabel_);
-  lcdFilterLayout_->addWidget(lcdFilterComboBox_);
-
-  gammaLayout_ = new QHBoxLayout;
-  gammaLayout_->addWidget(gammaLabel_);
-  gammaLayout_->addWidget(gammaSlider_);
-
-  pointNumbersLayout_ = new QHBoxLayout;
-  pointNumbersLayout_->addSpacing(20); // XXX px
-  pointNumbersLayout_->addWidget(showPointNumbersCheckBox_);
-
-  generalTabLayout_ = new QVBoxLayout;
-  generalTabLayout_->addWidget(hintingCheckBox_);
-  generalTabLayout_->addLayout(hintingModeLayout_);
-  generalTabLayout_->addWidget(autoHintingCheckBox_);
-  generalTabLayout_->addLayout(horizontalHintingLayout_);
-  generalTabLayout_->addLayout(verticalHintingLayout_);
-  generalTabLayout_->addLayout(blueZoneHintingLayout_);
-  generalTabLayout_->addLayout(segmentDrawingLayout_);
-  generalTabLayout_->addSpacing(20); // XXX px
-  generalTabLayout_->addStretch(1);
-  generalTabLayout_->addLayout(antiAliasingLayout_);
-  generalTabLayout_->addLayout(lcdFilterLayout_);
-  generalTabLayout_->addSpacing(20); // XXX px
-  generalTabLayout_->addStretch(1);
-  generalTabLayout_->addLayout(gammaLayout_);
-  generalTabLayout_->addSpacing(20); // XXX px
-  generalTabLayout_->addStretch(1);
-  generalTabLayout_->addWidget(showBitmapCheckBox_);
-  generalTabLayout_->addWidget(showPointsCheckBox_);
-  generalTabLayout_->addLayout(pointNumbersLayout_);
-  generalTabLayout_->addWidget(showOutlinesCheckBox_);
-
-  generalTabWidget_ = new QWidget;
-  generalTabWidget_->setLayout(generalTabLayout_);
-
-  mmgxTabWidget_ = new QWidget;
-
-  tabWidget_ = new QTabWidget;
-  tabWidget_->addTab(generalTabWidget_, tr("General"));
-  tabWidget_->addTab(mmgxTabWidget_, tr("MM/GX"));
+  settingPanel_ = new SettingPanel(engine_);
 
   leftLayout_ = new QVBoxLayout;
   leftLayout_->addLayout(infoLeftLayout_);
-  leftLayout_->addWidget(tabWidget_);
+  leftLayout_->addWidget(settingPanel_);
 
   // we don't want to expand the left side horizontally;
   // to change the policy we have to use a widget wrapper
@@ -881,7 +588,6 @@ MainGUI::createLayout()
   currentGlyphOutlineItem_ = NULL;
   currentGlyphPointsItem_ = NULL;
   currentGlyphPointNumbersItem_ = NULL;
-  drawGlyph();
 
   glyphView_ = new QGraphicsViewx;
   glyphView_->setRenderHint(QPainter::Antialiasing, true);
@@ -1009,27 +715,10 @@ MainGUI::createLayout()
 void
 MainGUI::createConnections()
 {
-  connect(hintingCheckBox_, SIGNAL(clicked()),
-          SLOT(checkHinting()));
-
-  connect(hintingModeComboBox_, SIGNAL(currentIndexChanged(int)),
-          SLOT(checkHintingMode()));
-  connect(antiAliasingComboBox_, SIGNAL(currentIndexChanged(int)),
-          SLOT(checkAntiAliasing()));
-  connect(lcdFilterComboBox_, SIGNAL(currentIndexChanged(int)),
-          SLOT(checkLcdFilter()));
-
-  connect(autoHintingCheckBox_, SIGNAL(clicked()),
-          SLOT(checkAutoHinting()));
-  connect(showBitmapCheckBox_, SIGNAL(clicked()),
+  connect(settingPanel_, SIGNAL(fontReloadNeeded()),
+          SLOT(showFont()));
+  connect(settingPanel_, SIGNAL(repaintNeeded()),
           SLOT(drawGlyph()));
-  connect(showPointsCheckBox_, SIGNAL(clicked()),
-          SLOT(checkShowPoints()));
-  connect(showPointNumbersCheckBox_, SIGNAL(clicked()),
-          SLOT(drawGlyph()));
-  connect(showOutlinesCheckBox_, SIGNAL(clicked()),
-          SLOT(drawGlyph()));
-
   connect(sizeDoubleSpinBox_, SIGNAL(valueChanged(double)),
           SLOT(drawGlyph()));
   connect(unitsComboBox_, SIGNAL(currentIndexChanged(int)),
@@ -1141,53 +830,17 @@ MainGUI::createStatusBar()
 void
 MainGUI::setDefaults()
 {
-  Engine::EngineDefaultValues& defaults = engine_->engineDefaults();
-
-  hintingModeComboBoxModel_->setSupportedModes(
-    { defaults.ttInterpreterVersionDefault,
-      defaults.ttInterpreterVersionOther,
-      defaults.ttInterpreterVersionOther1 },
-    { defaults.cffHintingEngineDefault, 
-      defaults.cffHintingEngineOther });
-
   // the next four values always non-negative
   currentFontIndex_ = 0;
   currentFaceIndex_ = 0;
   currentNamedInstanceIndex_ = 0;
   currentGlyphIndex_ = 0;
 
-  currentCFFHintingMode_
-    = hintingModeComboBoxModel_->cffModeToIndex(
-    defaults.cffHintingEngineDefault);
-  currentTTInterpreterVersion_
-    = hintingModeComboBoxModel_->ttInterpreterVersionToIndex(
-        defaults.ttInterpreterVersionDefault);
-
-  hintingCheckBox_->setChecked(true);
-
-  antiAliasingComboBox_->setCurrentIndex(
-    AntiAliasingComboBoxModel::AntiAliasing_Normal);
-  lcdFilterComboBox_->setCurrentIndex(
-    LCDFilterComboBoxModel::LCDFilter_Light);
-
-  horizontalHintingCheckBox_->setChecked(true);
-  verticalHintingCheckBox_->setChecked(true);
-  blueZoneHintingCheckBox_->setChecked(true);
-
-  showBitmapCheckBox_->setChecked(true);
-  showOutlinesCheckBox_->setChecked(true);
-
-  gammaSlider_->setValue(18); // 1.8
   sizeDoubleSpinBox_->setValue(20);
   dpiSpinBox_->setValue(96);
   zoomSpinBox_->setValue(20);
 
-  checkHinting();
-  checkHintingMode();
-  checkAutoHinting();
-  checkAntiAliasing();
-  checkLcdFilter();
-  checkShowPoints();
+  // todo run check for settingpanel
   checkUnits();
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
