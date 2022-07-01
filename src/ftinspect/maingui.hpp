@@ -53,11 +53,10 @@ class MainGUI
   Q_OBJECT
 
 public:
-  MainGUI();
+  MainGUI(Engine* engine);
   ~MainGUI();
 
   void setDefaults();
-  void update(Engine*);
 
   friend class Engine;
   friend FT_Error faceRequester(FTC_FaceID,

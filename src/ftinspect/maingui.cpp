@@ -14,10 +14,9 @@
 #include <freetype/ftdriver.h>
 
 
-MainGUI::MainGUI()
+MainGUI::MainGUI(Engine* engine)
+: engine_(engine)
 {
-  engine_ = NULL;
-
   setGraphicsDefaults();
   createLayout();
   createConnections();
@@ -34,19 +33,6 @@ MainGUI::MainGUI()
 MainGUI::~MainGUI()
 {
   // empty
-}
-
-
-void
-MainGUI::update(Engine* e)
-{
-  if (engine_)
-    disconnect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
-        this, &MainGUI::watchCurrentFont);
-
-  engine_ = e;
-  connect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
-          this, &MainGUI::watchCurrentFont);
 }
 
 
@@ -1102,6 +1088,9 @@ MainGUI::createConnections()
   glyphNavigationMapper_->setMapping(toP100Buttonx_, 100);
   glyphNavigationMapper_->setMapping(toP1000Buttonx_, 1000);
   glyphNavigationMapper_->setMapping(toEndButtonx_, 0x10000);
+
+  connect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
+          this, &MainGUI::watchCurrentFont);
 }
 
 
