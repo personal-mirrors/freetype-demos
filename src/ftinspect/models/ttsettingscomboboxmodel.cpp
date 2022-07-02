@@ -17,7 +17,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-HintingModeComboBoxModel::HintingModeComboBoxModel()
+HintingModeComboBoxModel::HintingModeComboBoxModel(QObject* parent)
+: QAbstractListModel(parent)
 {
   items_[HintingMode_TrueType_v35] = {
     HintingEngineType_TrueType,
@@ -196,6 +197,12 @@ HintingModeComboBoxModel::setCurrentEngineType(HintingEngineType type)
 /////////////////////////////////////////////////////////////////////////////
 
 
+SimpleComboBoxModel::SimpleComboBoxModel(QObject* parent)
+: QAbstractListModel(parent)
+{
+}
+
+
 int
 SimpleComboBoxModel::rowCount(const QModelIndex& parent) const
 {
@@ -232,7 +239,8 @@ SimpleComboBoxModel::indexToValue(int index)
 /////////////////////////////////////////////////////////////////////////////
 
 
-LCDFilterComboBoxModel::LCDFilterComboBoxModel()
+LCDFilterComboBoxModel::LCDFilterComboBoxModel(QObject* parent)
+: SimpleComboBoxModel(parent)
 {
   items_[LCDFilter_Default] = {
     FT_LCD_FILTER_DEFAULT,
@@ -260,7 +268,8 @@ LCDFilterComboBoxModel::LCDFilterComboBoxModel()
 /////////////////////////////////////////////////////////////////////////////
 
 
-AntiAliasingComboBoxModel::AntiAliasingComboBoxModel()
+AntiAliasingComboBoxModel::AntiAliasingComboBoxModel(QObject* parent)
+: SimpleComboBoxModel(parent)
 {
   items_[AntiAliasing_None] = {
     FT_LOAD_TARGET_MONO,

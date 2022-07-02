@@ -25,7 +25,7 @@ public:
     QString displayName;
   };
 
-  HintingModeComboBoxModel();
+  explicit HintingModeComboBoxModel(QObject* parent);
   ~HintingModeComboBoxModel() = default;
 
   int rowCount(const QModelIndex& parent) const;
@@ -82,7 +82,7 @@ public:
     QString displayName;
   };
 
-  SimpleComboBoxModel() {}
+  explicit SimpleComboBoxModel(QObject* parent);
   ~SimpleComboBoxModel() = default;
 
   int rowCount(const QModelIndex& parent) const;
@@ -107,7 +107,7 @@ public:
     QString displayName;
   };
 
-  LCDFilterComboBoxModel();
+  explicit LCDFilterComboBoxModel(QObject* parent);
   ~LCDFilterComboBoxModel() = default;
 
 public:
@@ -127,7 +127,7 @@ class AntiAliasingComboBoxModel
 public:
   enum AntiAliasing : int;
 
-  AntiAliasingComboBoxModel();
+  explicit AntiAliasingComboBoxModel(QObject* parent);
   ~AntiAliasingComboBoxModel() = default;
   
   QVariant data(const QModelIndex& index,

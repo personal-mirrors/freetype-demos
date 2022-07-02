@@ -5,8 +5,8 @@
 
 #include "settingpanel.hpp"
 
-SettingPanel::SettingPanel(Engine* engine)
-: engine_(engine)
+SettingPanel::SettingPanel(QWidget* parent, Engine* engine)
+: QWidget(parent), engine_(engine)
 {
   createLayout();
   setDefaults();
@@ -278,35 +278,35 @@ SettingPanel::createConnections()
 void
 SettingPanel::createLayout()
 {
-  hintingCheckBox_ = new QCheckBox(tr("Hinting"));
+  hintingCheckBox_ = new QCheckBox(tr("Hinting"), this);
 
-  hintingModeLabel_ = new QLabel(tr("Hinting Mode"));
+  hintingModeLabel_ = new QLabel(tr("Hinting Mode"), this);
   hintingModeLabel_->setAlignment(Qt::AlignRight);
 
-  hintingModeComboBoxModel_ = new HintingModeComboBoxModel;
-  hintingModeComboBox_ = new QComboBox;
+  hintingModeComboBoxModel_ = new HintingModeComboBoxModel(this);
+  hintingModeComboBox_ = new QComboBox(this);
   hintingModeComboBox_->setModel(hintingModeComboBoxModel_);
   hintingModeLabel_->setBuddy(hintingModeComboBox_);
 
-  autoHintingCheckBox_ = new QCheckBox(tr("Auto-Hinting"));
-  horizontalHintingCheckBox_ = new QCheckBox(tr("Horizontal Hinting"));
-  verticalHintingCheckBox_ = new QCheckBox(tr("Vertical Hinting"));
-  blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"));
-  segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"));
+  autoHintingCheckBox_ = new QCheckBox(tr("Auto-Hinting"), this);
+  horizontalHintingCheckBox_ = new QCheckBox(tr("Horizontal Hinting"), this);
+  verticalHintingCheckBox_ = new QCheckBox(tr("Vertical Hinting"), this);
+  blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"), this);
+  segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"), this);
 
-  antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"));
+  antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"), this);
   antiAliasingLabel_->setAlignment(Qt::AlignRight);
 
-  antiAliasingComboBoxModel_ = new AntiAliasingComboBoxModel;
-  antiAliasingComboBox_ = new QComboBox;
+  antiAliasingComboBoxModel_ = new AntiAliasingComboBoxModel(this);
+  antiAliasingComboBox_ = new QComboBox(this);
   antiAliasingComboBox_->setModel(antiAliasingComboBoxModel_);
   antiAliasingLabel_->setBuddy(antiAliasingComboBox_);
 
   lcdFilterLabel_ = new QLabel(tr("LCD Filter"));
   lcdFilterLabel_->setAlignment(Qt::AlignRight);
 
-  lcdFilterComboboxModel_ = new LCDFilterComboBoxModel;
-  lcdFilterComboBox_ = new QComboBox;
+  lcdFilterComboboxModel_ = new LCDFilterComboBoxModel(this);
+  lcdFilterComboBox_ = new QComboBox(this);
   lcdFilterComboBox_->setModel(lcdFilterComboboxModel_);
   lcdFilterLabel_->setBuddy(lcdFilterComboBox_);
 
@@ -328,18 +328,18 @@ SettingPanel::createLayout()
   antiAliasingComboBox_->setMinimumWidth(width);
   lcdFilterComboBox_->setMinimumWidth(width);
 
-  gammaLabel_ = new QLabel(tr("Gamma"));
+  gammaLabel_ = new QLabel(tr("Gamma"), this);
   gammaLabel_->setAlignment(Qt::AlignRight);
-  gammaSlider_ = new QSlider(Qt::Horizontal);
+  gammaSlider_ = new QSlider(Qt::Horizontal, this);
   gammaSlider_->setRange(0, 30); // in 1/10th
   gammaSlider_->setTickPosition(QSlider::TicksBelow);
   gammaSlider_->setTickInterval(5);
   gammaLabel_->setBuddy(gammaSlider_);
 
-  showBitmapCheckBox_ = new QCheckBox(tr("Show Bitmap"));
-  showPointsCheckBox_ = new QCheckBox(tr("Show Points"));
-  showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"));
-  showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"));
+  showBitmapCheckBox_ = new QCheckBox(tr("Show Bitmap"), this);
+  showPointsCheckBox_ = new QCheckBox(tr("Show Points"), this);
+  showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"), this);
+  showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"), this);
 
   hintingModeLayout_ = new QHBoxLayout;
   hintingModeLayout_->addWidget(hintingModeLabel_);
@@ -399,12 +399,12 @@ SettingPanel::createLayout()
   generalTabLayout_->addLayout(pointNumbersLayout_);
   generalTabLayout_->addWidget(showOutlinesCheckBox_);
 
-  generalTab_ = new QWidget;
+  generalTab_ = new QWidget(this);
   generalTab_->setLayout(generalTabLayout_);
 
-  mmgxTab_ = new QWidget;
+  mmgxTab_ = new QWidget(this);
 
-  tab_ = new QTabWidget;
+  tab_ = new QTabWidget(this);
   tab_->addTab(generalTab_, tr("General"));
   tab_->addTab(mmgxTab_, tr("MM/GX"));
 

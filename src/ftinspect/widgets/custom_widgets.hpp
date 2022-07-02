@@ -24,7 +24,7 @@ class QGraphicsViewx
   Q_OBJECT
 
 public:
-  QGraphicsViewx();
+  QGraphicsViewx(QWidget* parent);
 
 protected:
   void resizeEvent(QResizeEvent* event);
@@ -57,6 +57,7 @@ class QSpinBoxx
   Q_OBJECT
 
 public:
+  QSpinBoxx(QWidget* parent);
   void stepBy(int val);
   int valueFromText(const QString& text) const;
 };

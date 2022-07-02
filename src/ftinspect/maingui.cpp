@@ -553,12 +553,12 @@ void
 MainGUI::createLayout()
 {
   // left side
-  fontFilenameLabel_ = new QLabel;
+  fontFilenameLabel_ = new QLabel(this);
 
   infoLeftLayout_ = new QHBoxLayout;
   infoLeftLayout_->addWidget(fontFilenameLabel_);
 
-  settingPanel_ = new SettingPanel(engine_);
+  settingPanel_ = new SettingPanel(this, engine_);
 
   leftLayout_ = new QVBoxLayout;
   leftLayout_->addLayout(infoLeftLayout_);
@@ -566,7 +566,7 @@ MainGUI::createLayout()
 
   // we don't want to expand the left side horizontally;
   // to change the policy we have to use a widget wrapper
-  leftWidget_ = new QWidget;
+  leftWidget_ = new QWidget(this);
   leftWidget_->setLayout(leftLayout_);
 
   QSizePolicy leftWidgetPolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
@@ -577,11 +577,11 @@ MainGUI::createLayout()
   leftWidget_->setSizePolicy(leftWidgetPolicy);
 
   // right side
-  glyphIndexLabel_ = new QLabel;
-  glyphNameLabel_ = new QLabel;
-  fontNameLabel_ = new QLabel;
+  glyphIndexLabel_ = new QLabel(this);
+  glyphNameLabel_ = new QLabel(this);
+  fontNameLabel_ = new QLabel(this);
 
-  glyphScene_ = new QGraphicsScene;
+  glyphScene_ = new QGraphicsScene(this);
   glyphScene_->addItem(new Grid(gridPen_, axisPen_));
 
   currentGlyphBitmapItem_ = NULL;
@@ -589,7 +589,7 @@ MainGUI::createLayout()
   currentGlyphPointsItem_ = NULL;
   currentGlyphPointNumbersItem_ = NULL;
 
-  glyphView_ = new QGraphicsViewx;
+  glyphView_ = new QGraphicsViewx(this);
   glyphView_->setRenderHint(QPainter::Antialiasing, true);
   glyphView_->setDragMode(QGraphicsView::ScrollHandDrag);
   glyphView_->setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -597,7 +597,7 @@ MainGUI::createLayout()
   glyphView_->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   glyphView_->setScene(glyphScene_);
 
-  sizeLabel_ = new QLabel(tr("Size "));
+  sizeLabel_ = new QLabel(tr("Size "), this);
   sizeLabel_->setAlignment(Qt::AlignRight);
   sizeDoubleSpinBox_ = new QDoubleSpinBox;
   sizeDoubleSpinBox_->setAlignment(Qt::AlignRight);
@@ -605,42 +605,43 @@ MainGUI::createLayout()
   sizeDoubleSpinBox_->setRange(1, 500);
   sizeLabel_->setBuddy(sizeDoubleSpinBox_);
 
-  unitsComboBox_ = new QComboBox;
+  unitsComboBox_ = new QComboBox(this);
   unitsComboBox_->insertItem(Units_px, "px");
   unitsComboBox_->insertItem(Units_pt, "pt");
 
-  dpiLabel_ = new QLabel(tr("DPI "));
+  dpiLabel_ = new QLabel(tr("DPI "), this);
   dpiLabel_->setAlignment(Qt::AlignRight);
-  dpiSpinBox_ = new QSpinBox;
+  dpiSpinBox_ = new QSpinBox(this);
   dpiSpinBox_->setAlignment(Qt::AlignRight);
   dpiSpinBox_->setRange(10, 600);
   dpiLabel_->setBuddy(dpiSpinBox_);
 
-  toStartButtonx_ = new QPushButtonx("|<");
-  toM1000Buttonx_ = new QPushButtonx("-1000");
-  toM100Buttonx_ = new QPushButtonx("-100");
-  toM10Buttonx_ = new QPushButtonx("-10");
-  toM1Buttonx_ = new QPushButtonx("-1");
-  toP1Buttonx_ = new QPushButtonx("+1");
-  toP10Buttonx_ = new QPushButtonx("+10");
-  toP100Buttonx_ = new QPushButtonx("+100");
-  toP1000Buttonx_ = new QPushButtonx("+1000");
-  toEndButtonx_ = new QPushButtonx(">|");
+  toStartButtonx_ = new QPushButtonx("|<", this);
+  toM1000Buttonx_ = new QPushButtonx("-1000", this);
+  toM100Buttonx_ = new QPushButtonx("-100", this);
+  toM10Buttonx_ = new QPushButtonx("-10", this);
+  toM1Buttonx_ = new QPushButtonx("-1", this);
+  toP1Buttonx_ = new QPushButtonx("+1", this);
+  toP10Buttonx_ = new QPushButtonx("+10", this);
+  toP100Buttonx_ = new QPushButtonx("+100", this);
+  toP1000Buttonx_ = new QPushButtonx("+1000", this);
+  toEndButtonx_ = new QPushButtonx(">|", this);
 
-  zoomLabel_ = new QLabel(tr("Zoom Factor"));
+  zoomLabel_ = new QLabel(tr("Zoom Factor"), this);
   zoomLabel_->setAlignment(Qt::AlignRight);
-  zoomSpinBox_ = new QSpinBoxx;
+  zoomSpinBox_ = new QSpinBoxx(this);
   zoomSpinBox_->setAlignment(Qt::AlignRight);
   zoomSpinBox_->setRange(1, 1000 - 1000 % 64);
   zoomSpinBox_->setKeyboardTracking(false);
   zoomLabel_->setBuddy(zoomSpinBox_);
 
-  previousFontButton_ = new QPushButton(tr("Previous Font"));
-  nextFontButton_ = new QPushButton(tr("Next Font"));
-  previousFaceButton_ = new QPushButton(tr("Previous Face"));
-  nextFaceButton_ = new QPushButton(tr("Next Face"));
-  previousNamedInstanceButton_ = new QPushButton(tr("Previous Named Instance"));
-  nextNamedInstanceButton_ = new QPushButton(tr("Next Named Instance"));
+  previousFontButton_ = new QPushButton(tr("Previous Font"), this);
+  nextFontButton_ = new QPushButton(tr("Next Font"), this);
+  previousFaceButton_ = new QPushButton(tr("Previous Face"), this);
+  nextFaceButton_ = new QPushButton(tr("Next Face"), this);
+  previousNamedInstanceButton_
+    = new QPushButton(tr("Previous Named Instance"), this);
+  nextNamedInstanceButton_ = new QPushButton(tr("Next Named Instance"), this);
 
   infoRightLayout = new QGridLayout;
   infoRightLayout->addWidget(glyphIndexLabel_, 0, 0);
@@ -697,7 +698,7 @@ MainGUI::createLayout()
   rightLayout_->addLayout(fontLayout);
 
   // for symmetry with the left side use a widget also
-  rightWidget_ = new QWidget;
+  rightWidget_ = new QWidget(this);
   rightWidget_->setLayout(rightLayout_);
 
   // the whole thing
@@ -705,7 +706,7 @@ MainGUI::createLayout()
   ftinspectLayout_->addWidget(leftWidget_);
   ftinspectLayout_->addWidget(rightWidget_);
 
-  ftinspectWidget_ = new QWidget;
+  ftinspectWidget_ = new QWidget(this);
   ftinspectWidget_->setLayout(ftinspectLayout_);
   setCentralWidget(ftinspectWidget_);
   setWindowTitle("ftinspect");

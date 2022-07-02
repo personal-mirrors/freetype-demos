@@ -12,8 +12,8 @@
 // >>>>>>>> QGraphicsViewx <<<<<<<<
 // --------------------------------
 
-QGraphicsViewx::QGraphicsViewx()
-: lastBottomLeftPointInitialized_(false)
+QGraphicsViewx::QGraphicsViewx(QWidget* parent)
+: QGraphicsView(parent), lastBottomLeftPointInitialized_(false)
 {
   // empty
 }
@@ -101,6 +101,12 @@ QSpinBoxx::valueFromText(const QString& text) const
     val = val - (val % 2);
 
   return val;
+}
+
+
+QSpinBoxx::QSpinBoxx(QWidget* parent)
+: QSpinBox(parent)
+{
 }
 
 
