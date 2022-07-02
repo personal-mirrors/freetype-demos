@@ -236,9 +236,6 @@ SettingPanel::syncSettings()
 void
 SettingPanel::createConnections()
 {
-  connect(hintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::checkHinting);
-
   // use `qOverload` here to prevent ambiguity.
   connect(hintingModeComboBox_, 
           qOverload<int>(&QComboBox::currentIndexChanged),
@@ -250,7 +247,21 @@ SettingPanel::createConnections()
           qOverload<int>(&QComboBox::currentIndexChanged),
           this, &SettingPanel::checkLCDFilter);
 
-  // TODO: some connections are missing
+  connect(gammaSlider_, &QSlider::valueChanged,
+          this, &SettingPanel::repaintNeeded);
+  
+  connect(hintingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::checkHinting);
+
+  connect(horizontalHintingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::repaintNeeded);
+  connect(verticalHintingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::repaintNeeded);
+  connect(blueZoneHintingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::repaintNeeded);
+  connect(segmentDrawingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::repaintNeeded);
+
   connect(autoHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkAutoHinting);
   connect(showBitmapCheckBox_, &QCheckBox::clicked,
