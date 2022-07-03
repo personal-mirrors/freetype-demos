@@ -26,7 +26,7 @@ public:
   };
 
   explicit HintingModeComboBoxModel(QObject* parent);
-  ~HintingModeComboBoxModel() = default;
+  virtual ~HintingModeComboBoxModel() = default;
 
   int rowCount(const QModelIndex& parent) const;
   QVariant data(const QModelIndex& index,
@@ -53,13 +53,13 @@ private:
 public:
   // Note: Ensure related funcs are also changed when
   // these enums are changed!
-  enum HintingEngineType
+  enum HintingEngineType : int
   {
     HintingEngineType_TrueType,
     HintingEngineType_CFF
   };
 
-  enum HintingMode
+  enum HintingMode : int
   {
     HintingMode_TrueType_v35 = 0,
     HintingMode_TrueType_v38,
@@ -83,7 +83,7 @@ public:
   };
 
   explicit SimpleComboBoxModel(QObject* parent);
-  ~SimpleComboBoxModel() = default;
+  virtual ~SimpleComboBoxModel() = default;
 
   int rowCount(const QModelIndex& parent) const;
   QVariant data(const QModelIndex& index,
@@ -99,6 +99,7 @@ protected:
 class LCDFilterComboBoxModel
 : public SimpleComboBoxModel
 {
+  Q_OBJECT
 public:
   enum LCDFilter : int;
   struct LCDFilterItem
@@ -108,7 +109,7 @@ public:
   };
 
   explicit LCDFilterComboBoxModel(QObject* parent);
-  ~LCDFilterComboBoxModel() = default;
+  virtual ~LCDFilterComboBoxModel() = default;
 
 public:
   enum LCDFilter
@@ -124,11 +125,12 @@ public:
 class AntiAliasingComboBoxModel
 : public SimpleComboBoxModel
 {
+  Q_OBJECT
 public:
   enum AntiAliasing : int;
 
   explicit AntiAliasingComboBoxModel(QObject* parent);
-  ~AntiAliasingComboBoxModel() = default;
+  virtual ~AntiAliasingComboBoxModel() = default;
   
   QVariant data(const QModelIndex& index,
                 int role) const;
@@ -143,7 +145,7 @@ private:
   bool lightAntiAliasingEnabled_;
 
 public:
-  enum AntiAliasing
+  enum AntiAliasing : int
   {
     AntiAliasing_None,
     AntiAliasing_Normal,

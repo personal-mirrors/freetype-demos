@@ -175,7 +175,7 @@ public:
   /// Actual definition
 
   // XXX cover all available modules
-  enum FontType
+  enum FontType : int
   {
     FontType_CFF,
     FontType_TrueType,

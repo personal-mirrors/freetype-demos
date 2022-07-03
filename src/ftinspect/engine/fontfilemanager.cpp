@@ -19,11 +19,6 @@ FontFileManager::FontFileManager()
 }
 
 
-FontFileManager::~FontFileManager()
-{
-}
-
-
 int
 FontFileManager::size()
 {

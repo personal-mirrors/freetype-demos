@@ -238,13 +238,13 @@ SettingPanel::createConnections()
 {
   // use `qOverload` here to prevent ambiguity.
   connect(hintingModeComboBox_, 
-          qOverload<int>(&QComboBox::currentIndexChanged),
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::checkHintingMode);
   connect(antiAliasingComboBox_,
-          qOverload<int>(&QComboBox::currentIndexChanged),
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::checkAntiAliasing);
   connect(lcdFilterComboBox_, 
-          qOverload<int>(&QComboBox::currentIndexChanged),
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::checkLCDFilter);
 
   connect(gammaSlider_, &QSlider::valueChanged,
