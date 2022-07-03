@@ -2,7 +2,7 @@
 
 // Copyright (C) 2016-2022 by Werner Lemberg.
 
-#include "custom_widgets.hpp"
+#include "customwidgets.hpp"
 
 #include <qevent.h>
 #include <QStandardItemModel>

@@ -28,7 +28,7 @@ add_executable(ftinspect
   "rendering/glyphpoints.cpp"
   "rendering/grid.cpp"
 
-  "widgets/custom_widgets.cpp"
+  "widgets/customwidgets.cpp"
 
   "models/ttsettingscomboboxmodel.cpp"
 

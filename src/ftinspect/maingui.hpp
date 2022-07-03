@@ -11,7 +11,7 @@
 #include "rendering/glyphpointnumbers.hpp"
 #include "rendering/glyphpoints.hpp"
 #include "rendering/grid.hpp"
-#include "widgets/custom_widgets.hpp"
+#include "widgets/customwidgets.hpp"
 #include "models/ttsettingscomboboxmodel.hpp"
 #include "panels/settingpanel.hpp"
 

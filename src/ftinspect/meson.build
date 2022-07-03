@@ -28,7 +28,7 @@ if qt5_dep.found()
     'rendering/glyphpointnumbers.cpp',
     'rendering/glyphpoints.cpp',
     'rendering/grid.cpp',
-    'widgets/custom_widgets.cpp',
+    'widgets/customwidgets.cpp',
 
     'models/ttsettingscomboboxmodel.cpp',
 
@@ -41,7 +41,7 @@ if qt5_dep.found()
   moc_files = qt5.preprocess(
     moc_headers: [
       'engine/fontfilemanager.hpp',
-      'widgets/custom_widgets.hpp',
+      'widgets/customwidgets.hpp',
       'models/ttsettingscomboboxmodel.hpp',
       'panels/settingpanel.hpp',
       'maingui.hpp',
