@@ -32,7 +32,7 @@ if qt5_dep.found()
 
     'models/ttsettingscomboboxmodel.cpp',
 
-    'panels/settingpanel.cpp'
+    'panels/settingpanel.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
@@ -40,9 +40,10 @@ if qt5_dep.found()
 
   moc_files = qt5.preprocess(
     moc_headers: [
+      'engine/fontfilemanager.hpp',
       'widgets/custom_widgets.hpp',
-      'models/ttsettingscomboboxmodel.cpp',
-      'panels/settingpanel.cpp',
+      'models/ttsettingscomboboxmodel.hpp',
+      'panels/settingpanel.hpp',
       'maingui.hpp',
     ],
     dependencies: qt5_dep)
@@ -51,6 +52,7 @@ if qt5_dep.found()
     sources,
     moc_files,
     dependencies: [qt5_dep, libfreetype2_dep],
+    override_options : ['cpp_std=c++11'],
     install: true)
 endif
 
