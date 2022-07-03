@@ -1,0 +1,42 @@
+include:
+- project: 'freedesktop/ci-templates'
+  ref: 9dc112a981fb523b7c34f00b386b4e3b2e7da2c6
+  file: '/templates/ubuntu.yml'
+
+stages:
+- prep
+- build
+
+variables:
+  FDO_UPSTREAM_REPO: freetype/freetype-demos
+
+.ftdemos.ubuntu:2204:
+  variables:
+    FDO_DISTRIBUTION_VERSION: '22.04'
+    FDO_DISTRIBUTION_TAG: '2022-07-03.0'
+
+build-ubuntu-container:
+  extends:
+  - .fdo.container-build@ubuntu     # the CI template
+  - .ftdemos.ubuntu:2204            # our template job above
+  stage: prep
+  variables:
+    # Packages to install on the container
+    FDO_DISTRIBUTION_PACKAGES: >-
+      git gcc cmake ninja-build
+      pkg-config librsvg2-dev qtbase5-dev
+      python3-pip
+    FDO_DISTRIBUTION_EXEC: |
+      pip3 install meson
+      
+
+build linux meson:
+  extends:
+  - .fdo.distribution-image@ubuntu
+  - .ftdemos.ubuntu:2204
+  stage: build
+  script:
+  - meson builddir
+  - ninja -C builddir
+
+# TODO: Windows, macOS
