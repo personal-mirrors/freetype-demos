@@ -65,6 +65,8 @@ public:
 
 protected:
   void closeEvent(QCloseEvent*);
+  void dragEnterEvent(QDragEnterEvent* event);
+  void dropEvent(QDropEvent* event);
 
 private slots:
   void about();
@@ -197,6 +199,8 @@ private:
     Units_pt
   };
 
+  void openFonts(QStringList const& fileNames);
+
   void syncSettings();
   void clearStatusBar();
 
@@ -206,6 +210,7 @@ private:
   void createMenus();
   void createStatusBar();
   void setGraphicsDefaults();
+  void setupDragDrop();
 
   void readSettings();
   void writeSettings();

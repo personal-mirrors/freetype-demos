@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QScrollBar>
+#include <QMimeData>
 
 #include <freetype/ftdriver.h>
 
@@ -24,6 +25,7 @@ MainGUI::MainGUI(Engine* engine)
   createActions();
   createMenus();
   createStatusBar();
+  setupDragDrop();
 
   readSettings();
 
@@ -45,6 +47,37 @@ MainGUI::closeEvent(QCloseEvent* event)
 {
   writeSettings();
   event->accept();
+}
+
+
+void
+MainGUI::dragEnterEvent(QDragEnterEvent* event)
+{
+  if (event->mimeData()->hasUrls())
+    event->acceptProposedAction();
+}
+
+
+void
+MainGUI::dropEvent(QDropEvent* event)
+{
+  auto mime = event->mimeData();
+  if (!mime->hasUrls())
+    return;
+
+  QStringList fileNames;
+  for (auto& url : mime->urls())
+  {
+    if (!url.isLocalFile())
+      continue;
+    fileNames.append(url.toLocalFile());
+  }
+
+  if (fileNames.empty())
+    return;
+
+  event->acceptProposedAction();
+  openFonts(fileNames);
 }
 
 
@@ -82,8 +115,6 @@ MainGUI::aboutQt()
 void
 MainGUI::loadFonts()
 {
-  int oldSize = engine_->numberOfOpenedFonts();
-
   QStringList files = QFileDialog::getOpenFileNames(
                         this,
                         tr("Load one or more fonts"),
@@ -91,8 +122,15 @@ MainGUI::loadFonts()
                         "",
                         NULL,
                         QFileDialog::ReadOnly);
+  openFonts(files);
+}
 
-  engine_->openFonts(files);
+
+void
+MainGUI::openFonts(QStringList const& fileNames)
+{
+  int oldSize = engine_->numberOfOpenedFonts();
+  engine_->openFonts(fileNames);
 
   // if we have new fonts, set the current index to the first new one
   if (oldSize < engine_->numberOfOpenedFonts())
@@ -900,6 +938,14 @@ void
 MainGUI::createStatusBar()
 {
   statusBar()->showMessage("");
+}
+
+
+void
+MainGUI::setupDragDrop()
+{
+  setAcceptDrops(true);
+  glyphView_->setAcceptDrops(false);
 }
 
 
