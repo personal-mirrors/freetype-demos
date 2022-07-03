@@ -433,6 +433,40 @@ MainGUI::zoom()
 
 
 void
+MainGUI::backToCenter()
+{
+  glyphView_->centerOn(0, 0);
+  if (currentGlyphBitmapItem_)
+    glyphView_->ensureVisible(currentGlyphBitmapItem_);
+  else if (currentGlyphPointsItem_)
+    glyphView_->ensureVisible(currentGlyphPointsItem_);
+}
+
+
+void
+MainGUI::wheelZoom(QWheelEvent* event)
+{
+  int numSteps = event->angleDelta().y() / 120;
+  int zoomAfter = zoomSpinBox_->value() + numSteps;
+  zoomAfter = std::max(zoomSpinBox_->minimum(),
+                       std::min(zoomAfter, zoomSpinBox_->maximum()));
+  zoomSpinBox_->setValue(zoomAfter);
+  // TODO: Zoom relative to viewport left-bottom?
+}
+
+
+void
+MainGUI::wheelResize(QWheelEvent* event)
+{
+  int numSteps = event->angleDelta().y() / 120;
+  double sizeAfter = sizeDoubleSpinBox_->value() + numSteps * 0.5;
+  sizeAfter = std::max(sizeDoubleSpinBox_->minimum(),
+                       std::min(sizeAfter, sizeDoubleSpinBox_->maximum()));
+  sizeDoubleSpinBox_->setValue(sizeAfter);
+}
+
+
+void
 MainGUI::setGraphicsDefaults()
 {
   // color tables (with suitable opacity values) for converting
@@ -597,8 +631,19 @@ MainGUI::createLayout()
   glyphView_->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   glyphView_->setScene(glyphScene_);
 
+  // Don't use QGraphicsTextItem: We want this hint to be anchored at the
+  // top-left corner.
+  mouseUsageHint_ = new QLabel(tr("Scroll: Grid Up/Down\n"
+    "Alt + Scroll: Grid Left/Right\n"
+    "Ctrl + Scroll: Adjust Zoom (Relative to cursor)\n"
+    "Shift + Scroll: Adjust Font Size"), glyphView_);
+  mouseUsageHint_->setMargin(10);
+  auto hintFont = font();
+  hintFont.setPixelSize(24);
+  mouseUsageHint_->setFont(hintFont);
+
   sizeLabel_ = new QLabel(tr("Size "), this);
-  sizeLabel_->setAlignment(Qt::AlignRight);
+  sizeLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   sizeDoubleSpinBox_ = new QDoubleSpinBox;
   sizeDoubleSpinBox_->setAlignment(Qt::AlignRight);
   sizeDoubleSpinBox_->setDecimals(1);
@@ -610,7 +655,7 @@ MainGUI::createLayout()
   unitsComboBox_->insertItem(Units_pt, "pt");
 
   dpiLabel_ = new QLabel(tr("DPI "), this);
-  dpiLabel_->setAlignment(Qt::AlignRight);
+  dpiLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   dpiSpinBox_ = new QSpinBox(this);
   dpiSpinBox_->setAlignment(Qt::AlignRight);
   dpiSpinBox_->setRange(10, 600);
@@ -628,12 +673,14 @@ MainGUI::createLayout()
   toEndButtonx_ = new QPushButtonx(">|", this);
 
   zoomLabel_ = new QLabel(tr("Zoom Factor"), this);
-  zoomLabel_->setAlignment(Qt::AlignRight);
+  zoomLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   zoomSpinBox_ = new QSpinBoxx(this);
   zoomSpinBox_->setAlignment(Qt::AlignRight);
   zoomSpinBox_->setRange(1, 1000 - 1000 % 64);
   zoomSpinBox_->setKeyboardTracking(false);
   zoomLabel_->setBuddy(zoomSpinBox_);
+
+  centerGridButton_ = new QPushButton("Go Back to Grid Center", this);
 
   previousFontButton_ = new QPushButton(tr("Previous Font"), this);
   nextFontButton_ = new QPushButton(tr("Next Font"), this);
@@ -674,6 +721,8 @@ MainGUI::createLayout()
   sizeLayout_->addStretch(1);
   sizeLayout_->addWidget(zoomLabel_);
   sizeLayout_->addWidget(zoomSpinBox_);
+  sizeLayout_->addStretch(1);
+  sizeLayout_->addWidget(centerGridButton_);
   sizeLayout_->addStretch(2);
 
   fontLayout = new QGridLayout;
@@ -729,6 +778,13 @@ MainGUI::createConnections()
 
   connect(zoomSpinBox_, SIGNAL(valueChanged(int)),
           SLOT(zoom()));
+  connect(glyphView_, SIGNAL(shiftWheelEvent(QWheelEvent*)), 
+          SLOT(wheelResize(QWheelEvent*)));
+  connect(glyphView_, SIGNAL(ctrlWheelEvent(QWheelEvent*)), 
+          SLOT(wheelZoom(QWheelEvent*)));
+
+  connect(centerGridButton_, SIGNAL(clicked()),
+          SLOT(backToCenter()));
 
   connect(previousFontButton_, SIGNAL(clicked()),
           SLOT(previousFont()));

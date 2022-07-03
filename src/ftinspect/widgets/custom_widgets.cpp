@@ -4,6 +4,7 @@
 
 #include "custom_widgets.hpp"
 
+#include <qevent.h>
 #include <QStandardItemModel>
 #include <QScrollBar>
 #include <QStyleOptionButton>
@@ -16,6 +17,18 @@ QGraphicsViewx::QGraphicsViewx(QWidget* parent)
 : QGraphicsView(parent), lastBottomLeftPointInitialized_(false)
 {
   // empty
+}
+
+
+void
+QGraphicsViewx::wheelEvent(QWheelEvent* event)
+{
+  if (event->modifiers() & Qt::ShiftModifier)
+    emit shiftWheelEvent(event);
+  else if (event->modifiers() & Qt::ControlModifier)
+    emit ctrlWheelEvent(event);
+  else
+    QGraphicsView::wheelEvent(event);
 }
 
 

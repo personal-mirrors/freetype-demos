@@ -26,7 +26,12 @@ class QGraphicsViewx
 public:
   QGraphicsViewx(QWidget* parent);
 
+signals:
+  void shiftWheelEvent(QWheelEvent* event);
+  void ctrlWheelEvent(QWheelEvent* event);
+
 protected:
+  void wheelEvent(QWheelEvent* event);
   void resizeEvent(QResizeEvent* event);
   void scrollContentsBy(int dx,
                         int dy);

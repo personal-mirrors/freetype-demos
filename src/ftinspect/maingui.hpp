@@ -85,6 +85,9 @@ private slots:
   void previousNamedInstance();
   void watchCurrentFont();
   void zoom();
+  void backToCenter();
+  void wheelZoom(QWheelEvent* event);
+  void wheelResize(QWheelEvent* event);
 
 private:
   Engine* engine_;
@@ -105,6 +108,7 @@ private:
   GlyphPoints *currentGlyphPointsItem_;
   GlyphPointNumbers *currentGlyphPointNumbersItem_;
   GlyphBitmap *currentGlyphBitmapItem_;
+  QLabel* mouseUsageHint_;
 
   QAction *aboutAct_;
   QAction *aboutQtAct_;
@@ -148,6 +152,7 @@ private:
   QPen outlinePen_;
   QPen segmentPen_;
 
+  QPushButton *centerGridButton_;
   QPushButton *nextFaceButton_;
   QPushButton *nextFontButton_;
   QPushButton *nextNamedInstanceButton_;
