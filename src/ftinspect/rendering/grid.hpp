@@ -8,21 +8,27 @@
 #include <QGraphicsItem>
 #include <QPen>
 
-
 class Grid
 : public QGraphicsItem
 {
 public:
-  Grid(const QPen& gridPen,
+  Grid(QGraphicsView* parentView,
+       const QPen& gridPen,
        const QPen& axisPen);
   QRectF boundingRect() const;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
              QWidget* widget);
 
+  void updateRect(); // there's no signal/slots for QGraphicsItem.
+
 private:
   QPen gridPen_;
   QPen axisPen_;
+
+  QGraphicsView* parentView_;
+  QRectF rect_;
+  QRectF sceneRect_;
 };
 
 

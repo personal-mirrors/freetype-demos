@@ -10,6 +10,7 @@
 #include "rendering/glyphoutline.hpp"
 #include "rendering/glyphpointnumbers.hpp"
 #include "rendering/glyphpoints.hpp"
+#include "rendering/grid.hpp"
 #include "widgets/custom_widgets.hpp"
 #include "models/ttsettingscomboboxmodel.hpp"
 #include "panels/settingpanel.hpp"
@@ -86,6 +87,7 @@ private slots:
   void watchCurrentFont();
   void zoom();
   void backToCenter();
+  void updateGrid();
   void wheelZoom(QWheelEvent* event);
   void wheelResize(QWheelEvent* event);
 
@@ -108,6 +110,7 @@ private:
   GlyphPoints *currentGlyphPointsItem_;
   GlyphPointNumbers *currentGlyphPointNumbersItem_;
   GlyphBitmap *currentGlyphBitmapItem_;
+  Grid *gridItem_ = NULL;
   QLabel* mouseUsageHint_;
 
   QAction *aboutAct_;

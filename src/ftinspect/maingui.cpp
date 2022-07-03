@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QScrollBar>
 
 #include <freetype/ftdriver.h>
 
@@ -32,7 +33,8 @@ MainGUI::MainGUI(Engine* engine)
 
 MainGUI::~MainGUI()
 {
-  // empty
+  delete gridItem_;
+  gridItem_ = NULL;
 }
 
 
@@ -429,6 +431,7 @@ MainGUI::zoom()
   transform.translate(shift, shift);
 
   glyphView_->setTransform(transform);
+  updateGrid();
 }
 
 
@@ -440,6 +443,16 @@ MainGUI::backToCenter()
     glyphView_->ensureVisible(currentGlyphBitmapItem_);
   else if (currentGlyphPointsItem_)
     glyphView_->ensureVisible(currentGlyphPointsItem_);
+
+  updateGrid();
+}
+
+
+void
+MainGUI::updateGrid()
+{
+  if (gridItem_)
+    gridItem_->updateRect();
 }
 
 
@@ -616,7 +629,6 @@ MainGUI::createLayout()
   fontNameLabel_ = new QLabel(this);
 
   glyphScene_ = new QGraphicsScene(this);
-  glyphScene_->addItem(new Grid(gridPen_, axisPen_));
 
   currentGlyphBitmapItem_ = NULL;
   currentGlyphOutlineItem_ = NULL;
@@ -630,6 +642,9 @@ MainGUI::createLayout()
   glyphView_->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
   glyphView_->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   glyphView_->setScene(glyphScene_);
+  
+  gridItem_ = new Grid(glyphView_, gridPen_, axisPen_);
+  glyphScene_->addItem(gridItem_);
 
   // Don't use QGraphicsTextItem: We want this hint to be anchored at the
   // top-left corner.
@@ -782,6 +797,10 @@ MainGUI::createConnections()
           SLOT(wheelResize(QWheelEvent*)));
   connect(glyphView_, SIGNAL(ctrlWheelEvent(QWheelEvent*)), 
           SLOT(wheelZoom(QWheelEvent*)));
+  connect(glyphView_->horizontalScrollBar(), &QScrollBar::valueChanged,
+          this, &MainGUI::updateGrid);
+  connect(glyphView_->verticalScrollBar(), &QScrollBar::valueChanged, this,
+          &MainGUI::updateGrid);
 
   connect(centerGridButton_, SIGNAL(clicked()),
           SLOT(backToCenter()));
