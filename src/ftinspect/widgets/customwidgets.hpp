@@ -42,19 +42,6 @@ private:
 };
 
 
-// we want buttons that are horizontally as small as possible
-class QPushButtonx
-: public QPushButton
-{
-  Q_OBJECT
-
-public:
-  QPushButtonx(const QString& text,
-               QWidget* = 0);
-  virtual ~QPushButtonx(){}
-};
-
-
 // we want to have our own `stepBy' function for the zoom spin box
 class QSpinBoxx
 : public QSpinBox

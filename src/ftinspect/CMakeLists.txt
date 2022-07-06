@@ -18,6 +18,7 @@ find_package(Freetype REQUIRED)
 add_executable(ftinspect
   "ftinspect.cpp"
   "maingui.cpp"
+  "uihelper.cpp"
   
   "engine/engine.cpp"
   "engine/fontfilemanager.cpp"
@@ -29,6 +30,7 @@ add_executable(ftinspect
   "rendering/grid.cpp"
 
   "widgets/customwidgets.cpp"
+  "widgets/glyphindexselector.cpp"
 
   "models/ttsettingscomboboxmodel.cpp"
 

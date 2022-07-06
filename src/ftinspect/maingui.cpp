@@ -232,7 +232,9 @@ MainGUI::showFont()
   auto state = settingPanel_->blockSignals(true);
   settingPanel_->checkHinting();
   settingPanel_->blockSignals(state);
-  adjustGlyphIndex(0);
+  indexSelector_->setMin(0);
+  indexSelector_->setMax(currentNumberOfGlyphs_ - 1);
+  indexSelector_->setCurrentIndex(indexSelector_->getCurrentIndex(), true);
 }
 
 
@@ -283,21 +285,17 @@ MainGUI::checkUnits()
 
 
 void
-MainGUI::adjustGlyphIndex(int delta)
+MainGUI::setGlyphIndex(int index)
 {
   // only adjust current glyph index if we have a valid font
   if (currentNumberOfGlyphs_ > 0)
   {
-    currentGlyphIndex_ += delta;
-    currentGlyphIndex_ = qBound(0,
-                               currentGlyphIndex_,
-                               currentNumberOfGlyphs_ - 1);
+    currentGlyphIndex_ = qBound(0, index, currentNumberOfGlyphs_ - 1);
   }
 
   QString upperHex = QString::number(currentGlyphIndex_, 16).toUpper();
-  glyphIndexLabel_->setText(QString("%1 (0x%2)")
-                                   .arg(currentGlyphIndex_)
-                                   .arg(upperHex));
+  glyphIndexLabel_->setText(
+      QString("%1 (0x%2)").arg(currentGlyphIndex_).arg(upperHex));
   glyphNameLabel_->setText(engine_->glyphName(currentGlyphIndex_));
 
   drawGlyph();
@@ -703,6 +701,9 @@ MainGUI::createLayout()
   sizeDoubleSpinBox_->setRange(1, 500);
   sizeLabel_->setBuddy(sizeDoubleSpinBox_);
 
+  indexSelector_ = new GlyphIndexSelector(this);
+  indexSelector_->setSingleMode(true);
+
   unitsComboBox_ = new QComboBox(this);
   unitsComboBox_->insertItem(Units_px, "px");
   unitsComboBox_->insertItem(Units_pt, "pt");
@@ -713,17 +714,6 @@ MainGUI::createLayout()
   dpiSpinBox_->setAlignment(Qt::AlignRight);
   dpiSpinBox_->setRange(10, 600);
   dpiLabel_->setBuddy(dpiSpinBox_);
-
-  toStartButtonx_ = new QPushButtonx("|<", this);
-  toM1000Buttonx_ = new QPushButtonx("-1000", this);
-  toM100Buttonx_ = new QPushButtonx("-100", this);
-  toM10Buttonx_ = new QPushButtonx("-10", this);
-  toM1Buttonx_ = new QPushButtonx("-1", this);
-  toP1Buttonx_ = new QPushButtonx("+1", this);
-  toP10Buttonx_ = new QPushButtonx("+10", this);
-  toP100Buttonx_ = new QPushButtonx("+100", this);
-  toP1000Buttonx_ = new QPushButtonx("+1000", this);
-  toEndButtonx_ = new QPushButtonx(">|", this);
 
   zoomLabel_ = new QLabel(tr("Zoom Factor"), this);
   zoomLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -747,21 +737,6 @@ MainGUI::createLayout()
   infoRightLayout->addWidget(glyphIndexLabel_, 0, 0);
   infoRightLayout->addWidget(glyphNameLabel_, 0, 1);
   infoRightLayout->addWidget(fontNameLabel_, 0, 2);
-
-  navigationLayout_ = new QHBoxLayout;
-  navigationLayout_->setSpacing(0);
-  navigationLayout_->addStretch(1);
-  navigationLayout_->addWidget(toStartButtonx_);
-  navigationLayout_->addWidget(toM1000Buttonx_);
-  navigationLayout_->addWidget(toM100Buttonx_);
-  navigationLayout_->addWidget(toM10Buttonx_);
-  navigationLayout_->addWidget(toM1Buttonx_);
-  navigationLayout_->addWidget(toP1Buttonx_);
-  navigationLayout_->addWidget(toP10Buttonx_);
-  navigationLayout_->addWidget(toP100Buttonx_);
-  navigationLayout_->addWidget(toP1000Buttonx_);
-  navigationLayout_->addWidget(toEndButtonx_);
-  navigationLayout_->addStretch(1);
 
   sizeLayout_ = new QHBoxLayout;
   sizeLayout_->addStretch(2);
@@ -793,7 +768,7 @@ MainGUI::createLayout()
   rightLayout_ = new QVBoxLayout;
   rightLayout_->addLayout(infoRightLayout);
   rightLayout_->addWidget(glyphView_);
-  rightLayout_->addLayout(navigationLayout_);
+  rightLayout_->addWidget(indexSelector_);
   rightLayout_->addSpacing(10); // XXX px
   rightLayout_->addLayout(sizeLayout_);
   rightLayout_->addSpacing(10); // XXX px
@@ -822,6 +797,8 @@ MainGUI::createConnections()
           SLOT(showFont()));
   connect(settingPanel_, SIGNAL(repaintNeeded()),
           SLOT(drawGlyph()));
+  connect(indexSelector_, SIGNAL(currentIndexChanged(int)), 
+      this, SLOT(setGlyphIndex(int)));
   connect(sizeDoubleSpinBox_, SIGNAL(valueChanged(double)),
           SLOT(drawGlyph()));
   connect(unitsComboBox_, SIGNAL(currentIndexChanged(int)),
@@ -855,42 +832,6 @@ MainGUI::createConnections()
           SLOT(previousNamedInstance()));
   connect(nextNamedInstanceButton_, SIGNAL(clicked()),
           SLOT(nextNamedInstance()));
-
-  glyphNavigationMapper_ = new QSignalMapper;
-  connect(glyphNavigationMapper_, SIGNAL(mapped(int)),
-          SLOT(adjustGlyphIndex(int)));
-
-  connect(toStartButtonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toM1000Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toM100Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toM10Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toM1Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toP1Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toP10Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toP100Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toP1000Buttonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-  connect(toEndButtonx_, SIGNAL(clicked()),
-          glyphNavigationMapper_, SLOT(map()));
-
-  glyphNavigationMapper_->setMapping(toStartButtonx_, -0x10000);
-  glyphNavigationMapper_->setMapping(toM1000Buttonx_, -1000);
-  glyphNavigationMapper_->setMapping(toM100Buttonx_, -100);
-  glyphNavigationMapper_->setMapping(toM10Buttonx_, -10);
-  glyphNavigationMapper_->setMapping(toM1Buttonx_, -1);
-  glyphNavigationMapper_->setMapping(toP1Buttonx_, 1);
-  glyphNavigationMapper_->setMapping(toP10Buttonx_, 10);
-  glyphNavigationMapper_->setMapping(toP100Buttonx_, 100);
-  glyphNavigationMapper_->setMapping(toP1000Buttonx_, 1000);
-  glyphNavigationMapper_->setMapping(toEndButtonx_, 0x10000);
 
   connect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
           this, &MainGUI::watchCurrentFont);
@@ -967,7 +908,7 @@ MainGUI::setDefaults()
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
   checkCurrentNamedInstanceIndex();
-  adjustGlyphIndex(0);
+  indexSelector_->setCurrentIndex(indexSelector_->getCurrentIndex(), true);
   zoom();
 }
 

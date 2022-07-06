@@ -12,6 +12,7 @@
 #include "rendering/glyphpoints.hpp"
 #include "rendering/grid.hpp"
 #include "widgets/customwidgets.hpp"
+#include "widgets/glyphindexselector.hpp"
 #include "models/ttsettingscomboboxmodel.hpp"
 #include "panels/settingpanel.hpp"
 
@@ -71,7 +72,7 @@ protected:
 private slots:
   void about();
   void aboutQt();
-  void adjustGlyphIndex(int);
+  void setGlyphIndex(int);
   void checkCurrentFaceIndex();
   void checkCurrentFontIndex();
   void checkCurrentNamedInstanceIndex();
@@ -121,6 +122,7 @@ private:
   QAction *exitAct_;
   QAction *loadFontsAct_;
 
+  GlyphIndexSelector* indexSelector_;
   QComboBox *unitsComboBox_;
 
   QDoubleSpinBox *sizeDoubleSpinBox_;
@@ -133,7 +135,6 @@ private:
 
   QHBoxLayout *ftinspectLayout_;
   QHBoxLayout *infoLeftLayout_;
-  QHBoxLayout *navigationLayout_;
   QHBoxLayout *sizeLayout_;
 
   QLabel *dpiLabel_;
@@ -164,19 +165,6 @@ private:
   QPushButton *previousFaceButton_;
   QPushButton *previousFontButton_;
   QPushButton *previousNamedInstanceButton_;
-
-  QPushButtonx *toEndButtonx_;
-  QPushButtonx *toM1000Buttonx_;
-  QPushButtonx *toM100Buttonx_;
-  QPushButtonx *toM10Buttonx_;
-  QPushButtonx *toM1Buttonx_;
-  QPushButtonx *toP1000Buttonx_;
-  QPushButtonx *toP100Buttonx_;
-  QPushButtonx *toP10Buttonx_;
-  QPushButtonx *toP1Buttonx_;
-  QPushButtonx *toStartButtonx_;
-
-  QSignalMapper *glyphNavigationMapper_;
 
   QSpinBox *dpiSpinBox_;
   QSpinBoxx *zoomSpinBox_;
