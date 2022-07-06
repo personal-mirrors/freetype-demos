@@ -793,45 +793,45 @@ MainGUI::createLayout()
 void
 MainGUI::createConnections()
 {
-  connect(settingPanel_, SIGNAL(fontReloadNeeded()),
-          SLOT(showFont()));
-  connect(settingPanel_, SIGNAL(repaintNeeded()),
-          SLOT(drawGlyph()));
-  connect(indexSelector_, SIGNAL(currentIndexChanged(int)), 
-      this, SLOT(setGlyphIndex(int)));
-  connect(sizeDoubleSpinBox_, SIGNAL(valueChanged(double)),
-          SLOT(drawGlyph()));
-  connect(unitsComboBox_, SIGNAL(currentIndexChanged(int)),
-          SLOT(checkUnits()));
-  connect(dpiSpinBox_, SIGNAL(valueChanged(int)),
-          SLOT(drawGlyph()));
+  connect(settingPanel_, &SettingPanel::fontReloadNeeded,
+          this, &MainGUI::showFont);
+  connect(settingPanel_, &SettingPanel::repaintNeeded,
+          this, &MainGUI::drawGlyph);
+  connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged, 
+          this, &MainGUI::setGlyphIndex);
+  connect(sizeDoubleSpinBox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &MainGUI::drawGlyph);
+  connect(unitsComboBox_, QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this, &MainGUI::checkUnits);
+  connect(dpiSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged),
+          this, &MainGUI::drawGlyph);
 
-  connect(zoomSpinBox_, SIGNAL(valueChanged(int)),
-          SLOT(zoom()));
-  connect(glyphView_, SIGNAL(shiftWheelEvent(QWheelEvent*)), 
-          SLOT(wheelResize(QWheelEvent*)));
-  connect(glyphView_, SIGNAL(ctrlWheelEvent(QWheelEvent*)), 
-          SLOT(wheelZoom(QWheelEvent*)));
+  connect(zoomSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged),
+          this, &MainGUI::zoom);
+  connect(glyphView_, &QGraphicsViewx::shiftWheelEvent, 
+          this, &MainGUI::wheelResize);
+  connect(glyphView_, &QGraphicsViewx::ctrlWheelEvent, 
+          this, &MainGUI::wheelZoom);
   connect(glyphView_->horizontalScrollBar(), &QScrollBar::valueChanged,
           this, &MainGUI::updateGrid);
-  connect(glyphView_->verticalScrollBar(), &QScrollBar::valueChanged, this,
-          &MainGUI::updateGrid);
+  connect(glyphView_->verticalScrollBar(), &QScrollBar::valueChanged, 
+          this, &MainGUI::updateGrid);
 
-  connect(centerGridButton_, SIGNAL(clicked()),
-          SLOT(backToCenter()));
+  connect(centerGridButton_, &QPushButton::clicked,
+          this, &MainGUI::backToCenter);
 
-  connect(previousFontButton_, SIGNAL(clicked()),
-          SLOT(previousFont()));
-  connect(nextFontButton_, SIGNAL(clicked()),
-          SLOT(nextFont()));
-  connect(previousFaceButton_, SIGNAL(clicked()),
-          SLOT(previousFace()));
-  connect(nextFaceButton_, SIGNAL(clicked()),
-          SLOT(nextFace()));
-  connect(previousNamedInstanceButton_, SIGNAL(clicked()),
-          SLOT(previousNamedInstance()));
-  connect(nextNamedInstanceButton_, SIGNAL(clicked()),
-          SLOT(nextNamedInstance()));
+  connect(previousFontButton_, &QPushButton::clicked,
+          this, &MainGUI::previousFont);
+  connect(nextFontButton_, &QPushButton::clicked,
+          this, &MainGUI::nextFont);
+  connect(previousFaceButton_, &QPushButton::clicked,
+          this, &MainGUI::previousFace);
+  connect(nextFaceButton_, &QPushButton::clicked,
+          this, &MainGUI::nextFace);
+  connect(previousNamedInstanceButton_, &QPushButton::clicked,
+          this, &MainGUI::previousNamedInstance);
+  connect(nextNamedInstanceButton_, &QPushButton::clicked,
+          this, &MainGUI::nextNamedInstance);
 
   connect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
           this, &MainGUI::watchCurrentFont);
@@ -843,21 +843,21 @@ MainGUI::createActions()
 {
   loadFontsAct_ = new QAction(tr("&Load Fonts"), this);
   loadFontsAct_->setShortcuts(QKeySequence::Open);
-  connect(loadFontsAct_, SIGNAL(triggered()), SLOT(loadFonts()));
+  connect(loadFontsAct_, &QAction::triggered, this, &MainGUI::loadFonts);
 
   closeFontAct_ = new QAction(tr("&Close Font"), this);
   closeFontAct_->setShortcuts(QKeySequence::Close);
-  connect(closeFontAct_, SIGNAL(triggered()), SLOT(closeFont()));
+  connect(closeFontAct_, &QAction::triggered, this, &MainGUI::closeFont);
 
   exitAct_ = new QAction(tr("E&xit"), this);
   exitAct_->setShortcuts(QKeySequence::Quit);
-  connect(exitAct_, SIGNAL(triggered()), SLOT(close()));
+  connect(exitAct_, &QAction::triggered, this, &MainGUI::close);
 
   aboutAct_ = new QAction(tr("&About"), this);
-  connect(aboutAct_, SIGNAL(triggered()), SLOT(about()));
+  connect(aboutAct_, &QAction::triggered, this, &MainGUI::about);
 
   aboutQtAct_ = new QAction(tr("About &Qt"), this);
-  connect(aboutQtAct_, SIGNAL(triggered()), SLOT(aboutQt()));
+  connect(aboutQtAct_, &QAction::triggered, this, &MainGUI::aboutQt);
 }
 
 
