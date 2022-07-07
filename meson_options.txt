@@ -1,0 +1,22 @@
+#
+# Meson options file for FreeType 2 test programs
+#
+
+# Copyright (C) 2022 by
+# David Turner, Robert Wilhelm, Werner Lemberg, and Charlie Jiang.
+#
+# This file is part of the FreeType project, and may only be used, modified,
+# and distributed under the terms of the FreeType project license,
+# LICENSE.TXT.  By continuing to use, modify, or distribute this file you
+# indicate that you have read the license and understand and accept it
+# fully.
+
+
+# Building librsvg is tough on some platforms, so we add
+# a switch here.
+option('librsvg',
+  type: 'feature',
+  value: 'enabled',
+  description: 'Enabling librsvg to render OT-SVG glyphs')
+
+# EOF
