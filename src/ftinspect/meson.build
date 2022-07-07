@@ -34,6 +34,7 @@ if qt5_dep.found()
     'models/ttsettingscomboboxmodel.cpp',
 
     'panels/settingpanel.cpp',
+    'panels/singular.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
@@ -47,6 +48,7 @@ if qt5_dep.found()
       'widgets/glyphindexselector.hpp',
       'models/ttsettingscomboboxmodel.hpp',
       'panels/settingpanel.hpp',
+      'panels/singular.hpp',
       'maingui.hpp',
     ],
     dependencies: qt5_dep)

@@ -22,34 +22,6 @@ SettingPanel::antiAliasingModeIndex()
 }
 
 
-bool
-SettingPanel::showBitmapChecked()
-{
-  return showBitmapCheckBox_->isChecked();
-}
-
-
-bool
-SettingPanel::showOutLinesChecked()
-{
-  return showOutlinesCheckBox_->isChecked();
-}
-
-
-bool
-SettingPanel::showPointNumbersChecked()
-{
-  return showPointNumbersCheckBox_->isChecked();
-}
-
-
-bool
-SettingPanel::showPointsChecked()
-{
-  return showPointsCheckBox_->isChecked();
-}
-
-
 void
 SettingPanel::checkAllSettings()
 {
@@ -57,7 +29,6 @@ SettingPanel::checkAllSettings()
   checkAutoHinting();
   checkAntiAliasing();
   checkLCDFilter();
-  checkShowPoints();
 }
 
 
@@ -197,17 +168,6 @@ SettingPanel::checkAntiAliasing()
 
 
 void
-SettingPanel::checkShowPoints()
-{
-  if (showPointsCheckBox_->isChecked())
-    showPointNumbersCheckBox_->setEnabled(true);
-  else
-    showPointNumbersCheckBox_->setEnabled(false);
-  emit repaintNeeded();
-}
-
-
-void
 SettingPanel::checkLCDFilter()
 {
   emit repaintNeeded();
@@ -222,6 +182,8 @@ SettingPanel::syncSettings()
       lcdFilterComboBox_->currentIndex())));
   engine_->setAntiAliasingTarget(antiAliasingComboBoxModel_->indexToValue(
     antiAliasingComboBox_->currentIndex()));
+  engine_->setAntiAliasingEnabled(antiAliasingComboBox_->currentIndex()
+    != AntiAliasingComboBoxModel::AntiAliasing_None);
   engine_->setHinting(hintingCheckBox_->isChecked());
   engine_->setAutoHinting(autoHintingCheckBox_->isChecked());
   engine_->setHorizontalHinting(horizontalHintingCheckBox_->isChecked());
@@ -264,14 +226,6 @@ SettingPanel::createConnections()
 
   connect(autoHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkAutoHinting);
-  connect(showBitmapCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
-  connect(showPointsCheckBox_, &QCheckBox::clicked, 
-          this, &SettingPanel::repaintNeeded);
-  connect(showPointNumbersCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
-  connect(showOutlinesCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
 }
 
 
@@ -336,11 +290,6 @@ SettingPanel::createLayout()
   gammaSlider_->setTickInterval(5);
   gammaLabel_->setBuddy(gammaSlider_);
 
-  showBitmapCheckBox_ = new QCheckBox(tr("Show Bitmap"), this);
-  showPointsCheckBox_ = new QCheckBox(tr("Show Points"), this);
-  showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"), this);
-  showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"), this);
-
   hintingModeLayout_ = new QHBoxLayout;
   hintingModeLayout_->addWidget(hintingModeLabel_);
   hintingModeLayout_->addWidget(hintingModeComboBox_);
@@ -373,10 +322,6 @@ SettingPanel::createLayout()
   gammaLayout_->addWidget(gammaLabel_);
   gammaLayout_->addWidget(gammaSlider_);
 
-  pointNumbersLayout_ = new QHBoxLayout;
-  pointNumbersLayout_->addSpacing(20); // XXX px
-  pointNumbersLayout_->addWidget(showPointNumbersCheckBox_);
-
   generalTabLayout_ = new QVBoxLayout;
   generalTabLayout_->addWidget(hintingCheckBox_);
   generalTabLayout_->addLayout(hintingModeLayout_);
@@ -394,10 +339,6 @@ SettingPanel::createLayout()
   generalTabLayout_->addLayout(gammaLayout_);
   generalTabLayout_->addSpacing(20); // XXX px
   generalTabLayout_->addStretch(1);
-  generalTabLayout_->addWidget(showBitmapCheckBox_);
-  generalTabLayout_->addWidget(showPointsCheckBox_);
-  generalTabLayout_->addLayout(pointNumbersLayout_);
-  generalTabLayout_->addWidget(showOutlinesCheckBox_);
 
   generalTab_ = new QWidget(this);
   generalTab_->setLayout(generalTabLayout_);
@@ -443,9 +384,6 @@ SettingPanel::setDefaults()
   horizontalHintingCheckBox_->setChecked(true);
   verticalHintingCheckBox_->setChecked(true);
   blueZoneHintingCheckBox_->setChecked(true);
-
-  showBitmapCheckBox_->setChecked(true);
-  showOutlinesCheckBox_->setChecked(true);
 
   gammaSlider_->setValue(18); // 1.8
 }

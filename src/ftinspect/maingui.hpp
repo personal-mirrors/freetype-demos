@@ -6,15 +6,11 @@
 #pragma once
 
 #include "engine/engine.hpp"
-#include "rendering/glyphbitmap.hpp"
-#include "rendering/glyphoutline.hpp"
-#include "rendering/glyphpointnumbers.hpp"
-#include "rendering/glyphpoints.hpp"
-#include "rendering/grid.hpp"
 #include "widgets/customwidgets.hpp"
 #include "widgets/glyphindexselector.hpp"
 #include "models/ttsettingscomboboxmodel.hpp"
 #include "panels/settingpanel.hpp"
+#include "panels/singular.hpp"
 
 #include <QAction>
 #include <QCheckBox>
@@ -72,14 +68,13 @@ protected:
 private slots:
   void about();
   void aboutQt();
-  void setGlyphIndex(int);
   void checkCurrentFaceIndex();
   void checkCurrentFontIndex();
   void checkCurrentNamedInstanceIndex();
-  void checkUnits();
   void closeFont();
   void showFont();
-  void drawGlyph();
+  void repaintCurrentTab();
+  void reloadCurrentTabFont();
   void loadFonts();
   void nextFace();
   void nextFont();
@@ -88,11 +83,6 @@ private slots:
   void previousFont();
   void previousNamedInstance();
   void watchCurrentFont();
-  void zoom();
-  void backToCenter();
-  void updateGrid();
-  void wheelZoom(QWheelEvent* event);
-  void wheelResize(QWheelEvent* event);
 
 private:
   Engine* engine_;
@@ -106,74 +96,36 @@ private:
   int currentNamedInstanceIndex_;
 
   int currentNumberOfGlyphs_;
-  int currentGlyphIndex_;
 
   // layout related stuff
-  GlyphOutline *currentGlyphOutlineItem_;
-  GlyphPoints *currentGlyphPointsItem_;
-  GlyphPointNumbers *currentGlyphPointNumbersItem_;
-  GlyphBitmap *currentGlyphBitmapItem_;
-  Grid *gridItem_ = NULL;
-  QLabel* mouseUsageHint_;
-
   QAction *aboutAct_;
   QAction *aboutQtAct_;
   QAction *closeFontAct_;
   QAction *exitAct_;
   QAction *loadFontsAct_;
 
-  GlyphIndexSelector* indexSelector_;
-  QComboBox *unitsComboBox_;
-
-  QDoubleSpinBox *sizeDoubleSpinBox_;
-
-  QGraphicsScene *glyphScene_;
-  QGraphicsViewx *glyphView_;
-
   QGridLayout *fontLayout;
-  QGridLayout *infoRightLayout;
 
   QHBoxLayout *ftinspectLayout_;
   QHBoxLayout *infoLeftLayout_;
-  QHBoxLayout *sizeLayout_;
 
-  QLabel *dpiLabel_;
   QLabel *fontFilenameLabel_;
   QLabel *fontNameLabel_;
-  QLabel *glyphIndexLabel_;
-  QLabel *glyphNameLabel_;
-  QLabel *sizeLabel_;
-  QLabel *zoomLabel_;
 
   QLocale *locale_;
 
   QMenu *menuFile_;
   QMenu *menuHelp_;
 
-  QPen axisPen_;
-  QPen blueZonePen_;
-  QPen gridPen_;
-  QPen offPen_;
-  QPen onPen_;
-  QPen outlinePen_;
-  QPen segmentPen_;
-
-  QPushButton *centerGridButton_;
   QPushButton *nextFaceButton_;
   QPushButton *nextFontButton_;
   QPushButton *nextNamedInstanceButton_;
   QPushButton *previousFaceButton_;
   QPushButton *previousFontButton_;
   QPushButton *previousNamedInstanceButton_;
-
-  QSpinBox *dpiSpinBox_;
-  QSpinBoxx *zoomSpinBox_;
   
   QVBoxLayout *leftLayout_;
   QVBoxLayout *rightLayout_;
-
-  QVector<QRgb> grayColorTable_;
-  QVector<QRgb> monoColorTable_;
 
   QWidget *ftinspectWidget_;
   QWidget *leftWidget_;
@@ -181,11 +133,9 @@ private:
 
   SettingPanel* settingPanel_;
 
-  enum Units
-  {
-    Units_px,
-    Units_pt
-  };
+  QTabWidget* tabWidget_;
+  QVector<AbstractTab*> tabs_;
+  SingularTab* singularTab_;
 
   void openFonts(QStringList const& fileNames);
 
@@ -197,7 +147,6 @@ private:
   void createLayout();
   void createMenus();
   void createStatusBar();
-  void setGraphicsDefaults();
   void setupDragDrop();
 
   void readSettings();

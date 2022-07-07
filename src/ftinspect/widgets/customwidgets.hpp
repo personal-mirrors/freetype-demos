@@ -43,13 +43,13 @@ private:
 
 
 // we want to have our own `stepBy' function for the zoom spin box
-class QSpinBoxx
+class ZoomSpinBox
 : public QSpinBox
 {
   Q_OBJECT
 
 public:
-  QSpinBoxx(QWidget* parent);
+  ZoomSpinBox(QWidget* parent);
   void stepBy(int val);
   int valueFromText(const QString& text) const;
 };

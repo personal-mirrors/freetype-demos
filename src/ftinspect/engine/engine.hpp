@@ -81,6 +81,7 @@ public:
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
+  int currentFontNumberOfGlyphs() { return curNumGlyphs_; }
   int numberOfOpenedFonts();
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
@@ -92,6 +93,7 @@ public:
   // getter named fontFileManager
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
+  bool antiAliasingEnabled() { return antiAliasingEnabled_; }
 
   //////// Setters (direct or indirect)
 
@@ -115,6 +117,7 @@ public:
   void setShowSegments(bool showSegments) { showSegments_ = showSegments; }
   void setGamma(double gamma) { gamma_ = gamma; }
   void setAntiAliasingTarget(int target) { antiAliasingTarget_ = target; }
+  void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
@@ -138,6 +141,7 @@ private:
 
   QString curFamilyName_;
   QString curStyleName_;
+  int curNumGlyphs_ = -1;
 
   FT_Library library_;
   FTC_Manager cacheManager_;
@@ -151,6 +155,7 @@ private:
 
   int fontType_;
 
+  bool antiAliasingEnabled_ = true;
   bool usingPixelSize_ = false;
   double pointSize_;
   double pixelSize_;

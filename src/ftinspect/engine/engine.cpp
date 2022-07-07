@@ -298,6 +298,7 @@ Engine::loadFont(int fontIndex,
       fontType_ = FontType_TrueType;
   }
 
+  curNumGlyphs_ = numGlyphs;
   return numGlyphs;
 }
 
@@ -474,7 +475,7 @@ Engine::update()
   {
     loadFlags_ |= FT_LOAD_NO_HINTING;
 
-    if (antiAliasingTarget_ | FT_LOAD_TARGET_MONO) // XXX does this hold?
+    if (!antiAliasingEnabled_) // XXX does this hold?
       loadFlags_ |= FT_LOAD_MONOCHROME;
   }
 

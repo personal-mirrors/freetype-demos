@@ -28,12 +28,6 @@ public:
 
   int antiAliasingModeIndex();
 
-  // TODO This would eventually go to separate panel for ftglyph (Singular View)
-  bool showBitmapChecked();
-  bool showOutLinesChecked();
-  bool showPointNumbersChecked();
-  bool showPointsChecked();
-
 signals:
   void fontReloadNeeded();
   void repaintNeeded();
@@ -46,7 +40,6 @@ public slots:
   void checkHintingMode();
   void checkAutoHinting();
   void checkAntiAliasing();
-  void checkShowPoints();
   void checkLCDFilter();
 
 private:
@@ -71,10 +64,6 @@ private:
   QCheckBox* blueZoneHintingCheckBox_;
   QCheckBox* segmentDrawingCheckBox_;
   QCheckBox* autoHintingCheckBox_;
-  QCheckBox* showBitmapCheckBox_;
-  QCheckBox* showOutlinesCheckBox_;
-  QCheckBox* showPointNumbersCheckBox_;
-  QCheckBox* showPointsCheckBox_;
 
   AntiAliasingComboBoxModel* antiAliasingComboBoxModel_;
   HintingModeComboBoxModel* hintingModeComboBoxModel_;
@@ -95,7 +84,6 @@ private:
   QHBoxLayout* antiAliasingLayout_;
   QHBoxLayout* lcdFilterLayout_;
   QHBoxLayout* gammaLayout_;
-  QHBoxLayout* pointNumbersLayout_;
 
   QVBoxLayout* generalTabLayout_;
 

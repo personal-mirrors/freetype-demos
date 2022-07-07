@@ -71,7 +71,7 @@ QGraphicsViewx::resizeEvent(QResizeEvent* event)
 // so that we can do that symmetrically
 
 int
-QSpinBoxx::valueFromText(const QString& text) const
+ZoomSpinBox::valueFromText(const QString& text) const
 {
   int val = QSpinBox::valueFromText(text);
 
@@ -92,14 +92,14 @@ QSpinBoxx::valueFromText(const QString& text) const
 }
 
 
-QSpinBoxx::QSpinBoxx(QWidget* parent)
+ZoomSpinBox::ZoomSpinBox(QWidget* parent)
 : QSpinBox(parent)
 {
 }
 
 
 void
-QSpinBoxx::stepBy(int steps)
+ZoomSpinBox::stepBy(int steps)
 {
   int val = value();
 
