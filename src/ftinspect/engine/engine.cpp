@@ -339,6 +339,9 @@ Engine::glyphName(int index)
   if (index < 0)
     throw std::runtime_error("Invalid glyph index");
 
+   if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+    return name;
+
   if (ftSize_ && FT_HAS_GLYPH_NAMES(ftSize_->face))
   {
     char buffer[256];
