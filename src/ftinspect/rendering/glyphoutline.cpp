@@ -87,10 +87,10 @@ static FT_Outline_Funcs outlineFuncs =
 } // extern "C"
 
 
-GlyphOutline::GlyphOutline(const QPen& outlineP,
-                           FT_Outline* outln)
-: outlinePen_(outlineP),
-  outline_(outln)
+GlyphOutline::GlyphOutline(const QPen& pen,
+                           FT_Outline* outline)
+: outlinePen_(pen),
+  outline_(outline)
 {
   FT_BBox cbox;
 

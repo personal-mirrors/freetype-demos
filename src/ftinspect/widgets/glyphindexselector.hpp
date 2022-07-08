@@ -17,7 +17,7 @@ class GlyphIndexSelector
   Q_OBJECT
 public:
   GlyphIndexSelector(QWidget* parent);
-  virtual ~GlyphIndexSelector() = default;
+  ~GlyphIndexSelector() override = default;
 
   void setMin(int min);
   void setMax(int max);

@@ -20,7 +20,7 @@ class FontFileManager
   Q_OBJECT
 public:
   FontFileManager();
-  virtual ~FontFileManager() = default;
+  ~FontFileManager() override = default;
 
   int size();
   void append(QStringList newFileNames);

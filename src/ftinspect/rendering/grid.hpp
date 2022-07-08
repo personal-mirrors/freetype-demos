@@ -15,10 +15,10 @@ public:
   Grid(QGraphicsView* parentView,
        const QPen& gridPen,
        const QPen& axisPen);
-  QRectF boundingRect() const;
+  QRectF boundingRect() const override;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
-             QWidget* widget);
+             QWidget* widget) override;
 
   void updateRect(); // there's no signal/slots for QGraphicsItem.
 

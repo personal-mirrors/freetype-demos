@@ -20,10 +20,10 @@ public:
   GlyphPoints(const QPen& onPen,
               const QPen& offPen,
               FT_Outline* outline);
-  QRectF boundingRect() const;
+  QRectF boundingRect() const override;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
-             QWidget* widget);
+             QWidget* widget) override;
 
 private:
   QPen onPen_;

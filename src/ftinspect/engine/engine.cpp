@@ -28,12 +28,12 @@ FaceID::FaceID()
 }
 
 
-FaceID::FaceID(int fontIdx,
-               long faceIdx,
-               int namedInstanceIdx)
-: fontIndex(fontIdx),
-  faceIndex(faceIdx),
-  namedInstanceIndex(namedInstanceIdx)
+FaceID::FaceID(int fontIndex,
+               long faceIndex,
+               int namedInstanceIndex)
+: fontIndex(fontIndex),
+  faceIndex(faceIndex),
+  namedInstanceIndex(namedInstanceIndex)
 {
   // empty
 }

@@ -31,10 +31,10 @@ signals:
   void ctrlWheelEvent(QWheelEvent* event);
 
 protected:
-  void wheelEvent(QWheelEvent* event);
-  void resizeEvent(QResizeEvent* event);
+  void wheelEvent(QWheelEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
   void scrollContentsBy(int dx,
-                        int dy);
+                        int dy) override;
 
 private:
   QPointF lastBottomLeftPoint_;
@@ -50,8 +50,8 @@ class ZoomSpinBox
 
 public:
   ZoomSpinBox(QWidget* parent);
-  void stepBy(int val);
-  int valueFromText(const QString& text) const;
+  void stepBy(int val) override;
+  int valueFromText(const QString& text) const override;
 };
 
 

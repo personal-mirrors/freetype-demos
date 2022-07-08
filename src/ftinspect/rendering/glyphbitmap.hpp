@@ -22,11 +22,11 @@ public:
               FT_Pixel_Mode pixelMode,
               const QVector<QRgb>& monoColorTable,
               const QVector<QRgb>& grayColorTable);
-  ~GlyphBitmap();
-  QRectF boundingRect() const;
+  ~GlyphBitmap() override;
+  QRectF boundingRect() const override;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
-             QWidget* widget);
+             QWidget* widget) override;
 
 private:
   FT_Outline transformed_;

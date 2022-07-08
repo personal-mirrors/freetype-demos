@@ -35,12 +35,12 @@ class SingularTab
   Q_OBJECT
 public:
   SingularTab(QWidget* parent, Engine* engine);
-  virtual ~SingularTab();
+  ~SingularTab() override;
 
-  void repaint();
-  void reloadFont();
-  void syncSettings();
-  void setDefaults();
+  void repaint() override;
+  void reloadFont() override;
+  void syncSettings() override;
+  void setDefaults() override;
 
 private slots:
   void setGlyphIndex(int);

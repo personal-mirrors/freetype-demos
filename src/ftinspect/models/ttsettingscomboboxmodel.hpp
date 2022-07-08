@@ -26,12 +26,12 @@ public:
   };
 
   explicit HintingModeComboBoxModel(QObject* parent);
-  virtual ~HintingModeComboBoxModel() = default;
+  ~HintingModeComboBoxModel() override = default;
 
-  int rowCount(const QModelIndex& parent) const;
+  int rowCount(const QModelIndex& parent) const override;
   QVariant data(const QModelIndex& index,
-                int role) const;
-  Qt::ItemFlags flags(const QModelIndex& index) const;
+                int role) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
   int indexToTTInterpreterVersion(int index) const;
   int indexToCFFMode(int index) const;
@@ -83,7 +83,7 @@ public:
   };
 
   explicit SimpleComboBoxModel(QObject* parent);
-  virtual ~SimpleComboBoxModel() = default;
+  ~SimpleComboBoxModel() override = default;
 
   int rowCount(const QModelIndex& parent) const;
   QVariant data(const QModelIndex& index,

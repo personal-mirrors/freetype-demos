@@ -50,7 +50,7 @@ class MainGUI
 
 public:
   MainGUI(Engine* engine);
-  ~MainGUI();
+  ~MainGUI() override;
 
   void setDefaults();
 
@@ -61,9 +61,9 @@ public:
                                 FT_Face*);
 
 protected:
-  void closeEvent(QCloseEvent*);
-  void dragEnterEvent(QDragEnterEvent* event);
-  void dropEvent(QDropEvent* event);
+  void closeEvent(QCloseEvent*) override;
+  void dragEnterEvent(QDragEnterEvent* event) override;
+  void dropEvent(QDropEvent* event) override;
 
 private slots:
   void about();

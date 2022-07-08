@@ -20,7 +20,7 @@ class SettingPanel
   Q_OBJECT
 public:
   SettingPanel(QWidget* parent, Engine* engine);
-  ~SettingPanel() = default;
+  ~SettingPanel() override = default;
 
   void syncSettings();
 
