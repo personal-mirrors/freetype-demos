@@ -420,7 +420,7 @@ SingularTab::setGraphicsDefaults()
 
 
 void
-SingularTab::repaint()
+SingularTab::repaintGlyph()
 {
   drawGlyph();
 }

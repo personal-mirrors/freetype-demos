@@ -14,7 +14,7 @@ public:
 
   virtual void syncSettings() = 0;
   virtual void setDefaults() = 0;
-  virtual void repaint() = 0;
+  virtual void repaintGlyph() = 0;
   virtual void reloadFont() = 0;
 };
 

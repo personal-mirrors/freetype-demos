@@ -37,7 +37,7 @@ public:
   SingularTab(QWidget* parent, Engine* engine);
   ~SingularTab() override;
 
-  void repaint() override;
+  void repaintGlyph() override;
   void reloadFont() override;
   void syncSettings() override;
   void setDefaults() override;

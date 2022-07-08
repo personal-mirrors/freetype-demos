@@ -238,7 +238,7 @@ void
 MainGUI::repaintCurrentTab()
 {
   syncSettings();
-  tabs_[tabWidget_->currentIndex()]->repaint();
+  tabs_[tabWidget_->currentIndex()]->repaintGlyph();
 }
 
 
