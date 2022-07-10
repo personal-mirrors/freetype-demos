@@ -5,6 +5,8 @@
 
 #include "glyphbitmap.hpp"
 
+#include "renderutils.hpp"
+
 #include <cmath>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
@@ -21,23 +23,8 @@ GlyphBitmap::GlyphBitmap(FT_Outline* outline,
   grayColorTable_(grayColorTbl)
 {
   // make a copy of the outline since we are going to manipulate it
-  FT_Outline_New(library_,
-                 static_cast<unsigned int>(outline->n_points),
-                 outline->n_contours,
-                 &transformed_);
-  FT_Outline_Copy(outline, &transformed_);
-
   FT_BBox cbox;
-  FT_Outline_Get_CBox(outline, &cbox);
-
-  cbox.xMin &= ~63;
-  cbox.yMin &= ~63;
-  cbox.xMax = (cbox.xMax + 63) & ~63;
-  cbox.yMax = (cbox.yMax + 63) & ~63;
-
-  // we shift the outline to the origin for rendering later on
-  FT_Outline_Translate(&transformed_, -cbox.xMin, -cbox.yMin);
-
+  transformed_ = transformOutlineToOrigin(lib, outline, &cbox);
   boundingRect_.setCoords(cbox.xMin / 64, -cbox.yMax / 64,
                   cbox.xMax / 64, -cbox.yMin / 64);
 }

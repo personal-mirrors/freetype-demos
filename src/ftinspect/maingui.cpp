@@ -15,6 +15,8 @@
 
 #include <freetype/ftdriver.h>
 
+#include "panels/continuous.hpp"
+
 
 MainGUI::MainGUI(Engine* engine)
 : engine_(engine)
@@ -448,12 +450,15 @@ MainGUI::createLayout()
   fontNameLabel_ = new QLabel(this);
 
   singularTab_ = new SingularTab(this, engine_);
+  continuousTab_ = new ContinuousTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
 
   // Note those two list must be in sync
   tabs_.append(singularTab_);
   tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
+  tabs_.append(continuousTab_);
+  tabWidget_->addTab(continuousTab_, tr("Continuous View"));
 
   previousFontButton_ = new QPushButton(tr("Previous Font"), this);
   nextFontButton_ = new QPushButton(tr("Next Font"), this);
@@ -503,6 +508,9 @@ MainGUI::createConnections()
           this, &MainGUI::showFont);
   connect(settingPanel_, &SettingPanel::repaintNeeded,
           this, &MainGUI::repaintCurrentTab);
+
+  connect(tabWidget_, &QTabWidget::currentChanged,
+          this, &MainGUI::reloadCurrentTabFont);
 
   connect(previousFontButton_, &QPushButton::clicked,
           this, &MainGUI::previousFont);

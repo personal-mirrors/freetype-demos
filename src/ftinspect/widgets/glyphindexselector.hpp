@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <functional>
 #include <QWidget>
 #include <QPushButton>
 #include <QSpinBox>
@@ -19,13 +20,15 @@ public:
   GlyphIndexSelector(QWidget* parent);
   ~GlyphIndexSelector() override = default;
 
-  void setMin(int min);
-  void setMax(int max);
+  // Will never trigger repaint!
+  void setMinMax(int min, int max);
   void setShowingCount(int showingCount);
   void setSingleMode(bool singleMode);
 
   void setCurrentIndex(int index, bool forceUpdate = false);
-  int getCurrentIndex();
+  int currentIndex();
+
+  void setNumberRenderer(std::function<QString(int)> renderer);
 
 signals:
   void currentIndexChanged(int index);
@@ -38,6 +41,7 @@ private slots:
 private:
   bool singleMode_ = true;
   int showingCount_;
+  std::function<QString(int)> numberRenderer_;
 
   // min, max and current status are held by `indexSpinBox_`
 
@@ -61,6 +65,8 @@ private:
 
   void createLayout();
   void createConnections();
+
+  static QString renderNumberDefault(int i);
 };
 
 

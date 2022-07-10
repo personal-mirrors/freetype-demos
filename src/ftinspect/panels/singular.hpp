@@ -7,11 +7,13 @@
 #include "abstracttab.hpp"
 #include "../widgets/customwidgets.hpp"
 #include "../widgets/glyphindexselector.hpp"
+#include "../widgets/fontsizeselector.hpp"
 #include "../rendering/glyphbitmap.hpp"
 #include "../rendering/glyphoutline.hpp"
 #include "../rendering/glyphpointnumbers.hpp"
 #include "../rendering/glyphpoints.hpp"
 #include "../rendering/grid.hpp"
+#include "../rendering/graphicsdefault.hpp"
 #include "../engine/engine.hpp"
 #include "../models/ttsettingscomboboxmodel.hpp"
 
@@ -45,8 +47,7 @@ public:
 private slots:
   void setGlyphIndex(int);
   void drawGlyph();
-
-  void checkUnits();
+  
   void checkShowPoints();
 
   void zoom();
@@ -71,13 +72,9 @@ private:
   QLabel* mouseUsageHint_;
 
   GlyphIndexSelector* indexSelector_;
-  QLabel* dpiLabel_;
-  QLabel* sizeLabel_;
+  FontSizeSelector* sizeSelector_;
   QLabel* zoomLabel_;
-  QSpinBox* dpiSpinBox_;
   ZoomSpinBox* zoomSpinBox_;
-  QComboBox* unitsComboBox_;
-  QDoubleSpinBox* sizeDoubleSpinBox_;
   QPushButton* centerGridButton_;
 
   QLabel* glyphIndexLabel_;
@@ -94,26 +91,10 @@ private:
   QGridLayout* glyphOverlayLayout_;
   QHBoxLayout* glyphOverlayIndexLayout_;
 
-  QPen axisPen_;
-  QPen blueZonePen_;
-  QPen gridPen_;
-  QPen offPen_;
-  QPen onPen_;
-  QPen outlinePen_;
-  QPen segmentPen_;
-
-  QVector<QRgb> grayColorTable_;
-  QVector<QRgb> monoColorTable_;
-
-  enum Units
-  {
-    Units_px,
-    Units_pt
-  };
+  GraphicsDefault* graphicsDefault_;
 
   void createLayout();
   void createConnections();
-  void setGraphicsDefaults();
   
   void updateGrid();
 };

@@ -36,6 +36,29 @@ struct FaceID
   bool operator<(const FaceID& other) const;
 };
 
+class Engine;
+
+#define FT_ENCODING_OTHER 0xFFFE
+struct CharMapInfo
+{
+  int index;
+  FT_CharMap ptr;
+  FT_Encoding encoding;
+  QString* encodingName;
+
+  // Actually this shouldn't go here, but for convenience...
+  int maxIndex;
+
+  CharMapInfo(int index, FT_CharMap cmap);
+
+  QString stringifyIndex(int code, int index);
+  QString stringifyIndexShort(int code);
+
+private:
+  int computeMaxIndex();
+  static int maxIndexForFaceAndCharMap(FT_CharMap charMap, unsigned max);
+};
+
 // FreeType specific data.
 
 class Engine
@@ -70,6 +93,13 @@ public:
                int namedInstanceIndex); // return number of glyphs
   FT_Outline* loadOutline(int glyphIndex);
 
+  // Sometimes the engine is already updated, and we want to be faster
+  FT_Glyph loadGlyphWithoutUpdate(int glyphIndex);
+
+  // reload current triplet, but with updated settings, useful for updating
+  // `ftSize_` only
+  void reloadFont(); 
+
   void openFonts(QStringList fontFileNames);
   void removeFont(int fontIndex, bool closeFile = true);
   
@@ -87,13 +117,15 @@ public:
   long numberOfFaces(int fontIndex);
   int numberOfNamedInstances(int fontIndex,
                              long faceIndex);
+  // Note: the current font face must be properly set
+  unsigned glyphIndexFromCharCode(int code, int charMapIndex);
+  FT_Size_Metrics const& currentFontMetrics();
 
-  // XXX We should prepend '_' to all private member variable so we can create
-  // getter without naming conflict... e.g. var named _fontFileManager while
-  // getter named fontFileManager
+  QVector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
+
 
   //////// Setters (direct or indirect)
 
@@ -142,14 +174,17 @@ private:
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
+  QVector<CharMapInfo> curCharMaps_;
 
   FT_Library library_;
   FTC_Manager cacheManager_;
   FTC_ImageCache imageCache_;
   FTC_SBitCache sbitsCache_;
+  FTC_CMapCache cmapCache_;
 
   FTC_ScalerRec scaler_;
   FT_Size ftSize_;
+  FTC_ImageTypeRec imageType_;
 
   EngineDefaultValues engineDefaults_;
 

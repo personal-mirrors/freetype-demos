@@ -11,6 +11,7 @@
 #include "models/ttsettingscomboboxmodel.hpp"
 #include "panels/settingpanel.hpp"
 #include "panels/singular.hpp"
+#include "panels/continuous.hpp"
 
 #include <QAction>
 #include <QCheckBox>
@@ -136,6 +137,7 @@ private:
   QTabWidget* tabWidget_;
   QVector<AbstractTab*> tabs_;
   SingularTab* singularTab_;
+  ContinuousTab* continuousTab_;
 
   void openFonts(QStringList const& fileNames);
 

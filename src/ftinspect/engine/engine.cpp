@@ -148,6 +148,12 @@ Engine::Engine()
     // XXX error handling
   }
 
+  error = FTC_CMapCache_New(cacheManager_, &cmapCache_);
+  if (error)
+  {
+    // XXX error handling
+  }
+
   queryEngine();
 }
 
@@ -278,6 +284,8 @@ Engine::loadFont(int fontIndex,
     }
   }
 
+  imageType_.face_id = scaler_.face_id;
+
   if (numGlyphs < 0)
   {
     ftSize_ = NULL;
@@ -286,20 +294,37 @@ Engine::loadFont(int fontIndex,
   }
   else
   {
-    curFamilyName_ = QString(ftSize_->face->family_name);
-    curStyleName_ = QString(ftSize_->face->style_name);
+    auto face = ftSize_->face;
+    curFamilyName_ = QString(face->family_name);
+    curStyleName_ = QString(face->style_name);
 
-    const char* moduleName = FT_FACE_DRIVER_NAME( ftSize_->face );
+    const char* moduleName = FT_FACE_DRIVER_NAME( face );
 
     // XXX cover all available modules
     if (!strcmp(moduleName, "cff"))
       fontType_ = FontType_CFF;
     else if (!strcmp(moduleName, "truetype"))
       fontType_ = FontType_TrueType;
+
+    curCharMaps_.clear();
+    curCharMaps_.reserve(face->num_charmaps);
+    for (int i = 0; i < face->num_charmaps; i++)
+      curCharMaps_.append(CharMapInfo(i, face->charmaps[i]));
   }
 
   curNumGlyphs_ = numGlyphs;
   return numGlyphs;
+}
+
+
+void
+Engine::reloadFont()
+{
+  update();
+  if (!scaler_.face_id)
+    return;
+  imageType_.face_id = scaler_.face_id;
+  FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_);
 }
 
 
@@ -328,6 +353,22 @@ Engine::removeFont(int fontIndex, bool closeFile)
 
   if (closeFile)
     fontFileManager_.remove(fontIndex);
+}
+
+
+unsigned
+Engine::glyphIndexFromCharCode(int code, int charMapIndex)
+{
+  if (charMapIndex == -1)
+    return code;
+  return FTC_CMapCache_Lookup(cmapCache_, scaler_.face_id, charMapIndex, code);
+}
+
+
+FT_Size_Metrics const&
+Engine::currentFontMetrics()
+{
+  return ftSize_->metrics;
 }
 
 
@@ -387,6 +428,26 @@ Engine::loadOutline(int glyphIndex)
   FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
 
   return &outlineGlyph->outline;
+}
+
+
+FT_Glyph
+Engine::loadGlyphWithoutUpdate(int glyphIndex)
+{
+  // TODO bitmap fonts? color layered fonts?
+  FT_Glyph glyph;
+  imageType_.flags |= FT_LOAD_NO_BITMAP;
+  if (FTC_ImageCache_Lookup(imageCache_,
+                            &imageType_,
+                            glyphIndex,
+                            &glyph,
+                            NULL))
+  {
+    // XXX error handling?
+    return NULL;
+  }
+
+  return glyph;
 }
 
 
@@ -500,6 +561,10 @@ Engine::update()
     scaler_.x_res = dpi_;
     scaler_.y_res = dpi_;
   }
+  
+  imageType_.width = static_cast<unsigned int>(pixelSize_);
+  imageType_.height = static_cast<unsigned int>(pixelSize_);
+  imageType_.flags = static_cast<int>(loadFlags_);
 }
 
 
@@ -601,5 +666,137 @@ Engine::queryEngine()
                     &engineDefaults_.ttInterpreterVersionDefault);
   }
 }
+
+
+QHash<FT_Encoding, QString> encodingNamesCache;
+QHash<FT_Encoding, QString>&
+encodingNames()
+{
+  if (encodingNamesCache.empty())
+  {
+    encodingNamesCache[static_cast<FT_Encoding>(FT_ENCODING_OTHER)]
+     = "Unknown Encoding";
+    encodingNamesCache[FT_ENCODING_NONE] = "No Encoding";
+    encodingNamesCache[FT_ENCODING_MS_SYMBOL] = "MS Symbol (symb)";
+    encodingNamesCache[FT_ENCODING_UNICODE] = "Unicode (unic)";
+    encodingNamesCache[FT_ENCODING_SJIS] = "Shift JIS (sjis)";
+    encodingNamesCache[FT_ENCODING_PRC] = "PRC/GB 18030 (gb)";
+    encodingNamesCache[FT_ENCODING_BIG5] = "Big5 (big5)";
+    encodingNamesCache[FT_ENCODING_WANSUNG] = "Wansung (wans)";
+    encodingNamesCache[FT_ENCODING_JOHAB] = "Johab (joha)";
+    encodingNamesCache[FT_ENCODING_ADOBE_STANDARD] = "Adobe Standard (ADOB)";
+    encodingNamesCache[FT_ENCODING_ADOBE_EXPERT] = "Adobe Expert (ADBE)";
+    encodingNamesCache[FT_ENCODING_ADOBE_CUSTOM] = "Adobe Custom (ADBC)";
+    encodingNamesCache[FT_ENCODING_ADOBE_LATIN_1] = "Latin 1 (lat1)";
+    encodingNamesCache[FT_ENCODING_OLD_LATIN_2] = "Latin 2 (lat2)";
+    encodingNamesCache[FT_ENCODING_APPLE_ROMAN] = "Apple Roman (armn)";
+  }
+
+  return encodingNamesCache;
+}
+
+
+CharMapInfo::CharMapInfo(int index, FT_CharMap cmap)
+: index(index), ptr(cmap), encoding(cmap->encoding), maxIndex(-1)
+{
+  auto& names = encodingNames();
+  auto it = names.find(encoding);
+  if (it == names.end())
+    encodingName = &names[static_cast<FT_Encoding>(FT_ENCODING_OTHER)];
+  else
+    encodingName = &it.value();
+
+  if (encoding != FT_ENCODING_OTHER)
+    maxIndex = computeMaxIndex();
+}
+
+
+QString
+CharMapInfo::stringifyIndex(int code, int index)
+{
+  return QString("CharCode: %1 (glyph idx %2)")
+           .arg(stringifyIndexShort(code))
+           .arg(index);
+}
+
+
+QString
+CharMapInfo::stringifyIndexShort(int code)
+{
+  return (encoding == FT_ENCODING_UNICODE ? "U+" : "0x")
+         + QString::number(code, 16).rightJustified(4, '0').toUpper();
+}
+
+
+int
+CharMapInfo::computeMaxIndex()
+{
+  int maxIndex = 0;
+  switch (encoding)
+  {
+  case FT_ENCODING_UNICODE:
+    maxIndex = maxIndexForFaceAndCharMap(ptr, 0x110000) + 1;
+    break;
+
+  case FT_ENCODING_ADOBE_LATIN_1:
+  case FT_ENCODING_ADOBE_STANDARD:
+  case FT_ENCODING_ADOBE_EXPERT:
+  case FT_ENCODING_ADOBE_CUSTOM:
+  case FT_ENCODING_APPLE_ROMAN:
+    maxIndex = 0x100;
+    break;
+
+  /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
+  case FT_ENCODING_MS_SYMBOL:
+    maxIndex = maxIndexForFaceAndCharMap(ptr, 0x10000) + 1;
+    break;
+
+  default:
+    // Some encodings can reach > 0x10000, e.g. GB 18030.
+    maxIndex = maxIndexForFaceAndCharMap(ptr, 0x110000) + 1;
+  }
+  return maxIndex;
+}
+
+
+int
+CharMapInfo::maxIndexForFaceAndCharMap(FT_CharMap charMap,
+                                       unsigned max)
+{
+  // code adopted from `ftcommon.c`
+  FT_ULong min = 0;
+  FT_UInt glyphIndex;
+  FT_Face face = charMap->face;
+
+  if (FT_Set_Charmap(face, charMap))
+    return -1;
+
+  do
+  {
+    FT_ULong mid = (min + max) >> 1;
+    FT_ULong res = FT_Get_Next_Char(face, mid, &glyphIndex);
+
+    if (glyphIndex)
+      min = res;
+    else
+    {
+      max = mid;
+
+      // once moved, it helps to advance min through sparse regions
+      if (min)
+      {
+        res = FT_Get_Next_Char(face, min, &glyphIndex);
+
+        if (glyphIndex)
+          min = res;
+        else
+          max = min; // found it
+      }
+    }
+  } while (max > min);
+
+  return static_cast<int>(max);
+}
+
 
 // end of engine.cpp

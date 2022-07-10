@@ -27,15 +27,20 @@ add_executable(ftinspect
   "rendering/glyphoutline.cpp"
   "rendering/glyphpointnumbers.cpp"
   "rendering/glyphpoints.cpp"
+  "rendering/glyphcontinuous.cpp"
   "rendering/grid.cpp"
+  "rendering/graphicsdefault.cpp"
+  "rendering/renderutils.cpp"
 
   "widgets/customwidgets.cpp"
   "widgets/glyphindexselector.cpp"
+  "widgets/fontsizeselector.cpp"
 
   "models/ttsettingscomboboxmodel.cpp"
 
   "panels/settingpanel.cpp"
   "panels/singular.cpp"
+  "panels/continuous.cpp"
 )
 target_link_libraries(ftinspect
   Qt5::Core Qt5::Widgets
