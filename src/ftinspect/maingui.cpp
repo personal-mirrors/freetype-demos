@@ -255,7 +255,6 @@ void
 MainGUI::syncSettings()
 {
   settingPanel_->syncSettings();
-  tabs_[tabWidget_->currentIndex()]->syncSettings();
 }
 
 
@@ -588,9 +587,7 @@ MainGUI::setDefaults()
   currentFontIndex_ = 0;
   currentFaceIndex_ = 0;
   currentNamedInstanceIndex_ = 0;
-
-  for (auto tab : tabs_)
-    tab->setDefaults();
+  
   checkCurrentFontIndex();
   checkCurrentFaceIndex();
   checkCurrentNamedInstanceIndex();

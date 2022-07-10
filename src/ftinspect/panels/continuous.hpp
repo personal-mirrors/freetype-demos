@@ -31,8 +31,6 @@ public:
 
   void repaintGlyph() override;
   void reloadFont() override;
-  void syncSettings() override;
-  void setDefaults() override;
 
   // Info about current font (glyph count, charmaps...) is flowed to subtab
   // via `updateCurrentSubTab`.

@@ -37,12 +37,6 @@ ContinuousTab::reloadFont()
 
 
 void
-ContinuousTab::syncSettings()
-{
-}
-
-
-void
 ContinuousTab::changeTab()
 {
   updateCurrentSubTab();
@@ -105,12 +99,6 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::wheelNavigate);
   connect(canvas_, &GlyphContinuous::displayingCountUpdated, 
           allGlyphsTab_, &ContinousAllGlyphsTab::setDisplayingCount);
-}
-
-
-void
-ContinuousTab::setDefaults()
-{
 }
 
 

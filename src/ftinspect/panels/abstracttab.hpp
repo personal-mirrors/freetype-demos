@@ -11,9 +11,7 @@ class AbstractTab
 {
 public:
   virtual ~AbstractTab() = default; // must be `virtual` for `dynamic_cast`
-
-  virtual void syncSettings() = 0;
-  virtual void setDefaults() = 0;
+  
   virtual void repaintGlyph() = 0;
   virtual void reloadFont() = 0;
 };

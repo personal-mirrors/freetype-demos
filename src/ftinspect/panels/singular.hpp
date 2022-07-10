@@ -41,8 +41,6 @@ public:
 
   void repaintGlyph() override;
   void reloadFont() override;
-  void syncSettings() override;
-  void setDefaults() override;
 
 private slots:
   void setGlyphIndex(int);
@@ -97,6 +95,8 @@ private:
   void createConnections();
   
   void updateGrid();
+  void syncSettings();
+  void setDefaults();
 };
 
 // end of singular.hpp

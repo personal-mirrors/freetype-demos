@@ -16,6 +16,7 @@ SingularTab::SingularTab(QWidget* parent, Engine* engine)
   createConnections();
 
   currentGlyphIndex_ = 0;
+  setDefaults();
   checkShowPoints();
 }
 
