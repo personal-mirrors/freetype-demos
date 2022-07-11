@@ -28,7 +28,6 @@ SettingPanel::checkAllSettings()
   checkHinting();
   checkAutoHinting();
   checkAntiAliasing();
-  checkLCDFilter();
 }
 
 
@@ -56,7 +55,7 @@ SettingPanel::checkHinting()
     }
 
     autoHintingCheckBox_->setEnabled(true);
-    checkAutoHinting();
+    checkAutoHinting(); // this will emit repaint
   }
   else
   {
@@ -74,9 +73,9 @@ SettingPanel::checkHinting()
       == AntiAliasingComboBoxModel::AntiAliasing_Light)
       antiAliasingComboBox_->setCurrentIndex(
         AntiAliasingComboBoxModel::AntiAliasing_Normal);
-  }
 
-  emit repaintNeeded();
+    emit repaintNeeded();
+  }
 }
 
 
@@ -168,13 +167,6 @@ SettingPanel::checkAntiAliasing()
 
 
 void
-SettingPanel::checkLCDFilter()
-{
-  emit repaintNeeded();
-}
-
-
-void
 SettingPanel::syncSettings()
 {
   engine_->setLcdFilter(
@@ -207,7 +199,7 @@ SettingPanel::createConnections()
           this, &SettingPanel::checkAntiAliasing);
   connect(lcdFilterComboBox_, 
           QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &SettingPanel::checkLCDFilter);
+          this, &SettingPanel::repaintNeeded);
 
   connect(gammaSlider_, &QSlider::valueChanged,
           this, &SettingPanel::repaintNeeded);

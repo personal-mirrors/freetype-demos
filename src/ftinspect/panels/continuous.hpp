@@ -85,12 +85,12 @@ public:
   void setGlyphBeginindex(int index);
 
   // This doesn't trigger immediate repaint
-  void setGlyphCount(int count) { currentGlyphCount_ = count; }
+  void setGlyphCount(int count);
   void setDisplayingCount(int count);
 
   void setCharMaps(QVector<CharMapInfo>& charMaps);
   // This doesn't trigger either.
-  void updateCharMapLimit();
+  void updateLimitIndex();
 
 signals:
   void changed();

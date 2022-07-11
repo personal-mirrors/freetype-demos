@@ -40,7 +40,6 @@ public slots:
   void checkHintingMode();
   void checkAutoHinting();
   void checkAntiAliasing();
-  void checkLCDFilter();
 
 private:
   Engine* engine_;

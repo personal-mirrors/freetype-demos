@@ -123,12 +123,12 @@ ContinuousTab::updateFromCurrentSubTab()
   switch (tabWidget_->currentIndex())
   {
   case AllGlyphs:
+    canvas_->setMode(GlyphContinuous::AllGlyphs);
+    canvas_->setSubModeAllGlyphs(allGlyphsTab_->subMode());
     // Begin index is selected from All Glyphs subtab,
     // and Limit index is calculated by All Glyphs subtab
     canvas_->setBeginIndex(allGlyphsTab_->glyphBeginindex());
     canvas_->setLimitIndex(allGlyphsTab_->glyphLimitIndex());
-    canvas_->setMode(GlyphContinuous::AllGlyphs);
-    canvas_->setSubModeAllGlyphs(allGlyphsTab_->subMode());
     canvas_->setCharMapIndex(allGlyphsTab_->charMapIndex());
     break;
   }
@@ -185,7 +185,14 @@ void
 ContinousAllGlyphsTab::setGlyphBeginindex(int index)
 {
   indexSelector_->setCurrentIndex(index);
-  updateCharMapLimit();
+}
+
+
+void
+ContinousAllGlyphsTab::setGlyphCount(int count)
+{
+  currentGlyphCount_ = count;
+  updateLimitIndex();
 }
 
 
@@ -240,12 +247,12 @@ ContinousAllGlyphsTab::setCharMaps(QVector<CharMapInfo>& charMaps)
     charMapSelector_->setCurrentIndex(newIndex);
   }
 
-  updateCharMapLimit();
+  updateLimitIndex();
 }
 
 
 void
-ContinousAllGlyphsTab::updateCharMapLimit()
+ContinousAllGlyphsTab::updateLimitIndex()
 {
   if (charMapSelector_->currentIndex() <= 0)
     glyphLimitIndex_ = currentGlyphCount_;
@@ -324,7 +331,7 @@ ContinousAllGlyphsTab::charMapChanged()
     else
       setGlyphBeginindex(0x20);
   }
-  updateCharMapLimit();
+  updateLimitIndex();
 
   emit changed();
 
