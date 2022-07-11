@@ -309,7 +309,7 @@ Engine::loadFont(int fontIndex,
     curCharMaps_.clear();
     curCharMaps_.reserve(face->num_charmaps);
     for (int i = 0; i < face->num_charmaps; i++)
-      curCharMaps_.append(CharMapInfo(i, face->charmaps[i]));
+      curCharMaps_.emplace_back(i, face->charmaps[i]);
   }
 
   curNumGlyphs_ = numGlyphs;

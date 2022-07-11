@@ -145,7 +145,7 @@ ContinousAllGlyphsTab::ContinousAllGlyphsTab(QWidget* parent)
 {
   createLayout();
 
-  QVector<CharMapInfo> tempCharMaps;
+  std::vector<CharMapInfo> tempCharMaps;
   setCharMaps(tempCharMaps); // pass in an empty one
 
   checkSubMode();
@@ -210,7 +210,7 @@ ContinousAllGlyphsTab::charMapIndex()
   auto index = charMapSelector_->currentIndex() - 1;
   if (index <= -1)
     return -1;
-  if (index >= charMaps_.size())
+  if (static_cast<unsigned>(index) >= charMaps_.size())
     return -1;
   return index;
 }
@@ -240,7 +240,7 @@ ContinousAllGlyphsTab::setDisplayingCount(int count)
 
 #define EncodingRole (Qt::UserRole + 10)
 void
-ContinousAllGlyphsTab::setCharMaps(QVector<CharMapInfo>& charMaps)
+ContinousAllGlyphsTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
 {
   charMaps_ = charMaps;
   int oldIndex = charMapSelector_->currentIndex();
@@ -419,7 +419,8 @@ ContinousAllGlyphsTab::charMapChanged()
   int newIndex = charMapSelector_->currentIndex();
   if (newIndex != lastCharMapIndex_)
   {
-    if (newIndex <= 0 || charMaps_.size() <= newIndex - 1)
+    if (newIndex <= 0
+        || charMaps_.size() <= static_cast<unsigned>(newIndex - 1))
       setGlyphBeginindex(0);
     else if (charMaps_[newIndex - 1].maxIndex <= 20)
       setGlyphBeginindex(charMaps_[newIndex - 1].maxIndex - 1);

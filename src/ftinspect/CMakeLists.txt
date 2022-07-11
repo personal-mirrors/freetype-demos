@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 project("ftinspect")
 
-if (WIN32)
+if (MSVC)
   add_compile_options("/utf-8")
 endif ()
 

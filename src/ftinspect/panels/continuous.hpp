@@ -12,10 +12,10 @@
 #include "../rendering/glyphcontinuous.hpp"
 #include "../engine/engine.hpp"
 
+#include <vector>
 #include <QWidget>
 #include <QLabel>
 #include <QComboBox>
-#include <QVector>
 #include <QGridLayout>
 #include <QBoxLayout>
 
@@ -92,7 +92,7 @@ public:
   void setGlyphCount(int count);
   void setDisplayingCount(int count);
 
-  void setCharMaps(QVector<CharMapInfo>& charMaps);
+  void setCharMaps(std::vector<CharMapInfo>& charMaps);
   // This doesn't trigger either.
   void updateLimitIndex();
 
@@ -124,7 +124,7 @@ private:
 
   QGridLayout* layout_;
 
-  QVector<CharMapInfo> charMaps_;
+  std::vector<CharMapInfo> charMaps_;
 
   void createLayout();
   void createConnections();

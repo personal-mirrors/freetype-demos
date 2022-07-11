@@ -112,7 +112,7 @@ public:
   virtual ~LCDFilterComboBoxModel() = default;
 
 public:
-  enum LCDFilter
+  enum LCDFilter : int
   {
     LCDFilter_Default,
     LCDFilter_Light,

@@ -6,6 +6,7 @@
 #pragma once
 
 #include <QGraphicsItem>
+#include <QGraphicsView>
 #include <QPen>
 
 class Grid

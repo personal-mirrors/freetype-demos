@@ -7,6 +7,7 @@
 
 #include "fontfilemanager.hpp"
 
+#include <vector>
 #include <QString>
 #include <QMap>
 
@@ -121,7 +122,7 @@ public:
   unsigned glyphIndexFromCharCode(int code, int charMapIndex);
   FT_Size_Metrics const& currentFontMetrics();
 
-  QVector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
+  std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
@@ -174,7 +175,7 @@ private:
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
-  QVector<CharMapInfo> curCharMaps_;
+  std::vector<CharMapInfo> curCharMaps_;
 
   FT_Library library_;
   FTC_Manager cacheManager_;
