@@ -130,6 +130,10 @@ ContinuousTab::updateFromCurrentSubTab()
     canvas_->setBeginIndex(allGlyphsTab_->glyphBeginindex());
     canvas_->setLimitIndex(allGlyphsTab_->glyphLimitIndex());
     canvas_->setCharMapIndex(allGlyphsTab_->charMapIndex());
+
+    canvas_->setFancyParams(allGlyphsTab_->xEmboldening(),
+                            allGlyphsTab_->yEmboldening(),
+                            allGlyphsTab_->slanting());
     break;
   }
 }
@@ -143,6 +147,8 @@ ContinousAllGlyphsTab::ContinousAllGlyphsTab(QWidget* parent)
   QVector<CharMapInfo> tempCharMaps;
   setCharMaps(tempCharMaps); // pass in an empty one
 
+  checkSubMode();
+  setDefaults();
   createConnections();
 }
 
@@ -166,6 +172,27 @@ ContinousAllGlyphsTab::subMode()
 {
   return static_cast<GlyphContinuous::SubModeAllGlyphs>(
            modeSelector_->currentIndex());
+}
+
+
+double
+ContinousAllGlyphsTab::xEmboldening()
+{
+  return xEmboldeningSpinBox_->value();
+}
+
+
+double
+ContinousAllGlyphsTab::yEmboldening()
+{
+  return yEmboldeningSpinBox_->value();
+}
+
+
+double
+ContinousAllGlyphsTab::slanting()
+{
+  return slantSpinBox_->value();
 }
 
 
@@ -264,6 +291,18 @@ ContinousAllGlyphsTab::updateLimitIndex()
 
 
 void
+ContinousAllGlyphsTab::checkSubMode()
+{
+  auto isFancy = subMode() == GlyphContinuous::AG_Fancy;
+  xEmboldeningSpinBox_->setEnabled(isFancy);
+  yEmboldeningSpinBox_->setEnabled(isFancy);
+  slantSpinBox_->setEnabled(isFancy);
+
+  emit changed();
+}
+
+
+void
 ContinousAllGlyphsTab::createLayout()
 {
   indexSelector_ = new GlyphIndexSelector(this);
@@ -276,13 +315,31 @@ ContinousAllGlyphsTab::createLayout()
 
   // Note: in sync with the enum!!
   modeSelector_->insertItem(GlyphContinuous::AG_AllGlyphs, tr("All Glyphs"));
-  modeSelector_->insertItem(GlyphContinuous::AG_Fancy, tr("Fancy"));
+  modeSelector_->insertItem(GlyphContinuous::AG_Fancy, 
+                            tr("Fancy (Embolding & Slanting)"));
   modeSelector_->insertItem(GlyphContinuous::AG_Stroked, tr("Stroked"));
   modeSelector_->insertItem(GlyphContinuous::AG_Waterfall, tr("Waterfall"));
   modeSelector_->setCurrentIndex(GlyphContinuous::AG_AllGlyphs);
 
   modeLabel_ = new QLabel(tr("Mode:"), this);
   charMapLabel_ = new QLabel(tr("Char Map:"), this);
+  xEmboldeningLabel_ = new QLabel(tr("Hori. Embolding (for Fancy):"), this);
+  yEmboldeningLabel_ = new QLabel(tr("Vert. Embolding (for Fancy):"), this);
+  slantLabel_ = new QLabel(tr("Slanting (for Fancy):"), this);
+
+  xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
+  yEmboldeningSpinBox_ = new QDoubleSpinBox(this);
+  slantSpinBox_ = new QDoubleSpinBox(this);
+
+  xEmboldeningSpinBox_->setSingleStep(0.005);
+  xEmboldeningSpinBox_->setMinimum(-0.1);
+  xEmboldeningSpinBox_->setMaximum(0.1);
+  yEmboldeningSpinBox_->setSingleStep(0.005);
+  yEmboldeningSpinBox_->setMinimum(-0.1);
+  yEmboldeningSpinBox_->setMaximum(0.1);
+  slantSpinBox_->setSingleStep(0.02);
+  slantSpinBox_->setMinimum(-1);
+  slantSpinBox_->setMaximum(1);
 
   layout_ = new QGridLayout;
   layout_->addWidget(indexSelector_, 0, 0, 1, 2);
@@ -291,7 +348,15 @@ ContinousAllGlyphsTab::createLayout()
   layout_->addWidget(modeSelector_, 1, 1);
   layout_->addWidget(charMapSelector_, 2, 1);
 
+  layout_->addWidget(xEmboldeningLabel_, 1, 2);
+  layout_->addWidget(yEmboldeningLabel_, 2, 2);
+  layout_->addWidget(slantLabel_, 3, 2);
+  layout_->addWidget(xEmboldeningSpinBox_, 1, 3);
+  layout_->addWidget(yEmboldeningSpinBox_, 2, 3);
+  layout_->addWidget(slantSpinBox_, 3, 3);
+
   layout_->setColumnStretch(1, 1);
+  layout_->setColumnStretch(3, 1);
 
   setLayout(layout_);
 }
@@ -302,9 +367,19 @@ ContinousAllGlyphsTab::createConnections()
   connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
           this, &ContinousAllGlyphsTab::changed);
   connect(modeSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &ContinousAllGlyphsTab::changed);
+          this, &ContinousAllGlyphsTab::checkSubMode);
   connect(charMapSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &ContinousAllGlyphsTab::charMapChanged);
+
+  connect(xEmboldeningSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinousAllGlyphsTab::changed);
+  connect(yEmboldeningSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinousAllGlyphsTab::changed);
+  connect(slantSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinousAllGlyphsTab::changed);
 }
 
 
@@ -336,6 +411,15 @@ ContinousAllGlyphsTab::charMapChanged()
   emit changed();
 
   lastCharMapIndex_ = newIndex;
+}
+
+
+void
+ContinousAllGlyphsTab::setDefaults()
+{
+  xEmboldeningSpinBox_->setValue(0.04);
+  yEmboldeningSpinBox_->setValue(0.04);
+  slantSpinBox_->setValue(0.22);
 }
 
 

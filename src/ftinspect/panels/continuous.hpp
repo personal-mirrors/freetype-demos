@@ -79,6 +79,9 @@ public:
   int glyphBeginindex();
   int glyphLimitIndex();
   GlyphContinuous::SubModeAllGlyphs subMode();
+  double xEmboldening();
+  double yEmboldening();
+  double slanting();
 
   // -1: Glyph order, otherwise the char map index in the original list
   int charMapIndex();
@@ -91,6 +94,8 @@ public:
   void setCharMaps(QVector<CharMapInfo>& charMaps);
   // This doesn't trigger either.
   void updateLimitIndex();
+
+  void checkSubMode();
 
 signals:
   void changed();
@@ -106,6 +111,13 @@ private:
 
   QLabel* modeLabel_;
   QLabel* charMapLabel_;
+  QLabel* xEmboldeningLabel_;
+  QLabel* yEmboldeningLabel_;
+  QLabel* slantLabel_;
+
+  QDoubleSpinBox* xEmboldeningSpinBox_;
+  QDoubleSpinBox* yEmboldeningSpinBox_;
+  QDoubleSpinBox* slantSpinBox_;
 
   QGridLayout* layout_;
 
@@ -116,6 +128,8 @@ private:
 
   QString formatIndex(int index);
   void charMapChanged();
+
+  void setDefaults();
 };
 
 

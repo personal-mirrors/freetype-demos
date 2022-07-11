@@ -38,12 +38,9 @@ GlyphContinuous::paintEvent(QPaintEvent* event)
       switch (modeAG_)
       {
       case AG_AllGlyphs:
-        paintAGAllGlyphs(&painter);
-        break;
-        // TODO more modes
       case AG_Fancy:
-        break;
       case AG_Stroked:
+        paintAG(&painter);
         break;
       case AG_Waterfall:
         break;
@@ -71,7 +68,7 @@ GlyphContinuous::wheelEvent(QWheelEvent* event)
 
 
 void
-GlyphContinuous::paintAGAllGlyphs(QPainter* painter)
+GlyphContinuous::paintAG(QPainter* painter)
 {
   for (int i = beginIndex_; i < limitIndex_; i++)
   {
@@ -79,11 +76,85 @@ GlyphContinuous::paintAGAllGlyphs(QPainter* painter)
     if (charMapIndex_ >= 0)
       index = engine_->glyphIndexFromCharCode(i, charMapIndex_);
 
-    if (!paintChar(painter, index))
+    if (!loadGlyph(index))
       break;
+
+    // All Glyphs need no tranformation, and Waterfall isn't handled here.
+    switch (modeAG_)
+    {
+    case AG_Fancy:
+      transformGlyphAGFancy();
+      break;
+    case AG_Stroked:
+      transformGlyphAGStroked();
+      break;
+    default:;
+    }
+
+    if (!paintChar(painter))
+      break;
+    cleanCloned();
 
     displayingCount_++;
   }
+  cleanCloned();
+}
+
+
+void
+GlyphContinuous::transformGlyphAGFancy()
+{
+  // adopted from ftview.c:289
+  /***************************************************************/
+  /*                                                             */
+  /*  2*2 affine transformation matrix, 16.16 fixed float format */
+  /*                                                             */
+  /*  Shear matrix:                                              */
+  /*                                                             */
+  /*         | x' |     | 1  k |   | x |          x' = x + ky    */
+  /*         |    |  =  |      | * |   |   <==>                  */
+  /*         | y' |     | 0  1 |   | y |          y' = y         */
+  /*                                                             */
+  /*        outline'     shear    outline                        */
+  /*                                                             */
+  /***************************************************************/
+
+  FT_Matrix shear;
+  FT_Pos xstr, ystr;
+
+  shear.xx = 1 << 16;
+  shear.xy = (FT_Fixed)(slant_ * (1 << 16));
+  shear.yx = 0;
+  shear.yy = 1 << 16;
+
+  xstr = (FT_Pos)(metrics_.y_ppem * 64 * boldX_);
+  ystr = (FT_Pos)(metrics_.y_ppem * 64 * boldY_);
+
+  if (!isGlyphCloned_)
+    cloneGlyph();
+
+  if (glyph_->format != FT_GLYPH_FORMAT_OUTLINE)
+    return; // TODO suuport non-outline: code below all depend on `outline_`!
+
+  FT_Outline_Transform(&outline_, &shear);
+  FT_Outline_EmboldenXY(&outline_, xstr, ystr);
+
+  if (glyph_->advance.x)
+    glyph_->advance.x += xstr;
+
+  if (glyph_->advance.y)
+    glyph_->advance.y += ystr;
+  
+  //glyph_->metrics.width += xstr;
+  //glyph_->metrics.height += ystr;
+  //glyph_->metrics.horiAdvance += xstr;
+  //glyph_->metrics.vertAdvance += ystr;
+}
+
+
+void
+GlyphContinuous::transformGlyphAGStroked()
+{
 }
 
 
@@ -101,16 +172,11 @@ GlyphContinuous::prePaint()
 
 
 bool
-GlyphContinuous::paintChar(QPainter* painter,
-                           int index)
+GlyphContinuous::paintChar(QPainter* painter)
 {
-  auto glyph = engine_->loadGlyphWithoutUpdate(index);
-  if (!glyph)
-    return false;
-
   // ftview.c:557
-  int width = glyph->advance.x ? glyph->advance.x >> 16
-                               : metrics_.y_ppem / 2;
+  int width = glyph_->advance.x ? glyph_->advance.x >> 16
+                                : metrics_.y_ppem / 2;
 
   if (!checkFitX(x_ + width))
   {
@@ -122,7 +188,7 @@ GlyphContinuous::paintChar(QPainter* painter,
   }
 
   x_++; // extra space
-  if (glyph->advance.x == 0)
+  if (glyph_->advance.x == 0)
   {
     // Draw a red square to indicate
       painter->fillRect(x_, y_ - width, width, width,
@@ -136,15 +202,15 @@ GlyphContinuous::paintChar(QPainter* painter,
 
   // First translate the outline
 
-  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+  if (glyph_->format != FT_GLYPH_FORMAT_OUTLINE)
     return true; // XXX only outline is supported - need to impl others later
 
   FT_BBox cbox;
   // Don't forget to free this when returning
-  auto outline = transformOutlineToOrigin(
-                   engine_->ftLibrary(),
-                   &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline,
-                   &cbox);
+  if (!isOutlineCloned_ && !isGlyphCloned_)
+    cloneOutline();
+  
+  transformOutlineToOrigin(&outline_, &cbox);
   
   auto outlineWidth = (cbox.xMax - cbox.xMin) / 64;
   auto outlineHeight = (cbox.yMax - cbox.yMin) / 64;
@@ -175,12 +241,11 @@ GlyphContinuous::paintChar(QPainter* painter,
   bitmap.pixel_mode = aaEnabled ? FT_PIXEL_MODE_GRAY : FT_PIXEL_MODE_MONO;
 
   FT_Error error = FT_Outline_Get_Bitmap(engine_->ftLibrary(),
-                                         &outline,
+                                         &outline_,
                                          &bitmap);
   if (error)
   {
     // XXX error handling
-    FT_Outline_Done(engine_->ftLibrary(), &outline);
     return true;
   }
 
@@ -189,9 +254,56 @@ GlyphContinuous::paintChar(QPainter* painter,
       image.convertToFormat(QImage::Format_ARGB32_Premultiplied));
 
   x_ += width;
-
-  FT_Outline_Done(engine_->ftLibrary(), &outline);
+  
   return true;
+}
+
+
+bool
+GlyphContinuous::loadGlyph(int index)
+{
+  glyph_ = engine_->loadGlyphWithoutUpdate(index);
+  isGlyphCloned_ = false;
+  if (!glyph_)
+    return false;
+  if (glyph_->format == FT_GLYPH_FORMAT_OUTLINE)
+  {
+    isOutlineCloned_ = false;
+    outline_ = reinterpret_cast<FT_OutlineGlyph>(glyph_)->outline;
+  }
+  return true;
+}
+
+
+void
+GlyphContinuous::cloneGlyph()
+{
+  glyph_ = ::cloneGlyph(glyph_);
+  isGlyphCloned_ = true;
+}
+
+
+void
+GlyphContinuous::cloneOutline()
+{
+  outline_ = ::cloneOutline(engine_->ftLibrary(), &outline_);
+  isOutlineCloned_ = true;
+}
+
+
+void
+GlyphContinuous::cleanCloned()
+{
+  if (isGlyphCloned_)
+  {
+    FT_Done_Glyph(glyph_);
+    isGlyphCloned_ = false;
+  }
+  if (isOutlineCloned_)
+  {
+    FT_Outline_Done(engine_->ftLibrary(), &outline_);
+    isOutlineCloned_ = false;
+  }
 }
 
 

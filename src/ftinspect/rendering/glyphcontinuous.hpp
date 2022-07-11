@@ -7,6 +7,8 @@
 #include "graphicsdefault.hpp"
 #include <QWidget>
 #include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
+#include <freetype/ftoutln.h>
 
 class Engine;
 class GlyphContinuous
@@ -39,6 +41,12 @@ public:
   void setCharMapIndex(int index) { charMapIndex_ = index; }
   void setMode(Mode mode) { mode_ = mode; }
   void setSubModeAllGlyphs(SubModeAllGlyphs modeAg) { modeAG_ = modeAg; }
+  void setFancyParams(double boldX, double boldY, double slant)
+  {
+    boldX_ = boldX;
+    boldY_ = boldY;
+    slant_ = slant;
+  }
 
 signals:
   void wheelNavigate(int steps);
@@ -53,21 +61,33 @@ private:
   Engine* engine_;
   GraphicsDefault* graphicsDefault_;
 
+  Mode mode_ = AllGlyphs;
+  SubModeAllGlyphs modeAG_ = AG_AllGlyphs;
   int beginIndex_;
   int limitIndex_;
   int charMapIndex_;
-  Mode mode_ = AllGlyphs;
-  SubModeAllGlyphs modeAG_ = AG_AllGlyphs;
+  double boldX_ = 0.04, boldY_ = 0.04, slant_ = 0.22;
 
   int displayingCount_ = 0;
   FT_Size_Metrics metrics_;
   int x_ = 0, y_ = 0;
   int stepY_ = 0;
+  FT_Glyph glyph_;
+  FT_Outline outline_;
+  // when glyph is cloned, outline is factually also cloned
+  // but `isOutlineCloned` won't be set!
+  bool isGlyphCloned_ = false, isOutlineCloned_ = false;
 
-  void paintAGAllGlyphs(QPainter* painter);
+  void paintAG(QPainter* painter);
+  void transformGlyphAGFancy();
+  void transformGlyphAGStroked();
   void prePaint();
   // return if there's enough space to paint the current char
-  bool paintChar(QPainter* painter, int index);
+  bool paintChar(QPainter* painter);
+  bool loadGlyph(int index);
+  void cloneGlyph();
+  void cloneOutline();
+  void cleanCloned();
 
   bool checkFitX(int x);
   bool checkFitY(int y);

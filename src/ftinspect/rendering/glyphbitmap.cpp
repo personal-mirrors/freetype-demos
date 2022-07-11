@@ -24,7 +24,8 @@ GlyphBitmap::GlyphBitmap(FT_Outline* outline,
 {
   // make a copy of the outline since we are going to manipulate it
   FT_BBox cbox;
-  transformed_ = transformOutlineToOrigin(lib, outline, &cbox);
+  transformed_ = cloneOutline(lib, outline);
+  transformOutlineToOrigin(&transformed_, &cbox);
   boundingRect_.setCoords(cbox.xMin / 64, -cbox.yMax / 64,
                   cbox.xMax / 64, -cbox.yMin / 64);
 }
