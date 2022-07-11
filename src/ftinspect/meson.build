@@ -52,7 +52,7 @@ if qt5_dep.found()
       'widgets/customwidgets.hpp',
       'widgets/glyphindexselector.hpp',
       'widgets/fontsizeselector.hpp',
-      'widgets/glyphcontinuous.hpp',
+      'rendering/glyphcontinuous.hpp',
       'models/ttsettingscomboboxmodel.hpp',
       'panels/settingpanel.hpp',
       'panels/singular.hpp',
