@@ -4,12 +4,12 @@
 
 #include "glyphcontinuous.hpp"
 
+#include "../engine/engine.hpp"
+#include "../rendering/renderutils.hpp"
+
 #include <cmath>
 #include <QPainter>
 #include <QWheelEvent>
-
-#include "../engine/engine.hpp"
-#include "../rendering/renderutils.hpp"
 
 
 GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
@@ -18,6 +18,15 @@ GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
   setAcceptDrops(false);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   graphicsDefault_ = GraphicsDefault::deafultInstance();
+
+  FT_Stroker_New(engine_->ftLibrary(), &stroker_);
+}
+
+
+GlyphContinuous::~GlyphContinuous()
+{
+  cleanCloned();
+  FT_Stroker_Done(stroker_);
 }
 
 
@@ -70,6 +79,15 @@ GlyphContinuous::wheelEvent(QWheelEvent* event)
 void
 GlyphContinuous::paintAG(QPainter* painter)
 {
+  if (modeAG_ == AG_Stroked)
+  {
+    auto radius = static_cast<FT_Fixed>(metrics_.y_ppem * 64 * strokeRadius_);
+    FT_Stroker_Set(stroker_, radius,
+                   FT_STROKER_LINECAP_ROUND,
+                   FT_STROKER_LINEJOIN_ROUND,
+                   0);
+  }
+
   for (int i = beginIndex_; i < limitIndex_; i++)
   {
     unsigned index = i;
@@ -123,7 +141,7 @@ GlyphContinuous::transformGlyphAGFancy()
   FT_Pos xstr, ystr;
 
   shear.xx = 1 << 16;
-  shear.xy = (FT_Fixed)(slant_ * (1 << 16));
+  shear.xy = static_cast<FT_Fixed>(slant_ * (1 << 16));
   shear.yx = 0;
   shear.yy = 1 << 16;
 
@@ -155,6 +173,18 @@ GlyphContinuous::transformGlyphAGFancy()
 void
 GlyphContinuous::transformGlyphAGStroked()
 {
+  //if (!isGlyphCloned_)
+    //cloneGlyph();
+  // Well, now here only outline glyph is supported.
+  if (glyph_->format != FT_GLYPH_FORMAT_OUTLINE)
+    return;
+  auto error = FT_Glyph_Stroke(&glyph_, stroker_, 0);
+  if (!error)
+  {
+    isGlyphCloned_ = true;
+    isOutlineCloned_ = false;
+    outline_ = reinterpret_cast<FT_OutlineGlyph>(glyph_)->outline;
+  }
 }
 
 

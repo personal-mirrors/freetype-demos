@@ -9,6 +9,7 @@
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 #include <freetype/ftoutln.h>
+#include <freetype/ftstroke.h>
 
 class Engine;
 class GlyphContinuous
@@ -17,7 +18,7 @@ class GlyphContinuous
   Q_OBJECT
 public:
   GlyphContinuous(QWidget* parent, Engine* engine);
-  ~GlyphContinuous() override = default;
+  ~GlyphContinuous() override;
 
   enum Mode : int
   {
@@ -47,6 +48,7 @@ public:
     boldY_ = boldY;
     slant_ = slant;
   }
+  void setStrokeRadius(double radius) { strokeRadius_ = radius; }
 
 signals:
   void wheelNavigate(int steps);
@@ -66,7 +68,8 @@ private:
   int beginIndex_;
   int limitIndex_;
   int charMapIndex_;
-  double boldX_ = 0.04, boldY_ = 0.04, slant_ = 0.22;
+  double boldX_, boldY_, slant_;
+  double strokeRadius_;
 
   int displayingCount_ = 0;
   FT_Size_Metrics metrics_;
@@ -77,6 +80,8 @@ private:
   // when glyph is cloned, outline is factually also cloned
   // but `isOutlineCloned` won't be set!
   bool isGlyphCloned_ = false, isOutlineCloned_ = false;
+
+  FT_Stroker stroker_;
 
   void paintAG(QPainter* painter);
   void transformGlyphAGFancy();

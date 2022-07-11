@@ -134,6 +134,7 @@ ContinuousTab::updateFromCurrentSubTab()
     canvas_->setFancyParams(allGlyphsTab_->xEmboldening(),
                             allGlyphsTab_->yEmboldening(),
                             allGlyphsTab_->slanting());
+    canvas_->setStrokeRadius(allGlyphsTab_->strokeRadius());
     break;
   }
 }
@@ -193,6 +194,13 @@ double
 ContinousAllGlyphsTab::slanting()
 {
   return slantSpinBox_->value();
+}
+
+
+double
+ContinousAllGlyphsTab::strokeRadius()
+{
+  return strokeRadiusSpinBox_->value();
 }
 
 
@@ -294,9 +302,11 @@ void
 ContinousAllGlyphsTab::checkSubMode()
 {
   auto isFancy = subMode() == GlyphContinuous::AG_Fancy;
+  auto isStroked = subMode() == GlyphContinuous::AG_Stroked;
   xEmboldeningSpinBox_->setEnabled(isFancy);
   yEmboldeningSpinBox_->setEnabled(isFancy);
   slantSpinBox_->setEnabled(isFancy);
+  strokeRadiusSpinBox_->setEnabled(isStroked);
 
   emit changed();
 }
@@ -326,10 +336,12 @@ ContinousAllGlyphsTab::createLayout()
   xEmboldeningLabel_ = new QLabel(tr("Hori. Embolding (for Fancy):"), this);
   yEmboldeningLabel_ = new QLabel(tr("Vert. Embolding (for Fancy):"), this);
   slantLabel_ = new QLabel(tr("Slanting (for Fancy):"), this);
+  strokeRadiusLabel_ = new QLabel(tr("Stroke Radius (for Stroked):"), this);
 
   xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
   yEmboldeningSpinBox_ = new QDoubleSpinBox(this);
   slantSpinBox_ = new QDoubleSpinBox(this);
+  strokeRadiusSpinBox_ = new QDoubleSpinBox(this);
 
   xEmboldeningSpinBox_->setSingleStep(0.005);
   xEmboldeningSpinBox_->setMinimum(-0.1);
@@ -340,6 +352,9 @@ ContinousAllGlyphsTab::createLayout()
   slantSpinBox_->setSingleStep(0.02);
   slantSpinBox_->setMinimum(-1);
   slantSpinBox_->setMaximum(1);
+  strokeRadiusSpinBox_->setSingleStep(0.005);
+  strokeRadiusSpinBox_->setMinimum(0);
+  strokeRadiusSpinBox_->setMaximum(0.05);
 
   layout_ = new QGridLayout;
   layout_->addWidget(indexSelector_, 0, 0, 1, 2);
@@ -351,9 +366,11 @@ ContinousAllGlyphsTab::createLayout()
   layout_->addWidget(xEmboldeningLabel_, 1, 2);
   layout_->addWidget(yEmboldeningLabel_, 2, 2);
   layout_->addWidget(slantLabel_, 3, 2);
+  layout_->addWidget(strokeRadiusLabel_, 3, 0);
   layout_->addWidget(xEmboldeningSpinBox_, 1, 3);
   layout_->addWidget(yEmboldeningSpinBox_, 2, 3);
   layout_->addWidget(slantSpinBox_, 3, 3);
+  layout_->addWidget(strokeRadiusSpinBox_, 3, 1);
 
   layout_->setColumnStretch(1, 1);
   layout_->setColumnStretch(3, 1);
@@ -378,6 +395,9 @@ ContinousAllGlyphsTab::createConnections()
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinousAllGlyphsTab::changed);
   connect(slantSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinousAllGlyphsTab::changed);
+  connect(strokeRadiusSpinBox_, 
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinousAllGlyphsTab::changed);
 }
@@ -420,6 +440,7 @@ ContinousAllGlyphsTab::setDefaults()
   xEmboldeningSpinBox_->setValue(0.04);
   yEmboldeningSpinBox_->setValue(0.04);
   slantSpinBox_->setValue(0.22);
+  strokeRadiusSpinBox_->setValue(0.02);
 }
 
 

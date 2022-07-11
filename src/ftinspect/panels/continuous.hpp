@@ -82,6 +82,7 @@ public:
   double xEmboldening();
   double yEmboldening();
   double slanting();
+  double strokeRadius();
 
   // -1: Glyph order, otherwise the char map index in the original list
   int charMapIndex();
@@ -114,10 +115,12 @@ private:
   QLabel* xEmboldeningLabel_;
   QLabel* yEmboldeningLabel_;
   QLabel* slantLabel_;
+  QLabel* strokeRadiusLabel_;
 
   QDoubleSpinBox* xEmboldeningSpinBox_;
   QDoubleSpinBox* yEmboldeningSpinBox_;
   QDoubleSpinBox* slantSpinBox_;
+  QDoubleSpinBox* strokeRadiusSpinBox_;
 
   QGridLayout* layout_;
 
