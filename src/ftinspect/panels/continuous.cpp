@@ -333,10 +333,10 @@ ContinousAllGlyphsTab::createLayout()
 
   modeLabel_ = new QLabel(tr("Mode:"), this);
   charMapLabel_ = new QLabel(tr("Char Map:"), this);
-  xEmboldeningLabel_ = new QLabel(tr("Hori. Embolding (for Fancy):"), this);
-  yEmboldeningLabel_ = new QLabel(tr("Vert. Embolding (for Fancy):"), this);
-  slantLabel_ = new QLabel(tr("Slanting (for Fancy):"), this);
-  strokeRadiusLabel_ = new QLabel(tr("Stroke Radius (for Stroked):"), this);
+  xEmboldeningLabel_ = new QLabel(tr("Hori. Embolding:"), this);
+  yEmboldeningLabel_ = new QLabel(tr("Vert. Embolding:"), this);
+  slantLabel_ = new QLabel(tr("Slanting:"), this);
+  strokeRadiusLabel_ = new QLabel(tr("Stroke Radius:"), this);
 
   xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
   yEmboldeningSpinBox_ = new QDoubleSpinBox(this);

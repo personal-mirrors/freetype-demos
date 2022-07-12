@@ -111,12 +111,11 @@ GlyphIndexSelector::updateLabel()
                            .arg(numberRenderer_(indexSpinBox_->maximum())));
   else
     indexLabel_->setText(
-      QString("%1~%2\nCount: %3\nLimit: %4")
+      QString("%1~%2\nLimit: %4")
         .arg(numberRenderer_(indexSpinBox_->value()))
         .arg(numberRenderer_(
           qBound(indexSpinBox_->value(),
                  indexSpinBox_->value() + showingCount_ - 1, INT_MAX)))
-        .arg(showingCount_)
         .arg(numberRenderer_(indexSpinBox_->maximum())));
 }
 
@@ -142,7 +141,7 @@ GlyphIndexSelector::createLayout()
   indexSpinBox_->setFixedWidth(80);
   indexSpinBox_->setWrapping(false);
 
-  indexLabel_ = new QLabel("0\nCount: 0\nLimit: 0");
+  indexLabel_ = new QLabel("0\nLimit: 0");
   indexLabel_->setMinimumWidth(200);
 
   setButtonNarrowest(toStartButton_);
