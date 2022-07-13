@@ -29,6 +29,19 @@ void
 transformOutlineToOrigin(FT_Outline* outline,
                          FT_BBox* outControlBox)
 {
+  FT_Pos x, y;
+  computeTransformationToOrigin(outline,
+                                &x, &y,
+                                outControlBox);
+  FT_Outline_Translate(outline, x, y);
+}
+
+
+void computeTransformationToOrigin(FT_Outline* outline,
+                                   FT_Pos* outXOffset,
+                                   FT_Pos* outYOffset,
+                                   FT_BBox* outControlBox)
+{
   FT_BBox cbox;
   FT_Outline_Get_CBox(outline, &cbox);
 
@@ -37,8 +50,10 @@ transformOutlineToOrigin(FT_Outline* outline,
   cbox.xMax = (cbox.xMax + 63) & ~63;
   cbox.yMax = (cbox.yMax + 63) & ~63;
   // we shift the outline to the origin for rendering later on
-  FT_Outline_Translate(outline, -cbox.xMin, -cbox.yMin);
-
+  if (outXOffset)
+    *outXOffset = -cbox.xMin;
+  if (outYOffset)
+    *outYOffset = -cbox.yMin;
   if (outControlBox)
     *outControlBox = cbox;
 }

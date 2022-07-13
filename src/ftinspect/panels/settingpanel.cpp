@@ -172,8 +172,12 @@ SettingPanel::syncSettings()
   engine_->setLcdFilter(
     static_cast<FT_LcdFilter>(lcdFilterComboboxModel_->indexToValue(
       lcdFilterComboBox_->currentIndex())));
-  engine_->setAntiAliasingTarget(antiAliasingComboBoxModel_->indexToValue(
-    antiAliasingComboBox_->currentIndex()));
+
+  auto aaSettings = antiAliasingComboBoxModel_->indexToValue(
+    antiAliasingComboBox_->currentIndex());
+  engine_->setAntiAliasingTarget(aaSettings.loadFlag);
+  engine_->setRenderMode(aaSettings.renderMode);
+
   engine_->setAntiAliasingEnabled(antiAliasingComboBox_->currentIndex()
     != AntiAliasingComboBoxModel::AntiAliasing_None);
   engine_->setHinting(hintingCheckBox_->isChecked());
@@ -184,6 +188,9 @@ SettingPanel::syncSettings()
   engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
 
   engine_->setGamma(gammaSlider_->value());
+
+  engine_->setEmbeddedBitmap(embeddedBitmapCheckBox_->isChecked());
+  engine_->setLCDUsesBGR(aaSettings.isBGR);
 }
 
 
@@ -218,6 +225,8 @@ SettingPanel::createConnections()
 
   connect(autoHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkAutoHinting);
+  connect(embeddedBitmapCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::repaintNeeded);
 }
 
 
@@ -239,6 +248,7 @@ SettingPanel::createLayout()
   verticalHintingCheckBox_ = new QCheckBox(tr("Vertical Hinting"), this);
   blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"), this);
   segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"), this);
+  embeddedBitmapCheckBox_ = new QCheckBox(tr("Enable Embedded Bitmap"), this);
 
   antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"), this);
   antiAliasingLabel_->setAlignment(Qt::AlignRight);
@@ -329,6 +339,7 @@ SettingPanel::createLayout()
   generalTabLayout_->addSpacing(20); // XXX px
   generalTabLayout_->addStretch(1);
   generalTabLayout_->addLayout(gammaLayout_);
+  generalTabLayout_->addWidget(embeddedBitmapCheckBox_);
   generalTabLayout_->addSpacing(20); // XXX px
   generalTabLayout_->addStretch(1);
 
@@ -376,6 +387,7 @@ SettingPanel::setDefaults()
   horizontalHintingCheckBox_->setChecked(true);
   verticalHintingCheckBox_->setChecked(true);
   blueZoneHintingCheckBox_->setChecked(true);
+  embeddedBitmapCheckBox_->setChecked(false);
 
   gammaSlider_->setValue(18); // 1.8
 }

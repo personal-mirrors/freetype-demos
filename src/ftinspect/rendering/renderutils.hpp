@@ -14,5 +14,10 @@ FT_Glyph cloneGlyph(FT_Glyph src);
 void transformOutlineToOrigin(FT_Outline* outline,
                               FT_BBox* outControlBox);
 
+void computeTransformationToOrigin(FT_Outline* outline,
+                                   FT_Pos* outXOffset,
+                                   FT_Pos* outYOffset,
+                                   FT_BBox* outControlBox);
+
 
 // end of renderutils.hpp

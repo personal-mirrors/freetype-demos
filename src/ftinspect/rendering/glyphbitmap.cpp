@@ -6,34 +6,26 @@
 #include "glyphbitmap.hpp"
 
 #include "renderutils.hpp"
+#include "../engine/engine.hpp"
 
 #include <cmath>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
+#include <freetype/ftbitmap.h>
 
 
-GlyphBitmap::GlyphBitmap(FT_Outline* outline,
-                         FT_Library lib,
-                         FT_Pixel_Mode pxlMode,
-                         const QVector<QRgb>& monoColorTbl,
-                         const QVector<QRgb>& grayColorTbl)
-: library_(lib),
-  pixelMode_(pxlMode),
-  monoColorTable_(monoColorTbl),
-  grayColorTable_(grayColorTbl)
+GlyphBitmap::GlyphBitmap(FT_Glyph glyph,
+                         Engine* engine)
 {
-  // make a copy of the outline since we are going to manipulate it
-  FT_BBox cbox;
-  transformed_ = cloneOutline(lib, outline);
-  transformOutlineToOrigin(&transformed_, &cbox);
-  boundingRect_.setCoords(cbox.xMin / 64, -cbox.yMax / 64,
-                  cbox.xMax / 64, -cbox.yMin / 64);
+  QRect bRect;
+  image_ = engine->convertBitmapToQImage(glyph, &bRect);
+  boundingRect_ = bRect; // QRectF to QRect
 }
 
 
 GlyphBitmap::~GlyphBitmap()
 {
-  FT_Outline_Done(library_, &transformed_);
+  delete image_;
 }
 
 QRectF
@@ -48,40 +40,9 @@ GlyphBitmap::paint(QPainter* painter,
                    const QStyleOptionGraphicsItem* option,
                    QWidget*)
 {
-  FT_Bitmap bitmap;
-
-  int height = static_cast<int>(ceil(boundingRect_.height()));
-  int width = static_cast<int>(ceil(boundingRect_.width()));
-  QImage::Format format = QImage::Format_Indexed8;
-
-  // XXX cover LCD and color
-  if (pixelMode_ == FT_PIXEL_MODE_MONO)
-    format = QImage::Format_Mono;
-
-  QImage image(QSize(width, height), format);
-
-  if (pixelMode_ == FT_PIXEL_MODE_MONO)
-    image.setColorTable(monoColorTable_);
-  else
-    image.setColorTable(grayColorTable_);
-
-  image.fill(0);
-
-  bitmap.rows = static_cast<unsigned int>(height);
-  bitmap.width = static_cast<unsigned int>(width);
-  bitmap.buffer = image.bits();
-  bitmap.pitch = image.bytesPerLine();
-  bitmap.pixel_mode = pixelMode_;
-
-  FT_Error error = FT_Outline_Get_Bitmap(library_,
-                                         &transformed_,
-                                         &bitmap);
-  if (error)
-  {
-    // XXX error handling
+  if (!image_)
     return;
-  }
-
+  
   // `drawImage' doesn't work as expected:
   // the larger the zoom, the more the pixel rectangle positions
   // deviate from the grid lines
@@ -95,11 +56,11 @@ GlyphBitmap::paint(QPainter* painter,
 
   painter->setPen(Qt::NoPen);
 
-  for (int x = 0; x < image.width(); x++)
-    for (int y = 0; y < image.height(); y++)
+  for (int x = 0; x < image_->width(); x++)
+    for (int y = 0; y < image_->height(); y++)
     {
       // be careful not to lose the alpha channel
-      QRgb p = image.pixel(x, y);
+      QRgb p = image_->pixel(x, y);
       painter->fillRect(QRectF(x + boundingRect_.left() - 1 / lod / 2,
                                y + boundingRect_.top() - 1 / lod / 2,
                                1 + 1 / lod,
@@ -109,7 +70,9 @@ GlyphBitmap::paint(QPainter* painter,
                                qBlue(p),
                                qAlpha(p)));
     }
+    
 #endif
+
 }
 
 

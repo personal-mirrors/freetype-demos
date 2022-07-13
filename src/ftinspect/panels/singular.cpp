@@ -87,29 +87,21 @@ SingularTab::drawGlyph()
   }
 
   syncSettings();
-  FT_Outline* outline = engine_->loadOutline(currentGlyphIndex_);
-  if (outline)
+  FT_Glyph glyph = engine_->loadGlyph(currentGlyphIndex_);
+  if (glyph)
   {
     if (showBitmapCheckBox_->isChecked())
     {
-      // XXX support LCD
-      FT_Pixel_Mode pixelMode = FT_PIXEL_MODE_GRAY;
-      if (!engine_->antiAliasingEnabled())
-        pixelMode = FT_PIXEL_MODE_MONO;
-
       currentGlyphBitmapItem_
-        = new GlyphBitmap(outline,
-          engine_->ftLibrary(),
-          pixelMode,
-          graphicsDefault_->monoColorTable,
-          graphicsDefault_->grayColorTable);
+        = new GlyphBitmap(glyph,
+                          engine_);
       glyphScene_->addItem(currentGlyphBitmapItem_);
     }
 
     if (showOutlinesCheckBox_->isChecked())
     {
       currentGlyphOutlineItem_ = new GlyphOutline(graphicsDefault_->outlinePen, 
-                                                  outline);
+                                                  glyph);
       glyphScene_->addItem(currentGlyphOutlineItem_);
     }
 
@@ -117,7 +109,7 @@ SingularTab::drawGlyph()
     {
       currentGlyphPointsItem_ = new GlyphPoints(graphicsDefault_->onPen,
                                                 graphicsDefault_->offPen,
-                                                outline);
+                                                glyph);
       glyphScene_->addItem(currentGlyphPointsItem_);
 
       if (showPointNumbersCheckBox_->isChecked())
@@ -125,7 +117,7 @@ SingularTab::drawGlyph()
         currentGlyphPointNumbersItem_
           = new GlyphPointNumbers(graphicsDefault_->onPen,
                                   graphicsDefault_->offPen,
-                                  outline);
+                                  glyph);
         glyphScene_->addItem(currentGlyphPointNumbersItem_);
       }
     }

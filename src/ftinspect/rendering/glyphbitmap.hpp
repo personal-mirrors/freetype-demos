@@ -10,18 +10,18 @@
 
 #include <ft2build.h>
 #include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
 #include <freetype/ftoutln.h>
 
+
+class Engine;
 
 class GlyphBitmap
 : public QGraphicsItem
 {
 public:
-  GlyphBitmap(FT_Outline* outline,
-              FT_Library library,
-              FT_Pixel_Mode pixelMode,
-              const QVector<QRgb>& monoColorTable,
-              const QVector<QRgb>& grayColorTable);
+  GlyphBitmap(FT_Glyph glyph,
+              Engine* engine);
   ~GlyphBitmap() override;
   QRectF boundingRect() const override;
   void paint(QPainter* painter,
@@ -29,11 +29,7 @@ public:
              QWidget* widget) override;
 
 private:
-  FT_Outline transformed_;
-  FT_Library library_;
-  unsigned char pixelMode_;
-  const QVector<QRgb>& monoColorTable_;
-  const QVector<QRgb>& grayColorTable_;
+  QImage* image_ = NULL;
   QRectF boundingRect_;
 };
 

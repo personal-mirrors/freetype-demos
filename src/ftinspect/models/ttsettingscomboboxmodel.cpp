@@ -192,55 +192,13 @@ HintingModeComboBoxModel::setCurrentEngineType(HintingEngineType type)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// SimpleComboBoxModel
-//
-/////////////////////////////////////////////////////////////////////////////
-
-
-SimpleComboBoxModel::SimpleComboBoxModel(QObject* parent)
-: QAbstractListModel(parent)
-{
-}
-
-
-int
-SimpleComboBoxModel::rowCount(const QModelIndex& parent) const
-{
-  return items_.size();
-}
-
-
-QVariant
-SimpleComboBoxModel::data(const QModelIndex& index, int role) const
-{
-  if (role != Qt::DisplayRole)
-    return QVariant {};
-
-  int r = index.row();
-  if (r < 0 || r >= items_.size())
-    return QVariant {};
-  return items_[r].displayName;
-}
-
-
-int
-SimpleComboBoxModel::indexToValue(int index)
-{
-  if (index < 0 || index >= items_.size())
-    return -1;
-  return items_[index].value;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // LCDFilterComboBoxModel
 //
 /////////////////////////////////////////////////////////////////////////////
 
 
 LCDFilterComboBoxModel::LCDFilterComboBoxModel(QObject* parent)
-: SimpleComboBoxModel(parent)
+: QAbstractListModel(parent)
 {
   items_[LCDFilter_Default] = {
     FT_LCD_FILTER_DEFAULT,
@@ -269,34 +227,34 @@ LCDFilterComboBoxModel::LCDFilterComboBoxModel(QObject* parent)
 
 
 AntiAliasingComboBoxModel::AntiAliasingComboBoxModel(QObject* parent)
-: SimpleComboBoxModel(parent)
+: QAbstractListModel(parent)
 {
   items_[AntiAliasing_None] = {
-    FT_LOAD_TARGET_MONO,
+    {FT_LOAD_TARGET_MONO, FT_RENDER_MODE_MONO, false},
     "None"
   };
   items_[AntiAliasing_Normal] = {
-    FT_LOAD_TARGET_NORMAL,
+    {FT_LOAD_TARGET_NORMAL, FT_RENDER_MODE_NORMAL, false},
     "Normal"
   };
   items_[AntiAliasing_Light] = {
-    FT_LOAD_TARGET_LIGHT,
+    {FT_LOAD_TARGET_LIGHT, FT_RENDER_MODE_LIGHT, false},
     "Light"
   };
   items_[AntiAliasing_LCD] = {
-    FT_LOAD_TARGET_LCD,
+    {FT_LOAD_TARGET_LCD, FT_RENDER_MODE_LCD, false},
     "LCD (RGB)"
   };
   items_[AntiAliasing_LCD_BGR] = {
-    FT_LOAD_TARGET_LCD,
+    {FT_LOAD_TARGET_LCD, FT_RENDER_MODE_LCD, true},
     "LCD (BGR)"
   };
   items_[AntiAliasing_LCD_Vertical] = {
-    FT_LOAD_TARGET_LCD_V,
+    {FT_LOAD_TARGET_LCD_V, FT_RENDER_MODE_LCD_V, false},
     "LCD (vert. RGB)"
   };
   items_[AntiAliasing_LCD_Vertical_BGR] = {
-    FT_LOAD_TARGET_LCD_V, // XXX Bug: No difference between RGB and BGR?
+    {FT_LOAD_TARGET_LCD_V, FT_RENDER_MODE_LCD_V, true},
     "LCD (vert. BGR)"
   };
 
@@ -312,7 +270,7 @@ AntiAliasingComboBoxModel::data(const QModelIndex& index,
     if (index.row() == AntiAliasing_Light && !lightAntiAliasingEnabled_)
       return QApplication::palette().color(QPalette::Disabled, 
                                            QPalette::Text);
-  return SimpleComboBoxModel::data(index, role);
+  return SimpleComboBoxModelImpl::data(index, role);
 }
 
 

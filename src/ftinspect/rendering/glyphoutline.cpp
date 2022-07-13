@@ -88,10 +88,16 @@ static FT_Outline_Funcs outlineFuncs =
 
 
 GlyphOutline::GlyphOutline(const QPen& pen,
-                           FT_Outline* outline)
-: outlinePen_(pen),
-  outline_(outline)
+                           FT_Glyph glyph)
+: outlinePen_(pen)
 {
+  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+  {
+    outline_ = NULL;
+    return;
+  }
+  outline_ = &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
+
   FT_BBox cbox;
 
   qreal halfPenWidth = outlinePen_.widthF();
@@ -117,6 +123,8 @@ GlyphOutline::paint(QPainter* painter,
                     const QStyleOptionGraphicsItem*,
                     QWidget*)
 {
+  if (!outline_)
+    return;
   painter->setPen(outlinePen_);
 
   QPainterPath path;

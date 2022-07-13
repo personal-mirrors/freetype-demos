@@ -5,12 +5,16 @@
 
 #include "engine.hpp"
 
+#include "../rendering/renderutils.hpp"
+#include "../rendering/graphicsdefault.hpp"
+
 #include <stdexcept>
 #include <stdint.h>
 
 #include <freetype/ftmodapi.h>
 #include <freetype/ftdriver.h>
 #include <freetype/ftlcdfil.h>
+#include <freetype/ftbitmap.h>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -153,7 +157,7 @@ Engine::Engine()
   {
     // XXX error handling
   }
-
+  
   queryEngine();
 }
 
@@ -397,8 +401,8 @@ Engine::glyphName(int index)
 }
 
 
-FT_Outline*
-Engine::loadOutline(int glyphIndex)
+FT_Glyph
+Engine::loadGlyph(int glyphIndex)
 {
   update();
 
@@ -407,13 +411,11 @@ Engine::loadOutline(int glyphIndex)
 
   FT_Glyph glyph;
 
-  // XXX handle bitmap fonts
-
   // the `scaler' object is set up by the
   // `update' and `loadFont' methods
   if (FTC_ImageCache_LookupScaler(imageCache_,
                                   &scaler_,
-                                  loadFlags_ | FT_LOAD_NO_BITMAP,
+                                  loadFlags_,
                                   static_cast<unsigned int>(glyphIndex),
                                   &glyph,
                                   NULL))
@@ -422,21 +424,14 @@ Engine::loadOutline(int glyphIndex)
     return NULL;
   }
 
-  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
-    return NULL;
-
-  FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
-
-  return &outlineGlyph->outline;
+  return glyph;
 }
 
 
 FT_Glyph
 Engine::loadGlyphWithoutUpdate(int glyphIndex)
 {
-  // TODO bitmap fonts? color layered fonts?
   FT_Glyph glyph;
-  imageType_.flags |= FT_LOAD_NO_BITMAP;
   if (FTC_ImageCache_Lookup(imageCache_,
                             &imageType_,
                             glyphIndex,
@@ -448,6 +443,57 @@ Engine::loadGlyphWithoutUpdate(int glyphIndex)
   }
 
   return glyph;
+}
+
+
+bool
+Engine::glyphToBitmap(FT_Glyph src,
+                      FT_Glyph* out)
+{
+  if (src->format == FT_GLYPH_FORMAT_BITMAP)
+  {
+    *out = src;
+    return false;
+  }
+  if (src->format != FT_GLYPH_FORMAT_OUTLINE)
+  {
+    *out = NULL;
+    return false;
+    // TODO support SVG
+  }
+
+  if (src->format == FT_GLYPH_FORMAT_OUTLINE)
+  {
+    FT_Glyph out2 = src;
+    auto error = FT_Glyph_To_Bitmap(&out2, 
+                                    static_cast<FT_Render_Mode>(renderMode_),
+                                    nullptr,
+                                    false);
+    if (error)
+    {
+      *out = NULL;
+      return false;
+    }
+    *out = out2;
+    return true;
+  }
+
+  *out = NULL;
+  return false;
+}
+
+
+FT_Bitmap
+Engine::convertBitmapTo8Bpp(FT_Bitmap* bitmap)
+{
+  FT_Bitmap out;
+  out.buffer = NULL;
+  auto error = FT_Bitmap_Convert(library_, bitmap, &out, 1);
+  if (error)
+  {
+    // XXX handling?
+  }
+  return out;
 }
 
 
@@ -527,19 +573,19 @@ Engine::update()
   loadFlags_ = FT_LOAD_DEFAULT;
   if (doAutoHinting_)
     loadFlags_ |= FT_LOAD_FORCE_AUTOHINT;
-  loadFlags_ |= FT_LOAD_NO_BITMAP; // XXX handle bitmap fonts also
+
+  if (!embeddedBitmap_)
+    loadFlags_ |= FT_LOAD_NO_BITMAP;
 
   if (doHinting_)
   {
-    // TODO Differentiate RGB/BGR here?
-    unsigned long target = antiAliasingTarget_;
-    loadFlags_ |= target;
+    loadFlags_ |= antiAliasingTarget_;
   }
   else
   {
     loadFlags_ |= FT_LOAD_NO_HINTING;
 
-    if (!antiAliasingEnabled_) // XXX does this hold?
+    if (!antiAliasingEnabled_)
       loadFlags_ |= FT_LOAD_MONOCHROME;
   }
 
@@ -561,7 +607,7 @@ Engine::update()
     scaler_.x_res = dpi_;
     scaler_.y_res = dpi_;
   }
-  
+
   imageType_.width = static_cast<unsigned int>(pixelSize_);
   imageType_.height = static_cast<unsigned int>(pixelSize_);
   imageType_.flags = static_cast<int>(loadFlags_);
@@ -665,6 +711,149 @@ Engine::queryEngine()
                     "interpreter-version",
                     &engineDefaults_.ttInterpreterVersionDefault);
   }
+}
+
+
+void
+convertLCDToARGB(FT_Bitmap& bitmap,
+                 QImage& image,
+                 bool isBGR)
+{
+  // TODO to be implemented
+}
+
+
+void
+convertLCDVToARGB(FT_Bitmap& bitmap,
+                  QImage& image,
+                  bool isBGR)
+{
+  // TODO to be implemented
+}
+
+
+QImage*
+Engine::convertBitmapToQImage(FT_Glyph src,
+                              QRect* outRect)
+{
+  QImage* result = NULL;
+  FT_BitmapGlyph bitmapGlyph;
+  bool ownBitmapGlyph
+    = glyphToBitmap(src, reinterpret_cast<FT_Glyph*>(&bitmapGlyph));
+  if (!bitmapGlyph)
+    return result;
+  auto& bmap = bitmapGlyph->bitmap;
+  bool ownBitmap = false;
+
+  int width = bmap.width;
+  int height = bmap.rows;
+  QImage::Format format = QImage::Format_Indexed8; // goto crossing init
+
+  if (bmap.pixel_mode == FT_PIXEL_MODE_GRAY2
+      || bmap.pixel_mode == FT_PIXEL_MODE_GRAY4)
+  {
+    bmap = convertBitmapTo8Bpp(&bmap);
+    if (!bmap.buffer)
+      goto cleanup;
+    ownBitmap = true;
+  }
+
+  if (bmap.pixel_mode == FT_PIXEL_MODE_LCD)
+    width /= 3;
+  else if (bmap.pixel_mode == FT_PIXEL_MODE_LCD_V)
+    height /= 3;
+
+  if (outRect)
+  {
+    outRect->setLeft(bitmapGlyph->left);
+    outRect->setTop(-bitmapGlyph->top);
+    outRect->setWidth(width);
+    outRect->setHeight(height);
+  }
+
+  switch (bmap.pixel_mode)
+  {
+  case FT_PIXEL_MODE_MONO:
+    format = QImage::Format_Mono;
+    break;
+  case FT_PIXEL_MODE_GRAY:
+    format = QImage::Format_Indexed8;
+    break;
+  case FT_PIXEL_MODE_BGRA:
+    // XXX "ARGB" here means BGRA due to endianness - may be problematic
+    // on big-endian machines
+    format = QImage::Format_ARGB32_Premultiplied;
+    break;
+  case FT_PIXEL_MODE_LCD:
+  case FT_PIXEL_MODE_LCD_V:
+    format = QImage::Format_ARGB32;
+    break;
+  default:
+    goto cleanup;
+  }
+
+  switch (bmap.pixel_mode) 
+  {
+  case FT_PIXEL_MODE_MONO:
+  case FT_PIXEL_MODE_GRAY:
+  case FT_PIXEL_MODE_BGRA:
+    {
+      QImage image(bmap.buffer, 
+                   width, height, 
+                   bmap.pitch, 
+                   format);
+      if (bmap.pixel_mode == FT_PIXEL_MODE_GRAY)
+        image.setColorTable(GraphicsDefault::deafultInstance()->grayColorTable);
+      else if (bmap.pixel_mode == FT_PIXEL_MODE_MONO)
+        image.setColorTable(GraphicsDefault::deafultInstance()->monoColorTable);
+      result = new QImage(image.copy());
+      // Don't directly use `image` since we're destroying the image
+    }
+    break;
+  case FT_PIXEL_MODE_LCD:;
+    result = new QImage(width, height, format);
+    convertLCDToARGB(bmap, *result, lcdUsesBGR_);
+    break;
+  case FT_PIXEL_MODE_LCD_V:;
+    result = new QImage(width, height, format);
+    convertLCDVToARGB(bmap, *result, lcdUsesBGR_);
+    break;
+  }
+
+cleanup:
+  if (ownBitmapGlyph)
+    FT_Done_Glyph(reinterpret_cast<FT_Glyph>(bitmapGlyph));
+  if (ownBitmap)
+    FT_Bitmap_Done(library_, &bmap);
+
+  return result;
+}
+
+
+QHash<FT_Glyph_Format, QString> glyphFormatNamesCache;
+QHash<FT_Glyph_Format, QString>&
+glyphFormatNames()
+{
+  if (glyphFormatNamesCache.empty())
+  {
+    glyphFormatNamesCache[FT_GLYPH_FORMAT_NONE] = "None/Unknown";
+    glyphFormatNamesCache[FT_GLYPH_FORMAT_COMPOSITE] = "Composite";
+    glyphFormatNamesCache[FT_GLYPH_FORMAT_BITMAP] = "Bitmap";
+    glyphFormatNamesCache[FT_GLYPH_FORMAT_OUTLINE] = "Outline";
+    glyphFormatNamesCache[FT_GLYPH_FORMAT_PLOTTER] = "Plotter";
+    glyphFormatNamesCache[FT_GLYPH_FORMAT_SVG] = "SVG";
+  }
+  return glyphFormatNamesCache;
+}
+
+QString*
+glyphFormatToName(FT_Glyph_Format format)
+{
+  auto& names = glyphFormatNames();
+  auto it = names.find(format);
+  if (it == names.end())
+    return &names[FT_GLYPH_FORMAT_NONE];
+  return &it.value();
 }
 
 

@@ -10,6 +10,8 @@
 #include <vector>
 #include <QString>
 #include <QMap>
+#include <QRect>
+#include <QImage>
 
 #include <ft2build.h>
 #include <freetype/freetype.h>
@@ -60,6 +62,10 @@ private:
   static int maxIndexForFaceAndCharMap(FT_CharMap charMap, unsigned max);
 };
 
+// Some helper functions.
+
+QString* glyphFormatToName(FT_Glyph_Format format);
+
 // FreeType specific data.
 
 class Engine
@@ -92,10 +98,16 @@ public:
   int loadFont(int fontIndex,
                long faceIndex,
                int namedInstanceIndex); // return number of glyphs
-  FT_Outline* loadOutline(int glyphIndex);
+  FT_Glyph loadGlyph(int glyphIndex);
 
   // Sometimes the engine is already updated, and we want to be faster
   FT_Glyph loadGlyphWithoutUpdate(int glyphIndex);
+
+  // Return `true` if you need to free `out`
+  // `out` will be set to NULL in cases of error
+  bool glyphToBitmap(FT_Glyph src, FT_Glyph* out);
+  FT_Bitmap convertBitmapTo8Bpp(FT_Bitmap* bitmap);
+  QImage* convertBitmapToQImage(FT_Glyph src, QRect* outRect);
 
   // reload current triplet, but with updated settings, useful for updating
   // `ftSize_` only
@@ -126,7 +138,7 @@ public:
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
-
+  bool embeddedBitmapEnabled() { return embeddedBitmap_; }
 
   //////// Setters (direct or indirect)
 
@@ -150,7 +162,10 @@ public:
   void setShowSegments(bool showSegments) { showSegments_ = showSegments; }
   void setGamma(double gamma) { gamma_ = gamma; }
   void setAntiAliasingTarget(int target) { antiAliasingTarget_ = target; }
+  void setRenderMode(int mode) { renderMode_ = mode; }
   void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
+  void setEmbeddedBitmap(bool force) { embeddedBitmap_ = force; }
+  void setLCDUsesBGR(bool isBGR) { lcdUsesBGR_ = isBGR; }
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
@@ -203,10 +218,12 @@ private:
   bool doVerticalHinting_;
   bool doBlueZoneHinting_;
   bool showSegments_;
+  bool embeddedBitmap_;
   int antiAliasingTarget_;
+  bool lcdUsesBGR_;
+  int renderMode_;
 
   double gamma_;
-
   unsigned long loadFlags_;
 
   void queryEngine();

@@ -63,6 +63,7 @@ private:
   QCheckBox* blueZoneHintingCheckBox_;
   QCheckBox* segmentDrawingCheckBox_;
   QCheckBox* autoHintingCheckBox_;
+  QCheckBox* embeddedBitmapCheckBox_;
 
   AntiAliasingComboBoxModel* antiAliasingComboBoxModel_;
   HintingModeComboBoxModel* hintingModeComboBoxModel_;

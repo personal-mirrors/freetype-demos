@@ -71,25 +71,47 @@ public:
 
 
 // A simple key-displayName-value model for QComboBox.
-class SimpleComboBoxModel
-: public QAbstractListModel
+template <class T>
+class SimpleComboBoxModelImpl
 {
-  Q_OBJECT
 public:
   struct ComboBoxItem
   {
-    int value;
+    T value;
     QString displayName;
   };
 
-  explicit SimpleComboBoxModel(QObject* parent);
-  ~SimpleComboBoxModel() override = default;
+  SimpleComboBoxModelImpl() {}
+  virtual ~SimpleComboBoxModelImpl() = default;
 
-  int rowCount(const QModelIndex& parent) const;
-  QVariant data(const QModelIndex& index,
-                int role) const;
+  virtual int
+  rowCount(const QModelIndex& parent) const
+  {
+    return items_.size();
+  }
 
-  int indexToValue(int index);
+
+  virtual QVariant
+  data(const QModelIndex& index,
+                int role) const
+  {
+    if (role != Qt::DisplayRole)
+      return QVariant{};
+
+    int r = index.row();
+    if (r < 0 || r >= items_.size())
+      return QVariant{};
+    return items_[r].displayName;
+  }
+
+
+  virtual T
+  indexToValue(int index)
+  {
+    if (index < 0 || index >= items_.size())
+      return T();
+    return items_[index].value;
+  }
 
 protected:
   QHash<int, ComboBoxItem> items_;
@@ -97,7 +119,8 @@ protected:
 
 
 class LCDFilterComboBoxModel
-: public SimpleComboBoxModel
+: public QAbstractListModel,
+  public SimpleComboBoxModelImpl<int>
 {
   Q_OBJECT
 public:
@@ -108,8 +131,23 @@ public:
     QString displayName;
   };
 
+
   explicit LCDFilterComboBoxModel(QObject* parent);
   virtual ~LCDFilterComboBoxModel() = default;
+
+
+  int rowCount(const QModelIndex& parent) const override
+  {
+    return SimpleComboBoxModelImpl::rowCount(parent);
+  }
+
+
+  QVariant
+  data(const QModelIndex& index,
+       int role) const override
+  {
+    return SimpleComboBoxModelImpl::data(index, role);
+  }
 
 public:
   enum LCDFilter : int
@@ -122,8 +160,18 @@ public:
 };
 
 
+struct AASetting
+{
+  // No default value for braced init - No C++14, what a pain!
+  int loadFlag;
+  int renderMode;
+  bool isBGR;
+};
+
+
 class AntiAliasingComboBoxModel
-: public SimpleComboBoxModel
+: public QAbstractListModel,
+  public SimpleComboBoxModelImpl<AASetting>
 {
   Q_OBJECT
 public:
@@ -135,6 +183,13 @@ public:
   QVariant data(const QModelIndex& index,
                 int role) const;
   Qt::ItemFlags flags(const QModelIndex& index) const;
+
+
+  int rowCount(const QModelIndex& parent) const override
+  {
+    return SimpleComboBoxModelImpl::rowCount(parent);
+  }
+
 
   void setLightAntiAliasingEnabled(bool enabled)
   {
