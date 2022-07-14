@@ -35,7 +35,7 @@ if qt5_dep.found()
     'widgets/glyphindexselector.cpp',
     'widgets/fontsizeselector.cpp',
 
-    'models/ttsettingscomboboxmodel.cpp',
+    'models/customcomboboxmodels.cpp',
 
     'panels/settingpanel.cpp',
     'panels/singular.cpp',

@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../engine/engine.hpp"
-#include "../models/ttsettingscomboboxmodel.hpp"
+#include "../models/customcomboboxmodels.hpp"
 
 #include <QWidget>
 #include <QTabWidget>

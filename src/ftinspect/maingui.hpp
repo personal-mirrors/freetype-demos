@@ -8,7 +8,7 @@
 #include "engine/engine.hpp"
 #include "widgets/customwidgets.hpp"
 #include "widgets/glyphindexselector.hpp"
-#include "models/ttsettingscomboboxmodel.hpp"
+#include "models/customcomboboxmodels.hpp"
 #include "panels/settingpanel.hpp"
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"

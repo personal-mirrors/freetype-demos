@@ -15,7 +15,7 @@
 #include "../rendering/grid.hpp"
 #include "../rendering/graphicsdefault.hpp"
 #include "../engine/engine.hpp"
-#include "../models/ttsettingscomboboxmodel.hpp"
+#include "../models/customcomboboxmodels.hpp"
 
 #include <QWidget>
 #include <QPushButton>
