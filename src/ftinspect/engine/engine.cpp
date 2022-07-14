@@ -384,7 +384,10 @@ Engine::glyphName(int index)
   if (index < 0)
     throw std::runtime_error("Invalid glyph index");
 
-   if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+  if (!ftSize_)
+    return "";
+
+  if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
     return name;
 
   if (ftSize_ && FT_HAS_GLYPH_NAMES(ftSize_->face))
@@ -408,6 +411,9 @@ Engine::loadGlyph(int glyphIndex)
 
   if (glyphIndex < 0)
     throw std::runtime_error("Invalid glyph index");
+
+  if (curNumGlyphs_ <= 0)
+    return NULL;
 
   FT_Glyph glyph;
 
