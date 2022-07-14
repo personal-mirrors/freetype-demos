@@ -841,7 +841,9 @@ glyphFormatNames()
     glyphFormatNamesCache[FT_GLYPH_FORMAT_BITMAP] = "Bitmap";
     glyphFormatNamesCache[FT_GLYPH_FORMAT_OUTLINE] = "Outline";
     glyphFormatNamesCache[FT_GLYPH_FORMAT_PLOTTER] = "Plotter";
+#if FREETYPE_MINOR >= 12
     glyphFormatNamesCache[FT_GLYPH_FORMAT_SVG] = "SVG";
+#endif
   }
   return glyphFormatNamesCache;
 }
