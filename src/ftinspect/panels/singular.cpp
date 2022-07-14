@@ -198,6 +198,13 @@ SingularTab::wheelResize(QWheelEvent* event)
 
 
 void
+SingularTab::setGridVisible()
+{
+  gridItem_->setVisible(showGridCheckBox_->isChecked());
+}
+
+
+void
 SingularTab::createLayout()
 {
   glyphScene_ = new QGraphicsScene(this);
@@ -261,6 +268,7 @@ SingularTab::createLayout()
   showPointsCheckBox_ = new QCheckBox(tr("Show Points"), this);
   showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"), this);
   showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"), this);
+  showGridCheckBox_ = new QCheckBox(tr("Show Grid"), this);
 
   sizeLayout_ = new QHBoxLayout;
   sizeLayout_->addStretch(2);
@@ -278,6 +286,7 @@ SingularTab::createLayout()
   checkBoxesLayout_->addWidget(showPointsCheckBox_);
   checkBoxesLayout_->addWidget(showPointNumbersCheckBox_);
   checkBoxesLayout_->addWidget(showOutlinesCheckBox_);
+  checkBoxesLayout_->addWidget(showGridCheckBox_);
 
   glyphOverlayIndexLayout_ = new QHBoxLayout;
   glyphOverlayIndexLayout_->addWidget(glyphIndexLabel_);
@@ -331,6 +340,8 @@ SingularTab::createConnections()
           this, &SingularTab::drawGlyph);
   connect(showOutlinesCheckBox_, &QCheckBox::clicked,
           this, &SingularTab::drawGlyph);
+  connect(showGridCheckBox_, &QCheckBox::clicked,
+          this, &SingularTab::setGridVisible);
 }
 
 
@@ -365,6 +376,7 @@ SingularTab::setDefaults()
   zoomSpinBox_->setValue(20);
   showBitmapCheckBox_->setChecked(true);
   showOutlinesCheckBox_->setChecked(true);
+  showGridCheckBox_->setChecked(true);
   
   indexSelector_->setCurrentIndex(indexSelector_->currentIndex(), true);
   zoom();

@@ -52,6 +52,7 @@ private slots:
   void backToCenter();
   void wheelZoom(QWheelEvent* event);
   void wheelResize(QWheelEvent* event);
+  void setGridVisible();
 
 private:
   int currentGlyphIndex_;
@@ -82,6 +83,7 @@ private:
   QCheckBox* showOutlinesCheckBox_;
   QCheckBox* showPointNumbersCheckBox_;
   QCheckBox* showPointsCheckBox_;
+  QCheckBox* showGridCheckBox_;
 
   QVBoxLayout* mainLayout_;
   QHBoxLayout* checkBoxesLayout_;

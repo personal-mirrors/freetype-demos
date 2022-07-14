@@ -55,9 +55,6 @@ Grid::updateRect()
 }
 
 
-// XXX call this in a `myQDraphicsView::drawBackground' derived method
-//     to always fill the complete viewport
-
 void
 Grid::paint(QPainter* painter,
             const QStyleOptionGraphicsItem* option,
