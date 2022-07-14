@@ -222,6 +222,7 @@ SingularTab::createLayout()
   glyphView_->setViewportUpdateMode(QGraphicsView::SmartViewportUpdate);
   glyphView_->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
   glyphView_->setScene(glyphScene_);
+  glyphView_->setBackgroundBrush(Qt::white);
 
   gridItem_ = new Grid(glyphView_, graphicsDefault_->gridPen, 
                        graphicsDefault_->axisPen);
@@ -239,6 +240,7 @@ SingularTab::createLayout()
   hintFont.setPixelSize(24);
   mouseUsageHint_->setFont(hintFont);
   mouseUsageHint_->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+  mouseUsageHint_->setStyleSheet("QLabel { color : black; }");
 
   glyphIndexLabel_ = new QLabel(glyphView_);
   glyphNameLabel_ = new QLabel(glyphView_);
@@ -248,6 +250,9 @@ SingularTab::createLayout()
   glyphNameLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   glyphIndexLabel_->setAttribute(Qt::WA_TransparentForMouseEvents, true);
   glyphNameLabel_->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+
+  glyphIndexLabel_->setStyleSheet("QLabel { color : black; }");
+  glyphNameLabel_->setStyleSheet("QLabel { color : black; }");
 
   indexSelector_ = new GlyphIndexSelector(this);
   indexSelector_->setSingleMode(true);
