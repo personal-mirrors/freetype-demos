@@ -5,11 +5,16 @@
 #pragma once
 
 #include "graphicsdefault.hpp"
+
+#include <utility>
+
 #include <QWidget>
+
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 #include <freetype/ftoutln.h>
 #include <freetype/ftstroke.h>
+
 
 class Engine;
 class GlyphContinuous
@@ -20,18 +25,19 @@ public:
   GlyphContinuous(QWidget* parent, Engine* engine);
   ~GlyphContinuous() override;
 
-  enum Mode : int
+  enum Source : int
   {
-    AllGlyphs,
-    TextString
+    SRC_AllGlyphs,
+    SRC_TextString,
+    SRC_TextStringRepeated
   };
 
-  enum SubModeAllGlyphs : int
+  enum Mode : int
   {
-    AG_AllGlyphs,
-    AG_Fancy,
-    AG_Stroked,
-    AG_Waterfall
+    M_Normal,
+    M_Fancy,
+    M_Stroked,
+    M_Waterfall
   };
 
   int displayingCount() { return displayingCount_; }
@@ -40,8 +46,8 @@ public:
   void setBeginIndex(int index) { beginIndex_ = index; }
   void setLimitIndex(int index) { limitIndex_ = index; }
   void setCharMapIndex(int index) { charMapIndex_ = index; }
+  void setSource(Source mode) { source_ = mode; }
   void setMode(Mode mode) { mode_ = mode; }
-  void setSubModeAllGlyphs(SubModeAllGlyphs modeAg) { modeAG_ = modeAg; }
   void setFancyParams(double boldX, double boldY, double slant)
   {
     boldX_ = boldX;
@@ -49,6 +55,10 @@ public:
     slant_ = slant;
   }
   void setStrokeRadius(double radius) { strokeRadius_ = radius; }
+  void setRotation(double rotation) { rotation_ = rotation; }
+  void setVertical(bool vertical) { vertical_ = vertical; }
+  void setSourceText(QString text) { text_ = std::move(text); }
+
 
 signals:
   void wheelNavigate(int steps);
@@ -63,13 +73,16 @@ private:
   Engine* engine_;
   GraphicsDefault* graphicsDefault_;
 
-  Mode mode_ = AllGlyphs;
-  SubModeAllGlyphs modeAG_ = AG_AllGlyphs;
+  Source source_ = SRC_AllGlyphs;
+  Mode mode_ = M_Normal;
   int beginIndex_;
   int limitIndex_;
   int charMapIndex_;
   double boldX_, boldY_, slant_;
   double strokeRadius_;
+  double rotation_;
+  bool vertical_;
+  QString text_;
 
   int displayingCount_ = 0;
   FT_Size_Metrics metrics_;

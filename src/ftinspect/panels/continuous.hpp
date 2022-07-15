@@ -18,8 +18,8 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QBoxLayout>
-
-class ContinousAllGlyphsTab;
+#include <QPlainTextEdit>
+#include <QCheckBox>
 
 class ContinuousTab
 : public QWidget, public AbstractTab
@@ -31,17 +31,25 @@ public:
 
   void repaintGlyph() override;
   void reloadFont() override;
+  void syncSettings();
 
-  // Info about current font (glyph count, charmaps...) is flowed to subtab
-  // via `updateCurrentSubTab`.
-  // Settings and parameters (e.g. mode) are flowed from subtab to `this` via
-  // `updateFromCurrentSubTab`.
-  // SubTabs can notify `this` via signals, see `createConnections`
-  void updateCurrentSubTab();
-  void updateFromCurrentSubTab();
+  // -1: Glyph order, otherwise the char map index in the original list
+  int charMapIndex();
+
+  // This doesn't trigger immediate repaint
+  void setGlyphCount(int count);
+  void setDisplayingCount(int count);
+  void setGlyphBeginindex(int index);
+
+  void setCharMaps(std::vector<CharMapInfo>& charMaps);
+  // This doesn't trigger either.
+  void updateLimitIndex();
+  void checkMode();
+  void checkSource();
+  void charMapChanged();
+  void sourceTextChanged();
 
 private slots:
-  void changeTab();
   void wheelNavigate(int steps);
   void wheelResize(int steps);
 
@@ -49,88 +57,45 @@ private:
   Engine* engine_;
 
   int currentGlyphCount_;
-  GlyphContinuous* canvas_;
-  
-  FontSizeSelector* sizeSelector_;
-
-  QTabWidget* tabWidget_;
-  ContinousAllGlyphsTab* allGlyphsTab_;
-
-  enum Tabs
-  {
-    AllGlyphs = 0
-  };
-
-  QVBoxLayout* mainLayout_;
-  
-  void createLayout();
-  void createConnections();
-};
-
-
-class ContinousAllGlyphsTab
-: public QWidget
-{
-  Q_OBJECT
-public:
-  explicit ContinousAllGlyphsTab(QWidget* parent);
-  ~ContinousAllGlyphsTab() override = default;
-
-  int glyphBeginindex();
-  int glyphLimitIndex();
-  GlyphContinuous::SubModeAllGlyphs subMode();
-  double xEmboldening();
-  double yEmboldening();
-  double slanting();
-  double strokeRadius();
-
-  // -1: Glyph order, otherwise the char map index in the original list
-  int charMapIndex();
-  void setGlyphBeginindex(int index);
-
-  // This doesn't trigger immediate repaint
-  void setGlyphCount(int count);
-  void setDisplayingCount(int count);
-
-  void setCharMaps(std::vector<CharMapInfo>& charMaps);
-  // This doesn't trigger either.
-  void updateLimitIndex();
-
-  void checkSubMode();
-
-signals:
-  void changed();
-
-private:
   int lastCharMapIndex_ = 0;
-  int currentGlyphCount_;
   int glyphLimitIndex_ = 0;
 
-  GlyphIndexSelector* indexSelector_;
+  GlyphContinuous* canvas_;
+  FontSizeSelector* sizeSelector_;
+
   QComboBox* modeSelector_;
+  QComboBox* sourceSelector_;
   QComboBox* charMapSelector_;
 
   QLabel* modeLabel_;
+  QLabel* sourceLabel_;
   QLabel* charMapLabel_;
   QLabel* xEmboldeningLabel_;
   QLabel* yEmboldeningLabel_;
   QLabel* slantLabel_;
   QLabel* strokeRadiusLabel_;
+  QLabel* rotationLabel_;
 
   QDoubleSpinBox* xEmboldeningSpinBox_;
   QDoubleSpinBox* yEmboldeningSpinBox_;
   QDoubleSpinBox* slantSpinBox_;
   QDoubleSpinBox* strokeRadiusSpinBox_;
+  QDoubleSpinBox* rotationSpinBox_;
 
-  QGridLayout* layout_;
+  QCheckBox* verticalCheckBox_;
+
+  GlyphIndexSelector* indexSelector_;
+  QPlainTextEdit* sourceTextEdit_;
 
   std::vector<CharMapInfo> charMaps_;
 
+  QGridLayout* bottomLayout_;
+  QVBoxLayout* mainLayout_;
+  
   void createLayout();
   void createConnections();
 
   QString formatIndex(int index);
-  void charMapChanged();
 
   void setDefaults();
 };

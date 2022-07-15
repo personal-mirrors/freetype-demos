@@ -41,21 +41,21 @@ GlyphContinuous::paintEvent(QPaintEvent* event)
   {
     prePaint();
 
-    switch (mode_)
+    switch (source_)
     {
-    case AllGlyphs:
-      switch (modeAG_)
+    case SRC_AllGlyphs:
+      switch (mode_)
       {
-      case AG_AllGlyphs:
-      case AG_Fancy:
-      case AG_Stroked:
+      case M_Normal:
+      case M_Fancy:
+      case M_Stroked:
         paintAG(&painter);
         break;
-      case AG_Waterfall:
+      case M_Waterfall:
         break;
       }
       break;
-    case TextString:
+    case SRC_TextString:
       break;
     }
     emit displayingCountUpdated(displayingCount_);
@@ -79,7 +79,7 @@ GlyphContinuous::wheelEvent(QWheelEvent* event)
 void
 GlyphContinuous::paintAG(QPainter* painter)
 {
-  if (modeAG_ == AG_Stroked)
+  if (mode_ == M_Stroked)
   {
     auto radius = static_cast<FT_Fixed>(metrics_.y_ppem * 64 * strokeRadius_);
     FT_Stroker_Set(stroker_, radius,
@@ -98,12 +98,12 @@ GlyphContinuous::paintAG(QPainter* painter)
       break;
 
     // All Glyphs need no tranformation, and Waterfall isn't handled here.
-    switch (modeAG_)
+    switch (mode_)
     {
-    case AG_Fancy:
+    case M_Fancy:
       transformGlyphAGFancy();
       break;
-    case AG_Stroked:
+    case M_Stroked:
       transformGlyphAGStroked();
       break;
     default:;

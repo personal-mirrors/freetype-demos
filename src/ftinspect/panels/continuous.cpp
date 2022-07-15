@@ -13,6 +13,14 @@ ContinuousTab::ContinuousTab(QWidget* parent,
 : QWidget(parent), engine_(engine)
 {
   createLayout();
+
+  std::vector<CharMapInfo> tempCharMaps;
+  setCharMaps(tempCharMaps); // pass in an empty one
+
+  checkMode();
+  checkSource();
+  setDefaults();
+
   createConnections();
 }
 
@@ -22,7 +30,7 @@ ContinuousTab::repaintGlyph()
 {
   sizeSelector_->applyToEngine(engine_);
   
-  updateFromCurrentSubTab();
+  syncSettings();
   canvas_->repaint();
 }
 
@@ -31,181 +39,35 @@ void
 ContinuousTab::reloadFont()
 {
   currentGlyphCount_ = engine_->currentFontNumberOfGlyphs();
-  updateCurrentSubTab();
+  setGlyphCount(qBound(0, currentGlyphCount_, INT_MAX));
+  setCharMaps(engine_->currentFontCharMaps());
   repaintGlyph();
 }
 
 
 void
-ContinuousTab::changeTab()
+ContinuousTab::syncSettings()
 {
-  updateCurrentSubTab();
-  repaintGlyph();
-}
+  auto mode = static_cast<GlyphContinuous::Mode>(modeSelector_->currentIndex());
+  auto src
+    = static_cast<GlyphContinuous::Source>(sourceSelector_->currentIndex());
+  canvas_->setMode(mode);
+  canvas_->setSource(src);
+  canvas_->setBeginIndex(indexSelector_->currentIndex());
+  canvas_->setLimitIndex(glyphLimitIndex_);
+  canvas_->setCharMapIndex(charMapIndex()); // Not directly from the combo box
 
-
-void
-ContinuousTab::wheelNavigate(int steps)
-{
-  if (tabWidget_->currentIndex() == AllGlyphs)
-    allGlyphsTab_->setGlyphBeginindex(allGlyphsTab_->glyphBeginindex()
-                                      + steps);
-}
-
-
-void
-ContinuousTab::wheelResize(int steps)
-{
-  sizeSelector_->handleWheelResizeBySteps(steps);
-}
-
-
-void
-ContinuousTab::createLayout()
-{
-  canvas_ = new GlyphContinuous(this, engine_);
-  sizeSelector_ = new FontSizeSelector(this);
-  allGlyphsTab_ = new ContinousAllGlyphsTab(this);
-
-  tabWidget_ = new QTabWidget(this);
-  tabWidget_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-  // Must be in sync with `Tabs` enum.
-  tabWidget_->addTab(allGlyphsTab_, tr("All Glyphs"));
-
-  mainLayout_ = new QVBoxLayout;
-  mainLayout_->addWidget(canvas_);
-  mainLayout_->addWidget(sizeSelector_);
-  mainLayout_->addWidget(tabWidget_);
-
-  setLayout(mainLayout_);
-}
-
-
-void
-ContinuousTab::createConnections()
-{
-  connect(tabWidget_, &QTabWidget::currentChanged,
-          this, &ContinuousTab::changeTab);
-
-  connect(allGlyphsTab_, &ContinousAllGlyphsTab::changed, 
-          this, &ContinuousTab::repaintGlyph);
-
-  connect(sizeSelector_, &FontSizeSelector::valueChanged,
-          this, &ContinuousTab::repaintGlyph);
-
-  connect(canvas_, &GlyphContinuous::wheelResize, 
-          this, &ContinuousTab::wheelResize);
-  connect(canvas_, &GlyphContinuous::wheelNavigate, 
-          this, &ContinuousTab::wheelNavigate);
-  connect(canvas_, &GlyphContinuous::displayingCountUpdated, 
-          allGlyphsTab_, &ContinousAllGlyphsTab::setDisplayingCount);
-}
-
-
-void
-ContinuousTab::updateCurrentSubTab()
-{
-  switch (tabWidget_->currentIndex())
-  {
-  case AllGlyphs:
-    allGlyphsTab_->setGlyphCount(qBound(0, 
-                                        currentGlyphCount_,
-                                        INT_MAX));
-    allGlyphsTab_->setCharMaps(engine_->currentFontCharMaps());
-    break;
-  }
-}
-
-
-void
-ContinuousTab::updateFromCurrentSubTab()
-{
-  switch (tabWidget_->currentIndex())
-  {
-  case AllGlyphs:
-    canvas_->setMode(GlyphContinuous::AllGlyphs);
-    canvas_->setSubModeAllGlyphs(allGlyphsTab_->subMode());
-    // Begin index is selected from All Glyphs subtab,
-    // and Limit index is calculated by All Glyphs subtab
-    canvas_->setBeginIndex(allGlyphsTab_->glyphBeginindex());
-    canvas_->setLimitIndex(allGlyphsTab_->glyphLimitIndex());
-    canvas_->setCharMapIndex(allGlyphsTab_->charMapIndex());
-
-    canvas_->setFancyParams(allGlyphsTab_->xEmboldening(),
-                            allGlyphsTab_->yEmboldening(),
-                            allGlyphsTab_->slanting());
-    canvas_->setStrokeRadius(allGlyphsTab_->strokeRadius());
-    break;
-  }
-}
-
-
-ContinousAllGlyphsTab::ContinousAllGlyphsTab(QWidget* parent)
-: QWidget(parent)
-{
-  createLayout();
-
-  std::vector<CharMapInfo> tempCharMaps;
-  setCharMaps(tempCharMaps); // pass in an empty one
-
-  checkSubMode();
-  setDefaults();
-  createConnections();
+  canvas_->setFancyParams(xEmboldeningSpinBox_->value(),
+                          yEmboldeningSpinBox_->value(),
+                          slantSpinBox_->value());
+  canvas_->setStrokeRadius(strokeRadiusSpinBox_->value());
+  canvas_->setRotation(rotationSpinBox_->value());
+  canvas_->setVertical(verticalCheckBox_->isChecked());
 }
 
 
 int
-ContinousAllGlyphsTab::glyphBeginindex()
-{
-  return indexSelector_->currentIndex();
-}
-
-
-int
-ContinousAllGlyphsTab::glyphLimitIndex()
-{
-  return glyphLimitIndex_;
-}
-
-
-GlyphContinuous::SubModeAllGlyphs
-ContinousAllGlyphsTab::subMode()
-{
-  return static_cast<GlyphContinuous::SubModeAllGlyphs>(
-           modeSelector_->currentIndex());
-}
-
-
-double
-ContinousAllGlyphsTab::xEmboldening()
-{
-  return xEmboldeningSpinBox_->value();
-}
-
-
-double
-ContinousAllGlyphsTab::yEmboldening()
-{
-  return yEmboldeningSpinBox_->value();
-}
-
-
-double
-ContinousAllGlyphsTab::slanting()
-{
-  return slantSpinBox_->value();
-}
-
-
-double
-ContinousAllGlyphsTab::strokeRadius()
-{
-  return strokeRadiusSpinBox_->value();
-}
-
-
-int
-ContinousAllGlyphsTab::charMapIndex()
+ContinuousTab::charMapIndex()
 {
   auto index = charMapSelector_->currentIndex() - 1;
   if (index <= -1)
@@ -217,14 +79,7 @@ ContinousAllGlyphsTab::charMapIndex()
 
 
 void
-ContinousAllGlyphsTab::setGlyphBeginindex(int index)
-{
-  indexSelector_->setCurrentIndex(index);
-}
-
-
-void
-ContinousAllGlyphsTab::setGlyphCount(int count)
+ContinuousTab::setGlyphCount(int count)
 {
   currentGlyphCount_ = count;
   updateLimitIndex();
@@ -232,15 +87,22 @@ ContinousAllGlyphsTab::setGlyphCount(int count)
 
 
 void
-ContinousAllGlyphsTab::setDisplayingCount(int count)
+ContinuousTab::setDisplayingCount(int count)
 {
   indexSelector_->setShowingCount(count);
 }
 
 
+void
+ContinuousTab::setGlyphBeginindex(int index)
+{
+  indexSelector_->setCurrentIndex(index);
+}
+
+
 #define EncodingRole (Qt::UserRole + 10)
 void
-ContinousAllGlyphsTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
+ContinuousTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
 {
   charMaps_ = charMaps;
   int oldIndex = charMapSelector_->currentIndex();
@@ -287,7 +149,7 @@ ContinousAllGlyphsTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
 
 
 void
-ContinousAllGlyphsTab::updateLimitIndex()
+ContinuousTab::updateLimitIndex()
 {
   if (charMapSelector_->currentIndex() <= 0)
     glyphLimitIndex_ = currentGlyphCount_;
@@ -299,122 +161,36 @@ ContinousAllGlyphsTab::updateLimitIndex()
 
 
 void
-ContinousAllGlyphsTab::checkSubMode()
+ContinuousTab::checkMode()
 {
-  auto isFancy = subMode() == GlyphContinuous::AG_Fancy;
-  auto isStroked = subMode() == GlyphContinuous::AG_Stroked;
+  auto isFancy = modeSelector_->currentIndex() == GlyphContinuous::M_Fancy;
+  auto isStroked = modeSelector_->currentIndex() == GlyphContinuous::M_Stroked;
   xEmboldeningSpinBox_->setEnabled(isFancy);
   yEmboldeningSpinBox_->setEnabled(isFancy);
   slantSpinBox_->setEnabled(isFancy);
   strokeRadiusSpinBox_->setEnabled(isStroked);
 
-  emit changed();
+  repaintGlyph();
 }
 
 
 void
-ContinousAllGlyphsTab::createLayout()
+ContinuousTab::checkSource()
 {
-  indexSelector_ = new GlyphIndexSelector(this);
-  indexSelector_->setSingleMode(false);
-  indexSelector_->setNumberRenderer([this](int index)
-                                    { return formatIndex(index); });
+  auto src
+      = static_cast<GlyphContinuous::Source>(sourceSelector_->currentIndex());
+  auto isText = src == GlyphContinuous::SRC_TextString
+                || src == GlyphContinuous::SRC_TextStringRepeated;
+  indexSelector_->setEnabled(src == GlyphContinuous::SRC_AllGlyphs);
+  sourceTextEdit_->setEnabled(isText);
+  verticalCheckBox_->setEnabled(isText);
 
-  modeSelector_ = new QComboBox(this);
-  charMapSelector_ = new QComboBox(this);
-
-  // Note: in sync with the enum!!
-  modeSelector_->insertItem(GlyphContinuous::AG_AllGlyphs, tr("All Glyphs"));
-  modeSelector_->insertItem(GlyphContinuous::AG_Fancy, 
-                            tr("Fancy (Embolding & Slanting)"));
-  modeSelector_->insertItem(GlyphContinuous::AG_Stroked, tr("Stroked"));
-  modeSelector_->insertItem(GlyphContinuous::AG_Waterfall, tr("Waterfall"));
-  modeSelector_->setCurrentIndex(GlyphContinuous::AG_AllGlyphs);
-
-  modeLabel_ = new QLabel(tr("Mode:"), this);
-  charMapLabel_ = new QLabel(tr("Char Map:"), this);
-  xEmboldeningLabel_ = new QLabel(tr("Hori. Embolding:"), this);
-  yEmboldeningLabel_ = new QLabel(tr("Vert. Embolding:"), this);
-  slantLabel_ = new QLabel(tr("Slanting:"), this);
-  strokeRadiusLabel_ = new QLabel(tr("Stroke Radius:"), this);
-
-  xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
-  yEmboldeningSpinBox_ = new QDoubleSpinBox(this);
-  slantSpinBox_ = new QDoubleSpinBox(this);
-  strokeRadiusSpinBox_ = new QDoubleSpinBox(this);
-
-  xEmboldeningSpinBox_->setSingleStep(0.005);
-  xEmboldeningSpinBox_->setMinimum(-0.1);
-  xEmboldeningSpinBox_->setMaximum(0.1);
-  yEmboldeningSpinBox_->setSingleStep(0.005);
-  yEmboldeningSpinBox_->setMinimum(-0.1);
-  yEmboldeningSpinBox_->setMaximum(0.1);
-  slantSpinBox_->setSingleStep(0.02);
-  slantSpinBox_->setMinimum(-1);
-  slantSpinBox_->setMaximum(1);
-  strokeRadiusSpinBox_->setSingleStep(0.005);
-  strokeRadiusSpinBox_->setMinimum(0);
-  strokeRadiusSpinBox_->setMaximum(0.05);
-
-  layout_ = new QGridLayout;
-  layout_->addWidget(indexSelector_, 0, 0, 1, 2);
-  layout_->addWidget(modeLabel_, 1, 0);
-  layout_->addWidget(charMapLabel_, 2, 0);
-  layout_->addWidget(modeSelector_, 1, 1);
-  layout_->addWidget(charMapSelector_, 2, 1);
-
-  layout_->addWidget(xEmboldeningLabel_, 1, 2);
-  layout_->addWidget(yEmboldeningLabel_, 2, 2);
-  layout_->addWidget(slantLabel_, 3, 2);
-  layout_->addWidget(strokeRadiusLabel_, 3, 0);
-  layout_->addWidget(xEmboldeningSpinBox_, 1, 3);
-  layout_->addWidget(yEmboldeningSpinBox_, 2, 3);
-  layout_->addWidget(slantSpinBox_, 3, 3);
-  layout_->addWidget(strokeRadiusSpinBox_, 3, 1);
-
-  layout_->setColumnStretch(1, 1);
-  layout_->setColumnStretch(3, 1);
-
-  setLayout(layout_);
-}
-
-void
-ContinousAllGlyphsTab::createConnections()
-{
-  connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
-          this, &ContinousAllGlyphsTab::changed);
-  connect(modeSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &ContinousAllGlyphsTab::checkSubMode);
-  connect(charMapSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &ContinousAllGlyphsTab::charMapChanged);
-
-  connect(xEmboldeningSpinBox_, 
-          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-          this, &ContinousAllGlyphsTab::changed);
-  connect(yEmboldeningSpinBox_, 
-          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-          this, &ContinousAllGlyphsTab::changed);
-  connect(slantSpinBox_, 
-          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-          this, &ContinousAllGlyphsTab::changed);
-  connect(strokeRadiusSpinBox_, 
-          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-          this, &ContinousAllGlyphsTab::changed);
-}
-
-
-QString
-ContinousAllGlyphsTab::formatIndex(int index)
-{
-  if (charMapSelector_->currentIndex() <= 0) // glyph order
-    return QString::number(index);
-  return charMaps_[charMapSelector_->currentIndex() - 1]
-           .stringifyIndexShort(index);
+  repaintGlyph();
 }
 
 
 void
-ContinousAllGlyphsTab::charMapChanged()
+ContinuousTab::charMapChanged()
 {
   int newIndex = charMapSelector_->currentIndex();
   if (newIndex != lastCharMapIndex_)
@@ -429,19 +205,199 @@ ContinousAllGlyphsTab::charMapChanged()
   }
   updateLimitIndex();
 
-  emit changed();
+  repaintGlyph();
 
   lastCharMapIndex_ = newIndex;
 }
 
 
 void
-ContinousAllGlyphsTab::setDefaults()
+ContinuousTab::sourceTextChanged()
+{
+  canvas_->setSourceText(sourceTextEdit_->toPlainText());
+  repaintGlyph();
+}
+
+
+void
+ContinuousTab::wheelNavigate(int steps)
+{
+  if (sourceSelector_->currentIndex() == GlyphContinuous::SRC_AllGlyphs)
+    setGlyphBeginindex(indexSelector_->currentIndex() + steps);
+}
+
+
+void
+ContinuousTab::wheelResize(int steps)
+{
+  sizeSelector_->handleWheelResizeBySteps(steps);
+}
+
+
+void
+ContinuousTab::createLayout()
+{
+  canvas_ = new GlyphContinuous(this, engine_);
+  sizeSelector_ = new FontSizeSelector(this);
+
+  indexSelector_ = new GlyphIndexSelector(this);
+  indexSelector_->setSingleMode(false);
+  indexSelector_->setNumberRenderer([this](int index)
+                                    { return formatIndex(index); });
+  sourceTextEdit_ = new QPlainTextEdit(
+      tr("The quick brown fox jumps over the lazy dog."), this);
+
+  modeSelector_ = new QComboBox(this);
+  charMapSelector_ = new QComboBox(this);
+  sourceSelector_ = new QComboBox(this);
+
+  // Note: in sync with the enum!!
+  modeSelector_->insertItem(GlyphContinuous::M_Normal, tr("Normal"));
+  modeSelector_->insertItem(GlyphContinuous::M_Fancy,
+                            tr("Fancy (Embolding & Slanting)"));
+  modeSelector_->insertItem(GlyphContinuous::M_Stroked, tr("Stroked"));
+  modeSelector_->insertItem(GlyphContinuous::M_Waterfall, tr("Waterfall"));
+  modeSelector_->setCurrentIndex(GlyphContinuous::M_Normal);
+
+  // Note: in sync with the enum!!
+  sourceSelector_->insertItem(GlyphContinuous::SRC_AllGlyphs,
+                              tr("All Glyphs"));
+  sourceSelector_->insertItem(GlyphContinuous::SRC_TextString, 
+                              tr("Text String"));
+  sourceSelector_->insertItem(GlyphContinuous::SRC_TextStringRepeated,
+                              tr("Text String (Repeated)"));
+
+  verticalCheckBox_ = new QCheckBox(tr("Vertical Layout"), this);
+
+  modeLabel_ = new QLabel(tr("Mode:"), this);
+  sourceLabel_ = new QLabel(tr("Text Source:"), this);
+  charMapLabel_ = new QLabel(tr("Char Map:"), this);
+  xEmboldeningLabel_ = new QLabel(tr("Hori. Embolding:"), this);
+  yEmboldeningLabel_ = new QLabel(tr("Vert. Embolding:"), this);
+  slantLabel_ = new QLabel(tr("Slanting:"), this);
+  strokeRadiusLabel_ = new QLabel(tr("Stroke Radius:"), this);
+  rotationLabel_ = new QLabel(tr("Rotation:"), this);
+
+  xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
+  yEmboldeningSpinBox_ = new QDoubleSpinBox(this);
+  slantSpinBox_ = new QDoubleSpinBox(this);
+  strokeRadiusSpinBox_ = new QDoubleSpinBox(this);
+  rotationSpinBox_ = new QDoubleSpinBox(this);
+
+  xEmboldeningSpinBox_->setSingleStep(0.005);
+  xEmboldeningSpinBox_->setMinimum(-0.1);
+  xEmboldeningSpinBox_->setMaximum(0.1);
+  yEmboldeningSpinBox_->setSingleStep(0.005);
+  yEmboldeningSpinBox_->setMinimum(-0.1);
+  yEmboldeningSpinBox_->setMaximum(0.1);
+  slantSpinBox_->setSingleStep(0.02);
+  slantSpinBox_->setMinimum(-1);
+  slantSpinBox_->setMaximum(1);
+  strokeRadiusSpinBox_->setSingleStep(0.005);
+  strokeRadiusSpinBox_->setMinimum(0);
+  strokeRadiusSpinBox_->setMaximum(0.05);
+  rotationSpinBox_->setSingleStep(5);
+  rotationSpinBox_->setMinimum(-180);
+  rotationSpinBox_->setMaximum(180);
+
+  bottomLayout_ = new QGridLayout;
+  bottomLayout_->addWidget(sourceLabel_, 0, 0);
+  bottomLayout_->addWidget(modeLabel_, 1, 0);
+  bottomLayout_->addWidget(charMapLabel_, 2, 0);
+  bottomLayout_->addWidget(sourceSelector_, 0, 1);
+  bottomLayout_->addWidget(modeSelector_, 1, 1);
+  bottomLayout_->addWidget(charMapSelector_, 2, 1);
+
+  bottomLayout_->addWidget(xEmboldeningLabel_, 1, 2);
+  bottomLayout_->addWidget(yEmboldeningLabel_, 2, 2);
+  bottomLayout_->addWidget(slantLabel_, 3, 2);
+  bottomLayout_->addWidget(strokeRadiusLabel_, 3, 0);
+  bottomLayout_->addWidget(rotationLabel_, 0, 2);
+
+  bottomLayout_->addWidget(xEmboldeningSpinBox_, 1, 3);
+  bottomLayout_->addWidget(yEmboldeningSpinBox_, 2, 3);
+  bottomLayout_->addWidget(slantSpinBox_, 3, 3);
+  bottomLayout_->addWidget(strokeRadiusSpinBox_, 3, 1);
+  bottomLayout_->addWidget(rotationSpinBox_, 0, 3);
+
+  bottomLayout_->addWidget(indexSelector_, 0, 4, 1, 1);
+  bottomLayout_->addWidget(sourceTextEdit_, 1, 4, 3, 2);
+  bottomLayout_->addWidget(verticalCheckBox_, 0, 5);
+
+  bottomLayout_->setColumnStretch(4, 1);
+
+  mainLayout_ = new QVBoxLayout;
+  mainLayout_->addWidget(canvas_);
+  mainLayout_->addWidget(sizeSelector_);
+  mainLayout_->addLayout(bottomLayout_);
+
+  setLayout(mainLayout_);
+}
+
+
+void
+ContinuousTab::createConnections()
+{
+  connect(sizeSelector_, &FontSizeSelector::valueChanged,
+          this, &ContinuousTab::repaintGlyph);
+
+  connect(canvas_, &GlyphContinuous::wheelResize, 
+          this, &ContinuousTab::wheelResize);
+  connect(canvas_, &GlyphContinuous::wheelNavigate, 
+          this, &ContinuousTab::wheelNavigate);
+  connect(canvas_, &GlyphContinuous::displayingCountUpdated, 
+          this, &ContinuousTab::setDisplayingCount);
+
+  connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
+          this, &ContinuousTab::repaintGlyph);
+  connect(modeSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this, &ContinuousTab::checkMode);
+  connect(charMapSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this, &ContinuousTab::charMapChanged);
+  connect(sourceSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this, &ContinuousTab::checkSource);
+
+  connect(xEmboldeningSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinuousTab::repaintGlyph);
+  connect(yEmboldeningSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinuousTab::repaintGlyph);
+  connect(slantSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinuousTab::repaintGlyph);
+  connect(strokeRadiusSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinuousTab::repaintGlyph);
+  connect(rotationSpinBox_, 
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &ContinuousTab::repaintGlyph);
+
+  connect(verticalCheckBox_, &QCheckBox::clicked,
+          this, &ContinuousTab::repaintGlyph);
+  connect(sourceTextEdit_, &QPlainTextEdit::textChanged,
+          this, &ContinuousTab::sourceTextChanged);
+}
+
+
+void
+ContinuousTab::setDefaults()
 {
   xEmboldeningSpinBox_->setValue(0.04);
   yEmboldeningSpinBox_->setValue(0.04);
   slantSpinBox_->setValue(0.22);
   strokeRadiusSpinBox_->setValue(0.02);
+  rotationSpinBox_->setValue(0);
+}
+
+
+QString
+ContinuousTab::formatIndex(int index)
+{
+  if (charMapSelector_->currentIndex() <= 0) // glyph order
+    return QString::number(index);
+  return charMaps_[charMapSelector_->currentIndex() - 1].stringifyIndexShort(
+      index);
 }
 
 
