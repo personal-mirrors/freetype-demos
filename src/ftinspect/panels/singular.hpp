@@ -53,6 +53,7 @@ private slots:
   void wheelZoom(QWheelEvent* event);
   void wheelResize(QWheelEvent* event);
   void setGridVisible();
+  void showToolTip();
 
 private:
   int currentGlyphIndex_;
@@ -68,13 +69,13 @@ private:
   GlyphPointNumbers* currentGlyphPointNumbersItem_;
   GlyphBitmap* currentGlyphBitmapItem_;
   Grid* gridItem_ = NULL;
-  QLabel* mouseUsageHint_;
 
   GlyphIndexSelector* indexSelector_;
   FontSizeSelector* sizeSelector_;
   QLabel* zoomLabel_;
   ZoomSpinBox* zoomSpinBox_;
   QPushButton* centerGridButton_;
+  QPushButton* helpButton_;
 
   QLabel* glyphIndexLabel_;
   QLabel* glyphNameLabel_;
@@ -87,6 +88,7 @@ private:
 
   QVBoxLayout* mainLayout_;
   QHBoxLayout* checkBoxesLayout_;
+  QHBoxLayout* indexHelpLayout_;
   QHBoxLayout* sizeLayout_;
   QGridLayout* glyphOverlayLayout_;
   QHBoxLayout* glyphOverlayIndexLayout_;

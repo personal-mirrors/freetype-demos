@@ -5,6 +5,7 @@
 #include "singular.hpp"
 
 #include <QSizePolicy>
+#include <QToolTip>
 #include <QWheelEvent>
 
 
@@ -205,6 +206,18 @@ SingularTab::setGridVisible()
 
 
 void
+SingularTab::showToolTip()
+{
+  QToolTip::showText(helpButton_->pos(),
+                     tr("Scroll: Grid Up/Down\n"
+                        "Alt + Scroll: Grid Left/Right\n"
+                        "Ctrl + Scroll: Adjust Zoom (Relative to cursor)\n"
+                        "Shift + Scroll: Adjust Font Size"),
+                     helpButton_);
+}
+
+
+void
 SingularTab::createLayout()
 {
   glyphScene_ = new QGraphicsScene(this);
@@ -230,22 +243,13 @@ SingularTab::createLayout()
 
   // Don't use QGraphicsTextItem: We want this hint to be anchored at the
   // top-left corner.
-  mouseUsageHint_ = new QLabel(tr(
-                      "Scroll: Grid Up/Down\n"
-                      "Alt + Scroll: Grid Left/Right\n"
-                      "Ctrl + Scroll: Adjust Zoom (Relative to cursor)\n"
-                      "Shift + Scroll: Adjust Font Size"),
-                      glyphView_);
-  auto hintFont = font();
-  hintFont.setPixelSize(24);
-  mouseUsageHint_->setFont(hintFont);
-  mouseUsageHint_->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-  mouseUsageHint_->setStyleSheet("QLabel { color : black; }");
+  auto overlayFont = font();
+  overlayFont.setPixelSize(24);
 
   glyphIndexLabel_ = new QLabel(glyphView_);
   glyphNameLabel_ = new QLabel(glyphView_);
-  glyphIndexLabel_->setFont(hintFont);
-  glyphNameLabel_->setFont(hintFont);
+  glyphIndexLabel_->setFont(overlayFont);
+  glyphNameLabel_->setFont(overlayFont);
   glyphIndexLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   glyphNameLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   glyphIndexLabel_->setAttribute(Qt::WA_TransparentForMouseEvents, true);
@@ -268,12 +272,18 @@ SingularTab::createLayout()
   zoomLabel_->setBuddy(zoomSpinBox_);
 
   centerGridButton_ = new QPushButton("Go Back to Grid Center", this);
+  helpButton_ = new QPushButton("?", this);
+  helpButton_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
   showBitmapCheckBox_ = new QCheckBox(tr("Show Bitmap"), this);
   showPointsCheckBox_ = new QCheckBox(tr("Show Points"), this);
   showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"), this);
   showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"), this);
   showGridCheckBox_ = new QCheckBox(tr("Show Grid"), this);
+
+  indexHelpLayout_ = new QHBoxLayout;
+  indexHelpLayout_->addWidget(indexSelector_, 1);
+  indexHelpLayout_->addWidget(helpButton_);
 
   sizeLayout_ = new QHBoxLayout;
   sizeLayout_->addStretch(2);
@@ -297,15 +307,13 @@ SingularTab::createLayout()
   glyphOverlayIndexLayout_->addWidget(glyphIndexLabel_);
   glyphOverlayIndexLayout_->addWidget(glyphNameLabel_);
   glyphOverlayLayout_ = new QGridLayout;
-  glyphOverlayLayout_->addWidget(mouseUsageHint_, 0, 0,
-                                 Qt::AlignTop | Qt::AlignLeft);
   glyphOverlayLayout_->addLayout(glyphOverlayIndexLayout_, 0, 1,
                                  Qt::AlignTop | Qt::AlignRight);
   glyphView_->setLayout(glyphOverlayLayout_);
 
   mainLayout_ = new QVBoxLayout;
   mainLayout_->addWidget(glyphView_);
-  mainLayout_->addWidget(indexSelector_);
+  mainLayout_->addLayout(indexHelpLayout_);
   mainLayout_->addSpacing(10); // XXX px
   mainLayout_->addLayout(sizeLayout_);
   mainLayout_->addLayout(checkBoxesLayout_);
@@ -336,6 +344,8 @@ SingularTab::createConnections()
 
   connect(centerGridButton_, &QPushButton::clicked,
           this, &SingularTab::backToCenter);
+  connect(helpButton_, &QPushButton::clicked,
+          this, &SingularTab::showToolTip);
 
   connect(showBitmapCheckBox_, &QCheckBox::clicked,
           this, &SingularTab::drawGlyph);
