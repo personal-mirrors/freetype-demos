@@ -36,8 +36,7 @@ public:
   {
     M_Normal,
     M_Fancy,
-    M_Stroked,
-    M_Waterfall
+    M_Stroked
   };
 
   int displayingCount() { return displayingCount_; }
@@ -57,8 +56,8 @@ public:
   void setStrokeRadius(double radius) { strokeRadius_ = radius; }
   void setRotation(double rotation) { rotation_ = rotation; }
   void setVertical(bool vertical) { vertical_ = vertical; }
+  void setWaterfall(bool waterfall) { waterfall_ = waterfall; }
   void setSourceText(QString text) { text_ = std::move(text); }
-
 
 signals:
   void wheelNavigate(int steps);
@@ -82,6 +81,7 @@ private:
   double strokeRadius_;
   double rotation_;
   bool vertical_;
+  bool waterfall_;
   QString text_;
 
   int displayingCount_ = 0;

@@ -51,8 +51,6 @@ GlyphContinuous::paintEvent(QPaintEvent* event)
       case M_Stroked:
         paintAG(&painter);
         break;
-      case M_Waterfall:
-        break;
       }
       break;
     case SRC_TextString:

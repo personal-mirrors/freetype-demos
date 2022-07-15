@@ -83,6 +83,7 @@ private:
   QDoubleSpinBox* rotationSpinBox_;
 
   QCheckBox* verticalCheckBox_;
+  QCheckBox* waterfallCheckBox_;
 
   GlyphIndexSelector* indexSelector_;
   QPlainTextEdit* sourceTextEdit_;

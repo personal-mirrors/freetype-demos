@@ -62,6 +62,7 @@ ContinuousTab::syncSettings()
                           slantSpinBox_->value());
   canvas_->setStrokeRadius(strokeRadiusSpinBox_->value());
   canvas_->setRotation(rotationSpinBox_->value());
+  canvas_->setWaterfall(waterfallCheckBox_->isChecked());
   canvas_->setVertical(verticalCheckBox_->isChecked());
 }
 
@@ -253,10 +254,8 @@ ContinuousTab::createLayout()
 
   // Note: in sync with the enum!!
   modeSelector_->insertItem(GlyphContinuous::M_Normal, tr("Normal"));
-  modeSelector_->insertItem(GlyphContinuous::M_Fancy,
-                            tr("Fancy (Embolding & Slanting)"));
+  modeSelector_->insertItem(GlyphContinuous::M_Fancy, tr("Fancy"));
   modeSelector_->insertItem(GlyphContinuous::M_Stroked, tr("Stroked"));
-  modeSelector_->insertItem(GlyphContinuous::M_Waterfall, tr("Waterfall"));
   modeSelector_->setCurrentIndex(GlyphContinuous::M_Normal);
 
   // Note: in sync with the enum!!
@@ -268,12 +267,13 @@ ContinuousTab::createLayout()
                               tr("Text String (Repeated)"));
 
   verticalCheckBox_ = new QCheckBox(tr("Vertical Layout"), this);
+  waterfallCheckBox_ = new QCheckBox(tr("Waterfall"), this);
 
   modeLabel_ = new QLabel(tr("Mode:"), this);
   sourceLabel_ = new QLabel(tr("Text Source:"), this);
   charMapLabel_ = new QLabel(tr("Char Map:"), this);
-  xEmboldeningLabel_ = new QLabel(tr("Hori. Embolding:"), this);
-  yEmboldeningLabel_ = new QLabel(tr("Vert. Embolding:"), this);
+  xEmboldeningLabel_ = new QLabel(tr("Horz. Emb.:"), this);
+  yEmboldeningLabel_ = new QLabel(tr("Vert. Emb.:"), this);
   slantLabel_ = new QLabel(tr("Slanting:"), this);
   strokeRadiusLabel_ = new QLabel(tr("Stroke Radius:"), this);
   rotationLabel_ = new QLabel(tr("Rotation:"), this);
@@ -321,8 +321,9 @@ ContinuousTab::createLayout()
   bottomLayout_->addWidget(rotationSpinBox_, 0, 3);
 
   bottomLayout_->addWidget(indexSelector_, 0, 4, 1, 1);
-  bottomLayout_->addWidget(sourceTextEdit_, 1, 4, 3, 2);
-  bottomLayout_->addWidget(verticalCheckBox_, 0, 5);
+  bottomLayout_->addWidget(sourceTextEdit_, 1, 4, 3, 3);
+  bottomLayout_->addWidget(waterfallCheckBox_, 0, 5);
+  bottomLayout_->addWidget(verticalCheckBox_, 0, 6);
 
   bottomLayout_->setColumnStretch(4, 1);
 
@@ -373,6 +374,8 @@ ContinuousTab::createConnections()
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinuousTab::repaintGlyph);
 
+  connect(waterfallCheckBox_, &QCheckBox::clicked,
+          this, &ContinuousTab::repaintGlyph);
   connect(verticalCheckBox_, &QCheckBox::clicked,
           this, &ContinuousTab::repaintGlyph);
   connect(sourceTextEdit_, &QPlainTextEdit::textChanged,
