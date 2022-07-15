@@ -70,7 +70,6 @@ protected:
 
 private:
   Engine* engine_;
-  GraphicsDefault* graphicsDefault_;
 
   Source source_ = SRC_AllGlyphs;
   Mode mode_ = M_Normal;
@@ -88,23 +87,35 @@ private:
   FT_Size_Metrics metrics_;
   int x_ = 0, y_ = 0;
   int stepY_ = 0;
+
+  // Pay especially attention to life cycles & ownerships of those objects:
+  // Note that outline and bitmap can be either invalid, owned by glyph or
+  // owned by `this`.
+  // If owned by `this`, then it's safe to do manipulation, and need to cleanup
+  // If owned by glyph, then must clone to do manipulation, and no cleanup
+  // In `loadGraph`, these 3 values will all be updated.
+  // Note that `glyph_` is a pointer, while `outline_` and `bitmap_` are structs
   FT_Glyph glyph_;
-  FT_Outline outline_;
+  FT_Outline outline_; // Using outline_->points == NULL to determine validity
+  FT_Bitmap bitmap_; // Using bitmap_->buffer == NULL to determine validity
   // when glyph is cloned, outline is factually also cloned
-  // but `isOutlineCloned` won't be set!
-  bool isGlyphCloned_ = false, isOutlineCloned_ = false;
+  // never manually clone your outline or you can't easily render it!
+  bool isGlyphCloned_ = false;
+  bool isBitmapCloned_ = false;
 
   FT_Stroker stroker_;
 
   void paintAG(QPainter* painter);
-  void transformGlyphAGFancy();
-  void transformGlyphAGStroked();
+  void transformGlyphFancy();
+  void transformGlyphStroked();
   void prePaint();
   // return if there's enough space to paint the current char
   bool paintChar(QPainter* painter);
   bool loadGlyph(int index);
+
   void cloneGlyph();
-  void cloneOutline();
+  void cloneBitmap();
+  void refreshOutlineOrBitmapFromGlyph();
   void cleanCloned();
 
   bool checkFitX(int x);

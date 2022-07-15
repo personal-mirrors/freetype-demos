@@ -18,7 +18,7 @@ GlyphBitmap::GlyphBitmap(FT_Glyph glyph,
                          Engine* engine)
 {
   QRect bRect;
-  image_ = engine->convertBitmapToQImage(glyph, &bRect);
+  image_ = engine->convertGlyphToQImage(glyph, &bRect);
   boundingRect_ = bRect; // QRectF to QRect
 }
 

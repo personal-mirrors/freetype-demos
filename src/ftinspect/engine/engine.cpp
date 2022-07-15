@@ -453,7 +453,7 @@ Engine::loadGlyphWithoutUpdate(int glyphIndex)
 
 
 bool
-Engine::glyphToBitmap(FT_Glyph src,
+Engine::convertGlyphToBitmapGlyph(FT_Glyph src,
                       FT_Glyph* out)
 {
   if (src->format == FT_GLYPH_FORMAT_BITMAP)
@@ -739,16 +739,11 @@ convertLCDVToARGB(FT_Bitmap& bitmap,
 
 
 QImage*
-Engine::convertBitmapToQImage(FT_Glyph src,
-                              QRect* outRect)
+Engine::convertBitmapToQImage(FT_Bitmap* src)
 {
   QImage* result = NULL;
-  FT_BitmapGlyph bitmapGlyph;
-  bool ownBitmapGlyph
-    = glyphToBitmap(src, reinterpret_cast<FT_Glyph*>(&bitmapGlyph));
-  if (!bitmapGlyph)
-    return result;
-  auto& bmap = bitmapGlyph->bitmap;
+  
+  auto& bmap = *src;
   bool ownBitmap = false;
 
   int width = bmap.width;
@@ -768,14 +763,6 @@ Engine::convertBitmapToQImage(FT_Glyph src,
     width /= 3;
   else if (bmap.pixel_mode == FT_PIXEL_MODE_LCD_V)
     height /= 3;
-
-  if (outRect)
-  {
-    outRect->setLeft(bitmapGlyph->left);
-    outRect->setTop(-bitmapGlyph->top);
-    outRect->setWidth(width);
-    outRect->setHeight(height);
-  }
 
   switch (bmap.pixel_mode)
   {
@@ -827,12 +814,61 @@ Engine::convertBitmapToQImage(FT_Glyph src,
   }
 
 cleanup:
-  if (ownBitmapGlyph)
-    FT_Done_Glyph(reinterpret_cast<FT_Glyph>(bitmapGlyph));
   if (ownBitmap)
     FT_Bitmap_Done(library_, &bmap);
 
   return result;
+}
+
+
+QImage*
+Engine::convertGlyphToQImage(FT_Glyph src, QRect* outRect)
+{
+  FT_BitmapGlyph bitmapGlyph;
+  bool ownBitmapGlyph
+    = convertGlyphToBitmapGlyph(src, reinterpret_cast<FT_Glyph*>(&bitmapGlyph));
+  if (!bitmapGlyph)
+    return NULL;
+
+  auto result = convertBitmapToQImage(&bitmapGlyph->bitmap);
+
+  if (result && outRect)
+  {
+    outRect->setLeft(bitmapGlyph->left);
+    outRect->setTop(-bitmapGlyph->top);
+    outRect->setWidth(bitmapGlyph->bitmap.width);
+    outRect->setHeight(bitmapGlyph->bitmap.rows);
+  }
+
+  if (ownBitmapGlyph)
+    FT_Done_Glyph(reinterpret_cast<FT_Glyph>(bitmapGlyph));
+
+  return result;
+}
+
+
+QPoint
+Engine::computeGlyphOffset(FT_Glyph glyph)
+{
+  if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
+  {
+    FT_BBox cbox;
+    FT_Outline_Get_CBox(&reinterpret_cast<FT_OutlineGlyph>(glyph)->outline, 
+                        &cbox);
+    cbox.xMin &= ~63;
+    cbox.yMin &= ~63;
+    cbox.xMax = (cbox.xMax + 63) & ~63;
+    cbox.yMax = (cbox.yMax + 63) & ~63;
+    return { static_cast<int>(cbox.xMin) / 64,
+               static_cast<int>(-cbox.yMax / 64) };
+  }
+  if (glyph->format == FT_GLYPH_FORMAT_BITMAP)
+  {
+    auto bg = reinterpret_cast<FT_BitmapGlyph>(glyph);
+    return { bg->left, -bg->top };
+  }
+
+  return {};
 }
 
 

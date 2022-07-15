@@ -11,13 +11,14 @@
 #include <QPainter>
 #include <QWheelEvent>
 
+#include <freetype/ftbitmap.h>
+
 
 GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
 : QWidget(parent), engine_(engine)
 {
   setAcceptDrops(false);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  graphicsDefault_ = GraphicsDefault::deafultInstance();
 
   FT_Stroker_New(engine_->ftLibrary(), &stroker_);
 }
@@ -99,10 +100,10 @@ GlyphContinuous::paintAG(QPainter* painter)
     switch (mode_)
     {
     case M_Fancy:
-      transformGlyphAGFancy();
+      transformGlyphFancy();
       break;
     case M_Stroked:
-      transformGlyphAGStroked();
+      transformGlyphStroked();
       break;
     default:;
     }
@@ -118,7 +119,7 @@ GlyphContinuous::paintAG(QPainter* painter)
 
 
 void
-GlyphContinuous::transformGlyphAGFancy()
+GlyphContinuous::transformGlyphFancy()
 {
   // adopted from ftview.c:289
   /***************************************************************/
@@ -146,41 +147,52 @@ GlyphContinuous::transformGlyphAGFancy()
   xstr = (FT_Pos)(metrics_.y_ppem * 64 * boldX_);
   ystr = (FT_Pos)(metrics_.y_ppem * 64 * boldY_);
 
-  if (!isGlyphCloned_)
-    cloneGlyph();
+  if (glyph_->format == FT_GLYPH_FORMAT_OUTLINE)
+  {
+    if (!isGlyphCloned_)
+      cloneGlyph();
+    FT_Outline_Transform(&outline_, &shear);
+    if (FT_Outline_EmboldenXY(&outline_, xstr, ystr))
+    {
+      // XXX error handling?
+      return;
+    }
 
-  if (glyph_->format != FT_GLYPH_FORMAT_OUTLINE)
-    return; // TODO suuport non-outline: code below all depend on `outline_`!
+    if (glyph_->advance.x)
+      glyph_->advance.x += xstr;
 
-  FT_Outline_Transform(&outline_, &shear);
-  FT_Outline_EmboldenXY(&outline_, xstr, ystr);
+    if (glyph_->advance.y)
+      glyph_->advance.y += ystr;
+  }
+  else if (glyph_->format == FT_GLYPH_FORMAT_BITMAP)
+  {
+    if (!isBitmapCloned_)
+      cloneBitmap();
+    xstr &= ~63;
+    ystr &= ~63;
 
-  if (glyph_->advance.x)
-    glyph_->advance.x += xstr;
-
-  if (glyph_->advance.y)
-    glyph_->advance.y += ystr;
-  
-  //glyph_->metrics.width += xstr;
-  //glyph_->metrics.height += ystr;
-  //glyph_->metrics.horiAdvance += xstr;
-  //glyph_->metrics.vertAdvance += ystr;
+    // No shearing support for bitmap
+    FT_Bitmap_Embolden(engine_->ftLibrary(), &bitmap_, 
+                       xstr, ystr);
+  }
+  else
+    return; // XXX no support for SVG
 }
 
 
 void
-GlyphContinuous::transformGlyphAGStroked()
+GlyphContinuous::transformGlyphStroked()
 {
-  //if (!isGlyphCloned_)
-    //cloneGlyph();
-  // Well, now here only outline glyph is supported.
+  // Well, here only outline glyph is supported.
   if (glyph_->format != FT_GLYPH_FORMAT_OUTLINE)
     return;
+  auto oldGlyph = glyph_;
   auto error = FT_Glyph_Stroke(&glyph_, stroker_, 0);
   if (!error)
   {
+    if (isGlyphCloned_)
+      FT_Done_Glyph(oldGlyph);
     isGlyphCloned_ = true;
-    isOutlineCloned_ = false;
     outline_ = reinterpret_cast<FT_OutlineGlyph>(glyph_)->outline;
   }
 }
@@ -228,61 +240,19 @@ GlyphContinuous::paintChar(QPainter* painter)
   // XXX: this is different from what's being done in
   // `ftcommon.c`:FTDemo_Draw_Slot: is this correct??
 
-  // First translate the outline
-
-  if (glyph_->format != FT_GLYPH_FORMAT_OUTLINE)
-    return true; // XXX only outline is supported - need to impl others later
-
-  FT_BBox cbox;
-  // Don't forget to free this when returning
-  if (!isOutlineCloned_ && !isGlyphCloned_)
-    cloneOutline();
+  QImage* image;
   
-  transformOutlineToOrigin(&outline_, &cbox);
-  
-  auto outlineWidth = (cbox.xMax - cbox.xMin) / 64;
-  auto outlineHeight = (cbox.yMax - cbox.yMin) / 64;
-
-  // Then convert to bitmap
-  FT_Bitmap bitmap;
-  QImage::Format format = QImage::Format_Indexed8;
-  auto aaEnabled = engine_->antiAliasingEnabled();
-
-  // TODO cover LCD and color
-  if (!aaEnabled)
-    format = QImage::Format_Mono;
-
-  // TODO optimization: reuse QImage?
-  QImage image(QSize(outlineWidth, outlineHeight), format);
-
-  if (!aaEnabled)
-    image.setColorTable(graphicsDefault_->monoColorTable);
+  if (bitmap_.buffer) // Always prefer `bitmap_` since it can be manipulated
+    image = engine_->convertBitmapToQImage(&bitmap_);
   else
-    image.setColorTable(graphicsDefault_->grayColorTable);
+    image = engine_->convertGlyphToQImage(glyph_, NULL);
+  auto offset = engine_->computeGlyphOffset(glyph_);
 
-  image.fill(0);
-
-  bitmap.rows = static_cast<unsigned int>(outlineHeight);
-  bitmap.width = static_cast<unsigned int>(outlineWidth);
-  bitmap.buffer = image.bits();
-  bitmap.pitch = image.bytesPerLine();
-  bitmap.pixel_mode = aaEnabled ? FT_PIXEL_MODE_GRAY : FT_PIXEL_MODE_MONO;
-
-  FT_Error error = FT_Outline_Get_Bitmap(engine_->ftLibrary(),
-                                         &outline_,
-                                         &bitmap);
-  if (error)
-  {
-    // XXX error handling
-    return true;
-  }
-
-  painter->drawImage(
-      QPoint(x_ + cbox.xMin / 64, y_ + (-cbox.yMax / 64)),
-      image.convertToFormat(QImage::Format_ARGB32_Premultiplied));
+  painter->drawImage(offset + QPoint(x_, y_),
+                     *image);
+  delete image;
 
   x_ += width;
-  
   return true;
 }
 
@@ -290,15 +260,13 @@ GlyphContinuous::paintChar(QPainter* painter)
 bool
 GlyphContinuous::loadGlyph(int index)
 {
+  if (isGlyphCloned_)
+    FT_Done_Glyph(glyph_);
   glyph_ = engine_->loadGlyphWithoutUpdate(index);
   isGlyphCloned_ = false;
   if (!glyph_)
     return false;
-  if (glyph_->format == FT_GLYPH_FORMAT_OUTLINE)
-  {
-    isOutlineCloned_ = false;
-    outline_ = reinterpret_cast<FT_OutlineGlyph>(glyph_)->outline;
-  }
+  refreshOutlineOrBitmapFromGlyph();
   return true;
 }
 
@@ -306,16 +274,57 @@ GlyphContinuous::loadGlyph(int index)
 void
 GlyphContinuous::cloneGlyph()
 {
+  if (isGlyphCloned_)
+    return;
   glyph_ = ::cloneGlyph(glyph_);
+  refreshOutlineOrBitmapFromGlyph();
   isGlyphCloned_ = true;
 }
 
 
 void
-GlyphContinuous::cloneOutline()
+GlyphContinuous::cloneBitmap()
 {
-  outline_ = ::cloneOutline(engine_->ftLibrary(), &outline_);
-  isOutlineCloned_ = true;
+  if (isBitmapCloned_)
+    return;
+  bitmap_ = ::cloneBitmap(engine_->ftLibrary(), &bitmap_);
+  isBitmapCloned_ = true;
+}
+
+
+void
+GlyphContinuous::refreshOutlineOrBitmapFromGlyph()
+{
+  if (glyph_->format == FT_GLYPH_FORMAT_OUTLINE)
+  {
+    outline_ = reinterpret_cast<FT_OutlineGlyph>(glyph_)->outline;
+
+    // Make `bitmap_` invalid
+    if (isBitmapCloned_)
+      FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
+    isBitmapCloned_ = false;
+    bitmap_.buffer = NULL;
+  }
+  else if (glyph_->format == FT_GLYPH_FORMAT_BITMAP)
+  {
+    // Initialize `bitmap_`
+    if (isBitmapCloned_)
+      FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
+    isBitmapCloned_ = false;
+    bitmap_ = reinterpret_cast<FT_BitmapGlyph>(glyph_)->bitmap;
+
+    outline_.points = NULL;
+  }
+  else
+  {
+    // Both invalid.
+    outline_.points = NULL;
+
+    if (isBitmapCloned_)
+      FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
+    isBitmapCloned_ = false;
+    bitmap_.buffer = NULL;
+  }
 }
 
 
@@ -324,13 +333,17 @@ GlyphContinuous::cleanCloned()
 {
   if (isGlyphCloned_)
   {
+    if (glyph_->format == FT_GLYPH_FORMAT_BITMAP && !isBitmapCloned_)
+      bitmap_.buffer = NULL;
+
     FT_Done_Glyph(glyph_);
     isGlyphCloned_ = false;
   }
-  if (isOutlineCloned_)
+  if (isBitmapCloned_)
   {
-    FT_Outline_Done(engine_->ftLibrary(), &outline_);
-    isOutlineCloned_ = false;
+    FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
+    bitmap_.buffer = NULL;
+    isBitmapCloned_ = false;
   }
 }
 

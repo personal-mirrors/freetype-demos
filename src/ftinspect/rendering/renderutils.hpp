@@ -5,11 +5,13 @@
 #pragma once
 
 #include <freetype/ftglyph.h>
+#include <freetype/ftbitmap.h>
 #include <freetype/ftoutln.h>
 
 // The constructed `outline` must be freed by the caller
 FT_Outline cloneOutline(FT_Library library, FT_Outline* src);
 FT_Glyph cloneGlyph(FT_Glyph src);
+FT_Bitmap cloneBitmap(FT_Library library, FT_Bitmap* src);
 
 void transformOutlineToOrigin(FT_Outline* outline,
                               FT_BBox* outControlBox);

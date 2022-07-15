@@ -25,6 +25,19 @@ cloneGlyph(FT_Glyph src)
 }
 
 
+FT_Bitmap
+cloneBitmap(FT_Library library,
+            FT_Bitmap* src)
+{
+  FT_Bitmap target = *src;
+  target.buffer = NULL;
+  target.palette = NULL;
+  FT_Bitmap_Init(&target);
+  FT_Bitmap_Copy(library, src, &target);
+  return target;
+}
+
+
 void
 transformOutlineToOrigin(FT_Outline* outline,
                          FT_BBox* outControlBox)

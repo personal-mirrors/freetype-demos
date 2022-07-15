@@ -105,9 +105,11 @@ public:
 
   // Return `true` if you need to free `out`
   // `out` will be set to NULL in cases of error
-  bool glyphToBitmap(FT_Glyph src, FT_Glyph* out);
+  bool convertGlyphToBitmapGlyph(FT_Glyph src, FT_Glyph* out);
   FT_Bitmap convertBitmapTo8Bpp(FT_Bitmap* bitmap);
-  QImage* convertBitmapToQImage(FT_Glyph src, QRect* outRect);
+  QImage* convertBitmapToQImage(FT_Bitmap* src);
+  QImage* convertGlyphToQImage(FT_Glyph src, QRect* outRect);
+  QPoint computeGlyphOffset(FT_Glyph glyph);
 
   // reload current triplet, but with updated settings, useful for updating
   // `ftSize_` only
