@@ -22,6 +22,7 @@ if qt5_dep.found()
   sources = files([
     'engine/engine.cpp',
     'engine/fontfilemanager.cpp',
+    'engine/charmap.cpp',
 
     'rendering/glyphbitmap.cpp',
     'rendering/glyphoutline.cpp',

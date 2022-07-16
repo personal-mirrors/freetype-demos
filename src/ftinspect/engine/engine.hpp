@@ -6,6 +6,7 @@
 #pragma once
 
 #include "fontfilemanager.hpp"
+#include "charmap.hpp"
 
 #include <vector>
 #include <QString>
@@ -37,29 +38,6 @@ struct FaceID
          long faceIndex,
          int namedInstanceIndex);
   bool operator<(const FaceID& other) const;
-};
-
-class Engine;
-
-#define FT_ENCODING_OTHER 0xFFFE
-struct CharMapInfo
-{
-  int index;
-  FT_CharMap ptr;
-  FT_Encoding encoding;
-  QString* encodingName;
-
-  // Actually this shouldn't go here, but for convenience...
-  int maxIndex;
-
-  CharMapInfo(int index, FT_CharMap cmap);
-
-  QString stringifyIndex(int code, int index);
-  QString stringifyIndexShort(int code);
-
-private:
-  int computeMaxIndex();
-  static int maxIndexForFaceAndCharMap(FT_CharMap charMap, unsigned max);
 };
 
 // Some helper functions.
