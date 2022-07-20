@@ -247,6 +247,17 @@ Engine::numberOfNamedInstances(int fontIndex,
 
 
 int
+Engine::currentFontFirstUnicodeCharMap()
+{
+  auto& charmaps = currentFontCharMaps();
+  for (auto& cmap : charmaps)
+    if (cmap.encoding == FT_ENCODING_UNICODE)
+      return cmap.index;
+  return -1;
+}
+
+
+int
 Engine::loadFont(int fontIndex,
                  long faceIndex,
                  int namedInstanceIndex)
@@ -363,7 +374,7 @@ Engine::removeFont(int fontIndex, bool closeFile)
 unsigned
 Engine::glyphIndexFromCharCode(int code, int charMapIndex)
 {
-  if (charMapIndex == -1)
+  if (charMapIndex < 0)
     return code;
   return FTC_CMapCache_Lookup(cmapCache_, scaler_.face_id, charMapIndex, code);
 }
@@ -373,6 +384,42 @@ FT_Size_Metrics const&
 Engine::currentFontMetrics()
 {
   return ftSize_->metrics;
+}
+
+
+FT_GlyphSlot
+Engine::currentFaceSlot()
+{
+  return ftSize_->face->glyph;
+}
+
+
+FT_Pos
+Engine::currentFontTrackingKerning(int degree)
+{
+  FT_Pos result;
+  // this function needs and returns points, not pixels
+  if (!FT_Get_Track_Kerning(ftSize_->face,
+                            static_cast<FT_Fixed>(scaler_.width) << 10, 
+                            -degree,
+                            &result))
+  {
+    result = static_cast<FT_Pos>((result / 1024.0 * scaler_.x_res) / 72.0);
+    return result;
+  }
+  return 0;
+}
+
+
+FT_Vector
+Engine::currentFontKerning(int glyphIndex,
+                           int prevIndex)
+{
+  FT_Vector kern = {0, 0};
+  FT_Get_Kerning(ftSize_->face, 
+                 prevIndex, glyphIndex, 
+                 FT_KERNING_UNFITTED, &kern);
+  return kern;
 }
 
 
@@ -434,20 +481,33 @@ Engine::loadGlyph(int glyphIndex)
 }
 
 
+int
+Engine::loadGlyphIntoSlotWithoutCache(int glyphIndex)
+{
+  return FT_Load_Glyph(ftSize_->face, glyphIndex, loadFlags_);
+}
+
+
 FT_Glyph
-Engine::loadGlyphWithoutUpdate(int glyphIndex)
+Engine::loadGlyphWithoutUpdate(int glyphIndex, 
+                               FTC_Node* outNode,
+                               bool forceRender)
 {
   FT_Glyph glyph;
+  auto oldFlags = imageType_.flags;
+  if (forceRender)
+    imageType_.flags |= FT_LOAD_RENDER;
   if (FTC_ImageCache_Lookup(imageCache_,
                             &imageType_,
                             glyphIndex,
                             &glyph,
-                            NULL))
+                            outNode))
   {
     // XXX error handling?
     return NULL;
   }
 
+  imageType_.flags = oldFlags;
   return glyph;
 }
 
@@ -835,7 +895,7 @@ Engine::convertGlyphToQImage(FT_Glyph src, QRect* outRect)
   if (result && outRect)
   {
     outRect->setLeft(bitmapGlyph->left);
-    outRect->setTop(-bitmapGlyph->top);
+    outRect->setTop(bitmapGlyph->top);
     outRect->setWidth(bitmapGlyph->bitmap.width);
     outRect->setHeight(bitmapGlyph->bitmap.rows);
   }
@@ -860,7 +920,7 @@ Engine::computeGlyphOffset(FT_Glyph glyph)
     cbox.xMax = (cbox.xMax + 63) & ~63;
     cbox.yMax = (cbox.yMax + 63) & ~63;
     return { static_cast<int>(cbox.xMin) / 64,
-               static_cast<int>(-cbox.yMax / 64) };
+               static_cast<int>(cbox.yMax / 64) };
   }
   if (glyph->format == FT_GLYPH_FORMAT_BITMAP)
   {

@@ -241,6 +241,10 @@ AntiAliasingComboBoxModel::AntiAliasingComboBoxModel(QObject* parent)
     {FT_LOAD_TARGET_LIGHT, FT_RENDER_MODE_LIGHT, false},
     "Light"
   };
+  items_[AntiAliasing_Light_SubPixel] = {
+    {FT_LOAD_TARGET_LIGHT, FT_RENDER_MODE_LIGHT, false},
+    "Light (Sub Pixel)"
+  };
   items_[AntiAliasing_LCD] = {
     {FT_LOAD_TARGET_LCD, FT_RENDER_MODE_LCD, false},
     "LCD (RGB)"

@@ -191,6 +191,9 @@ SettingPanel::syncSettings()
 
   engine_->setEmbeddedBitmap(embeddedBitmapCheckBox_->isChecked());
   engine_->setLCDUsesBGR(aaSettings.isBGR);
+  engine_->setLCDSubPixelPositioning(
+    antiAliasingComboBox_->currentIndex()
+    == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
 }
 
 
@@ -226,7 +229,7 @@ SettingPanel::createConnections()
   connect(autoHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkAutoHinting);
   connect(embeddedBitmapCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
+          this, &SettingPanel::fontReloadNeeded);
 }
 
 

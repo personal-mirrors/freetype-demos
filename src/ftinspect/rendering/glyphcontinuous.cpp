@@ -5,9 +5,7 @@
 #include "glyphcontinuous.hpp"
 
 #include "../engine/engine.hpp"
-#include "../rendering/renderutils.hpp"
 
-#include <cmath>
 #include <QPainter>
 #include <QWheelEvent>
 
@@ -15,7 +13,9 @@
 
 
 GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
-: QWidget(parent), engine_(engine)
+: QWidget(parent),
+  engine_(engine),
+  stringRenderer_(engine)
 {
   setAcceptDrops(false);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -26,8 +26,33 @@ GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
 
 GlyphContinuous::~GlyphContinuous()
 {
-  cleanCloned();
   FT_Stroker_Done(stroker_);
+}
+
+
+void
+GlyphContinuous::setSource(Source source)
+{
+  source_ = source;
+  switch (source)
+  {
+  case SRC_AllGlyphs:
+    stringRenderer_.setUseAllGlyphs();
+    break;
+
+  case SRC_TextStringRepeated:
+  case SRC_TextString:
+    updateRendererText();
+    break;
+  }
+}
+
+
+void
+GlyphContinuous::setSourceText(QString text)
+{
+  text_ = std::move(text);
+  updateRendererText();
 }
 
 
@@ -38,27 +63,10 @@ GlyphContinuous::paintEvent(QPaintEvent* event)
   painter.begin(this);
   painter.fillRect(rect(), Qt::white);
 
-  if (limitIndex_ > 0)
-  {
-    prePaint();
+  prePaint();
 
-    switch (source_)
-    {
-    case SRC_AllGlyphs:
-      switch (mode_)
-      {
-      case M_Normal:
-      case M_Fancy:
-      case M_Stroked:
-        paintAG(&painter);
-        break;
-      }
-      break;
-    case SRC_TextString:
-      break;
-    }
-    emit displayingCountUpdated(displayingCount_);
-  }
+  paintByRenderer(&painter);
+  emit displayingCountUpdated(displayingCount_);
 
   painter.end();
 }
@@ -76,7 +84,7 @@ GlyphContinuous::wheelEvent(QWheelEvent* event)
 
 
 void
-GlyphContinuous::paintAG(QPainter* painter)
+GlyphContinuous::paintByRenderer(QPainter* painter)
 {
   if (mode_ == M_Stroked)
   {
@@ -87,40 +95,82 @@ GlyphContinuous::paintAG(QPainter* painter)
                    0);
   }
 
-  for (int i = beginIndex_; i < limitIndex_; i++)
-  {
-    unsigned index = i;
-    if (charMapIndex_ >= 0)
-      index = engine_->glyphIndexFromCharCode(i, charMapIndex_);
-
-    if (!loadGlyph(index))
-      break;
-
-    // All Glyphs need no tranformation, and Waterfall isn't handled here.
-    switch (mode_)
+  stringRenderer_.setRepeated(source_ == SRC_TextStringRepeated);
+  stringRenderer_.setCallback(
+    [&](FT_Glyph glyph)
     {
-    case M_Fancy:
-      transformGlyphFancy();
-      break;
-    case M_Stroked:
-      transformGlyphStroked();
-      break;
-    default:;
-    }
-
-    if (!paintChar(painter))
-      break;
-    cleanCloned();
-
-    displayingCount_++;
-  }
-  cleanCloned();
+      drawSingleGlyph(painter, glyph);
+    });
+  stringRenderer_.setPreprocessCallback(
+    [&](FT_Glyph* ptr)
+    {
+      preprocessGlyph(ptr);
+    });
+  displayingCount_ = stringRenderer_.render(width(), height(), beginIndex_);
 }
 
 
 void
-GlyphContinuous::transformGlyphFancy()
+GlyphContinuous::transformGlyphFancy(FT_Glyph glyph)
 {
+  // adopted from ftview.c:289
+  if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
+  {
+    auto outline = reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
+    FT_Glyph_Transform(glyph, &shearMatrix_, NULL);
+    if (FT_Outline_EmboldenXY(&outline, emboldeningX_, emboldeningY_))
+    {
+      // XXX error handling?
+      return;
+    }
+
+    if (glyph->advance.x)
+      glyph->advance.x += emboldeningX_;
+
+    if (glyph->advance.y)
+      glyph->advance.y += emboldeningY_;
+  }
+  else if (glyph->format == FT_GLYPH_FORMAT_BITMAP)
+  {
+    auto xstr = emboldeningX_ & ~63;
+    auto ystr = emboldeningY_ & ~63;
+
+    auto bitmap = &reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
+    // No shearing support for bitmap
+    FT_Bitmap_Embolden(engine_->ftLibrary(), bitmap, 
+                       xstr, ystr);
+  }
+  else
+    return; // XXX no support for SVG
+}
+
+
+FT_Glyph
+GlyphContinuous::transformGlyphStroked(FT_Glyph glyph)
+{
+  // Well, here only outline glyph is supported.
+  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+    return NULL;
+  auto error = FT_Glyph_Stroke(&glyph, stroker_, 0);
+  if (error)
+    return NULL;
+  return glyph;
+}
+
+
+void
+GlyphContinuous::prePaint()
+{
+  displayingCount_ = 0;
+  engine_->reloadFont();
+  if (engine_->currentFontNumberOfGlyphs() > 0)
+    metrics_ = engine_->currentFontMetrics();
+  x_ = 0;
+  // See ftview.c:42
+  y_ = ((metrics_.ascender - metrics_.descender + 63) >> 6) + 4;
+  stepY_ = ((metrics_.height + 63) >> 6) + 4;
+
+  // Used by fancy:
   // adopted from ftview.c:289
   /***************************************************************/
   /*                                                             */
@@ -135,230 +185,69 @@ GlyphContinuous::transformGlyphFancy()
   /*        outline'     shear    outline                        */
   /*                                                             */
   /***************************************************************/
+  
 
-  FT_Matrix shear;
-  FT_Pos xstr, ystr;
+  shearMatrix_.xx = 1 << 16;
+  shearMatrix_.xy = static_cast<FT_Fixed>(slant_ * (1 << 16));
+  shearMatrix_.yx = 0;
+  shearMatrix_.yy = 1 << 16;
 
-  shear.xx = 1 << 16;
-  shear.xy = static_cast<FT_Fixed>(slant_ * (1 << 16));
-  shear.yx = 0;
-  shear.yy = 1 << 16;
+  emboldeningX_ = (FT_Pos)(metrics_.y_ppem * 64 * boldX_);
+  emboldeningY_ = (FT_Pos)(metrics_.y_ppem * 64 * boldY_);
+}
 
-  xstr = (FT_Pos)(metrics_.y_ppem * 64 * boldX_);
-  ystr = (FT_Pos)(metrics_.y_ppem * 64 * boldY_);
 
-  if (glyph_->format == FT_GLYPH_FORMAT_OUTLINE)
+void
+GlyphContinuous::updateRendererText()
+{
+  stringRenderer_.setUseString(text_); // TODO this need to be called when font,
+                                       // size or charmap change
+}
+
+
+void
+GlyphContinuous::preprocessGlyph(FT_Glyph* glyphPtr)
+{
+  auto glyph = *glyphPtr;
+  switch (mode_)
   {
-    if (!isGlyphCloned_)
-      cloneGlyph();
-    FT_Outline_Transform(&outline_, &shear);
-    if (FT_Outline_EmboldenXY(&outline_, xstr, ystr))
+  case M_Fancy:
+    transformGlyphFancy(glyph);
+    break;
+  case M_Stroked:
+  {
+    auto stroked = transformGlyphStroked(glyph);
+    if (stroked)
     {
-      // XXX error handling?
-      return;
+      FT_Done_Glyph(glyph);
+      *glyphPtr = stroked;
     }
-
-    if (glyph_->advance.x)
-      glyph_->advance.x += xstr;
-
-    if (glyph_->advance.y)
-      glyph_->advance.y += ystr;
   }
-  else if (glyph_->format == FT_GLYPH_FORMAT_BITMAP)
-  {
-    if (!isBitmapCloned_)
-      cloneBitmap();
-    xstr &= ~63;
-    ystr &= ~63;
-
-    // No shearing support for bitmap
-    FT_Bitmap_Embolden(engine_->ftLibrary(), &bitmap_, 
-                       xstr, ystr);
-  }
-  else
-    return; // XXX no support for SVG
-}
-
-
-void
-GlyphContinuous::transformGlyphStroked()
-{
-  // Well, here only outline glyph is supported.
-  if (glyph_->format != FT_GLYPH_FORMAT_OUTLINE)
-    return;
-  auto oldGlyph = glyph_;
-  auto error = FT_Glyph_Stroke(&glyph_, stroker_, 0);
-  if (!error)
-  {
-    if (isGlyphCloned_)
-      FT_Done_Glyph(oldGlyph);
-    isGlyphCloned_ = true;
-    outline_ = reinterpret_cast<FT_OutlineGlyph>(glyph_)->outline;
+  break;
   }
 }
 
 
 void
-GlyphContinuous::prePaint()
-{
-  displayingCount_ = 0;
-  engine_->reloadFont();
-  metrics_ = engine_->currentFontMetrics();
-  x_ = 0;
-  // See ftview.c:42
-  y_ = ((metrics_.ascender - metrics_.descender + 63) >> 6) + 4;
-  stepY_ = ((metrics_.height + 63) >> 6) + 4;
-}
-
-
-bool
-GlyphContinuous::paintChar(QPainter* painter)
+GlyphContinuous::drawSingleGlyph(QPainter* painter, FT_Glyph glyph)
 {
   // ftview.c:557
-  int width = glyph_->advance.x ? glyph_->advance.x >> 16
+  int width = glyph->advance.x ? glyph->advance.x >> 16
                                 : metrics_.y_ppem / 2;
-
-  if (!checkFitX(x_ + width))
-  {
-    x_ = 0;
-    y_ += stepY_;
-
-    if (!checkFitY(y_))
-      return false;
-  }
-
-  x_++; // extra space
-  if (glyph_->advance.x == 0)
+  
+  if (glyph->advance.x == 0)
   {
     // Draw a red square to indicate
       painter->fillRect(x_, y_ - width, width, width,
                         Qt::red);
-    x_ += width;
   }
 
-  // The real drawing part
-  // XXX: this is different from what's being done in
-  // `ftcommon.c`:FTDemo_Draw_Slot: is this correct??
+  QRect rect;
+  QImage* image = engine_->convertGlyphToQImage(glyph, &rect);
+  rect.setTop(height() - rect.top());
 
-  QImage* image;
-  
-  if (bitmap_.buffer) // Always prefer `bitmap_` since it can be manipulated
-    image = engine_->convertBitmapToQImage(&bitmap_);
-  else
-    image = engine_->convertGlyphToQImage(glyph_, NULL);
-  auto offset = engine_->computeGlyphOffset(glyph_);
-
-  painter->drawImage(offset + QPoint(x_, y_),
-                     *image);
+  painter->drawImage(rect.topLeft(), *image);
   delete image;
-
-  x_ += width;
-  return true;
-}
-
-
-bool
-GlyphContinuous::loadGlyph(int index)
-{
-  if (isGlyphCloned_)
-    FT_Done_Glyph(glyph_);
-  glyph_ = engine_->loadGlyphWithoutUpdate(index);
-  isGlyphCloned_ = false;
-  if (!glyph_)
-    return false;
-  refreshOutlineOrBitmapFromGlyph();
-  return true;
-}
-
-
-void
-GlyphContinuous::cloneGlyph()
-{
-  if (isGlyphCloned_)
-    return;
-  glyph_ = ::cloneGlyph(glyph_);
-  refreshOutlineOrBitmapFromGlyph();
-  isGlyphCloned_ = true;
-}
-
-
-void
-GlyphContinuous::cloneBitmap()
-{
-  if (isBitmapCloned_)
-    return;
-  bitmap_ = ::cloneBitmap(engine_->ftLibrary(), &bitmap_);
-  isBitmapCloned_ = true;
-}
-
-
-void
-GlyphContinuous::refreshOutlineOrBitmapFromGlyph()
-{
-  if (glyph_->format == FT_GLYPH_FORMAT_OUTLINE)
-  {
-    outline_ = reinterpret_cast<FT_OutlineGlyph>(glyph_)->outline;
-
-    // Make `bitmap_` invalid
-    if (isBitmapCloned_)
-      FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
-    isBitmapCloned_ = false;
-    bitmap_.buffer = NULL;
-  }
-  else if (glyph_->format == FT_GLYPH_FORMAT_BITMAP)
-  {
-    // Initialize `bitmap_`
-    if (isBitmapCloned_)
-      FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
-    isBitmapCloned_ = false;
-    bitmap_ = reinterpret_cast<FT_BitmapGlyph>(glyph_)->bitmap;
-
-    outline_.points = NULL;
-  }
-  else
-  {
-    // Both invalid.
-    outline_.points = NULL;
-
-    if (isBitmapCloned_)
-      FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
-    isBitmapCloned_ = false;
-    bitmap_.buffer = NULL;
-  }
-}
-
-
-void
-GlyphContinuous::cleanCloned()
-{
-  if (isGlyphCloned_)
-  {
-    if (glyph_->format == FT_GLYPH_FORMAT_BITMAP && !isBitmapCloned_)
-      bitmap_.buffer = NULL;
-
-    FT_Done_Glyph(glyph_);
-    isGlyphCloned_ = false;
-  }
-  if (isBitmapCloned_)
-  {
-    FT_Bitmap_Done(engine_->ftLibrary(), &bitmap_);
-    bitmap_.buffer = NULL;
-    isBitmapCloned_ = false;
-  }
-}
-
-
-bool
-GlyphContinuous::checkFitX(int x)
-{
-  return x < width() - 3;
-}
-
-
-bool
-GlyphContinuous::checkFitY(int y)
-{
-  return y < height() - 3;
 }
 
 

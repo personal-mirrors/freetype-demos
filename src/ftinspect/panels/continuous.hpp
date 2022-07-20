@@ -48,6 +48,7 @@ public:
   void checkSource();
   void charMapChanged();
   void sourceTextChanged();
+  void reloadGlyphsAndRepaint();
 
 private slots:
   void wheelNavigate(int steps);
@@ -75,6 +76,7 @@ private:
   QLabel* slantLabel_;
   QLabel* strokeRadiusLabel_;
   QLabel* rotationLabel_;
+  QLabel* positionLabel_;
 
   QDoubleSpinBox* xEmboldeningSpinBox_;
   QDoubleSpinBox* yEmboldeningSpinBox_;
@@ -84,15 +86,18 @@ private:
 
   QCheckBox* verticalCheckBox_;
   QCheckBox* waterfallCheckBox_;
+  QCheckBox* kerningCheckBox_;
+  QSlider* positionSlider_;
 
   GlyphIndexSelector* indexSelector_;
   QPlainTextEdit* sourceTextEdit_;
 
   std::vector<CharMapInfo> charMaps_;
 
+  QVBoxLayout* positionLayout_;
   QGridLayout* bottomLayout_;
   QVBoxLayout* mainLayout_;
-  
+
   void createLayout();
   void createConnections();
 

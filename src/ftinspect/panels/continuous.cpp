@@ -41,6 +41,7 @@ ContinuousTab::reloadFont()
   currentGlyphCount_ = engine_->currentFontNumberOfGlyphs();
   setGlyphCount(qBound(0, currentGlyphCount_, INT_MAX));
   setCharMaps(engine_->currentFontCharMaps());
+  canvas_->stringRenderer().reloadAll();
   repaintGlyph();
 }
 
@@ -54,16 +55,22 @@ ContinuousTab::syncSettings()
   canvas_->setMode(mode);
   canvas_->setSource(src);
   canvas_->setBeginIndex(indexSelector_->currentIndex());
-  canvas_->setLimitIndex(glyphLimitIndex_);
-  canvas_->setCharMapIndex(charMapIndex()); // Not directly from the combo box
+  auto& sr = canvas_->stringRenderer();
+  sr.setWaterfall(waterfallCheckBox_->isChecked());
+  sr.setVertical(verticalCheckBox_->isChecked());
+  sr.setKerning(kerningCheckBox_->isChecked());
+  sr.setRotation(rotationSpinBox_->value());
+  sr.setPosition(positionSlider_->value() / 100.0);
+
+  // Not directly from the combo box
+  sr.setCharMapIndex(charMapIndex(), glyphLimitIndex_);
+
+  //sr.setCentered(centered_->isChecked());
 
   canvas_->setFancyParams(xEmboldeningSpinBox_->value(),
                           yEmboldeningSpinBox_->value(),
                           slantSpinBox_->value());
   canvas_->setStrokeRadius(strokeRadiusSpinBox_->value());
-  canvas_->setRotation(rotationSpinBox_->value());
-  canvas_->setWaterfall(waterfallCheckBox_->isChecked());
-  canvas_->setVertical(verticalCheckBox_->isChecked());
 }
 
 
@@ -185,6 +192,8 @@ ContinuousTab::checkSource()
   indexSelector_->setEnabled(src == GlyphContinuous::SRC_AllGlyphs);
   sourceTextEdit_->setEnabled(isText);
   verticalCheckBox_->setEnabled(isText);
+  positionSlider_->setEnabled(isText);
+  canvas_->setSource(src);
 
   repaintGlyph();
 }
@@ -206,8 +215,8 @@ ContinuousTab::charMapChanged()
   }
   updateLimitIndex();
 
+  canvas_->stringRenderer().reloadAll();
   repaintGlyph();
-
   lastCharMapIndex_ = newIndex;
 }
 
@@ -216,6 +225,14 @@ void
 ContinuousTab::sourceTextChanged()
 {
   canvas_->setSourceText(sourceTextEdit_->toPlainText());
+  repaintGlyph();
+}
+
+
+void
+ContinuousTab::reloadGlyphsAndRepaint()
+{
+  canvas_->stringRenderer().reloadGlyphs();
   repaintGlyph();
 }
 
@@ -266,8 +283,15 @@ ContinuousTab::createLayout()
   sourceSelector_->insertItem(GlyphContinuous::SRC_TextStringRepeated,
                               tr("Text String (Repeated)"));
 
-  verticalCheckBox_ = new QCheckBox(tr("Vertical Layout"), this);
+  verticalCheckBox_ = new QCheckBox(tr("Vertical"), this);
   waterfallCheckBox_ = new QCheckBox(tr("Waterfall"), this);
+  kerningCheckBox_ = new QCheckBox(tr("Kerning"), this);
+
+  positionSlider_ = new QSlider(Qt::Horizontal, this);
+  positionSlider_->setMinimum(0);
+  positionSlider_->setMaximum(100);
+  positionSlider_->setTracking(true);
+  positionSlider_->setSingleStep(5);
 
   modeLabel_ = new QLabel(tr("Mode:"), this);
   sourceLabel_ = new QLabel(tr("Text Source:"), this);
@@ -277,6 +301,9 @@ ContinuousTab::createLayout()
   slantLabel_ = new QLabel(tr("Slanting:"), this);
   strokeRadiusLabel_ = new QLabel(tr("Stroke Radius:"), this);
   rotationLabel_ = new QLabel(tr("Rotation:"), this);
+  positionLabel_ = new QLabel(tr("Pos"), this);
+
+  positionLabel_->setAlignment(Qt::AlignCenter);
 
   xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
   yEmboldeningSpinBox_ = new QDoubleSpinBox(this);
@@ -300,6 +327,10 @@ ContinuousTab::createLayout()
   rotationSpinBox_->setMinimum(-180);
   rotationSpinBox_->setMaximum(180);
 
+  positionLayout_ = new QVBoxLayout;
+  positionLayout_->addWidget(positionLabel_);
+  positionLayout_->addWidget(positionSlider_);
+
   bottomLayout_ = new QGridLayout;
   bottomLayout_->addWidget(sourceLabel_, 0, 0);
   bottomLayout_->addWidget(modeLabel_, 1, 0);
@@ -321,9 +352,11 @@ ContinuousTab::createLayout()
   bottomLayout_->addWidget(rotationSpinBox_, 0, 3);
 
   bottomLayout_->addWidget(indexSelector_, 0, 4, 1, 1);
-  bottomLayout_->addWidget(sourceTextEdit_, 1, 4, 3, 3);
-  bottomLayout_->addWidget(waterfallCheckBox_, 0, 5);
-  bottomLayout_->addWidget(verticalCheckBox_, 0, 6);
+  bottomLayout_->addWidget(sourceTextEdit_, 1, 4, 3, 1);
+  bottomLayout_->addLayout(positionLayout_, 0, 5);
+  bottomLayout_->addWidget(waterfallCheckBox_, 1, 5);
+  bottomLayout_->addWidget(verticalCheckBox_, 2, 5);
+  bottomLayout_->addWidget(kerningCheckBox_, 3, 5);
 
   bottomLayout_->setColumnStretch(4, 1);
 
@@ -340,7 +373,7 @@ void
 ContinuousTab::createConnections()
 {
   connect(sizeSelector_, &FontSizeSelector::valueChanged,
-          this, &ContinuousTab::repaintGlyph);
+          this, &ContinuousTab::reloadGlyphsAndRepaint);
 
   connect(canvas_, &GlyphContinuous::wheelResize, 
           this, &ContinuousTab::wheelResize);
@@ -378,8 +411,13 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::repaintGlyph);
   connect(verticalCheckBox_, &QCheckBox::clicked,
           this, &ContinuousTab::repaintGlyph);
+  connect(kerningCheckBox_, &QCheckBox::clicked,
+          this, &ContinuousTab::reloadGlyphsAndRepaint);
   connect(sourceTextEdit_, &QPlainTextEdit::textChanged,
           this, &ContinuousTab::sourceTextChanged);
+
+  connect(positionSlider_, &QSlider::valueChanged,
+          this, &ContinuousTab::repaintGlyph);
 }
 
 
@@ -391,6 +429,9 @@ ContinuousTab::setDefaults()
   slantSpinBox_->setValue(0.22);
   strokeRadiusSpinBox_->setValue(0.02);
   rotationSpinBox_->setValue(0);
+
+  canvas_->setSourceText(sourceTextEdit_->toPlainText());
+  canvas_->setSource(GlyphContinuous::SRC_AllGlyphs);
 }
 
 

@@ -77,9 +77,12 @@ public:
                long faceIndex,
                int namedInstanceIndex); // return number of glyphs
   FT_Glyph loadGlyph(int glyphIndex);
+  int loadGlyphIntoSlotWithoutCache(int glyphIndex);
 
   // Sometimes the engine is already updated, and we want to be faster
-  FT_Glyph loadGlyphWithoutUpdate(int glyphIndex);
+  FT_Glyph loadGlyphWithoutUpdate(int glyphIndex,
+                                  FTC_Node* outNode = NULL,
+                                  bool forceRender = false);
 
   // Return `true` if you need to free `out`
   // `out` will be set to NULL in cases of error
@@ -101,6 +104,9 @@ public:
   //////// Getters
 
   FT_Library ftLibrary() const { return library_; }
+  FTC_Manager cacheManager() { return cacheManager_; }
+  int dpi() { return dpi_; }
+  int pointSize() { return pointSize_; }
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
@@ -110,15 +116,21 @@ public:
   long numberOfFaces(int fontIndex);
   int numberOfNamedInstances(int fontIndex,
                              long faceIndex);
+  int currentFontFirstUnicodeCharMap();
   // Note: the current font face must be properly set
   unsigned glyphIndexFromCharCode(int code, int charMapIndex);
   FT_Size_Metrics const& currentFontMetrics();
-
+  FT_GlyphSlot currentFaceSlot();
+  FT_Pos currentFontTrackingKerning(int degree);
+  FT_Vector currentFontKerning(int glyphIndex, int prevIndex);
+  
   std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
+  bool doHinting() { return doHinting_; }
   bool embeddedBitmapEnabled() { return embeddedBitmap_; }
+  bool lcdUsingSubPixelPositioning() { return lcdSubPixelPositioning_; }
 
   //////// Setters (direct or indirect)
 
@@ -146,6 +158,7 @@ public:
   void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
   void setEmbeddedBitmap(bool force) { embeddedBitmap_ = force; }
   void setLCDUsesBGR(bool isBGR) { lcdUsesBGR_ = isBGR; }
+  void setLCDSubPixelPositioning(bool sp) { lcdSubPixelPositioning_ = sp; }
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
@@ -201,6 +214,7 @@ private:
   bool embeddedBitmap_;
   int antiAliasingTarget_;
   bool lcdUsesBGR_;
+  bool lcdSubPixelPositioning_;
   int renderMode_;
 
   double gamma_;
