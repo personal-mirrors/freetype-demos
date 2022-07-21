@@ -193,7 +193,7 @@ private:
   FTC_SBitCache sbitsCache_;
   FTC_CMapCache cmapCache_;
 
-  FTC_ScalerRec scaler_;
+  FTC_ScalerRec scaler_ = {};
   FT_Size ftSize_;
   FTC_ImageTypeRec imageType_;
 
