@@ -244,7 +244,7 @@ GlyphContinuous::drawSingleGlyph(QPainter* painter, FT_Glyph glyph)
   }
 
   QRect rect;
-  QImage* image = engine_->convertGlyphToQImage(glyph, &rect);
+  QImage* image = engine_->convertGlyphToQImage(glyph, &rect, false);
   rect.setTop(height() - rect.top());
 
   painter->drawImage(rect.topLeft(), *image);

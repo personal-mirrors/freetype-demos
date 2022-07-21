@@ -89,8 +89,10 @@ public:
   bool convertGlyphToBitmapGlyph(FT_Glyph src, FT_Glyph* out);
   FT_Bitmap convertBitmapTo8Bpp(FT_Bitmap* bitmap);
   QImage* convertBitmapToQImage(FT_Bitmap* src);
-  QImage* convertGlyphToQImage(FT_Glyph src, QRect* outRect);
-  QPoint computeGlyphOffset(FT_Glyph glyph);
+  QImage* convertGlyphToQImage(FT_Glyph src, 
+                               QRect* outRect,
+                               bool inverseRectY);
+  QPoint computeGlyphOffset(FT_Glyph glyph, bool inverseY);
 
   // reload current triplet, but with updated settings, useful for updating
   // `ftSize_` only

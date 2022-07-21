@@ -882,7 +882,9 @@ cleanup:
 
 
 QImage*
-Engine::convertGlyphToQImage(FT_Glyph src, QRect* outRect)
+Engine::convertGlyphToQImage(FT_Glyph src,
+                             QRect* outRect,
+                             bool inverseRectY)
 {
   FT_BitmapGlyph bitmapGlyph;
   bool ownBitmapGlyph
@@ -895,7 +897,10 @@ Engine::convertGlyphToQImage(FT_Glyph src, QRect* outRect)
   if (result && outRect)
   {
     outRect->setLeft(bitmapGlyph->left);
-    outRect->setTop(bitmapGlyph->top);
+    if (inverseRectY)
+      outRect->setTop(-bitmapGlyph->top);
+    else
+      outRect->setTop(bitmapGlyph->top);
     outRect->setWidth(bitmapGlyph->bitmap.width);
     outRect->setHeight(bitmapGlyph->bitmap.rows);
   }
@@ -908,7 +913,7 @@ Engine::convertGlyphToQImage(FT_Glyph src, QRect* outRect)
 
 
 QPoint
-Engine::computeGlyphOffset(FT_Glyph glyph)
+Engine::computeGlyphOffset(FT_Glyph glyph, bool inverseY)
 {
   if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
   {
@@ -919,13 +924,17 @@ Engine::computeGlyphOffset(FT_Glyph glyph)
     cbox.yMin &= ~63;
     cbox.xMax = (cbox.xMax + 63) & ~63;
     cbox.yMax = (cbox.yMax + 63) & ~63;
+    if (inverseY)
+      cbox.yMax = -cbox.yMax;
     return { static_cast<int>(cbox.xMin) / 64,
                static_cast<int>(cbox.yMax / 64) };
   }
   if (glyph->format == FT_GLYPH_FORMAT_BITMAP)
   {
     auto bg = reinterpret_cast<FT_BitmapGlyph>(glyph);
-    return { bg->left, -bg->top };
+    if (inverseY)
+      return { bg->left, -bg->top };
+    return { bg->left, bg->top };
   }
 
   return {};
