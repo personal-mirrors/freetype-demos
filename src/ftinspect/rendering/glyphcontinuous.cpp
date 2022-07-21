@@ -224,6 +224,7 @@ GlyphContinuous::preprocessGlyph(FT_Glyph* glyphPtr)
     }
   }
   break;
+  default:; // Nothing for M_NORMAL.
   }
 }
 

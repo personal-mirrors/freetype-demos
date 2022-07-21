@@ -301,7 +301,7 @@ StringRenderer::prepareLine(int offset,
       loadStringGlyphs();
     }
 
-    for (int n = offset; n < activeGlyphs_.size();)
+    for (unsigned n = offset; n < activeGlyphs_.size();)
     {
       auto& ctx = activeGlyphs_[n];
       if (repeated_) // if repeated, we must stop when we touch the end of line
