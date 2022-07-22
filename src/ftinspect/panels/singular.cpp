@@ -208,7 +208,7 @@ SingularTab::setGridVisible()
 void
 SingularTab::showToolTip()
 {
-  QToolTip::showText(helpButton_->pos(),
+  QToolTip::showText(mapToGlobal(helpButton_->pos()),
                      tr("Scroll: Grid Up/Down\n"
                         "Alt + Scroll: Grid Left/Right\n"
                         "Ctrl + Scroll: Adjust Zoom (Relative to cursor)\n"
