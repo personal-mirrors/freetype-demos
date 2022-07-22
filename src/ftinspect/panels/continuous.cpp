@@ -17,8 +17,7 @@ ContinuousTab::ContinuousTab(QWidget* parent,
   std::vector<CharMapInfo> tempCharMaps;
   setCharMaps(tempCharMaps); // pass in an empty one
 
-  checkMode();
-  checkSource();
+  checkModeSource();
   setDefaults();
 
   createConnections();
@@ -174,7 +173,7 @@ ContinuousTab::updateLimitIndex()
 
 
 void
-ContinuousTab::checkMode()
+ContinuousTab::checkModeSource()
 {
   auto isFancy = modeSelector_->currentIndex() == GlyphContinuous::M_Fancy;
   auto isStroked = modeSelector_->currentIndex() == GlyphContinuous::M_Stroked;
@@ -183,22 +182,31 @@ ContinuousTab::checkMode()
   slantSpinBox_->setEnabled(isFancy);
   strokeRadiusSpinBox_->setEnabled(isStroked);
 
-  repaintGlyph();
-}
-
-
-void
-ContinuousTab::checkSource()
-{
   auto src
       = static_cast<GlyphContinuous::Source>(sourceSelector_->currentIndex());
+  auto isTextStrict = src == GlyphContinuous::SRC_TextString;
   auto isText = src == GlyphContinuous::SRC_TextString
                 || src == GlyphContinuous::SRC_TextStringRepeated;
   indexSelector_->setEnabled(src == GlyphContinuous::SRC_AllGlyphs);
   sourceTextEdit_->setEnabled(isText);
-  verticalCheckBox_->setEnabled(isText);
   positionSlider_->setEnabled(isText);
   canvas_->setSource(src);
+
+  {
+    auto wf = waterfallCheckBox_->isChecked();
+    QSignalBlocker blocker(verticalCheckBox_);
+    if (wf || !isTextStrict)
+      verticalCheckBox_->setChecked(false);
+    verticalCheckBox_->setEnabled(!wf && isTextStrict);
+  }
+
+  {
+    auto vert = verticalCheckBox_->isChecked();
+    QSignalBlocker blocker(waterfallCheckBox_);
+    if (vert)
+      waterfallCheckBox_->setChecked(false);
+    waterfallCheckBox_->setEnabled(!vert);
+  }
 
   repaintGlyph();
 }
@@ -390,11 +398,11 @@ ContinuousTab::createConnections()
   connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
           this, &ContinuousTab::repaintGlyph);
   connect(modeSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &ContinuousTab::checkMode);
+          this, &ContinuousTab::checkModeSource);
   connect(charMapSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &ContinuousTab::charMapChanged);
   connect(sourceSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &ContinuousTab::checkSource);
+          this, &ContinuousTab::checkModeSource);
 
   connect(xEmboldeningSpinBox_, 
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
@@ -413,9 +421,9 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::repaintGlyph);
 
   connect(waterfallCheckBox_, &QCheckBox::clicked,
-          this, &ContinuousTab::repaintGlyph);
+          this, &ContinuousTab::checkModeSource);
   connect(verticalCheckBox_, &QCheckBox::clicked,
-          this, &ContinuousTab::repaintGlyph);
+          this, &ContinuousTab::checkModeSource);
   connect(kerningCheckBox_, &QCheckBox::clicked,
           this, &ContinuousTab::reloadGlyphsAndRepaint);
   connect(sourceTextEdit_, &QPlainTextEdit::textChanged,

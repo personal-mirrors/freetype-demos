@@ -44,8 +44,7 @@ public:
   void setCharMaps(std::vector<CharMapInfo>& charMaps);
   // This doesn't trigger either.
   void updateLimitIndex();
-  void checkMode();
-  void checkSource();
+  void checkModeSource();
   void charMapChanged();
   void sourceTextChanged();
   void reloadGlyphsAndRepaint();
