@@ -27,6 +27,21 @@ struct CharMapInfo
   QString stringifyIndex(int code, int index);
   QString stringifyIndexShort(int code);
 
+
+  friend bool
+  operator==(const CharMapInfo& lhs, const CharMapInfo& rhs)
+  {
+    return lhs.index == rhs.index && lhs.encoding == rhs.encoding;
+  }
+
+
+  friend bool
+  operator!=(const CharMapInfo& lhs, const CharMapInfo& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+
 private:
   int computeMaxIndex();
   static int maxIndexForFaceAndCharMap(FT_CharMap charMap, unsigned max);

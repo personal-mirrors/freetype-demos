@@ -112,6 +112,11 @@ ContinuousTab::setGlyphBeginindex(int index)
 void
 ContinuousTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
 {
+  if (charMaps_ == charMaps)
+  {
+    charMaps_ = charMaps; // Still need to substitute because ptr may differ
+    return;
+  }
   charMaps_ = charMaps;
   int oldIndex = charMapSelector_->currentIndex();
   unsigned oldEncoding = 0u;
