@@ -443,6 +443,8 @@ ContinuousTab::setDefaults()
   strokeRadiusSpinBox_->setValue(0.02);
   rotationSpinBox_->setValue(0);
 
+  positionSlider_->setValue(50);
+
   canvas_->setSourceText(sourceTextEdit_->toPlainText());
   canvas_->setSource(GlyphContinuous::SRC_AllGlyphs);
 }
