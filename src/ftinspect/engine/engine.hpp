@@ -108,7 +108,7 @@ public:
   FT_Library ftLibrary() const { return library_; }
   FTC_Manager cacheManager() { return cacheManager_; }
   int dpi() { return dpi_; }
-  int pointSize() { return pointSize_; }
+  double pointSize() { return pointSize_; }
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }

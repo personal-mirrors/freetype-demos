@@ -57,7 +57,8 @@ public:
   };
 
   using RenderCallback = std::function<void(FT_Glyph)>;
-  /* The glyph pointer may be replaced. In that case, ownership is transfered
+  /*
+   * The glyph pointer may be replaced. In that case, ownership is transfered
    * to the renderer, and the new glyph will be eventually freed by
    * the renderer. The callback is responsible to free the old glyph.
    * This allows you to do the following:
@@ -69,16 +70,32 @@ public:
    * }
    */
   using PreprocessCallback = std::function<void(FT_Glyph*)>;
+  /*
+   * Called when a new line begins.
+   * The 1st parameter is the initial pen position;
+   * The 2nd parameter is the current size in points.
+   */
+  using LineBeginCallback = std::function<void(FT_Vector, double)>;
 
-  void setCharMapIndex(int charMapIndex, int limitIndex);
-  void setCallback(RenderCallback cb)
+  bool isWaterfall() { return waterfall_; }
+
+  void
+  setCallback(RenderCallback cb)
   {
     renderCallback_ = std::move(cb);
   }
-  void setPreprocessCallback(PreprocessCallback cb)
+  void
+  setPreprocessCallback(PreprocessCallback cb)
   {
     glyphPreprocessCallback_ = std::move(cb);
   }
+  void
+  setLineBeginCallback(LineBeginCallback cb)
+  {
+    lineBeginCallback_ = std::move(cb);
+  }
+
+  void setCharMapIndex(int charMapIndex, int limitIndex);
   void setRepeated(bool repeated) { repeated_ = repeated; }
   void setVertical(bool vertical) { vertical_ = vertical; }
   void setRotation(double rotation);
@@ -151,6 +168,7 @@ private:
 
   RenderCallback renderCallback_;
   PreprocessCallback glyphPreprocessCallback_;
+  LineBeginCallback lineBeginCallback_;
 
   void reloadGlyphIndices();
   void prepareRendering();

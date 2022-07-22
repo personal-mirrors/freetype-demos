@@ -75,6 +75,7 @@ private:
   double boldX_, boldY_, slant_;
   double strokeRadius_;
   QString text_;
+  int sizeIndicatorOffset_; // For Waterfall Rendering...
 
   int displayingCount_ = 0;
   FT_Size_Metrics metrics_;
@@ -96,6 +97,9 @@ private:
   void prePaint();
   void updateRendererText();
   void preprocessGlyph(FT_Glyph* glyphPtr);
+  void beginLine(QPainter* painter,
+                 FT_Vector pos, 
+                 double sizePoint);
   void drawSingleGlyph(QPainter* painter,
                        FT_Glyph glyph);
 };

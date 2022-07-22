@@ -350,7 +350,7 @@ StringRenderer::render(int width,
     // Waterfall
 
     vertical_ = false;
-    auto originalSize = engine_->pointSize() * 64;
+    auto originalSize = static_cast<int>(engine_->pointSize() * 64);
     auto ptSize = originalSize;
     auto ptHeight = 64 * 72 * height / engine_->dpi();
     auto step = (ptSize * ptSize / ptHeight + 64) & ~63;
@@ -431,7 +431,7 @@ StringRenderer::renderLine(int x,
 {
   if (x < 0 || y < 0 || x > width || y > height)
     return 0;
-  
+
   y = height - y; // change to Cartesian coordinates
 
   FT_Vector pen = { 0, 0 };
@@ -461,6 +461,11 @@ StringRenderer::renderLine(int x,
   // get pen position: penPos = center - pos * width
   pen.x = (x << 6) - pen.x;
   pen.y = (y << 6) - pen.y;
+
+  // Need to transform the coord back to normal coord system
+  lineBeginCallback_({ (pen.x >> 6), 
+                       height - (pen.y >> 6) },
+                     engine_->pointSize());
 
   for (int i = offset; i < totalCount + offset; i++)
   {

@@ -106,6 +106,11 @@ GlyphContinuous::paintByRenderer(QPainter* painter)
     {
       preprocessGlyph(ptr);
     });
+  stringRenderer_.setLineBeginCallback(
+    [&](FT_Vector pos, double size)
+    {
+      beginLine(painter, pos, size);
+    });
   displayingCount_ = stringRenderer_.render(width(), height(), beginIndex_);
 }
 
@@ -230,13 +235,39 @@ GlyphContinuous::preprocessGlyph(FT_Glyph* glyphPtr)
 
 
 void
+GlyphContinuous::beginLine(QPainter* painter,
+                           FT_Vector pos,
+                           double sizePoint)
+{
+  // Now only used by waterfall mode to draw a size indicator.
+  if (!stringRenderer_.isWaterfall())
+  {
+    sizeIndicatorOffset_ = 0;
+    return;
+  }
+
+  auto oldFont = painter->font();
+  oldFont.setPointSizeF(sizePoint);
+  painter->setFont(oldFont);
+  auto metrics = painter->fontMetrics();
+
+  auto sizePrefix = QString("%1: ").arg(sizePoint);
+  QPoint posQ = { static_cast<int>(pos.x),
+                  static_cast<int>(pos.y) };
+  painter->drawText(posQ, sizePrefix);
+
+  sizeIndicatorOffset_ = metrics.horizontalAdvance(sizePrefix);
+}
+
+
+void
 GlyphContinuous::drawSingleGlyph(QPainter* painter, FT_Glyph glyph)
 {
   // ftview.c:557
   int width = glyph->advance.x ? glyph->advance.x >> 16
                                 : metrics_.y_ppem / 2;
   
-  if (glyph->advance.x == 0)
+  if (glyph->advance.x == 0 && !stringRenderer_.isWaterfall())
   {
     // Draw a red square to indicate
       painter->fillRect(x_, y_ - width, width, width,
@@ -245,7 +276,8 @@ GlyphContinuous::drawSingleGlyph(QPainter* painter, FT_Glyph glyph)
 
   QRect rect;
   QImage* image = engine_->convertGlyphToQImage(glyph, &rect, false);
-  rect.setTop(height() - rect.top());
+  rect.setTop(height() - rect.top()); // TODO Don't place this here...
+  rect.setLeft(rect.left() + sizeIndicatorOffset_);
 
   painter->drawImage(rect.topLeft(), *image);
   delete image;
