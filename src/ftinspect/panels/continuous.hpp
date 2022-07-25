@@ -49,6 +49,9 @@ public:
   void sourceTextChanged();
   void reloadGlyphsAndRepaint();
 
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
+
 private slots:
   void wheelNavigate(int steps);
   void wheelResize(int steps);

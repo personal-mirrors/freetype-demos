@@ -250,6 +250,20 @@ ContinuousTab::reloadGlyphsAndRepaint()
 }
 
 
+bool
+ContinuousTab::eventFilter(QObject* watched,
+                           QEvent* event)
+{
+  if (event->type() == QEvent::KeyPress)
+  {
+    auto keyEvent = dynamic_cast<QKeyEvent*>(event);
+    if (sizeSelector_->handleKeyEvent(keyEvent))
+      return true;
+  }
+  return false;
+}
+
+
 void
 ContinuousTab::wheelNavigate(int steps)
 {
@@ -431,6 +445,9 @@ ContinuousTab::createConnections()
 
   connect(positionSlider_, &QSlider::valueChanged,
           this, &ContinuousTab::repaintGlyph);
+
+  sizeSelector_->installEventFilterForWidget(canvas_);
+  sizeSelector_->installEventFilterForWidget(this);
 }
 
 

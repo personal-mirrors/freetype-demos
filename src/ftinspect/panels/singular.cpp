@@ -212,8 +212,24 @@ SingularTab::showToolTip()
                      tr("Scroll: Grid Up/Down\n"
                         "Alt + Scroll: Grid Left/Right\n"
                         "Ctrl + Scroll: Adjust Zoom (Relative to cursor)\n"
-                        "Shift + Scroll: Adjust Font Size"),
+                        "Shift + Scroll: Adjust Font Size\n"
+                        "Shift + Plus/Minus: Adjust Font Size\n"
+                        "Shift + 0: Reset Font Size to Default"),
                      helpButton_);
+}
+
+
+bool
+SingularTab::eventFilter(QObject* watched,
+                         QEvent* event)
+{
+  if (event->type() == QEvent::KeyPress)
+  {
+    auto keyEvent = dynamic_cast<QKeyEvent*>(event);
+    if (sizeSelector_->handleKeyEvent(keyEvent))
+      return true;
+  }
+  return false;
 }
 
 
@@ -357,6 +373,9 @@ SingularTab::createConnections()
           this, &SingularTab::drawGlyph);
   connect(showGridCheckBox_, &QCheckBox::clicked,
           this, &SingularTab::setGridVisible);
+
+  sizeSelector_->installEventFilterForWidget(glyphView_);
+  sizeSelector_->installEventFilterForWidget(this);
 }
 
 

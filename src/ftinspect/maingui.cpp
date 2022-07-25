@@ -81,6 +81,15 @@ MainGUI::dropEvent(QDropEvent* event)
 
 
 void
+MainGUI::keyPressEvent(QKeyEvent* event)
+{
+  // Delegate key events to tabs
+  if (!tabWidget_->currentWidget()->eventFilter(this, event))
+    QMainWindow::keyPressEvent(event);
+}
+
+
+void
 MainGUI::about()
 {
   QMessageBox::about(

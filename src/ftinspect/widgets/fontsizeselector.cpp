@@ -45,7 +45,8 @@ FontSizeSelector::applyToEngine(Engine* engine)
 void
 FontSizeSelector::handleWheelResizeBySteps(int steps)
 {
-  double sizeAfter = sizeDoubleSpinBox_->value() + steps * 0.5;
+  double sizeAfter = sizeDoubleSpinBox_->value()
+                       + steps * sizeDoubleSpinBox_->singleStep();
   sizeAfter = std::max(sizeDoubleSpinBox_->minimum(),
                        std::min(sizeAfter, sizeDoubleSpinBox_->maximum()));
   sizeDoubleSpinBox_->setValue(sizeAfter);
@@ -57,6 +58,55 @@ FontSizeSelector::handleWheelResizeFromGrid(QWheelEvent* event)
 {
   int numSteps = event->angleDelta().y() / 120;
   handleWheelResizeBySteps(numSteps);
+}
+
+
+bool
+FontSizeSelector::handleKeyEvent(QKeyEvent const* keyEvent)
+{
+  if (!keyEvent)
+    return false;
+  auto modifiers = keyEvent->modifiers();
+  auto key = keyEvent->key();
+  if ((modifiers == Qt::ShiftModifier
+       || modifiers == (Qt::ShiftModifier | Qt::KeypadModifier))
+      && (key == Qt::Key_Plus 
+          || key == Qt::Key_Minus
+          || key == Qt::Key_Underscore
+          || key == Qt::Key_Equal
+          || key == Qt::Key_ParenRight))
+  {
+    if (key == Qt::Key_Plus || key == Qt::Key_Equal)
+      handleWheelResizeBySteps(1);
+    else if (key == Qt::Key_Minus
+             || key == Qt::Key_Underscore)
+      handleWheelResizeBySteps(-1);
+    else if (key == Qt::Key_ParenRight)
+      setDefaults(true);
+    return true;
+  }
+  return false;
+}
+
+
+void
+FontSizeSelector::installEventFilterForWidget(QWidget* widget)
+{
+  widget->installEventFilter(this);
+}
+
+
+bool
+FontSizeSelector::eventFilter(QObject* watched,
+                              QEvent* event)
+{
+  if (event->type() == QEvent::KeyPress)
+  {
+    auto keyEvent = dynamic_cast<QKeyEvent*>(event);
+    if (handleKeyEvent(keyEvent))
+      return true;
+  }
+  return QWidget::eventFilter(watched, event);
 }
 
 
@@ -136,9 +186,11 @@ FontSizeSelector::createConnections()
 
 
 void
-FontSizeSelector::setDefaults()
+FontSizeSelector::setDefaults(bool sizeOnly)
 {
   sizeDoubleSpinBox_->setValue(20);
+  if (sizeOnly)
+    return;
   dpiSpinBox_->setValue(96);
   checkUnits();
 }

@@ -32,6 +32,11 @@ public:
   void applyToEngine(Engine* engine);
   void handleWheelResizeBySteps(int steps);
   void handleWheelResizeFromGrid(QWheelEvent* event);
+  bool handleKeyEvent(QKeyEvent const* keyEvent);
+  void installEventFilterForWidget(QWidget* widget);
+
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
 
 signals:
   void valueChanged();
@@ -51,7 +56,7 @@ private:
 
   void createLayout();
   void createConnections();
-  void setDefaults();
+  void setDefaults(bool sizeOnly = false);
 };
 
 

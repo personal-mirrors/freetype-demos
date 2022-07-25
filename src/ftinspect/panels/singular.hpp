@@ -55,6 +55,9 @@ private slots:
   void setGridVisible();
   void showToolTip();
 
+protected:
+  bool eventFilter(QObject* watched, QEvent* event) override;
+
 private:
   int currentGlyphIndex_;
   int currentGlyphCount_;
