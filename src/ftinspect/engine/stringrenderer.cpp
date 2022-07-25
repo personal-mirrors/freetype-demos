@@ -252,7 +252,8 @@ StringRenderer::loadStringGlyphs()
 int
 StringRenderer::prepareLine(int offset,
                             int lineWidth,
-                            FT_Vector& outActualLineWidth)
+                            FT_Vector& outActualLineWidth,
+                            bool handleMultiLine)
 {
   int totalCount = 0;
   outActualLineWidth = {0, 0};
@@ -304,6 +305,13 @@ StringRenderer::prepareLine(int offset,
     for (unsigned n = offset; n < activeGlyphs_.size();)
     {
       auto& ctx = activeGlyphs_[n];
+
+      if (handleMultiLine && ctx.charCode == '\n')
+      {
+        totalCount += 1; // Break here.
+        break;
+      }
+
       if (repeated_) // if repeated, we must stop when we touch the end of line
       {
         if (outActualLineWidth.x + ctx.hadvance.x > lineWidth)
@@ -344,7 +352,6 @@ StringRenderer::render(int width,
 
   // Separated into 3 modes:
   // Waterfall, fill the whole canvas and only single string.
-
   if (waterfall_)
   {
     // Waterfall
@@ -402,12 +409,18 @@ StringRenderer::render(int width,
 
     prepareRendering();
     auto& metrics = engine_->currentFontMetrics();
-    auto stepY = (metrics.height >> 6) + 1;
     auto y = 4 + (metrics.ascender >> 6);
+    auto stepY = (metrics.height >> 6) + 1;
     auto limitY = height + (metrics.descender >> 6);
 
+    // Only care about multiline when in string mode
     for (; y < limitY; y += stepY)
-      offset = renderLine(0, y, width, height, offset);
+    {
+      offset = renderLine(0, y, width, height, offset, usingString_);
+      // For repeating
+      if (usingString_ && repeated_ && !activeGlyphs_.empty())
+        offset %= static_cast<int>(activeGlyphs_.size());
+    }
     return offset;
   }
 
@@ -417,8 +430,15 @@ StringRenderer::render(int width,
   auto x = static_cast<int>(width * position_);
   // Anchor at top-left in vertical mode, at the center in horizontal mode
   auto y = vertical_ ? 0 : (height / 2);
+  auto stepY = (metrics.height >> 6) + 1;
   y += 4 + (metrics.ascender >> 6);
-  return renderLine(x, y, width, height, offset);
+
+  while (offset < static_cast<int>(activeGlyphs_.size()))
+  {
+    offset = renderLine(x, y, width, height, offset, true);
+    y += stepY;
+  }
+  return offset;
 }
 
 
@@ -427,7 +447,8 @@ StringRenderer::renderLine(int x,
                            int y,
                            int width,
                            int height,
-                           int offset)
+                           int offset,
+                           bool handleMultiLine)
 {
   if (x < 0 || y < 0 || x > width || y > height)
     return 0;
@@ -444,7 +465,7 @@ StringRenderer::renderLine(int x,
   int lineLength = 64 * (vertical_ ? height : width);
 
   // first prepare the line & determine the line length
-  int totalCount = prepareLine(offset, lineLength, pen);
+  int totalCount = prepareLine(offset, lineLength, pen, handleMultiLine);
 
   // round to control initial pen position and preserve hinting...
   // pen.x, y is the actual length now, and we multiple it by pos
@@ -470,6 +491,8 @@ StringRenderer::renderLine(int x,
   for (int i = offset; i < totalCount + offset; i++)
   {
     auto& ctx = activeGlyphs_[i % activeGlyphs_.size()];
+    if (handleMultiLine && ctx.charCode == '\n')
+      continue; // skip \n
     FT_Glyph image = NULL; // Remember to clean up
     FT_BBox bbox;
 
@@ -542,9 +565,6 @@ StringRenderer::renderLine(int x,
     FT_Done_Glyph(image);
   }
 
-  // For repeating
-  if (usingString_ && activeGlyphs_.size())
-    return (offset + totalCount) % activeGlyphs_.size();
   return offset + totalCount;
 }
 

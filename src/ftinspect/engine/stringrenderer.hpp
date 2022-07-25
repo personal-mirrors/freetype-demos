@@ -117,7 +117,8 @@ public:
              int offset);
   int renderLine(int x, int y,
                  int width, int height,
-                 int offset);
+                 int offset,
+                 bool handleMultiLine = false);
 
   void reloadAll();      // text/font/charmap changes, will call
                          // `reloadGlyphs`
@@ -183,6 +184,7 @@ private:
   // Returns total line count
   int prepareLine(int offset, 
                   int lineWidth,
-                  FT_Vector& outActualLineWidth);
+                  FT_Vector& outActualLineWidth,
+                  bool handleMultiLine = false);
   void clearActive(bool glyphOnly = false);
 };
