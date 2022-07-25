@@ -25,7 +25,6 @@ MainGUI::MainGUI(Engine* engine)
   createConnections();
   createActions();
   createMenus();
-  createStatusBar();
   setupDragDrop();
 
   readSettings();
@@ -132,103 +131,13 @@ MainGUI::openFonts(QStringList const& fileNames)
   int oldSize = engine_->numberOfOpenedFonts();
   engine_->openFonts(fileNames);
 
-  // if we have new fonts, set the current index to the first new one
-  if (oldSize < engine_->numberOfOpenedFonts())
-    currentFontIndex_ = oldSize;
-
-  showFont();
+  tripletSelector_->repopulateFonts();
 }
 
 
 void
-MainGUI::closeFont()
+MainGUI::onTripletChanged()
 {
-  if (currentFontIndex_ < engine_->numberOfOpenedFonts())
-  {
-    engine_->removeFont(currentFontIndex_);
-  }
-
-  // show next font after deletion, i.e., retain index if possible
-  int num = engine_->numberOfOpenedFonts();
-  if (num)
-  {
-    if (currentFontIndex_ >= num)
-      currentFontIndex_ = num - 1;
-  }
-  else
-    currentFontIndex_ = 0;
-
-  showFont();
-}
-
-
-void
-MainGUI::watchCurrentFont()
-{
-  showFont();
-}
-
-
-void
-MainGUI::showFont()
-{
-  // we do lazy computation of FT_Face objects
-
-  if (currentFontIndex_ < engine_->numberOfOpenedFonts())
-  {
-    QFileInfo& fileInfo = engine_->fontFileManager()[currentFontIndex_];
-    QString fontName = fileInfo.fileName();
-
-    engine_->fontFileManager().updateWatching(currentFontIndex_);
-    if (fileInfo.isSymLink())
-    {
-      fontName.prepend("<i>");
-      fontName.append("</i>");
-    }
-
-    if (!fileInfo.exists())
-    {
-      // On Unix-like systems, the symlink's target gets opened; this
-      // implies that deletion of a symlink doesn't make `engine->loadFont'
-      // fail since it operates on a file handle pointing to the target.
-      // For this reason, we remove the font to enforce a reload.
-      engine_->removeFont(currentFontIndex_, false);
-    }
-
-    fontFilenameLabel_->setText(fontName);
-  }
-  else
-    fontFilenameLabel_->clear();
-
-  syncSettings();
-  currentNumberOfFaces_
-    = engine_->numberOfFaces(currentFontIndex_);
-  currentNumberOfNamedInstances_
-    = engine_->numberOfNamedInstances(currentFontIndex_,
-                                     currentFaceIndex_);
-  currentNumberOfGlyphs_
-    = engine_->loadFont(currentFontIndex_,
-                       currentFaceIndex_,
-                       currentNamedInstanceIndex_);
-
-  if (currentNumberOfGlyphs_ < 0)
-  {
-    // there might be various reasons why the current
-    // (file, face, instance) triplet is invalid or missing;
-    // we thus start our timer to periodically test
-    // whether the font starts working
-    if (currentFontIndex_ > 0
-        && currentFontIndex_ < engine_->numberOfOpenedFonts())
-      engine_->fontFileManager().timerStart();
-  }
-
-  fontNameLabel_->setText(QString("%1 %2")
-                         .arg(engine_->currentFamilyName())
-                         .arg(engine_->currentStyleName()));
-
-  checkCurrentFontIndex();
-  checkCurrentFaceIndex();
-  checkCurrentNamedInstanceIndex();
   auto state = settingPanel_->blockSignals(true);
   settingPanel_->checkHinting();
   settingPanel_->blockSignals(state);
@@ -247,6 +156,7 @@ MainGUI::repaintCurrentTab()
 void
 MainGUI::reloadCurrentTabFont()
 {
+  syncSettings();
   tabs_[tabWidget_->currentIndex()]->reloadFont();
 }
 
@@ -258,180 +168,17 @@ MainGUI::syncSettings()
 }
 
 
-void
-MainGUI::clearStatusBar()
-{
-  statusBar()->clearMessage();
-  statusBar()->setStyleSheet("");
-}
-
-
-void
-MainGUI::checkCurrentFontIndex()
-{
-  if (engine_->numberOfOpenedFonts() < 2)
-  {
-    previousFontButton_->setEnabled(false);
-    nextFontButton_->setEnabled(false);
-  }
-  else if (currentFontIndex_ == 0)
-  {
-    previousFontButton_->setEnabled(false);
-    nextFontButton_->setEnabled(true);
-  }
-  else if (currentFontIndex_ >= engine_->numberOfOpenedFonts() - 1)
-  {
-    previousFontButton_->setEnabled(true);
-    nextFontButton_->setEnabled(false);
-  }
-  else
-  {
-    previousFontButton_->setEnabled(true);
-    nextFontButton_->setEnabled(true);
-  }
-}
-
-
-void
-MainGUI::checkCurrentFaceIndex()
-{
-  if (currentNumberOfFaces_ < 2)
-  {
-    previousFaceButton_->setEnabled(false);
-    nextFaceButton_->setEnabled(false);
-  }
-  else if (currentFaceIndex_ == 0)
-  {
-    previousFaceButton_->setEnabled(false);
-    nextFaceButton_->setEnabled(true);
-  }
-  else if (currentFaceIndex_ >= currentNumberOfFaces_ - 1)
-  {
-    previousFaceButton_->setEnabled(true);
-    nextFaceButton_->setEnabled(false);
-  }
-  else
-  {
-    previousFaceButton_->setEnabled(true);
-    nextFaceButton_->setEnabled(true);
-  }
-}
-
-
-void
-MainGUI::checkCurrentNamedInstanceIndex()
-{
-  if (currentNumberOfNamedInstances_ < 2)
-  {
-    previousNamedInstanceButton_->setEnabled(false);
-    nextNamedInstanceButton_->setEnabled(false);
-  }
-  else if (currentNamedInstanceIndex_ == 0)
-  {
-    previousNamedInstanceButton_->setEnabled(false);
-    nextNamedInstanceButton_->setEnabled(true);
-  }
-  else if (currentNamedInstanceIndex_ >= currentNumberOfNamedInstances_ - 1)
-  {
-    previousNamedInstanceButton_->setEnabled(true);
-    nextNamedInstanceButton_->setEnabled(false);
-  }
-  else
-  {
-    previousNamedInstanceButton_->setEnabled(true);
-    nextNamedInstanceButton_->setEnabled(true);
-  }
-}
-
-
-void
-MainGUI::previousFont()
-{
-  if (currentFontIndex_ > 0)
-  {
-    currentFontIndex_--;
-    currentFaceIndex_ = 0;
-    currentNamedInstanceIndex_ = 0;
-    showFont();
-  }
-}
-
-
-void
-MainGUI::nextFont()
-{
-  if (currentFontIndex_ < engine_->numberOfOpenedFonts() - 1)
-  {
-    currentFontIndex_++;
-    currentFaceIndex_ = 0;
-    currentNamedInstanceIndex_ = 0;
-    showFont();
-  }
-}
-
-
-void
-MainGUI::previousFace()
-{
-  if (currentFaceIndex_ > 0)
-  {
-    currentFaceIndex_--;
-    currentNamedInstanceIndex_ = 0;
-    showFont();
-  }
-}
-
-
-void
-MainGUI::nextFace()
-{
-  if (currentFaceIndex_ < currentNumberOfFaces_ - 1)
-  {
-    currentFaceIndex_++;
-    currentNamedInstanceIndex_ = 0;
-    showFont();
-  }
-}
-
-
-void
-MainGUI::previousNamedInstance()
-{
-  if (currentNamedInstanceIndex_ > 0)
-  {
-    currentNamedInstanceIndex_--;
-    showFont();
-  }
-}
-
-
-void
-MainGUI::nextNamedInstance()
-{
-  if (currentNamedInstanceIndex_ < currentNumberOfNamedInstances_ - 1)
-  {
-    currentNamedInstanceIndex_++;
-    showFont();
-  }
-}
-
-
 // XXX distances are specified in pixels,
 //     making the layout dependent on the output device resolution
 void
 MainGUI::createLayout()
 {
   // left side
-  fontFilenameLabel_ = new QLabel(this);
-
-  infoLeftLayout_ = new QHBoxLayout;
-  infoLeftLayout_->addWidget(fontFilenameLabel_);
-
   settingPanel_ = new SettingPanel(this, engine_);
 
-  leftLayout_ = new QVBoxLayout;
-  leftLayout_->addLayout(infoLeftLayout_);
+  leftLayout_ = new QVBoxLayout; // The only point is to set a margin->remove?
   leftLayout_->addWidget(settingPanel_);
+  leftLayout_->setContentsMargins(32, 32, 8, 16);
 
   // we don't want to expand the left side horizontally;
   // to change the policy we have to use a widget wrapper
@@ -446,8 +193,6 @@ MainGUI::createLayout()
   leftWidget_->setSizePolicy(leftWidgetPolicy);
 
   // right side
-  fontNameLabel_ = new QLabel(this);
-
   singularTab_ = new SingularTab(this, engine_);
   continuousTab_ = new ContinuousTab(this, engine_);
 
@@ -458,43 +203,33 @@ MainGUI::createLayout()
   tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
   tabs_.append(continuousTab_);
   tabWidget_->addTab(continuousTab_, tr("Continuous View"));
-
-  previousFontButton_ = new QPushButton(tr("Previous Font"), this);
-  nextFontButton_ = new QPushButton(tr("Next Font"), this);
-  previousFaceButton_ = new QPushButton(tr("Previous Face"), this);
-  nextFaceButton_ = new QPushButton(tr("Next Face"), this);
-  previousNamedInstanceButton_
-    = new QPushButton(tr("Previous Named Instance"), this);
-  nextNamedInstanceButton_ = new QPushButton(tr("Next Named Instance"), this);
-
-  fontLayout = new QGridLayout;
-  fontLayout->setColumnStretch(0, 2);
-  fontLayout->addWidget(nextFontButton_, 0, 1);
-  fontLayout->addWidget(previousFontButton_, 1, 1);
-  fontLayout->setColumnStretch(2, 1);
-  fontLayout->addWidget(nextFaceButton_, 0, 3);
-  fontLayout->addWidget(previousFaceButton_, 1, 3);
-  fontLayout->setColumnStretch(4, 1);
-  fontLayout->addWidget(nextNamedInstanceButton_, 0, 5);
-  fontLayout->addWidget(previousNamedInstanceButton_, 1, 5);
-  fontLayout->setColumnStretch(6, 2);
+  
+  tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;
-  rightLayout_->addWidget(fontNameLabel_);
-  rightLayout_->addWidget(tabWidget_);
-  rightLayout_->addLayout(fontLayout);
+  //rightLayout_->addWidget(fontNameLabel_);
+  rightLayout_->addWidget(tabWidget_); // same for `leftLayout_`: Remove?
+  rightLayout_->setContentsMargins(8, 32, 32, 16);
 
   // for symmetry with the left side use a widget also
   rightWidget_ = new QWidget(this);
   rightWidget_->setLayout(rightLayout_);
 
   // the whole thing
-  ftinspectLayout_ = new QHBoxLayout;
-  ftinspectLayout_->addWidget(leftWidget_);
-  ftinspectLayout_->addWidget(rightWidget_);
+  mainPartLayout_ = new QHBoxLayout;
+  mainPartLayout_->addWidget(leftWidget_);
+  mainPartLayout_->addWidget(rightWidget_);
+
+  ftinspectLayout_ = new QVBoxLayout;
+  ftinspectLayout_->setSpacing(0);
+  ftinspectLayout_->addLayout(mainPartLayout_);
+  ftinspectLayout_->addWidget(tripletSelector_);
+  ftinspectLayout_->setContentsMargins(0, 0, 0, 0);
 
   ftinspectWidget_ = new QWidget(this);
   ftinspectWidget_->setLayout(ftinspectLayout_);
+
+  statusBar()->hide(); // remove the extra space
   setCentralWidget(ftinspectWidget_);
   setWindowTitle("ftinspect");
 }
@@ -504,28 +239,15 @@ void
 MainGUI::createConnections()
 {
   connect(settingPanel_, &SettingPanel::fontReloadNeeded,
-          this, &MainGUI::showFont);
+          this, &MainGUI::reloadCurrentTabFont);
   connect(settingPanel_, &SettingPanel::repaintNeeded,
           this, &MainGUI::repaintCurrentTab);
 
   connect(tabWidget_, &QTabWidget::currentChanged,
           this, &MainGUI::reloadCurrentTabFont);
 
-  connect(previousFontButton_, &QPushButton::clicked,
-          this, &MainGUI::previousFont);
-  connect(nextFontButton_, &QPushButton::clicked,
-          this, &MainGUI::nextFont);
-  connect(previousFaceButton_, &QPushButton::clicked,
-          this, &MainGUI::previousFace);
-  connect(nextFaceButton_, &QPushButton::clicked,
-          this, &MainGUI::nextFace);
-  connect(previousNamedInstanceButton_, &QPushButton::clicked,
-          this, &MainGUI::previousNamedInstance);
-  connect(nextNamedInstanceButton_, &QPushButton::clicked,
-          this, &MainGUI::nextNamedInstance);
-
-  connect(&engine_->fontFileManager(), &FontFileManager::currentFileChanged,
-          this, &MainGUI::watchCurrentFont);
+  connect(tripletSelector_, &TripletSelector::tripletChanged,
+          this, &MainGUI::onTripletChanged);
 }
 
 
@@ -538,7 +260,8 @@ MainGUI::createActions()
 
   closeFontAct_ = new QAction(tr("&Close Font"), this);
   closeFontAct_->setShortcuts(QKeySequence::Close);
-  connect(closeFontAct_, &QAction::triggered, this, &MainGUI::closeFont);
+  connect(closeFontAct_, &QAction::triggered,
+          tripletSelector_, &TripletSelector::closeCurrentFont);
 
   exitAct_ = new QAction(tr("E&xit"), this);
   exitAct_->setShortcuts(QKeySequence::Quit);
@@ -567,30 +290,9 @@ MainGUI::createMenus()
 
 
 void
-MainGUI::createStatusBar()
-{
-  statusBar()->showMessage("");
-}
-
-
-void
 MainGUI::setupDragDrop()
 {
   setAcceptDrops(true);
-}
-
-
-void
-MainGUI::setDefaults()
-{
-  // the next four values always non-negative
-  currentFontIndex_ = 0;
-  currentFaceIndex_ = 0;
-  currentNamedInstanceIndex_ = 0;
-  
-  checkCurrentFontIndex();
-  checkCurrentFaceIndex();
-  checkCurrentNamedInstanceIndex();
 }
 
 

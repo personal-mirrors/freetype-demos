@@ -6,9 +6,7 @@
 #pragma once
 
 #include "engine/engine.hpp"
-#include "widgets/customwidgets.hpp"
-#include "widgets/glyphindexselector.hpp"
-#include "models/customcomboboxmodels.hpp"
+#include "widgets/tripletselector.hpp"
 #include "panels/settingpanel.hpp"
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"
@@ -53,8 +51,6 @@ public:
   MainGUI(Engine* engine);
   ~MainGUI() override;
 
-  void setDefaults();
-
   friend class Engine;
   friend FT_Error faceRequester(FTC_FaceID,
                                 FT_Library,
@@ -69,33 +65,14 @@ protected:
 private slots:
   void about();
   void aboutQt();
-  void checkCurrentFaceIndex();
-  void checkCurrentFontIndex();
-  void checkCurrentNamedInstanceIndex();
-  void closeFont();
-  void showFont();
   void repaintCurrentTab();
   void reloadCurrentTabFont();
   void loadFonts();
-  void nextFace();
-  void nextFont();
-  void nextNamedInstance();
-  void previousFace();
-  void previousFont();
-  void previousNamedInstance();
-  void watchCurrentFont();
+  void onTripletChanged();
 
 private:
   Engine* engine_;
   
-  int currentFontIndex_;
-
-  long currentNumberOfFaces_;
-  long currentFaceIndex_;
-
-  int currentNumberOfNamedInstances_;
-  int currentNamedInstanceIndex_;
-
   int currentNumberOfGlyphs_;
 
   // layout related stuff
@@ -105,25 +82,15 @@ private:
   QAction *exitAct_;
   QAction *loadFontsAct_;
 
-  QGridLayout *fontLayout;
-
-  QHBoxLayout *ftinspectLayout_;
-  QHBoxLayout *infoLeftLayout_;
-
-  QLabel *fontFilenameLabel_;
-  QLabel *fontNameLabel_;
+  QVBoxLayout *ftinspectLayout_;
+  QHBoxLayout *mainPartLayout_;
 
   QLocale *locale_;
 
   QMenu *menuFile_;
   QMenu *menuHelp_;
-
-  QPushButton *nextFaceButton_;
-  QPushButton *nextFontButton_;
-  QPushButton *nextNamedInstanceButton_;
-  QPushButton *previousFaceButton_;
-  QPushButton *previousFontButton_;
-  QPushButton *previousNamedInstanceButton_;
+  
+  TripletSelector* tripletSelector_;
   
   QVBoxLayout *leftLayout_;
   QVBoxLayout *rightLayout_;
@@ -142,13 +109,11 @@ private:
   void openFonts(QStringList const& fileNames);
 
   void syncSettings();
-  void clearStatusBar();
 
   void createActions();
   void createConnections();
   void createLayout();
   void createMenus();
-  void createStatusBar();
   void setupDragDrop();
 
   void readSettings();

@@ -24,8 +24,6 @@ main(int argc,
   Engine engine;
   MainGUI gui(&engine);
 
-  gui.setDefaults();
-
   gui.show();
 
   return app.exec();

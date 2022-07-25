@@ -358,6 +358,8 @@ SettingPanel::createLayout()
   mainLayout_ = new QVBoxLayout;
   mainLayout_->addWidget(tab_);
   setLayout(mainLayout_);
+  mainLayout_->setContentsMargins(0, 0, 0, 0);
+  setContentsMargins(0, 0, 0, 0);
 }
 
 

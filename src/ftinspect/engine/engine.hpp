@@ -107,17 +107,22 @@ public:
 
   FT_Library ftLibrary() const { return library_; }
   FTC_Manager cacheManager() { return cacheManager_; }
+
   int dpi() { return dpi_; }
   double pointSize() { return pointSize_; }
+
+  int numberOfOpenedFonts();
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
   int currentFontNumberOfGlyphs() { return curNumGlyphs_; }
-  int numberOfOpenedFonts();
+
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
   int numberOfNamedInstances(int fontIndex,
                              long faceIndex);
+  QString namedInstanceName(int fontIndex, long faceIndex, int index);
+
   int currentFontFirstUnicodeCharMap();
   // Note: the current font face must be properly set
   unsigned glyphIndexFromCharCode(int code, int charMapIndex);

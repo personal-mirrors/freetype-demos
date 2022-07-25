@@ -99,13 +99,14 @@ faceRequester(FTC_FaceID ftcFaceID,
   if (faceID.fontIndex < 0
       || faceID.fontIndex >= engine->numberOfOpenedFonts())
     return FT_Err_Invalid_Argument;
-
+  
   QString font = engine->fontFileManager_[faceID.fontIndex].filePath();
   long faceIndex = faceID.faceIndex;
 
   if (faceID.namedInstanceIndex > 0)
     faceIndex += faceID.namedInstanceIndex << 16;
 
+  *faceP = NULL;
   return FT_New_Face(library,
                      qPrintable(font),
                      faceIndex,
@@ -175,11 +176,13 @@ Engine::numberOfFaces(int fontIndex)
   FT_Face face;
   long numFaces = -1;
 
+  if (fontIndex < 0)
+    return -1;
+
+  auto id = FaceID(fontIndex, 0, 0);
+
   // search triplet (fontIndex, 0, 0)
-  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>
-                           (faceIDMap_.value(FaceID(fontIndex,
-                                                   0,
-                                                   0)));
+  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
   if (ftcFaceID)
   {
     // found
@@ -190,14 +193,13 @@ Engine::numberOfFaces(int fontIndex)
   {
     // not found; try to load triplet (fontIndex, 0, 0)
     ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
-    faceIDMap_.insert(FaceID(fontIndex, 0, 0),
-                     faceCounter_++);
+    faceIDMap_.insert(id, faceCounter_++);
 
     if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
       numFaces = face->num_faces;
     else
     {
-      faceIDMap_.remove(FaceID(fontIndex, 0, 0));
+      faceIDMap_.remove(id);
       faceCounter_--;
     }
   }
@@ -214,12 +216,12 @@ Engine::numberOfNamedInstances(int fontIndex,
   // we return `n' named instances plus one;
   // instance index 0 represents a face without a named instance selected
   int numNamedInstances = -1;
+  if (fontIndex < 0)
+    return -1;
+  auto id = FaceID(fontIndex, faceIndex, 0);
 
   // search triplet (fontIndex, faceIndex, 0)
-  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>
-                           (faceIDMap_.value(FaceID(fontIndex,
-                                                   faceIndex,
-                                                   0)));
+  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
   if (ftcFaceID)
   {
     // found
@@ -230,19 +232,60 @@ Engine::numberOfNamedInstances(int fontIndex,
   {
     // not found; try to load triplet (fontIndex, faceIndex, 0)
     ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
-    faceIDMap_.insert(FaceID(fontIndex, faceIndex, 0),
-                     faceCounter_++);
+    faceIDMap_.insert(id, faceCounter_++);
 
     if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
       numNamedInstances = static_cast<int>((face->style_flags >> 16) + 1);
     else
     {
-      faceIDMap_.remove(FaceID(fontIndex, faceIndex, 0));
+      faceIDMap_.remove(id);
       faceCounter_--;
     }
   }
 
   return numNamedInstances;
+}
+
+
+QString
+Engine::namedInstanceName(int fontIndex, long faceIndex, int index)
+{
+  FT_Face face;
+  QString name;
+
+  if (fontIndex < 0)
+    return QString();
+
+  auto id = FaceID(fontIndex, faceIndex, index);
+
+  // search triplet (fontIndex, faceIndex, 0)
+  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
+  if (ftcFaceID)
+  {
+    // found
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
+      name = QString("%1 %2")
+               .arg(face->family_name)
+               .arg(face->style_name);
+  }
+  else
+  {
+    // not found; try to load triplet (fontIndex, faceIndex, 0)
+    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
+    faceIDMap_.insert(id, faceCounter_++);
+
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
+      name = QString("%1 %2")
+               .arg(face->family_name)
+               .arg(face->style_name);
+    else
+    {
+      faceIDMap_.remove(id);
+      faceCounter_--;
+    }
+  }
+
+  return name;
 }
 
 
@@ -267,34 +310,28 @@ Engine::loadFont(int fontIndex,
 
   update();
 
+  auto id = FaceID(fontIndex, faceIndex, namedInstanceIndex);
+
   // search triplet (fontIndex, faceIndex, namedInstanceIndex)
-  scaler_.face_id = reinterpret_cast<FTC_FaceID>
-                     (faceIDMap_.value(FaceID(fontIndex,
-                                             faceIndex,
-                                             namedInstanceIndex)));
+  scaler_.face_id = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
   if (scaler_.face_id)
   {
     // found
     if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
       numGlyphs = ftSize_->face->num_glyphs;
   }
-  else
+  else if (fontIndex >= 0)
   {
     // not found; try to load triplet
     // (fontIndex, faceIndex, namedInstanceIndex)
     scaler_.face_id = reinterpret_cast<FTC_FaceID>(faceCounter_);
-    faceIDMap_.insert(FaceID(fontIndex,
-                            faceIndex,
-                            namedInstanceIndex),
-                     faceCounter_++);
+    faceIDMap_.insert(id, faceCounter_++);
 
     if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
       numGlyphs = ftSize_->face->num_glyphs;
     else
     {
-      faceIDMap_.remove(FaceID(fontIndex,
-                              faceIndex,
-                              namedInstanceIndex));
+      faceIDMap_.remove(id);
       faceCounter_--;
     }
   }

@@ -37,6 +37,7 @@ add_executable(ftinspect
   "widgets/customwidgets.cpp"
   "widgets/glyphindexselector.cpp"
   "widgets/fontsizeselector.cpp"
+  "widgets/tripletselector.cpp"
 
   "models/customcomboboxmodels.cpp"
 

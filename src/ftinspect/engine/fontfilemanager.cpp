@@ -32,6 +32,7 @@ FontFileManager::append(QStringList newFileNames)
   for (auto& name : newFileNames)
   {
     auto info = QFileInfo(name);
+    info.setCaching(false);
 
     // Filter non-file elements
     if (!info.isFile())
