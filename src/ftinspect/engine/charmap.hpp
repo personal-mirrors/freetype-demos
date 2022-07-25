@@ -17,6 +17,8 @@ struct CharMapInfo
   int index;
   FT_CharMap ptr;
   FT_Encoding encoding;
+  unsigned short platformID;
+  unsigned short encodingID;
   QString* encodingName;
 
   // Actually this shouldn't go here, but for convenience...

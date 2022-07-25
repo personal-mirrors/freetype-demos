@@ -139,9 +139,11 @@ ContinuousTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
     int newIndex = 0;
     for (auto& map : charMaps)
     {
-      charMapSelector_->addItem(tr("%1: %2")
+      charMapSelector_->addItem(tr("%1: %2 (platform %3, encoding %4)")
                                 .arg(i)
-                                .arg(*map.encodingName));
+                                .arg(*map.encodingName)
+                                .arg(map.platformID)
+                                .arg(map.encodingID));
       auto encoding = static_cast<unsigned>(map.encoding);
       charMapSelector_->setItemData(i, encoding, EncodingRole);
 
@@ -295,6 +297,8 @@ ContinuousTab::createLayout()
   modeSelector_ = new QComboBox(this);
   charMapSelector_ = new QComboBox(this);
   sourceSelector_ = new QComboBox(this);
+
+  charMapSelector_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
   // Note: in sync with the enum!!
   modeSelector_->insertItem(GlyphContinuous::M_Normal, tr("Normal"));

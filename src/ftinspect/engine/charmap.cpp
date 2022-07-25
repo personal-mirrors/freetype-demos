@@ -35,7 +35,10 @@ encodingNames()
 
 
 CharMapInfo::CharMapInfo(int index, FT_CharMap cmap)
-: index(index), ptr(cmap), encoding(cmap->encoding), maxIndex(-1)
+: index(index), ptr(cmap),
+  encoding(cmap->encoding),
+  platformID(cmap->platform_id), encodingID(cmap->encoding_id),
+  maxIndex(-1)
 {
   auto& names = encodingNames();
   auto it = names.find(encoding);
