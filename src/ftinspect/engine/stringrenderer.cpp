@@ -523,20 +523,21 @@ StringRenderer::renderLine(int x,
     if (matrixEnabled_)
       FT_Vector_Transform(&advance, &matrix_);
 
-    pen.x += advance.x;
-    pen.y += advance.y;
-
     FT_Glyph_Get_CBox(image, FT_GLYPH_BBOX_PIXELS, &bbox);
 
     // check bounding box; if it is completely outside the
     // display surface, we don't need to render it
-    if (bbox.xMax > 0 
-        && bbox.yMax > 0
-        && bbox.xMin < width
-        && bbox.yMin < height)
+    if (bbox.xMax >= 0 
+        && bbox.yMax >= 0
+        && bbox.xMin <= width
+        && bbox.yMin <= height)
     {
-      renderCallback_(image);
+      FT_Vector penPos = { (pen.x >> 6), height - (pen.y >> 6) };
+      renderCallback_(image, penPos);
     }
+
+    pen.x += advance.x;
+    pen.y += advance.y;
 
     FT_Done_Glyph(image);
   }

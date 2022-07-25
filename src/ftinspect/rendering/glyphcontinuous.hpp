@@ -101,7 +101,8 @@ private:
                  FT_Vector pos, 
                  double sizePoint);
   void drawSingleGlyph(QPainter* painter,
-                       FT_Glyph glyph);
+                       FT_Glyph glyph,
+                       FT_Vector penPos);
 };
 
 

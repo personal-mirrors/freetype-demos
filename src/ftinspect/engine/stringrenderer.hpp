@@ -56,7 +56,12 @@ public:
     KM_Smart
   };
 
-  using RenderCallback = std::function<void(FT_Glyph)>;
+  /*
+   * Need to pass the pen position because sometimes the outline vector
+   * contains no points, and thus can't be translated to the desired pen
+   * position.
+   */
+  using RenderCallback = std::function<void(FT_Glyph, FT_Vector)>;
   /*
    * The glyph pointer may be replaced. In that case, ownership is transfered
    * to the renderer, and the new glyph will be eventually freed by

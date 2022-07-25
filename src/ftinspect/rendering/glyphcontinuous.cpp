@@ -97,9 +97,9 @@ GlyphContinuous::paintByRenderer(QPainter* painter)
 
   stringRenderer_.setRepeated(source_ == SRC_TextStringRepeated);
   stringRenderer_.setCallback(
-    [&](FT_Glyph glyph)
+    [&](FT_Glyph glyph, FT_Vector penPos)
     {
-      drawSingleGlyph(painter, glyph);
+      drawSingleGlyph(painter, glyph, penPos);
     });
   stringRenderer_.setPreprocessCallback(
     [&](FT_Glyph* ptr)
@@ -261,17 +261,18 @@ GlyphContinuous::beginLine(QPainter* painter,
 
 
 void
-GlyphContinuous::drawSingleGlyph(QPainter* painter, FT_Glyph glyph)
+GlyphContinuous::drawSingleGlyph(QPainter* painter, 
+                                 FT_Glyph glyph,
+                                 FT_Vector penPos)
 {
   // ftview.c:557
   int width = glyph->advance.x ? glyph->advance.x >> 16
-                                : metrics_.y_ppem / 2;
-  
+                               : metrics_.y_ppem / 2;
+
   if (glyph->advance.x == 0 && !stringRenderer_.isWaterfall())
   {
     // Draw a red square to indicate
-      painter->fillRect(x_, y_ - width, width, width,
-                        Qt::red);
+    painter->fillRect(penPos.x, penPos.y - width, width, width, Qt::red);
   }
 
   QRect rect;
