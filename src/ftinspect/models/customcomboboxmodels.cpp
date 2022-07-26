@@ -270,8 +270,10 @@ QVariant
 AntiAliasingComboBoxModel::data(const QModelIndex& index,
                                 int role) const
 {
+  auto row = index.row();
   if (role == Qt::ForegroundRole)
-    if (index.row() == AntiAliasing_Light && !lightAntiAliasingEnabled_)
+    if ((row == AntiAliasing_Light || row == AntiAliasing_Light_SubPixel)
+        && !lightAntiAliasingEnabled_)
       return QApplication::palette().color(QPalette::Disabled, 
                                            QPalette::Text);
   return SimpleComboBoxModelImpl::data(index, role);
@@ -281,7 +283,9 @@ AntiAliasingComboBoxModel::data(const QModelIndex& index,
 Qt::ItemFlags
 AntiAliasingComboBoxModel::flags(const QModelIndex& index) const
 {
-  if (index.row() == AntiAliasing_Light && !lightAntiAliasingEnabled_)
+  auto row = index.row();
+  if ((row == AntiAliasing_Light || row == AntiAliasing_Light_SubPixel)
+      && !lightAntiAliasingEnabled_)
     return Qt::ItemFlags {};
   return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
