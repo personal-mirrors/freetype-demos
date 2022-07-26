@@ -101,6 +101,11 @@ GlyphContinuous::paintByRenderer(QPainter* painter)
     {
       drawSingleGlyph(painter, glyph, penPos);
     });
+  stringRenderer_.setImageCallback(
+    [&](QImage* image, QRect pos)
+    {
+      drawSingleGlyphImage(painter, image, pos);
+    });
   stringRenderer_.setPreprocessCallback(
     [&](FT_Glyph* ptr)
     {
@@ -281,6 +286,19 @@ GlyphContinuous::drawSingleGlyph(QPainter* painter,
   rect.setLeft(rect.left() + sizeIndicatorOffset_);
 
   painter->drawImage(rect.topLeft(), *image);
+  delete image;
+}
+
+
+void
+GlyphContinuous::drawSingleGlyphImage(QPainter* painter,
+                                      QImage* image,
+                                      QRect pos)
+{
+  // TODO red square?
+
+  pos.setLeft(pos.left() + sizeIndicatorOffset_);
+  painter->drawImage(pos, *image);
   delete image;
 }
 

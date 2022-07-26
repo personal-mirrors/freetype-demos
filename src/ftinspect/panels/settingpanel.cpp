@@ -25,14 +25,14 @@ SettingPanel::antiAliasingModeIndex()
 void
 SettingPanel::checkAllSettings()
 {
-  checkHinting();
+  onFontChanged();
   checkAutoHinting();
   checkAntiAliasing();
 }
 
 
 void
-SettingPanel::checkHinting()
+SettingPanel::onFontChanged()
 {
   if (hintingCheckBox_->isChecked())
   {
@@ -76,6 +76,48 @@ SettingPanel::checkHinting()
 
     emit repaintNeeded();
   }
+
+  populatePalettes();
+}
+
+
+void
+SettingPanel::populatePalettes()
+{
+  auto needToReload = false;
+  auto& newPalettes = engine_->currentFontPalettes();
+  if (newPalettes.size() != paletteComboBox_->count())
+    needToReload = true;
+  else
+    for (int i = 0; i < newPalettes.size(); ++i)
+    {
+      auto oldNameVariant = paletteComboBox_->itemData(i);
+      if (!oldNameVariant.canConvert<QString>())
+      {
+        needToReload = true;
+        break;
+      }
+      if (oldNameVariant.toString() != newPalettes[i].name)
+      {
+        needToReload = true;
+        break;
+      }
+    }
+  if (!needToReload)
+    return;
+
+  {
+    QSignalBlocker blocker(paletteComboBox_);
+    paletteComboBox_->clear();
+    for (int i = 0; i < newPalettes.size(); ++i)
+      paletteComboBox_->addItem(
+        QString("%1: %2")
+          .arg(i)
+          .arg(newPalettes[i].name),
+        newPalettes[i].name);
+  }
+
+  emit fontReloadNeeded();
 }
 
 
@@ -167,6 +209,14 @@ SettingPanel::checkAntiAliasing()
 
 
 void
+SettingPanel::checkPalette()
+{
+  paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked());
+  emit repaintNeeded();
+}
+
+
+void
 SettingPanel::syncSettings()
 {
   engine_->setLcdFilter(
@@ -190,6 +240,9 @@ SettingPanel::syncSettings()
   engine_->setGamma(gammaSlider_->value());
 
   engine_->setEmbeddedBitmap(embeddedBitmapCheckBox_->isChecked());
+  engine_->setPaletteIndex(paletteComboBox_->currentIndex());
+
+  engine_->setUseColorLayer(colorLayerCheckBox_->isChecked());
   engine_->setLCDUsesBGR(aaSettings.isBGR);
   engine_->setLCDSubPixelPositioning(
     antiAliasingComboBox_->currentIndex()
@@ -210,12 +263,15 @@ SettingPanel::createConnections()
   connect(lcdFilterComboBox_, 
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::repaintNeeded);
+  connect(paletteComboBox_,
+          QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+          &SettingPanel::repaintNeeded);
 
   connect(gammaSlider_, &QSlider::valueChanged,
           this, &SettingPanel::repaintNeeded);
   
   connect(hintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::checkHinting);
+          this, &SettingPanel::onFontChanged);
 
   connect(horizontalHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::repaintNeeded);
@@ -230,6 +286,8 @@ SettingPanel::createConnections()
           this, &SettingPanel::checkAutoHinting);
   connect(embeddedBitmapCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::fontReloadNeeded);
+  connect(colorLayerCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::checkPalette);
 }
 
 
@@ -252,6 +310,7 @@ SettingPanel::createLayout()
   blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"), this);
   segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"), this);
   embeddedBitmapCheckBox_ = new QCheckBox(tr("Enable Embedded Bitmap"), this);
+  colorLayerCheckBox_ = new QCheckBox(tr("Enable Color Layer"), this);
 
   antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"), this);
   antiAliasingLabel_->setAlignment(Qt::AlignRight);
@@ -261,13 +320,18 @@ SettingPanel::createLayout()
   antiAliasingComboBox_->setModel(antiAliasingComboBoxModel_);
   antiAliasingLabel_->setBuddy(antiAliasingComboBox_);
 
-  lcdFilterLabel_ = new QLabel(tr("LCD Filter"));
+  lcdFilterLabel_ = new QLabel(tr("LCD Filter"), this);
   lcdFilterLabel_->setAlignment(Qt::AlignRight);
 
   lcdFilterComboboxModel_ = new LCDFilterComboBoxModel(this);
   lcdFilterComboBox_ = new QComboBox(this);
   lcdFilterComboBox_->setModel(lcdFilterComboboxModel_);
   lcdFilterLabel_->setBuddy(lcdFilterComboBox_);
+
+  paletteLabel_ = new QLabel(tr("Palette: "), this);
+
+  paletteComboBox_ = new QComboBox(this);
+  paletteLabel_->setBuddy(paletteComboBox_);
 
   int width;
   // make all labels have the same width
@@ -327,6 +391,10 @@ SettingPanel::createLayout()
   gammaLayout_->addWidget(gammaLabel_);
   gammaLayout_->addWidget(gammaSlider_);
 
+  paletteLayout_ = new QHBoxLayout;
+  paletteLayout_->addWidget(paletteLabel_);
+  paletteLayout_->addWidget(paletteComboBox_);
+
   generalTabLayout_ = new QVBoxLayout;
   generalTabLayout_->addWidget(hintingCheckBox_);
   generalTabLayout_->addLayout(hintingModeLayout_);
@@ -343,6 +411,8 @@ SettingPanel::createLayout()
   generalTabLayout_->addStretch(1);
   generalTabLayout_->addLayout(gammaLayout_);
   generalTabLayout_->addWidget(embeddedBitmapCheckBox_);
+  generalTabLayout_->addWidget(colorLayerCheckBox_);
+  generalTabLayout_->addLayout(paletteLayout_);
   generalTabLayout_->addSpacing(20); // XXX px
   generalTabLayout_->addStretch(1);
 
@@ -393,6 +463,7 @@ SettingPanel::setDefaults()
   verticalHintingCheckBox_->setChecked(true);
   blueZoneHintingCheckBox_->setChecked(true);
   embeddedBitmapCheckBox_->setChecked(false);
+  colorLayerCheckBox_->setChecked(true);
 
   gammaSlider_->setValue(18); // 1.8
 }

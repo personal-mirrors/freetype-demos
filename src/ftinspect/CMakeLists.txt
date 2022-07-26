@@ -23,6 +23,7 @@ add_executable(ftinspect
   "engine/engine.cpp"
   "engine/fontfilemanager.cpp"
   "engine/charmap.cpp"
+  "engine/paletteinfo.cpp"
   "engine/stringrenderer.cpp"
 
   "rendering/glyphbitmap.cpp"

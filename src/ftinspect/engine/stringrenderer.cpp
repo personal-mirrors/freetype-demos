@@ -150,6 +150,7 @@ void
 StringRenderer::prepareRendering()
 {
   engine_->reloadFont();
+  engine_->loadPalette();
   if (kerningDegree_ != KD_None)
     trackingKerning_ = engine_->currentFontTrackingKerning(kerningDegree_);
   else
@@ -499,70 +500,83 @@ StringRenderer::renderLine(int x,
     if (!ctx.glyph)
       continue;
 
-    // copy the glyph because we're doing manipulation
-    auto error = FT_Glyph_Copy(ctx.glyph, &image);
-    if (error)
-      continue;
+    advance = vertical_ ? ctx.vadvance : ctx.hadvance;
 
-    glyphPreprocessCallback_(&image);
+    QRect rect;
+    QImage* colorLayerImage
+        = engine_->tryDirectRenderColorLayers(ctx.glyphIndex, &rect);
 
-    if (image->format != FT_GLYPH_FORMAT_BITMAP)
+    if (colorLayerImage)
     {
-      if (vertical_)
-        error = FT_Glyph_Transform(image, NULL, &ctx.vvector);
-
-      if (!error)
-      {
-        if (matrixEnabled_)
-          error = FT_Glyph_Transform(image, &matrix_, &pen);
-        else
-          error = FT_Glyph_Transform(image, NULL, &pen);
-      }
-
-      if (error)
-      {
-        FT_Done_Glyph(image);
-        continue;
-      }
+      rect.setX(rect.x() + (pen.x >> 6));
+      rect.setY(height - rect.y() - (pen.y >> 6));
+      renderImageCallback_(colorLayerImage, rect);
     }
     else
     {
-      auto bitmap = reinterpret_cast<FT_BitmapGlyph>(image);
+      // copy the glyph because we're doing manipulation
+      auto error = FT_Glyph_Copy(ctx.glyph, &image);
+      if (error)
+        continue;
 
-      if (vertical_)
+      glyphPreprocessCallback_(&image);
+
+      if (image->format != FT_GLYPH_FORMAT_BITMAP)
       {
-        bitmap->left += (ctx.vvector.x + pen.x) >> 6;
-        bitmap->top += (ctx.vvector.y + pen.y) >> 6;
+        if (vertical_)
+          error = FT_Glyph_Transform(image, NULL, &ctx.vvector);
+
+        if (!error)
+        {
+          if (matrixEnabled_)
+            error = FT_Glyph_Transform(image, &matrix_, &pen);
+          else
+            error = FT_Glyph_Transform(image, NULL, &pen);
+        }
+
+        if (error)
+        {
+          FT_Done_Glyph(image);
+          continue;
+        }
       }
       else
       {
-        bitmap->left += pen.x >> 6;
-        bitmap->top += pen.y >> 6;
+        auto bitmap = reinterpret_cast<FT_BitmapGlyph>(image);
+
+        if (vertical_)
+        {
+          bitmap->left += (ctx.vvector.x + pen.x) >> 6;
+          bitmap->top += (ctx.vvector.y + pen.y) >> 6;
+        }
+        else
+        {
+          bitmap->left += pen.x >> 6;
+          bitmap->top += pen.y >> 6;
+        }
       }
+
+      if (matrixEnabled_)
+        FT_Vector_Transform(&advance, &matrix_);
+
+      FT_Glyph_Get_CBox(image, FT_GLYPH_BBOX_PIXELS, &bbox);
+
+      // check bounding box; if it is completely outside the
+      // display surface, we don't need to render it
+      if (bbox.xMax >= 0 
+          && bbox.yMax >= 0
+          && bbox.xMin <= width
+          && bbox.yMin <= height)
+      {
+        FT_Vector penPos = { (pen.x >> 6), height - (pen.y >> 6) };
+        renderCallback_(image, penPos);
+      }
+
+      FT_Done_Glyph(image);
     }
-
-    advance = vertical_ ? ctx.vadvance : ctx.hadvance;
-
-    if (matrixEnabled_)
-      FT_Vector_Transform(&advance, &matrix_);
-
-    FT_Glyph_Get_CBox(image, FT_GLYPH_BBOX_PIXELS, &bbox);
-
-    // check bounding box; if it is completely outside the
-    // display surface, we don't need to render it
-    if (bbox.xMax >= 0 
-        && bbox.yMax >= 0
-        && bbox.xMin <= width
-        && bbox.yMin <= height)
-    {
-      FT_Vector penPos = { (pen.x >> 6), height - (pen.y >> 6) };
-      renderCallback_(image, penPos);
-    }
-
+    
     pen.x += advance.x;
     pen.y += advance.y;
-
-    FT_Done_Glyph(image);
   }
 
   return offset + totalCount;

@@ -148,7 +148,7 @@ void
 MainGUI::onTripletChanged()
 {
   auto state = settingPanel_->blockSignals(true);
-  settingPanel_->checkHinting();
+  settingPanel_->onFontChanged();
   settingPanel_->blockSignals(state);
   reloadCurrentTabFont();
 }

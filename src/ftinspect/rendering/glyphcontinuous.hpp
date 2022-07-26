@@ -103,6 +103,9 @@ private:
   void drawSingleGlyph(QPainter* painter,
                        FT_Glyph glyph,
                        FT_Vector penPos);
+  void drawSingleGlyphImage(QPainter* painter,
+                            QImage* image,
+                            QRect pos);
 };
 
 

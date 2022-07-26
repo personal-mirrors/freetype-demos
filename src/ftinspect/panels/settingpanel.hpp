@@ -36,10 +36,11 @@ signals:
 
 public slots:
   void checkAllSettings();
-  void checkHinting();
+  void onFontChanged();
   void checkHintingMode();
   void checkAutoHinting();
   void checkAntiAliasing();
+  void checkPalette();
 
 private:
   Engine* engine_;
@@ -56,6 +57,7 @@ private:
   QLabel* antiAliasingLabel_;
   QLabel* hintingModeLabel_;
   QLabel* lcdFilterLabel_;
+  QLabel* paletteLabel_;
 
   QCheckBox* hintingCheckBox_;
   QCheckBox* horizontalHintingCheckBox_;
@@ -64,6 +66,7 @@ private:
   QCheckBox* segmentDrawingCheckBox_;
   QCheckBox* autoHintingCheckBox_;
   QCheckBox* embeddedBitmapCheckBox_;
+  QCheckBox* colorLayerCheckBox_;
 
   AntiAliasingComboBoxModel* antiAliasingComboBoxModel_;
   HintingModeComboBoxModel* hintingModeComboBoxModel_;
@@ -72,6 +75,7 @@ private:
   QComboBox* hintingModeComboBox_;
   QComboBox* antiAliasingComboBox_;
   QComboBox* lcdFilterComboBox_;
+  QComboBox* paletteComboBox_;
 
   QSlider* gammaSlider_;
 
@@ -84,6 +88,7 @@ private:
   QHBoxLayout* antiAliasingLayout_;
   QHBoxLayout* lcdFilterLayout_;
   QHBoxLayout* gammaLayout_;
+  QHBoxLayout* paletteLayout_;
 
   QVBoxLayout* generalTabLayout_;
 
@@ -92,6 +97,8 @@ private:
   void createConnections();
   void createLayout();
   void setDefaults();
+
+  void populatePalettes();
 };
 
 

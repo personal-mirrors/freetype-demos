@@ -343,6 +343,9 @@ Engine::loadFont(int fontIndex,
     ftSize_ = NULL;
     curFamilyName_ = QString();
     curStyleName_ = QString();
+
+    curCharMaps_.clear();
+    curPaletteInfos_.clear();
   }
   else
   {
@@ -362,6 +365,8 @@ Engine::loadFont(int fontIndex,
     curCharMaps_.reserve(face->num_charmaps);
     for (int i = 0; i < face->num_charmaps; i++)
       curCharMaps_.emplace_back(i, face->charmaps[i]);
+
+    loadPaletteInfos();
   }
 
   curNumGlyphs_ = numGlyphs;
@@ -377,6 +382,22 @@ Engine::reloadFont()
     return;
   imageType_.face_id = scaler_.face_id;
   FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_);
+}
+
+
+void
+Engine::loadPalette()
+{
+  palette_ = NULL;
+  if (paletteData_.num_palettes == 0
+      || paletteIndex_ < 0
+      || paletteData_.num_palettes <= paletteIndex_)
+    return;
+
+  FT_Palette_Select(ftSize_->face, 
+                    static_cast<FT_UShort>(paletteIndex_),
+                    &palette_);
+  // XXX error handling
 }
 
 
@@ -818,6 +839,24 @@ Engine::queryEngine()
 
 
 void
+Engine::loadPaletteInfos()
+{
+  curPaletteInfos_.clear();
+
+  if (FT_Palette_Data_Get(ftSize_->face, &paletteData_))
+  {
+    // XXX Error handling
+    paletteData_.num_palettes = 0;
+    return;
+  }
+
+  curPaletteInfos_.reserve(paletteData_.num_palettes);
+  for (int i = 0; i < paletteData_.num_palettes; ++i)
+    curPaletteInfos_.emplace_back(ftSize_->face, paletteData_, i);
+}
+
+
+void
 convertLCDToARGB(FT_Bitmap& bitmap,
                  QImage& image,
                  bool isBGR)
@@ -975,6 +1014,131 @@ Engine::computeGlyphOffset(FT_Glyph glyph, bool inverseY)
   }
 
   return {};
+}
+
+
+QImage*
+Engine::tryDirectRenderColorLayers(int glyphIndex,
+                                   QRect* outRect)
+{
+  if (palette_ == NULL 
+      || !useColorLayer_ 
+      || paletteIndex_ >= paletteData_.num_palettes)
+    return NULL;
+
+  FT_LayerIterator iter = {};
+  
+  FT_UInt layerGlyphIdx = 0;
+  FT_UInt layerColorIdx = 0;
+
+  bool next = FT_Get_Color_Glyph_Layer(ftSize_->face,
+                                       glyphIndex,
+                                       &layerGlyphIdx,
+                                       &layerColorIdx,
+                                       &iter);
+  if (!next)
+    return NULL;
+
+  // temporarily change lf
+  auto oldLoadFlags = imageType_.flags;
+  auto loadFlags = oldLoadFlags;
+  loadFlags &= ~FT_LOAD_COLOR;
+  loadFlags |= FT_LOAD_RENDER;
+
+  loadFlags &= ~FT_LOAD_TARGET_(0xF);
+  loadFlags |= FT_LOAD_TARGET_NORMAL;
+  imageType_.flags = loadFlags;
+
+  FT_Bitmap bitmap = {};
+  FT_Bitmap_Init(&bitmap);
+
+  FT_Vector bitmapOffset = {};
+  bool failed = false;
+
+  do
+  {
+    FT_Vector slotOffset;
+    FT_Glyph glyph;
+    if (FTC_ImageCache_Lookup(imageCache_,
+                              &imageType_,
+                              layerGlyphIdx,
+                              &glyph,
+                              NULL))
+    {
+      // XXX Error handling
+      failed = true;
+      break;
+    }
+
+    if (glyph->format != FT_GLYPH_FORMAT_BITMAP)
+      continue;
+
+    auto bitmapGlyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
+    slotOffset.x = bitmapGlyph->left << 6;
+    slotOffset.y = bitmapGlyph->top << 6;
+
+    FT_Color color = {};
+
+    if (layerColorIdx == 0xFFFF)
+    {
+      // TODO: FT_Palette_Get_Foreground_Color: #1134
+      if (paletteData_.palette_flags
+          && (paletteData_.palette_flags[paletteIndex_] 
+              & FT_PALETTE_FOR_DARK_BACKGROUND))
+      {
+        /* white opaque */
+        color.blue = 0xFF;
+        color.green = 0xFF;
+        color.red = 0xFF;
+        color.alpha = 0xFF;
+      }
+      else
+      {
+        /* black opaque */
+        color.blue = 0x00;
+        color.green = 0x00;
+        color.red = 0x00;
+        color.alpha = 0xFF;
+      }
+    }
+    else if (layerColorIdx < paletteData_.num_palette_entries)
+      color = palette_[layerColorIdx];
+    else
+      continue;
+
+    if (FT_Bitmap_Blend(library_,
+                        &bitmapGlyph->bitmap, slotOffset,
+                        &bitmap, &bitmapOffset,
+                        color))
+    {
+      // XXX error
+      failed = true;
+      break;
+    }
+  } while (FT_Get_Color_Glyph_Layer(ftSize_->face,
+                                    glyphIndex,
+                                    &layerGlyphIdx,
+                                    &layerColorIdx,
+                                    &iter));
+
+  imageType_.flags = oldLoadFlags;
+  if (failed)
+  {
+    FT_Bitmap_Done(library_, &bitmap);
+    return NULL;
+  }
+
+  auto img = convertBitmapToQImage(&bitmap);
+  if (outRect)
+  {
+    outRect->setSize(img->size());
+    outRect->setLeft(bitmapOffset.x >> 6);
+    outRect->setTop(bitmapOffset.y >> 6);
+  }
+
+  FT_Bitmap_Done(library_, &bitmap);
+
+  return img;
 }
 
 

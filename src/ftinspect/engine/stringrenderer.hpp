@@ -63,6 +63,12 @@ public:
    */
   using RenderCallback = std::function<void(FT_Glyph, FT_Vector)>;
   /*
+   * For color layered fonts, this will direct render the QImage for you.
+   * TODO: Remove `RenderCallback` and do QImage creation in this class?
+   * The receiver is responsible for deleteing the QImage.
+   */
+  using RenderImageCallback = std::function<void(QImage*, QRect)>;
+  /*
    * The glyph pointer may be replaced. In that case, ownership is transfered
    * to the renderer, and the new glyph will be eventually freed by
    * the renderer. The callback is responsible to free the old glyph.
@@ -88,6 +94,11 @@ public:
   setCallback(RenderCallback cb)
   {
     renderCallback_ = std::move(cb);
+  }
+  void
+  setImageCallback(RenderImageCallback cb)
+  {
+    renderImageCallback_ = std::move(cb);
   }
   void
   setPreprocessCallback(PreprocessCallback cb)
@@ -173,6 +184,7 @@ private:
   bool matrixEnabled_ = false;
 
   RenderCallback renderCallback_;
+  RenderImageCallback renderImageCallback_;
   PreprocessCallback glyphPreprocessCallback_;
   LineBeginCallback lineBeginCallback_;
 

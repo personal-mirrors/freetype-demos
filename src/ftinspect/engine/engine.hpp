@@ -7,6 +7,7 @@
 
 #include "fontfilemanager.hpp"
 #include "charmap.hpp"
+#include "paletteinfo.hpp"
 
 #include <vector>
 #include <QString>
@@ -19,6 +20,7 @@
 #include <freetype/ftoutln.h>
 #include <freetype/ftcache.h>
 #include <freetype/ftlcdfil.h>
+#include <freetype/ftcolor.h>
 
 
 // This structure maps the (font, face, instance) index triplet to abstract
@@ -94,9 +96,22 @@ public:
                                bool inverseRectY);
   QPoint computeGlyphOffset(FT_Glyph glyph, bool inverseY);
 
+  /*
+   * Directly render the glyph at the specified index
+   * to a `QImage`. If you want to perform color-layer
+   * rendering, call this before trying to load the
+   * glyph and do normal rendering, If the returning
+   * value is non-NULL, then there's no need to
+   * load the glyph the normal way, just draw the `QImage`.
+   * Will return NULL if not enabled or color layers not available.
+   */
+  QImage* tryDirectRenderColorLayers(int glyphIndex,
+                                     QRect* outRect);
+
   // reload current triplet, but with updated settings, useful for updating
   // `ftSize_` only
-  void reloadFont(); 
+  void reloadFont();
+  void loadPalette();
 
   void openFonts(QStringList fontFileNames);
   void removeFont(int fontIndex, bool closeFile = true);
@@ -132,6 +147,7 @@ public:
   FT_Vector currentFontKerning(int glyphIndex, int prevIndex);
   
   std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
+  std::vector<PaletteInfo>& currentFontPalettes() { return curPaletteInfos_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
@@ -164,6 +180,8 @@ public:
   void setRenderMode(int mode) { renderMode_ = mode; }
   void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
   void setEmbeddedBitmap(bool force) { embeddedBitmap_ = force; }
+  void setUseColorLayer(bool colorLayer) { useColorLayer_ = colorLayer; }
+  void setPaletteIndex(int index) { paletteIndex_ = index; }
   void setLCDUsesBGR(bool isBGR) { lcdUsesBGR_ = isBGR; }
   void setLCDSubPixelPositioning(bool sp) { lcdSubPixelPositioning_ = sp; }
 
@@ -191,6 +209,7 @@ private:
   QString curStyleName_;
   int curNumGlyphs_ = -1;
   std::vector<CharMapInfo> curCharMaps_;
+  std::vector<PaletteInfo> curPaletteInfos_;
 
   FT_Library library_;
   FTC_Manager cacheManager_;
@@ -199,8 +218,10 @@ private:
   FTC_CMapCache cmapCache_;
 
   FTC_ScalerRec scaler_ = {};
-  FT_Size ftSize_;
   FTC_ImageTypeRec imageType_;
+  FT_Size ftSize_;
+  FT_Palette_Data paletteData_ = {};
+  FT_Color* palette_ = NULL;
 
   EngineDefaultValues engineDefaults_;
 
@@ -219,6 +240,8 @@ private:
   bool doBlueZoneHinting_;
   bool showSegments_;
   bool embeddedBitmap_;
+  bool useColorLayer_;
+  int paletteIndex_ = -1;
   int antiAliasingTarget_;
   bool lcdUsesBGR_;
   bool lcdSubPixelPositioning_;
@@ -228,6 +251,7 @@ private:
   unsigned long loadFlags_;
 
   void queryEngine();
+  void loadPaletteInfos();
 
 public:
 

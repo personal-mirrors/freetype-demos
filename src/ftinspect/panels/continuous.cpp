@@ -230,6 +230,7 @@ ContinuousTab::charMapChanged()
   }
   updateLimitIndex();
 
+  syncSettings();
   canvas_->stringRenderer().reloadAll();
   repaintGlyph();
   lastCharMapIndex_ = newIndex;
