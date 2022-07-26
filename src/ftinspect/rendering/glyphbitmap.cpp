@@ -14,12 +14,21 @@
 #include <freetype/ftbitmap.h>
 
 
-GlyphBitmap::GlyphBitmap(FT_Glyph glyph,
+GlyphBitmap::GlyphBitmap(int glyphIndex, 
+                         FT_Glyph glyph,
                          Engine* engine)
 {
   QRect bRect;
+  image_ = engine->tryDirectRenderColorLayers(glyphIndex, &bRect);
+  if (image_)
+  {
+    bRect.setTop(-bRect.top());
+    boundingRect_ = bRect; // QRect to QRectF
+    return;
+  }
+
   image_ = engine->convertGlyphToQImage(glyph, &bRect, true);
-  boundingRect_ = bRect; // QRectF to QRect
+  boundingRect_ = bRect; // QRect to QRectF
 }
 
 

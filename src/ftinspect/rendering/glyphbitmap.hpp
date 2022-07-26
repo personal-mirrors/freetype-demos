@@ -20,7 +20,8 @@ class GlyphBitmap
 : public QGraphicsItem
 {
 public:
-  GlyphBitmap(FT_Glyph glyph,
+  GlyphBitmap(int glyphIndex,
+              FT_Glyph glyph,
               Engine* engine);
   ~GlyphBitmap() override;
   QRectF boundingRect() const override;

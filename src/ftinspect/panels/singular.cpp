@@ -94,7 +94,8 @@ SingularTab::drawGlyph()
     if (showBitmapCheckBox_->isChecked())
     {
       currentGlyphBitmapItem_
-        = new GlyphBitmap(glyph,
+        = new GlyphBitmap(currentGlyphIndex_, 
+                          glyph,
                           engine_);
       glyphScene_->addItem(currentGlyphBitmapItem_);
     }
