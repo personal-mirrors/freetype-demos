@@ -8,13 +8,43 @@
 #include "../engine/stringrenderer.hpp"
 
 #include <utility>
+#include <vector>
 
 #include <QWidget>
+#include <QImage>
 
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 #include <freetype/ftoutln.h>
 #include <freetype/ftstroke.h>
+
+
+struct GlyphCacheEntry
+{
+  QImage* image = NULL;
+  QRect basePosition = {};
+  QPoint penPos = {};
+  int charCode = -1;
+  int glyphIndex = -1;
+
+  FT_Vector advance = {};
+  bool hasAdvance = false;
+
+  GlyphCacheEntry() {}
+  ~GlyphCacheEntry();
+  GlyphCacheEntry(const GlyphCacheEntry& other) = delete;
+  GlyphCacheEntry& operator=(const GlyphCacheEntry& other) = delete;
+  GlyphCacheEntry(GlyphCacheEntry&& other) noexcept;
+  GlyphCacheEntry& operator=(GlyphCacheEntry&& other) noexcept;
+};
+
+
+struct GlyphCacheLine
+{
+  QPoint basePosition = {};
+  double sizePoint = 0.0;
+  std::vector<GlyphCacheEntry> entries;
+};
 
 
 class Engine;
@@ -56,6 +86,8 @@ public:
   void setStrokeRadius(double radius) { strokeRadius_ = radius; }
   void setSourceText(QString text);
 
+  void purgeCache();
+
 signals:
   void wheelNavigate(int steps);
   void wheelResize(int steps);
@@ -64,6 +96,7 @@ signals:
 protected:
   void paintEvent(QPaintEvent* event) override;
   void wheelEvent(QWheelEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
 
 private:
   Engine* engine_;
@@ -86,7 +119,12 @@ private:
 
   FT_Stroker stroker_;
 
-  void paintByRenderer(QPainter* painter);
+  std::vector<GlyphCacheLine> glyphCache_;
+  GlyphCacheLine* currentWritingLine_ = NULL;
+
+  QPoint positionDelta_;
+
+  void paintByRenderer();
 
   // These two are used indendpent of current glyph variables
   // and assumes ownership of glyphs, but don't free them.
@@ -94,18 +132,23 @@ private:
   void transformGlyphFancy(FT_Glyph glyph);
   FT_Glyph transformGlyphStroked(FT_Glyph glyph);
 
+  void paintCache(QPainter* painter);
+  void fillCache();
   void prePaint();
   void updateRendererText();
   void preprocessGlyph(FT_Glyph* glyphPtr);
-  void beginLine(QPainter* painter,
-                 FT_Vector pos, 
-                 double sizePoint);
-  void drawSingleGlyph(QPainter* painter,
-                       FT_Glyph glyph,
-                       FT_Vector penPos);
-  void drawSingleGlyphImage(QPainter* painter,
-                            QImage* image,
-                            QRect pos);
+  void beginSaveLine(FT_Vector pos,
+                     double sizePoint);
+  void saveSingleGlyph(FT_Glyph glyph,
+                       FT_Vector penPos,
+                       GlyphContext gctx);
+  void saveSingleGlyphImage(QImage* image,
+                            QRect pos,
+                            GlyphContext gctx);
+  void beginDrawCacheLine(QPainter* painter,
+                          const GlyphCacheLine& line);
+  void drawCacheGlyph(QPainter* painter,
+                      const GlyphCacheEntry& entry);
 };
 
 

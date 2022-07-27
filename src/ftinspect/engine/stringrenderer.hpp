@@ -61,13 +61,17 @@ public:
    * contains no points, and thus can't be translated to the desired pen
    * position.
    */
-  using RenderCallback = std::function<void(FT_Glyph, FT_Vector)>;
+  using RenderCallback = std::function<void(FT_Glyph, 
+                                            FT_Vector, 
+                                            GlyphContext&)>;
   /*
    * For color layered fonts, this will direct render the QImage for you.
    * TODO: Remove `RenderCallback` and do QImage creation in this class?
    * The receiver is responsible for deleteing the QImage.
    */
-  using RenderImageCallback = std::function<void(QImage*, QRect)>;
+  using RenderImageCallback = std::function<void(QImage*, 
+                                                 QRect, 
+                                                 GlyphContext&)>;
   /*
    * The glyph pointer may be replaced. In that case, ownership is transfered
    * to the renderer, and the new glyph will be eventually freed by

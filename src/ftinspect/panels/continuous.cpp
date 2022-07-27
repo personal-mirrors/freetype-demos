@@ -30,6 +30,7 @@ ContinuousTab::repaintGlyph()
   sizeSelector_->applyToEngine(engine_);
   
   syncSettings();
+  canvas_->purgeCache();
   canvas_->repaint();
 }
 
@@ -41,6 +42,7 @@ ContinuousTab::reloadFont()
   setGlyphCount(qBound(0, currentGlyphCount_, INT_MAX));
   setCharMaps(engine_->currentFontCharMaps());
   canvas_->stringRenderer().reloadAll();
+  canvas_->purgeCache();
   repaintGlyph();
 }
 

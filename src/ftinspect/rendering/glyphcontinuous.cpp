@@ -12,6 +12,37 @@
 #include <freetype/ftbitmap.h>
 
 
+GlyphCacheEntry::~GlyphCacheEntry()
+{
+  delete image;
+}
+
+
+GlyphCacheEntry::GlyphCacheEntry(GlyphCacheEntry&& other) noexcept
+{
+  *this = std::move(other);
+}
+
+
+GlyphCacheEntry&
+GlyphCacheEntry::operator=(GlyphCacheEntry&& other) noexcept
+{
+  if (this == &other)
+    return *this;
+
+  auto oldImage = image;
+  image = other.image;
+  basePosition = other.basePosition;
+  penPos = other.penPos;
+  charCode = other.charCode;
+  glyphIndex = other.glyphIndex;
+  advance = other.advance;
+  hasAdvance = other.hasAdvance;
+  other.image = oldImage;
+  return *this;
+}
+
+
 GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
 : QWidget(parent),
   engine_(engine),
@@ -38,9 +69,11 @@ GlyphContinuous::setSource(Source source)
   {
   case SRC_AllGlyphs:
     stringRenderer_.setUseAllGlyphs();
+    positionDelta_ = {};
     break;
 
   case SRC_TextStringRepeated:
+    positionDelta_ = {};
   case SRC_TextString:
     updateRendererText();
     break;
@@ -57,16 +90,23 @@ GlyphContinuous::setSourceText(QString text)
 
 
 void
+GlyphContinuous::purgeCache()
+{
+  glyphCache_.clear();
+  currentWritingLine_ = NULL;
+}
+
+
+void
 GlyphContinuous::paintEvent(QPaintEvent* event)
 {
   QPainter painter;
   painter.begin(this);
   painter.fillRect(rect(), Qt::white);
 
-  prePaint();
-
-  paintByRenderer(&painter);
-  emit displayingCountUpdated(displayingCount_);
+  if (glyphCache_.empty())
+    fillCache();
+  paintCache(&painter);
 
   painter.end();
 }
@@ -84,27 +124,28 @@ GlyphContinuous::wheelEvent(QWheelEvent* event)
 
 
 void
-GlyphContinuous::paintByRenderer(QPainter* painter)
+GlyphContinuous::resizeEvent(QResizeEvent* event)
 {
-  if (mode_ == M_Stroked)
-  {
-    auto radius = static_cast<FT_Fixed>(metrics_.y_ppem * 64 * strokeRadius_);
-    FT_Stroker_Set(stroker_, radius,
-                   FT_STROKER_LINECAP_ROUND,
-                   FT_STROKER_LINEJOIN_ROUND,
-                   0);
-  }
+  purgeCache();
+  QWidget::resizeEvent(event);
+}
+
+
+void
+GlyphContinuous::paintByRenderer()
+{
+  purgeCache();
 
   stringRenderer_.setRepeated(source_ == SRC_TextStringRepeated);
   stringRenderer_.setCallback(
-    [&](FT_Glyph glyph, FT_Vector penPos)
+    [&](FT_Glyph glyph, FT_Vector penPos, GlyphContext& ctx)
     {
-      drawSingleGlyph(painter, glyph, penPos);
+      saveSingleGlyph(glyph, penPos, ctx);
     });
   stringRenderer_.setImageCallback(
-    [&](QImage* image, QRect pos)
+    [&](QImage* image, QRect pos, GlyphContext& ctx)
     {
-      drawSingleGlyphImage(painter, image, pos);
+      saveSingleGlyphImage(image, pos, ctx);
     });
   stringRenderer_.setPreprocessCallback(
     [&](FT_Glyph* ptr)
@@ -114,7 +155,7 @@ GlyphContinuous::paintByRenderer(QPainter* painter)
   stringRenderer_.setLineBeginCallback(
     [&](FT_Vector pos, double size)
     {
-      beginLine(painter, pos, size);
+      beginSaveLine(pos, size);
     });
   displayingCount_ = stringRenderer_.render(width(), height(), beginIndex_);
 }
@@ -169,6 +210,31 @@ GlyphContinuous::transformGlyphStroked(FT_Glyph glyph)
 
 
 void
+GlyphContinuous::paintCache(QPainter* painter)
+{
+  if (stringRenderer_.isWaterfall())
+    positionDelta_.setY(0);
+  for (auto& line : glyphCache_)
+  {
+    beginDrawCacheLine(painter, line);
+    for (auto& glyph : line.entries)
+    {
+      drawCacheGlyph(painter, glyph);
+    }
+  }
+}
+
+
+void
+GlyphContinuous::fillCache()
+{
+  prePaint();
+  paintByRenderer();
+  emit displayingCountUpdated(displayingCount_);
+}
+
+
+void
 GlyphContinuous::prePaint()
 {
   displayingCount_ = 0;
@@ -204,6 +270,15 @@ GlyphContinuous::prePaint()
 
   emboldeningX_ = (FT_Pos)(metrics_.y_ppem * 64 * boldX_);
   emboldeningY_ = (FT_Pos)(metrics_.y_ppem * 64 * boldY_);
+
+  if (mode_ == M_Stroked)
+  {
+    auto radius = static_cast<FT_Fixed>(metrics_.y_ppem * 64 * strokeRadius_);
+    FT_Stroker_Set(stroker_, radius,
+                   FT_STROKER_LINECAP_ROUND,
+                   FT_STROKER_LINEJOIN_ROUND,
+                   0);
+  }
 }
 
 
@@ -240,9 +315,65 @@ GlyphContinuous::preprocessGlyph(FT_Glyph* glyphPtr)
 
 
 void
-GlyphContinuous::beginLine(QPainter* painter,
-                           FT_Vector pos,
-                           double sizePoint)
+GlyphContinuous::beginSaveLine(FT_Vector pos,
+                               double sizePoint)
+{
+  glyphCache_.emplace_back();
+  currentWritingLine_ = &glyphCache_.back();
+  currentWritingLine_->sizePoint = sizePoint;
+  currentWritingLine_->basePosition = { static_cast<int>(pos.x),
+                                        static_cast<int>(pos.y) };
+}
+
+
+void
+GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
+                                 FT_Vector penPos,
+                                 GlyphContext gctx)
+{
+  if (!currentWritingLine_)
+    return;
+
+  currentWritingLine_->entries.push_back(std::move(GlyphCacheEntry{}));
+  auto& entry = currentWritingLine_->entries.back();
+
+  QRect rect;
+  QImage* image = engine_->convertGlyphToQImage(glyph, &rect, false);
+  rect.setTop(height() - rect.top()); // TODO Don't place this here...
+
+  entry.image = image;
+  entry.basePosition = rect;
+  entry.charCode = gctx.charCode;
+  entry.glyphIndex = gctx.glyphIndex;
+  entry.advance = glyph->advance;
+  entry.penPos = { penPos.x, penPos.y };
+
+  // todo more info
+}
+
+
+void
+GlyphContinuous::saveSingleGlyphImage(QImage* image,
+                                      QRect pos,
+                                      GlyphContext gctx)
+{
+  if (!currentWritingLine_)
+    return;
+
+  currentWritingLine_->entries.push_back(std::move(GlyphCacheEntry{}));
+  auto& entry = currentWritingLine_->entries.back();
+
+  entry.image = image;
+  entry.basePosition = pos;
+  entry.charCode = gctx.charCode;
+  entry.glyphIndex = gctx.glyphIndex;
+  entry.hasAdvance = false;
+}
+
+
+void
+GlyphContinuous::beginDrawCacheLine(QPainter* painter,
+                                    const GlyphCacheLine& line)
 {
   // Now only used by waterfall mode to draw a size indicator.
   if (!stringRenderer_.isWaterfall())
@@ -252,54 +383,38 @@ GlyphContinuous::beginLine(QPainter* painter,
   }
 
   auto oldFont = painter->font();
-  oldFont.setPointSizeF(sizePoint);
+  oldFont.setPointSizeF(line.sizePoint);
   painter->setFont(oldFont);
   auto metrics = painter->fontMetrics();
 
-  auto sizePrefix = QString("%1: ").arg(sizePoint);
-  QPoint posQ = { static_cast<int>(pos.x),
-                  static_cast<int>(pos.y) };
-  painter->drawText(posQ, sizePrefix);
+  auto sizePrefix = QString("%1: ").arg(line.sizePoint);
+  painter->drawText(line.basePosition, sizePrefix);
 
   sizeIndicatorOffset_ = metrics.horizontalAdvance(sizePrefix);
 }
 
 
 void
-GlyphContinuous::drawSingleGlyph(QPainter* painter, 
-                                 FT_Glyph glyph,
-                                 FT_Vector penPos)
+GlyphContinuous::drawCacheGlyph(QPainter* painter,
+                                const GlyphCacheEntry& entry)
 {
   // ftview.c:557
-  int width = glyph->advance.x ? glyph->advance.x >> 16
-                               : metrics_.y_ppem / 2;
+  // Well, metrics is also part of the cache...
+  int width = entry.advance.x ? entry.advance.x >> 16
+                              : metrics_.y_ppem / 2;
 
-  if (glyph->advance.x == 0 && !stringRenderer_.isWaterfall())
+  if (entry.advance.x == 0 && !stringRenderer_.isWaterfall())
   {
     // Draw a red square to indicate
-    painter->fillRect(penPos.x, penPos.y - width, width, width, Qt::red);
+    auto squarePoint = entry.penPos;
+    squarePoint.setY(squarePoint.y() - width);
+    painter->fillRect(QRect(squarePoint, QSize(width, width)), Qt::red);
   }
 
-  QRect rect;
-  QImage* image = engine_->convertGlyphToQImage(glyph, &rect, false);
-  rect.setTop(height() - rect.top()); // TODO Don't place this here...
+  QRect rect = entry.basePosition;
   rect.setLeft(rect.left() + sizeIndicatorOffset_);
 
-  painter->drawImage(rect.topLeft(), *image);
-  delete image;
-}
-
-
-void
-GlyphContinuous::drawSingleGlyphImage(QPainter* painter,
-                                      QImage* image,
-                                      QRect pos)
-{
-  // TODO red square?
-
-  pos.setLeft(pos.left() + sizeIndicatorOffset_);
-  painter->drawImage(pos, *image);
-  delete image;
+  painter->drawImage(rect.topLeft(), *entry.image);
 }
 
 

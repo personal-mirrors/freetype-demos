@@ -510,7 +510,7 @@ StringRenderer::renderLine(int x,
     {
       rect.setX(rect.x() + (pen.x >> 6));
       rect.setY(height - rect.y() - (pen.y >> 6));
-      renderImageCallback_(colorLayerImage, rect);
+      renderImageCallback_(colorLayerImage, rect, ctx);
     }
     else
     {
@@ -569,7 +569,7 @@ StringRenderer::renderLine(int x,
           && bbox.yMin <= height)
       {
         FT_Vector penPos = { (pen.x >> 6), height - (pen.y >> 6) };
-        renderCallback_(image, penPos);
+        renderCallback_(image, penPos, ctx);
       }
 
       FT_Done_Glyph(image);
