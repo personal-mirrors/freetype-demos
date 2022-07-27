@@ -12,7 +12,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 5.15 COMPONENTS Widgets REQUIRED)
 find_package(Freetype REQUIRED)
 
 add_executable(ftinspect

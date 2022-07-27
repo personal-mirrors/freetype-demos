@@ -14,7 +14,8 @@
 qt5 = import('qt5')
 qt5_dep = dependency('qt5',
   required: false,
-  modules: ['Core', 'Gui', 'Widgets'])
+  modules: ['Core', 'Gui', 'Widgets'],
+  version : '>=5.15')
 
 # Don't compile `ftinspect` if Qt5 is not found.  This can happen
 # when cross-compiling to a different system.
