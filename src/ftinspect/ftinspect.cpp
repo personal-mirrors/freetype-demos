@@ -24,6 +24,9 @@ main(int argc,
   Engine engine;
   MainGUI gui(&engine);
 
+  if (argc > 1)
+    gui.loadFontsFromArgs(argc - 1, argv + 1);
+
   gui.show();
 
   return app.exec();

@@ -134,6 +134,24 @@ MainGUI::loadFonts()
 }
 
 
+// the caller must shift argv & decrement argc,
+// to exclude the ftinspect program itself
+void
+MainGUI::loadFontsFromArgs(int argc, char** argv)
+{
+  QStringList files;
+
+  for (int i = 0; i < argc; i++)
+  {
+    QFileInfo qFileInfo(argv[i]);
+    if (qFileInfo.isReadable())
+      files.append(argv[i]);
+  }
+
+  openFonts(files);
+}
+
+
 void
 MainGUI::openFonts(QStringList const& fileNames)
 {
