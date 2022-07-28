@@ -28,6 +28,8 @@ public:
 
   double selectedSize();
   Units selectedUnit();
+  void setSizePixel(int sizePixel);
+  void setSizePoint(double sizePoint);
 
   void applyToEngine(Engine* engine);
   void handleWheelResizeBySteps(int steps);

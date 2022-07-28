@@ -93,6 +93,7 @@ public:
   using LineBeginCallback = std::function<void(FT_Vector, double)>;
 
   bool isWaterfall() { return waterfall_; }
+  double position(){ return position_; }
 
   void
   setCallback(RenderCallback cb)
@@ -179,7 +180,7 @@ private:
   bool waterfall_ = false;
   bool repeated_ = false;
   bool vertical_ = false;
-  double position_ = 0;
+  double position_ = 0.5;
   double rotation_ = 0;
   int kerningDegree_ = KD_None;
   KerningMode kerningMode_ = KM_None;

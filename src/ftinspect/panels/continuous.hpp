@@ -48,6 +48,10 @@ public:
   void charMapChanged();
   void sourceTextChanged();
   void reloadGlyphsAndRepaint();
+  void changeBeginIndexFromCanvas(int index);
+
+signals:
+  void switchToSingular(int glyphIndex, double sizePoint);
 
 protected:
   bool eventFilter(QObject* watched, QEvent* event) override;
@@ -70,6 +74,8 @@ private:
   QComboBox* sourceSelector_;
   QComboBox* charMapSelector_;
 
+  QPushButton* resetPositionButton_;
+
   QLabel* modeLabel_;
   QLabel* sourceLabel_;
   QLabel* charMapLabel_;
@@ -78,7 +84,6 @@ private:
   QLabel* slantLabel_;
   QLabel* strokeRadiusLabel_;
   QLabel* rotationLabel_;
-  QLabel* positionLabel_;
 
   QDoubleSpinBox* xEmboldeningSpinBox_;
   QDoubleSpinBox* yEmboldeningSpinBox_;
@@ -89,14 +94,12 @@ private:
   QCheckBox* verticalCheckBox_;
   QCheckBox* waterfallCheckBox_;
   QCheckBox* kerningCheckBox_;
-  QSlider* positionSlider_;
 
   GlyphIndexSelector* indexSelector_;
   QPlainTextEdit* sourceTextEdit_;
 
   std::vector<CharMapInfo> charMaps_;
-
-  QVBoxLayout* positionLayout_;
+  
   QGridLayout* bottomLayout_;
   QVBoxLayout* mainLayout_;
 

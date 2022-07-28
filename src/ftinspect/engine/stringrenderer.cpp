@@ -561,16 +561,9 @@ StringRenderer::renderLine(int x,
 
       FT_Glyph_Get_CBox(image, FT_GLYPH_BBOX_PIXELS, &bbox);
 
-      // check bounding box; if it is completely outside the
-      // display surface, we don't need to render it
-      if (bbox.xMax >= 0 
-          && bbox.yMax >= 0
-          && bbox.xMin <= width
-          && bbox.yMin <= height)
-      {
-        FT_Vector penPos = { (pen.x >> 6), height - (pen.y >> 6) };
-        renderCallback_(image, penPos, ctx);
-      }
+      // Don't check for bounding box here.
+      FT_Vector penPos = { (pen.x >> 6), height - (pen.y >> 6) };
+      renderCallback_(image, penPos, ctx);
 
       FT_Done_Glyph(image);
     }

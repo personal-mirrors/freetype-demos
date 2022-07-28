@@ -98,6 +98,14 @@ GlyphContinuous::purgeCache()
 
 
 void
+GlyphContinuous::resetPositionDelta()
+{
+  positionDelta_ = {};
+  repaint();
+}
+
+
+void
 GlyphContinuous::paintEvent(QPaintEvent* event)
 {
   QPainter painter;
@@ -128,6 +136,78 @@ GlyphContinuous::resizeEvent(QResizeEvent* event)
 {
   purgeCache();
   QWidget::resizeEvent(event);
+}
+
+
+void
+GlyphContinuous::mousePressEvent(QMouseEvent* event)
+{
+  QWidget::mousePressEvent(event);
+  if (event->button() == Qt::LeftButton)
+  {
+    prevPositionDelta_ = positionDelta_;
+    mouseDownPostition_ = event->pos();
+    prevHoriPosition_ = stringRenderer_.position();
+    prevIndex_ = beginIndex_;
+    // We need to precalculate this value because after the first change of
+    // the begin index, the average line count would change. If we don't use the
+    // old value, then moving up/down for the same distance would not return
+    // to the original index which is confusing.
+    averageLineCount_ = calculateAverageLineCount();
+  }
+}
+
+
+void
+GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
+{
+  QWidget::mouseMoveEvent(event);
+  if (event->buttons() != Qt::LeftButton)
+    return;
+  auto delta = event->pos() - mouseDownPostition_;
+  if (source_ == SRC_AllGlyphs)
+  {
+    auto deltaIndex = -delta.x() / HorizontalUnitLength
+                        - delta.y() / VerticalUnitLength * averageLineCount_;
+    if (prevIndex_ + deltaIndex != beginIndex_)
+      emit beginIndexChangeRequest(beginIndex_ + deltaIndex);
+  }
+  else if (source_ == SRC_TextString)
+  {
+    positionDelta_ = prevPositionDelta_ + delta;
+    positionDelta_.setX(0); // Don't move horizontally
+
+    // but use the renderer
+    auto horiPos = delta.x() / static_cast<double>(width());
+    horiPos += prevHoriPosition_;
+    horiPos = qBound(0.0, horiPos, 1.0);
+    stringRenderer_.setPosition(horiPos);
+
+    purgeCache();
+    repaint();
+  }
+}
+
+
+void
+GlyphContinuous::mouseReleaseEvent(QMouseEvent* event)
+{
+  QWidget::mouseReleaseEvent(event);
+  if (event->button() == Qt::LeftButton)
+  {
+    auto dist = event->pos() - mouseDownPostition_;
+    if (dist.manhattanLength() < ClickDragThreshold)
+    {
+      // TODO: clicked down, open overlay
+    }
+  }
+  else if (event->button() == Qt::RightButton)
+  {
+    double size;
+    auto gl = findGlyphByMouse(event->pos(), &size);
+    if (gl)
+      emit rightClickGlyph(gl->glyphIndex, size);
+  }
 }
 
 
@@ -339,7 +419,7 @@ GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
 
   QRect rect;
   QImage* image = engine_->convertGlyphToQImage(glyph, &rect, false);
-  rect.setTop(height() - rect.top()); // TODO Don't place this here...
+  rect.moveTop(height() - rect.top()); // TODO Don't place this here...
 
   entry.image = image;
   entry.basePosition = rect;
@@ -373,7 +453,7 @@ GlyphContinuous::saveSingleGlyphImage(QImage* image,
 
 void
 GlyphContinuous::beginDrawCacheLine(QPainter* painter,
-                                    const GlyphCacheLine& line)
+                                    GlyphCacheLine& line)
 {
   // Now only used by waterfall mode to draw a size indicator.
   if (!stringRenderer_.isWaterfall())
@@ -391,6 +471,7 @@ GlyphContinuous::beginDrawCacheLine(QPainter* painter,
   painter->drawText(line.basePosition, sizePrefix);
 
   sizeIndicatorOffset_ = metrics.horizontalAdvance(sizePrefix);
+  line.sizeIndicatorOffset = sizeIndicatorOffset_;
 }
 
 
@@ -412,9 +493,47 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
   }
 
   QRect rect = entry.basePosition;
-  rect.setLeft(rect.left() + sizeIndicatorOffset_);
+  rect.moveLeft(rect.x() + sizeIndicatorOffset_);
+  rect.translate(positionDelta_);
 
   painter->drawImage(rect.topLeft(), *entry.image);
+}
+
+
+GlyphCacheEntry*
+GlyphContinuous::findGlyphByMouse(QPoint position,
+                                  double* outSizePoint)
+{
+  position -= positionDelta_;
+  for (auto& line : glyphCache_)
+    for (auto& entry : line.entries)
+    {
+      auto rect = entry.basePosition;
+      rect.moveLeft(rect.x() + line.sizeIndicatorOffset);
+      if (rect.contains(position))
+      {
+        if (outSizePoint)
+          *outSizePoint = line.sizePoint;
+        return &entry;
+      }
+    }
+  return NULL;
+}
+
+
+int
+GlyphContinuous::calculateAverageLineCount()
+{
+  int averageLineCount = 0;
+  for (auto& line : glyphCache_)
+  {
+    // line.entries.size must < INT_MAX because the total glyph count in
+    // the renderer is below that
+    averageLineCount += static_cast<int>(line.entries.size());
+  }
+  if (!glyphCache_.empty())
+    averageLineCount /= static_cast<int>(glyphCache_.size());
+  return averageLineCount;
 }
 
 

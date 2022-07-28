@@ -155,6 +155,15 @@ MainGUI::onTripletChanged()
 
 
 void
+MainGUI::switchToSingular(int glyphIndex,
+                          double sizePoint)
+{
+  tabWidget_->setCurrentWidget(singularTab_); // this would update the tab
+  singularTab_->setCurrentGlyphAndSize(glyphIndex, sizePoint);
+}
+
+
+void
 MainGUI::repaintCurrentTab()
 {
   syncSettings();
@@ -257,6 +266,9 @@ MainGUI::createConnections()
 
   connect(tripletSelector_, &TripletSelector::tripletChanged,
           this, &MainGUI::onTripletChanged);
+
+  connect(continuousTab_, &ContinuousTab::switchToSingular,
+          this, &MainGUI::switchToSingular);
 }
 
 

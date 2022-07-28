@@ -70,6 +70,7 @@ private slots:
   void reloadCurrentTabFont();
   void loadFonts();
   void onTripletChanged();
+  void switchToSingular(int glyphIndex, double sizePoint);
 
 private:
   Engine* engine_;

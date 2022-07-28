@@ -43,6 +43,7 @@ struct GlyphCacheLine
 {
   QPoint basePosition = {};
   double sizePoint = 0.0;
+  int sizeIndicatorOffset;
   std::vector<GlyphCacheEntry> entries;
 };
 
@@ -87,16 +88,22 @@ public:
   void setSourceText(QString text);
 
   void purgeCache();
+  void resetPositionDelta();
 
 signals:
   void wheelNavigate(int steps);
   void wheelResize(int steps);
+  void beginIndexChangeRequest(int newIndex);
   void displayingCountUpdated(int newCount);
+  void rightClickGlyph(int glyphIndex, double sizePoint);
 
 protected:
   void paintEvent(QPaintEvent* event) override;
   void wheelEvent(QWheelEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
+  void mousePressEvent(QMouseEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
   Engine* engine_;
@@ -108,7 +115,7 @@ private:
   double boldX_, boldY_, slant_;
   double strokeRadius_;
   QString text_;
-  int sizeIndicatorOffset_; // For Waterfall Rendering...
+  int sizeIndicatorOffset_ = 0; // For Waterfall Rendering...
 
   int displayingCount_ = 0;
   FT_Size_Metrics metrics_;
@@ -123,6 +130,11 @@ private:
   GlyphCacheLine* currentWritingLine_ = NULL;
 
   QPoint positionDelta_;
+  double prevHoriPosition_;
+  QPoint prevPositionDelta_ = { 0, 0 };
+  QPoint mouseDownPostition_ = { 0, 0 };
+  int prevIndex_ = -1;
+  int averageLineCount_ = 0;
 
   void paintByRenderer();
 
@@ -146,9 +158,18 @@ private:
                             QRect pos,
                             GlyphContext gctx);
   void beginDrawCacheLine(QPainter* painter,
-                          const GlyphCacheLine& line);
+                          GlyphCacheLine& line);
   void drawCacheGlyph(QPainter* painter,
                       const GlyphCacheEntry& entry);
+
+  GlyphCacheEntry* findGlyphByMouse(QPoint position,
+                                    double* outSizePoint);
+  int calculateAverageLineCount();
+
+  // Mouse constants
+  constexpr static int ClickDragThreshold = 10;
+  constexpr static int HorizontalUnitLength = 100;
+  constexpr static int VerticalUnitLength = 150;
 };
 
 

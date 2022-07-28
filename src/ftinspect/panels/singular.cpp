@@ -397,6 +397,15 @@ SingularTab::reloadFont()
 
 
 void
+SingularTab::setCurrentGlyphAndSize(int glyphIndex,
+                                    double sizePoint)
+{
+  sizeSelector_->setSizePoint(sizePoint);
+  indexSelector_->setCurrentIndex(glyphIndex); // this will auto trigger update
+}
+
+
+void
 SingularTab::syncSettings()
 {
   sizeSelector_->applyToEngine(engine_);

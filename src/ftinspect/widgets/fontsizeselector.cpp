@@ -30,6 +30,22 @@ FontSizeSelector::selectedUnit()
 
 
 void
+FontSizeSelector::setSizePixel(int sizePixel)
+{
+  sizeDoubleSpinBox_->setValue(sizePixel);
+  unitsComboBox_->setCurrentIndex(Units_px);
+}
+
+
+void
+FontSizeSelector::setSizePoint(double sizePoint)
+{
+  sizeDoubleSpinBox_->setValue(sizePoint);
+  unitsComboBox_->setCurrentIndex(Units_pt);
+}
+
+
+void
 FontSizeSelector::applyToEngine(Engine* engine)
 {
   // Spinbox value cannot become negative

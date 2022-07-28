@@ -41,6 +41,7 @@ public:
 
   void repaintGlyph() override;
   void reloadFont() override;
+  void setCurrentGlyphAndSize(int glyphIndex, double sizePoint);
 
 private slots:
   void setGlyphIndex(int);
