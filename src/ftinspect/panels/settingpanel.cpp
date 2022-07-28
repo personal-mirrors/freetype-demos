@@ -86,10 +86,10 @@ SettingPanel::populatePalettes()
 {
   auto needToReload = false;
   auto& newPalettes = engine_->currentFontPalettes();
-  if (newPalettes.size() != paletteComboBox_->count())
+  if (newPalettes.size() != (size_t)paletteComboBox_->count())
     needToReload = true;
   else
-    for (int i = 0; i < newPalettes.size(); ++i)
+    for (size_t i = 0; i < newPalettes.size(); ++i)
     {
       auto oldNameVariant = paletteComboBox_->itemData(i);
       if (!oldNameVariant.canConvert<QString>())
@@ -109,7 +109,7 @@ SettingPanel::populatePalettes()
   {
     QSignalBlocker blocker(paletteComboBox_);
     paletteComboBox_->clear();
-    for (int i = 0; i < newPalettes.size(); ++i)
+    for (size_t i = 0; i < newPalettes.size(); ++i)
       paletteComboBox_->addItem(
         QString("%1: %2")
           .arg(i)
