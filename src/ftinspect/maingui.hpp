@@ -50,6 +50,7 @@ class MainGUI
 public:
   MainGUI(Engine* engine);
   ~MainGUI() override;
+  void loadFontsFromArgs(int, char**);
 
   friend class Engine;
   friend FT_Error faceRequester(FTC_FaceID,
