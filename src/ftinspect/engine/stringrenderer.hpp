@@ -71,6 +71,7 @@ public:
    */
   using RenderImageCallback = std::function<void(QImage*, 
                                                  QRect, 
+                                                 FT_Vector, 
                                                  GlyphContext&)>;
   /*
    * The glyph pointer may be replaced. In that case, ownership is transfered

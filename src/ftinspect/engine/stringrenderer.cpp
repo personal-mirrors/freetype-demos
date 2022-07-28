@@ -510,7 +510,7 @@ StringRenderer::renderLine(int x,
     {
       rect.setX(rect.x() + (pen.x >> 6));
       rect.setY(height - rect.y() - (pen.y >> 6));
-      renderImageCallback_(colorLayerImage, rect, ctx);
+      renderImageCallback_(colorLayerImage, rect, advance, ctx);
     }
     else
     {

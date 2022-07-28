@@ -37,7 +37,6 @@ GlyphCacheEntry::operator=(GlyphCacheEntry&& other) noexcept
   charCode = other.charCode;
   glyphIndex = other.glyphIndex;
   advance = other.advance;
-  hasAdvance = other.hasAdvance;
   other.image = oldImage;
   return *this;
 }
@@ -223,9 +222,9 @@ GlyphContinuous::paintByRenderer()
       saveSingleGlyph(glyph, penPos, ctx);
     });
   stringRenderer_.setImageCallback(
-    [&](QImage* image, QRect pos, GlyphContext& ctx)
+    [&](QImage* image, QRect pos, FT_Vector advance, GlyphContext& ctx)
     {
-      saveSingleGlyphImage(image, pos, ctx);
+      saveSingleGlyphImage(image, pos, advance, ctx);
     });
   stringRenderer_.setPreprocessCallback(
     [&](FT_Glyph* ptr)
@@ -435,19 +434,20 @@ GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
 void
 GlyphContinuous::saveSingleGlyphImage(QImage* image,
                                       QRect pos,
+                                      FT_Vector advance,
                                       GlyphContext gctx)
 {
   if (!currentWritingLine_)
     return;
 
-  currentWritingLine_->entries.push_back(std::move(GlyphCacheEntry{}));
+  currentWritingLine_->entries.push_back(GlyphCacheEntry{});
   auto& entry = currentWritingLine_->entries.back();
 
   entry.image = image;
   entry.basePosition = pos;
   entry.charCode = gctx.charCode;
   entry.glyphIndex = gctx.glyphIndex;
-  entry.hasAdvance = false;
+  entry.advance = advance;
 }
 
 

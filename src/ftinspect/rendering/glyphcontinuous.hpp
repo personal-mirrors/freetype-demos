@@ -28,7 +28,6 @@ struct GlyphCacheEntry
   int glyphIndex = -1;
 
   FT_Vector advance = {};
-  bool hasAdvance = false;
 
   GlyphCacheEntry() {}
   ~GlyphCacheEntry();
@@ -156,6 +155,7 @@ private:
                        GlyphContext gctx);
   void saveSingleGlyphImage(QImage* image,
                             QRect pos,
+                            FT_Vector advance,
                             GlyphContext gctx);
   void beginDrawCacheLine(QPainter* painter,
                           GlyphCacheLine& line);
