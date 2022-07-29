@@ -408,8 +408,12 @@
                            : -bit->pitch;
     width = bit->width;
 
-    line = (unsigned char*)malloc( (size_t)( pitch * bit->rows *
-                                             scale * scale ) );
+    /* limit bitmap size */
+    if ( pitch * scale <= 0xFFFF && bit->rows * scale <= 0xFFFF )
+      line = (unsigned char*)malloc( (size_t)( pitch * bit->rows *
+                                               scale * scale ) );
+    else
+      line = NULL;
 
     bit->buffer = line;  /* the bitmap now owns this buffer */
 
@@ -585,10 +589,12 @@
       grBitmap  bitg;
 
 
-      FT_Get_Glyph( slot, &glyph );
-      error  = FTDemo_Glyph_To_Bitmap( handle, glyph, &bitg, &left, &top,
-                                       &x_advance, &y_advance, &glyf);
+      err = FT_Get_Glyph( slot, &glyph );
+      if ( err )
+        return;
 
+      error = FTDemo_Glyph_To_Bitmap( handle, glyph, &bitg, &left, &top,
+                                      &x_advance, &y_advance, &glyf);
       if ( !error )
       {
         bitmap_scale( st, &bitg, scale );
@@ -633,7 +639,10 @@
       /* stroke then draw it */
       if ( st->work & DO_OUTLINE )
       {
-        FT_Get_Glyph( slot, &glyph );
+        err = FT_Get_Glyph( slot, &glyph );
+        if ( err )
+          return;
+
         FT_Glyph_Stroke( &glyph, st->stroker, 1 );
 
         error = FTDemo_Sketch_Glyph_Color( handle, display, glyph,
