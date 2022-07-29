@@ -262,6 +262,10 @@
         goto Finalize;
       }
 
+      /* nothing to do */
+      if ( !face->num_glyphs )
+        goto Finalize;
+
       fi = first_index > 0 ? first_index : 0;
       li = last_index < (unsigned int)face->num_glyphs ?
                         last_index : (unsigned int)face->num_glyphs - 1;
