@@ -64,11 +64,11 @@
   extern FT_Error
   af_glyph_hints_get_num_segments( AF_GlyphHints  hints,
                                    FT_Int         dimension,
-                                   FT_Int*        num_segments );
+                                   FT_UInt*       num_segments );
   extern FT_Error
   af_glyph_hints_get_segment_offset( AF_GlyphHints  hints,
                                      FT_Int         dimension,
-                                     FT_Int         idx,
+                                     FT_UInt        idx,
                                      FT_Pos        *offset,
                                      FT_Bool       *is_blue,
                                      FT_Pos        *blue_offset );
@@ -277,8 +277,8 @@
 
     for ( dimension = 1; dimension >= 0; dimension-- )
     {
-      FT_Int  num_seg;
-      FT_Int  count;
+      FT_UInt  num_seg;
+      FT_UInt  count;
 
 
       af_glyph_hints_get_num_segments( hints, dimension, &num_seg );
