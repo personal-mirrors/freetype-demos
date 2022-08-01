@@ -9,9 +9,20 @@
 #include "../engine/engine.hpp"
 
 #include <cmath>
+#include <utility>
+#include <qevent.h>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 #include <freetype/ftbitmap.h>
+
+
+GlyphBitmap::GlyphBitmap(QImage* image,
+                         QRect rect)
+: image_(image),
+  boundingRect_(rect)
+{
+
+}
 
 
 GlyphBitmap::GlyphBitmap(int glyphIndex, 
@@ -60,8 +71,8 @@ GlyphBitmap::paint(QPainter* painter,
                      image.convertToFormat(
                        QImage::Format_ARGB32_Premultiplied));
 #else
-  const qreal lod = option->levelOfDetailFromTransform(
-                              painter->worldTransform());
+  const qreal lod = QStyleOptionGraphicsItem::levelOfDetailFromTransform(
+      painter->worldTransform());
 
   painter->setPen(Qt::NoPen);
 
@@ -82,6 +93,71 @@ GlyphBitmap::paint(QPainter* painter,
     
 #endif
 
+}
+
+
+GlyphBitmapWidget::GlyphBitmapWidget(QWidget* parent)
+: QWidget(parent)
+{
+  
+}
+
+
+GlyphBitmapWidget::~GlyphBitmapWidget()
+{
+  releaseImage();
+}
+
+
+void
+GlyphBitmapWidget::updateImage(QImage* image,
+                               QRect rect)
+{
+  // XXX: really need to do this?
+  rect.moveTop(0);
+  rect.moveLeft(0);
+
+  delete bitmapItem_;
+  auto* copied = new QImage(image->copy());
+  bitmapItem_ = new GlyphBitmap(copied, rect);
+
+  repaint();
+}
+
+
+void
+GlyphBitmapWidget::releaseImage()
+{
+  delete bitmapItem_;
+  bitmapItem_ = NULL;
+  repaint();
+}
+
+
+void
+GlyphBitmapWidget::paintEvent(QPaintEvent* event)
+{
+  if (!bitmapItem_)
+    return;
+  auto s = size();
+  auto br = bitmapItem_->boundingRect();
+  double xScale = s.width() / br.width();
+  double yScale = s.height() / br.height();
+  auto scale = std::min(xScale, yScale);
+
+  QPainter painter(this);
+  painter.scale(scale, scale);
+
+  QStyleOptionGraphicsItem ogi;
+  ogi.exposedRect = br;
+  bitmapItem_->paint(&painter, &ogi, this);
+}
+
+
+QSize
+GlyphBitmapWidget::sizeHint() const
+{
+  return { 300, 300 };
 }
 
 

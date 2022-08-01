@@ -95,6 +95,7 @@ signals:
   void beginIndexChangeRequest(int newIndex);
   void displayingCountUpdated(int newCount);
   void rightClickGlyph(int glyphIndex, double sizePoint);
+  void updateGlyphDetails(GlyphCacheEntry* ctxt, int charMapIndex, bool open);
 
 protected:
   void paintEvent(QPaintEvent* event) override;

@@ -10,6 +10,7 @@
 #include "panels/settingpanel.hpp"
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"
+#include "panels/glyphdetails.hpp"
 
 #include <QAction>
 #include <QCheckBox>
@@ -19,6 +20,7 @@
 #include <QFileSystemWatcher>
 #include <QGridLayout>
 #include <QHash>
+#include <QDockWidget>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QList>
@@ -107,6 +109,9 @@ private:
   QVector<AbstractTab*> tabs_;
   SingularTab* singularTab_;
   ContinuousTab* continuousTab_;
+
+  QDockWidget* glyphDetailsDockWidget_;
+  GlyphDetails* glyphDetails_;
 
   void openFonts(QStringList const& fileNames);
 

@@ -1131,9 +1131,9 @@ Engine::tryDirectRenderColorLayers(int glyphIndex,
   auto img = convertBitmapToQImage(&bitmap);
   if (outRect)
   {
+    outRect->moveLeft(bitmapOffset.x >> 6);
+    outRect->moveTop(bitmapOffset.y >> 6);
     outRect->setSize(img->size());
-    outRect->setLeft(bitmapOffset.x >> 6);
-    outRect->setTop(bitmapOffset.y >> 6);
   }
 
   FT_Bitmap_Done(library_, &bitmap);

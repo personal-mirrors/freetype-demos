@@ -45,6 +45,7 @@ if qt5_dep.found()
     'panels/settingpanel.cpp',
     'panels/singular.cpp',
     'panels/continuous.cpp',
+    'panels/glyphdetails.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
@@ -63,6 +64,7 @@ if qt5_dep.found()
       'panels/settingpanel.hpp',
       'panels/singular.hpp',
       'panels/continuous.hpp',
+      'panels/glyphdetails.hpp',
       'maingui.hpp',
     ],
     dependencies: qt5_dep)

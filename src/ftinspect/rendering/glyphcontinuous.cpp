@@ -197,7 +197,9 @@ GlyphContinuous::mouseReleaseEvent(QMouseEvent* event)
     auto dist = event->pos() - mouseDownPostition_;
     if (dist.manhattanLength() < ClickDragThreshold)
     {
-      // TODO: clicked down, open overlay
+      auto gl = findGlyphByMouse(event->pos(), NULL);
+      if (gl)
+        emit updateGlyphDetails(gl, stringRenderer_.charMapIndex(), true);
     }
   }
   else if (event->button() == Qt::RightButton)
@@ -413,12 +415,13 @@ GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
   if (!currentWritingLine_)
     return;
 
-  currentWritingLine_->entries.push_back(std::move(GlyphCacheEntry{}));
+  currentWritingLine_->entries.emplace_back();
   auto& entry = currentWritingLine_->entries.back();
 
   QRect rect;
-  QImage* image = engine_->convertGlyphToQImage(glyph, &rect, false);
-  rect.moveTop(height() - rect.top()); // TODO Don't place this here...
+  QImage* image = engine_->convertGlyphToQImage(glyph, &rect, true);
+  rect.translate(penPos.x, penPos.y);
+  //rect.moveTop(height() - rect.top()); // TODO Don't place this here...
 
   entry.image = image;
   entry.basePosition = rect;
@@ -440,7 +443,7 @@ GlyphContinuous::saveSingleGlyphImage(QImage* image,
   if (!currentWritingLine_)
     return;
 
-  currentWritingLine_->entries.push_back(GlyphCacheEntry{});
+  currentWritingLine_->entries.emplace_back();
   auto& entry = currentWritingLine_->entries.back();
 
   entry.image = image;

@@ -95,6 +95,7 @@ public:
 
   bool isWaterfall() { return waterfall_; }
   double position(){ return position_; }
+  int charMapIndex() { return charMapIndex_; }
 
   void
   setCallback(RenderCallback cb)

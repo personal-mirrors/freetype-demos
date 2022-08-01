@@ -19,14 +19,17 @@
 #include <QGridLayout>
 #include <QBoxLayout>
 #include <QPlainTextEdit>
+#include <QDockWidget>
 #include <QCheckBox>
 
+class GlyphDetails;
 class ContinuousTab
 : public QWidget, public AbstractTab
 {
   Q_OBJECT
 public:
-  ContinuousTab(QWidget* parent, Engine* engine);
+  ContinuousTab(QWidget* parent, Engine* engine,
+                QDockWidget* gdWidget, GlyphDetails* glyphDetails);
   ~ContinuousTab() override = default;
 
   void repaintGlyph() override;
@@ -49,6 +52,9 @@ public:
   void sourceTextChanged();
   void reloadGlyphsAndRepaint();
   void changeBeginIndexFromCanvas(int index);
+  void updateGlyphDetails(GlyphCacheEntry* ctxt, 
+                          int charMapIndex, 
+                          bool open);
 
 signals:
   void switchToSingular(int glyphIndex, double sizePoint);
@@ -102,6 +108,9 @@ private:
   
   QGridLayout* bottomLayout_;
   QVBoxLayout* mainLayout_;
+
+  QDockWidget* glyphDetailsWidget_;
+  GlyphDetails* glyphDetails_;
 
   void createLayout();
   void createConnections();

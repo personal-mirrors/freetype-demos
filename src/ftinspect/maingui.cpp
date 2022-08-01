@@ -191,6 +191,13 @@ MainGUI::syncSettings()
 void
 MainGUI::createLayout()
 {
+  // floating
+  glyphDetails_ = new GlyphDetails(this, engine_);
+  glyphDetailsDockWidget_ = new QDockWidget(tr("Glyph Details"), this);
+  glyphDetailsDockWidget_->setWidget(glyphDetails_);
+  glyphDetailsDockWidget_->setFloating(true);
+  glyphDetailsDockWidget_->hide();
+
   // left side
   settingPanel_ = new SettingPanel(this, engine_);
 
@@ -212,7 +219,8 @@ MainGUI::createLayout()
 
   // right side
   singularTab_ = new SingularTab(this, engine_);
-  continuousTab_ = new ContinuousTab(this, engine_);
+  continuousTab_ = new ContinuousTab(this, engine_,
+                                     glyphDetailsDockWidget_, glyphDetails_);
 
   tabWidget_ = new QTabWidget(this);
 

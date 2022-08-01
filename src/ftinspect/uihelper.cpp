@@ -26,4 +26,14 @@ setButtonNarrowest(QPushButton* btn)
 }
 
 
+void
+setLabelSelectable(QLabel* label)
+{
+
+  label->setTextInteractionFlags(Qt::TextSelectableByMouse
+                                 | Qt::TextSelectableByKeyboard);
+  label->setCursor(Qt::IBeamCursor);
+}
+
+
 // end of uihelper.cpp

@@ -269,7 +269,6 @@ StringRenderer::prepareLine(int offset,
     // TODO: Optimize: use a sparse vector...!
     // The problem is that when doing a `list::resize`, the ctor is called
     // for unnecessarily many times.
-    GlyphContext* prev = &tempGlyphContext_;
     tempGlyphContext_ = {};
     for (unsigned n = offset; n < static_cast<unsigned>(limitIndex_);)
     {
@@ -283,6 +282,7 @@ StringRenderer::prepareLine(int offset,
       ctx.glyphIndex = static_cast<int>(
           engine_->glyphIndexFromCharCode(static_cast<int>(n), charMapIndex_));
 
+      auto prev = n == 0 ? &tempGlyphContext_ : &activeGlyphs_[n - 1];
       if (!ctx.glyph)
         loadSingleContext(&ctx, prev);
 
@@ -292,7 +292,6 @@ StringRenderer::prepareLine(int offset,
       outActualLineWidth.y += ctx.hadvance.y;
       ++n;
       ++totalCount;
-      prev = &ctx;
     }
   }
   else
@@ -508,8 +507,8 @@ StringRenderer::renderLine(int x,
 
     if (colorLayerImage)
     {
-      rect.setX(rect.x() + (pen.x >> 6));
-      rect.setY(height - rect.y() - (pen.y >> 6));
+      rect.moveLeft(rect.x() + (pen.x >> 6));
+      rect.moveTop(height - rect.y() - (pen.y >> 6));
       renderImageCallback_(colorLayerImage, rect, advance, ctx);
     }
     else
@@ -529,9 +528,7 @@ StringRenderer::renderLine(int x,
         if (!error)
         {
           if (matrixEnabled_)
-            error = FT_Glyph_Transform(image, &matrix_, &pen);
-          else
-            error = FT_Glyph_Transform(image, NULL, &pen);
+            error = FT_Glyph_Transform(image, &matrix_, NULL);
         }
 
         if (error)
@@ -544,15 +541,10 @@ StringRenderer::renderLine(int x,
       {
         auto bitmap = reinterpret_cast<FT_BitmapGlyph>(image);
 
-        if (vertical_)
+         if (vertical_)
         {
-          bitmap->left += (ctx.vvector.x + pen.x) >> 6;
-          bitmap->top += (ctx.vvector.y + pen.y) >> 6;
-        }
-        else
-        {
-          bitmap->left += pen.x >> 6;
-          bitmap->top += pen.y >> 6;
+           bitmap->left += (ctx.vvector.x) >> 6;
+           bitmap->top += (ctx.vvector.y) >> 6;
         }
       }
 

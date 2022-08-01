@@ -7,6 +7,8 @@
 
 #include <QGraphicsItem>
 #include <QPen>
+#include <QPaintEvent>
+#include <QWidget>
 
 #include <ft2build.h>
 #include <freetype/freetype.h>
@@ -20,6 +22,8 @@ class GlyphBitmap
 : public QGraphicsItem
 {
 public:
+  GlyphBitmap(QImage* image,
+              QRect rect);
   GlyphBitmap(int glyphIndex,
               FT_Glyph glyph,
               Engine* engine);
@@ -32,6 +36,26 @@ public:
 private:
   QImage* image_ = NULL;
   QRectF boundingRect_;
+};
+
+// Sometimes we don't want a complicated QGraphicsView
+// for this kind of work...
+class GlyphBitmapWidget
+: public QWidget
+{
+public:
+  GlyphBitmapWidget(QWidget* parent);
+  ~GlyphBitmapWidget() override;
+
+  void updateImage(QImage* image, QRect rect);
+  void releaseImage();
+
+protected:
+  void paintEvent(QPaintEvent* event) override;
+  QSize sizeHint() const override;
+
+private:
+  GlyphBitmap* bitmapItem_ = NULL;
 };
 
 

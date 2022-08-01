@@ -4,13 +4,20 @@
 
 #include "continuous.hpp"
 
+#include "glyphdetails.hpp"
+
 #include <climits>
 #include <QVariant>
 
 
 ContinuousTab::ContinuousTab(QWidget* parent,
-                             Engine* engine)
-: QWidget(parent), engine_(engine)
+                             Engine* engine,
+                             QDockWidget* gdWidget,
+                             GlyphDetails* glyphDetails)
+: QWidget(parent),
+  engine_(engine),
+  glyphDetailsWidget_(gdWidget),
+  glyphDetails_(glyphDetails)
 {
   createLayout();
 
@@ -260,6 +267,17 @@ ContinuousTab::changeBeginIndexFromCanvas(int index)
 }
 
 
+void
+ContinuousTab::updateGlyphDetails(GlyphCacheEntry* ctxt,
+                                  int charMapIndex,
+                                  bool open)
+{
+  glyphDetails_->updateGlyph(*ctxt, charMapIndex);
+  if (open)
+    glyphDetailsWidget_->setVisible(true);
+}
+
+
 bool
 ContinuousTab::eventFilter(QObject* watched,
                            QEvent* event)
@@ -413,6 +431,8 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::switchToSingular);
   connect(canvas_, &GlyphContinuous::beginIndexChangeRequest, 
           this, &ContinuousTab::changeBeginIndexFromCanvas);
+  connect(canvas_, &GlyphContinuous::updateGlyphDetails, 
+          this, &ContinuousTab::updateGlyphDetails);
 
   connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
           this, &ContinuousTab::repaintGlyph);
