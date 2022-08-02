@@ -50,6 +50,8 @@ FontFileManager::append(QStringList newFileNames)
     if (existing)
       continue;
 
+    if (info.size() >= INT_MAX)
+      return; // Prevent overflowing
     fontFileNameList_.append(info);
   }
 }

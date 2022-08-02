@@ -73,6 +73,7 @@ GlyphContinuous::setSource(Source source)
 
   case SRC_TextStringRepeated:
     positionDelta_ = {};
+    /* fall through */
   case SRC_TextString:
     updateRendererText();
     break;
@@ -418,22 +419,9 @@ GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
   if (!currentWritingLine_)
     return;
 
-  currentWritingLine_->entries.emplace_back();
-  auto& entry = currentWritingLine_->entries.back();
-
   QRect rect;
   QImage* image = engine_->convertGlyphToQImage(glyph, &rect, true);
-  rect.translate(penPos.x, penPos.y);
-  //rect.moveTop(height() - rect.top()); // TODO Don't place this here...
-
-  entry.image = image;
-  entry.basePosition = rect;
-  entry.charCode = gctx.charCode;
-  entry.glyphIndex = gctx.glyphIndex;
-  entry.advance = glyph->advance;
-  entry.penPos = { penPos.x, penPos.y };
-
-  // todo more info
+  saveSingleGlyphImage(image, rect, penPos, glyph->advance, gctx);
 }
 
 
@@ -450,14 +438,17 @@ GlyphContinuous::saveSingleGlyphImage(QImage* image,
   currentWritingLine_->entries.emplace_back();
   auto& entry = currentWritingLine_->entries.back();
 
-  rect.translate(penPos.x, penPos.y);
+  QPoint penPosPoint = { static_cast<int>(penPos.x),
+                         static_cast<int>(penPos.y) };
+
+  rect.translate(penPosPoint);
 
   entry.image = image;
   entry.basePosition = rect;
   entry.charCode = gctx.charCode;
   entry.glyphIndex = gctx.glyphIndex;
   entry.advance = advance;
-  entry.penPos = { penPos.x, penPos.y };
+  entry.penPos = penPosPoint;
 }
 
 

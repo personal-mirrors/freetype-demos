@@ -26,7 +26,7 @@ struct CharMapInfo
 
   CharMapInfo(int index, FT_CharMap cmap);
 
-  QString stringifyIndex(int code, int index);
+  QString stringifyIndex(int code, int idx);
   QString stringifyIndexShort(int code);
 
 

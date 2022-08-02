@@ -8,7 +8,6 @@
 
 #include <cmath>
 
-
 StringRenderer::StringRenderer(Engine* engine)
 : engine_(engine)
 {
@@ -25,9 +24,9 @@ void
 StringRenderer::setCharMapIndex(int charMapIndex,
                                 int limitIndex)
 {
-  auto& charmaps = engine_->currentFontCharMaps();
+  auto& charMaps = engine_->currentFontCharMaps();
   if (charMapIndex < 0
-      || static_cast<uint>(charMapIndex) >= charmaps.size())
+      || static_cast<unsigned>(charMapIndex) >= charMaps.size())
     charMapIndex = -1;
 
   charMapIndex_ = charMapIndex;
@@ -87,6 +86,7 @@ StringRenderer::reloadAll()
     reloadGlyphIndices();
 }
 
+
 void
 StringRenderer::reloadGlyphs()
 {
@@ -108,7 +108,7 @@ StringRenderer::setUseString(QString const& string)
     it.charCode = static_cast<int>(ch);
     it.glyphIndex = 0;
     ++totalCount;
-    if (totalCount >= INT_MAX)
+    if (totalCount >= INT_MAX) // Prevent overflow
       break;
   }
   reloadGlyphIndices();
@@ -130,10 +130,10 @@ StringRenderer::reloadGlyphIndices()
   if (!usingString_)
     return;
   int charMapIndex = charMapIndex_;
-  auto& charmaps = engine_->currentFontCharMaps();
+  auto& charMaps = engine_->currentFontCharMaps();
   if (charMapIndex < 0
-      || static_cast<uint>(charMapIndex) >= charmaps.size()
-      || charmaps[charMapIndex].encoding != FT_ENCODING_UNICODE)
+      || static_cast<unsigned>(charMapIndex) >= charMaps.size()
+      || charMaps[charMapIndex].encoding != FT_ENCODING_UNICODE)
     charMapIndex = engine_->currentFontFirstUnicodeCharMap();
 
   if (charMapIndex < 0)
@@ -371,7 +371,7 @@ StringRenderer::render(int width,
     while (true)
     {
       ptSize += step;
-      engine_->setSizeByPoint(ptSize / 64);
+      engine_->setSizeByPoint(ptSize / 64.0);
       clearActive(true);
       prepareRendering(); // set size/face for engine, so metrics are valid
       auto& metrics = engine_->currentFontMetrics();
@@ -380,9 +380,8 @@ StringRenderer::render(int width,
       {
         // TODO draw a blue line
       }
-
-      engine_->setSizeByPoint(ptSize / 64);
-      y += (metrics.height >> 6) + 1;
+      
+      y += static_cast<int>(metrics.height >> 6) + 1;
 
       if (y >= height)
         break;
@@ -393,12 +392,12 @@ StringRenderer::render(int width,
       }
 
       loadStringGlyphs();
-      auto lcount = renderLine(x, y + (metrics.descender >> 6),
-                                   width, height,
-                                   offset);
+      auto lcount = renderLine(x, y + static_cast<int>(metrics.descender >> 6),
+                               width, height,
+                               offset);
       count = std::max(count, lcount);
     }
-    engine_->setSizeByPoint(originalSize / 64);
+    engine_->setSizeByPoint(originalSize / 64.0);
 
     return count;
   }
@@ -409,9 +408,9 @@ StringRenderer::render(int width,
 
     prepareRendering();
     auto& metrics = engine_->currentFontMetrics();
-    auto y = 4 + (metrics.ascender >> 6);
-    auto stepY = (metrics.height >> 6) + 1;
-    auto limitY = height + (metrics.descender >> 6);
+    auto y = 4 + static_cast<int>(metrics.ascender >> 6);
+    auto stepY = static_cast<int>(metrics.height >> 6) + 1;
+    auto limitY = height + static_cast<int>(metrics.descender >> 6);
 
     // Only care about multiline when in string mode
     for (; y < limitY; y += stepY)
@@ -430,8 +429,8 @@ StringRenderer::render(int width,
   auto x = static_cast<int>(width * position_);
   // Anchor at top-left in vertical mode, at the center in horizontal mode
   auto y = vertical_ ? 0 : (height / 2);
-  auto stepY = (metrics.height >> 6) + 1;
-  y += 4 + (metrics.ascender >> 6);
+  auto stepY = static_cast<int>(metrics.height >> 6) + 1;
+  y += 4 + static_cast<int>(metrics.ascender >> 6);
 
   while (offset < static_cast<int>(activeGlyphs_.size()))
   {
@@ -542,8 +541,8 @@ StringRenderer::renderLine(int x,
 
          if (vertical_)
         {
-           bitmap->left += (ctx.vvector.x) >> 6;
-           bitmap->top += (ctx.vvector.y) >> 6;
+           bitmap->left += static_cast<int>(ctx.vvector.x) >> 6;
+           bitmap->top += static_cast<int>(ctx.vvector.y) >> 6;
         }
       }
 

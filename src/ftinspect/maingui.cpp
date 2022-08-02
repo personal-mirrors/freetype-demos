@@ -137,9 +137,7 @@ MainGUI::loadFonts()
 void
 MainGUI::openFonts(QStringList const& fileNames)
 {
-  int oldSize = engine_->numberOfOpenedFonts();
   engine_->openFonts(fileNames);
-
   tripletSelector_->repopulateFonts();
 }
 

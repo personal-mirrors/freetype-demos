@@ -53,11 +53,11 @@ CharMapInfo::CharMapInfo(int index, FT_CharMap cmap)
 
 
 QString
-CharMapInfo::stringifyIndex(int code, int index)
+CharMapInfo::stringifyIndex(int code, int idx)
 {
   return QString("CharCode: %1 (glyph idx %2)")
            .arg(stringifyIndexShort(code))
-           .arg(index);
+           .arg(idx);
 }
 
 
@@ -72,11 +72,11 @@ CharMapInfo::stringifyIndexShort(int code)
 int
 CharMapInfo::computeMaxIndex()
 {
-  int maxIndex;
+  int result;
   switch (encoding)
   {
   case FT_ENCODING_UNICODE:
-    maxIndex = maxIndexForFaceAndCharMap(ptr, 0x110000) + 1;
+    result = maxIndexForFaceAndCharMap(ptr, 0x110000) + 1;
     break;
 
   case FT_ENCODING_ADOBE_LATIN_1:
@@ -84,28 +84,29 @@ CharMapInfo::computeMaxIndex()
   case FT_ENCODING_ADOBE_EXPERT:
   case FT_ENCODING_ADOBE_CUSTOM:
   case FT_ENCODING_APPLE_ROMAN:
-    maxIndex = 0x100;
+    result = 0x100;
     break;
 
   /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
   case FT_ENCODING_MS_SYMBOL:
-    maxIndex = maxIndexForFaceAndCharMap(ptr, 0x10000) + 1;
+    result = maxIndexForFaceAndCharMap(ptr, 0x10000) + 1;
     break;
 
   default:
     // Some encodings can reach > 0x10000, e.g. GB 18030.
-    maxIndex = maxIndexForFaceAndCharMap(ptr, 0x110000) + 1;
+    result = maxIndexForFaceAndCharMap(ptr, 0x110000) + 1;
   }
-  return maxIndex;
+  return result;
 }
 
 
 int
 CharMapInfo::maxIndexForFaceAndCharMap(FT_CharMap charMap,
-                                       unsigned max)
+                                       unsigned maxIn)
 {
   // code adopted from `ftcommon.c`
-  FT_ULong min = 0;
+  // This never overflows since no format here exceeds INT_MAX...
+  FT_ULong min = 0, max = maxIn;
   FT_UInt glyphIndex;
   FT_Face face = charMap->face;
 

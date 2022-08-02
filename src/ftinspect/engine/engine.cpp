@@ -170,39 +170,51 @@ Engine::~Engine()
 }
 
 
-long
-Engine::numberOfFaces(int fontIndex)
+template <class Func>
+void
+Engine::withFace(FaceID id, Func func)
 {
   FT_Face face;
-  long numFaces = -1;
-
-  if (fontIndex < 0)
-    return -1;
-
-  auto id = FaceID(fontIndex, 0, 0);
-
-  // search triplet (fontIndex, 0, 0)
-  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
-  if (ftcFaceID)
+  // search triplet (fontIndex, faceIndex, namedInstanceIndex)
+  auto numId = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
+  if (numId)
   {
     // found
-    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
-      numFaces = face->num_faces;
+    if (!FTC_Manager_LookupFace(cacheManager_, numId, &face))
+      func(face);
   }
-  else
+  else if (id.fontIndex >= 0)
   {
-    // not found; try to load triplet (fontIndex, 0, 0)
-    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
+    if (faceCounter_ >= INT_MAX) // prevent overflowing
+      return;
+
+    // not found; try to load triplet
+    // (fontIndex, faceIndex, namedInstanceIndex)
+    numId = reinterpret_cast<FTC_FaceID>(faceCounter_);
     faceIDMap_.insert(id, faceCounter_++);
 
-    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
-      numFaces = face->num_faces;
+    if (!FTC_Manager_LookupFace(cacheManager_, numId, &face))
+      func(face);
     else
     {
       faceIDMap_.remove(id);
       faceCounter_--;
     }
   }
+}
+
+
+long
+Engine::numberOfFaces(int fontIndex)
+{
+  long numFaces = -1;
+
+  if (fontIndex < 0)
+    return -1;
+
+  // search triplet (fontIndex, 0, 0)
+  withFace(FaceID(fontIndex, 0, 0),
+           [&](FT_Face face) { numFaces = face->num_faces; });
 
   return numFaces;
 }
@@ -212,36 +224,18 @@ int
 Engine::numberOfNamedInstances(int fontIndex,
                                long faceIndex)
 {
-  FT_Face face;
   // we return `n' named instances plus one;
   // instance index 0 represents a face without a named instance selected
   int numNamedInstances = -1;
   if (fontIndex < 0)
     return -1;
-  auto id = FaceID(fontIndex, faceIndex, 0);
 
-  // search triplet (fontIndex, faceIndex, 0)
-  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
-  if (ftcFaceID)
-  {
-    // found
-    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
-      numNamedInstances = static_cast<int>((face->style_flags >> 16) + 1);
-  }
-  else
-  {
-    // not found; try to load triplet (fontIndex, faceIndex, 0)
-    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
-    faceIDMap_.insert(id, faceCounter_++);
-
-    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
-      numNamedInstances = static_cast<int>((face->style_flags >> 16) + 1);
-    else
-    {
-      faceIDMap_.remove(id);
-      faceCounter_--;
-    }
-  }
+  withFace(FaceID(fontIndex, faceIndex, 0), 
+           [&](FT_Face face)
+           {
+             numNamedInstances
+               = static_cast<int>((face->style_flags >> 16) + 1);
+           });
 
   return numNamedInstances;
 }
@@ -250,41 +244,16 @@ Engine::numberOfNamedInstances(int fontIndex,
 QString
 Engine::namedInstanceName(int fontIndex, long faceIndex, int index)
 {
-  FT_Face face;
-  QString name;
-
   if (fontIndex < 0)
-    return QString();
+    return {};
 
-  auto id = FaceID(fontIndex, faceIndex, index);
-
-  // search triplet (fontIndex, faceIndex, 0)
-  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(faceIDMap_.value(id));
-  if (ftcFaceID)
-  {
-    // found
-    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
-      name = QString("%1 %2")
-               .arg(face->family_name)
-               .arg(face->style_name);
-  }
-  else
-  {
-    // not found; try to load triplet (fontIndex, faceIndex, 0)
-    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
-    faceIDMap_.insert(id, faceCounter_++);
-
-    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
-      name = QString("%1 %2")
-               .arg(face->family_name)
-               .arg(face->style_name);
-    else
-    {
-      faceIDMap_.remove(id);
-      faceCounter_--;
-    }
-  }
-
+  QString name;
+  withFace(FaceID(fontIndex, faceIndex, index),
+           [&](FT_Face face) {
+             name = QString("%1 %2")
+                      .arg(face->family_name)
+                      .arg(face->style_name);
+           });
   return name;
 }
 
@@ -322,6 +291,9 @@ Engine::loadFont(int fontIndex,
   }
   else if (fontIndex >= 0)
   {
+    if (faceCounter_ >= INT_MAX) // prevent overflowing
+      return -1;
+
     // not found; try to load triplet
     // (fontIndex, faceIndex, namedInstanceIndex)
     scaler_.face_id = reinterpret_cast<FTC_FaceID>(faceCounter_);
@@ -409,7 +381,7 @@ Engine::removeFont(int fontIndex, bool closeFile)
   QMap<FaceID, FTC_IDType>::iterator iter
     = faceIDMap_.lowerBound(FaceID(fontIndex, 0, 0));
 
-  for (;;)
+  while (true)
   {
     if (iter == faceIDMap_.end())
       break;
@@ -418,7 +390,7 @@ Engine::removeFont(int fontIndex, bool closeFile)
     if (faceID.fontIndex != fontIndex)
       break;
 
-    FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>(iter.value());
+    auto ftcFaceID = reinterpret_cast<FTC_FaceID>(iter.value());
     FTC_Manager_RemoveFaceID(cacheManager_, ftcFaceID);
 
     iter = faceIDMap_.erase(iter);
@@ -491,7 +463,7 @@ Engine::glyphName(int index)
 
   if (!ftSize_)
     return "";
-
+  
   if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
     return name;
 
@@ -854,6 +826,7 @@ Engine::loadPaletteInfos()
     return;
   }
 
+  // size never exceeds max val of ushort.
   curPaletteInfos_.reserve(paletteData_.num_palettes);
   for (int i = 0; i < paletteData_.num_palettes; ++i)
     curPaletteInfos_.emplace_back(ftSize_->face, paletteData_, i);
@@ -886,9 +859,12 @@ Engine::convertBitmapToQImage(FT_Bitmap* src)
   auto& bmap = *src;
   bool ownBitmap = false;
 
-  int width = bmap.width;
-  int height = bmap.rows;
-  QImage::Format format = QImage::Format_Indexed8; // goto crossing init
+  int width = INT_MAX, height = INT_MAX;
+  if (bmap.width < INT_MAX)
+    width = static_cast<int>(bmap.width);
+  if (bmap.rows < INT_MAX)
+    height = static_cast<int>(bmap.rows);
+  auto format = QImage::Format_Indexed8; // goto crossing init
 
   if (bmap.pixel_mode == FT_PIXEL_MODE_GRAY2
       || bmap.pixel_mode == FT_PIXEL_MODE_GRAY4)
@@ -981,8 +957,15 @@ Engine::convertGlyphToQImage(FT_Glyph src,
       outRect->setTop(-bitmapGlyph->top);
     else
       outRect->setTop(bitmapGlyph->top);
-    outRect->setWidth(bitmapGlyph->bitmap.width);
-    outRect->setHeight(bitmapGlyph->bitmap.rows);
+    if (bitmapGlyph->bitmap.width < INT_MAX)
+      outRect->setWidth(static_cast<int>(bitmapGlyph->bitmap.width));
+    else
+      outRect->setWidth(INT_MAX);
+
+    if (bitmapGlyph->bitmap.rows < INT_MAX)
+      outRect->setHeight(static_cast<int>(bitmapGlyph->bitmap.rows));
+    else
+      outRect->setHeight(INT_MAX);
   }
 
   if (ownBitmapGlyph)
@@ -1006,8 +989,8 @@ Engine::computeGlyphOffset(FT_Glyph glyph, bool inverseY)
     cbox.yMax = (cbox.yMax + 63) & ~63;
     if (inverseY)
       cbox.yMax = -cbox.yMax;
-    return { static_cast<int>(cbox.xMin) / 64,
-               static_cast<int>(cbox.yMax / 64) };
+    return { static_cast<int>(cbox.xMin / 64),
+             static_cast<int>(cbox.yMax / 64) };
   }
   if (glyph->format == FT_GLYPH_FORMAT_BITMAP)
   {
@@ -1136,11 +1119,11 @@ Engine::tryDirectRenderColorLayers(int glyphIndex,
   auto img = convertBitmapToQImage(&bitmap);
   if (outRect)
   {
-    outRect->moveLeft(bitmapOffset.x >> 6);
+    outRect->moveLeft(static_cast<int>(bitmapOffset.x >> 6));
     if (inverseRectY)
-      outRect->moveTop(-bitmapOffset.y >> 6);
+      outRect->moveTop(static_cast<int>(-bitmapOffset.y >> 6));
     else
-      outRect->moveTop(bitmapOffset.y >> 6);
+      outRect->moveTop(static_cast<int>(bitmapOffset.y >> 6));
     outRect->setSize(img->size());
   }
 

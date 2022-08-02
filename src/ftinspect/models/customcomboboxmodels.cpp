@@ -123,12 +123,10 @@ int
 HintingModeComboBoxModel::valueToIndexForType(int value,
                                               HintingEngineType type) const
 {
-  for (auto it = items_.begin();
-       it != items_.end();
-       ++it)
+  for (const auto& item : items_)
   {
-    if (it->type == type && it->value == value)
-      return it->key;
+    if (item.type == type && item.value == value)
+      return item.key;
   }
   return -1;
 }
@@ -166,16 +164,14 @@ void
 HintingModeComboBoxModel::setSupportedModes(QList<int> supportedTTIVersions,
                                             QList<int> supportedCFFModes)
 {
-  for (auto it = items_.begin();
-       it != items_.end();
-       ++it)
+  for (auto& item : items_)
   {
-    if (it->type == HintingEngineType_TrueType)
-      it->supported = supportedTTIVersions.contains(it->value);
-    else if (it->type == HintingEngineType_CFF)
-      it->supported = supportedCFFModes.contains(it->value);
+    if (item.type == HintingEngineType_TrueType)
+      item.supported = supportedTTIVersions.contains(item.value);
+    else if (item.type == HintingEngineType_CFF)
+      item.supported = supportedCFFModes.contains(item.value);
     else
-      it->supported = false;
+      item.supported = false;
   }
 }
 
@@ -183,10 +179,8 @@ HintingModeComboBoxModel::setSupportedModes(QList<int> supportedTTIVersions,
 void
 HintingModeComboBoxModel::setCurrentEngineType(HintingEngineType type)
 {
-  for (auto it = items_.begin(); 
-       it != items_.end(); 
-       ++it)
-    it->enabled = it->supported && it->type == type;
+  for (auto& item : items_)
+    item.enabled = item.supported && item.type == type;
 }
 
 

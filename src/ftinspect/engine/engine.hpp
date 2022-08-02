@@ -254,6 +254,10 @@ private:
   void queryEngine();
   void loadPaletteInfos();
 
+  // Safe to put the impl to the cpp.
+  template <class Func>
+  void withFace(FaceID id, Func func);
+
 public:
 
   /// Actual definition
