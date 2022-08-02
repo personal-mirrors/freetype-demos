@@ -503,13 +503,12 @@ StringRenderer::renderLine(int x,
 
     QRect rect;
     QImage* colorLayerImage
-        = engine_->tryDirectRenderColorLayers(ctx.glyphIndex, &rect);
+        = engine_->tryDirectRenderColorLayers(ctx.glyphIndex, &rect, true);
 
     if (colorLayerImage)
     {
-      rect.moveLeft(rect.x() + (pen.x >> 6));
-      rect.moveTop(height - rect.y() - (pen.y >> 6));
-      renderImageCallback_(colorLayerImage, rect, advance, ctx);
+      FT_Vector penPos = { (pen.x >> 6), height - (pen.y >> 6) };
+      renderImageCallback_(colorLayerImage, rect, penPos, advance, ctx);
     }
     else
     {

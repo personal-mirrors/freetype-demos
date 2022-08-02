@@ -155,7 +155,8 @@ private:
                        FT_Vector penPos,
                        GlyphContext gctx);
   void saveSingleGlyphImage(QImage* image,
-                            QRect pos,
+                            QRect rect,
+                            FT_Vector penPos,
                             FT_Vector advance,
                             GlyphContext gctx);
   void beginDrawCacheLine(QPainter* painter,

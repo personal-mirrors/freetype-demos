@@ -79,7 +79,7 @@ public:
                long faceIndex,
                int namedInstanceIndex); // return number of glyphs
   FT_Glyph loadGlyph(int glyphIndex);
-  int loadGlyphIntoSlotWithoutCache(int glyphIndex);
+  int loadGlyphIntoSlotWithoutCache(int glyphIndex, bool noScale = false);
 
   // Sometimes the engine is already updated, and we want to be faster
   FT_Glyph loadGlyphWithoutUpdate(int glyphIndex,
@@ -106,7 +106,8 @@ public:
    * Will return NULL if not enabled or color layers not available.
    */
   QImage* tryDirectRenderColorLayers(int glyphIndex,
-                                     QRect* outRect);
+                                     QRect* outRect,
+                                     bool inverseRectY = false);
 
   // reload current triplet, but with updated settings, useful for updating
   // `ftSize_` only

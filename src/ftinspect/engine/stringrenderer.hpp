@@ -70,8 +70,9 @@ public:
    * The receiver is responsible for deleteing the QImage.
    */
   using RenderImageCallback = std::function<void(QImage*, 
-                                                 QRect, 
-                                                 FT_Vector, 
+                                                 QRect,
+                                                 FT_Vector, // penPos
+                                                 FT_Vector, // advance
                                                  GlyphContext&)>;
   /*
    * The glyph pointer may be replaced. In that case, ownership is transfered

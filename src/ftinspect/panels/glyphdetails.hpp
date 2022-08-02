@@ -9,7 +9,11 @@
 #include <QWidget>
 #include <QLabel>
 #include <QGridLayout>
+#include <QBoxLayout>
 #include <QImage>
+#include <QRadioButton>
+#include <QButtonGroup>
+
 #include <freetype/freetype.h>
 
 struct GlyphCacheEntry;
@@ -27,20 +31,52 @@ public:
 private:
   Engine* engine_ = NULL;
 
+  enum DisplayUnit : int
+  {
+    DU_FontUnit,
+    DU_Point,
+    DU_Pixel
+  };
+
+  QButtonGroup* unitButtonGroup_;
+  QRadioButton* fontUnitButton_;
+  QRadioButton* pointButton_;
+  QRadioButton* pixelButton_;
+
   QLabel* glyphIndexPromptLabel_;
   QLabel* charCodePromptLabel_;
   QLabel* glyphNamePromptLabel_;
+  QLabel* bboxSizePromptLabel_;
+  QLabel* horiBearingPromptLabel_;
+  QLabel* horiAdvancePromptLabel_;
+  QLabel* vertBearingPromptLabel_;
+  QLabel* vertAdvancePromptLabel_;
+  QLabel* inkSizePromptLabel_;
+  QLabel* bitmapOffsetPromptLabel_;
 
   QLabel* glyphIndexLabel_;
   QLabel* charCodeLabel_;
   QLabel* glyphNameLabel_;
+  QLabel* bboxSizeLabel_;
+  QLabel* horiBearingLabel_;
+  QLabel* horiAdvanceLabel_;
+  QLabel* vertBearingLabel_;
+  QLabel* vertAdvanceLabel_;
+  QLabel* inkSizeLabel_;
+  QLabel* bitmapOffsetLabel_;
 
   GlyphBitmapWidget* bitmapWidget_;
 
+  QHBoxLayout* unitLayout_;
   QGridLayout* layout_;
+
+  int dpi_;
+  FT_Glyph_Metrics fontUnitMetrics_, pixelMetrics_;
 
   void createLayout();
   void createConnections();
+
+  void changeUnit(int unitId);
 };
 
 

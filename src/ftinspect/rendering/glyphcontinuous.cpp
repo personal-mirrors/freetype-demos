@@ -224,9 +224,12 @@ GlyphContinuous::paintByRenderer()
       saveSingleGlyph(glyph, penPos, ctx);
     });
   stringRenderer_.setImageCallback(
-    [&](QImage* image, QRect pos, FT_Vector advance, GlyphContext& ctx)
+    [&](QImage* image,
+        QRect pos, 
+        FT_Vector penPos, FT_Vector advance,
+        GlyphContext& ctx)
     {
-      saveSingleGlyphImage(image, pos, advance, ctx);
+      saveSingleGlyphImage(image, pos, penPos, advance, ctx);
     });
   stringRenderer_.setPreprocessCallback(
     [&](FT_Glyph* ptr)
@@ -436,7 +439,8 @@ GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
 
 void
 GlyphContinuous::saveSingleGlyphImage(QImage* image,
-                                      QRect pos,
+                                      QRect rect,
+                                      FT_Vector penPos,
                                       FT_Vector advance,
                                       GlyphContext gctx)
 {
@@ -446,11 +450,14 @@ GlyphContinuous::saveSingleGlyphImage(QImage* image,
   currentWritingLine_->entries.emplace_back();
   auto& entry = currentWritingLine_->entries.back();
 
+  rect.translate(penPos.x, penPos.y);
+
   entry.image = image;
-  entry.basePosition = pos;
+  entry.basePosition = rect;
   entry.charCode = gctx.charCode;
   entry.glyphIndex = gctx.glyphIndex;
   entry.advance = advance;
+  entry.penPos = { penPos.x, penPos.y };
 }
 
 

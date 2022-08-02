@@ -540,9 +540,13 @@ Engine::loadGlyph(int glyphIndex)
 
 
 int
-Engine::loadGlyphIntoSlotWithoutCache(int glyphIndex)
+Engine::loadGlyphIntoSlotWithoutCache(int glyphIndex,
+                                      bool noScale)
 {
-  return FT_Load_Glyph(ftSize_->face, glyphIndex, loadFlags_);
+  auto flags = static_cast<int>(loadFlags_);
+  if (noScale)
+    flags |= FT_LOAD_NO_SCALE;
+  return FT_Load_Glyph(ftSize_->face, glyphIndex, flags);
 }
 
 
@@ -1019,7 +1023,8 @@ Engine::computeGlyphOffset(FT_Glyph glyph, bool inverseY)
 
 QImage*
 Engine::tryDirectRenderColorLayers(int glyphIndex,
-                                   QRect* outRect)
+                                   QRect* outRect,
+                                   bool inverseRectY)
 {
   if (palette_ == NULL 
       || !useColorLayer_ 
@@ -1132,7 +1137,10 @@ Engine::tryDirectRenderColorLayers(int glyphIndex,
   if (outRect)
   {
     outRect->moveLeft(bitmapOffset.x >> 6);
-    outRect->moveTop(bitmapOffset.y >> 6);
+    if (inverseRectY)
+      outRect->moveTop(-bitmapOffset.y >> 6);
+    else
+      outRect->moveTop(bitmapOffset.y >> 6);
     outRect->setSize(img->size());
   }
 
