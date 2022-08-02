@@ -28,6 +28,7 @@ MainGUI::MainGUI(Engine* engine)
   setupDragDrop();
 
   readSettings();
+  loadCommandLine();
 
   setUnifiedTitleAndToolBarOnMac(true);
 }
@@ -138,6 +139,14 @@ void
 MainGUI::openFonts(QStringList const& fileNames)
 {
   engine_->openFonts(fileNames);
+  tripletSelector_->repopulateFonts();
+}
+
+
+void
+MainGUI::loadCommandLine()
+{
+  engine_->fontFileManager().loadFromCommandLine();
   tripletSelector_->repopulateFonts();
 }
 

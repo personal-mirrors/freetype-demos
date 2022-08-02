@@ -29,6 +29,7 @@ public:
   QFileInfo& operator[](int index);
   void updateWatching(int index);
   void timerStart();
+  void loadFromCommandLine();
 
 signals:
   void currentFileChanged();

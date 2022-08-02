@@ -5,6 +5,9 @@
 
 #include "fontfilemanager.hpp"
 
+#include <QCoreApplication>
+
+
 FontFileManager::FontFileManager()
 {
   fontWatcher_ = new QFileSystemWatcher(this);
@@ -97,6 +100,18 @@ void
 FontFileManager::timerStart()
 {
   watchTimer_->start();
+}
+
+
+void
+FontFileManager::loadFromCommandLine()
+{
+  // TODO: To support more complicated command line, we need to move this away
+  // and use `QCommandLineParser`
+  auto args = QCoreApplication::arguments();
+  if (!args.empty())
+    args.removeFirst();
+  append(args);
 }
 
 
