@@ -39,6 +39,7 @@ if qt5_dep.found()
     'widgets/glyphindexselector.cpp',
     'widgets/fontsizeselector.cpp',
     'widgets/tripletselector.cpp',
+    'widgets/charmapcombobox.cpp',
 
     'models/customcomboboxmodels.cpp',
 
@@ -59,6 +60,7 @@ if qt5_dep.found()
       'widgets/glyphindexselector.hpp',
       'widgets/fontsizeselector.hpp',
       'widgets/tripletselector.hpp',
+      'widgets/charmapcombobox.hpp',
       'rendering/glyphcontinuous.hpp',
       'models/customcomboboxmodels.hpp',
       'panels/settingpanel.hpp',

@@ -22,7 +22,7 @@ ContinuousTab::ContinuousTab(QWidget* parent,
   createLayout();
 
   std::vector<CharMapInfo> tempCharMaps;
-  setCharMaps(tempCharMaps); // pass in an empty one
+  charMapSelector_->repopulate(tempCharMaps); // pass in an empty one
 
   checkModeSource();
   setDefaults();
@@ -47,7 +47,7 @@ ContinuousTab::reloadFont()
 {
   currentGlyphCount_ = engine_->currentFontNumberOfGlyphs();
   setGlyphCount(qBound(0, currentGlyphCount_, INT_MAX));
-  setCharMaps(engine_->currentFontCharMaps());
+  charMapSelector_->repopulate();
   canvas_->stringRenderer().reloadAll();
   canvas_->purgeCache();
   repaintGlyph();
@@ -84,12 +84,7 @@ ContinuousTab::syncSettings()
 int
 ContinuousTab::charMapIndex()
 {
-  auto index = charMapSelector_->currentIndex() - 1;
-  if (index <= -1)
-    return -1;
-  if (static_cast<unsigned>(index) >= charMaps_.size())
-    return -1;
-  return index;
+  return charMapSelector_->currentCharMapIndex();
 }
 
 
@@ -115,67 +110,14 @@ ContinuousTab::setGlyphBeginindex(int index)
 }
 
 
-#define EncodingRole (Qt::UserRole + 10)
-void
-ContinuousTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
-{
-  if (charMaps_ == charMaps)
-  {
-    charMaps_ = charMaps; // Still need to substitute because ptr may differ
-    return;
-  }
-  charMaps_ = charMaps;
-  int oldIndex = charMapSelector_->currentIndex();
-  unsigned oldEncoding = 0u;
-
-  // Using additional UserRole to store encoding id
-  auto oldEncodingV = charMapSelector_->itemData(oldIndex, EncodingRole);
-  if (oldEncodingV.isValid() && oldEncodingV.canConvert<unsigned>())
-    oldEncoding = oldEncodingV.value<unsigned>();
-
-  {
-    // suppress events during updating
-    QSignalBlocker selectorBlocker(charMapSelector_);
-
-    charMapSelector_->clear();
-    charMapSelector_->addItem(tr("Glyph Order"));
-    charMapSelector_->setItemData(0, 0u, EncodingRole);
-
-    int i = 0;
-    int newIndex = 0;
-    for (auto& map : charMaps)
-    {
-      charMapSelector_->addItem(tr("%1: %2 (platform %3, encoding %4)")
-                                .arg(i)
-                                .arg(*map.encodingName)
-                                .arg(map.platformID)
-                                .arg(map.encodingID));
-      auto encoding = static_cast<unsigned>(map.encoding);
-      charMapSelector_->setItemData(i, encoding, EncodingRole);
-
-      if (encoding == oldEncoding && i == oldIndex)
-        newIndex = i;
-    
-      i++;
-    }
-
-    // this shouldn't emit any event either, because force repainting
-    // will happen later, so embrace it into blocker block
-    charMapSelector_->setCurrentIndex(newIndex);
-  }
-
-  updateLimitIndex();
-}
-
-
 void
 ContinuousTab::updateLimitIndex()
 {
-  if (charMapSelector_->currentIndex() <= 0)
+  auto cMap = charMapSelector_->currentCharMapIndex();
+  if (cMap < 0)
     glyphLimitIndex_ = currentGlyphCount_;
   else
-    glyphLimitIndex_
-      = charMaps_[charMapSelector_->currentIndex() - 1].maxIndex + 1;
+    glyphLimitIndex_ = charMapSelector_->charMaps()[cMap].maxIndex + 1;
   indexSelector_->setMinMax(0, glyphLimitIndex_ - 1);
 }
 
@@ -222,17 +164,9 @@ ContinuousTab::checkModeSource()
 void
 ContinuousTab::charMapChanged()
 {
-  int newIndex = charMapSelector_->currentIndex();
+  int newIndex = charMapSelector_->currentCharMapIndex();
   if (newIndex != lastCharMapIndex_)
-  {
-    if (newIndex <= 0
-        || charMaps_.size() <= static_cast<unsigned>(newIndex - 1))
-      setGlyphBeginindex(0);
-    else if (charMaps_[newIndex - 1].maxIndex <= 20)
-      setGlyphBeginindex(charMaps_[newIndex - 1].maxIndex - 1);
-    else
-      setGlyphBeginindex(0x20);
-  }
+    setGlyphBeginindex(charMapSelector_->defaultFirstGlyphIndex());
   updateLimitIndex();
 
   syncSettings();
@@ -319,7 +253,7 @@ ContinuousTab::createLayout()
       tr("The quick brown fox jumps over the lazy dog."), this);
 
   modeSelector_ = new QComboBox(this);
-  charMapSelector_ = new QComboBox(this);
+  charMapSelector_ = new CharMapComboBox(this, engine_);
   sourceSelector_ = new QComboBox(this);
 
   charMapSelector_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -436,8 +370,11 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::repaintGlyph);
   connect(modeSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &ContinuousTab::checkModeSource);
-  connect(charMapSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
+  connect(charMapSelector_,
+          QOverload<int>::of(&CharMapComboBox::currentIndexChanged),
           this, &ContinuousTab::charMapChanged);
+  connect(charMapSelector_, &CharMapComboBox::forceUpdateLimitIndex,
+          this, &ContinuousTab::updateLimitIndex);
   connect(sourceSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &ContinuousTab::checkModeSource);
 
@@ -491,10 +428,10 @@ ContinuousTab::setDefaults()
 QString
 ContinuousTab::formatIndex(int index)
 {
-  auto idx = charMapSelector_->currentIndex() - 1;
-  if (idx < 0 || static_cast<unsigned>(idx) >= charMaps_.size()) // glyph order
+  auto idx = charMapSelector_->currentCharMapIndex();
+  if (idx < 0) // glyph order
     return QString::number(index);
-  return charMaps_[idx].stringifyIndexShort(index);
+  return charMapSelector_->charMaps()[idx].stringifyIndexShort(index);
 }
 
 

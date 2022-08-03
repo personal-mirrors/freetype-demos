@@ -8,6 +8,7 @@
 #include "../widgets/customwidgets.hpp"
 #include "../widgets/glyphindexselector.hpp"
 #include "../widgets/fontsizeselector.hpp"
+#include "../widgets/charmapcombobox.hpp"
 #include "../rendering/graphicsdefault.hpp"
 #include "../rendering/glyphcontinuous.hpp"
 #include "../engine/engine.hpp"
@@ -44,7 +45,6 @@ public:
   void setDisplayingCount(int count);
   void setGlyphBeginindex(int index);
 
-  void setCharMaps(std::vector<CharMapInfo>& charMaps);
   // This doesn't trigger either.
   void updateLimitIndex();
   void checkModeSource();
@@ -78,7 +78,7 @@ private:
 
   QComboBox* modeSelector_;
   QComboBox* sourceSelector_;
-  QComboBox* charMapSelector_;
+  CharMapComboBox* charMapSelector_ = NULL;
 
   QPushButton* resetPositionButton_;
 
@@ -103,8 +103,6 @@ private:
 
   GlyphIndexSelector* indexSelector_;
   QPlainTextEdit* sourceTextEdit_;
-
-  std::vector<CharMapInfo> charMaps_;
   
   QGridLayout* bottomLayout_;
   QVBoxLayout* mainLayout_;
