@@ -141,6 +141,10 @@ GlyphBitmapWidget::paintEvent(QPaintEvent* event)
   auto scale = std::min(xScale, yScale);
 
   QPainter painter(this);
+  painter.fillRect(rect(), Qt::white);
+  painter.setPen(QPen(Qt::black, 4));
+  painter.drawRect(rect());
+
   painter.scale(scale, scale);
 
   QStyleOptionGraphicsItem ogi;
