@@ -67,7 +67,7 @@ GlyphBitmap::paint(QPainter* painter,
                        QImage::Format_ARGB32_Premultiplied));
 #else
   const qreal lod = QStyleOptionGraphicsItem::levelOfDetailFromTransform(
-      painter->worldTransform());
+    painter->worldTransform());
 
   painter->setPen(Qt::NoPen);
 

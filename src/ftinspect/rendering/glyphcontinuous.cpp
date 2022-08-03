@@ -168,7 +168,7 @@ GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
   if (source_ == SRC_AllGlyphs)
   {
     auto deltaIndex = -delta.x() / HorizontalUnitLength
-                        - delta.y() / VerticalUnitLength * averageLineCount_;
+                          - delta.y() / VerticalUnitLength * averageLineCount_;
     if (prevIndex_ + deltaIndex != beginIndex_)
       emit beginIndexChangeRequest(beginIndex_ + deltaIndex);
   }

@@ -33,10 +33,10 @@ void
 SingularTab::setGlyphIndex(int index)
 {
   // only adjust current glyph index if we have a valid font
-  if (currentGlyphCount_ > 0)
-  {
-    currentGlyphIndex_ = qBound(0, index, currentGlyphCount_ - 1);
-  }
+  if (currentGlyphCount_ <= 0)
+    return;
+
+  currentGlyphIndex_ = qBound(0, index, currentGlyphCount_ - 1);
 
   QString upperHex = QString::number(currentGlyphIndex_, 16).toUpper();
   glyphIndexLabel_->setText(

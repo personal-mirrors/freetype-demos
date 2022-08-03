@@ -28,10 +28,10 @@ GlyphDetails::~GlyphDetails()
 void
 GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
 {
-  auto& cmaps = engine_->currentFontCharMaps();
+  auto& cMaps = engine_->currentFontCharMaps();
 
   glyphIndexLabel_->setText(QString::number(ctxt.glyphIndex));
-  if (charMapIndex < 0 || charMapIndex >= static_cast<int>(cmaps.size()))
+  if (charMapIndex < 0 || static_cast<unsigned>(charMapIndex) >= cMaps.size())
   {
     charCodePromptLabel_->setVisible(false);
     charCodeLabel_->setVisible(false);
@@ -41,7 +41,7 @@ GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
     charCodePromptLabel_->setVisible(true);
     charCodeLabel_->setVisible(true);
     charCodeLabel_->setText(
-        cmaps[charMapIndex].stringifyIndexShort(ctxt.charCode));
+        cMaps[charMapIndex].stringifyIndexShort(ctxt.charCode));
   }
 
   auto glyphName = engine_->glyphName(ctxt.glyphIndex);

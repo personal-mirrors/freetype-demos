@@ -134,13 +134,13 @@ SettingPanel::checkHintingMode()
   if (engine_->currentFontType() == Engine::FontType_CFF)
   {
     engine_->setCFFHintingMode(
-        hintingModeComboBoxModel_->indexToCFFMode(index));
+      hintingModeComboBoxModel_->indexToCFFMode(index));
     currentCFFHintingMode_ = index;
   }
   else if (engine_->currentFontType() == Engine::FontType_TrueType)
   {
     engine_->setTTInterpreterVersion(
-        hintingModeComboBoxModel_->indexToTTInterpreterVersion(index));
+      hintingModeComboBoxModel_->indexToTTInterpreterVersion(index));
     currentTTInterpreterVersion_ = index;
   }
 
@@ -179,10 +179,10 @@ SettingPanel::checkAutoHinting()
 
     antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(false);
 
-    if (antiAliasingComboBox_->currentIndex()
-        == AntiAliasingComboBoxModel::AntiAliasing_Light)
+    if (antiAliasingComboBox_->currentIndex() 
+      == AntiAliasingComboBoxModel::AntiAliasing_Light)
       antiAliasingComboBox_->setCurrentIndex(
-          AntiAliasingComboBoxModel::AntiAliasing_Normal);
+        AntiAliasingComboBoxModel::AntiAliasing_Normal);
   }
   emit repaintNeeded();
 }
@@ -247,7 +247,7 @@ SettingPanel::syncSettings()
   engine_->setLCDUsesBGR(aaSettings.isBGR);
   engine_->setLCDSubPixelPositioning(
     antiAliasingComboBox_->currentIndex()
-    == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
+      == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
 }
 
 
@@ -265,8 +265,8 @@ SettingPanel::createConnections()
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::repaintNeeded);
   connect(paletteComboBox_,
-          QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-          &SettingPanel::repaintNeeded);
+          QOverload<int>::of(&QComboBox::currentIndexChanged), 
+          this, &SettingPanel::repaintNeeded);
 
   connect(gammaSlider_, &QSlider::valueChanged,
           this, &SettingPanel::repaintNeeded);

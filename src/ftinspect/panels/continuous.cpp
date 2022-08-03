@@ -131,9 +131,7 @@ ContinuousTab::setCharMaps(std::vector<CharMapInfo>& charMaps)
   // Using additional UserRole to store encoding id
   auto oldEncodingV = charMapSelector_->itemData(oldIndex, EncodingRole);
   if (oldEncodingV.isValid() && oldEncodingV.canConvert<unsigned>())
-  {
     oldEncoding = oldEncodingV.value<unsigned>();
-  }
 
   {
     // suppress events during updating
@@ -493,10 +491,10 @@ ContinuousTab::setDefaults()
 QString
 ContinuousTab::formatIndex(int index)
 {
-  if (charMapSelector_->currentIndex() <= 0) // glyph order
+  auto idx = charMapSelector_->currentIndex() - 1;
+  if (idx < 0 || static_cast<unsigned>(idx) >= charMaps_.size()) // glyph order
     return QString::number(index);
-  return charMaps_[charMapSelector_->currentIndex() - 1].stringifyIndexShort(
-      index);
+  return charMaps_[idx].stringifyIndexShort(index);
 }
 
 
