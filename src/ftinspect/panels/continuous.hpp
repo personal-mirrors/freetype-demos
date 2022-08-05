@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <QWidget>
+#include <QFrame>
 #include <QLabel>
 #include <QComboBox>
 #include <QGridLayout>
@@ -74,6 +75,7 @@ private:
   int glyphLimitIndex_ = 0;
 
   GlyphContinuous* canvas_;
+  QFrame* canvasFrame_;
   FontSizeSelector* sizeSelector_;
 
   QComboBox* modeSelector_;
@@ -104,6 +106,7 @@ private:
   GlyphIndexSelector* indexSelector_;
   QPlainTextEdit* sourceTextEdit_;
   
+  QHBoxLayout* canvasFrameLayout_;
   QGridLayout* bottomLayout_;
   QVBoxLayout* mainLayout_;
 

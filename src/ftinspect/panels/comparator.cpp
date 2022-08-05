@@ -89,7 +89,8 @@ ComperatorTab::createLayout()
 
   for (int i = 0; i < ColumnWidth; ++i)
   {
-    auto canvas = new GlyphContinuous(this, engine_);
+    auto frame = new QFrame(this);
+    auto canvas = new GlyphContinuous(frame, engine_);
     auto settingPanel = new SettingPanel(this, engine_, true);
     auto area = new UnboundScrollArea(this);
 
@@ -103,6 +104,14 @@ ComperatorTab::createLayout()
     canvas_.emplace_back(canvas);
     settingPanelAreas_.emplace_back(area);
     settingPanels_.emplace_back(settingPanel);
+    frames_.emplace_back(frame);
+
+    auto frameLayout = new QHBoxLayout;
+    frameLayout->addWidget(canvas);
+    frame->setLayout(frameLayout);
+    frame->setContentsMargins(2, 2, 2, 2);
+    frameLayout->setContentsMargins(2, 2, 2, 2);
+    frame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
   }
 
   sourceWidget_ = new QWidget(this);
@@ -121,8 +130,8 @@ ComperatorTab::createLayout()
   sourceWidget_->setLayout(sourceLayout_);
 
   layout_->addWidget(sourceWidget_, 0, 0, 2, 1);
-  for (int i = 0; static_cast<unsigned>(i) < canvas_.size(); ++i)
-    layout_->addWidget(canvas_[i], 0, i + 1);
+  for (int i = 0; static_cast<unsigned>(i) < frames_.size(); ++i)
+    layout_->addWidget(frames_[i], 0, i + 1);
   for (int i = 0; static_cast<unsigned>(i) < settingPanelAreas_.size(); ++i)
     layout_->addWidget(settingPanelAreas_[i], 1, i + 1);
 

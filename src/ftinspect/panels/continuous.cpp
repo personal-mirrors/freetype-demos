@@ -242,7 +242,10 @@ ContinuousTab::wheelResize(int steps)
 void
 ContinuousTab::createLayout()
 {
-  canvas_ = new GlyphContinuous(this, engine_);
+  canvasFrame_ = new QFrame(this);
+  canvasFrame_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+
+  canvas_ = new GlyphContinuous(canvasFrame_, engine_);
   sizeSelector_ = new FontSizeSelector(this);
 
   indexSelector_ = new GlyphIndexSelector(this);
@@ -309,6 +312,12 @@ ContinuousTab::createLayout()
   rotationSpinBox_->setMinimum(-180);
   rotationSpinBox_->setMaximum(180);
 
+  canvasFrameLayout_ = new QHBoxLayout;
+  canvasFrameLayout_->addWidget(canvas_);
+  canvasFrame_->setLayout(canvasFrameLayout_);
+  canvasFrameLayout_->setContentsMargins(2, 2, 2, 2);
+  canvasFrame_->setContentsMargins(2, 2, 2, 2);
+
   bottomLayout_ = new QGridLayout;
   bottomLayout_->addWidget(sourceLabel_, 0, 0);
   bottomLayout_->addWidget(modeLabel_, 1, 0);
@@ -339,7 +348,7 @@ ContinuousTab::createLayout()
   bottomLayout_->setColumnStretch(4, 1);
 
   mainLayout_ = new QVBoxLayout;
-  mainLayout_->addWidget(canvas_);
+  mainLayout_->addWidget(canvasFrame_);
   mainLayout_->addWidget(sizeSelector_);
   mainLayout_->addLayout(bottomLayout_);
 
