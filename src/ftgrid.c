@@ -1797,18 +1797,20 @@
     *argc -= optind;
     *argv += optind;
 
-    if ( *argc <= 1 )
+    if ( *argc == 0 )
       usage( execname );
+
+    if ( *argc > 1                                                 &&
+         ( status.ptsize = (int)( atof( *argv[0] ) * 64.0 ) ) != 0 )
+    {
+      (*argc)--;
+      (*argv)++;
+    }
+    else
+      status.ptsize = 32 * 64 ;
 
     if ( have_encoding && !have_index )
       status.Num = 0x20;
-
-    status.ptsize = (int)( atof( *argv[0] ) * 64.0 );
-    if ( status.ptsize == 0 )
-      status.ptsize = 64 * 10;
-
-    (*argc)--;
-    (*argv)++;
   }
 
 

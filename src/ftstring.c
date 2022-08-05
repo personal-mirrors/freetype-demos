@@ -763,15 +763,17 @@
     *argc -= optind;
     *argv += optind;
 
-    if ( *argc <= 1 )
+    if ( *argc == 0 )
       usage( execname );
 
-    status.ptsize = (int)( atof( *argv[0] ) * 64.0 );
-    if ( status.ptsize == 0 )
-      status.ptsize = 64;
-
-    (*argc)--;
-    (*argv)++;
+    if ( *argc > 1                                                 &&
+         ( status.ptsize = (int)( atof( *argv[0] ) * 64.0 ) ) != 0 )
+    {
+      (*argc)--;
+      (*argv)++;
+    }
+    else
+      status.ptsize = 32 * 64 ;
   }
 
 

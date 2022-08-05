@@ -1048,13 +1048,18 @@
     argc -= optind;
     argv += optind;
 
-    if ( argc <= 1 )
+    if ( argc == 0 )
       usage( execname );
 
-    if ( sscanf( argv[0], "%d", &orig_ptsize ) != 1 )
+    if ( argc > 1 && sscanf( argv[0], "%d", &orig_ptsize ) == 1 )
+    {
+      argc--;
+      argv++;
+    }
+    else
       orig_ptsize = 64;
 
-    file = 1;
+    file = 0;
 
   NewFile:
     ptsize      = orig_ptsize;
@@ -1307,7 +1312,7 @@
         if ( file_loaded >= 1 )
           FT_Done_Face( face );
 
-        if ( file > 1 )
+        if ( file > 0 )
           file--;
 
         goto NewFile;
