@@ -15,8 +15,10 @@ class CharMapComboBox
 {
   Q_OBJECT
 public:
-  CharMapComboBox(QWidget* parent, Engine* engine);
+  CharMapComboBox(QWidget* parent, Engine* engine, bool haveGlyphOrder = true);
   ~CharMapComboBox() override;
+
+  bool haveGlyphOrder_;
 
   std::vector<CharMapInfo>& charMaps() { return charMaps_; }
   int currentCharMapIndex();

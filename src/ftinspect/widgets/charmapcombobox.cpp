@@ -8,9 +8,11 @@
 
 
 CharMapComboBox::CharMapComboBox(QWidget* parent,
-                                 Engine* engine)
+                                 Engine* engine,
+                                 bool haveGlyphOrder)
 : QComboBox(parent),
-  engine_(engine)
+  engine_(engine),
+  haveGlyphOrder_(haveGlyphOrder)
 {
 }
 
@@ -24,7 +26,7 @@ CharMapComboBox::~CharMapComboBox()
 int
 CharMapComboBox::currentCharMapIndex()
 {
-  auto index = currentIndex() - 1;
+  auto index = haveGlyphOrder_ ? currentIndex() - 1 : currentIndex();
   if (index < 0 || charMaps_.size() <= static_cast<unsigned>(index))
     return -1;
   return index;
@@ -73,8 +75,11 @@ CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
     QSignalBlocker selectorBlocker(this);
 
     clear();
-    addItem(tr("Glyph Order"));
-    setItemData(0, 0u, EncodingRole);
+    if (haveGlyphOrder_)
+    {
+      addItem(tr("Glyph Order"));
+      setItemData(0, 0u, EncodingRole);
+    }
 
     int i = 0;
     int newIndex = 0;
@@ -86,7 +91,7 @@ CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
                 .arg(map.platformID)
                 .arg(map.encodingID));
       auto encoding = static_cast<unsigned>(map.encoding);
-      setItemData(i, encoding, EncodingRole);
+      setItemData(haveGlyphOrder_ ? i + 1 : i, encoding, EncodingRole);
 
       if (encoding == oldEncoding && i == oldIndex)
         newIndex = i;

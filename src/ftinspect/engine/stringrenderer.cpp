@@ -67,7 +67,7 @@ StringRenderer::setKerning(bool kerning)
 {
   if (kerning)
   {
-    kerningMode_ = KM_Normal;
+    kerningMode_ = KM_Smart;
     kerningDegree_ = KD_Medium;
   }
   else
@@ -203,7 +203,7 @@ StringRenderer::loadSingleContext(GlyphContext* ctx,
   ctx->hadvance.x = metrics.horiAdvance;
   ctx->hadvance.y = 0;
 
-  if (engine_->lcdUsingSubPixelPositioning())
+  if (lsbRsbDeltaEnabled_ && engine_->lcdUsingSubPixelPositioning())
     ctx->hadvance.x += ctx->lsbDelta - ctx->rsbDelta;
   prev->hadvance.x += trackingKerning_;
 
@@ -214,14 +214,15 @@ StringRenderer::loadSingleContext(GlyphContext* ctx,
 
     prev->hadvance.x += kern.x;
     prev->hadvance.y += kern.y;
+  }
 
-    if (!engine_->lcdUsingSubPixelPositioning() && kerningMode_ > KM_Normal)
-    {
-      if (prev->rsbDelta - ctx->lsbDelta > 32)
-        prev->hadvance.x -= 64;
-      else if (prev->rsbDelta - ctx->lsbDelta < -31)
-        prev->hadvance.x += 64;
-    }
+  if (!engine_->lcdUsingSubPixelPositioning()
+      && lsbRsbDeltaEnabled_)
+  {
+    if (prev->rsbDelta - ctx->lsbDelta > 32)
+      prev->hadvance.x -= 64;
+    else if (prev->rsbDelta - ctx->lsbDelta < -31)
+      prev->hadvance.x += 64;
   }
 
   if (!engine_->lcdUsingSubPixelPositioning() && engine_->doHinting())
@@ -347,7 +348,9 @@ StringRenderer::render(int width,
 {
   if (usingString_)
     offset = 0;
-  if (limitIndex_ <= 0)
+  if (!usingString_ && limitIndex_ <= 0)
+    return 0;
+  if (engine_->currentFontNumberOfGlyphs() <= 0)
     return 0;
 
   // Separated into 3 modes:

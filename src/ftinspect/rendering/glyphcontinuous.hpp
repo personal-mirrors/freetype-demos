@@ -85,6 +85,10 @@ public:
   }
   void setStrokeRadius(double radius) { strokeRadius_ = radius; }
   void setSourceText(QString text);
+  void setMouseOperationEnabled(bool enabled)
+  {
+    mouseOperationEnabled_ = enabled;
+  }
 
   void purgeCache();
   void resetPositionDelta();
@@ -117,6 +121,7 @@ private:
   QString text_;
   int sizeIndicatorOffset_ = 0; // For Waterfall Rendering...
 
+  bool mouseOperationEnabled_ = true;
   int displayingCount_ = 0;
   FT_Size_Metrics metrics_;
   int x_ = 0, y_ = 0;

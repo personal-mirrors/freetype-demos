@@ -108,15 +108,12 @@ GlyphContinuous::resetPositionDelta()
 void
 GlyphContinuous::paintEvent(QPaintEvent* event)
 {
-  QPainter painter;
-  painter.begin(this);
+  QPainter painter(this);
   painter.fillRect(rect(), Qt::white);
 
   if (glyphCache_.empty())
     fillCache();
   paintCache(&painter);
-
-  painter.end();
 }
 
 
@@ -143,6 +140,8 @@ void
 GlyphContinuous::mousePressEvent(QMouseEvent* event)
 {
   QWidget::mousePressEvent(event);
+  if (!mouseOperationEnabled_)
+    return;
   if (event->button() == Qt::LeftButton)
   {
     prevPositionDelta_ = positionDelta_;
@@ -162,6 +161,8 @@ void
 GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
 {
   QWidget::mouseMoveEvent(event);
+  if (!mouseOperationEnabled_)
+    return;
   if (event->buttons() != Qt::LeftButton)
     return;
   auto delta = event->pos() - mouseDownPostition_;
@@ -193,6 +194,8 @@ void
 GlyphContinuous::mouseReleaseEvent(QMouseEvent* event)
 {
   QWidget::mouseReleaseEvent(event);
+  if (!mouseOperationEnabled_)
+    return;
   if (event->button() == Qt::LeftButton)
   {
     auto dist = event->pos() - mouseDownPostition_;

@@ -12,6 +12,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QGridLayout>
 #include <QBoxLayout>
 
 class SettingPanel
@@ -19,14 +20,21 @@ class SettingPanel
 {
   Q_OBJECT
 public:
-  SettingPanel(QWidget* parent, Engine* engine);
+  SettingPanel(QWidget* parent, Engine* engine, bool comparatorMode = false);
   ~SettingPanel() override = default;
 
   void syncSettings();
+  /*
+   * When in comparator mode, this is needed to sync the hinting modes when
+   * reloading the font.
+   */
+  void applyHintingMode();
 
   //////// Getters/Setters
 
   int antiAliasingModeIndex();
+  bool kerningEnabled();
+  bool lsbRsbDeltaEnabled();
 
 signals:
   void fontReloadNeeded();
@@ -48,6 +56,18 @@ private:
   int currentCFFHintingMode_;
   int currentTTInterpreterVersion_;
 
+  /*
+   * There's two places where `SettingPanel` appears: On the left for most tabs,
+   * and on the bottom in the comparator for each column. Therefore,
+   * set `comparatorMode_` to `true` will change the panel for the Comparator
+   * View.
+   *
+   * In comparator view, some updating is suppressed during GUI events.
+   * Instead, updating was strictly passive called from the parent (comparator
+   * view).
+   */
+  bool comparatorMode_ = false;
+
   QTabWidget* tab_;
 
   QWidget* generalTab_;
@@ -67,6 +87,8 @@ private:
   QCheckBox* autoHintingCheckBox_;
   QCheckBox* embeddedBitmapCheckBox_;
   QCheckBox* colorLayerCheckBox_;
+  QCheckBox* kerningCheckBox_;
+  QCheckBox* lsbRsbDeltaCheckBox_;
 
   AntiAliasingComboBoxModel* antiAliasingComboBoxModel_;
   HintingModeComboBoxModel* hintingModeComboBoxModel_;
@@ -80,17 +102,9 @@ private:
   QSlider* gammaSlider_;
 
   QVBoxLayout* mainLayout_;
-  QHBoxLayout* hintingModeLayout_;
-  QHBoxLayout* horizontalHintingLayout_;
-  QHBoxLayout* verticalHintingLayout_;
-  QHBoxLayout* blueZoneHintingLayout_;
-  QHBoxLayout* segmentDrawingLayout_;
-  QHBoxLayout* antiAliasingLayout_;
-  QHBoxLayout* lcdFilterLayout_;
+  QGridLayout* generalTabLayout_;
+  QVBoxLayout* debugLayout_;
   QHBoxLayout* gammaLayout_;
-  QHBoxLayout* paletteLayout_;
-
-  QVBoxLayout* generalTabLayout_;
 
   //////// Initializing funcs
 

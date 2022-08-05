@@ -162,6 +162,16 @@ MainGUI::onTripletChanged()
 
 
 void
+MainGUI::switchTab()
+{
+  auto isComparator = tabWidget_->currentWidget() == comparatorTab_;
+  leftWidget_->setVisible(!isComparator);
+
+  reloadCurrentTabFont();
+}
+
+
+void
 MainGUI::switchToSingular(int glyphIndex,
                           double sizePoint)
 {
@@ -189,7 +199,8 @@ MainGUI::reloadCurrentTabFont()
 void
 MainGUI::syncSettings()
 {
-  settingPanel_->syncSettings();
+  if (tabWidget_->currentWidget() != comparatorTab_)
+    settingPanel_->syncSettings();
 }
 
 
@@ -210,7 +221,7 @@ MainGUI::createLayout()
 
   leftLayout_ = new QVBoxLayout; // The only point is to set a margin->remove?
   leftLayout_->addWidget(settingPanel_);
-  leftLayout_->setContentsMargins(32, 32, 8, 16);
+  leftLayout_->setContentsMargins(32, 32, 0, 16);
 
   // we don't want to expand the left side horizontally;
   // to change the policy we have to use a widget wrapper
@@ -228,6 +239,7 @@ MainGUI::createLayout()
   singularTab_ = new SingularTab(this, engine_);
   continuousTab_ = new ContinuousTab(this, engine_,
                                      glyphDetailsDockWidget_, glyphDetails_);
+  comparatorTab_ = new ComperatorTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
 
@@ -236,13 +248,15 @@ MainGUI::createLayout()
   tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
   tabs_.append(continuousTab_);
   tabWidget_->addTab(continuousTab_, tr("Continuous View"));
+  tabs_.append(comparatorTab_);
+  tabWidget_->addTab(comparatorTab_, tr("Comparator View"));
   
   tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;
   //rightLayout_->addWidget(fontNameLabel_);
   rightLayout_->addWidget(tabWidget_); // same for `leftLayout_`: Remove?
-  rightLayout_->setContentsMargins(8, 32, 32, 16);
+  rightLayout_->setContentsMargins(16, 32, 32, 16);
 
   // for symmetry with the left side use a widget also
   rightWidget_ = new QWidget(this);
@@ -277,7 +291,7 @@ MainGUI::createConnections()
           this, &MainGUI::repaintCurrentTab);
 
   connect(tabWidget_, &QTabWidget::currentChanged,
-          this, &MainGUI::reloadCurrentTabFont);
+          this, &MainGUI::switchTab);
 
   connect(tripletSelector_, &TripletSelector::tripletChanged,
           this, &MainGUI::onTripletChanged);

@@ -125,6 +125,7 @@ public:
   void setRotation(double rotation);
   void setWaterfall(bool waterfall) { waterfall_ = waterfall; }
   void setPosition(double pos) { position_ = pos; }
+  void setLsbRsbDelta(bool enabled) { lsbRsbDeltaEnabled_ = enabled; }
   void setKerning(bool kerning);
 
   // Need to be called when font or charMap changes
@@ -190,6 +191,7 @@ private:
   FT_Pos trackingKerning_ = 0;
   FT_Matrix matrix_ = {};
   bool matrixEnabled_ = false;
+  bool lsbRsbDeltaEnabled_ = true;
 
   RenderCallback renderCallback_;
   RenderImageCallback renderImageCallback_;

@@ -2,11 +2,16 @@
 
 // Copyright (C) 2022 by Charlie Jiang.
 
-
 #include "settingpanel.hpp"
 
-SettingPanel::SettingPanel(QWidget* parent, Engine* engine)
-: QWidget(parent), engine_(engine)
+#include "../uihelper.hpp"
+
+SettingPanel::SettingPanel(QWidget* parent,
+                           Engine* engine,
+                           bool comparatorMode)
+: QWidget(parent),
+  engine_(engine),
+  comparatorMode_(comparatorMode)
 {
   createLayout();
   setDefaults();
@@ -22,6 +27,20 @@ SettingPanel::antiAliasingModeIndex()
 }
 
 
+bool
+SettingPanel::kerningEnabled()
+{
+  return kerningCheckBox_->isChecked();
+}
+
+
+bool
+SettingPanel::lsbRsbDeltaEnabled()
+{
+  return lsbRsbDeltaCheckBox_->isChecked();
+}
+
+
 void
 SettingPanel::checkAllSettings()
 {
@@ -34,6 +53,7 @@ SettingPanel::checkAllSettings()
 void
 SettingPanel::onFontChanged()
 {
+  auto blockState = blockSignals(signalsBlocked() || comparatorMode_);
   if (hintingCheckBox_->isChecked())
   {
     if (engine_->currentFontType() == Engine::FontType_CFF)
@@ -73,11 +93,12 @@ SettingPanel::onFontChanged()
       == AntiAliasingComboBoxModel::AntiAliasing_Light)
       antiAliasingComboBox_->setCurrentIndex(
         AntiAliasingComboBoxModel::AntiAliasing_Normal);
-
+    
     emit repaintNeeded();
   }
 
   populatePalettes();
+  blockSignals(blockState);
 }
 
 
@@ -125,26 +146,37 @@ SettingPanel::populatePalettes()
 void
 SettingPanel::checkHintingMode()
 {
+  if (!comparatorMode_)
+    applyHintingMode();
+
+  emit fontReloadNeeded();
+}
+
+
+void
+SettingPanel::applyHintingMode()
+{
   // This must not be combined into `syncSettings`:
   // those engine manipulations will reset the whole cache!!
   // Therefore must only be called when the selection of the combo box actually
   // changes a.k.a. QComboBox::activate.
+
   int index = hintingModeComboBox_->currentIndex();
 
   if (engine_->currentFontType() == Engine::FontType_CFF)
   {
     engine_->setCFFHintingMode(
       hintingModeComboBoxModel_->indexToCFFMode(index));
-    currentCFFHintingMode_ = index;
+    if (index >= 0)
+      currentCFFHintingMode_ = index;
   }
   else if (engine_->currentFontType() == Engine::FontType_TrueType)
   {
     engine_->setTTInterpreterVersion(
       hintingModeComboBoxModel_->indexToTTInterpreterVersion(index));
-    currentTTInterpreterVersion_ = index;
+    if (index >= 0)
+      currentTTInterpreterVersion_ = index;
   }
-
-  emit fontReloadNeeded();
 }
 
 
@@ -272,16 +304,19 @@ SettingPanel::createConnections()
           this, &SettingPanel::repaintNeeded);
   
   connect(hintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::onFontChanged);
+          this, &SettingPanel::repaintNeeded);
 
-  connect(horizontalHintingCheckBox_, &QCheckBox::clicked,
+  if (!comparatorMode_)
+  {
+    connect(horizontalHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::repaintNeeded);
-  connect(verticalHintingCheckBox_, &QCheckBox::clicked,
+    connect(verticalHintingCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(blueZoneHintingCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(segmentDrawingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::repaintNeeded);
-  connect(blueZoneHintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
-  connect(segmentDrawingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
+  }
 
   connect(autoHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkAutoHinting);
@@ -289,6 +324,14 @@ SettingPanel::createConnections()
           this, &SettingPanel::fontReloadNeeded);
   connect(colorLayerCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkPalette);
+
+  if (comparatorMode_)
+  {
+    connect(kerningCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(lsbRsbDeltaCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+  }
 }
 
 
@@ -312,6 +355,12 @@ SettingPanel::createLayout()
   segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"), this);
   embeddedBitmapCheckBox_ = new QCheckBox(tr("Enable Embedded Bitmap"), this);
   colorLayerCheckBox_ = new QCheckBox(tr("Enable Color Layer"), this);
+
+  if (comparatorMode_)
+  {
+    kerningCheckBox_ = new QCheckBox(tr("Kerning"), this);
+    lsbRsbDeltaCheckBox_ = new QCheckBox(tr("LSB/RSB Delta"), this);
+  }
 
   antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"), this);
   antiAliasingLabel_->setAlignment(Qt::AlignRight);
@@ -360,77 +409,82 @@ SettingPanel::createLayout()
   gammaSlider_->setTickInterval(5);
   gammaLabel_->setBuddy(gammaSlider_);
 
-  hintingModeLayout_ = new QHBoxLayout;
-  hintingModeLayout_->addWidget(hintingModeLabel_);
-  hintingModeLayout_->addWidget(hintingModeComboBox_);
-
-  horizontalHintingLayout_ = new QHBoxLayout;
-  horizontalHintingLayout_->addSpacing(20); // XXX px
-  horizontalHintingLayout_->addWidget(horizontalHintingCheckBox_);
-
-  verticalHintingLayout_ = new QHBoxLayout;
-  verticalHintingLayout_->addSpacing(20); // XXX px
-  verticalHintingLayout_->addWidget(verticalHintingCheckBox_);
-
-  blueZoneHintingLayout_ = new QHBoxLayout;
-  blueZoneHintingLayout_->addSpacing(20); // XXX px
-  blueZoneHintingLayout_->addWidget(blueZoneHintingCheckBox_);
-
-  segmentDrawingLayout_ = new QHBoxLayout;
-  segmentDrawingLayout_->addSpacing(20); // XXX px
-  segmentDrawingLayout_->addWidget(segmentDrawingCheckBox_);
-
-  antiAliasingLayout_ = new QHBoxLayout;
-  antiAliasingLayout_->addWidget(antiAliasingLabel_);
-  antiAliasingLayout_->addWidget(antiAliasingComboBox_);
-
-  lcdFilterLayout_ = new QHBoxLayout;
-  lcdFilterLayout_->addWidget(lcdFilterLabel_);
-  lcdFilterLayout_->addWidget(lcdFilterComboBox_);
+  debugLayout_ = new QVBoxLayout;
+  debugLayout_->setContentsMargins(20, 0, 0, 0);
+  debugLayout_->addWidget(horizontalHintingCheckBox_);
+  debugLayout_->addWidget(verticalHintingCheckBox_);
+  debugLayout_->addWidget(blueZoneHintingCheckBox_);
+  debugLayout_->addWidget(segmentDrawingCheckBox_);
 
   gammaLayout_ = new QHBoxLayout;
   gammaLayout_->addWidget(gammaLabel_);
   gammaLayout_->addWidget(gammaSlider_);
 
-  paletteLayout_ = new QHBoxLayout;
-  paletteLayout_->addWidget(paletteLabel_);
-  paletteLayout_->addWidget(paletteComboBox_);
+  generalTabLayout_ = new QGridLayout;
 
-  generalTabLayout_ = new QVBoxLayout;
-  generalTabLayout_->addWidget(hintingCheckBox_);
-  generalTabLayout_->addLayout(hintingModeLayout_);
-  generalTabLayout_->addWidget(autoHintingCheckBox_);
-  generalTabLayout_->addLayout(horizontalHintingLayout_);
-  generalTabLayout_->addLayout(verticalHintingLayout_);
-  generalTabLayout_->addLayout(blueZoneHintingLayout_);
-  generalTabLayout_->addLayout(segmentDrawingLayout_);
-  generalTabLayout_->addSpacing(20); // XXX px
-  generalTabLayout_->addStretch(1);
-  generalTabLayout_->addLayout(antiAliasingLayout_);
-  generalTabLayout_->addLayout(lcdFilterLayout_);
-  generalTabLayout_->addSpacing(20); // XXX px
-  generalTabLayout_->addStretch(1);
-  generalTabLayout_->addLayout(gammaLayout_);
-  generalTabLayout_->addWidget(embeddedBitmapCheckBox_);
-  generalTabLayout_->addWidget(colorLayerCheckBox_);
-  generalTabLayout_->addLayout(paletteLayout_);
-  generalTabLayout_->addSpacing(20); // XXX px
-  generalTabLayout_->addStretch(1);
+  gridLayout2ColAddWidget(generalTabLayout_, hintingCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, 
+                          hintingModeLabel_, hintingModeComboBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, autoHintingCheckBox_);
+
+  if (!comparatorMode_)
+    gridLayout2ColAddLayout(generalTabLayout_, debugLayout_);
+
+  if (!comparatorMode_)
+    gridLayout2ColAddItem(generalTabLayout_,
+                          new QSpacerItem(0, 20, QSizePolicy::Minimum,
+                                          QSizePolicy::MinimumExpanding));
+
+  gridLayout2ColAddWidget(generalTabLayout_, 
+                          antiAliasingLabel_, antiAliasingComboBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, 
+                          lcdFilterLabel_, lcdFilterComboBox_);
+
+  if (!comparatorMode_)
+    gridLayout2ColAddItem(generalTabLayout_,
+                          new QSpacerItem(0, 20, QSizePolicy::Minimum,
+                                          QSizePolicy::MinimumExpanding));
+
+  gridLayout2ColAddLayout(generalTabLayout_, gammaLayout_);
+  gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, 
+                          paletteLabel_, paletteComboBox_);
+
+  if (comparatorMode_)
+  {
+    gridLayout2ColAddWidget(generalTabLayout_, kerningCheckBox_);
+    gridLayout2ColAddWidget(generalTabLayout_, lsbRsbDeltaCheckBox_);
+  }
+
+  if (!comparatorMode_)
+    gridLayout2ColAddItem(generalTabLayout_,
+                          new QSpacerItem(0, 20, QSizePolicy::Minimum,
+                                          QSizePolicy::MinimumExpanding));
+
+  generalTabLayout_->setColumnStretch(1, 1);
 
   generalTab_ = new QWidget(this);
   generalTab_->setLayout(generalTabLayout_);
+  generalTab_->setSizePolicy(QSizePolicy::MinimumExpanding,
+                             QSizePolicy::MinimumExpanding);
 
   mmgxTab_ = new QWidget(this);
 
   tab_ = new QTabWidget(this);
   tab_->addTab(generalTab_, tr("General"));
   tab_->addTab(mmgxTab_, tr("MM/GX"));
+  tab_->setSizePolicy(QSizePolicy::MinimumExpanding,
+                      QSizePolicy::MinimumExpanding);
 
   mainLayout_ = new QVBoxLayout;
   mainLayout_->addWidget(tab_);
   setLayout(mainLayout_);
   mainLayout_->setContentsMargins(0, 0, 0, 0);
   setContentsMargins(0, 0, 0, 0);
+
+  if (comparatorMode_)
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
 }
 
 
@@ -465,6 +519,12 @@ SettingPanel::setDefaults()
   blueZoneHintingCheckBox_->setChecked(true);
   embeddedBitmapCheckBox_->setChecked(false);
   colorLayerCheckBox_->setChecked(true);
+
+  if (comparatorMode_)
+  {
+    kerningCheckBox_->setChecked(true);
+    lsbRsbDeltaCheckBox_->setChecked(true);
+  }
 
   gammaSlider_->setValue(18); // 1.8
 }

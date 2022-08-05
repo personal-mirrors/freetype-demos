@@ -10,6 +10,7 @@
 #include "panels/settingpanel.hpp"
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"
+#include "panels/comparator.hpp"
 #include "panels/glyphdetails.hpp"
 
 #include <QAction>
@@ -72,6 +73,7 @@ private slots:
   void reloadCurrentTabFont();
   void loadFonts();
   void onTripletChanged();
+  void switchTab();
   void switchToSingular(int glyphIndex, double sizePoint);
 
 private:
@@ -109,6 +111,7 @@ private:
   QVector<AbstractTab*> tabs_;
   SingularTab* singularTab_;
   ContinuousTab* continuousTab_;
+  ComperatorTab* comparatorTab_;
 
   QDockWidget* glyphDetailsDockWidget_;
   GlyphDetails* glyphDetails_;

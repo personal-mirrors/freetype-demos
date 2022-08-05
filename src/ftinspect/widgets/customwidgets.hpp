@@ -8,6 +8,7 @@
 #include <QGraphicsView>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QScrollArea>
 #include <QString>
 
 // We need to define a series of custom Qt widgets to satisfy.
@@ -52,6 +53,19 @@ public:
   ZoomSpinBox(QWidget* parent);
   void stepBy(int val) override;
   int valueFromText(const QString& text) const override;
+};
+
+
+// https://bugreports.qt.io/browse/QTBUG-10459
+// https://phabricator.kde.org/D14692
+class UnboundScrollArea
+: public QScrollArea
+{
+  Q_OBJECT
+
+public:
+  UnboundScrollArea(QWidget* parent);
+  QSize sizeHint() const override;
 };
 
 
