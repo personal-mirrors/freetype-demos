@@ -11,8 +11,8 @@ CharMapComboBox::CharMapComboBox(QWidget* parent,
                                  Engine* engine,
                                  bool haveGlyphOrder)
 : QComboBox(parent),
-  engine_(engine),
-  haveGlyphOrder_(haveGlyphOrder)
+  haveGlyphOrder_(haveGlyphOrder),
+  engine_(engine)
 {
 }
 
