@@ -43,6 +43,7 @@ private:
 class GlyphBitmapWidget
 : public QWidget
 {
+  Q_OBJECT
 public:
   GlyphBitmapWidget(QWidget* parent);
   ~GlyphBitmapWidget() override;

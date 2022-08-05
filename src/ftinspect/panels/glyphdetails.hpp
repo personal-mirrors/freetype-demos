@@ -21,6 +21,8 @@ class Engine;
 class GlyphDetails
 : public QWidget
 {
+  Q_OBJECT
+
 public:
   GlyphDetails(QWidget* parent, Engine* engine);
   ~GlyphDetails() override;
