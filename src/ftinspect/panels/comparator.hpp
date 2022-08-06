@@ -60,6 +60,7 @@ private:
   void createLayout();
   void createConnections();
   void setupCanvases();
+  void forceEqualWidths();
 
   void reloadStringAndRepaint();
   void reloadGlyphsAndRepaint();

@@ -74,6 +74,7 @@ void
 ComperatorTab::resizeEvent(QResizeEvent* event)
 {
   QWidget::resizeEvent(event);
+  forceEqualWidths();
   repaintGlyph();
 }
 
@@ -139,6 +140,8 @@ ComperatorTab::createLayout()
   layout_->setRowStretch(1, 2);
 
   setLayout(layout_);
+
+  forceEqualWidths();
 }
 
 
@@ -178,6 +181,23 @@ ComperatorTab::setupCanvases()
     canvas->installEventFilter(this);
   }
   sourceTextChanged();
+}
+
+
+void
+ComperatorTab::forceEqualWidths()
+{
+  if (canvas_.empty())
+    return;
+
+  // We need to keep the columns strictly equally wide, so we need to compensate
+  // the remainders when the tab width can't be evenly divided.
+  // Since the canvases are contained within QFrames, we can safely set fixed
+  // widths to them without messying up with the QGridLayout layouting.
+  // Using the first canvas as the reference width.
+  auto w = canvas_[0]->size().width();
+  for (int i = 1; static_cast<unsigned>(i) < canvas_.size(); ++i)
+    canvas_[i]->setFixedWidth(w);
 }
 
 
