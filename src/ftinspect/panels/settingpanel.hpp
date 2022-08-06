@@ -67,6 +67,7 @@ private:
    * view).
    */
   bool comparatorMode_ = false;
+  bool debugMode_ = false;
 
   QTabWidget* tab_;
 

@@ -6,6 +6,9 @@
 
 #include "../uihelper.hpp"
 
+// for `FT_DEBUG_AUTOFIT`
+#include <freetype/config/ftoption.h>
+
 SettingPanel::SettingPanel(QWidget* parent,
                            Engine* engine,
                            bool comparatorMode)
@@ -13,6 +16,11 @@ SettingPanel::SettingPanel(QWidget* parent,
   engine_(engine),
   comparatorMode_(comparatorMode)
 {
+#ifdef FT_DEBUG_AUTOFIT
+  debugMode_ = !comparatorMode_;
+#else
+  debugMode_ = false;
+#endif
   createLayout();
   setDefaults();
   createConnections();
@@ -83,10 +91,13 @@ SettingPanel::onFontChanged()
     hintingModeComboBox_->setEnabled(false);
 
     autoHintingCheckBox_->setEnabled(false);
-    horizontalHintingCheckBox_->setEnabled(false);
-    verticalHintingCheckBox_->setEnabled(false);
-    blueZoneHintingCheckBox_->setEnabled(false);
-    segmentDrawingCheckBox_->setEnabled(false);
+    if (debugMode_)
+    {
+      horizontalHintingCheckBox_->setEnabled(false);
+      verticalHintingCheckBox_->setEnabled(false);
+      blueZoneHintingCheckBox_->setEnabled(false);
+      segmentDrawingCheckBox_->setEnabled(false);
+    }
 
     antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(false);
     if (antiAliasingComboBox_->currentIndex()
@@ -188,10 +199,13 @@ SettingPanel::checkAutoHinting()
     hintingModeLabel_->setEnabled(false);
     hintingModeComboBox_->setEnabled(false);
 
-    horizontalHintingCheckBox_->setEnabled(true);
-    verticalHintingCheckBox_->setEnabled(true);
-    blueZoneHintingCheckBox_->setEnabled(true);
-    segmentDrawingCheckBox_->setEnabled(true);
+    if (debugMode_)
+    {
+      horizontalHintingCheckBox_->setEnabled(true);
+      verticalHintingCheckBox_->setEnabled(true);
+      blueZoneHintingCheckBox_->setEnabled(true);
+      segmentDrawingCheckBox_->setEnabled(true);
+    }
 
     antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(true);
   }
@@ -204,10 +218,13 @@ SettingPanel::checkAutoHinting()
       hintingModeComboBox_->setEnabled(true);
     }
 
-    horizontalHintingCheckBox_->setEnabled(false);
-    verticalHintingCheckBox_->setEnabled(false);
-    blueZoneHintingCheckBox_->setEnabled(false);
-    segmentDrawingCheckBox_->setEnabled(false);
+    if (debugMode_)
+    {
+      horizontalHintingCheckBox_->setEnabled(false);
+      verticalHintingCheckBox_->setEnabled(false);
+      blueZoneHintingCheckBox_->setEnabled(false);
+      segmentDrawingCheckBox_->setEnabled(false);
+    }
 
     antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(false);
 
@@ -265,10 +282,14 @@ SettingPanel::syncSettings()
     != AntiAliasingComboBoxModel::AntiAliasing_None);
   engine_->setHinting(hintingCheckBox_->isChecked());
   engine_->setAutoHinting(autoHintingCheckBox_->isChecked());
-  engine_->setHorizontalHinting(horizontalHintingCheckBox_->isChecked());
-  engine_->setVerticalHinting(verticalHintingCheckBox_->isChecked());
-  engine_->setBlueZoneHinting(blueZoneHintingCheckBox_->isChecked());
-  engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
+
+  if (debugMode_)
+  {
+    engine_->setHorizontalHinting(horizontalHintingCheckBox_->isChecked());
+    engine_->setVerticalHinting(verticalHintingCheckBox_->isChecked());
+    engine_->setBlueZoneHinting(blueZoneHintingCheckBox_->isChecked());
+    engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
+  }
 
   engine_->setGamma(gammaSlider_->value());
 
@@ -306,7 +327,7 @@ SettingPanel::createConnections()
   connect(hintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::repaintNeeded);
 
-  if (!comparatorMode_)
+  if (debugMode_)
   {
     connect(horizontalHintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::repaintNeeded);
@@ -349,10 +370,15 @@ SettingPanel::createLayout()
   hintingModeLabel_->setBuddy(hintingModeComboBox_);
 
   autoHintingCheckBox_ = new QCheckBox(tr("Auto-Hinting"), this);
-  horizontalHintingCheckBox_ = new QCheckBox(tr("Horizontal Hinting"), this);
-  verticalHintingCheckBox_ = new QCheckBox(tr("Vertical Hinting"), this);
-  blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"), this);
-  segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"), this);
+
+  if (debugMode_)
+  {
+    horizontalHintingCheckBox_ = new QCheckBox(tr("Horizontal Hinting"), this);
+    verticalHintingCheckBox_ = new QCheckBox(tr("Vertical Hinting"), this);
+    blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"), this);
+    segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"), this);
+  }
+  
   embeddedBitmapCheckBox_ = new QCheckBox(tr("Enable Embedded Bitmap"), this);
   colorLayerCheckBox_ = new QCheckBox(tr("Enable Color Layer"), this);
 
@@ -409,12 +435,15 @@ SettingPanel::createLayout()
   gammaSlider_->setTickInterval(5);
   gammaLabel_->setBuddy(gammaSlider_);
 
-  debugLayout_ = new QVBoxLayout;
-  debugLayout_->setContentsMargins(20, 0, 0, 0);
-  debugLayout_->addWidget(horizontalHintingCheckBox_);
-  debugLayout_->addWidget(verticalHintingCheckBox_);
-  debugLayout_->addWidget(blueZoneHintingCheckBox_);
-  debugLayout_->addWidget(segmentDrawingCheckBox_);
+  if (debugMode_)
+  {
+    debugLayout_ = new QVBoxLayout;
+    debugLayout_->setContentsMargins(20, 0, 0, 0);
+    debugLayout_->addWidget(horizontalHintingCheckBox_);
+    debugLayout_->addWidget(verticalHintingCheckBox_);
+    debugLayout_->addWidget(blueZoneHintingCheckBox_);
+    debugLayout_->addWidget(segmentDrawingCheckBox_);
+  }
 
   gammaLayout_ = new QHBoxLayout;
   gammaLayout_->addWidget(gammaLabel_);
@@ -427,7 +456,7 @@ SettingPanel::createLayout()
                           hintingModeLabel_, hintingModeComboBox_);
   gridLayout2ColAddWidget(generalTabLayout_, autoHintingCheckBox_);
 
-  if (!comparatorMode_)
+  if (debugMode_)
     gridLayout2ColAddLayout(generalTabLayout_, debugLayout_);
 
   if (!comparatorMode_)
@@ -514,10 +543,14 @@ SettingPanel::setDefaults()
   lcdFilterComboBox_->setCurrentIndex(
     LCDFilterComboBoxModel::LCDFilter_Light);
 
-  horizontalHintingCheckBox_->setChecked(true);
-  verticalHintingCheckBox_->setChecked(true);
-  blueZoneHintingCheckBox_->setChecked(true);
-  embeddedBitmapCheckBox_->setChecked(false);
+  if (debugMode_)
+  {
+    horizontalHintingCheckBox_->setChecked(true);
+    verticalHintingCheckBox_->setChecked(true);
+    blueZoneHintingCheckBox_->setChecked(true);
+    embeddedBitmapCheckBox_->setChecked(false);
+  }
+  
   colorLayerCheckBox_->setChecked(true);
 
   if (comparatorMode_)
