@@ -664,7 +664,7 @@
       "-------------------------------------------------------\n"
       "\n" );
     fprintf( stderr,
-      "Usage: %s [options] pt font ...\n"
+      "Usage: %s [options] [pt] font ...\n"
       "\n",
              execname );
     fprintf( stderr,
