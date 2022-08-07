@@ -404,13 +404,13 @@ DWORD WINAPI Window_ThreadProc( LPVOID lpParameter )
        /* int nWidth;              */  WndRect.right - WndRect.left,
        /* int nHeight;             */  WndRect.bottom - WndRect.top,
        /* HWND hwndParent;         */  HWND_DESKTOP,
-       /* HMENU hmenu;             */  0,
+       /* HMENU hmenu;             */  NULL,
        /* HINSTANCE hinst;         */  GetModuleHandle( NULL ),
        /* void FAR* lpvParam;      */  surface );
 
   PostThreadMessage( surface->host, WM_STATUS, (WPARAM)surface->window, 0 );
 
-  if ( surface->window == 0 )
+  if ( surface->window == NULL )
     return -1;
 
   ShowWindow( surface->window, SW_SHOWNORMAL );
@@ -684,22 +684,16 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
       /* WNDPROC lpfnWndProc  */ Message_Process,
       /* int     cbClsExtra   */ 0,
       /* int     cbWndExtra   */ 0,
-      /* HANDLE  hInstance    */ 0,
-      /* HICON   hIcon        */ 0,
-      /* HCURSOR hCursor      */ 0,
-      /* HBRUSH  hbrBackground*/ 0,
+      /* HANDLE  hInstance    */ GetModuleHandle( NULL ),
+      /* HICON   hIcon        */ LoadIcon( NULL, IDI_APPLICATION),
+      /* HCURSOR hCursor      */ LoadCursor( NULL, IDC_ARROW),
+      /* HBRUSH  hbrBackground*/ GetStockObject( LTGRAY_BRUSH ),
       /* LPCTSTR lpszMenuName */ NULL,
       /* LPCTSTR lpszClassName*/ "FreeTypeTestGraphicDriver"
     };
 
     /* register window class */
-
-    ourClass.hInstance    = GetModuleHandle( NULL );
-    ourClass.hIcon        = LoadIcon(0, IDI_APPLICATION);
-    ourClass.hCursor      = LoadCursor(0, IDC_ARROW);
-    ourClass.hbrBackground= GetStockObject( LTGRAY_BRUSH );
-
-    if ( RegisterClass(&ourClass) == 0 )
+    if ( RegisterClass( &ourClass ) == 0 )
       return -1;
 
     return 0;
