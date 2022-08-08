@@ -49,7 +49,6 @@ private:
   std::vector<GlyphContinuous*> canvas_;
   std::vector<SettingPanel*> settingPanels_;
   std::vector<QFrame*> frames_;
-  std::vector<UnboundScrollArea*> settingPanelAreas_;
 
   QWidget* sourceWidget_;
 

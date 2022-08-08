@@ -93,17 +93,11 @@ ComperatorTab::createLayout()
     auto frame = new QFrame(this);
     auto canvas = new GlyphContinuous(frame, engine_);
     auto settingPanel = new SettingPanel(this, engine_, true);
-    auto area = new UnboundScrollArea(this);
-
-    area->setWidget(settingPanel);
-    area->setWidgetResizable(true);
-    area->horizontalScrollBar()->setEnabled(false);
     
     canvas->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    area->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    settingPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     canvas_.emplace_back(canvas);
-    settingPanelAreas_.emplace_back(area);
     settingPanels_.emplace_back(settingPanel);
     frames_.emplace_back(frame);
 
@@ -133,8 +127,8 @@ ComperatorTab::createLayout()
   layout_->addWidget(sourceWidget_, 0, 0, 2, 1);
   for (int i = 0; static_cast<unsigned>(i) < frames_.size(); ++i)
     layout_->addWidget(frames_[i], 0, i + 1);
-  for (int i = 0; static_cast<unsigned>(i) < settingPanelAreas_.size(); ++i)
-    layout_->addWidget(settingPanelAreas_[i], 1, i + 1);
+  for (int i = 0; static_cast<unsigned>(i) < settingPanels_.size(); ++i)
+    layout_->addWidget(settingPanels_[i], 1, i + 1);
 
   layout_->setRowStretch(0, 3);
   layout_->setRowStretch(1, 2);

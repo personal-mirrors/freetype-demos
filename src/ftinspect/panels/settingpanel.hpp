@@ -74,6 +74,7 @@ private:
   QTabWidget* tab_;
 
   QWidget* generalTab_;
+  QWidget* hintingRenderingTab_;
   QWidget* mmgxTab_;
 
   QLabel* gammaLabel_;
@@ -110,6 +111,7 @@ private:
 
   QVBoxLayout* mainLayout_;
   QGridLayout* generalTabLayout_;
+  QGridLayout* hintingRenderingTabLayout_;
   QVBoxLayout* debugLayout_;
   QHBoxLayout* gammaLayout_;
   QHBoxLayout* colorPickerLayout_;
@@ -121,6 +123,8 @@ private:
 
   void createConnections();
   void createLayout();
+  void createLayoutNormal();
+  void createLayoutComperator();
   void setDefaults();
 
   void populatePalettes();

@@ -492,6 +492,17 @@ SettingPanel::createLayout()
     foregroundButton_ = new QPushButton(tr("Foreground"), this);
   }
 
+  generalTab_ = new QWidget(this);
+  mmgxTab_ = new QWidget(this);
+
+  generalTab_->setSizePolicy(QSizePolicy::MinimumExpanding,
+                             QSizePolicy::MinimumExpanding);
+
+  tab_ = new QTabWidget(this);
+  tab_->setSizePolicy(QSizePolicy::MinimumExpanding,
+                      QSizePolicy::MinimumExpanding);
+
+
   if (debugMode_)
   {
     debugLayout_ = new QVBoxLayout;
@@ -507,6 +518,23 @@ SettingPanel::createLayout()
   gammaLayout_->addWidget(gammaSlider_);
   gammaLayout_->addWidget(gammaValueLabel_);
 
+  if (comparatorMode_)
+    createLayoutComperator();
+  else
+    createLayoutNormal();
+
+  mainLayout_ = new QVBoxLayout;
+  mainLayout_->addWidget(tab_);
+  setLayout(mainLayout_);
+  mainLayout_->setContentsMargins(0, 0, 0, 0);
+  setContentsMargins(0, 0, 0, 0);
+  
+}
+
+
+void
+SettingPanel::createLayoutNormal()
+{
   generalTabLayout_ = new QGridLayout;
 
   gridLayout2ColAddWidget(generalTabLayout_, hintingCheckBox_);
@@ -516,72 +544,86 @@ SettingPanel::createLayout()
 
   if (debugMode_)
     gridLayout2ColAddLayout(generalTabLayout_, debugLayout_);
-
-  if (!comparatorMode_)
-    gridLayout2ColAddItem(generalTabLayout_,
-                          new QSpacerItem(0, 20, QSizePolicy::Minimum,
-                                          QSizePolicy::MinimumExpanding));
+  
+  gridLayout2ColAddItem(generalTabLayout_,
+                        new QSpacerItem(0, 20, QSizePolicy::Minimum,
+                                        QSizePolicy::MinimumExpanding));
 
   gridLayout2ColAddWidget(generalTabLayout_, 
                           antiAliasingLabel_, antiAliasingComboBox_);
   gridLayout2ColAddWidget(generalTabLayout_, 
                           lcdFilterLabel_, lcdFilterComboBox_);
+  
+  gridLayout2ColAddItem(generalTabLayout_,
+                        new QSpacerItem(0, 20, QSizePolicy::Minimum,
+                                        QSizePolicy::MinimumExpanding));
 
-  if (!comparatorMode_)
-    gridLayout2ColAddItem(generalTabLayout_,
-                          new QSpacerItem(0, 20, QSizePolicy::Minimum,
-                                          QSizePolicy::MinimumExpanding));
-
-  if (!comparatorMode_)
-  {
-    colorPickerLayout_ = new QHBoxLayout;
-    colorPickerLayout_->addWidget(backgroundButton_, 1);
-    colorPickerLayout_->addWidget(foregroundButton_, 1);
-    generalTabLayout_->addLayout(colorPickerLayout_,
-                                 generalTabLayout_->rowCount(), 
-                                 0, 1, 2);
-  }
+  colorPickerLayout_ = new QHBoxLayout;
+  colorPickerLayout_->addWidget(backgroundButton_, 1);
+  colorPickerLayout_->addWidget(foregroundButton_, 1);
+  generalTabLayout_->addLayout(colorPickerLayout_,
+                               generalTabLayout_->rowCount(), 0, 1, 2);
 
   gridLayout2ColAddLayout(generalTabLayout_, gammaLayout_);
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, 
                           paletteLabel_, paletteComboBox_);
-
-  if (comparatorMode_)
-  {
-    gridLayout2ColAddWidget(generalTabLayout_, kerningCheckBox_);
-    gridLayout2ColAddWidget(generalTabLayout_, lsbRsbDeltaCheckBox_);
-  }
-
-  if (!comparatorMode_)
-    gridLayout2ColAddItem(generalTabLayout_,
-                          new QSpacerItem(0, 20, QSizePolicy::Minimum,
-                                          QSizePolicy::MinimumExpanding));
+  
+  gridLayout2ColAddItem(generalTabLayout_,
+                        new QSpacerItem(0, 20, QSizePolicy::Minimum,
+                                        QSizePolicy::MinimumExpanding));
 
   generalTabLayout_->setColumnStretch(1, 1);
-
-  generalTab_ = new QWidget(this);
   generalTab_->setLayout(generalTabLayout_);
-  generalTab_->setSizePolicy(QSizePolicy::MinimumExpanding,
-                             QSizePolicy::MinimumExpanding);
 
-  mmgxTab_ = new QWidget(this);
-
-  tab_ = new QTabWidget(this);
   tab_->addTab(generalTab_, tr("General"));
   tab_->addTab(mmgxTab_, tr("MM/GX"));
-  tab_->setSizePolicy(QSizePolicy::MinimumExpanding,
-                      QSizePolicy::MinimumExpanding);
+}
 
-  mainLayout_ = new QVBoxLayout;
-  mainLayout_->addWidget(tab_);
-  setLayout(mainLayout_);
-  mainLayout_->setContentsMargins(0, 0, 0, 0);
-  setContentsMargins(0, 0, 0, 0);
 
-  if (comparatorMode_)
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+void
+SettingPanel::createLayoutComperator()
+{
+  hintingRenderingTab_ = new QWidget(this);
+
+  generalTabLayout_ = new QGridLayout;
+  hintingRenderingTabLayout_ = new QGridLayout;
+
+  // Hinting & Rendering
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, hintingCheckBox_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+                          hintingModeLabel_, hintingModeComboBox_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, autoHintingCheckBox_);
+
+  if (debugMode_)
+    gridLayout2ColAddLayout(hintingRenderingTabLayout_, debugLayout_);
+
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+                          antiAliasingLabel_, antiAliasingComboBox_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+                          lcdFilterLabel_, lcdFilterComboBox_);
+
+  gridLayout2ColAddLayout(hintingRenderingTabLayout_, gammaLayout_);
+
+  // General
+  gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, 
+                          paletteLabel_, paletteComboBox_);
+
+  gridLayout2ColAddWidget(generalTabLayout_, kerningCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, lsbRsbDeltaCheckBox_);
+
+  generalTabLayout_->setColumnStretch(1, 1);
+  hintingRenderingTabLayout_->setColumnStretch(1, 1);
+  generalTab_->setLayout(generalTabLayout_);
+  hintingRenderingTab_->setLayout(hintingRenderingTabLayout_);
+
+  tab_->addTab(hintingRenderingTab_, tr("Hinting && Rendering"));
+  tab_->addTab(generalTab_, tr("General"));
+  tab_->addTab(mmgxTab_, tr("MM/GX"));
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
 }
 
 

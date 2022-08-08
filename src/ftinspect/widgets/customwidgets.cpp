@@ -148,32 +148,4 @@ ZoomSpinBox::stepBy(int steps)
 }
 
 
-UnboundScrollArea::UnboundScrollArea(QWidget* parent)
-: QScrollArea(parent)
-{
-}
-
-
-QSize
-UnboundScrollArea::sizeHint() const
-{
-  int fw = 2 * frameWidth();
-  QSize sz(fw, fw);
-
-  int h = fontMetrics().height();
-
-  auto w = widget();
-  if (w)
-    sz += widgetResizable() ? w->sizeHint() : w->size();
-  else
-    sz += QSize(12 * h, 8 * h);
-
-  if (verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOn)
-    sz.setWidth(sz.width() + verticalScrollBar()->sizeHint().width());
-  if (horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOn)
-    sz.setHeight(sz.height() + horizontalScrollBar()->sizeHint().height());
-  return sz;
-}
-
-
 // end of custom_widgets.cpp
