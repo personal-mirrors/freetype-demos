@@ -130,42 +130,30 @@ GlyphDetails::createLayout()
   unitLayout_->addWidget(pixelButton_);
 
   layout_ = new QGridLayout;
-  layout_->addLayout(unitLayout_, 0, 0, 1, 2);
-  layout_->addItem(new QSpacerItem(0, 18), 1, 0, 1, 2);
+  gridLayout2ColAddLayout(layout_, unitLayout_);
+  gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
-  layout_->addWidget(glyphIndexPromptLabel_, 2, 0);
-  layout_->addWidget(charCodePromptLabel_,   3, 0);
-  layout_->addWidget(glyphNamePromptLabel_,  4, 0);
-  layout_->addItem(new QSpacerItem(0, 18), 5, 0, 1, 2);
+  gridLayout2ColAddWidget(layout_, glyphIndexPromptLabel_, glyphIndexLabel_);
+  gridLayout2ColAddWidget(layout_, charCodePromptLabel_  , charCodeLabel_  );
+  gridLayout2ColAddWidget(layout_, glyphNamePromptLabel_ , glyphNameLabel_ );
+  gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
-  layout_->addWidget(bboxSizePromptLabel_,    6, 0);
-  layout_->addWidget(horiBearingPromptLabel_, 7, 0);
-  layout_->addWidget(horiAdvancePromptLabel_, 8, 0);
-  layout_->addWidget(vertBearingPromptLabel_, 9, 0);
-  layout_->addWidget(vertAdvancePromptLabel_, 10, 0);
-  layout_->addItem(new QSpacerItem(0, 18), 11, 0, 1, 2);
+  gridLayout2ColAddWidget(layout_, bboxSizePromptLabel_,    bboxSizeLabel_  );
+  gridLayout2ColAddWidget(layout_, horiBearingPromptLabel_, horiBearingLabel_);
+  gridLayout2ColAddWidget(layout_, horiAdvancePromptLabel_, horiAdvanceLabel_);
+  gridLayout2ColAddWidget(layout_, vertBearingPromptLabel_, vertBearingLabel_);
+  gridLayout2ColAddWidget(layout_, vertAdvancePromptLabel_, vertAdvanceLabel_);
+  gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
-  layout_->addWidget(inkSizePromptLabel_,      12, 0);
-  layout_->addWidget(bitmapOffsetPromptLabel_, 13, 0);
+  gridLayout2ColAddWidget(layout_, inkSizePromptLabel_, inkSizeLabel_);
+  gridLayout2ColAddWidget(layout_, bitmapOffsetPromptLabel_, 
+                                   bitmapOffsetLabel_);
+  gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
-  layout_->addWidget(glyphIndexLabel_, 2, 1);
-  layout_->addWidget(charCodeLabel_,   3, 1);
-  layout_->addWidget(glyphNameLabel_,  4, 1);
-
-  layout_->addWidget(bboxSizeLabel_,    6, 1);
-  layout_->addWidget(horiBearingLabel_, 7, 1);
-  layout_->addWidget(horiAdvanceLabel_, 8, 1);
-  layout_->addWidget(vertBearingLabel_, 9, 1);
-  layout_->addWidget(vertAdvanceLabel_, 10, 1);
-
-  layout_->addWidget(inkSizeLabel_,      12, 1);
-  layout_->addWidget(bitmapOffsetLabel_, 13, 1);
-  layout_->addItem(new QSpacerItem(0, 18), 14, 0, 1, 2);
-
-  layout_->addWidget(bitmapWidget_, 15, 0, 1, 2);
+  gridLayout2ColAddWidget(layout_, bitmapWidget_);
 
   layout_->setColumnStretch(1, 1);
-  layout_->setRowStretch(15, 1);
+  layout_->setRowStretch(layout_->rowCount() - 1, 1);
 
   setLayout(layout_);
   setContentsMargins(12, 12, 12, 12);
