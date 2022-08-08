@@ -632,6 +632,17 @@ Engine::setSizeByPoint(double pointSize)
 
 
 void
+Engine::setGamma(double gamma)
+{
+  if (gamma_ != gamma)
+  {
+    gamma_ = gamma;
+    calculateForegroundTable();
+  }
+}
+
+
+void
 Engine::setLcdFilter(FT_LcdFilter filter)
 {
   FT_Library_SetLcdFilter(library_, filter);
@@ -675,13 +686,19 @@ Engine::setForeground(QRgb foreground)
 {
   if (foregroundTable_.size() != 256 || foreground != foregroundColor_)
   {
-    foregroundTable_.resize(256);
-    for (int i = 0; i <= 0xFF; i++)
-      foregroundTable_[i] = qRgba(qRed(foreground), 
-                                  qGreen(foreground), 
-                                  qBlue(foreground), 
-                                  i * qAlpha(foreground) / 255);
     foregroundColor_ = foreground;
+    calculateForegroundTable();
+  }
+}
+
+
+void
+Engine::setBackground(QRgb background)
+{
+  if (foregroundTable_.size() != 256 || background != backgroundColor_)
+  {
+    backgroundColor_ = background;
+    calculateForegroundTable();
   }
 }
 
@@ -853,6 +870,44 @@ Engine::loadPaletteInfos()
 
 
 void
+Engine::calculateForegroundTable()
+{
+  foregroundTable_.resize(256);
+
+  // Yes I know this is horribly slow, but we're only calculating the table once
+  // and can use it for all rendering if the color and gamma isn't changing.
+
+  double br = pow(qRed(backgroundColor_) / 255.0, gamma_);
+  double bg = pow(qGreen(backgroundColor_) / 255.0, gamma_);
+  double bb = pow(qBlue(backgroundColor_) / 255.0, gamma_);
+  double invGamma = 1 / gamma_;
+
+  for (int i = 0; i <= 0xFF; i++)
+  {
+    double foreAlpha = i * qAlpha(foregroundColor_) / 255.0 / 255.0;
+    double backAlpha = 1 - foreAlpha;
+    double r = pow(qRed(foregroundColor_) / 255.0, gamma_);
+    double g = pow(qGreen(foregroundColor_) / 255.0, gamma_);
+    double b = pow(qBlue(foregroundColor_) / 255.0, gamma_);
+
+    r = br * backAlpha + r * foreAlpha;
+    g = bg * backAlpha + g * foreAlpha;
+    b = bb * backAlpha + b * foreAlpha;
+
+    r = pow(r, invGamma);
+    g = pow(g, invGamma);
+    b = pow(b, invGamma);
+
+    foregroundTable_[i]
+        = qRgba(static_cast<int>(r * 255), 
+                static_cast<int>(g * 255),
+                static_cast<int>(b * 255), 
+                255);
+  }
+}
+
+
+void
 convertLCDToARGB(FT_Bitmap& bitmap,
                  QImage& image,
                  bool isBGR)
@@ -936,7 +991,7 @@ Engine::convertBitmapToQImage(FT_Bitmap* src)
       {
         image.setColorCount(2);
         image.setColor(0, static_cast<QRgb>(0)); // transparent
-        image.setColor(1, foregroundColor_);
+        image.setColor(1, foregroundTable_[0xFF]);
       }
       result = new QImage(image.copy());
       // Don't directly use `image` since we're destroying the image

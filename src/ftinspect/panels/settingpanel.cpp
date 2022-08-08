@@ -184,6 +184,16 @@ SettingPanel::openForegroundPicker()
 
 
 void
+SettingPanel::updateGamma()
+{
+  gammaValueLabel_->setText(QString::number(gammaSlider_->value() / 10.0,
+                           'f',
+                           1));
+  emit repaintNeeded();
+}
+
+
+void
 SettingPanel::checkHintingMode()
 {
   if (!comparatorMode_)
@@ -320,7 +330,7 @@ SettingPanel::syncSettings()
     engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
   }
 
-  engine_->setGamma(gammaSlider_->value());
+  engine_->setGamma(gammaSlider_->value() / 10.0);
 
   engine_->setEmbeddedBitmap(embeddedBitmapCheckBox_->isChecked());
   engine_->setPaletteIndex(paletteComboBox_->currentIndex());
@@ -354,7 +364,7 @@ SettingPanel::createConnections()
           this, &SettingPanel::repaintNeeded);
 
   connect(gammaSlider_, &QSlider::valueChanged,
-          this, &SettingPanel::repaintNeeded);
+          this, &SettingPanel::updateGamma);
   
   connect(hintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::repaintNeeded);
@@ -474,6 +484,7 @@ SettingPanel::createLayout()
   gammaSlider_->setTickPosition(QSlider::TicksBelow);
   gammaSlider_->setTickInterval(5);
   gammaLabel_->setBuddy(gammaSlider_);
+  gammaValueLabel_ = new QLabel(this);
 
   if (!comparatorMode_)
   {
@@ -494,6 +505,7 @@ SettingPanel::createLayout()
   gammaLayout_ = new QHBoxLayout;
   gammaLayout_->addWidget(gammaLabel_);
   gammaLayout_->addWidget(gammaSlider_);
+  gammaLayout_->addWidget(gammaValueLabel_);
 
   generalTabLayout_ = new QGridLayout;
 
@@ -620,6 +632,7 @@ SettingPanel::setDefaults()
   foregroundColor_ = Qt::black;
 
   gammaSlider_->setValue(18); // 1.8
+  updateGamma();
 }
 
 

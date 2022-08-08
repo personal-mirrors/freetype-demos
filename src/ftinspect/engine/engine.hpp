@@ -179,7 +179,7 @@ public:
     doBlueZoneHinting_ = blueZoneHinting;
   }
   void setShowSegments(bool showSegments) { showSegments_ = showSegments; }
-  void setGamma(double gamma) { gamma_ = gamma; }
+  void setGamma(double gamma);
   void setAntiAliasingTarget(int target) { antiAliasingTarget_ = target; }
   void setRenderMode(int mode) { renderMode_ = mode; }
   void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
@@ -196,7 +196,7 @@ public:
   void setTTInterpreterVersion(int version);
 
   void setForeground(QRgb foreground);
-  void setBackground(QRgb background) { backgroundColor_ = background; }
+  void setBackground(QRgb background);
 
   //////// Misc
 
@@ -259,10 +259,12 @@ private:
 
   QRgb backgroundColor_;
   QRgb foregroundColor_;
+  QRgb foregroundColorBlended_;
   QVector<QRgb> foregroundTable_;
 
   void queryEngine();
   void loadPaletteInfos();
+  void calculateForegroundTable();
 
   // Safe to put the impl to the cpp.
   template <class Func>

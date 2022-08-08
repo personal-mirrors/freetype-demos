@@ -77,6 +77,7 @@ private:
   QWidget* mmgxTab_;
 
   QLabel* gammaLabel_;
+  QLabel* gammaValueLabel_;
   QLabel* antiAliasingLabel_;
   QLabel* hintingModeLabel_;
   QLabel* lcdFilterLabel_;
@@ -126,6 +127,7 @@ private:
 
   void openBackgroundPicker();
   void openForegroundPicker();
+  void updateGamma();
 };
 
 

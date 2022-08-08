@@ -99,6 +99,7 @@ SingularTab::drawGlyph()
         = new GlyphBitmap(currentGlyphIndex_, 
                           glyph,
                           engine_);
+      currentGlyphBitmapItem_->setZValue(-1);
       glyphScene_->addItem(currentGlyphBitmapItem_);
     }
 
@@ -106,6 +107,7 @@ SingularTab::drawGlyph()
     {
       currentGlyphOutlineItem_ = new GlyphOutline(graphicsDefault_->outlinePen, 
                                                   glyph);
+      currentGlyphOutlineItem_->setZValue(1);
       glyphScene_->addItem(currentGlyphOutlineItem_);
     }
 
@@ -114,6 +116,7 @@ SingularTab::drawGlyph()
       currentGlyphPointsItem_ = new GlyphPoints(graphicsDefault_->onPen,
                                                 graphicsDefault_->offPen,
                                                 glyph);
+      currentGlyphPointsItem_->setZValue(1);
       glyphScene_->addItem(currentGlyphPointsItem_);
 
       if (showPointNumbersCheckBox_->isChecked())
@@ -122,6 +125,7 @@ SingularTab::drawGlyph()
           = new GlyphPointNumbers(graphicsDefault_->onPen,
                                   graphicsDefault_->offPen,
                                   glyph);
+        currentGlyphPointNumbersItem_->setZValue(1);
         glyphScene_->addItem(currentGlyphPointNumbersItem_);
       }
     }
@@ -256,7 +260,8 @@ SingularTab::createLayout()
   glyphView_->setScene(glyphScene_);
   glyphView_->setBackgroundBrush(Qt::white);
 
-  gridItem_ = new Grid(glyphView_, graphicsDefault_->gridPen, 
+  gridItem_ = new Grid(glyphView_, 
+                       graphicsDefault_->gridPen, 
                        graphicsDefault_->axisPen);
   glyphScene_->addItem(gridItem_);
 
