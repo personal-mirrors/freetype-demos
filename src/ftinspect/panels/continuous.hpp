@@ -51,6 +51,7 @@ public:
   void checkModeSource();
   void charMapChanged();
   void sourceTextChanged();
+  void presetStringSelected();
   void reloadGlyphsAndRepaint();
   void changeBeginIndexFromCanvas(int index);
   void updateGlyphDetails(GlyphCacheEntry* ctxt, 
@@ -81,8 +82,10 @@ private:
   QComboBox* modeSelector_;
   QComboBox* sourceSelector_;
   CharMapComboBox* charMapSelector_ = NULL;
+  QComboBox* sampleStringSelector_;
 
   QPushButton* resetPositionButton_;
+  QPushButton* configWaterfallButton_;
 
   QLabel* modeLabel_;
   QLabel* sourceLabel_;
