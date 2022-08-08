@@ -14,6 +14,8 @@
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QBoxLayout>
+#include <QPushButton>
+#include <QColorDialog>
 
 class SettingPanel
 : public QWidget
@@ -102,10 +104,17 @@ private:
 
   QSlider* gammaSlider_;
 
+  QPushButton* backgroundButton_;
+  QPushButton* foregroundButton_;
+
   QVBoxLayout* mainLayout_;
   QGridLayout* generalTabLayout_;
   QVBoxLayout* debugLayout_;
   QHBoxLayout* gammaLayout_;
+  QHBoxLayout* colorPickerLayout_;
+
+  QColor backgroundColor_;
+  QColor foregroundColor_;
 
   //////// Initializing funcs
 
@@ -114,6 +123,9 @@ private:
   void setDefaults();
 
   void populatePalettes();
+
+  void openBackgroundPicker();
+  void openForegroundPicker();
 };
 
 

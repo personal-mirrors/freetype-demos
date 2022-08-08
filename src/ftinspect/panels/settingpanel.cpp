@@ -155,6 +155,35 @@ SettingPanel::populatePalettes()
 
 
 void
+SettingPanel::openBackgroundPicker()
+{
+  auto result = QColorDialog::getColor(backgroundColor_, 
+                                       this,
+                                       tr("Background Color"));
+  if (result.isValid())
+  {
+    backgroundColor_ = result;
+    emit repaintNeeded();
+  }
+}
+
+
+void
+SettingPanel::openForegroundPicker()
+{
+  auto result = QColorDialog::getColor(foregroundColor_, 
+                                       this,
+                                       tr("Foreground Color"),
+                                       QColorDialog::ShowAlphaChannel);
+  if (result.isValid())
+  {
+    foregroundColor_ = result;
+    emit repaintNeeded();
+  }
+}
+
+
+void
 SettingPanel::checkHintingMode()
 {
   if (!comparatorMode_)
@@ -301,6 +330,9 @@ SettingPanel::syncSettings()
   engine_->setLCDSubPixelPositioning(
     antiAliasingComboBox_->currentIndex()
       == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
+
+  engine_->setForeground(foregroundColor_.rgba());
+  engine_->setBackground(backgroundColor_.rgba());
 }
 
 
@@ -352,6 +384,14 @@ SettingPanel::createConnections()
             this, &SettingPanel::repaintNeeded);
     connect(lsbRsbDeltaCheckBox_, &QCheckBox::clicked,
             this, &SettingPanel::repaintNeeded);
+  }
+
+  if (!comparatorMode_)
+  {
+    connect(backgroundButton_, &QPushButton::clicked,
+            this, &SettingPanel::openBackgroundPicker);
+    connect(foregroundButton_, &QPushButton::clicked,
+            this, &SettingPanel::openForegroundPicker);
   }
 }
 
@@ -435,6 +475,12 @@ SettingPanel::createLayout()
   gammaSlider_->setTickInterval(5);
   gammaLabel_->setBuddy(gammaSlider_);
 
+  if (!comparatorMode_)
+  {
+    backgroundButton_ = new QPushButton(tr("Background"), this);
+    foregroundButton_ = new QPushButton(tr("Foreground"), this);
+  }
+
   if (debugMode_)
   {
     debugLayout_ = new QVBoxLayout;
@@ -473,6 +519,16 @@ SettingPanel::createLayout()
     gridLayout2ColAddItem(generalTabLayout_,
                           new QSpacerItem(0, 20, QSizePolicy::Minimum,
                                           QSizePolicy::MinimumExpanding));
+
+  if (!comparatorMode_)
+  {
+    colorPickerLayout_ = new QHBoxLayout;
+    colorPickerLayout_->addWidget(backgroundButton_, 1);
+    colorPickerLayout_->addWidget(foregroundButton_, 1);
+    generalTabLayout_->addLayout(colorPickerLayout_,
+                                 generalTabLayout_->rowCount(), 
+                                 0, 1, 2);
+  }
 
   gridLayout2ColAddLayout(generalTabLayout_, gammaLayout_);
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
@@ -558,6 +614,10 @@ SettingPanel::setDefaults()
     kerningCheckBox_->setChecked(true);
     lsbRsbDeltaCheckBox_->setChecked(true);
   }
+
+  // These need to be set even in Comperator mode.
+  backgroundColor_ = Qt::white;
+  foregroundColor_ = Qt::black;
 
   gammaSlider_->setValue(18); // 1.8
 }

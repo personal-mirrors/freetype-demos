@@ -109,7 +109,7 @@ void
 GlyphContinuous::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
-  painter.fillRect(rect(), Qt::white);
+  painter.fillRect(rect(), engine_->background());
 
   if (glyphCache_.empty())
     fillCache();

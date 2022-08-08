@@ -160,6 +160,9 @@ Engine::Engine()
   }
   
   queryEngine();
+
+  setForeground(QColor(Qt::black).rgba());
+  setBackground(QColor(Qt::white).rgba());
 }
 
 
@@ -668,6 +671,22 @@ Engine::setTTInterpreterVersion(int version)
 
 
 void
+Engine::setForeground(QRgb foreground)
+{
+  if (foregroundTable_.size() != 256 || foreground != foregroundColor_)
+  {
+    foregroundTable_.resize(256);
+    for (int i = 0; i <= 0xFF; i++)
+      foregroundTable_[i] = qRgba(qRed(foreground), 
+                                  qGreen(foreground), 
+                                  qBlue(foreground), 
+                                  i * qAlpha(foreground) / 255);
+    foregroundColor_ = foreground;
+  }
+}
+
+
+void
 Engine::update()
 {
   loadFlags_ = FT_LOAD_DEFAULT;
@@ -912,9 +931,13 @@ Engine::convertBitmapToQImage(FT_Bitmap* src)
                    bmap.pitch, 
                    format);
       if (bmap.pixel_mode == FT_PIXEL_MODE_GRAY)
-        image.setColorTable(GraphicsDefault::deafultInstance()->grayColorTable);
+        image.setColorTable(foregroundTable_);
       else if (bmap.pixel_mode == FT_PIXEL_MODE_MONO)
-        image.setColorTable(GraphicsDefault::deafultInstance()->monoColorTable);
+      {
+        image.setColorCount(2);
+        image.setColor(0, static_cast<QRgb>(0)); // transparent
+        image.setColor(1, foregroundColor_);
+      }
       result = new QImage(image.copy());
       // Don't directly use `image` since we're destroying the image
     }

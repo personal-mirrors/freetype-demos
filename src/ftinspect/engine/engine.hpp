@@ -156,6 +156,9 @@ public:
   bool embeddedBitmapEnabled() { return embeddedBitmap_; }
   bool lcdUsingSubPixelPositioning() { return lcdSubPixelPositioning_; }
 
+  QRgb foreground() { return foregroundColor_; }
+  QRgb background() { return backgroundColor_; }
+
   //////// Setters (direct or indirect)
 
   void setDPI(int d) { dpi_ = d; }
@@ -191,6 +194,9 @@ public:
   void setLcdFilter(FT_LcdFilter filter);
   void setCFFHintingMode(int mode);
   void setTTInterpreterVersion(int version);
+
+  void setForeground(QRgb foreground);
+  void setBackground(QRgb background) { backgroundColor_ = background; }
 
   //////// Misc
 
@@ -250,6 +256,10 @@ private:
 
   double gamma_;
   unsigned long loadFlags_;
+
+  QRgb backgroundColor_;
+  QRgb foregroundColor_;
+  QVector<QRgb> foregroundTable_;
 
   void queryEngine();
   void loadPaletteInfos();
