@@ -142,14 +142,17 @@ GlyphBitmapWidget::paintEvent(QPaintEvent* event)
 
   QPainter painter(this);
   painter.fillRect(rect(), Qt::white);
-  painter.setPen(QPen(Qt::black, 4));
-  painter.drawRect(rect());
-
   painter.scale(scale, scale);
 
   QStyleOptionGraphicsItem ogi;
   ogi.exposedRect = br;
   bitmapItem_->paint(&painter, &ogi, this);
+
+  double scaledLineWidth = 4 / scale;
+  painter.setPen(QPen(Qt::black, scaledLineWidth));
+  scaledLineWidth /= 2;
+  painter.drawRect(br.adjusted(scaledLineWidth, scaledLineWidth,
+                               -scaledLineWidth, -scaledLineWidth));
 }
 
 
