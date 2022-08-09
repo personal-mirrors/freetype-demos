@@ -10,6 +10,7 @@
 #include "paletteinfo.hpp"
 
 #include <vector>
+#include <utility>
 #include <QString>
 #include <QMap>
 #include <QRect>
@@ -146,6 +147,7 @@ public:
   FT_GlyphSlot currentFaceSlot();
   FT_Pos currentFontTrackingKerning(int degree);
   FT_Vector currentFontKerning(int glyphIndex, int prevIndex);
+  std::pair<int, int> currentSizeAscDescPx();
   
   std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
   std::vector<PaletteInfo>& currentFontPalettes() { return curPaletteInfos_; }

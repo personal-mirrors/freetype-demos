@@ -25,6 +25,11 @@ GraphicsDefault::GraphicsDefault()
   outlinePen.setWidth(0);
   segmentPen.setColor(QColor(64, 255, 128, 64)); // light green
   segmentPen.setWidth(0);
+
+  advanceAuxPen.setColor(QColor(110, 52, 235)); // kind of blue
+  advanceAuxPen.setWidth(0);
+  ascDescAuxPen.setColor(QColor(255, 0, 0)); // red
+  ascDescAuxPen.setWidth(0);
 }
 
 

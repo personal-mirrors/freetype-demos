@@ -129,7 +129,14 @@ SingularTab::drawGlyph()
         glyphScene_->addItem(currentGlyphPointNumbersItem_);
       }
     }
+
+    engine_->reloadFont();
+    auto ascDesc = engine_->currentSizeAscDescPx();
+    gridItem_->updateParameters(ascDesc.first, ascDesc.second,
+                                glyph->advance.x >> 16);
   }
+  else
+    gridItem_->updateParameters(0, 0, 0);
 
   glyphScene_->update();
 }
@@ -208,7 +215,8 @@ SingularTab::wheelResize(QWheelEvent* event)
 void
 SingularTab::setGridVisible()
 {
-  gridItem_->setVisible(showGridCheckBox_->isChecked());
+  gridItem_->setShowGrid(showGridCheckBox_->isChecked(),
+                         showAuxLinesCheckBox_->isChecked());
 }
 
 
@@ -260,9 +268,7 @@ SingularTab::createLayout()
   glyphView_->setScene(glyphScene_);
   glyphView_->setBackgroundBrush(Qt::white);
 
-  gridItem_ = new Grid(glyphView_, 
-                       graphicsDefault_->gridPen, 
-                       graphicsDefault_->axisPen);
+  gridItem_ = new Grid(glyphView_);
   glyphScene_->addItem(gridItem_);
 
   // Don't use QGraphicsTextItem: We want this hint to be anchored at the
@@ -304,6 +310,7 @@ SingularTab::createLayout()
   showPointNumbersCheckBox_ = new QCheckBox(tr("Show Point Numbers"), this);
   showOutlinesCheckBox_ = new QCheckBox(tr("Show Outlines"), this);
   showGridCheckBox_ = new QCheckBox(tr("Show Grid"), this);
+  showAuxLinesCheckBox_ = new QCheckBox(tr("Show Aux. Lines"), this);
 
   indexHelpLayout_ = new QHBoxLayout;
   indexHelpLayout_->addWidget(indexSelector_, 1);
@@ -326,6 +333,7 @@ SingularTab::createLayout()
   checkBoxesLayout_->addWidget(showPointNumbersCheckBox_);
   checkBoxesLayout_->addWidget(showOutlinesCheckBox_);
   checkBoxesLayout_->addWidget(showGridCheckBox_);
+  checkBoxesLayout_->addWidget(showAuxLinesCheckBox_);
 
   glyphOverlayIndexLayout_ = new QHBoxLayout;
   glyphOverlayIndexLayout_->addWidget(glyphIndexLabel_);
@@ -381,6 +389,8 @@ SingularTab::createConnections()
           this, &SingularTab::drawGlyph);
   connect(showGridCheckBox_, &QCheckBox::clicked,
           this, &SingularTab::setGridVisible);
+  connect(showAuxLinesCheckBox_, &QCheckBox::clicked,
+          this, &SingularTab::setGridVisible);
 
   sizeSelector_->installEventFilterForWidget(glyphView_);
   sizeSelector_->installEventFilterForWidget(this);
@@ -428,6 +438,9 @@ SingularTab::setDefaults()
   showBitmapCheckBox_->setChecked(true);
   showOutlinesCheckBox_->setChecked(true);
   showGridCheckBox_->setChecked(true);
+  showAuxLinesCheckBox_->setChecked(true);
+  gridItem_->setShowGrid(true, true);
+
   
   indexSelector_->setCurrentIndex(indexSelector_->currentIndex(), true);
   zoom();

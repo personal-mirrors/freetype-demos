@@ -13,23 +13,27 @@ class Grid
 : public QGraphicsItem
 {
 public:
-  Grid(QGraphicsView* parentView,
-       const QPen& gridPen,
-       const QPen& axisPen);
+  Grid(QGraphicsView* parentView);
   QRectF boundingRect() const override;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
+  void setShowGrid(bool showGrid, bool showAuxLines);
+  void updateParameters(int ascenderPx, int descenderPx, int advancePx);
+
   void updateRect(); // there's no signal/slots for QGraphicsItem.
 
 private:
-  QPen gridPen_;
-  QPen axisPen_;
-
   QGraphicsView* parentView_;
   QRectF rect_;
   QRectF sceneRect_;
+
+  bool showGrid_ = true;
+  bool showAuxLines_ = false;
+
+  int ascender_ = 0, descender_ = 0;
+  int advance_ = 0;
 };
 
 

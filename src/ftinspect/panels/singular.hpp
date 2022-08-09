@@ -89,6 +89,7 @@ private:
   QCheckBox* showPointNumbersCheckBox_;
   QCheckBox* showPointsCheckBox_;
   QCheckBox* showGridCheckBox_;
+  QCheckBox* showAuxLinesCheckBox_;
 
   QVBoxLayout* mainLayout_;
   QHBoxLayout* checkBoxesLayout_;

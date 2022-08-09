@@ -5,18 +5,16 @@
 
 #include "grid.hpp"
 
+#include "graphicsdefault.hpp"
+
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 #include <QGraphicsWidget>
 #include <QGraphicsView>
 
 
-Grid::Grid(QGraphicsView* parentView, 
-           const QPen& gridP,
-           const QPen& axisP)
-: gridPen_(gridP),
-  axisPen_(axisP),
-  parentView_(parentView)
+Grid::Grid(QGraphicsView* parentView)
+:  parentView_(parentView)
 {
  // empty
   updateRect();
@@ -60,6 +58,7 @@ Grid::paint(QPainter* painter,
             const QStyleOptionGraphicsItem* option,
             QWidget* widget)
 {
+  auto gb = GraphicsDefault::deafultInstance();
   auto br = boundingRect().toRect();
   int minX = br.left();
   int minY = br.top();
@@ -68,53 +67,92 @@ Grid::paint(QPainter* painter,
 
   const qreal lod = option->levelOfDetailFromTransform(
                               painter->worldTransform());
-
-  painter->setPen(gridPen_);
-
-  // don't mark pixel center with a cross if magnification is too small
-  if (lod > 20)
+  if (showGrid_)
   {
-    int halfLength = 1;
-
-    // cf. QSpinBoxx
-    if (lod > 640)
-      halfLength = 6;
-    else if (lod > 320)
-      halfLength = 5;
-    else if (lod > 160)
-      halfLength = 4;
-    else if (lod > 80)
-      halfLength = 3;
-    else if (lod > 40)
-      halfLength = 2;
-
-    for (qreal x = minX; x < maxX; x++)
-      for (qreal y = minY; y < maxY; y++)
-      {
-        painter->drawLine(QLineF(x + 0.5, y + 0.5 - halfLength / lod,
-                                 x + 0.5, y + 0.5 + halfLength / lod));
-        painter->drawLine(QLineF(x + 0.5 - halfLength / lod, y + 0.5,
-                                 x + 0.5 + halfLength / lod, y + 0.5));
-      }
+    painter->setPen(gb->gridPen);
+    
+    // don't mark pixel center with a cross if magnification is too small
+    if (lod > 20)
+    {
+      int halfLength = 1;
+    
+      // cf. QSpinBoxx
+      if (lod > 640)
+        halfLength = 6;
+      else if (lod > 320)
+        halfLength = 5;
+      else if (lod > 160)
+        halfLength = 4;
+      else if (lod > 80)
+        halfLength = 3;
+      else if (lod > 40)
+        halfLength = 2;
+    
+      for (qreal x = minX; x < maxX; x++)
+        for (qreal y = minY; y < maxY; y++)
+        {
+          painter->drawLine(QLineF(x + 0.5, y + 0.5 - halfLength / lod,
+                                   x + 0.5, y + 0.5 + halfLength / lod));
+          painter->drawLine(QLineF(x + 0.5 - halfLength / lod, y + 0.5,
+                                   x + 0.5 + halfLength / lod, y + 0.5));
+        }
+    }
+    
+    // don't draw grid if magnification is too small
+    if (lod >= 5)
+    {
+      for (int x = minX; x <= maxX; x++)
+        painter->drawLine(x, minY,
+                          x, maxY);
+      for (int y = minY; y <= maxY; y++)
+        painter->drawLine(minX, y,
+                          maxX, y);
+    }
+    
+    painter->setPen(gb->axisPen);
+    
+    painter->drawLine(0, minY,
+                      0, maxY);
+    painter->drawLine(minX, 0,
+                      maxX, 0);
   }
 
-  // don't draw grid if magnification is too small
-  if (lod >= 5)
+  if (showAuxLines_)
   {
-    for (int x = minX; x <= maxX; x++)
-      painter->drawLine(x, minY,
-                        x, maxY);
-    for (int y = minY; y <= maxY; y++)
-      painter->drawLine(minX, y,
-                        maxX, y);
+    painter->setPen(gb->ascDescAuxPen);
+    painter->drawLine(minX, ascender_,
+                      maxX, ascender_);
+    painter->drawLine(minX, descender_,
+                      maxX, descender_);
+
+    painter->setPen(gb->advanceAuxPen);
+    painter->drawLine(advance_, minY,
+                      advance_, maxY);
   }
+}
 
-  painter->setPen(axisPen_);
 
-  painter->drawLine(0, minY,
-                    0, maxY);
-  painter->drawLine(minX, 0,
-                    maxX, 0);
+void
+Grid::setShowGrid(bool showGrid, bool showAuxLines)
+{
+  showGrid_ = showGrid;
+  showAuxLines_ = showAuxLines;
+  update();
+}
+
+
+void
+Grid::updateParameters(int ascenderPx,
+                       int descenderPx,
+                       int advancePx)
+{
+  // Need to flip the Y coord (originally Cartesian)
+  ascender_ = -ascenderPx;
+  descender_ = -descenderPx;
+  advance_ = advancePx;
+
+  if (showAuxLines_)
+    update();
 }
 
 

@@ -19,6 +19,9 @@ struct GraphicsDefault
   QPen outlinePen;
   QPen segmentPen;
 
+  QPen advanceAuxPen;
+  QPen ascDescAuxPen;
+
   GraphicsDefault();
 
   static GraphicsDefault* deafultInstance();
