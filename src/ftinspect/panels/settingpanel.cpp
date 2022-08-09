@@ -99,9 +99,11 @@ SettingPanel::onFontChanged()
       segmentDrawingCheckBox_->setEnabled(false);
     }
 
+    stemDarkeningCheckBox_->setEnabled(false);
     antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(false);
-    if (antiAliasingComboBox_->currentIndex()
-      == AntiAliasingComboBoxModel::AntiAliasing_Light)
+    auto aaMode = antiAliasingComboBox_->currentIndex();
+    if (aaMode == AntiAliasingComboBoxModel::AntiAliasing_Light
+        || aaMode == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel)
       antiAliasingComboBox_->setCurrentIndex(
         AntiAliasingComboBoxModel::AntiAliasing_Normal);
     
@@ -149,6 +151,8 @@ SettingPanel::populatePalettes()
           .arg(newPalettes[i].name),
         newPalettes[i].name);
   }
+
+  paletteComboBox_->setEnabled(paletteComboBox_->count() > 0);
 
   emit fontReloadNeeded();
 }
@@ -249,6 +253,10 @@ SettingPanel::checkAutoHinting()
     }
 
     antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(true);
+    auto aaMode = antiAliasingComboBox_->currentIndex();
+    stemDarkeningCheckBox_->setEnabled(
+      aaMode == AntiAliasingComboBoxModel::AntiAliasing_Light
+      || aaMode == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
   }
   else
   {
@@ -268,11 +276,13 @@ SettingPanel::checkAutoHinting()
     }
 
     antiAliasingComboBoxModel_->setLightAntiAliasingEnabled(false);
+    stemDarkeningCheckBox_->setEnabled(false);
 
-    if (antiAliasingComboBox_->currentIndex() 
-      == AntiAliasingComboBoxModel::AntiAliasing_Light)
+    auto aaMode = antiAliasingComboBox_->currentIndex();
+    if (aaMode == AntiAliasingComboBoxModel::AntiAliasing_Light
+        || aaMode == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel)
       antiAliasingComboBox_->setCurrentIndex(
-        AntiAliasingComboBoxModel::AntiAliasing_Normal);
+          AntiAliasingComboBoxModel::AntiAliasing_Normal);
   }
   emit repaintNeeded();
 }
@@ -282,19 +292,18 @@ void
 SettingPanel::checkAntiAliasing()
 {
   int index = antiAliasingComboBox_->currentIndex();
-
-  if (index == AntiAliasingComboBoxModel::AntiAliasing_None
+  auto isLight
+    = index == AntiAliasingComboBoxModel::AntiAliasing_Light
+      || index == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel;
+  auto disableLCD
+    = index == AntiAliasingComboBoxModel::AntiAliasing_None
       || index == AntiAliasingComboBoxModel::AntiAliasing::AntiAliasing_Normal
-      || index == AntiAliasingComboBoxModel::AntiAliasing_Light)
-  {
-    lcdFilterLabel_->setEnabled(false);
-    lcdFilterComboBox_->setEnabled(false);
-  }
-  else
-  {
-    lcdFilterLabel_->setEnabled(true);
-    lcdFilterComboBox_->setEnabled(true);
-  }
+      || isLight;
+
+  lcdFilterLabel_->setEnabled(!disableLCD);
+  lcdFilterComboBox_->setEnabled(!disableLCD);
+  stemDarkeningCheckBox_->setEnabled(isLight);
+
   emit repaintNeeded();
 }
 
@@ -678,6 +687,7 @@ SettingPanel::setDefaults()
   }
   
   colorLayerCheckBox_->setChecked(true);
+  paletteComboBox_->setEnabled(false);
 
   if (comparatorMode_)
   {
