@@ -197,14 +197,14 @@ void
 SettingPanel::checkHintingMode()
 {
   if (!comparatorMode_)
-    applyHintingMode();
+    applyDelayedSettings();
 
   emit fontReloadNeeded();
 }
 
 
 void
-SettingPanel::applyHintingMode()
+SettingPanel::applyDelayedSettings()
 {
   // This must not be combined into `syncSettings`:
   // those engine manipulations will reset the whole cache!!
@@ -227,6 +227,8 @@ SettingPanel::applyHintingMode()
     if (index >= 0)
       currentTTInterpreterVersion_ = index;
   }
+
+  engine_->setStemDarkening(stemDarkeningCheckBox_->isChecked());
 }
 
 
@@ -302,6 +304,16 @@ SettingPanel::checkPalette()
 {
   paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked());
   emit repaintNeeded();
+}
+
+
+void
+SettingPanel::checkStemDarkening()
+{
+  if (!comparatorMode_)
+    applyDelayedSettings();
+
+  emit fontReloadNeeded();
 }
 
 
@@ -385,6 +397,8 @@ SettingPanel::createConnections()
           this, &SettingPanel::checkAutoHinting);
   connect(embeddedBitmapCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::fontReloadNeeded);
+  connect(stemDarkeningCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::checkStemDarkening);
   connect(colorLayerCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkPalette);
 
@@ -420,6 +434,7 @@ SettingPanel::createLayout()
   hintingModeLabel_->setBuddy(hintingModeComboBox_);
 
   autoHintingCheckBox_ = new QCheckBox(tr("Auto-Hinting"), this);
+  stemDarkeningCheckBox_ = new QCheckBox(tr("Stem Darkening"), this);
 
   if (debugMode_)
   {
@@ -502,7 +517,6 @@ SettingPanel::createLayout()
   tab_->setSizePolicy(QSizePolicy::MinimumExpanding,
                       QSizePolicy::MinimumExpanding);
 
-
   if (debugMode_)
   {
     debugLayout_ = new QVBoxLayout;
@@ -565,6 +579,7 @@ SettingPanel::createLayoutNormal()
                                generalTabLayout_->rowCount(), 0, 1, 2);
 
   gridLayout2ColAddLayout(generalTabLayout_, gammaLayout_);
+  gridLayout2ColAddWidget(generalTabLayout_, stemDarkeningCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, 
@@ -605,6 +620,7 @@ SettingPanel::createLayoutComperator()
                           lcdFilterLabel_, lcdFilterComboBox_);
 
   gridLayout2ColAddLayout(hintingRenderingTabLayout_, gammaLayout_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, stemDarkeningCheckBox_);
 
   // General
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);

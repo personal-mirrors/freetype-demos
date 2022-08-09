@@ -242,7 +242,7 @@ ComperatorTab::syncSettings(int index)
     return;
 
   auto settingPanel = settingPanels_[index];
-  settingPanel->applyHintingMode();
+  settingPanel->applyDelayedSettings();
   settingPanel->syncSettings();
 
   if (static_cast<unsigned>(index) >= canvas_.size())

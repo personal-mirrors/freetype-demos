@@ -30,7 +30,7 @@ public:
    * When in comparator mode, this is needed to sync the hinting modes when
    * reloading the font.
    */
-  void applyHintingMode();
+  void applyDelayedSettings();
 
   //////// Getters/Setters
 
@@ -51,6 +51,7 @@ public slots:
   void checkAutoHinting();
   void checkAntiAliasing();
   void checkPalette();
+  void checkStemDarkening();
 
 private:
   Engine* engine_;
@@ -90,6 +91,7 @@ private:
   QCheckBox* blueZoneHintingCheckBox_;
   QCheckBox* segmentDrawingCheckBox_;
   QCheckBox* autoHintingCheckBox_;
+  QCheckBox* stemDarkeningCheckBox_;
   QCheckBox* embeddedBitmapCheckBox_;
   QCheckBox* colorLayerCheckBox_;
   QCheckBox* kerningCheckBox_;

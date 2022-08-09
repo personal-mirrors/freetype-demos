@@ -194,6 +194,7 @@ public:
   void setLcdFilter(FT_LcdFilter filter);
   void setCFFHintingMode(int mode);
   void setTTInterpreterVersion(int version);
+  void setStemDarkening(bool darkening);
 
   void setForeground(QRgb foreground);
   void setBackground(QRgb background);

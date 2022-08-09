@@ -682,6 +682,33 @@ Engine::setTTInterpreterVersion(int version)
 
 
 void
+Engine::setStemDarkening(bool darkening)
+{
+  // TODO not working
+  FT_Bool noDarkening = !darkening;
+  FT_Property_Set(library_,
+                  "cff",
+                  "no-stem-darkening",
+                  &noDarkening);
+  FT_Property_Set(library_,
+                  "autofitter",
+                  "no-stem-darkening",
+                  &noDarkening);
+  FT_Property_Set(library_,
+                  "type1",
+                  "no-stem-darkening",
+                  &noDarkening);
+  FT_Property_Set(library_,
+                  "t1cid",
+                  "no-stem-darkening",
+                  &noDarkening);
+  // reset the cache
+  FTC_Manager_Reset(cacheManager_);
+  ftSize_ = NULL;
+}
+
+
+void
 Engine::setForeground(QRgb foreground)
 {
   if (foregroundTable_.size() != 256 || foreground != foregroundColor_)
