@@ -363,8 +363,17 @@ StringRenderer::render(int width,
     auto originalSize = static_cast<int>(engine_->pointSize() * 64);
     auto ptSize = originalSize;
     auto ptHeight = 64 * 72 * height / engine_->dpi();
-    auto step = (ptSize * ptSize / ptHeight + 64) & ~63;
-    ptSize = ptSize - step * (ptSize / step); // modulo
+    int step;
+
+    if (waterfallStep_ <= 0)
+      step = (originalSize * originalSize / ptHeight + 64) & ~63;
+    else
+      step = static_cast<int>(waterfallStep_ * 64.0) & ~31;
+
+    if (waterfallStart_ < 0)
+      ptSize = ptSize - step * (ptSize / step); // modulo
+    else
+      ptSize = static_cast<int>(waterfallStart_ * 64.0) & ~31;
 
     int y = 0;
     // no position param in "All Glyphs" mode

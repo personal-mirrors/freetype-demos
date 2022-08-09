@@ -5,6 +5,7 @@
 #include "continuous.hpp"
 
 #include "glyphdetails.hpp"
+#include "../uihelper.hpp"
 
 #include <climits>
 #include <QVariant>
@@ -158,6 +159,8 @@ ContinuousTab::checkModeSource()
     waterfallCheckBox_->setEnabled(!vert);
   }
 
+  waterfallConfigButton_->setEnabled(waterfallCheckBox_->isChecked());
+
   repaintGlyph();
 }
 
@@ -225,6 +228,20 @@ ContinuousTab::updateGlyphDetails(GlyphCacheEntry* ctxt,
   glyphDetails_->updateGlyph(*ctxt, charMapIndex);
   if (open)
     glyphDetailsWidget_->setVisible(true);
+}
+
+
+void
+ContinuousTab::openWaterfallConfig()
+{
+  auto result = wfConfigDialog_->exec();
+  if (result != QDialog::Accepted)
+    return;
+
+  auto& sr = canvas_->stringRenderer();
+  sr.setWaterfallParameters(wfConfigDialog_->startSize(),
+                            wfConfigDialog_->stepSize());
+  repaintGlyph();
 }
 
 
@@ -308,7 +325,7 @@ ContinuousTab::createLayout()
   rotationLabel_ = new QLabel(tr("Rotation:"), this);
 
   resetPositionButton_ = new QPushButton(tr("Reset Pos"));
-  configWaterfallButton_ = new QPushButton(tr("WF Config"));
+  waterfallConfigButton_ = new QPushButton(tr("WF Config"));
 
   xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
   yEmboldeningSpinBox_ = new QDoubleSpinBox(this);
@@ -331,6 +348,8 @@ ContinuousTab::createLayout()
   rotationSpinBox_->setSingleStep(5);
   rotationSpinBox_->setMinimum(-180);
   rotationSpinBox_->setMaximum(180);
+
+  wfConfigDialog_ = new WaterfallConfigDialog(this);
 
   canvasFrameLayout_ = new QHBoxLayout;
   canvasFrameLayout_->addWidget(canvas_);
@@ -364,7 +383,7 @@ ContinuousTab::createLayout()
   bottomLayout_->addWidget(waterfallCheckBox_, 1, 6);
   bottomLayout_->addWidget(verticalCheckBox_, 2, 6);
   bottomLayout_->addWidget(kerningCheckBox_, 3, 6);
-  bottomLayout_->addWidget(configWaterfallButton_, 1, 5);
+  bottomLayout_->addWidget(waterfallConfigButton_, 1, 5);
   bottomLayout_->addWidget(sampleStringSelector_, 2, 5);
 
   bottomLayout_->setColumnStretch(4, 1);
@@ -411,6 +430,8 @@ ContinuousTab::createConnections()
 
   connect(resetPositionButton_, &QPushButton::clicked,
           canvas_, &GlyphContinuous::resetPositionDelta);
+  connect(waterfallConfigButton_, &QPushButton::clicked,
+          this, &ContinuousTab::openWaterfallConfig);
 
   connect(xEmboldeningSpinBox_, 
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
@@ -477,6 +498,100 @@ ContinuousTab::formatIndex(int index)
   if (idx < 0) // glyph order
     return QString::number(index);
   return charMapSelector_->charMaps()[idx].stringifyIndexShort(index);
+}
+
+
+WaterfallConfigDialog::WaterfallConfigDialog(QWidget* parent)
+: QDialog(parent)
+{
+  setModal(true);
+  setWindowTitle(tr("Waterfall Config"));
+  setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+  createLayout();
+  checkAutoStatus();
+  createConnections();
+}
+
+
+double
+WaterfallConfigDialog::startSize()
+{
+  if (startAutoBox_->isChecked())
+    return -1.0;
+  return startSpinBox_->value();
+}
+
+
+double
+WaterfallConfigDialog::stepSize()
+{
+  if (stepAutoBox_->isChecked())
+    return -1.0;
+  return stepSpinBox_->value();
+}
+
+
+void
+WaterfallConfigDialog::createLayout()
+{
+  startLabel_ = new QLabel(tr("Start Size (pt):"), this);
+  stepLabel_ = new QLabel(tr("Size Step (pt):"), this);
+
+  startSpinBox_ = new QDoubleSpinBox(this);
+  stepSpinBox_ = new QDoubleSpinBox(this);
+
+  startSpinBox_->setSingleStep(0.5);
+  startSpinBox_->setMinimum(0.5);
+  startSpinBox_->setValue(1);
+
+  stepSpinBox_->setSingleStep(0.5);
+  stepSpinBox_->setMinimum(0.5);
+  stepSpinBox_->setValue(1);
+
+  startAutoBox_ = new QCheckBox(tr("Auto"), this);
+  stepAutoBox_ = new QCheckBox(tr("Auto"), this);
+
+  okButton_ = new QPushButton(tr("OK"), this);
+  cancelButton_ = new QPushButton(tr("Cancel"), this);
+
+  buttonLayout_ = new QHBoxLayout;
+  buttonLayout_->addWidget(okButton_);
+  buttonLayout_->addWidget(cancelButton_);
+
+  layout_ = new QGridLayout;
+  auto startRow = gridLayout2ColAddWidget(layout_, startLabel_, startSpinBox_);
+  auto stepRow = gridLayout2ColAddWidget(layout_, stepLabel_, stepSpinBox_);
+  layout_->addWidget(startAutoBox_, startRow, 2);
+  layout_->addWidget(stepAutoBox_, stepRow, 2);
+  layout_->addLayout(buttonLayout_, layout_->rowCount(), 0, 1, 3);
+
+  startAutoBox_->setChecked(true);
+  stepAutoBox_->setChecked(true);
+
+  setLayout(layout_);
+}
+
+
+void
+WaterfallConfigDialog::createConnections()
+{
+  connect(startAutoBox_, &QCheckBox::clicked,
+          this, &WaterfallConfigDialog::checkAutoStatus);
+  connect(stepAutoBox_, &QCheckBox::clicked,
+          this, &WaterfallConfigDialog::checkAutoStatus);
+  connect(okButton_, &QPushButton::clicked,
+          this, &QDialog::accept);
+  connect(cancelButton_, &QPushButton::clicked,
+          this, &QDialog::reject);
+}
+
+
+void
+WaterfallConfigDialog::checkAutoStatus()
+{
+  startSpinBox_->setEnabled(!startAutoBox_->isChecked());
+  stepSpinBox_->setEnabled(!stepAutoBox_->isChecked());
 }
 
 

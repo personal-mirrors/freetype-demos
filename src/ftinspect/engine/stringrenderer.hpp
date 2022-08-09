@@ -124,6 +124,11 @@ public:
   void setVertical(bool vertical) { vertical_ = vertical; }
   void setRotation(double rotation);
   void setWaterfall(bool waterfall) { waterfall_ = waterfall; }
+  void setWaterfallParameters(double start, double step)
+  {
+    waterfallStart_ = start;
+    waterfallStep_ = step;
+  }
   void setPosition(double pos) { position_ = pos; }
   void setLsbRsbDelta(bool enabled) { lsbRsbDeltaEnabled_ = enabled; }
   void setKerning(bool kerning);
@@ -181,7 +186,6 @@ private:
   int charMapIndex_ = 0;
   int limitIndex_ = 0;
   bool usingString_ = false;
-  bool waterfall_ = false;
   bool repeated_ = false;
   bool vertical_ = false;
   double position_ = 0.5;
@@ -192,6 +196,10 @@ private:
   FT_Matrix matrix_ = {};
   bool matrixEnabled_ = false;
   bool lsbRsbDeltaEnabled_ = true;
+
+  bool waterfall_ = false;
+  double waterfallStart_ = -1;
+  double waterfallStep_ = -1; // -1 = Auto
 
   RenderCallback renderCallback_;
   RenderImageCallback renderImageCallback_;

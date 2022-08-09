@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <QWidget>
+#include <QDialog>
 #include <QFrame>
 #include <QLabel>
 #include <QComboBox>
@@ -25,6 +26,7 @@
 #include <QCheckBox>
 
 class GlyphDetails;
+class WaterfallConfigDialog;
 class ContinuousTab
 : public QWidget, public AbstractTab
 {
@@ -48,6 +50,8 @@ public:
 
   // This doesn't trigger either.
   void updateLimitIndex();
+
+  // But they do
   void checkModeSource();
   void charMapChanged();
   void sourceTextChanged();
@@ -57,6 +61,7 @@ public:
   void updateGlyphDetails(GlyphCacheEntry* ctxt, 
                           int charMapIndex, 
                           bool open);
+  void openWaterfallConfig();
 
 signals:
   void switchToSingular(int glyphIndex, double sizePoint);
@@ -85,7 +90,7 @@ private:
   QComboBox* sampleStringSelector_;
 
   QPushButton* resetPositionButton_;
-  QPushButton* configWaterfallButton_;
+  QPushButton* waterfallConfigButton_;
 
   QLabel* modeLabel_;
   QLabel* sourceLabel_;
@@ -116,12 +121,48 @@ private:
   QDockWidget* glyphDetailsWidget_;
   GlyphDetails* glyphDetails_;
 
+  WaterfallConfigDialog* wfConfigDialog_;
+
   void createLayout();
   void createConnections();
 
   QString formatIndex(int index);
 
   void setDefaults();
+};
+
+
+class WaterfallConfigDialog
+: public QDialog
+{
+  Q_OBJECT
+
+public:
+  WaterfallConfigDialog(QWidget* parent);
+
+  double startSize();
+  double stepSize();
+
+private:
+  QLabel* startLabel_;
+  QLabel* stepLabel_;
+
+  QDoubleSpinBox* startSpinBox_;
+  QDoubleSpinBox* stepSpinBox_;
+
+  QCheckBox* startAutoBox_;
+  QCheckBox* stepAutoBox_;
+
+  QPushButton* okButton_;
+  QPushButton* cancelButton_;
+
+  QGridLayout* layout_;
+  QHBoxLayout* buttonLayout_;
+
+  void createLayout();
+  void createConnections();
+
+  void checkAutoStatus();
 };
 
 

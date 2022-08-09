@@ -150,10 +150,10 @@ GlyphDetails::createLayout()
                                    bitmapOffsetLabel_);
   gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
-  gridLayout2ColAddWidget(layout_, bitmapWidget_);
+  auto bmapRowPos = gridLayout2ColAddWidget(layout_, bitmapWidget_);
 
   layout_->setColumnStretch(1, 1);
-  layout_->setRowStretch(layout_->rowCount() - 1, 1);
+  layout_->setRowStretch(bmapRowPos, 1);
 
   setLayout(layout_);
   setContentsMargins(12, 12, 12, 12);

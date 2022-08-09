@@ -13,11 +13,21 @@
 // we want buttons that are horizontally as small as possible
 void setButtonNarrowest(QPushButton* btn);
 void setLabelSelectable(QLabel* label);
-void gridLayout2ColAddLayout(QGridLayout* layout, QLayout* layoutSingle);
-void gridLayout2ColAddWidget(QGridLayout* layout, QWidget* widgetSingle);
-void gridLayout2ColAddWidget(QGridLayout* layout, 
+
+/*
+ * All those grid layout functions rely on `QGridLayout::rowCount`, which isn't
+ * so reliable since it returns the count of rows *allocated internally* inside
+ * the layout, but not the actual number of rows occupied by layout items.
+ * Always use the returned value to refer to the row position, and never mix
+ * code using hard-coded row index with these functions.
+ * If you need to add your own rows, use `rowCount` func as well or you can
+ * increment the last returned row position.
+ */
+int gridLayout2ColAddLayout(QGridLayout* layout, QLayout* layoutSingle);
+int gridLayout2ColAddWidget(QGridLayout* layout, QWidget* widgetSingle);
+int gridLayout2ColAddWidget(QGridLayout* layout, 
                              QWidget* widgetL, QWidget* widgetR);
-void gridLayout2ColAddItem(QGridLayout* layout, QLayoutItem* item);
+int gridLayout2ColAddItem(QGridLayout* layout, QLayoutItem* item);
 
 
 // end of uihelper.hpp

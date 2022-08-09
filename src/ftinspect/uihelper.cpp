@@ -36,37 +36,44 @@ setLabelSelectable(QLabel* label)
 }
 
 
-void
+int
 gridLayout2ColAddLayout(QGridLayout* layout,
                         QLayout* layoutSingle)
 {
-  layout->addLayout(layoutSingle, layout->rowCount(), 0, 1, 2);
+  auto r = layout->rowCount();
+  layout->addLayout(layoutSingle, r, 0, 1, 2);
+  return r;
 }
 
 
-void
+int
 gridLayout2ColAddWidget(QGridLayout* layout,
                         QWidget* widgetSingle)
 {
-  layout->addWidget(widgetSingle, layout->rowCount(), 0, 1, 2);
+  auto r = layout->rowCount();
+  layout->addWidget(widgetSingle, r, 0, 1, 2);
+  return r;
 }
 
 
-void
+int
 gridLayout2ColAddWidget(QGridLayout* layout,
                         QWidget* widgetL, QWidget* widgetR)
 {
   auto r = layout->rowCount();
   layout->addWidget(widgetL, r, 0);
   layout->addWidget(widgetR, r, 1);
+  return r;
 }
 
 
-void
+int
 gridLayout2ColAddItem(QGridLayout* layout,
                       QLayoutItem* item)
 {
-  layout->addItem(item, layout->rowCount(), 0, 1, 2);
+  auto r = layout->rowCount();
+  layout->addItem(item, r, 0, 1, 2);
+  return r;
 }
 
 
