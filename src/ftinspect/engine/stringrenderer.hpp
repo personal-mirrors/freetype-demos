@@ -124,10 +124,10 @@ public:
   void setVertical(bool vertical) { vertical_ = vertical; }
   void setRotation(double rotation);
   void setWaterfall(bool waterfall) { waterfall_ = waterfall; }
-  void setWaterfallParameters(double start, double step)
+  void setWaterfallParameters(double start, double end)
   {
     waterfallStart_ = start;
-    waterfallStep_ = step;
+    waterfallEnd_ = end;
   }
   void setPosition(double pos) { position_ = pos; }
   void setLsbRsbDelta(bool enabled) { lsbRsbDeltaEnabled_ = enabled; }
@@ -199,7 +199,7 @@ private:
 
   bool waterfall_ = false;
   double waterfallStart_ = -1;
-  double waterfallStep_ = -1; // -1 = Auto
+  double waterfallEnd_ = -1; // -1 = Auto
 
   RenderCallback renderCallback_;
   RenderImageCallback renderImageCallback_;

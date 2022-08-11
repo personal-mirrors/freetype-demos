@@ -365,15 +365,34 @@ StringRenderer::render(int width,
     auto ptHeight = 64 * 72 * height / engine_->dpi();
     int step;
 
-    if (waterfallStep_ <= 0)
+    if (waterfallStart_ <= 0)
+    {
+      // auto
       step = (originalSize * originalSize / ptHeight + 64) & ~63;
-    else
-      step = static_cast<int>(waterfallStep_ * 64.0) & ~31;
-
-    if (waterfallStart_ < 0)
       ptSize = ptSize - step * (ptSize / step); // modulo
+      ptSize += step;
+    }
     else
+    {
       ptSize = static_cast<int>(waterfallStart_ * 64.0) & ~31;
+      // we first get a ratio since height & ppem are near proportional...
+      // 64.0 is somewhat a magic reference number
+      engine_->setSizeByPoint(64.0);
+      engine_->reloadFont();
+      auto pixelActual = engine_->currentFontMetrics().height >> 6;
+
+      auto heightPt = height * 64.0 / pixelActual;
+
+      if (waterfallEnd_ < waterfallStart_)
+        waterfallEnd_ = waterfallStart_ + 1;
+
+      auto n = heightPt * 2 / (waterfallStart_ + waterfallEnd_);
+      auto stepTemp = (waterfallEnd_ - waterfallStart_) / (n + 1);
+      // rounding to 0.25
+      step = static_cast<int>(std::round(stepTemp * 4)) * 16 & ~15;
+      if (step == 0)
+        step = 16; // 0.25 pt
+    }
 
     int y = 0;
     // no position param in "All Glyphs" mode
@@ -382,7 +401,6 @@ StringRenderer::render(int width,
 
     while (true)
     {
-      ptSize += step;
       engine_->setSizeByPoint(ptSize / 64.0);
       clearActive(true);
       prepareRendering(); // set size/face for engine, so metrics are valid
@@ -408,6 +426,10 @@ StringRenderer::render(int width,
                                width, height,
                                offset);
       count = std::max(count, lcount);
+
+      if (step == 0)
+        break;
+      ptSize += step;
     }
     engine_->setSizeByPoint(originalSize / 64.0);
 

@@ -141,23 +141,21 @@ public:
   WaterfallConfigDialog(QWidget* parent);
 
   double startSize();
-  double stepSize();
+  double endSize();
+
+signals:
+  void sizeUpdated();
 
 private:
   QLabel* startLabel_;
-  QLabel* stepLabel_;
+  QLabel* endLabel_;
 
   QDoubleSpinBox* startSpinBox_;
-  QDoubleSpinBox* stepSpinBox_;
+  QDoubleSpinBox* endSpinBox_;
 
-  QCheckBox* startAutoBox_;
-  QCheckBox* stepAutoBox_;
-
-  QPushButton* okButton_;
-  QPushButton* cancelButton_;
+  QCheckBox* autoBox_;
 
   QGridLayout* layout_;
-  QHBoxLayout* buttonLayout_;
 
   void createLayout();
   void createConnections();
