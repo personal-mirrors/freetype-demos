@@ -64,7 +64,7 @@ gblender_set_gamma_table( double           gamma_value,
                           unsigned short*  gamma_ramp,
                           unsigned char*   gamma_ramp_inv )
 {
-  const int  gmax = (256 << GBLENDER_GAMMA_SHIFT)-1;
+  const int  gmax = (256 << GBLENDER_GAMMA_SHIFT) - 1;
   double     p;
 
   if ( gamma_value <= 0 )  /* special case for sRGB */
@@ -72,9 +72,9 @@ gblender_set_gamma_table( double           gamma_value,
     int     ii;
 
     /* voltage to linear; power function using finite differences */
-    for ( p = 1.0, ii = 255; ii > (int)(255.*0.039285714); ii-- )
+    for ( p = gmax, ii = 255; ii > (int)(255.*0.039285714); ii-- )
     {
-      gamma_ramp[ii] = (unsigned short)( gmax*p + 0.5 );
+      gamma_ramp[ii] = (unsigned short)( p + 0.5 );
       p -= 2.4 * p / ( ii + 255. * 0.055 );
     }
     for ( ; ii >= 0; ii-- )
@@ -82,10 +82,10 @@ gblender_set_gamma_table( double           gamma_value,
 
 
     /* linear to voltage; power function using finite differences */
-    for ( p = 1.0, ii = gmax; ii > (int)(gmax*0.0030399346); ii-- )
+    for ( p = 255., ii = gmax; ii > (int)(gmax*0.0030399346); ii-- )
     {
-      gamma_ramp_inv[ii] = (unsigned char)( 255.*p + 0.5 );
-      p -= ( p + 0.055 ) / ( 2.4 * ii );
+      gamma_ramp_inv[ii] = (unsigned char)( p + 0.5 );
+      p -= ( p + 255. * 0.055 ) / ( 2.4 * ii );
     }
     for ( ; ii >= 0; ii-- )
       gamma_ramp_inv[ii] = (unsigned char)( 255.*12.92321*ii/gmax + 0.5 );
@@ -93,23 +93,22 @@ gblender_set_gamma_table( double           gamma_value,
   else
   {
     int     ii;
-    double  gamma_inv = 1. / gamma_value;
 
     /* voltage to linear; power function using finite differences */
-    for ( p = 1.0, ii = 255; ii > 0; ii-- )
+    for ( p = gmax, ii = 255; ii > 0; ii-- )
     {
-      gamma_ramp[ii] = (unsigned short)( gmax*p + 0.5 );
+      gamma_ramp[ii] = (unsigned short)( p + 0.5 );
       p -= gamma_value * p / ii;
     }
     gamma_ramp[ii] = 0;
 
     /* linear to voltage; power function using finite differences */
-    for ( p = 1.0, ii = gmax; ii > 0; ii-- )
+    for ( p = 255.0, ii = gmax; ii > 0; ii-- )
     {
-      gamma_ramp_inv[ii] = (unsigned char)( 255.*p + 0.5 );
-      p -= gamma_inv * p / ii;
+      gamma_ramp_inv[ii] = (unsigned char)( p + 0.5 );
+      p -= p / ( gamma_value * ii );
     }
-    gamma_ramp[ii] = 0;
+    gamma_ramp_inv[ii] = 0;
   }
 }
 
