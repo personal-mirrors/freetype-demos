@@ -9,6 +9,7 @@
 #include "../rendering/graphicsdefault.hpp"
 
 #include <stdexcept>
+#include <cmath>
 #include <stdint.h>
 
 #include <freetype/ftmodapi.h>
@@ -912,26 +913,26 @@ Engine::calculateForegroundTable()
   // Yes I know this is horribly slow, but we're only calculating the table once
   // and can use it for all rendering if the color and gamma isn't changing.
 
-  double br = pow(qRed(backgroundColor_) / 255.0, gamma_);
-  double bg = pow(qGreen(backgroundColor_) / 255.0, gamma_);
-  double bb = pow(qBlue(backgroundColor_) / 255.0, gamma_);
+  double br = std::pow(qRed(backgroundColor_) / 255.0, gamma_);
+  double bg = std::pow(qGreen(backgroundColor_) / 255.0, gamma_);
+  double bb = std::pow(qBlue(backgroundColor_) / 255.0, gamma_);
   double invGamma = 1 / gamma_;
 
   for (int i = 0; i <= 0xFF; i++)
   {
     double foreAlpha = i * qAlpha(foregroundColor_) / 255.0 / 255.0;
     double backAlpha = 1 - foreAlpha;
-    double r = pow(qRed(foregroundColor_) / 255.0, gamma_);
-    double g = pow(qGreen(foregroundColor_) / 255.0, gamma_);
-    double b = pow(qBlue(foregroundColor_) / 255.0, gamma_);
+    double r = std::pow(qRed(foregroundColor_) / 255.0, gamma_);
+    double g = std::pow(qGreen(foregroundColor_) / 255.0, gamma_);
+    double b = std::pow(qBlue(foregroundColor_) / 255.0, gamma_);
 
     r = br * backAlpha + r * foreAlpha;
     g = bg * backAlpha + g * foreAlpha;
     b = bb * backAlpha + b * foreAlpha;
 
-    r = pow(r, invGamma);
-    g = pow(g, invGamma);
-    b = pow(b, invGamma);
+    r = std::pow(r, invGamma);
+    g = std::pow(g, invGamma);
+    b = std::pow(b, invGamma);
 
     foregroundTable_[i]
         = qRgba(static_cast<int>(r * 255), 
