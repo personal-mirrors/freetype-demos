@@ -19,6 +19,8 @@ struct CharMapInfo
   FT_Encoding encoding;
   unsigned short platformID;
   unsigned short encodingID;
+  long formatID;
+  unsigned long languageID;
   QString* encodingName;
 
   // Actually this shouldn't go here, but for convenience...
@@ -33,7 +35,13 @@ struct CharMapInfo
   friend bool
   operator==(const CharMapInfo& lhs, const CharMapInfo& rhs)
   {
-    return lhs.index == rhs.index && lhs.encoding == rhs.encoding;
+    // omitting `ptr` by design!
+    return lhs.index == rhs.index
+           && lhs.encoding == rhs.encoding
+           && lhs.platformID == rhs.platformID
+           && lhs.encodingID == rhs.encodingID
+           && lhs.formatID == rhs.formatID
+           && lhs.languageID == rhs.languageID;
   }
 
 

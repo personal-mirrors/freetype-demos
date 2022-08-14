@@ -11,6 +11,7 @@
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"
 #include "panels/comparator.hpp"
+#include "panels/info.hpp"
 #include "panels/glyphdetails.hpp"
 
 #include <QAction>
@@ -112,6 +113,7 @@ private:
   SingularTab* singularTab_;
   ContinuousTab* continuousTab_;
   ComperatorTab* comparatorTab_;
+  InfoTab* infoTab_;
 
   QDockWidget* glyphDetailsDockWidget_;
   GlyphDetails* glyphDetails_;

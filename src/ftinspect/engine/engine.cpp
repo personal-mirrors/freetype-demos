@@ -283,6 +283,7 @@ Engine::loadFont(int fontIndex,
 
   update();
 
+  curFontIndex_ = fontIndex;
   auto id = FaceID(fontIndex, faceIndex, namedInstanceIndex);
 
   // search triplet (fontIndex, faceIndex, namedInstanceIndex)

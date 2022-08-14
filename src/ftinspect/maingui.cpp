@@ -240,6 +240,7 @@ MainGUI::createLayout()
   continuousTab_ = new ContinuousTab(this, engine_,
                                      glyphDetailsDockWidget_, glyphDetails_);
   comparatorTab_ = new ComperatorTab(this, engine_);
+  infoTab_ = new InfoTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
 
@@ -250,6 +251,8 @@ MainGUI::createLayout()
   tabWidget_->addTab(continuousTab_, tr("Continuous View"));
   tabs_.append(comparatorTab_);
   tabWidget_->addTab(comparatorTab_, tr("Comparator View"));
+  tabs_.append(infoTab_);
+  tabWidget_->addTab(infoTab_, tr("Font Info"));
   
   tripletSelector_ = new TripletSelector(this, engine_);
 

@@ -129,6 +129,8 @@ public:
   double pointSize() { return pointSize_; }
 
   int numberOfOpenedFonts();
+  int currentFontIndex() { return curFontIndex_; }
+  FT_Size currentFtSize() { return ftSize_; }
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
@@ -215,6 +217,7 @@ private:
 
   FontFileManager fontFileManager_;
 
+  int curFontIndex_ = -1;
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;

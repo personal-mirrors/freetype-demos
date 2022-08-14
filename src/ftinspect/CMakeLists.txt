@@ -25,6 +25,7 @@ add_executable(ftinspect
   "engine/charmap.cpp"
   "engine/paletteinfo.cpp"
   "engine/stringrenderer.cpp"
+  "engine/fontinfo.cpp"
 
   "rendering/glyphbitmap.cpp"
   "rendering/glyphoutline.cpp"
@@ -42,11 +43,13 @@ add_executable(ftinspect
   "widgets/charmapcombobox.cpp"
 
   "models/customcomboboxmodels.cpp"
+  "models/fontinfomodels.cpp"
 
   "panels/settingpanel.cpp"
   "panels/singular.cpp"
   "panels/continuous.cpp"
   "panels/comparator.cpp"
+  "panels/info.cpp"
   "panels/glyphdetails.cpp"
 )
 target_link_libraries(ftinspect

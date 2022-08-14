@@ -5,6 +5,8 @@
 #include "charmap.hpp"
 
 #include <QHash>
+#include <freetype/freetype.h>
+#include <freetype/tttables.h>
 
 QHash<FT_Encoding, QString> encodingNamesCache;
 QHash<FT_Encoding, QString>&
@@ -37,7 +39,10 @@ encodingNames()
 CharMapInfo::CharMapInfo(int index, FT_CharMap cmap)
 : index(index), ptr(cmap),
   encoding(cmap->encoding),
-  platformID(cmap->platform_id), encodingID(cmap->encoding_id),
+  platformID(cmap->platform_id),
+  encodingID(cmap->encoding_id),
+  formatID(FT_Get_CMap_Format(cmap)),
+  languageID(FT_Get_CMap_Language_ID(cmap)),
   maxIndex(-1)
 {
   auto& names = encodingNames();
