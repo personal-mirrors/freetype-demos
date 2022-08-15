@@ -2024,13 +2024,8 @@
     unsigned long  l = 0;
 
 
-    for ( i = 0; i < 4; i++ )
-    {
-      if ( !s[i] )
-        break;
-      l <<= 8;
-      l  += (unsigned long)s[i];
-    }
+    for ( i = 0; i < 4 && s[i]; i++ )
+      l = ( l << 8 ) | s[i];
 
     return l;
   }
