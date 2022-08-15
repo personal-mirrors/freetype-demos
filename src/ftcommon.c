@@ -1686,24 +1686,15 @@
   {
     const char*    p = string;
     const char*    end = p + strlen( string );
-    unsigned long  codepoint;
     int            ch;
-    int            expect;
     PGlyph         glyph = handle->string;
 
 
     handle->string_length = 0;
-    codepoint = expect = 0;
 
-    for (;;)
+    while ( ( ch = utf8_next( &p, end ) ) >= 0 )
     {
-      ch = utf8_next( &p, end );
-      if ( ch < 0 )
-        break;
-
-      codepoint = (unsigned long)ch;
-
-      glyph->glyph_index = FTDemo_Get_Index( handle, codepoint );
+      glyph->glyph_index = FTDemo_Get_Index( handle, (FT_UInt32)ch );
 
       glyph++;
       handle->string_length++;
