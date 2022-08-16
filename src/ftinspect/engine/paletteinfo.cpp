@@ -8,15 +8,17 @@
 
 PaletteInfo::PaletteInfo(FT_Face face, 
                          FT_Palette_Data& data, 
-                         int index)
+                         int index,
+                         std::vector<SFNTName> const* sfntNames)
 : index(index)
 {
-  if (data.palette_name_ids)
+  if (sfntNames && data.palette_name_ids)
   {
     auto id = data.palette_name_ids[index];
-    FT_SfntName sname;
-    FT_Get_Sfnt_Name(face, id, &sname);
-    name = SFNTName::sfntNameToQString(sname);
+    if (id > sfntNames->size())
+      name = "(invalid)";
+
+    name = sfntNames->at(id).str;
   }
   else
     name = "(unnamed)";

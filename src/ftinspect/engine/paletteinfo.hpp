@@ -4,18 +4,21 @@
 
 #pragma once
 
+#include <vector>
 #include <QString>
 
 #include <freetype/freetype.h>
 #include <freetype/ftcolor.h>
 #include <freetype/ftsnames.h>
 
+struct SFNTName;
 struct PaletteInfo
 {
   int index;
   QString name;
 
-  PaletteInfo(FT_Face face, FT_Palette_Data& data, int index);
+  PaletteInfo(FT_Face face, FT_Palette_Data& data, int index, 
+              std::vector<SFNTName> const* sfntNames);
 };
 
 

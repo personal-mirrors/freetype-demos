@@ -905,7 +905,8 @@ Engine::loadPaletteInfos()
   // size never exceeds max val of ushort.
   curPaletteInfos_.reserve(paletteData_.num_palettes);
   for (int i = 0; i < paletteData_.num_palettes; ++i)
-    curPaletteInfos_.emplace_back(ftSize_->face, paletteData_, i);
+    curPaletteInfos_.emplace_back(ftSize_->face, paletteData_, i,
+                                  &curSFNTNames_);
 }
 
 
