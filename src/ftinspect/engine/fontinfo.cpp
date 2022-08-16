@@ -44,51 +44,76 @@ SFNTName::get(Engine* engine,
     obj.encodingID = sfntName.encoding_id;
     obj.languageID = sfntName.language_id;
     obj.nameID = sfntName.name_id;
+    
+    obj.strBuf = QByteArray(reinterpret_cast<const char*>(sfntName.string),
+                            sfntName.string_len);
     obj.str = sfntNameToQString(sfntName);
 
     if (obj.languageID >= 0x8000)
     {
       auto err = FT_Get_Sfnt_LangTag(face, obj.languageID, &langTag);
       if (!err)
-        obj.langTag = utf16BEToQString(langTag.string, langTag.string_len);
+        obj.langTag = utf16BEToQString(reinterpret_cast<char*>(langTag.string),
+                                       langTag.string_len);
     }
   }
 }
 
 
 QString
-SFNTName::sfntNameToQString(FT_SfntName& sfntName)
+SFNTName::sfntNameToQString(FT_SfntName const& sfntName)
+{
+  return sfntNameToQString(sfntName.platform_id, sfntName.encoding_id,
+                           reinterpret_cast<char const*>(sfntName.string),
+                           sfntName.string_len);
+}
+
+
+QString
+SFNTName::sfntNameToQString(SFNTName const& sfntName)
+{
+  return sfntNameToQString(sfntName.platformID, sfntName.encodingID,
+                           sfntName.strBuf.data(), sfntName.strBuf.size());
+}
+
+
+QString
+SFNTName::sfntNameToQString(unsigned short platformID,
+                            unsigned short encodingID,
+                            char const* str,
+                            size_t size)
 {
   // TODO not complete.
-  if (sfntName.string_len >= INT_MAX - 1)
+  if (size >= INT_MAX - 1)
     return "";
-  switch (sfntName.platform_id)
+  switch (platformID)
   {
   case TT_PLATFORM_APPLE_UNICODE:
     // All UTF-16BE.
-    return utf16BEToQString(sfntName.string, sfntName.string_len);
+    return utf16BEToQString(str, size);
   case TT_PLATFORM_MACINTOSH:
-    return QString::fromLatin1(reinterpret_cast<char*>(sfntName.string),
-                               static_cast<int>(sfntName.string_len));
+    if (platformID == TT_MAC_ID_ROMAN)
+      return QString::fromLatin1(str, static_cast<int>(size));
+    return "<encoding unsupported>";
   case TT_PLATFORM_ISO:
-    switch (sfntName.encoding_id)
+    switch (encodingID)
     {
     case TT_ISO_ID_7BIT_ASCII:
     case TT_ISO_ID_8859_1:
-      return QString::fromLatin1(reinterpret_cast<char*>(sfntName.string),
-                                 static_cast<int>(sfntName.string_len));
+      return QString::fromLatin1(str, static_cast<int>(size));
     case TT_ISO_ID_10646:
-      return utf16BEToQString(sfntName.string, sfntName.string_len);
+      return utf16BEToQString(str, size);
     default:
       return "<encoding unsupported>";
     }
   case TT_PLATFORM_MICROSOFT:
-    switch (sfntName.encoding_id)
+    switch (encodingID)
     {
       /* TT_MS_ID_SYMBOL_CS is Unicode, similar to PID/EID=3/1 */
     case TT_MS_ID_SYMBOL_CS:
     case TT_MS_ID_UNICODE_CS:
-      return utf16BEToQString(sfntName.string, sfntName.string_len);
+    case TT_MS_ID_UCS_4: // This is UTF-16LE as well, according to MS doc
+      return utf16BEToQString(str, size);
 
     default:
       return "<encoding unsupported>";
@@ -105,14 +130,13 @@ QStringDecoder utf16BECvt = (QStringDecoder(QStringDecoder::Utf16BE))(size);
 #endif
 
 QString
-SFNTName::utf16BEToQString(unsigned char* str,
+SFNTName::utf16BEToQString(char const* str,
                            size_t size)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   if (size >= INT_MAX)
     size = INT_MAX - 1;
-  return utf16BECodec->toUnicode(reinterpret_cast<char*>(str),
-                                 static_cast<int>(size));
+  return utf16BECodec->toUnicode(str, static_cast<int>(size));
 #else
   return utf16BECvt(QByteArrayView(reinterpret_cast<char*>(str), size));
 #endif

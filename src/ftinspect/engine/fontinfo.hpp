@@ -5,6 +5,7 @@
 #pragma once
 
 #include <QDateTime>
+#include <QByteArray>
 #include <QString>
 #include <freetype/freetype.h>
 #include <freetype/ftsnames.h>
@@ -17,13 +18,18 @@ struct SFNTName
   unsigned short platformID;
   unsigned short encodingID;
   unsigned short languageID;
+  QByteArray strBuf;
   QString str;
   QString langTag;
 
   static void get(Engine* engine,
                   std::vector<SFNTName>& list);
-  static QString sfntNameToQString(FT_SfntName& sfntName);
-  static QString utf16BEToQString(unsigned char* str, size_t size);
+  static QString sfntNameToQString(FT_SfntName const& sfntName);
+  static QString sfntNameToQString(SFNTName const& sfntName);
+  static QString sfntNameToQString(unsigned short platformID,
+                                   unsigned short encodingID, 
+                                   char const* str, size_t size);
+  static QString utf16BEToQString(char const* str, size_t size);
 
 
   friend bool
@@ -34,7 +40,7 @@ struct SFNTName
       && lhs.platformID == rhs.platformID
       && lhs.encodingID == rhs.encodingID
       && lhs.languageID == rhs.languageID
-      && lhs.str == rhs.str
+      && lhs.strBuf == rhs.strBuf
       && lhs.langTag == rhs.langTag;
   }
 

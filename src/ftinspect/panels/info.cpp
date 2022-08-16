@@ -349,11 +349,53 @@ GeneralInfoTab::createLayout()
 }
 
 
+StringViewDialog::StringViewDialog(QWidget* parent)
+: QDialog(parent)
+{
+  createLayout();
+}
+
+
+void
+StringViewDialog::updateString(QByteArray const& rawArray,
+                               QString const& str)
+{
+  textEdit_->setText(str);
+  hexTextEdit_->setText(rawArray.toHex());
+}
+
+
+void
+StringViewDialog::createLayout()
+{
+  textEdit_ = new QTextEdit(this);
+  hexTextEdit_ = new QTextEdit(this);
+
+  textEdit_->setLineWrapMode(QTextEdit::WidgetWidth);
+  hexTextEdit_->setLineWrapMode(QTextEdit::WidgetWidth);
+
+  textLabel_ = new QLabel(tr("Text"), this);
+  hexTextLabel_ = new QLabel(tr("Raw Bytes"), this);
+
+  layout_ = new QVBoxLayout;
+
+  layout_->addWidget(textLabel_);
+  layout_->addWidget(textEdit_);
+  layout_->addWidget(hexTextLabel_);
+  layout_->addWidget(hexTextEdit_);
+
+  resize(600, 400);
+
+  setLayout(layout_);
+}
+
+
 SFNTInfoTab::SFNTInfoTab(QWidget* parent,
                          Engine* engine)
 : QWidget(parent), engine_(engine)
 {
   createLayout();
+  createConnections();
 }
 
 
@@ -406,6 +448,31 @@ SFNTInfoTab::createLayout()
   mainLayout_->addWidget(sfntTablesGroupBox_);
 
   setLayout(mainLayout_);
+
+  stringViewDialog_ = new StringViewDialog(this);
+}
+
+
+void
+SFNTInfoTab::createConnections()
+{
+  connect(sfntNamesTable_, &QTableView::doubleClicked,
+          this, &SFNTInfoTab::nameTableDoubleClicked);
+}
+
+
+void
+SFNTInfoTab::nameTableDoubleClicked(QModelIndex const& index)
+{
+  if (index.column() != SFNTNameModel::SNM_Content)
+    return;
+  auto& storage = sfntNamesModel_->storage();
+  if (index.row() < 0 || static_cast<size_t>(index.row()) > storage.size())
+    return;
+
+  auto& obj = storage[index.row()];
+  stringViewDialog_->updateString(obj.strBuf, obj.str);
+  stringViewDialog_->exec();
 }
 
 

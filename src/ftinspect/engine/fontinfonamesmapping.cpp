@@ -147,7 +147,7 @@ mapTTEncodingIDToName(unsigned short platformID,
     ttEncodingWindowsNames[0] = "Symbol";
     ttEncodingWindowsNames[1] = "Unicode BMP";
     ttEncodingWindowsNames[2] = "ShiftJIS";
-    ttEncodingWindowsNames[3] = "PRC";
+    ttEncodingWindowsNames[3] = "GBK";
     ttEncodingWindowsNames[4] = "Big5";
     ttEncodingWindowsNames[5] = "Wansung";
     ttEncodingWindowsNames[6] = "Johab";

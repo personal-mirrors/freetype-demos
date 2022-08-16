@@ -195,6 +195,10 @@ SFNTNameModel::data(const QModelIndex& index,
 {
   if (index.row() < 0 || index.column() < 0)
     return {};
+
+  if (role == Qt::ToolTipRole && index.column() == SNM_Content)
+    return tr("Double click to view the string.");
+
   auto r = static_cast<size_t>(index.row());
   if (role != Qt::DisplayRole || r > storage_.size())
     return {};

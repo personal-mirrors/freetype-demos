@@ -12,6 +12,8 @@
 #include <QWidget>
 #include <QTabWidget>
 #include <QBoxLayout>
+#include <QTextEdit>
+#include <QDialog>
 #include <QGridLayout>
 #include <QVector>
 #include <QLabel>
@@ -125,6 +127,29 @@ private:
 };
 
 
+class StringViewDialog
+: public QDialog
+{
+  Q_OBJECT
+public:
+  StringViewDialog(QWidget* parent);
+  ~StringViewDialog() override = default;
+
+  void updateString(QByteArray const& rawArray, QString const& str);
+
+private:
+  QLabel* textLabel_;
+  QLabel* hexTextLabel_;
+
+  QTextEdit* textEdit_;
+  QTextEdit* hexTextEdit_;
+
+  QVBoxLayout* layout_;
+
+  void createLayout();
+};
+
+
 class SFNTInfoTab
 : public QWidget, public AbstractTab
 {
@@ -151,7 +176,12 @@ private:
   QHBoxLayout* sfntTablesLayout_;
   QHBoxLayout* mainLayout_;
 
+  StringViewDialog* stringViewDialog_;
+
   void createLayout();
+  void createConnections();
+
+  void nameTableDoubleClicked(QModelIndex const& index);
 };
 
 
