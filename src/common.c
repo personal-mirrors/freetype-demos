@@ -77,49 +77,31 @@
   {
     const unsigned char*  p = (const unsigned char*)*pcursor;
     int                   ch;
+    int                   mask = 0x80;  /* the first decision bit */
 
 
-    if ( (const char*)p >= end ) /* end of stream */
-      return -1;
+    if ( (const char*)p >= end || ( *p & 0xc0 ) == 0x80 )
+      goto BAD_DATA;
 
     ch = *p++;
-    if ( ch >= 0x80 )
+
+    if ( ch & mask )
     {
-      int  len;
+      mask = 0x40;
 
-
-      if ( ch < 0xc0 )  /* malformed data */
-        goto BAD_DATA;
-      else if ( ch < 0xe0 )
+      do
       {
-        len = 1;
-        ch &= 0x1f;
-      }
-      else if ( ch < 0xf0 )
-      {
-        len = 2;
-        ch &= 0x0f;
-      }
-      else
-      {
-        len = 3;
-        ch &= 0x07;
-      }
-
-      while ( len > 0 )
-      {
-        if ( (const char*)p >= end || ( p[0] & 0xc0 ) != 0x80 )
+        if ( (const char*)p >= end || ( *p & 0xc0 ) != 0x80 )
           goto BAD_DATA;
 
-        ch   = ( ch << 6 ) | ( p[0] & 0x3f );
-        p   += 1;
-        len -= 1;
-      }
+        ch     = ( ch << 6 ) | ( *p++ & 0x3f );
+        mask <<= 5;  /* the next decision bit after shift */
+      } while ( ch & mask && mask <= 0x200000 );
     }
 
     *pcursor = (const char*)p;
 
-    return ch;
+    return ch & ( mask - 1 );  /* dropping the decision bits */
 
   BAD_DATA:
     return -1;
