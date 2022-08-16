@@ -8,6 +8,7 @@
 #include <freetype/freetype.h>
 #include <freetype/tttables.h>
 
+// Mapping for `FT_Encoding` is placed here since it's only for the charmap.
 QHash<FT_Encoding, QString> encodingNamesCache;
 QHash<FT_Encoding, QString>&
 encodingNames()

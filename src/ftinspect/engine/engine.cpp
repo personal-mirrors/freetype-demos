@@ -323,6 +323,7 @@ Engine::loadFont(int fontIndex,
 
     curCharMaps_.clear();
     curPaletteInfos_.clear();
+    curSFNTNames_.clear();
   }
   else
   {
@@ -342,6 +343,8 @@ Engine::loadFont(int fontIndex,
     curCharMaps_.reserve(face->num_charmaps);
     for (int i = 0; i < face->num_charmaps; i++)
       curCharMaps_.emplace_back(i, face->charmaps[i]);
+
+    SFNTName::get(this, curSFNTNames_);
 
     loadPaletteInfos();
   }

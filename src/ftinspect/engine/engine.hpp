@@ -8,6 +8,7 @@
 #include "fontfilemanager.hpp"
 #include "charmap.hpp"
 #include "paletteinfo.hpp"
+#include "fontinfo.hpp"
 
 #include <vector>
 #include <utility>
@@ -153,6 +154,7 @@ public:
   
   std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
   std::vector<PaletteInfo>& currentFontPalettes() { return curPaletteInfos_; }
+  std::vector<SFNTName>& currentFontSFNTNames() { return curSFNTNames_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
@@ -221,6 +223,7 @@ private:
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
+  std::vector<SFNTName> curSFNTNames_;
   std::vector<CharMapInfo> curCharMaps_;
   std::vector<PaletteInfo> curPaletteInfos_;
 

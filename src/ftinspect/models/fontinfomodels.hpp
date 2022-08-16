@@ -78,18 +78,55 @@ public:
   enum Columns : int
   {
     CMIM_Index      = 0,
-    CMIM_Encoding   = 1,
-    CMIM_PlatformID = 2,
-    CMIM_EncodingID = 3,
-    CMIM_FormatID   = 4,
-    CMIM_LanguageID = 5,
-    CMIM_MaxIndex   = 6,
+    CMIM_Platform   = 1,
+    CMIM_Encoding   = 2,
+    CMIM_FormatID   = 3,
+    CMIM_Language   = 4,
+    CMIM_MaxIndex   = 5,
     CMIM_Max
   };
 
 private:
   // Don't let the item count exceed INT_MAX!
   std::vector<CharMapInfo> storage_;
+};
+
+
+class SFNTNameModel
+: public QAbstractTableModel
+{
+  Q_OBJECT
+public:
+  explicit SFNTNameModel(QObject* parent) : QAbstractTableModel(parent) {}
+  ~SFNTNameModel() override = default;
+
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
+  QVariant data(const QModelIndex& index,
+                int role) const override;
+  QVariant headerData(int section,
+                      Qt::Orientation orientation,
+                      int role) const override;
+
+  // Same to `FixedSizeInfoModel`
+  void beginModelUpdate() { beginResetModel(); }
+  void endModelUpdate() { endResetModel(); }
+  std::vector<SFNTName>& storage() { return storage_; }
+
+  enum Columns : int
+  {
+    SNM_Index      = 0,
+    SNM_Name       = 1,
+    SNM_Platform   = 2,
+    SNM_Encoding   = 3,
+    SNM_Language   = 4,
+    SNM_Content    = 5,
+    SNM_Max
+  };
+
+private:
+  // Don't let the item count exceed INT_MAX!
+  std::vector<SFNTName> storage_;
 };
 
 

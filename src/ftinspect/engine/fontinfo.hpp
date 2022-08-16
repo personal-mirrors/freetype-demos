@@ -7,13 +7,46 @@
 #include <QDateTime>
 #include <QString>
 #include <freetype/freetype.h>
+#include <freetype/ftsnames.h>
 
 class Engine;
 
-struct SFNTNameTable
+struct SFNTName
 {
-  
+  unsigned short nameID;
+  unsigned short platformID;
+  unsigned short encodingID;
+  unsigned short languageID;
+  QString str;
+  QString langTag;
+
+  static void get(Engine* engine,
+                  std::vector<SFNTName>& list);
+  static QString sfntNameToQString(FT_SfntName& sfntName);
+  static QString utf16BEToQString(unsigned char* str, size_t size);
+
+
+  friend bool
+  operator==(const SFNTName& lhs,
+             const SFNTName& rhs)
+  {
+    return lhs.nameID == rhs.nameID
+      && lhs.platformID == rhs.platformID
+      && lhs.encodingID == rhs.encodingID
+      && lhs.languageID == rhs.languageID
+      && lhs.str == rhs.str
+      && lhs.langTag == rhs.langTag;
+  }
+
+
+  friend bool
+  operator!=(const SFNTName& lhs,
+             const SFNTName& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
+
 
 struct FontBasicInfo
 {
@@ -157,6 +190,14 @@ struct FontFixedSize
     return !(lhs == rhs);
   }
 };
+
+
+QString* mapSFNTNameIDToName(unsigned short nameID);
+QString* mapTTPlatformIDToName(unsigned short platformID);
+QString* mapTTEncodingIDToName(unsigned short platformID,
+                               unsigned short encodingID);
+QString* mapTTLanguageIDToName(unsigned short platformID,
+                               unsigned short languageID);
 
 
 // end of fontinfo.hpp

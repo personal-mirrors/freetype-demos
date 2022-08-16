@@ -138,6 +138,20 @@ public:
 
 private:
   Engine* engine_;
+
+  QGroupBox* sfntNamesGroupBox_;
+  QGroupBox* sfntTablesGroupBox_;
+
+  QTableView* sfntNamesTable_;
+  QTableView* sfntTablesTable_;
+
+  SFNTNameModel* sfntNamesModel_;
+
+  QHBoxLayout* sfntNamesLayout_;
+  QHBoxLayout* sfntTablesLayout_;
+  QHBoxLayout* mainLayout_;
+
+  void createLayout();
 };
 
 

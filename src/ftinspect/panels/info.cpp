@@ -353,12 +353,59 @@ SFNTInfoTab::SFNTInfoTab(QWidget* parent,
                          Engine* engine)
 : QWidget(parent), engine_(engine)
 {
+  createLayout();
 }
 
 
 void
 SFNTInfoTab::reloadFont()
 {
+  if (engine_->currentFontSFNTNames() != sfntNamesModel_->storage())
+  {
+    sfntNamesModel_->beginModelUpdate();
+    sfntNamesModel_->storage() = engine_->currentFontSFNTNames();
+    sfntNamesModel_->endModelUpdate();
+  }
+}
+
+
+void
+SFNTInfoTab::createLayout()
+{
+  sfntNamesGroupBox_ = new QGroupBox(tr("SFNT Name Table"), this);
+  sfntTablesGroupBox_ = new QGroupBox(tr("SFNT Tables"), this);
+
+  sfntNamesTable_ = new QTableView(this);
+  sfntTablesTable_ = new QTableView(this);
+
+  sfntNamesModel_ = new SFNTNameModel(this);
+  sfntNamesTable_->setModel(sfntNamesModel_);
+  auto header = sfntNamesTable_->verticalHeader();
+  // This will force the minimal size to be used
+  header->setDefaultSectionSize(0);
+  header->setSectionResizeMode(QHeaderView::Fixed);
+  sfntNamesTable_->horizontalHeader()->setStretchLastSection(true);
+
+  header = sfntTablesTable_->verticalHeader();
+  // This will force the minimal size to be used
+  header->setDefaultSectionSize(0);
+  header->setSectionResizeMode(QHeaderView::Fixed);
+
+  sfntNamesLayout_ = new QHBoxLayout;
+  sfntTablesLayout_ = new QHBoxLayout;
+
+  sfntNamesLayout_->addWidget(sfntNamesTable_);
+  sfntTablesLayout_->addWidget(sfntTablesTable_);
+
+  sfntNamesGroupBox_->setLayout(sfntNamesLayout_);
+  sfntTablesGroupBox_->setLayout(sfntTablesLayout_);
+
+  mainLayout_ = new QHBoxLayout;
+
+  mainLayout_->addWidget(sfntNamesGroupBox_);
+  mainLayout_->addWidget(sfntTablesGroupBox_);
+
+  setLayout(mainLayout_);
 }
 
 

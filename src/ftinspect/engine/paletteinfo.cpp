@@ -4,6 +4,8 @@
 
 #include "paletteinfo.hpp"
 
+#include "fontinfo.hpp"
+
 PaletteInfo::PaletteInfo(FT_Face face, 
                          FT_Palette_Data& data, 
                          int index)
@@ -14,13 +16,10 @@ PaletteInfo::PaletteInfo(FT_Face face,
     auto id = data.palette_name_ids[index];
     FT_SfntName sname;
     FT_Get_Sfnt_Name(face, id, &sname);
-    name = "(SFNT no impl)";
-    // TODO: Get SFNT Name: After implemented SFNT names functionality.
+    name = SFNTName::sfntNameToQString(sname);
   }
   else
-  {
     name = "(unnamed)";
-  }
 }
 
 

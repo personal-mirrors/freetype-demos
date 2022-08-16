@@ -27,6 +27,7 @@ if qt5_dep.found()
     'engine/paletteinfo.cpp',
     'engine/stringrenderer.cpp',
     'engine/fontinfo.cpp',
+    'engine/fontinfonamesmapping.cpp',
 
     'rendering/glyphbitmap.cpp',
     'rendering/glyphoutline.cpp',

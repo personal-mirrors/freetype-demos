@@ -119,15 +119,17 @@ CharMapInfoModel::data(const QModelIndex& index,
   {
   case CMIM_Index: 
     return index.row();
+  case CMIM_Platform: 
+    return QString("%1 <%2>")
+             .arg(obj.platformID)
+             .arg(*mapTTPlatformIDToName(obj.platformID));
   case CMIM_Encoding:
-    return *obj.encodingName;
-  case CMIM_PlatformID: 
-    return obj.platformID;
-  case CMIM_EncodingID: 
-    return obj.encodingID;
+    return QString("%1 <%2>")
+             .arg(obj.encodingID)
+             .arg(*obj.encodingName);
   case CMIM_FormatID: 
     return static_cast<long long>(obj.formatID);
-  case CMIM_LanguageID:
+  case CMIM_Language:
     return static_cast<unsigned long long>(obj.languageID);
   case CMIM_MaxIndex: 
     return obj.maxIndex;
@@ -151,18 +153,111 @@ CharMapInfoModel::headerData(int section,
   {
   case CMIM_Index:
     return "#";
+  case CMIM_Platform:
+    return "Platform";
   case CMIM_Encoding:
     return "Encoding";
-  case CMIM_PlatformID:
-    return "Platform ID";
-  case CMIM_EncodingID:
-    return "Encoding ID";
   case CMIM_FormatID:
     return "Format ID";
-  case CMIM_LanguageID:
-    return "Language ID";
+  case CMIM_Language:
+    return "Language";
   case CMIM_MaxIndex:
     return "Max Code Point";
+  default:
+    break;
+  }
+
+  return {};
+}
+
+
+int
+SFNTNameModel::rowCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+    return 0;
+  return static_cast<int>(storage_.size());
+}
+
+
+int
+SFNTNameModel::columnCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+    return 0;
+  return SNM_Max;
+}
+
+
+QVariant
+SFNTNameModel::data(const QModelIndex& index,
+                    int role) const
+{
+  if (index.row() < 0 || index.column() < 0)
+    return {};
+  auto r = static_cast<size_t>(index.row());
+  if (role != Qt::DisplayRole || r > storage_.size())
+    return {};
+
+  auto& obj = storage_[r];
+  switch (static_cast<Columns>(index.column()))
+  {
+  case SNM_Index:
+    return index.row();
+  case SNM_Name:
+    return QString("%1 <%2>")
+             .arg(obj.nameID)
+             .arg(*mapSFNTNameIDToName(obj.nameID));
+  case SNM_Platform:
+    return QString("%1 <%2>")
+             .arg(obj.platformID)
+             .arg(*mapTTPlatformIDToName(obj.platformID));
+  case SNM_Encoding:
+    return QString("%1 <%2>")
+             .arg(obj.encodingID)
+             .arg(*mapTTEncodingIDToName(obj.platformID, obj.encodingID));
+  case SNM_Language:
+    if (obj.languageID >= 0x8000)
+      return obj.langTag + "(lang tag)";
+    if (obj.platformID == 3)
+      return QString("0x%1 <%2>")
+               .arg(obj.languageID, 4, 16, QChar('0'))
+               .arg(*mapTTLanguageIDToName(obj.platformID, obj.languageID));
+    return QString("%1 <%2>")
+             .arg(obj.languageID)
+        .arg(*mapTTLanguageIDToName(obj.platformID, obj.languageID));
+  case SNM_Content:
+    return obj.str;
+  default:
+    break;
+  }
+
+  return {};
+}
+
+
+QVariant
+SFNTNameModel::headerData(int section,
+                          Qt::Orientation orientation,
+                          int role) const
+{
+  if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+    return {};
+
+  switch (static_cast<Columns>(section))
+  {
+  case SNM_Index:
+    return "#";
+  case SNM_Name:
+    return "Name";
+  case SNM_Platform:
+    return "Platform";
+  case SNM_Encoding:
+    return "Encoding";
+  case SNM_Language:
+    return "Language";
+  case SNM_Content:
+    return "Content";
   default:
     break;
   }

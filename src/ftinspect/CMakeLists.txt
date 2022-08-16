@@ -26,6 +26,7 @@ add_executable(ftinspect
   "engine/paletteinfo.cpp"
   "engine/stringrenderer.cpp"
   "engine/fontinfo.cpp"
+  "engine/fontinfonamesmapping.cpp"
 
   "rendering/glyphbitmap.cpp"
   "rendering/glyphoutline.cpp"
