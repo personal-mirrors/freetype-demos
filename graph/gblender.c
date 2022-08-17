@@ -90,7 +90,7 @@ gblender_set_gamma_table( double           gamma_value,
       d = ( p + 255. * 0.055 ) / ( 2.4 * ii );  /* derivative */
     }
     for ( d = p / ii; ii >= 0; ii--, p -= d )
-      gamma_ramp_inv[ii] = (unsigned short)( p + 0.5 );
+      gamma_ramp_inv[ii] = (unsigned char)( p + 0.5 );
   }
   else
   {
@@ -158,9 +158,9 @@ gblender_init( GBlender   blender,
 {
   blender->channels = 0;
 
-  gblender_set_gamma_table ( gamma_value,
-                             blender->gamma_ramp,
-                             blender->gamma_ramp_inv );
+  gblender_set_gamma_table( gamma_value,
+                            blender->gamma_ramp,
+                            blender->gamma_ramp_inv );
 
   gblender_clear( blender );
 
