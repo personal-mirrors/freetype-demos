@@ -72,44 +72,25 @@ gblender_set_gamma_table( double           gamma_value,
   if ( gamma_value <= 0 )  /* special case for sRGB */
   {
     double  d;
-    int     linear = 0;
 
 
     /* voltage to linear; power function using finite differences */
-    for ( p = gmax, ii = 255; ii >= 0; ii--, p -= d )
+    for ( p = gmax, ii = 255; ii > 10; ii--, p -= d )
     {
       gamma_ramp[ii] = (unsigned short)( p + 0.5 );
-
-      if ( linear )
-        continue;
-
       d = 2.4 * p / ( ii + 255. * 0.055 );  /* derivative */
-
-      if ( ii == 10 )  /* same as d < p / ii */
-      {
-        d = p / ii;
-        linear = 1;
-      }
     }
-
-    linear = 0;
+    for ( d = p / ii; ii >= 0; ii--, p -= d )
+      gamma_ramp[ii] = (unsigned short)( p + 0.5 );
 
     /* linear to voltage; power function using finite differences */
-    for ( p = 255., ii = gmax; ii >= 0; ii--, p -= d )
+    for ( p = 255., ii = gmax; p > 10.02; ii--, p -= d )
     {
       gamma_ramp_inv[ii] = (unsigned char)( p + 0.5 );
-
-      if ( linear )
-        continue;
-
       d = ( p + 255. * 0.055 ) / ( 2.4 * ii );  /* derivative */
-
-      if ( p < 10.02 )  /* same as d > p / ii */
-      {
-        d = p / ii;
-        linear = 1;
-      }
     }
+    for ( d = p / ii; ii >= 0; ii--, p -= d )
+      gamma_ramp_inv[ii] = (unsigned short)( p + 0.5 );
   }
   else
   {
