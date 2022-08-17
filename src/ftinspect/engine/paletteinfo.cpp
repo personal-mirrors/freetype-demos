@@ -15,10 +15,15 @@ PaletteInfo::PaletteInfo(FT_Face face,
   if (sfntNames && data.palette_name_ids)
   {
     auto id = data.palette_name_ids[index];
-    if (id > sfntNames->size())
-      name = "(invalid)";
-
-    name = sfntNames->at(id).str;
+    name = "(invalid)";
+    for (auto& obj : *sfntNames)
+    {
+      if (obj.nameID == id && obj.strValid)
+      {
+        name = obj.str;
+        break;
+      }
+    }
   }
   else
     name = "(unnamed)";

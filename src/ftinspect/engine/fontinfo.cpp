@@ -44,10 +44,13 @@ SFNTName::get(Engine* engine,
     obj.encodingID = sfntName.encoding_id;
     obj.languageID = sfntName.language_id;
     obj.nameID = sfntName.name_id;
-    
-    obj.strBuf = QByteArray(reinterpret_cast<const char*>(sfntName.string),
-                            sfntName.string_len);
-    obj.str = sfntNameToQString(sfntName);
+
+    auto len = sfntName.string_len >= INT_MAX
+                 ? INT_MAX - 1
+                 : sfntName.string_len;
+    obj.strBuf = QByteArray(reinterpret_cast<const char*>(sfntName.string), 
+                            len);
+    obj.str = sfntNameToQString(sfntName, &obj.strValid);
 
     if (obj.languageID >= 0x8000)
     {
@@ -61,19 +64,22 @@ SFNTName::get(Engine* engine,
 
 
 QString
-SFNTName::sfntNameToQString(FT_SfntName const& sfntName)
+SFNTName::sfntNameToQString(FT_SfntName const& sfntName, 
+                            bool* outSuccess)
 {
   return sfntNameToQString(sfntName.platform_id, sfntName.encoding_id,
                            reinterpret_cast<char const*>(sfntName.string),
-                           sfntName.string_len);
+                           sfntName.string_len,
+                           outSuccess);
 }
 
 
 QString
-SFNTName::sfntNameToQString(SFNTName const& sfntName)
+SFNTName::sfntNameToQString(SFNTName const& sfntName, bool* outSuccess)
 {
   return sfntNameToQString(sfntName.platformID, sfntName.encodingID,
-                           sfntName.strBuf.data(), sfntName.strBuf.size());
+                           sfntName.strBuf.data(), sfntName.strBuf.size(),
+                           outSuccess);
 }
 
 
@@ -81,11 +87,16 @@ QString
 SFNTName::sfntNameToQString(unsigned short platformID,
                             unsigned short encodingID,
                             char const* str,
-                            size_t size)
+                            size_t size,
+                            bool* outSuccess)
 {
   // TODO not complete.
   if (size >= INT_MAX - 1)
     return "";
+
+  if (outSuccess)
+    *outSuccess = true;
+
   switch (platformID)
   {
   case TT_PLATFORM_APPLE_UNICODE:
@@ -94,6 +105,9 @@ SFNTName::sfntNameToQString(unsigned short platformID,
   case TT_PLATFORM_MACINTOSH:
     if (platformID == TT_MAC_ID_ROMAN)
       return QString::fromLatin1(str, static_cast<int>(size));
+
+    if (outSuccess)
+      *outSuccess = false;
     return "<encoding unsupported>";
   case TT_PLATFORM_ISO:
     switch (encodingID)
@@ -104,6 +118,8 @@ SFNTName::sfntNameToQString(unsigned short platformID,
     case TT_ISO_ID_10646:
       return utf16BEToQString(str, size);
     default:
+      if (outSuccess)
+        *outSuccess = false;
       return "<encoding unsupported>";
     }
   case TT_PLATFORM_MICROSOFT:
@@ -116,9 +132,14 @@ SFNTName::sfntNameToQString(unsigned short platformID,
       return utf16BEToQString(str, size);
 
     default:
+      if (outSuccess)
+        *outSuccess = false;
       return "<encoding unsupported>";
     }
   }
+
+  if (outSuccess)
+    *outSuccess = false;
   return "<platform unsupported>";
 }
 

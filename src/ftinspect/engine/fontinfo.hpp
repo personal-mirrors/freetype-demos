@@ -21,14 +21,18 @@ struct SFNTName
   QByteArray strBuf;
   QString str;
   QString langTag;
+  bool strValid = false;
 
   static void get(Engine* engine,
                   std::vector<SFNTName>& list);
-  static QString sfntNameToQString(FT_SfntName const& sfntName);
-  static QString sfntNameToQString(SFNTName const& sfntName);
+  static QString sfntNameToQString(FT_SfntName const& sfntName,
+                                   bool* outSuccess = NULL);
+  static QString sfntNameToQString(SFNTName const& sfntName,
+                                   bool* outSuccess = NULL);
   static QString sfntNameToQString(unsigned short platformID,
                                    unsigned short encodingID, 
-                                   char const* str, size_t size);
+                                   char const* str, size_t size,
+                                   bool* outSuccess = NULL);
   static QString utf16BEToQString(char const* str, size_t size);
 
 
