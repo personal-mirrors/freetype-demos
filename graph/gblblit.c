@@ -434,12 +434,6 @@ grBlitGlyphToSurface( grSurface*  surface,
     return -1;
   }
 
-  if ( !glyph->rows || !glyph->width )
-  {
-    /* nothing to do */
-    return 0;
-  }
-
   switch ( gblender_blit_init( gblit, x, y, surface, glyph ) )
   {
   case -1: /* nothing to do */
