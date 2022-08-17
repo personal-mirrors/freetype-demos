@@ -66,34 +66,53 @@ gblender_set_gamma_table( double           gamma_value,
 {
   const int  gmax = (256 << GBLENDER_GAMMA_SHIFT) - 1;
   double     p;
+  int        ii;
+
 
   if ( gamma_value <= 0 )  /* special case for sRGB */
   {
-    int     ii;
+    double  d;
+    int     linear = 0;
+
 
     /* voltage to linear; power function using finite differences */
-    for ( p = gmax, ii = 255; ii > (int)(255.*0.039285714); ii-- )
+    for ( p = gmax, ii = 255; ii >= 0; ii--, p -= d )
     {
       gamma_ramp[ii] = (unsigned short)( p + 0.5 );
-      p -= 2.4 * p / ( ii + 255. * 0.055 );
-    }
-    for ( ; ii >= 0; ii-- )
-      gamma_ramp[ii] = (unsigned short)( gmax*ii/(255.*12.92321) + 0.5 );
 
+      if ( linear )
+        continue;
+
+      d = 2.4 * p / ( ii + 255. * 0.055 );  /* derivative */
+
+      if ( ii == 10 )  /* same as d < p / ii */
+      {
+        d = p / ii;
+        linear = 1;
+      }
+    }
+
+    linear = 0;
 
     /* linear to voltage; power function using finite differences */
-    for ( p = 255., ii = gmax; ii > (int)(gmax*0.0030399346); ii-- )
+    for ( p = 255., ii = gmax; ii >= 0; ii--, p -= d )
     {
       gamma_ramp_inv[ii] = (unsigned char)( p + 0.5 );
-      p -= ( p + 255. * 0.055 ) / ( 2.4 * ii );
+
+      if ( linear )
+        continue;
+
+      d = ( p + 255. * 0.055 ) / ( 2.4 * ii );  /* derivative */
+
+      if ( p < 10.02 )  /* same as d > p / ii */
+      {
+        d = p / ii;
+        linear = 1;
+      }
     }
-    for ( ; ii >= 0; ii-- )
-      gamma_ramp_inv[ii] = (unsigned char)( 255.*12.92321*ii/gmax + 0.5 );
   }
   else
   {
-    int     ii;
-
     /* voltage to linear; power function using finite differences */
     for ( p = gmax, ii = 255; ii > 0; ii-- )
     {
