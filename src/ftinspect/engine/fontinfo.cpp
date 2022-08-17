@@ -7,6 +7,7 @@
 #include "engine.hpp"
 
 #include <unordered_map>
+#include <utility>
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QTextCodec>
 #else
@@ -252,6 +253,67 @@ FontTypeEntries::get(Engine* engine)
   }
 
   return result;
+}
+
+
+bool
+operator==(const PS_FontInfoRec& lhs,
+           const PS_FontInfoRec& rhs)
+{
+  // XXX: possible security flaw with `strcmp`?
+  return strcmp(lhs.version, rhs.version) == 0
+         && strcmp(lhs.notice, rhs.notice) == 0
+         && strcmp(lhs.full_name, rhs.full_name) == 0
+         && strcmp(lhs.family_name, rhs.family_name) == 0
+         && strcmp(lhs.weight, rhs.weight) == 0
+         && lhs.italic_angle == rhs.italic_angle
+         && lhs.is_fixed_pitch == rhs.is_fixed_pitch
+         && lhs.underline_position == rhs.underline_position
+         && lhs.underline_thickness == rhs.underline_thickness;
+}
+
+
+bool
+operator==(const PS_PrivateRec& lhs,
+           const PS_PrivateRec& rhs)
+{
+  return lhs.unique_id == rhs.unique_id
+         && lhs.lenIV == rhs.lenIV
+         && lhs.num_blue_values == rhs.num_blue_values
+         && lhs.num_other_blues == rhs.num_other_blues
+         && lhs.num_family_blues == rhs.num_family_blues
+         && lhs.num_family_other_blues == rhs.num_family_other_blues
+         && std::equal(std::begin(lhs.blue_values), std::end(lhs.blue_values),
+                       std::begin(rhs.blue_values))
+         && std::equal(std::begin(lhs.other_blues), std::end(lhs.other_blues),
+                       std::begin(rhs.other_blues))
+         && std::equal(std::begin(lhs.family_blues), std::end(lhs.family_blues),
+                       std::begin(rhs.family_blues))
+         && std::equal(std::begin(lhs.family_other_blues),
+                       std::end(lhs.family_other_blues),
+                       std::begin(rhs.family_other_blues))
+         && lhs.blue_scale == rhs.blue_scale
+         && lhs.blue_shift == rhs.blue_shift
+         && lhs.blue_fuzz == rhs.blue_fuzz
+         && std::equal(std::begin(lhs.standard_width), 
+                       std::end(lhs.standard_width),
+                       std::begin(rhs.standard_width))
+         && std::equal(std::begin(lhs.standard_height),
+                       std::end(lhs.standard_height),
+                       std::begin(rhs.standard_height))
+         && lhs.num_snap_widths == rhs.num_snap_widths
+         && lhs.num_snap_heights == rhs.num_snap_heights
+         && lhs.force_bold == rhs.force_bold
+         && lhs.round_stem_up == rhs.round_stem_up
+         && std::equal(std::begin(lhs.snap_widths), std::end(lhs.snap_widths),
+                       std::begin(rhs.snap_widths))
+         && std::equal(std::begin(lhs.snap_heights), std::end(lhs.snap_heights),
+                       std::begin(rhs.snap_heights))
+         && lhs.expansion_factor == rhs.expansion_factor
+         && lhs.language_group == rhs.language_group
+         && lhs.password == rhs.password
+         && std::equal(std::begin(lhs.min_feature), std::end(lhs.min_feature),
+                       std::begin(rhs.min_feature));
 }
 
 

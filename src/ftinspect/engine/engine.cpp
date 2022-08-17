@@ -469,6 +469,28 @@ Engine::currentSizeAscDescPx()
 }
 
 
+bool
+Engine::currentFontPSInfo(PS_FontInfoRec& outInfo)
+{
+  if (!ftSize_)
+    return false;
+  if (FT_Get_PS_Font_Info(ftSize_->face, &outInfo) == FT_Err_Ok)
+    return true;
+  return false;
+}
+
+
+bool
+Engine::currentFontPSPrivateInfo(PS_PrivateRec& outInfo)
+{
+  if (!ftSize_)
+    return false;
+  if (FT_Get_PS_Font_Private(ftSize_->face, &outInfo) == FT_Err_Ok)
+    return true;
+  return false;
+}
+
+
 QString
 Engine::glyphName(int index)
 {

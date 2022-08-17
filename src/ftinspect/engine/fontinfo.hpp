@@ -9,6 +9,7 @@
 #include <QString>
 #include <freetype/freetype.h>
 #include <freetype/ftsnames.h>
+#include <freetype/t1tables.h>
 
 class Engine;
 
@@ -162,6 +163,14 @@ struct FontTypeEntries
     return !(lhs == rhs);
   }
 };
+
+
+// For PostScript `PS_FontInfoRec` and `PS_PrivateRec`, we don't create our own
+// structs but direct use the ones provided by FreeType.
+// But we still need to provided `operator==`
+// No operator== for PS_FontInfoRec since there's little point to deep-copy it
+// bool operator==(const PS_FontInfoRec& lhs, const PS_FontInfoRec& rhs);
+bool operator==(const PS_PrivateRec& lhs, const PS_PrivateRec& rhs);
 
 
 struct FontFixedSize

@@ -23,6 +23,7 @@
 #include <freetype/ftcache.h>
 #include <freetype/ftlcdfil.h>
 #include <freetype/ftcolor.h>
+#include <freetype/t1tables.h>
 
 
 // This structure maps the (font, face, instance) index triplet to abstract
@@ -151,7 +152,9 @@ public:
   FT_Pos currentFontTrackingKerning(int degree);
   FT_Vector currentFontKerning(int glyphIndex, int prevIndex);
   std::pair<int, int> currentSizeAscDescPx();
-  
+
+  bool currentFontPSInfo(PS_FontInfoRec& outInfo);
+  bool currentFontPSPrivateInfo(PS_PrivateRec& outInfo);
   std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
   std::vector<PaletteInfo>& currentFontPalettes() { return curPaletteInfos_; }
   std::vector<SFNTName>& currentFontSFNTNames() { return curSFNTNames_; }

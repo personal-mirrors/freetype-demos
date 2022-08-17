@@ -7,8 +7,15 @@
 #include "../uihelper.hpp"
 #include "../engine/engine.hpp"
 
+#include <cstring>
 #include <QStringList>
 #include <QHeaderView>
+
+
+#define GL2CRow(l, w) gridLayout2ColAddWidget(l,                \
+                                              w##PromptLabel_,  \
+                                              w##Label_)
+
 
 InfoTab::InfoTab(QWidget* parent,
                  Engine* engine)
@@ -199,6 +206,10 @@ GeneralInfoTab::createLayout()
   setLabelSelectable(   trademarkLabel_);
   setLabelSelectable(manufacturerLabel_);
 
+     copyrightLabel_->setWordWrap(true);
+     trademarkLabel_->setWordWrap(true);
+  manufacturerLabel_->setWordWrap(true);
+
   driverNamePromptLabel_ = new QLabel(tr("Driver:"), this);
         sfntPromptLabel_ = new QLabel(tr("SFNT Wrapped:"), this);
     fontTypePromptLabel_ = new QLabel(tr("Type:"), this);
@@ -290,9 +301,6 @@ GeneralInfoTab::createLayout()
   charMapLayout_     = new QHBoxLayout;
   fixedSizesLayout_  = new QHBoxLayout;
 
-#define GL2CRow(l, w) gridLayout2ColAddWidget(l          ,      \
-                                              w##PromptLabel_,  \
-                                              w##Label_)
 #define BasicRow(w) GL2CRow(basicLayout_, w)
 #define FTERow(w) GL2CRow(typeEntriesLayout_, w)
 
@@ -321,6 +329,9 @@ GeneralInfoTab::createLayout()
   FTERow(maxAdvanceHeight);
   FTERow(           ulPos);
   FTERow(     ulThickness);
+
+        basicLayout_->setColumnStretch(1, 1);      
+  typeEntriesLayout_->setColumnStretch(1, 1);
 
   charMapLayout_->addWidget(charMapsTable_);
   fixedSizesLayout_->addWidget(fixedSizesTable_);
@@ -402,6 +413,11 @@ SFNTInfoTab::SFNTInfoTab(QWidget* parent,
 void
 SFNTInfoTab::reloadFont()
 {
+  engine_->reloadFont();
+  auto size = engine_->currentFtSize();
+  if (!size || !FT_IS_SFNT(size->face))
+    setEnabled(false);
+
   if (engine_->currentFontSFNTNames() != sfntNamesModel_->storage())
   {
     sfntNamesModel_->beginModelUpdate();
@@ -480,12 +496,295 @@ PostScriptInfoTab::PostScriptInfoTab(QWidget* parent,
                                      Engine* engine)
 : QWidget(parent), engine_(engine)
 {
+  std::memset(&oldFontPrivate_, 0, sizeof(PS_PrivateRec));
+  createLayout();
+}
+
+
+template<class T>
+QString genArrayString(T* arr, size_t size)
+{
+  // TODO: optimize
+  QString result = "[";
+  for (size_t i = 0; i < size; i++)
+  {
+    result += QString::number(arr[i]);
+    if (i < size - 1)
+      result += ", ";
+  }
+  return result + "]";
 }
 
 
 void
 PostScriptInfoTab::reloadFont()
 {
+  PS_FontInfoRec fontInfo;
+  auto hasInfo = engine_->currentFontPSInfo(fontInfo);
+  infoGroupBox_->setEnabled(hasInfo);
+  if (hasInfo)
+  {
+        versionLabel_->setText(QString::fromUtf8(fontInfo.version));
+         noticeLabel_->setText(QString::fromUtf8(fontInfo.notice));
+       fullNameLabel_->setText(QString::fromUtf8(fontInfo.full_name));
+     familyNameLabel_->setText(QString::fromUtf8(fontInfo.family_name));
+         weightLabel_->setText(QString::fromUtf8(fontInfo.weight));
+    italicAngleLabel_->setText(QString::number(fontInfo.italic_angle));
+     fixedPitchLabel_->setText(fontInfo.is_fixed_pitch ? "yes" : "no");
+          ulPosLabel_->setText(QString::number(fontInfo.underline_position));
+    ulThicknessLabel_->setText(QString::number(fontInfo.underline_thickness));
+  }
+  else
+  {
+        versionLabel_->clear();
+         noticeLabel_->clear();
+       fullNameLabel_->clear();
+     familyNameLabel_->clear();
+         weightLabel_->clear();
+    italicAngleLabel_->clear();
+     fixedPitchLabel_->clear();
+          ulPosLabel_->clear();
+    ulThicknessLabel_->clear();
+  }
+
+  PS_PrivateRec fontPrivate;
+  // Don't do zero-initialization since we need to zero out paddings
+  std::memset(&fontPrivate, 0, sizeof(PS_PrivateRec));
+  hasInfo = engine_->currentFontPSPrivateInfo(fontPrivate);
+  privateGroupBox_->setEnabled(hasInfo);
+  if (hasInfo)
+  {
+    if (std::memcmp(&fontPrivate, &oldFontPrivate_, sizeof(PS_PrivateRec)))
+    {
+      std::memcpy(&oldFontPrivate_, &fontPrivate, sizeof(PS_PrivateRec));
+      
+      uniqueIDLabel_->setText(QString::number(fontPrivate.unique_id));
+      blueShiftLabel_->setText(QString::number(fontPrivate.blue_shift));
+      blueFuzzLabel_->setText(QString::number(fontPrivate.blue_fuzz));
+      forceBoldLabel_->setText(fontPrivate.force_bold ? "true" : "false");
+      languageGroupLabel_->setText(QString::number(fontPrivate.language_group));
+      passwordLabel_->setText(QString::number(fontPrivate.password));
+      lenIVLabel_->setText(QString::number(fontPrivate.lenIV));
+      roundStemUpLabel_->setText(fontPrivate.round_stem_up ? "true" : "false");
+
+      familyBluesLabel_->setText(
+        genArrayString(fontPrivate.family_blues, fontPrivate.num_family_blues));
+      blueValuesLabel_->setText(
+        genArrayString(fontPrivate.blue_values, fontPrivate.num_blue_values));
+      otherBluesLabel_->setText(
+        genArrayString(fontPrivate.other_blues, fontPrivate.num_other_blues));
+      familyOtherBluesLabel_->setText(
+        genArrayString(fontPrivate.family_other_blues,
+        fontPrivate.num_family_other_blues));
+      stdWidthsLabel_->setText(
+        genArrayString(fontPrivate.standard_width,
+                       std::size(fontPrivate.standard_width)));
+      stdHeightsLabel_->setText(
+        genArrayString(fontPrivate.standard_height, 
+                       std::size(fontPrivate.standard_height)));
+      snapWidthsLabel_->setText(
+        genArrayString(fontPrivate.snap_widths, fontPrivate.num_snap_widths));
+      snapHeightsLabel_->setText(
+        genArrayString(fontPrivate.snap_heights, fontPrivate.num_snap_heights));
+      minFeatureLabel_->setText(
+        genArrayString(fontPrivate.min_feature,
+                       std::size(fontPrivate.min_feature)));
+
+      blueScaleLabel_->setText(
+        QString::number(fontPrivate.blue_scale / 65536.0 / 1000.0, 'f', 6));
+      expansionFactorLabel_->setText(
+        QString::number(fontPrivate.expansion_factor / 65536.0, 'f', 4));
+    }
+  }
+  else
+  {
+            uniqueIDLabel_->clear();
+          blueValuesLabel_->clear();
+          otherBluesLabel_->clear();
+         familyBluesLabel_->clear();
+    familyOtherBluesLabel_->clear();
+           blueScaleLabel_->clear();
+           blueShiftLabel_->clear();
+            blueFuzzLabel_->clear();
+           stdWidthsLabel_->clear();
+          stdHeightsLabel_->clear();
+          snapWidthsLabel_->clear();
+         snapHeightsLabel_->clear();
+           forceBoldLabel_->clear();
+       languageGroupLabel_->clear();
+            passwordLabel_->clear();
+               lenIVLabel_->clear();
+          minFeatureLabel_->clear();
+         roundStemUpLabel_->clear();
+     expansionFactorLabel_->clear();
+  }
+}
+
+
+void
+PostScriptInfoTab::createLayout()
+{
+      versionPromptLabel_  = new QLabel(tr("/version:"), this);
+       noticePromptLabel_  = new QLabel(tr("/Notice:"), this);
+     fullNamePromptLabel_  = new QLabel(tr("/FullName:"), this);
+   familyNamePromptLabel_  = new QLabel(tr("/FamilyName:"), this);
+       weightPromptLabel_  = new QLabel(tr("/Weight:"), this);
+  italicAnglePromptLabel_  = new QLabel(tr("/ItaticAngle:"), this);
+   fixedPitchPromptLabel_  = new QLabel(tr("/isFixedPitch:"), this);
+        ulPosPromptLabel_  = new QLabel(tr("/UnderlinePosition:"), this);
+  ulThicknessPromptLabel_  = new QLabel(tr("/UnderlineThickness:"), this);
+
+      versionLabel_ = new QLabel(this);
+       noticeLabel_ = new QLabel(this);
+     fullNameLabel_ = new QLabel(this);
+   familyNameLabel_ = new QLabel(this);
+       weightLabel_ = new QLabel(this);
+  italicAngleLabel_ = new QLabel(this);
+   fixedPitchLabel_ = new QLabel(this);
+        ulPosLabel_ = new QLabel(this);
+  ulThicknessLabel_ = new QLabel(this);
+
+  setLabelSelectable(    versionLabel_);
+  setLabelSelectable(     noticeLabel_);
+  setLabelSelectable(   fullNameLabel_);
+  setLabelSelectable( familyNameLabel_);
+  setLabelSelectable(     weightLabel_);
+  setLabelSelectable(italicAngleLabel_);
+  setLabelSelectable( fixedPitchLabel_);
+  setLabelSelectable(      ulPosLabel_);
+  setLabelSelectable(ulThicknessLabel_);
+
+          uniqueIDPromptLabel_  = new QLabel(tr("/UniqueID:"), this);
+        blueValuesPromptLabel_  = new QLabel(tr("/BlueValues:"), this);
+        otherBluesPromptLabel_  = new QLabel(tr("/OtherBlues:"), this);
+       familyBluesPromptLabel_  = new QLabel(tr("/FamilyBlues:"), this);
+  familyOtherBluesPromptLabel_  = new QLabel(tr("/FamilyOtherBlues:"), this);
+         blueScalePromptLabel_  = new QLabel(tr("/BlueScale:"), this);
+         blueShiftPromptLabel_  = new QLabel(tr("/BlueShift:"), this);
+          blueFuzzPromptLabel_  = new QLabel(tr("/BlueFuzz:"), this);
+         stdWidthsPromptLabel_  = new QLabel(tr("/StdHW:"), this);
+        stdHeightsPromptLabel_  = new QLabel(tr("/StdVW:"), this);
+        snapWidthsPromptLabel_  = new QLabel(tr("/StemSnapH:"), this);
+       snapHeightsPromptLabel_  = new QLabel(tr("/StemSnapV:"), this);
+         forceBoldPromptLabel_  = new QLabel(tr("/ForceBold:"), this);
+     languageGroupPromptLabel_  = new QLabel(tr("/LanguageGroup:"), this);
+          passwordPromptLabel_  = new QLabel(tr("/password:"), this);
+             lenIVPromptLabel_  = new QLabel(tr("/lenIV:"), this);
+        minFeaturePromptLabel_  = new QLabel(tr("/MinFeature:"), this);
+       roundStemUpPromptLabel_  = new QLabel(tr("/RndStemUp:"), this);
+   expansionFactorPromptLabel_  = new QLabel(tr("/ExpansionFactor:"), this);
+
+          uniqueIDLabel_ = new QLabel(this);
+        blueValuesLabel_ = new QLabel(this);
+        otherBluesLabel_ = new QLabel(this);
+       familyBluesLabel_ = new QLabel(this);
+  familyOtherBluesLabel_ = new QLabel(this);
+         blueScaleLabel_ = new QLabel(this);
+         blueShiftLabel_ = new QLabel(this);
+          blueFuzzLabel_ = new QLabel(this);
+         stdWidthsLabel_ = new QLabel(this);
+        stdHeightsLabel_ = new QLabel(this);
+        snapWidthsLabel_ = new QLabel(this);
+       snapHeightsLabel_ = new QLabel(this);
+         forceBoldLabel_ = new QLabel(this);
+     languageGroupLabel_ = new QLabel(this);
+          passwordLabel_ = new QLabel(this);
+             lenIVLabel_ = new QLabel(this);
+        minFeatureLabel_ = new QLabel(this);
+       roundStemUpLabel_ = new QLabel(this);
+   expansionFactorLabel_ = new QLabel(this);
+
+  setLabelSelectable(        uniqueIDLabel_);
+  setLabelSelectable(      blueValuesLabel_);
+  setLabelSelectable(      otherBluesLabel_);
+  setLabelSelectable(     familyBluesLabel_);
+  setLabelSelectable(familyOtherBluesLabel_);
+  setLabelSelectable(       blueScaleLabel_);
+  setLabelSelectable(       blueShiftLabel_);
+  setLabelSelectable(        blueFuzzLabel_);
+  setLabelSelectable(       stdWidthsLabel_);
+  setLabelSelectable(      stdHeightsLabel_);
+  setLabelSelectable(      snapWidthsLabel_);
+  setLabelSelectable(     snapHeightsLabel_);
+  setLabelSelectable(       forceBoldLabel_);
+  setLabelSelectable(   languageGroupLabel_);
+  setLabelSelectable(        passwordLabel_);
+  setLabelSelectable(           lenIVLabel_);
+  setLabelSelectable(      minFeatureLabel_);
+  setLabelSelectable(     roundStemUpLabel_);
+  setLabelSelectable( expansionFactorLabel_);
+
+  noticeLabel_->setWordWrap(true);
+  familyBluesLabel_->setWordWrap(true);
+  blueValuesLabel_->setWordWrap(true);
+  otherBluesLabel_->setWordWrap(true);
+  familyOtherBluesLabel_->setWordWrap(true);
+  stdWidthsLabel_->setWordWrap(true);
+  stdHeightsLabel_->setWordWrap(true);
+  snapWidthsLabel_->setWordWrap(true);
+  snapHeightsLabel_->setWordWrap(true);
+  minFeatureLabel_->setWordWrap(true);
+
+  infoGroupBox_ = new QGroupBox(tr("PostScript /FontInfo dictionary"), this);
+  privateGroupBox_ = new QGroupBox(tr("PostScript /Private dictionary"), this);
+
+  infoLayout_ = new QGridLayout;
+  privateLayout_ = new QGridLayout;
+
+#define PSI2Row(w) GL2CRow(infoLayout_, w)
+#define PSP2Row(w) GL2CRow(privateLayout_, w)
+
+  PSI2Row(    version);
+  PSI2Row(     notice);
+  PSI2Row(   fullName);
+  PSI2Row( familyName);
+  PSI2Row(     weight);
+  PSI2Row(italicAngle);
+  PSI2Row( fixedPitch);
+  PSI2Row(      ulPos);
+  PSI2Row(ulThickness);
+
+  PSP2Row(        uniqueID);
+  PSP2Row(      blueValues);
+  PSP2Row(      otherBlues);
+  PSP2Row(     familyBlues);
+  PSP2Row(familyOtherBlues);
+  PSP2Row(       blueScale);
+  PSP2Row(       blueShift);
+  PSP2Row(        blueFuzz);
+  PSP2Row(       stdWidths);
+  PSP2Row(      stdHeights);
+  PSP2Row(      snapWidths);
+  PSP2Row(     snapHeights);
+  PSP2Row(       forceBold);
+  PSP2Row(   languageGroup);
+  PSP2Row(        password);
+  PSP2Row(           lenIV);
+  PSP2Row(      minFeature);
+  PSP2Row(     roundStemUp);
+  PSP2Row( expansionFactor);
+
+  infoLayout_->addItem(new QSpacerItem(0, 0, 
+                                       QSizePolicy::Preferred, 
+                                       QSizePolicy::Expanding),
+                       infoLayout_->rowCount(), 0, 1, 2);
+  privateLayout_->addItem(new QSpacerItem(0, 0, 
+                                          QSizePolicy::Preferred, 
+                                          QSizePolicy::Expanding),
+                          privateLayout_->rowCount(), 0, 1, 2);
+
+     infoLayout_->setColumnStretch(1, 1);
+  privateLayout_->setColumnStretch(1, 1);
+
+  infoGroupBox_->setLayout(infoLayout_);
+  privateGroupBox_->setLayout(privateLayout_);
+  infoGroupBox_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+  privateGroupBox_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+
+  mainLayout_ = new QHBoxLayout;
+  mainLayout_->addWidget(infoGroupBox_);
+  mainLayout_->addWidget(privateGroupBox_);
+  setLayout(mainLayout_);
 }
 
 

@@ -54,6 +54,11 @@ private:
 };
 
 
+#define LabelPair(name) \
+  QLabel* name##Label_; \
+  QLabel* name##PromptLabel_;
+
+
 class GeneralInfoTab
 : public QWidget, public AbstractTab
 {
@@ -67,10 +72,6 @@ public:
 
 private:
   Engine* engine_;
-
-#define LabelPair(name) \
-  QLabel* name##Label_; \
-  QLabel* name##PromptLabel_;
 
   LabelPair(    numFaces)
   LabelPair(      family)
@@ -198,6 +199,47 @@ public:
 
 private:
   Engine* engine_;
+
+  LabelPair(    version)
+  LabelPair(     notice)
+  LabelPair(   fullName)
+  LabelPair( familyName)
+  LabelPair(     weight)
+  LabelPair(italicAngle)
+  LabelPair( fixedPitch)
+  LabelPair(      ulPos)
+  LabelPair(ulThickness)
+
+  LabelPair(        uniqueID)
+  LabelPair(      blueValues)
+  LabelPair(      otherBlues)
+  LabelPair(     familyBlues)
+  LabelPair(familyOtherBlues)
+  LabelPair(       blueScale)
+  LabelPair(       blueShift)
+  LabelPair(        blueFuzz)
+  LabelPair(       stdWidths)
+  LabelPair(      stdHeights)
+  LabelPair(      snapWidths)
+  LabelPair(     snapHeights)
+  LabelPair(       forceBold)
+  LabelPair(   languageGroup)
+  LabelPair(        password)
+  LabelPair(           lenIV)
+  LabelPair(      minFeature)
+  LabelPair(     roundStemUp)
+  LabelPair( expansionFactor)
+
+  QGroupBox* infoGroupBox_;
+  QGroupBox* privateGroupBox_;
+
+  QGridLayout* infoLayout_;
+  QGridLayout* privateLayout_;
+  QHBoxLayout* mainLayout_;
+
+  PS_PrivateRec oldFontPrivate_;
+
+  void createLayout();
 };
 
 
