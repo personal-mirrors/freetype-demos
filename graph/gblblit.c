@@ -252,7 +252,7 @@ gblender_blit_init( GBlenderBlit           blit,
 
   GBlenderSourceFormat   src_format;
   const unsigned char*   src_buffer = glyph->buffer;
-  const int              src_pitch  = glyph->pitch;
+  int                    src_pitch  = glyph->pitch;
   int                    src_width  = glyph->width;
   int                    src_height = glyph->rows;
   unsigned char*         dst_buffer = target->buffer;
@@ -276,10 +276,12 @@ gblender_blit_init( GBlenderBlit           blit,
     break;
   case gr_pixel_mode_lcdv:  src_format = GBLENDER_SOURCE_VRGB;
     src_height /= 3;
+    src_pitch  *= 3;
     gblender_use_channels( surface->gblender, 1 );
     break;
   case gr_pixel_mode_lcdv2: src_format = GBLENDER_SOURCE_VBGR;
     src_height /= 3;
+    src_pitch  *= 3;
     gblender_use_channels( surface->gblender, 1 );
     break;
   case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;
@@ -347,7 +349,7 @@ gblender_blit_init( GBlenderBlit           blit,
 
   blit->src_pitch = src_pitch;
   if ( src_pitch < 0 )
-    src_y -= glyph->rows - 1;
+    src_y -= src_height - 1;
   blit->src_line  = src_buffer + src_pitch * src_y;
   blit->src_x     = src_x;
 

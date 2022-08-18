@@ -279,7 +279,7 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
   GBLENDER_CHANNEL_VARS( blender, fore.r, fore.g, fore.b );
 
   int                   h         = blit->height;
-  int                   src_pitch = blit->src_pitch;
+  int                   src_pitch = blit->src_pitch / 3;
   const unsigned char*  src_line  = blit->src_line + blit->src_x;
   unsigned char*        dst_line  = blit->dst_line + blit->dst_x*GDST_INCR;
 
@@ -322,7 +322,7 @@ GCONCAT( _gblender_blit_vrgb_, GDST_TYPE )( GBlenderBlit  blit,
     }
     while (--w > 0);
 
-    src_line += blit->src_pitch*3;
+    src_line += blit->src_pitch;
     dst_line += blit->dst_pitch;
   }
   while (--h > 0);
@@ -342,7 +342,7 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
   GBLENDER_CHANNEL_VARS( blender, fore.r, fore.g, fore.b );
 
   int                   h         = blit->height;
-  int                   src_pitch = blit->src_pitch;
+  int                   src_pitch = blit->src_pitch / 3;
   const unsigned char*  src_line  = blit->src_line + blit->src_x;
   unsigned char*        dst_line  = blit->dst_line + blit->dst_x*GDST_INCR;
 
@@ -385,7 +385,7 @@ GCONCAT( _gblender_blit_vbgr_, GDST_TYPE )( GBlenderBlit  blit,
     }
     while (--w > 0);
 
-    src_line += blit->src_pitch*3;
+    src_line += blit->src_pitch;
     dst_line += blit->dst_pitch;
   }
   while (--h > 0);
