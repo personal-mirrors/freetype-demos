@@ -598,6 +598,7 @@ PostScriptInfoTab::reloadFont()
   }
   else
   {
+    std::memset(&oldFontPrivate_, 0, sizeof(PS_PrivateRec));
             uniqueIDLabel_->clear();
           blueValuesLabel_->clear();
           otherBluesLabel_->clear();
@@ -792,12 +793,77 @@ MMGXInfoTab::MMGXInfoTab(QWidget* parent,
                          Engine* engine)
 : QWidget(parent), engine_(engine)
 {
+  createLayout();
 }
 
 
 void
 MMGXInfoTab::reloadFont()
 {
+  auto state = engine_->currentFontMMGXState();
+  axesGroupBox_->setEnabled(state != MMGXState::NoMMGX);
+  switch (state)
+  {
+  case MMGXState::NoMMGX: 
+    mmgxTypeLabel_->setText("No MM/GX");
+    break;
+  case MMGXState::MM:
+    mmgxTypeLabel_->setText("Adobe Multiple Master");
+    break;
+  case MMGXState::GX_OVF:
+    mmgxTypeLabel_->setText("TrueType GX or OpenType Variable Font");
+    break;
+  default:
+    mmgxTypeLabel_->setText("Unknown");
+  }
+
+  if (engine_->currentFontMMGXAxes() != axesModel_->storage())
+  {
+    axesModel_->beginModelUpdate();
+    axesModel_->storage() = engine_->currentFontMMGXAxes();
+    axesModel_->endModelUpdate();
+  }
+}
+
+
+void
+MMGXInfoTab::createLayout()
+{
+  mmgxTypePromptLabel_ = new QLabel(tr("MM/GX Type:"));
+  mmgxTypeLabel_ = new QLabel(this);
+  setLabelSelectable(mmgxTypeLabel_);
+
+  axesTable_ = new QTableView(this);
+
+  axesModel_ = new MMGXAxisInfoModel(this);
+  axesTable_->setModel(axesModel_);
+  auto header = axesTable_->verticalHeader();
+  // This will force the minimal size to be used
+  header->setDefaultSectionSize(0);
+  header->setSectionResizeMode(QHeaderView::Fixed);
+  axesTable_->horizontalHeader()->setStretchLastSection(true);
+
+  axesGroupBox_ = new QGroupBox("MM/GX Axes");
+
+  axesLayout_ = new QHBoxLayout;
+  axesLayout_->addWidget(axesTable_);
+
+  axesGroupBox_->setLayout(axesLayout_);
+
+  infoLayout_ = new QGridLayout;
+#define MMGXI2Row(w) GL2CRow(infoLayout_, w)
+  auto r = MMGXI2Row(mmgxType);
+
+  infoLayout_->addItem(new QSpacerItem(0, 0, 
+                                       QSizePolicy::Expanding, 
+                                       QSizePolicy::Preferred),
+                       r, 2);
+
+  mainLayout_ = new QVBoxLayout;
+  mainLayout_->addLayout(infoLayout_);
+  mainLayout_->addWidget(axesGroupBox_, 1);
+
+  setLayout(mainLayout_);
 }
 
 

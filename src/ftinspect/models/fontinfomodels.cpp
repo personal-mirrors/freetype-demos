@@ -35,8 +35,6 @@ FixedSizeInfoModel::data(const QModelIndex& index,
   auto& obj = storage_[r];
   switch (static_cast<Columns>(index.column()))
   {
-  case FSIM_Index:
-    return index.row();
   case FSIM_Height:
     return obj.height;
   case FSIM_Width:
@@ -60,13 +58,15 @@ FixedSizeInfoModel::headerData(int section,
                                 Qt::Orientation orientation,
                                 int role) const
 {
-  if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+  if (role != Qt::DisplayRole)
+    return {};
+  if (orientation == Qt::Vertical)
+    return section;
+  if (orientation != Qt::Horizontal)
     return {};
 
   switch (static_cast<Columns>(section))
   {
-  case FSIM_Index:
-    return tr("#");
   case FSIM_Height:
     return tr("Height");
   case FSIM_Width:
@@ -117,8 +117,6 @@ CharMapInfoModel::data(const QModelIndex& index,
   auto& obj = storage_[r];
   switch (static_cast<Columns>(index.column()))
   {
-  case CMIM_Index: 
-    return index.row();
   case CMIM_Platform: 
     return QString("%1 <%2>")
              .arg(obj.platformID)
@@ -146,13 +144,15 @@ CharMapInfoModel::headerData(int section,
                              Qt::Orientation orientation,
                              int role) const
 {
-  if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+  if (role != Qt::DisplayRole)
+    return {};
+  if (orientation == Qt::Vertical)
+    return section;
+  if (orientation != Qt::Horizontal)
     return {};
 
   switch (static_cast<Columns>(section))
   {
-  case CMIM_Index:
-    return "#";
   case CMIM_Platform:
     return "Platform";
   case CMIM_Encoding:
@@ -206,8 +206,6 @@ SFNTNameModel::data(const QModelIndex& index,
   auto& obj = storage_[r];
   switch (static_cast<Columns>(index.column()))
   {
-  case SNM_Index:
-    return index.row();
   case SNM_Name:
     return QString("%1 <%2>")
              .arg(obj.nameID)
@@ -245,13 +243,15 @@ SFNTNameModel::headerData(int section,
                           Qt::Orientation orientation,
                           int role) const
 {
-  if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+  if (role != Qt::DisplayRole)
+    return {};
+  if (orientation == Qt::Vertical)
+    return section;
+  if (orientation != Qt::Horizontal)
     return {};
 
   switch (static_cast<Columns>(section))
   {
-  case SNM_Index:
-    return "#";
   case SNM_Name:
     return "Name";
   case SNM_Platform:
@@ -264,6 +264,94 @@ SFNTNameModel::headerData(int section,
     return "Content";
   default:
     break;
+  }
+
+  return {};
+}
+
+
+int
+MMGXAxisInfoModel::rowCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+    return 0;
+  return static_cast<int>(storage_.size());
+}
+
+
+int
+MMGXAxisInfoModel::columnCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+    return 0;
+  return MAIM_Max;
+}
+
+
+QVariant
+MMGXAxisInfoModel::data(const QModelIndex& index,
+                        int role) const
+{
+  if (index.row() < 0 || index.column() < 0)
+    return {};
+  auto r = static_cast<size_t>(index.row());
+  if (role != Qt::DisplayRole || r > storage_.size())
+    return {};
+
+  auto& obj = storage_[r];
+  switch (static_cast<Columns>(index.column()))
+  {
+  case MAIM_Tag:
+  {
+    auto str = QString::fromUtf8(reinterpret_cast<const char*>(&obj.tag), 4);
+    std::reverse(str.begin(), str.end());
+    return str;
+  }
+  case MAIM_Minimum:
+    return obj.minimum;
+  case MAIM_Default:
+    return obj.def;
+  case MAIM_Maximum:
+    return obj.maximum;
+  case MAIM_Hidden:
+    return obj.hidden;
+  case MAIM_Name:
+    return obj.name;
+  default:
+    break;
+  }
+
+  return {};
+}
+
+
+QVariant
+MMGXAxisInfoModel::headerData(int section,
+                              Qt::Orientation orientation,
+                              int role) const
+{
+  if (role != Qt::DisplayRole)
+    return {};
+  if (orientation == Qt::Vertical)
+    return section;
+  if (orientation != Qt::Horizontal)
+    return {};
+
+  switch (static_cast<Columns>(section))
+  {
+  case MAIM_Tag:
+    return "Tag";
+  case MAIM_Minimum:
+    return "Minimum";
+  case MAIM_Default:
+    return "Default";
+  case MAIM_Maximum:
+    return "Maximum";
+  case MAIM_Hidden:
+    return "Hidden";
+  case MAIM_Name:
+    return "Name";
+  default: ;
   }
 
   return {};

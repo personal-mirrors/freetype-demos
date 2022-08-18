@@ -256,6 +256,19 @@ public:
 
 private:
   Engine* engine_;
+
+  LabelPair(mmgxType)
+
+  QGroupBox* axesGroupBox_;
+  QTableView* axesTable_;
+
+  QGridLayout* infoLayout_;
+  QHBoxLayout* axesLayout_;
+  QVBoxLayout* mainLayout_;
+
+  MMGXAxisInfoModel* axesModel_;
+
+  void createLayout();
 };
 
 

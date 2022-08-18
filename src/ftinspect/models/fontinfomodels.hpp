@@ -6,6 +6,7 @@
 
 #include "../engine/fontinfo.hpp"
 #include "../engine/charmap.hpp"
+#include "../engine/mmgx.hpp"
 
 #include <vector>
 #include <QAbstractTableModel>
@@ -39,12 +40,11 @@ public:
 
   enum Columns : int
   {
-    FSIM_Index  = 0,
-    FSIM_Height = 1,
-    FSIM_Width  = 2,
-    FSIM_Size   = 3,
-    FSIM_XPpem  = 4,
-    FSIM_YPpem  = 5,
+    FSIM_Height = 0,
+    FSIM_Width,
+    FSIM_Size,
+    FSIM_XPpem,
+    FSIM_YPpem,
     FSIM_Max
   };
 
@@ -77,12 +77,11 @@ public:
 
   enum Columns : int
   {
-    CMIM_Index      = 0,
-    CMIM_Platform   = 1,
-    CMIM_Encoding   = 2,
-    CMIM_FormatID   = 3,
-    CMIM_Language   = 4,
-    CMIM_MaxIndex   = 5,
+    CMIM_Platform   = 0,
+    CMIM_Encoding,
+    CMIM_FormatID,
+    CMIM_Language,
+    CMIM_MaxIndex,
     CMIM_Max
   };
 
@@ -115,18 +114,55 @@ public:
 
   enum Columns : int
   {
-    SNM_Index      = 0,
-    SNM_Name       = 1,
-    SNM_Platform   = 2,
-    SNM_Encoding   = 3,
-    SNM_Language   = 4,
-    SNM_Content    = 5,
+    SNM_Name       = 0,
+    SNM_Platform,
+    SNM_Encoding,
+    SNM_Language,
+    SNM_Content,
     SNM_Max
   };
 
 private:
   // Don't let the item count exceed INT_MAX!
   std::vector<SFNTName> storage_;
+};
+
+
+class MMGXAxisInfoModel
+: public QAbstractTableModel
+{
+  Q_OBJECT
+public:
+  explicit MMGXAxisInfoModel(QObject* parent) : QAbstractTableModel(parent) {}
+  ~MMGXAxisInfoModel() override = default;
+
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
+  QVariant data(const QModelIndex& index,
+                int role) const override;
+  QVariant headerData(int section,
+                      Qt::Orientation orientation,
+                      int role) const override;
+
+  // Same to `FixedSizeInfoModel`
+  void beginModelUpdate() { beginResetModel(); }
+  void endModelUpdate() { endResetModel(); }
+  std::vector<MMGXAxisInfo>& storage() { return storage_; }
+
+  enum Columns : int
+  {
+    MAIM_Tag = 0,
+    MAIM_Minimum,
+    MAIM_Default,
+    MAIM_Maximum,
+    MAIM_Hidden,
+    MAIM_Name,
+    MAIM_Max
+  };
+
+private:
+  // Don't let the item count exceed INT_MAX!
+  std::vector<MMGXAxisInfo> storage_;
 };
 
 

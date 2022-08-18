@@ -9,6 +9,7 @@
 #include "charmap.hpp"
 #include "paletteinfo.hpp"
 #include "fontinfo.hpp"
+#include "mmgx.hpp"
 
 #include <vector>
 #include <utility>
@@ -158,6 +159,8 @@ public:
   std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
   std::vector<PaletteInfo>& currentFontPalettes() { return curPaletteInfos_; }
   std::vector<SFNTName>& currentFontSFNTNames() { return curSFNTNames_; }
+  MMGXState currentFontMMGXState() { return curMMGXState_; }
+  std::vector<MMGXAxisInfo>& currentFontMMGXAxes() { return curMMGXAxes_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
@@ -229,6 +232,8 @@ private:
   std::vector<SFNTName> curSFNTNames_;
   std::vector<CharMapInfo> curCharMaps_;
   std::vector<PaletteInfo> curPaletteInfos_;
+  std::vector<MMGXAxisInfo> curMMGXAxes_;
+  MMGXState curMMGXState_ = MMGXState::NoMMGX;
 
   FT_Library library_;
   FTC_Manager cacheManager_;

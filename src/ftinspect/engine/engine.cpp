@@ -345,8 +345,8 @@ Engine::loadFont(int fontIndex,
       curCharMaps_.emplace_back(i, face->charmaps[i]);
 
     SFNTName::get(this, curSFNTNames_);
-
     loadPaletteInfos();
+    curMMGXState_ = MMGXAxisInfo::get(this, curMMGXAxes_);
   }
 
   curNumGlyphs_ = numGlyphs;
