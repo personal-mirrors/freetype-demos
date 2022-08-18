@@ -516,6 +516,15 @@ QString genArrayString(T* arr, size_t size)
 }
 
 
+// We don't have C++20, so...
+template <class T, std::ptrdiff_t N>
+constexpr std::ptrdiff_t
+arraySize(const T (&)[N]) noexcept
+{
+  return N;
+}
+
+
 void
 PostScriptInfoTab::reloadFont()
 {
@@ -578,17 +587,17 @@ PostScriptInfoTab::reloadFont()
         fontPrivate.num_family_other_blues));
       stdWidthsLabel_->setText(
         genArrayString(fontPrivate.standard_width,
-                       std::size(fontPrivate.standard_width)));
+                       arraySize(fontPrivate.standard_width)));
       stdHeightsLabel_->setText(
         genArrayString(fontPrivate.standard_height, 
-                       std::size(fontPrivate.standard_height)));
+                       arraySize(fontPrivate.standard_height)));
       snapWidthsLabel_->setText(
         genArrayString(fontPrivate.snap_widths, fontPrivate.num_snap_widths));
       snapHeightsLabel_->setText(
         genArrayString(fontPrivate.snap_heights, fontPrivate.num_snap_heights));
       minFeatureLabel_->setText(
         genArrayString(fontPrivate.min_feature,
-                       std::size(fontPrivate.min_feature)));
+                       arraySize(fontPrivate.min_feature)));
 
       blueScaleLabel_->setText(
         QString::number(fontPrivate.blue_scale / 65536.0 / 1000.0, 'f', 6));
