@@ -161,6 +161,7 @@ public:
   std::vector<SFNTName>& currentFontSFNTNames() { return curSFNTNames_; }
   MMGXState currentFontMMGXState() { return curMMGXState_; }
   std::vector<MMGXAxisInfo>& currentFontMMGXAxes() { return curMMGXAxes_; }
+  std::vector<SFNTTableInfo>& currentFontSFNTTableInfo();
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
@@ -233,6 +234,9 @@ private:
   std::vector<CharMapInfo> curCharMaps_;
   std::vector<PaletteInfo> curPaletteInfos_;
   std::vector<MMGXAxisInfo> curMMGXAxes_;
+
+  bool curSFNTTablesValid_ = false;
+  std::vector<SFNTTableInfo> curSFNTTables_;
   MMGXState curMMGXState_ = MMGXState::NoMMGX;
 
   FT_Library library_;

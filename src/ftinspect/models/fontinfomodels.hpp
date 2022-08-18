@@ -128,6 +128,43 @@ private:
 };
 
 
+class SFNTTableInfoModel
+: public QAbstractTableModel
+{
+  Q_OBJECT
+public:
+  explicit SFNTTableInfoModel(QObject* parent) : QAbstractTableModel(parent) {}
+  ~SFNTTableInfoModel() override = default;
+
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
+  QVariant data(const QModelIndex& index,
+                int role) const override;
+  QVariant headerData(int section,
+                      Qt::Orientation orientation,
+                      int role) const override;
+
+  // Same to `FixedSizeInfoModel`
+  void beginModelUpdate() { beginResetModel(); }
+  void endModelUpdate() { endResetModel(); }
+  std::vector<SFNTTableInfo>& storage() { return storage_; }
+
+  enum Columns : int
+  {
+    STIM_Tag = 0,
+    STIM_Offset,
+    STIM_Length,
+    STIM_Valid,
+    STIM_SharedFaces,
+    STIM_Max
+  };
+
+private:
+  // Don't let the item count exceed INT_MAX!
+  std::vector<SFNTTableInfo> storage_;
+};
+
+
 class MMGXAxisInfoModel
 : public QAbstractTableModel
 {

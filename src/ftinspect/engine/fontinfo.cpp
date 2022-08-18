@@ -6,7 +6,9 @@
 
 #include "engine.hpp"
 
+#include <map>
 #include <unordered_map>
+#include <memory>
 #include <utility>
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QTextCodec>
@@ -17,11 +19,18 @@
 #include <freetype/ftmodapi.h>
 #include <freetype/ttnameid.h>
 #include <freetype/tttables.h>
+#include <freetype/tttags.h>
+
+#ifdef _MSC_VER // To use intrin
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <intrin.h>
+#endif
 
 
 void
 SFNTName::get(Engine* engine,
-  std::vector<SFNTName>& list)
+              std::vector<SFNTName>& list)
 {
   auto size = engine->currentFtSize();
   if (!size || !FT_IS_SFNT(size->face))
@@ -366,6 +375,204 @@ FontFixedSize::get(Engine* engine,
   }
 
   return changed;
+}
+
+
+struct TTCHeaderRec
+{
+  uint32_t ttcTag;
+  uint16_t majorVersion;
+  uint16_t minorVersion;
+  uint32_t numFonts;
+};
+
+
+struct SFNTHeaderRec
+{
+  uint32_t formatTag;
+  uint16_t numTables;
+  // There'll be some padding, but it doesn't matter.
+};
+
+
+struct TTTableRec
+{
+  uint32_t tag;
+  uint32_t checksum;
+  uint32_t offset;
+  uint32_t length;
+};
+
+
+uint32_t
+bigEndianToNative(uint32_t n)
+{
+#ifdef _MSC_VER
+  #if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
+    return _byteswap_ulong(n);
+  #else
+    return n;
+  #endif
+#else
+  auto np = reinterpret_cast<unsigned char*>(&n);
+
+  return (static_cast<uint32_t>(np[0]) << 24)
+         | (static_cast<uint32_t>(np[1]) << 16)
+         | (static_cast<uint32_t>(np[2]) << 8)
+         | (static_cast<uint32_t>(np[3]));
+#endif
+}
+
+
+uint16_t
+bigEndianToNative(uint16_t n)
+{
+#ifdef _MSC_VER
+#if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
+  return _byteswap_ushort(n);
+#else
+  return n;
+#endif
+#else
+  auto np = reinterpret_cast<unsigned char*>(&n);
+
+  return static_cast<uint16_t>((static_cast<uint16_t>(np[0]) << 8)
+                               | (static_cast<uint16_t>(np[1])));
+#endif
+}
+
+
+void readSingleFace(QFile& file,
+                    uint32_t offset,
+                    unsigned faceIndex,
+                    std::vector<TTTableRec>& tempTables,
+                    std::map<unsigned long, SFNTTableInfo>& result)
+{
+  if (!file.seek(offset))
+    return;
+
+  SFNTHeaderRec sfntHeader = {};
+  if (file.read(reinterpret_cast<char*>(&sfntHeader), 
+                sizeof(SFNTHeaderRec))
+      != sizeof(SFNTHeaderRec))
+    return;
+  sfntHeader.formatTag = bigEndianToNative(sfntHeader.formatTag);
+  sfntHeader.numTables = bigEndianToNative(sfntHeader.numTables);
+
+  unsigned short validEntries = sfntHeader.numTables;
+  
+  if (sfntHeader.formatTag != TTAG_OTTO)
+  {
+    // TODO check SFNT Header
+    //checkSFNTHeader();
+  }
+
+  if (!file.seek(offset + 12))
+    return;
+
+  tempTables.resize(validEntries);
+  auto desiredLen = static_cast<long long>(validEntries * sizeof(TTTableRec));
+  auto readLen = file.read(reinterpret_cast<char*>(tempTables.data()), desiredLen);
+  if (readLen != desiredLen)
+    return;
+
+  for (auto& t : tempTables)
+  {
+    t.tag = bigEndianToNative(t.tag);
+    t.offset = bigEndianToNative(t.offset);
+    t.checksum = bigEndianToNative(t.checksum);
+    t.length = bigEndianToNative(t.length);
+
+    auto it = result.find(t.offset);
+    if (it == result.end())
+    {
+      auto emplaced = result.emplace(t.offset, SFNTTableInfo());
+      it = emplaced.first;
+
+      auto& info = it->second;
+      info.tag = t.tag;
+      info.length = t.length;
+      info.offset = t.offset;
+      info.sharedFaces.emplace(faceIndex);
+      info.valid = true;
+    }
+    else
+    {
+      it->second.sharedFaces.emplace(faceIndex);
+      // TODO check
+    }
+  }
+}
+
+
+void
+SFNTTableInfo::getForAll(Engine* engine,
+                         std::vector<SFNTTableInfo>& infos)
+{
+  infos.clear();
+  auto size = engine->currentFtSize();
+  if (!size || !FT_IS_SFNT(size->face))
+    return;
+
+  auto index = engine->currentFontIndex();
+  auto& mgr = engine->fontFileManager();
+  if (index < 0 || index >= mgr.size())
+    return;
+
+  auto& fileInfo = mgr[index];
+  QFile file(fileInfo.filePath());
+  if (!file.open(QIODevice::ReadOnly))
+    return;
+
+  auto fileSize = file.size();
+  if (fileSize < 12)
+    return;
+
+  std::vector<TTTableRec> tables;
+  std::map<unsigned long, SFNTTableInfo> result;
+
+  TTCHeaderRec ttcHeader = {};
+  auto readLen = file.read(reinterpret_cast<char*>(&ttcHeader),
+                           sizeof(TTCHeaderRec));
+
+  if (readLen != sizeof(TTCHeaderRec))
+    return;
+
+  ttcHeader.ttcTag = bigEndianToNative(ttcHeader.ttcTag);
+  ttcHeader.majorVersion = bigEndianToNative(ttcHeader.majorVersion);
+  ttcHeader.minorVersion = bigEndianToNative(ttcHeader.minorVersion);
+  ttcHeader.numFonts = bigEndianToNative(ttcHeader.numFonts);
+
+  if (ttcHeader.ttcTag == TTAG_ttcf
+      && (ttcHeader.majorVersion == 2 || ttcHeader.majorVersion == 1))
+  {
+    // Valid TTC file
+    std::unique_ptr<unsigned> offsets(new unsigned[ttcHeader.numFonts]);
+    auto desiredLen = static_cast<long long>(ttcHeader.numFonts
+                                             * sizeof(unsigned));
+    readLen = file.read(reinterpret_cast<char*>(offsets.get()), desiredLen);
+    if (readLen != desiredLen)
+      return;
+    
+    for (unsigned faceIndex = 0; 
+        faceIndex < ttcHeader.numFonts; 
+        faceIndex++)
+    {
+      auto offset = bigEndianToNative(offsets.get()[faceIndex]);
+      readSingleFace(file, offset, faceIndex, tables, result);
+    }
+  }
+  else
+  {
+    // Not TTC file, try single SFNT
+    if (!file.seek(0))
+      return;
+    readSingleFace(file, 0, 0, tables, result);
+  }
+
+  infos.reserve(result.size());
+  for (auto& pr : result)
+    infos.emplace_back(std::move(pr.second));
 }
 
 

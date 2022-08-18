@@ -282,6 +282,7 @@ Engine::loadFont(int fontIndex,
   fontType_ = FontType_Other;
 
   update();
+  curSFNTTablesValid_ = false;
 
   curFontIndex_ = fontIndex;
   auto id = FaceID(fontIndex, faceIndex, namedInstanceIndex);
@@ -488,6 +489,19 @@ Engine::currentFontPSPrivateInfo(PS_PrivateRec& outInfo)
   if (FT_Get_PS_Font_Private(ftSize_->face, &outInfo) == FT_Err_Ok)
     return true;
   return false;
+}
+
+
+std::vector<SFNTTableInfo>&
+Engine::currentFontSFNTTableInfo()
+{
+  if (!curSFNTTablesValid_)
+  {
+    SFNTTableInfo::getForAll(this, curSFNTTables_);
+    curSFNTTablesValid_ = true;
+  }
+
+  return curSFNTTables_;
 }
 
 

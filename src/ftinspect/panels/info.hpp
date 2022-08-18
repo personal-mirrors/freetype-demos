@@ -172,6 +172,7 @@ private:
   QTableView* sfntTablesTable_;
 
   SFNTNameModel* sfntNamesModel_;
+  SFNTTableInfoModel* sfntTablesModel_;
 
   QHBoxLayout* sfntNamesLayout_;
   QHBoxLayout* sfntTablesLayout_;

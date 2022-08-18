@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <set>
 #include <QDateTime>
 #include <QByteArray>
 #include <QString>
@@ -12,6 +13,38 @@
 #include <freetype/t1tables.h>
 
 class Engine;
+
+struct SFNTTableInfo
+{
+  unsigned long tag = 0;
+  unsigned long offset = 0;
+  unsigned long length = 0;
+  bool valid = false;
+  std::set<unsigned long> sharedFaces;
+
+  static void getForAll(Engine* engine, std::vector<SFNTTableInfo>& infos);
+
+
+  friend bool
+  operator==(const SFNTTableInfo& lhs,
+             const SFNTTableInfo& rhs)
+  {
+    return lhs.tag == rhs.tag
+      && lhs.offset == rhs.offset
+      && lhs.length == rhs.length
+      && lhs.valid == rhs.valid
+      && lhs.sharedFaces == rhs.sharedFaces;
+  }
+
+
+  friend bool
+  operator!=(const SFNTTableInfo& lhs,
+             const SFNTTableInfo& rhs)
+  {
+    return !(lhs == rhs);
+  }
+};
+
 
 struct SFNTName
 {

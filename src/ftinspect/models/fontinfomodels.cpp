@@ -270,6 +270,113 @@ SFNTNameModel::headerData(int section,
 }
 
 
+QString
+tagToString(unsigned long tag)
+{
+  QString str(4, '0');
+  str[0] = static_cast<char>(tag >> 24);
+  str[1] = static_cast<char>(tag >> 16);
+  str[2] = static_cast<char>(tag >> 8);
+  str[3] = static_cast<char>(tag);
+  return str;
+}
+
+
+int
+SFNTTableInfoModel::rowCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+    return 0;
+  return static_cast<int>(storage_.size());
+}
+
+
+int
+SFNTTableInfoModel::columnCount(const QModelIndex& parent) const
+{
+  if (parent.isValid())
+    return 0;
+  return STIM_Max;
+}
+
+
+QVariant
+SFNTTableInfoModel::data(const QModelIndex& index,
+                         int role) const
+{
+  if (index.row() < 0 || index.column() < 0)
+    return {};
+  auto r = static_cast<size_t>(index.row());
+  if (role != Qt::DisplayRole || r > storage_.size())
+    return {};
+
+  auto& obj = storage_[r];
+  switch (static_cast<Columns>(index.column()))
+  {
+  case STIM_Tag:
+    return tagToString(obj.tag);
+  case STIM_Offset:
+    return static_cast<unsigned long long>(obj.offset);
+  case STIM_Length:
+    return static_cast<unsigned long long>(obj.length);
+  case STIM_Valid:
+    return obj.valid;
+  case STIM_SharedFaces:
+    if (obj.sharedFaces.empty())
+      return "[]";
+  {
+    auto result = QString('[') + QString::number(*obj.sharedFaces.begin());
+    for (auto it = std::next(obj.sharedFaces.begin());
+         it != obj.sharedFaces.end();
+         ++it)
+    {
+      auto xStr = QString::number(*it);
+      result.reserve(result.length() + xStr.length() + 2);
+      result += ", ";
+      result += xStr;
+    }
+    result += ']';
+    return result;
+  }
+  default:
+    break;
+  }
+
+  return {};
+}
+
+
+QVariant
+SFNTTableInfoModel::headerData(int section,
+                               Qt::Orientation orientation,
+                               int role) const
+{
+  if (role != Qt::DisplayRole)
+    return {};
+  if (orientation == Qt::Vertical)
+    return section;
+  if (orientation != Qt::Horizontal)
+    return {};
+
+  switch (static_cast<Columns>(section))
+  {
+  case STIM_Tag:
+    return "Tag";
+  case STIM_Offset:
+    return "Offset";
+  case STIM_Length:
+    return "Length";
+  case STIM_Valid:
+    return "Valid";
+  case STIM_SharedFaces:
+    return "Subfont Indices";
+  default:;
+  }
+
+  return {};
+}
+
+
 int
 MMGXAxisInfoModel::rowCount(const QModelIndex& parent) const
 {
@@ -302,11 +409,7 @@ MMGXAxisInfoModel::data(const QModelIndex& index,
   switch (static_cast<Columns>(index.column()))
   {
   case MAIM_Tag:
-  {
-    auto str = QString::fromUtf8(reinterpret_cast<const char*>(&obj.tag), 4);
-    std::reverse(str.begin(), str.end());
-    return str;
-  }
+    return tagToString(obj.tag);
   case MAIM_Minimum:
     return obj.minimum;
   case MAIM_Default:

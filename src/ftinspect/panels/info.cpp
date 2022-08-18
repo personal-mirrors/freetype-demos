@@ -424,6 +424,13 @@ SFNTInfoTab::reloadFont()
     sfntNamesModel_->storage() = engine_->currentFontSFNTNames();
     sfntNamesModel_->endModelUpdate();
   }
+
+  if (engine_->currentFontSFNTTableInfo() != sfntTablesModel_->storage())
+  {
+    sfntTablesModel_->beginModelUpdate();
+    sfntTablesModel_->storage() = engine_->currentFontSFNTTableInfo();
+    sfntTablesModel_->endModelUpdate();
+  }
 }
 
 
@@ -444,10 +451,13 @@ SFNTInfoTab::createLayout()
   header->setSectionResizeMode(QHeaderView::Fixed);
   sfntNamesTable_->horizontalHeader()->setStretchLastSection(true);
 
+  sfntTablesModel_ = new SFNTTableInfoModel(this);
+  sfntTablesTable_->setModel(sfntTablesModel_);
   header = sfntTablesTable_->verticalHeader();
   // This will force the minimal size to be used
   header->setDefaultSectionSize(0);
   header->setSectionResizeMode(QHeaderView::Fixed);
+  sfntTablesTable_->horizontalHeader()->setStretchLastSection(true);
 
   sfntNamesLayout_ = new QHBoxLayout;
   sfntTablesLayout_ = new QHBoxLayout;
