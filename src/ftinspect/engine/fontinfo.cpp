@@ -32,14 +32,13 @@ void
 SFNTName::get(Engine* engine,
               std::vector<SFNTName>& list)
 {
-  auto size = engine->currentFtSize();
-  if (!size || !FT_IS_SFNT(size->face))
+  auto face = engine->currentFallbackFtFace();
+  if (!face || !FT_IS_SFNT(face))
   {
     list.clear();
     return;
   }
-
-  auto face = size->face;
+  
   auto newSize = FT_Get_Sfnt_Name_Count(face);
   if (list.size() != static_cast<size_t>(newSize))
     list.resize(newSize);
@@ -184,11 +183,10 @@ FontBasicInfo::get(Engine* engine)
   result.numFaces = engine->numberOfFaces(fontIndex);
 
   engine->reloadFont();
-  auto size = engine->currentFtSize();
-  if (!size)
+  auto face = engine->currentFallbackFtFace();
+  if (!face)
     return result;
 
-  auto face = size->face;
   if (face->family_name)
     result.familyName = QString(face->family_name);
   if (face->style_name)
@@ -228,12 +226,10 @@ FontTypeEntries
 FontTypeEntries::get(Engine* engine)
 {
   engine->reloadFont();
-  auto size = engine->currentFtSize();
-  if (!size)
+  auto face = engine->currentFallbackFtFace();
+  if (!face)
     return {};
-
-  auto face = size->face;
-
+  
   FontTypeEntries result = {};
   result.driverName = QString(FT_FACE_DRIVER_NAME(face));
   result.sfnt = FT_IS_SFNT(face);
@@ -332,8 +328,8 @@ FontFixedSize::get(Engine* engine,
                    const std::function<void()>& onUpdateNeeded)
 {
   engine->reloadFont();
-  auto size = engine->currentFtSize();
-  if (!size)
+  auto face = engine->currentFallbackFtFace();
+  if (!face)
   {
     if (list.empty())
       return false;
@@ -342,8 +338,7 @@ FontFixedSize::get(Engine* engine,
     list.clear();
     return true;
   }
-
-  auto face = size->face;
+  
   auto changed = false;
   if (list.size() != static_cast<size_t>(face->num_fixed_sizes))
   {
@@ -510,8 +505,8 @@ SFNTTableInfo::getForAll(Engine* engine,
                          std::vector<SFNTTableInfo>& infos)
 {
   infos.clear();
-  auto size = engine->currentFtSize();
-  if (!size || !FT_IS_SFNT(size->face))
+  auto face = engine->currentFallbackFtFace();
+  if (!face || !FT_IS_SFNT(face))
     return;
 
   auto index = engine->currentFontIndex();

@@ -252,27 +252,30 @@ GlyphContinuous::paintByRenderer()
 void
 GlyphContinuous::transformGlyphFancy(FT_Glyph glyph)
 {
+  auto& metrics = engine_->currentFontMetrics();
+  auto emboldeningX = (FT_Pos)(metrics.y_ppem * 64 * boldX_);
+  auto emboldeningY = (FT_Pos)(metrics.y_ppem * 64 * boldY_);
   // adopted from ftview.c:289
   if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
   {
     auto outline = reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
     FT_Glyph_Transform(glyph, &shearMatrix_, NULL);
-    if (FT_Outline_EmboldenXY(&outline, emboldeningX_, emboldeningY_))
+    if (FT_Outline_EmboldenXY(&outline, emboldeningX, emboldeningY))
     {
       // XXX error handling?
       return;
     }
 
     if (glyph->advance.x)
-      glyph->advance.x += emboldeningX_;
+      glyph->advance.x += emboldeningX;
 
     if (glyph->advance.y)
-      glyph->advance.y += emboldeningY_;
+      glyph->advance.y += emboldeningY;
   }
   else if (glyph->format == FT_GLYPH_FORMAT_BITMAP)
   {
-    auto xstr = emboldeningX_ & ~63;
-    auto ystr = emboldeningY_ & ~63;
+    auto xstr = emboldeningX & ~63;
+    auto ystr = emboldeningY & ~63;
 
     auto bitmap = &reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
     // No shearing support for bitmap
@@ -326,13 +329,6 @@ void
 GlyphContinuous::prePaint()
 {
   displayingCount_ = 0;
-  engine_->reloadFont();
-  if (engine_->currentFontNumberOfGlyphs() > 0)
-    metrics_ = engine_->currentFontMetrics();
-  x_ = 0;
-  // See ftview.c:42
-  y_ = ((metrics_.ascender - metrics_.descender + 63) >> 6) + 4;
-  stepY_ = ((metrics_.height + 63) >> 6) + 4;
 
   // Used by fancy:
   // adopted from ftview.c:289
@@ -355,18 +351,22 @@ GlyphContinuous::prePaint()
   shearMatrix_.xy = static_cast<FT_Fixed>(slant_ * (1 << 16));
   shearMatrix_.yx = 0;
   shearMatrix_.yy = 1 << 16;
+}
 
-  emboldeningX_ = (FT_Pos)(metrics_.y_ppem * 64 * boldX_);
-  emboldeningY_ = (FT_Pos)(metrics_.y_ppem * 64 * boldY_);
 
-  if (mode_ == M_Stroked)
-  {
-    auto radius = static_cast<FT_Fixed>(metrics_.y_ppem * 64 * strokeRadius_);
-    FT_Stroker_Set(stroker_, radius,
-                   FT_STROKER_LINECAP_ROUND,
-                   FT_STROKER_LINEJOIN_ROUND,
-                   0);
-  }
+void
+GlyphContinuous::updateStroke()
+{
+  if (mode_ != M_Stroked || !engine_->renderReady())
+    return;
+
+  auto& metrics = engine_->currentFontMetrics();
+  auto radius = static_cast<FT_Fixed>(metrics.y_ppem * 64 * strokeRadius_);
+  strokeRadiusForSize_ = radius;
+  FT_Stroker_Set(stroker_, radius,
+                 FT_STROKER_LINECAP_ROUND,
+                 FT_STROKER_LINEJOIN_ROUND,
+                 0);
 }
 
 
@@ -452,6 +452,7 @@ GlyphContinuous::saveSingleGlyphImage(QImage* image,
   entry.glyphIndex = gctx.glyphIndex;
   entry.advance = advance;
   entry.penPos = penPosPoint;
+  entry.yPpem = engine_->currentFontMetrics().y_ppem;
 }
 
 
@@ -486,7 +487,7 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
   // ftview.c:557
   // Well, metrics is also part of the cache...
   int width = entry.advance.x ? entry.advance.x >> 16
-                              : metrics_.y_ppem / 2;
+                              : entry.yPpem / 2;
 
   if (entry.advance.x == 0 && !stringRenderer_.isWaterfall())
   {

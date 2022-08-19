@@ -150,6 +150,8 @@ void
 StringRenderer::prepareRendering()
 {
   engine_->reloadFont();
+  if (!engine_->renderReady())
+    return;
   engine_->loadPalette();
   if (kerningDegree_ != KD_None)
     trackingKerning_ = engine_->currentFontTrackingKerning(kerningDegree_);
@@ -346,11 +348,13 @@ StringRenderer::render(int width,
                        int height,
                        int offset)
 {
+  engine_->reloadFont();
+
   if (usingString_)
     offset = 0;
   if (!usingString_ && limitIndex_ <= 0)
     return 0;
-  if (engine_->currentFontNumberOfGlyphs() <= 0)
+  if (!engine_->fontValid())
     return 0;
 
   // Separated into 3 modes:
@@ -379,6 +383,8 @@ StringRenderer::render(int width,
       // 64.0 is somewhat a magic reference number
       engine_->setSizeByPoint(64.0);
       engine_->reloadFont();
+      if (!engine_->renderReady())
+        return -1; // TODO: Handle bitmap-only fonts
       auto pixelActual = engine_->currentFontMetrics().height >> 6;
 
       auto heightPt = height * 64.0 / pixelActual;
@@ -441,6 +447,8 @@ StringRenderer::render(int width,
     // Fill the whole canvas
 
     prepareRendering();
+    if (!engine_->renderReady())
+      return 0;
     auto& metrics = engine_->currentFontMetrics();
     auto y = 4 + static_cast<int>(metrics.ascender >> 6);
     auto stepY = static_cast<int>(metrics.height >> 6) + 1;
@@ -459,6 +467,9 @@ StringRenderer::render(int width,
 
   // Single string
   prepareRendering();
+  if (!engine_->renderReady())
+    return 0;
+
   auto& metrics = engine_->currentFontMetrics();
   auto x = static_cast<int>(width * position_);
   // Anchor at top-left in vertical mode, at the center in horizontal mode

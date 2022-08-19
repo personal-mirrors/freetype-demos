@@ -131,9 +131,12 @@ public:
   int dpi() { return dpi_; }
   double pointSize() { return pointSize_; }
 
+  bool renderReady();
+  bool fontValid();
   int numberOfOpenedFonts();
   int currentFontIndex() { return curFontIndex_; }
-  FT_Size currentFtSize() { return ftSize_; }
+  FT_Face currentFallbackFtFace() { return ftFallbackFace_; }
+  // FT_Size currentFtSize() { return ftSize_; }
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
@@ -247,6 +250,7 @@ private:
 
   FTC_ScalerRec scaler_ = {};
   FTC_ImageTypeRec imageType_;
+  FT_Face ftFallbackFace_; // Never perform rendering or write to this!
   FT_Size ftSize_;
   FT_Palette_Data paletteData_ = {};
   FT_Color* palette_ = NULL;

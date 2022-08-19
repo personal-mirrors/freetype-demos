@@ -26,6 +26,7 @@ struct GlyphCacheEntry
   QPoint penPos = {};
   int charCode = -1;
   int glyphIndex = -1;
+  unsigned yPpem = 0;
 
   FT_Vector advance = {};
 
@@ -123,10 +124,7 @@ private:
 
   bool mouseOperationEnabled_ = true;
   int displayingCount_ = 0;
-  FT_Size_Metrics metrics_;
-  int x_ = 0, y_ = 0;
-  int stepY_ = 0;
-  FT_Pos emboldeningX_, emboldeningY_;
+  FT_Fixed strokeRadiusForSize_ = 0;
   FT_Matrix shearMatrix_;
 
   FT_Stroker stroker_;
@@ -152,6 +150,7 @@ private:
   void paintCache(QPainter* painter);
   void fillCache();
   void prePaint();
+  void updateStroke();
   void updateRendererText();
   void preprocessGlyph(FT_Glyph* glyphPtr);
   void beginSaveLine(FT_Vector pos,

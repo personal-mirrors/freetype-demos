@@ -124,6 +124,7 @@ faceRequester(FTC_FaceID ftcFaceID,
 Engine::Engine()
 {
   ftSize_ = NULL;
+  ftFallbackFace_ = NULL;
   // we reserve value 0 for the `invalid face ID'
   faceCounter_ = 1;
 
@@ -292,8 +293,18 @@ Engine::loadFont(int fontIndex,
   if (scaler_.face_id)
   {
     // found
-    if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
-      numGlyphs = ftSize_->face->num_glyphs;
+    if (!FTC_Manager_LookupFace(cacheManager_, scaler_.face_id,
+                               &ftFallbackFace_))
+    {
+      numGlyphs = ftFallbackFace_->num_glyphs;
+      if (FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+        ftSize_ = NULL; // Good font, bad size.
+    }
+    else
+    {
+      ftFallbackFace_ = NULL;
+      ftSize_ = NULL;
+    }
   }
   else if (fontIndex >= 0)
   {
@@ -305,12 +316,19 @@ Engine::loadFont(int fontIndex,
     scaler_.face_id = reinterpret_cast<FTC_FaceID>(faceCounter_);
     faceIDMap_.insert(id, faceCounter_++);
 
-    if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
-      numGlyphs = ftSize_->face->num_glyphs;
+    if (!FTC_Manager_LookupFace(cacheManager_, scaler_.face_id,
+                                &ftFallbackFace_))
+    {
+      numGlyphs = ftFallbackFace_->num_glyphs;
+      if (FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+        ftSize_ = NULL; // Good font, bad size.
+    }
     else
     {
       faceIDMap_.remove(id);
       faceCounter_--;
+      ftFallbackFace_ = NULL;
+      ftSize_ = NULL;
     }
   }
 
@@ -318,6 +336,7 @@ Engine::loadFont(int fontIndex,
 
   if (numGlyphs < 0)
   {
+    ftFallbackFace_ = NULL;
     ftSize_ = NULL;
     curFamilyName_ = QString();
     curStyleName_ = QString();
@@ -328,11 +347,10 @@ Engine::loadFont(int fontIndex,
   }
   else
   {
-    auto face = ftSize_->face;
-    curFamilyName_ = QString(face->family_name);
-    curStyleName_ = QString(face->style_name);
+    curFamilyName_ = QString(ftFallbackFace_->family_name);
+    curStyleName_ = QString(ftFallbackFace_->style_name);
 
-    const char* moduleName = FT_FACE_DRIVER_NAME( face );
+    const char* moduleName = FT_FACE_DRIVER_NAME(ftFallbackFace_);
 
     // XXX cover all available modules
     if (!strcmp(moduleName, "cff"))
@@ -341,9 +359,9 @@ Engine::loadFont(int fontIndex,
       fontType_ = FontType_TrueType;
 
     curCharMaps_.clear();
-    curCharMaps_.reserve(face->num_charmaps);
-    for (int i = 0; i < face->num_charmaps; i++)
-      curCharMaps_.emplace_back(i, face->charmaps[i]);
+    curCharMaps_.reserve(ftFallbackFace_->num_charmaps);
+    for (int i = 0; i < ftFallbackFace_->num_charmaps; i++)
+      curCharMaps_.emplace_back(i, ftFallbackFace_->charmaps[i]);
 
     SFNTName::get(this, curSFNTNames_);
     loadPaletteInfos();
@@ -362,6 +380,7 @@ Engine::reloadFont()
   if (!scaler_.face_id)
     return;
   imageType_.face_id = scaler_.face_id;
+  FTC_Manager_LookupFace(cacheManager_, scaler_.face_id, &ftFallbackFace_);
   FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_);
 }
 
@@ -373,6 +392,9 @@ Engine::loadPalette()
   if (paletteData_.num_palettes == 0
       || paletteIndex_ < 0
       || paletteData_.num_palettes <= paletteIndex_)
+    return;
+
+  if (!ftSize_)
     return;
 
   FT_Palette_Select(ftSize_->face, 
@@ -436,6 +458,9 @@ Engine::currentFaceSlot()
 FT_Pos
 Engine::currentFontTrackingKerning(int degree)
 {
+  if (!ftSize_)
+    return 0;
+
   FT_Pos result;
   // this function needs and returns points, not pixels
   if (!FT_Get_Track_Kerning(ftSize_->face,
@@ -513,16 +538,14 @@ Engine::glyphName(int index)
   if (index < 0)
     throw std::runtime_error("Invalid glyph index");
 
-  if (!ftSize_)
-    return "";
-  
-  if (!FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+  FT_Face face = NULL;
+  if (FTC_Manager_LookupFace(cacheManager_, scaler_.face_id, &face))
     return name;
 
-  if (ftSize_ && FT_HAS_GLYPH_NAMES(ftSize_->face))
+  if (face && FT_HAS_GLYPH_NAMES(face))
   {
     char buffer[256];
-    if (!FT_Get_Glyph_Name(ftSize_->face,
+    if (!FT_Get_Glyph_Name(face,
                            static_cast<unsigned int>(index),
                            buffer,
                            sizeof(buffer)))
@@ -649,6 +672,20 @@ Engine::convertBitmapTo8Bpp(FT_Bitmap* bitmap)
 }
 
 
+bool
+Engine::renderReady()
+{
+  return ftSize_ != NULL;
+}
+
+
+bool
+Engine::fontValid()
+{
+  return ftFallbackFace_ != NULL;
+}
+
+
 int
 Engine::numberOfOpenedFonts()
 {
@@ -709,6 +746,7 @@ Engine::setCFFHintingMode(int mode)
   {
     // reset the cache
     FTC_Manager_Reset(cacheManager_);
+    ftFallbackFace_ = NULL;
     ftSize_ = NULL;
   }
 }
@@ -725,6 +763,7 @@ Engine::setTTInterpreterVersion(int version)
   {
     // reset the cache
     FTC_Manager_Reset(cacheManager_);
+    ftFallbackFace_ = NULL;
     ftSize_ = NULL;
   }
 }
@@ -753,6 +792,7 @@ Engine::setStemDarkening(bool darkening)
                   &noDarkening);
   // reset the cache
   FTC_Manager_Reset(cacheManager_);
+  ftFallbackFace_ = NULL;
   ftSize_ = NULL;
 }
 
@@ -931,7 +971,7 @@ Engine::loadPaletteInfos()
 {
   curPaletteInfos_.clear();
 
-  if (FT_Palette_Data_Get(ftSize_->face, &paletteData_))
+  if (FT_Palette_Data_Get(ftFallbackFace_, &paletteData_))
   {
     // XXX Error handling
     paletteData_.num_palettes = 0;
@@ -941,7 +981,7 @@ Engine::loadPaletteInfos()
   // size never exceeds max val of ushort.
   curPaletteInfos_.reserve(paletteData_.num_palettes);
   for (int i = 0; i < paletteData_.num_palettes; ++i)
-    curPaletteInfos_.emplace_back(ftSize_->face, paletteData_, i,
+    curPaletteInfos_.emplace_back(ftFallbackFace_, paletteData_, i,
                                   &curSFNTNames_);
 }
 

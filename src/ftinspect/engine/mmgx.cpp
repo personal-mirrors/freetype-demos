@@ -13,13 +13,12 @@ MMGXState
 MMGXAxisInfo::get(Engine* engine,
                   std::vector<MMGXAxisInfo>& infos)
 {
-  auto size = engine->currentFtSize();
-  if (!size)
+  auto face = engine->currentFallbackFtFace();
+  if (!face)
   {
     infos.clear();
     return MMGXState::NoMMGX;
   }
-  auto face = size->face;
 
   if (!FT_HAS_MULTIPLE_MASTERS(face))
   {

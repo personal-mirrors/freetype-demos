@@ -436,8 +436,9 @@ TripletSelector::loadTriplet()
   }
 
   auto number = engine_->loadFont(fontIndex, faceIndex, instanceIndex);
-
-  if (number < 0)
+  
+  // TODO: This may messes up with bitmap-only fonts.
+  if (!engine_->fontValid())
   {
     // there might be various reasons why the current
     // (file, face, instance) triplet is invalid or missing;

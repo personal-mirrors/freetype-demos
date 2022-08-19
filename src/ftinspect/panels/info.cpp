@@ -414,8 +414,8 @@ void
 SFNTInfoTab::reloadFont()
 {
   engine_->reloadFont();
-  auto size = engine_->currentFtSize();
-  if (!size || !FT_IS_SFNT(size->face))
+  auto face = engine_->currentFallbackFtFace();
+  if (!face || !FT_IS_SFNT(face))
     setEnabled(false);
 
   if (engine_->currentFontSFNTNames() != sfntNamesModel_->storage())
