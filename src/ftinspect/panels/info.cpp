@@ -296,6 +296,13 @@ GeneralInfoTab::createLayout()
   header->setDefaultSectionSize(0);
   header->setSectionResizeMode(QHeaderView::Fixed);
 
+  leftWidget_ = new QWidget(this);
+  leftScrollArea_ = new UnboundScrollArea(this);
+  leftScrollArea_->setWidgetResizable(true);
+  leftScrollArea_->setWidget(leftWidget_);
+  leftScrollArea_->setStyleSheet("QScrollArea {background-color:transparent;}");
+  leftWidget_->setStyleSheet("background-color:transparent;");
+
   basicLayout_       = new QGridLayout;
   typeEntriesLayout_ = new QGridLayout;
   charMapLayout_     = new QHBoxLayout;
@@ -351,10 +358,12 @@ GeneralInfoTab::createLayout()
                                              QSizePolicy::Preferred, 
                                              QSizePolicy::Expanding));
 
+  leftWidget_->setLayout(leftLayout_);
+
   rightLayout_->addWidget(charMapGroupBox_);
   rightLayout_->addWidget(fixedSizesGroupBox_);
 
-  mainLayout_->addLayout(leftLayout_);
+  mainLayout_->addWidget(leftScrollArea_);
   mainLayout_->addLayout(rightLayout_);
   setLayout(mainLayout_);
 }
@@ -748,8 +757,27 @@ PostScriptInfoTab::createLayout()
   infoGroupBox_ = new QGroupBox(tr("PostScript /FontInfo dictionary"), this);
   privateGroupBox_ = new QGroupBox(tr("PostScript /Private dictionary"), this);
 
+  infoWidget_ = new QWidget(this);
+  privateWidget_ = new QWidget(this);
+
+  infoScrollArea_ = new UnboundScrollArea(this);
+  infoScrollArea_->setWidget(infoWidget_);
+  infoScrollArea_->setWidgetResizable(true);
+  infoScrollArea_->setStyleSheet("QScrollArea {background-color:transparent;}");
+  infoWidget_->setStyleSheet("background-color:transparent;");
+  infoWidget_->setContentsMargins(0, 0, 0, 0);
+
+  privateScrollArea_ = new UnboundScrollArea(this);
+  privateScrollArea_->setWidget(privateWidget_);
+  privateScrollArea_->setWidgetResizable(true);
+  privateScrollArea_->setStyleSheet("QScrollArea {background-color:transparent;}");
+  privateWidget_->setStyleSheet("background-color:transparent;");
+  privateWidget_->setContentsMargins(0, 0, 0, 0);
+
   infoLayout_ = new QGridLayout;
   privateLayout_ = new QGridLayout;
+  infoGroupBoxLayout_ = new QHBoxLayout;
+  privateGroupBoxLayout_ = new QHBoxLayout;
 
 #define PSI2Row(w) GL2CRow(infoLayout_, w)
 #define PSP2Row(w) GL2CRow(privateLayout_, w)
@@ -796,10 +824,15 @@ PostScriptInfoTab::createLayout()
      infoLayout_->setColumnStretch(1, 1);
   privateLayout_->setColumnStretch(1, 1);
 
-  infoGroupBox_->setLayout(infoLayout_);
-  privateGroupBox_->setLayout(privateLayout_);
+  infoWidget_->setLayout(infoLayout_);
+  privateWidget_->setLayout(privateLayout_);
   infoGroupBox_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
   privateGroupBox_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+
+  infoGroupBoxLayout_->addWidget(infoScrollArea_);
+  privateGroupBoxLayout_->addWidget(privateScrollArea_);
+  infoGroupBox_->setLayout(infoGroupBoxLayout_);
+  privateGroupBox_->setLayout(privateGroupBoxLayout_);
 
   mainLayout_ = new QHBoxLayout;
   mainLayout_->addWidget(infoGroupBox_);

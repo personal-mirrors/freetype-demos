@@ -56,4 +56,16 @@ public:
 };
 
 
+// https://bugreports.qt.io/browse/QTBUG-10459
+// https://phabricator.kde.org/D14692
+class UnboundScrollArea : public QScrollArea
+{
+  Q_OBJECT
+
+public:
+  UnboundScrollArea(QWidget* parent);
+  QSize sizeHint() const override;
+};
+
+
 // end of custom_widgets.hpp

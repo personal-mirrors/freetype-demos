@@ -7,6 +7,7 @@
 #include "abstracttab.hpp"
 #include "../engine/fontinfo.hpp"
 #include "../models/fontinfomodels.hpp"
+#include "../widgets/customwidgets.hpp"
 
 #include <vector>
 #include <QWidget>
@@ -111,6 +112,9 @@ private:
   FixedSizeInfoModel* fixedSizeInfoModel_;
   CharMapInfoModel* charMapInfoModel_;
 
+  UnboundScrollArea* leftScrollArea_;
+
+  QWidget* leftWidget_;
   QHBoxLayout* mainLayout_;
   QVBoxLayout* leftLayout_;
   QVBoxLayout* rightLayout_;
@@ -234,8 +238,16 @@ private:
   QGroupBox* infoGroupBox_;
   QGroupBox* privateGroupBox_;
 
+  QWidget* infoWidget_;
+  QWidget* privateWidget_;
+
+  UnboundScrollArea* infoScrollArea_;
+  UnboundScrollArea* privateScrollArea_;
+
   QGridLayout* infoLayout_;
   QGridLayout* privateLayout_;
+  QHBoxLayout* infoGroupBoxLayout_;
+  QHBoxLayout* privateGroupBoxLayout_;
   QHBoxLayout* mainLayout_;
 
   PS_PrivateRec oldFontPrivate_;

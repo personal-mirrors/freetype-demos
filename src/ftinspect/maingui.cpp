@@ -165,7 +165,22 @@ void
 MainGUI::switchTab()
 {
   auto isComparator = tabWidget_->currentWidget() == comparatorTab_;
-  leftWidget_->setVisible(!isComparator);
+  if (!leftWidget_->isVisible() && !isComparator)
+  {
+    // Dirty approach here: When setting the left panel as visible, the main
+    // window will auto-expand. However, we don't want this behaviour.
+    // Doing `resize` right after the `setVisible` is useless since the
+    // layout updating is delayed, so we have to temporarily fix the main window
+    // size, and recover the original min/max size when finished.
+    auto minSize = minimumSize();
+    auto maxSize = maximumSize();
+    setFixedSize(size());
+    leftWidget_->setVisible(true);
+    setMinimumSize(minSize);
+    setMaximumSize(maxSize);
+  }
+  else
+    leftWidget_->setVisible(!isComparator);
 
   reloadCurrentTabFont();
 }
