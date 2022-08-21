@@ -122,6 +122,7 @@ public:
   void removeFont(int fontIndex, bool closeFile = true);
   
   void update();
+  void resetCache();
 
   //////// Getters
 
@@ -210,7 +211,9 @@ public:
   void setLcdFilter(FT_LcdFilter filter);
   void setCFFHintingMode(int mode);
   void setTTInterpreterVersion(int version);
+
   void setStemDarkening(bool darkening);
+  void applyMMGXDesignCoords(FT_Fixed* coords, size_t count);
 
   void setForeground(QRgb foreground);
   void setBackground(QRgb background);

@@ -111,6 +111,7 @@ SettingPanel::onFontChanged()
   }
 
   populatePalettes();
+  mmgxPanel_->reloadFont();
   blockSignals(blockState);
 }
 
@@ -364,6 +365,7 @@ SettingPanel::syncSettings()
 
   engine_->setForeground(foregroundColor_.rgba());
   engine_->setBackground(backgroundColor_.rgba());
+  mmgxPanel_->syncSettings();
 }
 
 
@@ -426,6 +428,9 @@ SettingPanel::createConnections()
     connect(foregroundButton_, &QPushButton::clicked,
             this, &SettingPanel::openForegroundPicker);
   }
+
+  connect(mmgxPanel_, &SettingPanelMMGX::mmgxCoordsChanged,
+          this, &SettingPanel::fontReloadNeeded);
 }
 
 
@@ -510,6 +515,8 @@ SettingPanel::createLayout()
   gammaLabel_->setBuddy(gammaSlider_);
   gammaValueLabel_ = new QLabel(this);
 
+  mmgxPanel_ = new SettingPanelMMGX(this, engine_);
+
   if (!comparatorMode_)
   {
     backgroundButton_ = new QPushButton(tr("Background"), this);
@@ -517,7 +524,6 @@ SettingPanel::createLayout()
   }
 
   generalTab_ = new QWidget(this);
-  mmgxTab_ = new QWidget(this);
 
   generalTab_->setSizePolicy(QSizePolicy::MinimumExpanding,
                              QSizePolicy::MinimumExpanding);
@@ -602,7 +608,7 @@ SettingPanel::createLayoutNormal()
   generalTab_->setLayout(generalTabLayout_);
 
   tab_->addTab(generalTab_, tr("General"));
-  tab_->addTab(mmgxTab_, tr("MM/GX"));
+  tab_->addTab(mmgxPanel_, tr("MM/GX"));
 }
 
 
@@ -647,7 +653,7 @@ SettingPanel::createLayoutComperator()
 
   tab_->addTab(hintingRenderingTab_, tr("Hinting && Rendering"));
   tab_->addTab(generalTab_, tr("General"));
-  tab_->addTab(mmgxTab_, tr("MM/GX"));
+  tab_->addTab(mmgxPanel_, tr("MM/GX"));
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
 }
 

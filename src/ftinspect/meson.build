@@ -48,6 +48,7 @@ if qt5_dep.found()
     'models/fontinfomodels.cpp',
 
     'panels/settingpanel.cpp',
+    'panels/settingpanelmmgx.cpp',
     'panels/singular.cpp',
     'panels/continuous.cpp',
     'panels/comparator.cpp',
@@ -72,6 +73,7 @@ if qt5_dep.found()
       'models/customcomboboxmodels.hpp',
       'models/fontinfomodels.hpp',
       'panels/settingpanel.hpp',
+      'panels/settingpanelmmgx.hpp',
       'panels/singular.hpp',
       'panels/continuous.hpp',
       'panels/comparator.hpp',

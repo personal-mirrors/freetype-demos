@@ -206,6 +206,7 @@ MainGUI::repaintCurrentTab()
 void
 MainGUI::reloadCurrentTabFont()
 {
+  engine_->resetCache();
   syncSettings();
   tabs_[tabWidget_->currentIndex()]->reloadFont();
 }

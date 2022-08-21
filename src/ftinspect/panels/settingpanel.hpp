@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "settingpanelmmgx.hpp"
 #include "../engine/engine.hpp"
 #include "../models/customcomboboxmodels.hpp"
 
@@ -76,7 +77,7 @@ private:
 
   QWidget* generalTab_;
   QWidget* hintingRenderingTab_;
-  QWidget* mmgxTab_;
+  SettingPanelMMGX* mmgxPanel_;
 
   QLabel* gammaLabel_;
   QLabel* gammaValueLabel_;

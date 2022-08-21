@@ -16,6 +16,7 @@
 #include <freetype/ftdriver.h>
 #include <freetype/ftlcdfil.h>
 #include <freetype/ftbitmap.h>
+#include <freetype/ftmm.h>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -743,12 +744,7 @@ Engine::setCFFHintingMode(int mode)
                                    "hinting-engine",
                                    &mode);
   if (!error)
-  {
-    // reset the cache
-    FTC_Manager_Reset(cacheManager_);
-    ftFallbackFace_ = NULL;
-    ftSize_ = NULL;
-  }
+    resetCache();
 }
 
 
@@ -760,19 +756,13 @@ Engine::setTTInterpreterVersion(int version)
                                    "interpreter-version",
                                    &version);
   if (!error)
-  {
-    // reset the cache
-    FTC_Manager_Reset(cacheManager_);
-    ftFallbackFace_ = NULL;
-    ftSize_ = NULL;
-  }
+    resetCache();
 }
 
 
 void
 Engine::setStemDarkening(bool darkening)
 {
-  // TODO not working
   FT_Bool noDarkening = !darkening;
   FT_Property_Set(library_,
                   "cff",
@@ -790,10 +780,20 @@ Engine::setStemDarkening(bool darkening)
                   "t1cid",
                   "no-stem-darkening",
                   &noDarkening);
-  // reset the cache
-  FTC_Manager_Reset(cacheManager_);
-  ftFallbackFace_ = NULL;
-  ftSize_ = NULL;
+  resetCache();
+}
+
+
+void
+Engine::applyMMGXDesignCoords(FT_Fixed* coords,
+                              size_t count)
+{
+  if (!ftSize_)
+    return;
+  if (count >= UINT_MAX)
+    count = UINT_MAX - 1;
+  FT_Set_Var_Design_Coordinates(ftSize_->face,
+                                static_cast<unsigned>(count), coords);
 }
 
 
@@ -863,6 +863,16 @@ Engine::update()
   imageType_.width = static_cast<unsigned int>(pixelSize_);
   imageType_.height = static_cast<unsigned int>(pixelSize_);
   imageType_.flags = static_cast<int>(loadFlags_);
+}
+
+
+void
+Engine::resetCache()
+{
+  // reset the cache
+  FTC_Manager_Reset(cacheManager_);
+  ftFallbackFace_ = NULL;
+  ftSize_ = NULL;
 }
 
 

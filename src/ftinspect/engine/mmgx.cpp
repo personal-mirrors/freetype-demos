@@ -48,6 +48,7 @@ MMGXAxisInfo::get(Engine* engine,
     info.minimum = axis.minimum / 65536.0;
     info.def = axis.def / 65536.0;
     info.tag = axis.tag;
+    info.isMM = state == MMGXState::MM;
 
     unsigned int flags = 0;
     FT_Get_Var_Axis_Flags(mm, i, &flags);
@@ -78,5 +79,5 @@ MMGXAxisInfo::get(Engine* engine,
   return state;
 }
 
-// end of mmgx.cpp
 
+// end of mmgx.cpp

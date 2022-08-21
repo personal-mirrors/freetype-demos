@@ -48,6 +48,7 @@ add_executable(ftinspect
   "models/fontinfomodels.cpp"
 
   "panels/settingpanel.cpp"
+  "panels/settingpanelmmgx.cpp"
   "panels/singular.cpp"
   "panels/continuous.cpp"
   "panels/comparator.cpp"

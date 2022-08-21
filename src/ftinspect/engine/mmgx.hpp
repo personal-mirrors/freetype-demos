@@ -26,6 +26,7 @@ struct MMGXAxisInfo
   double def;
 
   bool hidden;
+  bool isMM;
 
   static MMGXState get(Engine* engine, std::vector<MMGXAxisInfo>& infos);
 
@@ -39,7 +40,8 @@ struct MMGXAxisInfo
       && lhs.minimum == rhs.minimum
       && lhs.maximum == rhs.maximum
       && lhs.def == rhs.def
-      && lhs.hidden == rhs.hidden;
+      && lhs.hidden == rhs.hidden
+      && lhs.isMM == rhs.isMM;
   }
 
 
