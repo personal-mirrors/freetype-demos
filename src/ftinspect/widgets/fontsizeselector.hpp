@@ -31,6 +31,7 @@ public:
   void setSizePixel(int sizePixel);
   void setSizePoint(double sizePoint);
 
+  void reloadFromFont(Engine* engine);
   void applyToEngine(Engine* engine);
   void handleWheelResizeBySteps(int steps);
   void handleWheelResizeFromGrid(QWheelEvent* event);
@@ -56,9 +57,15 @@ private:
 
   QHBoxLayout* layout_;
 
+  double lastValue_;
+  bool bitmapOnly_ = false;
+  std::vector<int> fixedSizes_;
+
   void createLayout();
   void createConnections();
   void setDefaults(bool sizeOnly = false);
+
+  void checkFixedSizeAndEmit();
 };
 
 

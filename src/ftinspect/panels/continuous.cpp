@@ -47,6 +47,7 @@ void
 ContinuousTab::reloadFont()
 {
   currentGlyphCount_ = engine_->currentFontNumberOfGlyphs();
+  sizeSelector_->reloadFromFont(engine_);
   setGlyphCount(qBound(0, currentGlyphCount_, INT_MAX));
   charMapSelector_->repopulate();
   canvas_->stringRenderer().reloadAll();

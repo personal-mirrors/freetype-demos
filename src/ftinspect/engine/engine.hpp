@@ -166,6 +166,8 @@ public:
   MMGXState currentFontMMGXState() { return curMMGXState_; }
   std::vector<MMGXAxisInfo>& currentFontMMGXAxes() { return curMMGXAxes_; }
   std::vector<SFNTTableInfo>& currentFontSFNTTableInfo();
+  bool currentFontBitmapOnly();
+  std::vector<int> currentFontFixedSizes();
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }

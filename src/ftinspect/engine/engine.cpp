@@ -381,8 +381,15 @@ Engine::reloadFont()
   if (!scaler_.face_id)
     return;
   imageType_.face_id = scaler_.face_id;
-  FTC_Manager_LookupFace(cacheManager_, scaler_.face_id, &ftFallbackFace_);
-  FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_);
+  
+  if (FTC_Manager_LookupFace(cacheManager_, scaler_.face_id, &ftFallbackFace_))
+  {
+    ftFallbackFace_ = NULL;
+    ftSize_ = NULL;
+    return;
+  }
+  if (FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
+    ftSize_ = NULL; // Good font, bad size.
 }
 
 
@@ -531,6 +538,29 @@ Engine::currentFontSFNTTableInfo()
 }
 
 
+bool
+Engine::currentFontBitmapOnly()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return !FT_IS_SCALABLE(ftFallbackFace_);
+}
+
+
+std::vector<int>
+Engine::currentFontFixedSizes()
+{
+  if (!ftFallbackFace_ || !FT_HAS_FIXED_SIZES(ftFallbackFace_)
+      || !ftFallbackFace_->available_sizes)
+    return {};
+  std::vector<int> result;
+  result.resize(ftFallbackFace_->num_fixed_sizes);
+  for (int i = 0; i < ftFallbackFace_->num_fixed_sizes; i++)
+    result[i] = ftFallbackFace_->available_sizes[i].size >> 6; // XXX: ????
+  return result;
+}
+
+
 QString
 Engine::glyphName(int index)
 {
@@ -539,14 +569,11 @@ Engine::glyphName(int index)
   if (index < 0)
     throw std::runtime_error("Invalid glyph index");
 
-  FT_Face face = NULL;
-  if (FTC_Manager_LookupFace(cacheManager_, scaler_.face_id, &face))
-    return name;
-
-  if (face && FT_HAS_GLYPH_NAMES(face))
+  reloadFont();
+  if (ftFallbackFace_ && FT_HAS_GLYPH_NAMES(ftFallbackFace_))
   {
     char buffer[256];
-    if (!FT_Get_Glyph_Name(face,
+    if (!FT_Get_Glyph_Name(ftFallbackFace_,
                            static_cast<unsigned int>(index),
                            buffer,
                            sizeof(buffer)))

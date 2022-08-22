@@ -6,6 +6,8 @@
 
 #include "../engine/engine.hpp"
 
+#include <algorithm>
+
 FontSizeSelector::FontSizeSelector(QWidget* parent)
 : QWidget(parent)
 {
@@ -42,6 +44,25 @@ FontSizeSelector::setSizePoint(double sizePoint)
 {
   sizeDoubleSpinBox_->setValue(sizePoint);
   unitsComboBox_->setCurrentIndex(Units_pt);
+}
+
+
+void
+FontSizeSelector::reloadFromFont(Engine* engine)
+{
+  bitmapOnly_ = engine->currentFontBitmapOnly();
+  fixedSizes_ = engine->currentFontFixedSizes();
+  std::sort(fixedSizes_.begin(), fixedSizes_.end());
+  if (fixedSizes_.empty())
+    bitmapOnly_ = false; // Well this won't work...
+
+  unitsComboBox_->setEnabled(!bitmapOnly_);
+
+  {
+    QSignalBlocker blocker(this);
+    unitsComboBox_->setCurrentIndex(Units_px);
+  }
+  checkFixedSizeAndEmit();
 }
 
 
@@ -193,22 +214,70 @@ void
 FontSizeSelector::createConnections()
 {
   connect(sizeDoubleSpinBox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-          this, &FontSizeSelector::valueChanged);
+          this, &FontSizeSelector::checkFixedSizeAndEmit);
   connect(unitsComboBox_, QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &FontSizeSelector::checkUnits);
   connect(dpiSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged),
-          this, &FontSizeSelector::valueChanged);
+          this, &FontSizeSelector::checkFixedSizeAndEmit);
 }
 
 
 void
 FontSizeSelector::setDefaults(bool sizeOnly)
 {
-  sizeDoubleSpinBox_->setValue(20);
+  lastValue_ = 20;
+  sizeDoubleSpinBox_->setValue(lastValue_);
   if (sizeOnly)
     return;
   dpiSpinBox_->setValue(96);
   checkUnits();
+}
+
+
+void
+FontSizeSelector::checkFixedSizeAndEmit()
+{
+  if (bitmapOnly_ && !fixedSizes_.empty())
+  {
+    auto newValue = sizeDoubleSpinBox_->value();
+    auto intNewValue = static_cast<int>(newValue);
+    if (newValue != static_cast<double>(intNewValue))
+    {
+      sizeDoubleSpinBox_->setValue(intNewValue);
+      return; // Don't emit.
+    }
+
+    if (!std::binary_search(fixedSizes_.begin(), fixedSizes_.end(), newValue))
+    {
+      // Value not available, find next value.
+      if (intNewValue > lastValue_)
+      {
+        // find next larger value...
+        auto it = std::upper_bound(fixedSizes_.begin(), fixedSizes_.end(),
+                                   lastValue_);
+        if (it == fixedSizes_.end())
+          sizeDoubleSpinBox_->setValue(lastValue_);
+        else
+          sizeDoubleSpinBox_->setValue(*it);
+      }
+      else
+      {
+        // find next smaller value...
+        auto it = std::lower_bound(fixedSizes_.begin(), fixedSizes_.end(),
+                                   lastValue_);
+
+        // there's no element >= lastValue => all elements < last value
+        if (it == fixedSizes_.begin())
+          sizeDoubleSpinBox_->setValue(fixedSizes_.front());
+        else
+          sizeDoubleSpinBox_->setValue(*(it - 1));
+      }
+      return;
+    }
+  }
+
+  lastValue_ = sizeDoubleSpinBox_->value();
+  emit valueChanged();
 }
 
 

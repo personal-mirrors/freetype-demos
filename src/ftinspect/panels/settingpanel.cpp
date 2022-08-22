@@ -113,6 +113,11 @@ SettingPanel::onFontChanged()
   populatePalettes();
   mmgxPanel_->reloadFont();
   blockSignals(blockState);
+
+  // Place this after `blockSignals` to let the signals emitted normally
+  embeddedBitmapCheckBox_->setEnabled(!engine_->currentFontBitmapOnly());
+  if (engine_->currentFontBitmapOnly())
+    embeddedBitmapCheckBox_->setChecked(true);
 }
 
 
