@@ -472,7 +472,10 @@ GlyphContinuous::beginDrawCacheLine(QPainter* painter,
   painter->setFont(oldFont);
   auto metrics = painter->fontMetrics();
 
-  auto sizePrefix = QString("%1: ").arg(line.sizePoint);
+  auto printSize = line.sizePoint;
+  if (engine_->currentFontBitmapOnly())
+    printSize = printSize * engine_->dpi() / 72.0; // convert back
+  auto sizePrefix = QString("%1: ").arg(printSize);
   painter->drawText(line.basePosition, sizePrefix);
 
   sizeIndicatorOffset_ = metrics.horizontalAdvance(sizePrefix);

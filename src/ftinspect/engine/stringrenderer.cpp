@@ -364,10 +364,16 @@ StringRenderer::render(int width,
     // Waterfall
 
     vertical_ = false;
+    // They're only effective for non-bitmap-only (scalable) fonts!
     auto originalSize = static_cast<int>(engine_->pointSize() * 64);
     auto ptSize = originalSize;
     auto ptHeight = 64 * 72 * height / engine_->dpi();
-    int step;
+    int step = 0;
+
+    auto bitmapOnly = engine_->currentFontBitmapOnly();
+    auto fixedSizes = engine_->currentFontFixedSizes();
+    std::sort(fixedSizes.begin(), fixedSizes.end());
+    auto fixedSizesIter = fixedSizes.begin();
 
     if (waterfallStart_ <= 0)
     {
@@ -376,7 +382,7 @@ StringRenderer::render(int width,
       ptSize = ptSize - step * (ptSize / step); // modulo
       ptSize += step;
     }
-    else
+    else if (!bitmapOnly)
     {
       ptSize = static_cast<int>(waterfallStart_ * 64.0) & ~31;
       // we first get a ratio since height & ppem are near proportional...
@@ -384,7 +390,7 @@ StringRenderer::render(int width,
       engine_->setSizeByPoint(64.0);
       engine_->reloadFont();
       if (!engine_->renderReady())
-        return -1; // TODO: Handle bitmap-only fonts
+        return -1;
       auto pixelActual = engine_->currentFontMetrics().height >> 6;
 
       auto heightPt = height * 64.0 / pixelActual;
@@ -407,7 +413,14 @@ StringRenderer::render(int width,
 
     while (true)
     {
-      engine_->setSizeByPoint(ptSize / 64.0);
+      if (!bitmapOnly)
+        engine_->setSizeByPoint(ptSize / 64.0);
+      else
+      {
+        if (fixedSizesIter == fixedSizes.end())
+          break;
+        engine_->setSizeByPixel(*fixedSizesIter);
+      }
       clearActive(true);
       prepareRendering(); // set size/face for engine, so metrics are valid
       auto& metrics = engine_->currentFontMetrics();
@@ -419,7 +432,7 @@ StringRenderer::render(int width,
       
       y += static_cast<int>(metrics.height >> 6) + 1;
 
-      if (y >= height)
+      if (y >= height && !bitmapOnly)
         break;
 
       if (ptSize == originalSize)
@@ -433,9 +446,14 @@ StringRenderer::render(int width,
                                offset);
       count = std::max(count, lcount);
 
-      if (step == 0)
-        break;
-      ptSize += step;
+      if (!bitmapOnly)
+      {
+        if (step == 0)
+          break;
+        ptSize += step;
+      }
+      else
+        ++fixedSizesIter;
     }
     engine_->setSizeByPoint(originalSize / 64.0);
 

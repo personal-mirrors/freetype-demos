@@ -115,6 +115,7 @@ SettingPanel::onFontChanged()
   blockSignals(blockState);
 
   // Place this after `blockSignals` to let the signals emitted normally
+  engine_->reloadFont();
   embeddedBitmapCheckBox_->setEnabled(!engine_->currentFontBitmapOnly());
   if (engine_->currentFontBitmapOnly())
     embeddedBitmapCheckBox_->setChecked(true);

@@ -49,6 +49,8 @@ ContinuousTab::reloadFont()
   currentGlyphCount_ = engine_->currentFontNumberOfGlyphs();
   sizeSelector_->reloadFromFont(engine_);
   setGlyphCount(qBound(0, currentGlyphCount_, INT_MAX));
+  checkModeSource();
+
   charMapSelector_->repopulate();
   canvas_->stringRenderer().reloadAll();
   canvas_->purgeCache();
@@ -164,7 +166,8 @@ ContinuousTab::checkModeSource()
     waterfallCheckBox_->setEnabled(!vert);
   }
 
-  waterfallConfigButton_->setEnabled(waterfallCheckBox_->isChecked());
+  waterfallConfigButton_->setEnabled(waterfallCheckBox_->isChecked()
+                                     && !engine_->currentFontBitmapOnly());
 
   repaintGlyph();
 }
