@@ -10,8 +10,10 @@
 #include "paletteinfo.hpp"
 #include "fontinfo.hpp"
 #include "mmgx.hpp"
+#include "rendering.hpp"
 
 #include <vector>
+#include <memory>
 #include <utility>
 #include <QString>
 #include <QMap>
@@ -90,29 +92,6 @@ public:
                                   FTC_Node* outNode = NULL,
                                   bool forceRender = false);
 
-  // Return `true` if you need to free `out`
-  // `out` will be set to NULL in cases of error
-  bool convertGlyphToBitmapGlyph(FT_Glyph src, FT_Glyph* out);
-  FT_Bitmap convertBitmapTo8Bpp(FT_Bitmap* bitmap);
-  QImage* convertBitmapToQImage(FT_Bitmap* src);
-  QImage* convertGlyphToQImage(FT_Glyph src, 
-                               QRect* outRect,
-                               bool inverseRectY);
-  QPoint computeGlyphOffset(FT_Glyph glyph, bool inverseY);
-
-  /*
-   * Directly render the glyph at the specified index
-   * to a `QImage`. If you want to perform color-layer
-   * rendering, call this before trying to load the
-   * glyph and do normal rendering, If the returning
-   * value is non-NULL, then there's no need to
-   * load the glyph the normal way, just draw the `QImage`.
-   * Will return NULL if not enabled or color layers not available.
-   */
-  QImage* tryDirectRenderColorLayers(int glyphIndex,
-                                     QRect* outRect,
-                                     bool inverseRectY = false);
-
   // reload current triplet, but with updated settings, useful for updating
   // `ftSize_` only
   void reloadFont();
@@ -128,6 +107,7 @@ public:
 
   FT_Library ftLibrary() const { return library_; }
   FTC_Manager cacheManager() { return cacheManager_; }
+  FTC_ImageCache imageCacheManager() { return imageCache_; }
 
   int dpi() { return dpi_; }
   double pointSize() { return pointSize_; }
@@ -137,7 +117,7 @@ public:
   int numberOfOpenedFonts();
   int currentFontIndex() { return curFontIndex_; }
   FT_Face currentFallbackFtFace() { return ftFallbackFace_; }
-  // FT_Size currentFtSize() { return ftSize_; }
+  FT_Size currentFtSize() { return ftSize_; }
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
@@ -170,13 +150,26 @@ public:
   std::vector<int> currentFontFixedSizes();
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
+
+  double gamma() { return gamma_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
   bool doHinting() { return doHinting_; }
   bool embeddedBitmapEnabled() { return embeddedBitmap_; }
   bool lcdUsingSubPixelPositioning() { return lcdSubPixelPositioning_; }
+  bool useColorLayer() { return useColorLayer_; }
+  bool lcdUsesBGR() { return lcdUsesBGR_; }
+  FT_Render_Mode
+  renderMode()
+  {
+    return static_cast<FT_Render_Mode>(renderMode_);
+  }
+  FTC_ImageType imageType() { return &imageType_; }
 
-  QRgb foreground() { return foregroundColor_; }
-  QRgb background() { return backgroundColor_; }
+  int paletteIndex() { return paletteIndex_; }
+  FT_Color* currentPalette() { return palette_; }
+  FT_Palette_Data& currentFontPaletteData() { return paletteData_; }
+
+  RenderingEngine* renderingEngine() { return renderingEngine_.get(); }
 
   //////// Setters (direct or indirect)
 
@@ -216,9 +209,6 @@ public:
 
   void setStemDarkening(bool darkening);
   void applyMMGXDesignCoords(FT_Fixed* coords, size_t count);
-
-  void setForeground(QRgb foreground);
-  void setBackground(QRgb background);
 
   //////// Misc
 
@@ -287,14 +277,10 @@ private:
   double gamma_;
   unsigned long loadFlags_;
 
-  QRgb backgroundColor_;
-  QRgb foregroundColor_;
-  QRgb foregroundColorBlended_;
-  QVector<QRgb> foregroundTable_;
+  std::unique_ptr<RenderingEngine> renderingEngine_;
 
   void queryEngine();
   void loadPaletteInfos();
-  void calculateForegroundTable();
 
   // Safe to put the impl to the cpp.
   template <class Func>

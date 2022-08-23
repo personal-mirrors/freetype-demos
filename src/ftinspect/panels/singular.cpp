@@ -87,7 +87,8 @@ SingularTab::drawGlyph()
     currentGlyphPointNumbersItem_ = NULL;
   }
 
-  glyphView_->setBackgroundBrush(QColor(engine_->background()));
+  glyphView_->setBackgroundBrush(
+    QColor(engine_->renderingEngine()->background()));
 
   syncSettings();
   FT_Glyph glyph = engine_->loadGlyph(currentGlyphIndex_);

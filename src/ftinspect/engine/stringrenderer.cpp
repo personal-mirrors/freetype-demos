@@ -565,7 +565,8 @@ StringRenderer::renderLine(int x,
 
     QRect rect;
     QImage* colorLayerImage
-        = engine_->tryDirectRenderColorLayers(ctx.glyphIndex, &rect, true);
+      = engine_->renderingEngine()->tryDirectRenderColorLayers(ctx.glyphIndex,
+                                                               &rect, true);
 
     if (colorLayerImage)
     {

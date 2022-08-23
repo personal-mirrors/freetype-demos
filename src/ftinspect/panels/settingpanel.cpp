@@ -369,8 +369,8 @@ SettingPanel::syncSettings()
     antiAliasingComboBox_->currentIndex()
       == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
 
-  engine_->setForeground(foregroundColor_.rgba());
-  engine_->setBackground(backgroundColor_.rgba());
+  engine_->renderingEngine()->setForeground(foregroundColor_.rgba());
+  engine_->renderingEngine()->setBackground(backgroundColor_.rgba());
   mmgxPanel_->syncSettings();
 }
 

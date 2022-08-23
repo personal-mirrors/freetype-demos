@@ -109,7 +109,7 @@ void
 GlyphContinuous::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
-  painter.fillRect(rect(), engine_->background());
+  painter.fillRect(rect(), engine_->renderingEngine()->background());
 
   if (glyphCache_.empty())
     fillCache();
@@ -423,7 +423,9 @@ GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
     return;
 
   QRect rect;
-  QImage* image = engine_->convertGlyphToQImage(glyph, &rect, true);
+  QImage* image = engine_->renderingEngine()->convertGlyphToQImage(glyph, 
+                                                                   &rect, 
+                                                                   true);
   saveSingleGlyphImage(image, rect, penPos, glyph->advance, gctx);
 }
 

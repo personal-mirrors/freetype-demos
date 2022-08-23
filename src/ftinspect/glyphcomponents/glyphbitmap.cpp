@@ -30,10 +30,12 @@ GlyphBitmap::GlyphBitmap(int glyphIndex,
                          Engine* engine)
 {
   QRect bRect;
-  image_ = engine->tryDirectRenderColorLayers(glyphIndex, &bRect, true);
+  image_ = engine->renderingEngine()->tryDirectRenderColorLayers(glyphIndex,
+                                                                 &bRect, true);
 
   if (!image_)
-    image_ = engine->convertGlyphToQImage(glyph, &bRect, true);
+    image_ = engine->renderingEngine()->convertGlyphToQImage(glyph, &bRect, 
+                                                             true);
   boundingRect_ = bRect; // QRect to QRectF
 }
 
