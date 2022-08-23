@@ -5,8 +5,8 @@
 
 #include "engine.hpp"
 
-#include "../rendering/renderutils.hpp"
-#include "../rendering/graphicsdefault.hpp"
+#include "renderutils.hpp"
+#include "../glyphcomponents/graphicsdefault.hpp"
 
 #include <stdexcept>
 #include <cmath>

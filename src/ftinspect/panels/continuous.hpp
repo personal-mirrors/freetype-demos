@@ -9,8 +9,8 @@
 #include "../widgets/glyphindexselector.hpp"
 #include "../widgets/fontsizeselector.hpp"
 #include "../widgets/charmapcombobox.hpp"
-#include "../rendering/graphicsdefault.hpp"
-#include "../rendering/glyphcontinuous.hpp"
+#include "../glyphcomponents/graphicsdefault.hpp"
+#include "../glyphcomponents/glyphcontinuous.hpp"
 #include "../engine/engine.hpp"
 
 #include <vector>

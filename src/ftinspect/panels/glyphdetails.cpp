@@ -5,7 +5,7 @@
 #include "glyphdetails.hpp"
 
 #include "../engine/stringrenderer.hpp"
-#include "../rendering/glyphcontinuous.hpp"
+#include "../glyphcomponents/glyphcontinuous.hpp"
 #include "../uihelper.hpp"
 #include "../engine/engine.hpp"
 

@@ -5,7 +5,7 @@
 
 #include "glyphbitmap.hpp"
 
-#include "renderutils.hpp"
+#include "../engine/renderutils.hpp"
 #include "../engine/engine.hpp"
 
 #include <cmath>

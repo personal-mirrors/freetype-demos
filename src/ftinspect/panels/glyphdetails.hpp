@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../rendering/glyphbitmap.hpp"
+#include "../glyphcomponents/glyphbitmap.hpp"
 
 #include <QWidget>
 #include <QLabel>

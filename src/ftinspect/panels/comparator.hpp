@@ -10,7 +10,7 @@
 #include "../widgets/charmapcombobox.hpp"
 #include "../widgets/fontsizeselector.hpp"
 #include "../panels/settingpanel.hpp"
-#include "../rendering/glyphcontinuous.hpp"
+#include "../glyphcomponents/glyphcontinuous.hpp"
 
 #include <vector>
 
