@@ -49,7 +49,10 @@ ComperatorTab::repaintGlyph()
 void
 ComperatorTab::reloadFont()
 {
-  sizeSelector_->reloadFromFont(engine_);
+  {
+    QSignalBlocker blocker(sizeSelector_);
+    sizeSelector_->reloadFromFont(engine_); 
+  }
   charMapSelector_->repopulate();
   for (auto panel : settingPanels_)
     panel->onFontChanged();

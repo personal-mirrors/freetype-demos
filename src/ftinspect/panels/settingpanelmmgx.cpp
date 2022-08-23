@@ -7,6 +7,7 @@
 #include <QScrollBar>
 
 #include "../engine/engine.hpp"
+#include "../uihelper.hpp"
 
 SettingPanelMMGX::SettingPanelMMGX(QWidget* parent,
                                    Engine* engine)
@@ -56,10 +57,15 @@ SettingPanelMMGX::reloadFont()
       w->updateInfo(currentAxes_[i]);
       listLayout_->addWidget(w);
       connect(w, &MMGXSettingItem::valueChanged,
-              this, &SettingPanelMMGX::itemChanged);
+              [this, index = i]
+              {
+                itemChanged(index);
+              });
     }
   }
   checkHidden();
+  retrieveValues();
+  syncSettings();
 }
 
 
@@ -87,19 +93,20 @@ void
 SettingPanelMMGX::createLayout()
 {
   showHiddenCheckBox_ = new QCheckBox(tr("Show Hidden"), this);
+  groupingCheckBox_ = new QCheckBox(tr("Grouping"), this);
   resetDefaultButton_ = new QPushButton(tr("Reset Default"), this);
   itemsListWidget_ = new QWidget(this);
   scrollArea_ = new UnboundScrollArea(this);
 
   scrollArea_->setWidget(itemsListWidget_);
   scrollArea_->setWidgetResizable(true);
-  scrollArea_->setStyleSheet("QScrollArea {background-color:transparent;}");
-  itemsListWidget_->setStyleSheet("background-color:transparent;");
+  itemsListWidget_->setAutoFillBackground(false);
 
   mainLayout_ = new QVBoxLayout;
   listLayout_ = new QVBoxLayout;
   listWrapperLayout_ = new QVBoxLayout;
 
+  listLayout_->setSpacing(0);
   listLayout_->setContentsMargins(0, 0, 0, 0);
   itemsListWidget_->setContentsMargins(0, 0, 0, 0);
 
@@ -109,6 +116,7 @@ SettingPanelMMGX::createLayout()
   listWrapperLayout_->addStretch(1);
 
   mainLayout_->addWidget(showHiddenCheckBox_);
+  mainLayout_->addWidget(groupingCheckBox_);
   mainLayout_->addWidget(resetDefaultButton_);
   mainLayout_->addWidget(scrollArea_, 1);
 
@@ -123,16 +131,34 @@ SettingPanelMMGX::createConnections()
           this, &SettingPanelMMGX::checkHidden);
   connect(resetDefaultButton_, &QCheckBox::clicked,
           this, &SettingPanelMMGX::resetDefaultClicked);
+  connect(groupingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanelMMGX::checkGrouping);
 }
 
 
 void
-SettingPanelMMGX::itemChanged()
+SettingPanelMMGX::retrieveValues()
 {
   currentValues_.resize(currentAxes_.size());
   for (unsigned i = 0; i < currentAxes_.size(); ++i)
     currentValues_[i] = itemWidgets_[i]->value();
+}
 
+
+void
+SettingPanelMMGX::itemChanged(size_t index)
+{
+  if (groupingCheckBox_->isChecked()
+      && index < currentAxes_.size() && index < itemWidgets_.size())
+  {
+    auto tag = currentAxes_[index].tag;
+    auto value = itemWidgets_[index]->value();
+    for (size_t i = 0; i < itemWidgets_.size(); ++i)
+      if (i != index && currentAxes_[i].tag == tag)
+        itemWidgets_[i]->setValue(value);
+  }
+
+  retrieveValues();
   emit mmgxCoordsChanged();
 }
 
@@ -142,7 +168,35 @@ SettingPanelMMGX::resetDefaultClicked()
 {
   for (auto w : itemWidgets_)
     w->resetDefault();
-  itemChanged();
+
+  retrieveValues();
+  emit mmgxCoordsChanged();
+}
+
+
+void
+SettingPanelMMGX::checkGrouping()
+{
+  if (!groupingCheckBox_->isChecked())
+    return;
+  auto maxIndex = std::max(itemWidgets_.size(), currentAxes_.size());
+  for (size_t i = maxIndex - 1; ; --i)
+  {
+    if (!currentAxes_[i].hidden)
+    {
+      auto tag = currentAxes_[i].tag;
+      auto value = itemWidgets_[i]->value();
+      for (size_t j = 0; j < maxIndex; ++j)
+        if (j != i && currentAxes_[j].tag == tag)
+          itemWidgets_[j]->setValue(value);
+    }
+
+    if (i == 0)
+      break;
+  }
+
+  retrieveValues();
+  emit mmgxCoordsChanged();
 }
 
 
@@ -158,6 +212,8 @@ void
 MMGXSettingItem::updateInfo(MMGXAxisInfo& info)
 {
   axisInfo_ = info;
+  valueValidator_->setRange(info.minimum, info.maximum, 10);
+
   if (info.hidden)
     nameLabel_->setText("<i>" + info.name + "</i>");
   else
@@ -175,12 +231,18 @@ MMGXSettingItem::updateInfo(MMGXAxisInfo& info)
 
 
 void
+MMGXSettingItem::setValue(FT_Fixed value)
+{
+  actualValue_ = value;
+  updateSlider();
+  updateLineEdit();
+}
+
+
+void
 MMGXSettingItem::resetDefault()
 {
-  QSignalBlocker blocker(this);
-  slider_->setValue(static_cast<int>((axisInfo_.def - axisInfo_.minimum)
-                                     / (axisInfo_.maximum - axisInfo_.minimum)
-                                     * 1024));
+  setValue(static_cast<FT_Fixed>(axisInfo_.def * 65536.0));
 }
 
 
@@ -188,18 +250,31 @@ void
 MMGXSettingItem::createLayout()
 {
   nameLabel_ = new QLabel(this);
-  valueLabel_ = new QLabel(this);
+
+  // 1/1024 = 0.0009765625
+  valueValidator_ = new QDoubleValidator(0, 0, 10, this);
+  valueValidator_->setNotation(QDoubleValidator::StandardNotation);
+
+  valueLineEdit_ = new QLineEdit("0", this);
+  valueLineEdit_->setValidator(valueValidator_);
+
   slider_ = new QSlider(this);
   slider_->setOrientation(Qt::Horizontal);
 
+  resetDefaultButton_ = new QPushButton(this);
+  resetDefaultButton_->setText(tr("Def"));
+  setButtonNarrowest(resetDefaultButton_);
+
   mainLayout_ = new QGridLayout();
 
-  mainLayout_->addWidget(nameLabel_, 0, 0);
-  mainLayout_->addWidget(valueLabel_, 0, 1, 1, 1, Qt::AlignRight);
+  mainLayout_->addWidget(nameLabel_, 0, 0, 1, 2);
   mainLayout_->addWidget(slider_, 1, 0, 1, 2);
+  mainLayout_->addWidget(valueLineEdit_, 2, 0, 1, 1, Qt::AlignVCenter);
+  mainLayout_->addWidget(resetDefaultButton_, 2, 1, 1, 1, Qt::AlignVCenter);
 
+  mainLayout_->setSpacing(4);
   mainLayout_->setContentsMargins(4, 4, 4, 4);
-  setContentsMargins(4, 4, 4, 4);
+  setContentsMargins(0, 0, 0, 0);
   setLayout(mainLayout_);
   setFrameShape(StyledPanel);
 }
@@ -210,6 +285,10 @@ MMGXSettingItem::createConnections()
 {
   connect(slider_, &QSlider::valueChanged,
           this, &MMGXSettingItem::sliderValueChanged);
+  connect(valueLineEdit_, &QLineEdit::editingFinished,
+          this, &MMGXSettingItem::lineEditChanged);
+  connect(resetDefaultButton_, &QToolButton::clicked,
+          this, &MMGXSettingItem::resetDefaultSingle);
 }
 
 
@@ -223,19 +302,53 @@ MMGXSettingItem::sliderValueChanged()
 
   if (axisInfo_.isMM)
     actualValue_ = FT_RoundFix(actualValue_);
-  else
-  {
-    double x = actualValue_ / 65536.0 * 100.0;
-    x += x < 0.0 ? -0.5 : 0.5;
-    x = static_cast<int>(x);
-    x = x / 100.0 * 65536.0;
-    x += x < 0.0 ? -0.5 : 0.5;
 
-    actualValue_ = static_cast<FT_Fixed>(x);
+  updateLineEdit();
+  emit valueChanged();
+}
+
+
+void
+MMGXSettingItem::lineEditChanged()
+{
+  bool succ = false;
+  auto newValue = valueLineEdit_->text().toDouble(&succ);
+  if (!succ || newValue > axisInfo_.maximum || newValue < axisInfo_.minimum)
+  {
+    updateLineEdit();
+    return;
   }
 
-  valueLabel_->setText(QString::number(actualValue_ / 65536.0));
+  actualValue_ = static_cast<FT_Fixed>(newValue / 65536.0);
 
+  updateSlider();
+  emit valueChanged();
+}
+
+
+void
+MMGXSettingItem::updateLineEdit()
+{
+  QSignalBlocker blocker(valueLineEdit_);
+  valueLineEdit_->setText(QString::number(actualValue_ / 65536.0));
+}
+
+
+void
+MMGXSettingItem::updateSlider()
+{
+  QSignalBlocker blocker(slider_);
+  slider_->setValue(
+    static_cast<int>((actualValue_ / 65536.0 - axisInfo_.minimum)
+                     / (axisInfo_.maximum - axisInfo_.minimum)
+                     * 1024));
+}
+
+
+void
+MMGXSettingItem::resetDefaultSingle()
+{
+  resetDefault();
   emit valueChanged();
 }
 

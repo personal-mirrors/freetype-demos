@@ -50,9 +50,10 @@ public:
 
   // This doesn't trigger either.
   void updateLimitIndex();
+  void checkModeSource();
 
   // But they do
-  void checkModeSource();
+  void checkModeSourceAndRepaint();
   void charMapChanged();
   void sourceTextChanged();
   void presetStringSelected();

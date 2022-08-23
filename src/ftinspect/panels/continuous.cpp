@@ -47,7 +47,10 @@ void
 ContinuousTab::reloadFont()
 {
   currentGlyphCount_ = engine_->currentFontNumberOfGlyphs();
-  sizeSelector_->reloadFromFont(engine_);
+  {
+    QSignalBlocker blocker(sizeSelector_);
+    sizeSelector_->reloadFromFont(engine_);
+  }
   setGlyphCount(qBound(0, currentGlyphCount_, INT_MAX));
   checkModeSource();
 
@@ -168,7 +171,13 @@ ContinuousTab::checkModeSource()
 
   waterfallConfigButton_->setEnabled(waterfallCheckBox_->isChecked()
                                      && !engine_->currentFontBitmapOnly());
+}
 
+
+void
+ContinuousTab::checkModeSourceAndRepaint()
+{
+  checkModeSource();
   repaintGlyph();
 }
 
@@ -420,14 +429,14 @@ ContinuousTab::createConnections()
   connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
           this, &ContinuousTab::repaintGlyph);
   connect(modeSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &ContinuousTab::checkModeSource);
+          this, &ContinuousTab::checkModeSourceAndRepaint);
   connect(charMapSelector_,
           QOverload<int>::of(&CharMapComboBox::currentIndexChanged),
           this, &ContinuousTab::charMapChanged);
   connect(charMapSelector_, &CharMapComboBox::forceUpdateLimitIndex,
           this, &ContinuousTab::updateLimitIndex);
   connect(sourceSelector_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &ContinuousTab::checkModeSource);
+          this, &ContinuousTab::checkModeSourceAndRepaint);
 
   connect(resetPositionButton_, &QPushButton::clicked,
           canvas_, &GlyphContinuous::resetPositionDelta);
@@ -453,9 +462,9 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::repaintGlyph);
 
   connect(waterfallCheckBox_, &QCheckBox::clicked,
-          this, &ContinuousTab::checkModeSource);
+          this, &ContinuousTab::checkModeSourceAndRepaint);
   connect(verticalCheckBox_, &QCheckBox::clicked,
-          this, &ContinuousTab::checkModeSource);
+          this, &ContinuousTab::checkModeSourceAndRepaint);
   connect(kerningCheckBox_, &QCheckBox::clicked,
           this, &ContinuousTab::reloadGlyphsAndRepaint);
   connect(sourceTextEdit_, &QPlainTextEdit::textChanged,

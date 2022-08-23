@@ -12,9 +12,13 @@
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QScrollArea>
+#include <QLineEdit>
 #include <QSlider>
 #include <QFrame>
+#include <QPushButton>
+#include <QToolButton>
 #include <QLabel>
+#include <QDoubleValidator>
 
 #include <freetype/fttypes.h>
 
@@ -41,6 +45,7 @@ private:
   Engine* engine_;
 
   QCheckBox* showHiddenCheckBox_;
+  QCheckBox* groupingCheckBox_;
   QPushButton* resetDefaultButton_;
   QWidget* itemsListWidget_;
   UnboundScrollArea* scrollArea_;
@@ -56,8 +61,10 @@ private:
   void createLayout();
   void createConnections();
 
-  void itemChanged();
+  void retrieveValues();
+  void itemChanged(size_t index);
   void resetDefaultClicked();
+  void checkGrouping();
 };
 
 
@@ -71,6 +78,7 @@ public:
 
   void updateInfo(MMGXAxisInfo& info);
   FT_Fixed value() { return actualValue_; }
+  void setValue(FT_Fixed value);
   void resetDefault();
 
 signals:
@@ -78,8 +86,10 @@ signals:
 
 private:
   QLabel* nameLabel_;
-  QLabel* valueLabel_;
   QSlider* slider_;
+  QPushButton* resetDefaultButton_;
+  QLineEdit* valueLineEdit_;
+  QDoubleValidator* valueValidator_;
 
   QGridLayout* mainLayout_;
 
@@ -89,6 +99,10 @@ private:
   void createLayout();
   void createConnections();
   void sliderValueChanged();
+  void lineEditChanged();
+  void updateLineEdit();
+  void updateSlider();
+  void resetDefaultSingle();
 };
 
 

@@ -409,7 +409,10 @@ SingularTab::reloadFont()
 {
   currentGlyphCount_ = engine_->currentFontNumberOfGlyphs();
   indexSelector_->setMinMax(0, currentGlyphCount_);
-  sizeSelector_->reloadFromFont(engine_);
+  {
+    QSignalBlocker blocker(sizeSelector_);
+    sizeSelector_->reloadFromFont(engine_);
+  }
   drawGlyph();
 }
 

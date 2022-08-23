@@ -243,13 +243,7 @@ MainGUI::createLayout()
   // to change the policy we have to use a widget wrapper
   leftWidget_ = new QWidget(this);
   leftWidget_->setLayout(leftLayout_);
-
-  QSizePolicy leftWidgetPolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-  leftWidgetPolicy.setHorizontalStretch(0);
-  leftWidgetPolicy.setVerticalPolicy(leftWidget_->sizePolicy().verticalPolicy());
-  leftWidgetPolicy.setHeightForWidth(leftWidget_->sizePolicy().hasHeightForWidth());
-
-  leftWidget_->setSizePolicy(leftWidgetPolicy);
+  leftWidget_->setFixedWidth(400);
 
   // right side
   singularTab_ = new SingularTab(this, engine_);
