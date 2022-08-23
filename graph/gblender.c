@@ -167,6 +167,7 @@ gblender_init( GBlender   blender,
 #ifdef GBLENDER_STATS
   blender->stat_hits    = 0;
   blender->stat_lookups = 0;
+  blender->stat_clashes = 0;
   blender->stat_keys    = 0;
   blender->stat_clears  = 0;
 #endif
@@ -308,6 +309,9 @@ NewNode:
 #endif
 
 Exit:
+#ifdef GBLENDER_STATS
+  blender->stat_clashes += ( idx - idx0 ) & (GBLENDER_KEY_COUNT-1);
+#endif
   return  key->cells;
 }
 
@@ -399,6 +403,9 @@ NewNode:
 #endif
 
 Exit:
+#ifdef GBLENDER_STATS
+  blender->stat_clashes += ( idx - idx0 ) & (GBLENDER_KEY_COUNT-1);
+#endif
   return  (unsigned char*)blender->cells + key->index;
 }
 
@@ -421,6 +428,7 @@ gblender_dump_stats( GBlender  blender )
                    blender->stat_lookups,
           blender->stat_lookups - blender->stat_keys,
           blender->stat_lookups );
+  printf( "  Clashes:     %ld\n", blender->stat_clashes );
   printf( "  Keys used:   %ld\n  Caches full: %ld\n",
           blender->stat_keys, blender->stat_clears );
 }

@@ -107,6 +107,7 @@
 #ifdef GBLENDER_STATS
     long                  stat_hits;    /* number of direct hits             */
     long                  stat_lookups; /* number of table lookups           */
+    long                  stat_clashes; /* number of table clashes           */
     long                  stat_keys;    /* number of table key recomputation */
     long                  stat_clears;  /* number of table clears            */
 #endif
