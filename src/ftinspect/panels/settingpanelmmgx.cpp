@@ -265,6 +265,12 @@ MMGXSettingItem::createLayout()
   resetDefaultButton_->setText(tr("Def"));
   setButtonNarrowest(resetDefaultButton_);
 
+  nameLabel_->setToolTip(tr("Axis name or tag"));
+  slider_->setToolTip(
+    tr("Axis value (max precision: 1/1024 of the value range)"));
+  valueLineEdit_->setToolTip(tr("Axis value"));
+  resetDefaultButton_->setToolTip(tr("Reset axis to default"));
+
   mainLayout_ = new QGridLayout();
 
   mainLayout_->addWidget(nameLabel_, 0, 0, 1, 2);
