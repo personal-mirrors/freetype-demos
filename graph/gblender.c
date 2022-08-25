@@ -169,7 +169,6 @@ gblender_init( GBlender   blender,
   blender->stat_lookups = 0;
   blender->stat_clashes = 0;
   blender->stat_keys    = 0;
-  blender->stat_clears  = 0;
 #endif
 }
 
@@ -264,40 +263,28 @@ gblender_lookup( GBlender       blender,
                  GBlenderPixel  background,
                  GBlenderPixel  foreground )
 {
-  int          idx, idx0;
-  GBlenderKey  key;
+  unsigned int  idx;
+  GBlenderKey   key;
 
 #ifdef GBLENDER_STATS
   blender->stat_hits--;
   blender->stat_lookups++;
 #endif
 
-  idx0 = ( background + foreground*63 ) & (GBLENDER_KEY_COUNT-1);
-  idx  = idx0;
-  do
-  {
-    key = blender->keys + idx;
+  idx = ( background ^ foreground * 7 ) % (GBLENDER_KEY_COUNT-1);
 
-    if ( key->cells == NULL )
-      goto NewNode;
+  key = blender->keys + idx;
 
-    if ( key->background == background &&
-         key->foreground == foreground )
-      goto Exit;
+  if ( key->cells == NULL )
+    goto NewNode;
+
+  if ( key->background == background &&
+       key->foreground == foreground )
+    goto Exit;
 
 #ifdef GBLENDER_STATS
-    blender->stat_clashes++;
+  blender->stat_clashes++;
 #endif
-    idx = (idx+1) & (GBLENDER_KEY_COUNT-1);
-  }
-  while ( idx != idx0 );
-
- /* the cache is full, clear it completely
-  */
-#ifdef GBLENDER_STATS
-  blender->stat_clears++;
-#endif
-  gblender_clear( blender );
 
 NewNode:
   key->background = background;
@@ -360,7 +347,7 @@ gblender_lookup_channel( GBlender      blender,
                          unsigned int  background,
                          unsigned int  foreground )
 {
-  int              idx, idx0;
+  unsigned         idx;
   unsigned short   backfore = (unsigned short)((foreground << 8) | background);
   GBlenderChanKey  key;
 
@@ -369,31 +356,19 @@ gblender_lookup_channel( GBlender      blender,
   blender->stat_lookups++;
 #endif
 
-  idx0 = ( background + foreground*17 ) & (GBLENDER_KEY_COUNT-1);
-  idx  = idx0;
-  do
-  {
-    key = (GBlenderChanKey)blender->keys + idx;
+  idx = ( background ^ foreground * 7 ) % (GBLENDER_KEY_COUNT-1);
 
-    if ( key->index < 0 )
-      goto NewNode;
+  key = (GBlenderChanKey)blender->keys + idx;
 
-    if ( key->backfore == backfore )
-      goto Exit;
+  if ( key->index < 0 )
+    goto NewNode;
+
+  if ( key->backfore == backfore )
+    goto Exit;
 
 #ifdef GBLENDER_STATS
-    blender->stat_clashes++;
+  blender->stat_clashes++;
 #endif
-    idx = (idx+1) & (GBLENDER_KEY_COUNT-1);
-  }
-  while ( idx != idx0 );
-
- /* the cache is full, clear it completely
-  */
-#ifdef GBLENDER_STATS
-  blender->stat_clears++;
-#endif
-  gblender_clear( blender );
 
 NewNode:
   key->backfore   = backfore;
@@ -429,7 +404,6 @@ gblender_dump_stats( GBlender  blender )
           blender->stat_lookups - blender->stat_keys,
           blender->stat_lookups );
   printf( "  Clashes:     %ld\n", blender->stat_clashes );
-  printf( "  Keys used:   %ld\n  Caches full: %ld\n",
-          blender->stat_keys, blender->stat_clears );
+  printf( "  Keys used:   %ld\n", blender->stat_keys );
 }
 #endif
