@@ -285,6 +285,9 @@ gblender_lookup( GBlender       blender,
          key->foreground == foreground )
       goto Exit;
 
+#ifdef GBLENDER_STATS
+    blender->stat_clashes++;
+#endif
     idx = (idx+1) & (GBLENDER_KEY_COUNT-1);
   }
   while ( idx != idx0 );
@@ -309,9 +312,6 @@ NewNode:
 #endif
 
 Exit:
-#ifdef GBLENDER_STATS
-  blender->stat_clashes += ( idx - idx0 ) & (GBLENDER_KEY_COUNT-1);
-#endif
   return  key->cells;
 }
 
@@ -381,6 +381,9 @@ gblender_lookup_channel( GBlender      blender,
     if ( key->backfore == backfore )
       goto Exit;
 
+#ifdef GBLENDER_STATS
+    blender->stat_clashes++;
+#endif
     idx = (idx+1) & (GBLENDER_KEY_COUNT-1);
   }
   while ( idx != idx0 );
@@ -403,9 +406,6 @@ NewNode:
 #endif
 
 Exit:
-#ifdef GBLENDER_STATS
-  blender->stat_clashes += ( idx - idx0 ) & (GBLENDER_KEY_COUNT-1);
-#endif
   return  (unsigned char*)blender->cells + key->index;
 }
 
