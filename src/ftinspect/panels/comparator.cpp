@@ -89,15 +89,18 @@ ComperatorTab::createLayout()
   sizeSelector_ = new FontSizeSelector(this);
   charMapLabel_ = new QLabel(tr("Char Map:"), this);
   charMapSelector_ = new CharMapComboBox(this, engine_, false);
-
   sourceTextEdit_ = new QPlainTextEdit(QString(ComparatorDefaultText), this);
+
+  sizeSelector_->installEventFilterForWidget(this);
 
   for (int i = 0; i < ColumnWidth; ++i)
   {
     auto frame = new QFrame(this);
     auto canvas = new GlyphContinuous(frame, engine_);
     auto settingPanel = new SettingPanel(this, engine_, true);
-    
+
+    sizeSelector_->installEventFilterForWidget(canvas);
+
     canvas->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     settingPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
@@ -116,6 +119,10 @@ ComperatorTab::createLayout()
   sourceWidget_ = new QWidget(this);
   sourceWidget_->setMaximumWidth(350);
 
+  // Tooltips
+  sourceTextEdit_->setToolTip(tr("Source text for previewing"));
+
+  // Layouting
   layout_ = new QGridLayout;
 
   charMapLayout_ = new QHBoxLayout;

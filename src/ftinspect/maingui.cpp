@@ -264,6 +264,16 @@ MainGUI::createLayout()
   tabs_.append(infoTab_);
   tabWidget_->addTab(infoTab_, tr("Font Info"));
   
+  tabWidget_->setTabToolTip(0, tr("View single glyph in grid view.\n"
+                                  "For pixelwise inspection of the glyphs."));
+  tabWidget_->setTabToolTip(1, tr("View a string of glyphs continuously.\n"
+                                  "Show all glyphs in the font or render "
+                                  "strings."));
+  tabWidget_->setTabToolTip(2, tr("Compare the output of the font "
+                                  "in different rendering settings "
+                                  "(e.g. hintings)."));
+  tabWidget_->setTabToolTip(3, tr("View font info and metadata."));
+  
   tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;

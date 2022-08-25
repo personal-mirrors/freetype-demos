@@ -319,7 +319,7 @@ TripletSelector::createLayout()
 {
   fontComboBox_ = new QComboBox(this);
   faceComboBox_ = new QComboBox(this);
-  niComboBox_    = new QComboBox(this);
+  niComboBox_   = new QComboBox(this);
 
   fontComboBox_->setPlaceholderText(tr("No font open"));
   faceComboBox_->setPlaceholderText(tr("No face available"));
@@ -352,6 +352,20 @@ TripletSelector::createLayout()
   faceDownButton_ ->setFixedSize(30, 30);
   niDownButton_   ->setFixedSize(30, 30);
 
+  // Tooltips
+  fontComboBox_->setToolTip(tr("Current font"));
+  faceComboBox_->setToolTip(tr("Current subfont (face)"));
+  niComboBox_->setToolTip(
+    tr("Current named instance (only available for variable fonts)"));
+  closeFontButton_->setToolTip(tr("Close current font"));
+  fontUpButton_   ->setToolTip(tr("Previous font"));
+  faceUpButton_   ->setToolTip(tr("Previous subfont (face)"));
+  niUpButton_     ->setToolTip(tr("Previous named instance"));
+  fontDownButton_ ->setToolTip(tr("Next font"));
+  faceDownButton_ ->setToolTip(tr("Next subfont (face)"));
+  niDownButton_   ->setToolTip(tr("Next named instance"));
+
+  // Layouting
   layout_ = new QHBoxLayout;
   layout_->setSpacing(0);
   layout_->setContentsMargins(0, 0, 0, 0);
@@ -435,7 +449,7 @@ TripletSelector::loadTriplet()
     }
   }
 
-  auto number = engine_->loadFont(fontIndex, faceIndex, instanceIndex);
+  engine_->loadFont(fontIndex, faceIndex, instanceIndex);
   
   // TODO: This may messes up with bitmap-only fonts.
   if (!engine_->fontValid())

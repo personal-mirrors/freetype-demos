@@ -14,6 +14,7 @@ CharMapComboBox::CharMapComboBox(QWidget* parent,
   haveGlyphOrder_(haveGlyphOrder),
   engine_(engine)
 {
+  setToolTip("Set current charmap.");
 }
 
 

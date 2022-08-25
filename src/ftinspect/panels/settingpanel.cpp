@@ -538,6 +538,46 @@ SettingPanel::createLayout()
   tab_->setSizePolicy(QSizePolicy::MinimumExpanding,
                       QSizePolicy::MinimumExpanding);
 
+  // Tooltips
+  hintingCheckBox_->setToolTip(tr("Enable hinting a.k.a. grid-fitting."));
+  hintingModeComboBox_->setToolTip(
+    tr("Modes not available for current font type will be disabled. No "
+       "effect when auto-hinting is enabled"));
+  autoHintingCheckBox_->setToolTip(tr("Enable FreeType Auto-Hinter."));
+  if (debugMode_)
+  {
+    horizontalHintingCheckBox_->setToolTip(tr("(auto-hinter debug option)"));
+    verticalHintingCheckBox_  ->setToolTip(tr("(auto-hinter debug option)"));
+    blueZoneHintingCheckBox_  ->setToolTip(tr("(auto-hinter debug option)"));
+    segmentDrawingCheckBox_   ->setToolTip(tr("(auto-hinter debug option)"));
+  }
+  antiAliasingComboBox_->setToolTip(tr("Select anti-aliasing mode."));
+  lcdFilterComboBox_->setToolTip(
+    tr("Select LCD filter (only valid when LCD AA is enabled)."));
+  embeddedBitmapCheckBox_->setToolTip(tr(
+    "Enable embedded bitmap strikes (force enabled for bitmap-only fonts)."));
+  stemDarkeningCheckBox_->setToolTip(
+    tr("Enable stem darkening (only valid for auto-hinter with gamma "
+       "correction enabled)."));
+  gammaSlider_->setToolTip("Gamma correction value.");
+  colorLayerCheckBox_->setToolTip(tr("Enable color layer rendering."));
+  paletteComboBox_->setToolTip(tr("Select color layer palette (only valid when "
+                                  "any palette exists in the font)."));
+  if (comparatorMode_)
+  {
+    kerningCheckBox_->setToolTip(
+      tr("Enable kerning (GPOS table not supported)."));
+    lsbRsbDeltaCheckBox_->setToolTip(
+      tr("Enable LSB/RSB delta positioning (only valid when hinting is "
+         "enabled)."));
+  }
+  if (!comparatorMode_)
+  {
+    backgroundButton_->setToolTip(tr("Set canvas background color."));
+    foregroundButton_->setToolTip(tr("Set text color."));
+  }
+
+  // Layouting
   if (debugMode_)
   {
     debugLayout_ = new QVBoxLayout;
@@ -563,7 +603,6 @@ SettingPanel::createLayout()
   setLayout(mainLayout_);
   mainLayout_->setContentsMargins(0, 0, 0, 0);
   setContentsMargins(0, 0, 0, 0);
-  
 }
 
 
@@ -615,6 +654,9 @@ SettingPanel::createLayoutNormal()
 
   tab_->addTab(generalTab_, tr("General"));
   tab_->addTab(mmgxPanel_, tr("MM/GX"));
+
+  tab_->setTabToolTip(0, tr("General settings."));
+  tab_->setTabToolTip(1, tr("MM/GX axis parameters."));
 }
 
 
@@ -660,6 +702,9 @@ SettingPanel::createLayoutComperator()
   tab_->addTab(hintingRenderingTab_, tr("Hinting && Rendering"));
   tab_->addTab(generalTab_, tr("General"));
   tab_->addTab(mmgxPanel_, tr("MM/GX"));
+  tab_->setTabToolTip(0, tr("Settings about hinting and rendering."));
+  tab_->setTabToolTip(1, tr("General settings."));
+  tab_->setTabToolTip(2, tr("MM/GX axis parameters."));
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
 }
 

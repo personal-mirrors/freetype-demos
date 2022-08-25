@@ -124,6 +124,27 @@ GlyphDetails::createLayout()
   setLabelSelectable(inkSizeLabel_);
   setLabelSelectable(bitmapOffsetLabel_);
 
+  // Tooltips
+  fontUnitButton_->setToolTip(tr("Unit for most metrics entries below"));
+  pointButton_   ->setToolTip(tr("Unit for most metrics entries below"));
+  pixelButton_   ->setToolTip(tr("Unit for most metrics entries below"));
+  bboxSizeLabel_->setToolTip(
+    tr("Glyph bounding box (in unit specified above)"));
+  horiBearingLabel_->setToolTip(
+    tr("Bearing for horizontal layout (in unit specified above)"));
+  horiAdvanceLabel_->setToolTip(
+    tr("Advance for horizontal layout (in unit specified above)"));
+  vertBearingLabel_->setToolTip(
+    tr("Bearing for vertical layout (in unit specified above)"));
+  vertAdvanceLabel_->setToolTip(
+    tr("Advance for vertical layout (in unit specified above)"));
+  inkSizeLabel_->setToolTip(
+    tr("The tightest bounding box size (always in pixels)"));
+  bitmapOffsetLabel_->setToolTip(
+    tr("Offset from the most top-left point to the bitmap (always in pixels)"));
+  bitmapWidget_->setToolTip(tr("Bitmap preview"));
+
+  // Layouting
   unitLayout_ = new QHBoxLayout;
   unitLayout_->addWidget(fontUnitButton_);
   unitLayout_->addWidget(pointButton_);

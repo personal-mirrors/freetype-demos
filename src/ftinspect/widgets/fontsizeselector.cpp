@@ -194,6 +194,16 @@ FontSizeSelector::createLayout()
   dpiSpinBox_->setRange(10, 600);
   dpiLabel_->setBuddy(dpiSpinBox_);
 
+  // Tooltips
+  sizeDoubleSpinBox_->setToolTip(
+    tr("Size value (will be limited to available sizes if\nthe current font "
+       "is not scalable)."));
+  unitsComboBox_->setToolTip(tr("Unit for the size value (force to pixel if\n"
+                                "the current font is not scalable)."));
+  dpiSpinBox_->setToolTip(
+    tr("DPI for the point size value (only valid when the unit is point)."));
+
+  // Layouting
   layout_ = new QHBoxLayout;
 
   layout_->addStretch(1);

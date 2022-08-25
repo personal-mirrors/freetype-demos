@@ -8,6 +8,7 @@
 #include "../uihelper.hpp"
 
 #include <climits>
+#include <QToolTip>
 #include <QVariant>
 
 
@@ -255,6 +256,26 @@ ContinuousTab::openWaterfallConfig()
 }
 
 
+void
+ContinuousTab::showToolTip()
+{
+  // TODO: tooltips
+  QToolTip::showText(mapToGlobal(helpButton_->pos()),
+                     tr(
+R"(Shift + Scroll: Adjust Font Size
+Shift + Plus/Minus: Adjust Font Size
+Shift + 0: Reset Font Size to Default
+Left Click: Show Glyph Details Info
+Right Click: Inspect Glyph in Singular Grid View
+
+<All Glyphs Source>
+  Drag: Adjust Begin Index
+<Text String Source>
+  Drag: Move String Position)"),
+                     helpButton_);
+}
+
+
 bool
 ContinuousTab::eventFilter(QObject* watched,
                            QEvent* event)
@@ -334,8 +355,10 @@ ContinuousTab::createLayout()
   strokeRadiusLabel_ = new QLabel(tr("Stroke Radius:"), this);
   rotationLabel_ = new QLabel(tr("Rotation:"), this);
 
-  resetPositionButton_ = new QPushButton(tr("Reset Pos"));
-  waterfallConfigButton_ = new QPushButton(tr("WF Config"));
+  resetPositionButton_ = new QPushButton(tr("Reset Pos"), this);
+  waterfallConfigButton_ = new QPushButton(tr("WF Config"), this);
+  helpButton_ = new QPushButton(this);
+  helpButton_->setText(tr("?"));
 
   xEmboldeningSpinBox_ = new QDoubleSpinBox(this);
   yEmboldeningSpinBox_ = new QDoubleSpinBox(this);
@@ -361,11 +384,48 @@ ContinuousTab::createLayout()
 
   wfConfigDialog_ = new WaterfallConfigDialog(this);
 
+  // Tooltips
+  sourceSelector_->setToolTip(tr("Choose what to display as the text source."));
+  modeSelector_->setToolTip(
+    tr("Choose the special effect in which the text is displayed."));
+  strokeRadiusSpinBox_->setToolTip(
+    tr("Stroke corner radius (only available when mode set to Stroked)"));
+  rotationSpinBox_->setToolTip(tr("Rotation, in degrees"));
+  xEmboldeningSpinBox_->setToolTip(
+    tr("Horizontal Emboldening (only available when mode set to Fancy)"));
+  yEmboldeningSpinBox_->setToolTip(
+    tr("Vertical Emboldening (only available when mode set to Fancy)"));
+  slantSpinBox_->setToolTip(
+    tr("Slanting (only available when mode set to Fancy)"));
+  sourceTextEdit_->setToolTip(
+    tr("Source string (only available when source set to Text String)"));
+  waterfallConfigButton_->setToolTip(tr(
+    "Set waterfall start and end size. Not available when the font is not\n"
+    "scalable because in such case all available sizes would be displayed."));
+  sampleStringSelector_->setToolTip(
+    tr("Select preset sample strings (only available when source set to\nText "
+       "String)"));
+  resetPositionButton_->setToolTip(tr("Reset the position to the center (only "
+                                      "available when source set to\nText "
+                                      "String)"));
+  waterfallCheckBox_->setToolTip(tr(
+    "Enable waterfall mode: show the font output in different sizes.\nWill "
+    "show all available sizes when the font is not scalable."));
+  verticalCheckBox_->setToolTip(tr("Enable vertical rendering (only available\n"
+                                "when source set to Text String)"));
+  kerningCheckBox_->setToolTip(tr("Enable kerning (GPOS table unsupported)"));
+  helpButton_->setToolTip(tr("Get mouse helps"));
+
+  // Layouting
   canvasFrameLayout_ = new QHBoxLayout;
   canvasFrameLayout_->addWidget(canvas_);
   canvasFrame_->setLayout(canvasFrameLayout_);
   canvasFrameLayout_->setContentsMargins(2, 2, 2, 2);
   canvasFrame_->setContentsMargins(2, 2, 2, 2);
+
+  sizeHelpLayout_ = new QHBoxLayout;
+  sizeHelpLayout_->addWidget(sizeSelector_, 1, Qt::AlignVCenter);
+  sizeHelpLayout_->addWidget(helpButton_, 0);
 
   bottomLayout_ = new QGridLayout;
   bottomLayout_->addWidget(sourceLabel_, 0, 0);
@@ -400,7 +460,7 @@ ContinuousTab::createLayout()
 
   mainLayout_ = new QVBoxLayout;
   mainLayout_->addWidget(canvasFrame_);
-  mainLayout_->addWidget(sizeSelector_);
+  mainLayout_->addLayout(sizeHelpLayout_);
   mainLayout_->addLayout(bottomLayout_);
 
   setLayout(mainLayout_);
@@ -442,6 +502,8 @@ ContinuousTab::createConnections()
           canvas_, &GlyphContinuous::resetPositionDelta);
   connect(waterfallConfigButton_, &QPushButton::clicked,
           this, &ContinuousTab::openWaterfallConfig);
+  connect(helpButton_, &QPushButton::clicked,
+          this, &ContinuousTab::showToolTip);
   connect(wfConfigDialog_, &WaterfallConfigDialog::sizeUpdated,
           this, &ContinuousTab::repaintGlyph);
 
@@ -562,13 +624,21 @@ WaterfallConfigDialog::createLayout()
   endSpinBox_->setValue(1);
 
   autoBox_ = new QCheckBox(tr("Auto"), this);
-  
+  autoBox_->setChecked(true);
+
+  // Tooltips
+  autoBox_->setToolTip(tr(
+    "Use the default value which will try to start from near zero and place "
+    "in the middle of the screen the size selected in the selector."));
+  startSpinBox_->setToolTip(tr("Start size, will be always guaranteed."));
+  endSpinBox_->setToolTip(tr(
+    "End size, may not be guaranteed due to rounding and precision issues."));
+
+  // Layouting
   layout_ = new QGridLayout;
   gridLayout2ColAddWidget(layout_, autoBox_);
   gridLayout2ColAddWidget(layout_, startLabel_, startSpinBox_);
   gridLayout2ColAddWidget(layout_, endLabel_, endSpinBox_);
-
-  autoBox_->setChecked(true);
 
   setLayout(layout_);
 }

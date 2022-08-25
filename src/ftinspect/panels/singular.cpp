@@ -313,6 +313,23 @@ SingularTab::createLayout()
   showGridCheckBox_ = new QCheckBox(tr("Show Grid"), this);
   showAuxLinesCheckBox_ = new QCheckBox(tr("Show Aux. Lines"), this);
 
+  // Tooltips
+  zoomSpinBox_->setToolTip(tr("Adjust grid zoom."));
+  centerGridButton_->setToolTip(tr(
+    "Move the viewport so the origin point is at the center of the view."));
+  showBitmapCheckBox_->setToolTip(tr("Show glyph bitmap."));
+  showPointsCheckBox_->setToolTip(
+    tr("Show control points (only valid when the glyph is an outline glyph)."));
+  showPointNumbersCheckBox_->setToolTip(
+    tr("Show point numbers (only available when points are shown)."));
+  showOutlinesCheckBox_->setToolTip(tr("Show (vector) outline (only valid when "
+                                       "the glyph is an outline glyph)."));
+  showGridCheckBox_->setToolTip(tr("Show grid lines (x axis: baseline)."));
+  showBitmapCheckBox_->setToolTip(
+    tr("Show auxiliary lines (blue: y-advance; red: ascender/descender)."));
+  helpButton_->setToolTip(tr("View scroll help"));
+
+  // Layouting
   indexHelpLayout_ = new QHBoxLayout;
   indexHelpLayout_->addWidget(indexSelector_, 1);
   indexHelpLayout_->addWidget(helpButton_);

@@ -63,6 +63,7 @@ public:
                           int charMapIndex, 
                           bool open);
   void openWaterfallConfig();
+  void showToolTip();
 
 signals:
   void switchToSingular(int glyphIndex, double sizePoint);
@@ -92,6 +93,7 @@ private:
 
   QPushButton* resetPositionButton_;
   QPushButton* waterfallConfigButton_;
+  QPushButton* helpButton_;
 
   QLabel* modeLabel_;
   QLabel* sourceLabel_;
@@ -116,6 +118,7 @@ private:
   QPlainTextEdit* sourceTextEdit_;
   
   QHBoxLayout* canvasFrameLayout_;
+  QHBoxLayout* sizeHelpLayout_;
   QGridLayout* bottomLayout_;
   QVBoxLayout* mainLayout_;
 

@@ -155,6 +155,11 @@ GlyphIndexSelector::createLayout()
   setButtonNarrowest(toP1000Button_);
   setButtonNarrowest(toEndButton_);
 
+  // Toltips
+  indexSpinBox_->setToolTip("Current glyph index.");
+  indexLabel_->setToolTip("Current glyph index/range and the max index.");
+
+  // Layouting
   navigationLayout_ = new QHBoxLayout;
   navigationLayout_->setSpacing(0);
   navigationLayout_->addStretch(3);
