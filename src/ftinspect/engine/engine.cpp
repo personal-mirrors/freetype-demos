@@ -163,7 +163,8 @@ Engine::Engine()
   }
   
   queryEngine();
-  renderingEngine_ = std::make_unique<RenderingEngine>(this);
+  renderingEngine_
+    = std::unique_ptr<RenderingEngine>(new RenderingEngine(this));
 }
 
 
