@@ -57,10 +57,7 @@ SettingPanelMMGX::reloadFont()
       w->updateInfo(currentAxes_[i]);
       listLayout_->addWidget(w);
       connect(w, &MMGXSettingItem::valueChanged,
-              [this, index = i]
-              {
-                itemChanged(index);
-              });
+              [this, i] { itemChanged(i); });
     }
   }
   checkHidden();
