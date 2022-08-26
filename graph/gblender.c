@@ -202,7 +202,7 @@ gblender_reset_key( GBlender     blender,
   const unsigned char*   gamma_ramp_inv = blender->gamma_ramp_inv;
   const unsigned short*  gamma_ramp     = blender->gamma_ramp;
 
-  unsigned int  r1,g1,b1,r2,g2,b2;
+  int  r1, g1, b1, r2, g2, b2;
 
   r1 = ( back >> 16 ) & 255;
   g1 = ( back >> 8 )  & 255;
@@ -222,32 +222,35 @@ gblender_reset_key( GBlender     blender,
   gr   += 1;
 #endif
 
-  r1 = gamma_ramp[r1];
-  g1 = gamma_ramp[g1];
-  b1 = gamma_ramp[b1];
+  r1 = gamma_ramp[r1] << 10;
+  g1 = gamma_ramp[g1] << 10;
+  b1 = gamma_ramp[b1] << 10;
 
-  r2 = gamma_ramp[r2];
-  g2 = gamma_ramp[g2];
-  b2 = gamma_ramp[b2];
+  r2 = gamma_ramp[r2] << 10;
+  g2 = gamma_ramp[g2] << 10;
+  b2 = gamma_ramp[b2] << 10;
+
+  r2 = ( r2 - r1 ) / ( GBLENDER_SHADE_COUNT - 1 );
+  g2 = ( g2 - g1 ) / ( GBLENDER_SHADE_COUNT - 1 );
+  b2 = ( b2 - b1 ) / ( GBLENDER_SHADE_COUNT - 1 );
 
   for ( nn = 1; nn < GBLENDER_SHADE_COUNT; nn++ )
   {
-    unsigned int  a = 255 * nn / ( GBLENDER_SHADE_COUNT - 1 );
-    unsigned int  r, g, b;
+    unsigned char  r, g, b;
 
 
-    r = ( r2 * a + r1 * ( 255 - a ) + 127 ) / 255;
-    g = ( g2 * a + g1 * ( 255 - a ) + 127 ) / 255;
-    b = ( b2 * a + b1 * ( 255 - a ) + 127 ) / 255;
+    r1 += r2;
+    g1 += g2;
+    b1 += b2;
 
-    r = gamma_ramp_inv[r];
-    g = gamma_ramp_inv[g];
-    b = gamma_ramp_inv[b];
+    r = gamma_ramp_inv[r1 >> 10];
+    g = gamma_ramp_inv[g1 >> 10];
+    b = gamma_ramp_inv[b1 >> 10];
 
 #ifdef GBLENDER_STORE_BYTES
-    gr[0] = (unsigned char)r;
-    gr[1] = (unsigned char)g;
-    gr[2] = (unsigned char)b;
+    gr[0] = r;
+    gr[1] = g;
+    gr[2] = b;
     gr   += 3;
 #else
     gr[0] = ( r << 16 ) | ( g << 8 ) | b;
@@ -315,28 +318,21 @@ gblender_reset_channel_key( GBlender         blender,
   const unsigned char*   gamma_ramp_inv = blender->gamma_ramp_inv;
   const unsigned short*  gamma_ramp     = blender->gamma_ramp;
 
-  unsigned int  r1,r2;
+  int  r1, r2;
 
-  r1    = back;
-  r2    = fore;
-
-  gr[0] = (unsigned char)r1;
+  gr[0] = (unsigned char)back;
   gr++;
 
-  r1 = gamma_ramp[r1];
-  r2 = gamma_ramp[r2];
+  r1 = gamma_ramp[back] << 10;
+  r2 = gamma_ramp[fore] << 10;
+
+  r2 = ( r2 - r1 ) / ( GBLENDER_SHADE_COUNT - 1 );
 
   for ( nn = 1; nn < GBLENDER_SHADE_COUNT; nn++ )
   {
-    unsigned int  a = 255 * nn / ( GBLENDER_SHADE_COUNT - 1 );
-    unsigned int  r;
+    r1 += r2;
 
-
-    r = ( r2 * a + r1 * ( 255 - a ) + 127 ) / 255;
-
-    r  = gamma_ramp_inv[r];
-
-    gr[0] = (unsigned char)r;
+    gr[0] = gamma_ramp_inv[r1 >> 10];
     gr++;
   }
 }
