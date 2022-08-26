@@ -207,6 +207,8 @@ SFNTNameModel::data(const QModelIndex& index,
   switch (static_cast<Columns>(index.column()))
   {
   case SNM_Name:
+    if (obj.nameID >= 256)
+      return QString::number(obj.nameID);
     return QString("%1 <%2>")
              .arg(obj.nameID)
              .arg(*mapSFNTNameIDToName(obj.nameID));
