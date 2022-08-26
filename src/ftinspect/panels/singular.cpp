@@ -250,6 +250,36 @@ SingularTab::eventFilter(QObject* watched,
 
 
 void
+SingularTab::resizeEvent(QResizeEvent* event)
+{
+  QWidget::resizeEvent(event);
+
+  // Tricky part: when loading, this method will be called twice. Only at the
+  // second time the initial layouting is done, thus the result of `centerOn`
+  // can be valid.
+  // We want to only center the midpoint of the size when the program starts up
+  // so we use a counter to track the status.
+  if (initialPositionSetCount_ <= 0)
+    return;
+  initialPositionSetCount_--;
+
+  updateGeometry();
+  auto size = sizeSelector_->selectedSize();
+  auto unit = sizeSelector_->selectedUnit();
+  if (unit == FontSizeSelector::Units_pt)
+  {
+    sizeSelector_->applyToEngine(engine_);
+    auto dpi = engine_->dpi();
+    auto val = size * dpi / 72.0 / 2;
+    glyphView_->centerOn(val, -val);
+  }
+  else
+    glyphView_->centerOn(size / 2, -size / 2);
+
+}
+
+
+void
 SingularTab::createLayout()
 {
   glyphScene_ = new QGraphicsScene(this);

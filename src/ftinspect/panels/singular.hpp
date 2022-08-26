@@ -58,6 +58,7 @@ private slots:
 
 protected:
   bool eventFilter(QObject* watched, QEvent* event) override;
+  void resizeEvent(QResizeEvent* event) override;
 
 private:
   int currentGlyphIndex_;
@@ -99,6 +100,8 @@ private:
   QHBoxLayout* glyphOverlayIndexLayout_;
 
   GraphicsDefault* graphicsDefault_;
+
+  int initialPositionSetCount_ = 2; // see `resizeEvent`
 
   void createLayout();
   void createConnections();
