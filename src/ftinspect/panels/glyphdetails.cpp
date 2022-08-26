@@ -30,6 +30,7 @@ GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
 {
   auto& cMaps = engine_->currentFontCharMaps();
 
+  glyphIndex_ = ctxt.glyphIndex;
   glyphIndexLabel_->setText(QString::number(ctxt.glyphIndex));
   if (charMapIndex < 0 || static_cast<unsigned>(charMapIndex) >= cMaps.size())
   {
@@ -187,6 +188,9 @@ GlyphDetails::createConnections()
 {
   connect(unitButtonGroup_, &QButtonGroup::idClicked,
           this, &GlyphDetails::changeUnit);
+
+  connect(bitmapWidget_, &GlyphBitmapWidget::clicked,
+          this, &GlyphDetails::bitmapWidgetClicked);
 }
 
 
@@ -246,6 +250,14 @@ GlyphDetails::changeUnit(int unitId)
   horiAdvanceLabel_->setText(tmpl.arg(horiAdvance));
   vertBearingLabel_->setText(tmplPair.arg(vertBearingX).arg(vertBearingY));
   vertAdvanceLabel_->setText(tmpl.arg(vertAdvance));
+}
+
+
+void
+GlyphDetails::bitmapWidgetClicked()
+{
+  if (glyphIndex_ >= 0)
+    emit switchToSingular(glyphIndex_);
 }
 
 

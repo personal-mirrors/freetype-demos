@@ -41,6 +41,7 @@ public:
 
   void repaintGlyph() override;
   void reloadFont() override;
+  // when sizePoint <= 0, the size remains unchanged.
   void setCurrentGlyphAndSize(int glyphIndex, double sizePoint);
 
 private slots:

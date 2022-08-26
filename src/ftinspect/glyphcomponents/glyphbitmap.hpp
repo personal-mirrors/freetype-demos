@@ -38,6 +38,7 @@ private:
   QRectF boundingRect_;
 };
 
+
 // Sometimes we don't want a complicated QGraphicsView
 // for this kind of work...
 class GlyphBitmapWidget
@@ -51,9 +52,13 @@ public:
   void updateImage(QImage* image, QRect rect);
   void releaseImage();
 
+signals:
+  void clicked();
+
 protected:
   void paintEvent(QPaintEvent* event) override;
   QSize sizeHint() const override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
   GlyphBitmap* bitmapItem_ = NULL;

@@ -537,6 +537,9 @@ ContinuousTab::createConnections()
 
   sizeSelector_->installEventFilterForWidget(canvas_);
   sizeSelector_->installEventFilterForWidget(this);
+
+  connect(glyphDetails_, &GlyphDetails::switchToSingular,
+          [&] (int index) { switchToSingular(index, -1); });
 }
 
 

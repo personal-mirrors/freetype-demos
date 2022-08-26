@@ -66,6 +66,7 @@ public:
   void showToolTip();
 
 signals:
+  // if sizePoint <= 0, then don't change size.
   void switchToSingular(int glyphIndex, double sizePoint);
 
 protected:

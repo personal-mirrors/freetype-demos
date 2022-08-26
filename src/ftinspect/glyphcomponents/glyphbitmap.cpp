@@ -96,7 +96,7 @@ GlyphBitmap::paint(QPainter* painter,
 GlyphBitmapWidget::GlyphBitmapWidget(QWidget* parent)
 : QWidget(parent)
 {
-  
+  setToolTip(tr("Click to inspect in Singular Grid View."));
 }
 
 
@@ -162,6 +162,15 @@ QSize
 GlyphBitmapWidget::sizeHint() const
 {
   return { 300, 300 };
+}
+
+
+void
+GlyphBitmapWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  QWidget::mouseReleaseEvent(event);
+  if (event->button() == Qt::LeftButton)
+    emit clicked();
 }
 
 

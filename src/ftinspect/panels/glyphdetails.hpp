@@ -30,8 +30,12 @@ public:
   void updateGlyph(GlyphCacheEntry& ctxt,
                    int charMapIndex);
 
+signals:
+  void switchToSingular(int index);
+
 private:
   Engine* engine_ = NULL;
+  int glyphIndex_ = -1;
 
   enum DisplayUnit : int
   {
@@ -79,6 +83,7 @@ private:
   void createConnections();
 
   void changeUnit(int unitId);
+  void bitmapWidgetClicked();
 };
 
 
