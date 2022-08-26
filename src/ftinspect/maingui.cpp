@@ -250,7 +250,7 @@ MainGUI::createLayout()
   // to change the policy we have to use a widget wrapper
   leftWidget_ = new QWidget(this);
   leftWidget_->setLayout(leftLayout_);
-  leftWidget_->setFixedWidth(400);
+  leftWidget_->setMaximumWidth(400);
 
   // right side
   singularTab_ = new SingularTab(this, engine_);
@@ -303,9 +303,11 @@ MainGUI::createLayout()
   ftinspectLayout_->addLayout(mainPartLayout_);
   ftinspectLayout_->addWidget(tripletSelector_);
   ftinspectLayout_->setContentsMargins(0, 0, 0, 0);
+  ftinspectLayout_->setSizeConstraint(QLayout::SetNoConstraint);
 
   ftinspectWidget_ = new QWidget(this);
   ftinspectWidget_->setLayout(ftinspectLayout_);
+  layout()->setSizeConstraint(QLayout::SetNoConstraint);
 
   statusBar()->hide(); // remove the extra space
   setCentralWidget(ftinspectWidget_);

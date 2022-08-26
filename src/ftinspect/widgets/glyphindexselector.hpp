@@ -33,6 +33,9 @@ public:
 signals:
   void currentIndexChanged(int index);
 
+protected:
+  void resizeEvent(QResizeEvent* event) override;
+
 private slots:
   void adjustIndex(int delta);
   void emitValueChanged();
@@ -44,7 +47,7 @@ private:
   std::function<QString(int)> numberRenderer_;
 
   // min, max and current status are held by `indexSpinBox_`
-
+  QWidget* navigationWidget_;
   QPushButton* toEndButton_;
   QPushButton* toM1000Button_;
   QPushButton* toM100Button_;
@@ -60,6 +63,7 @@ private:
   QSpinBox* indexSpinBox_;
 
   QHBoxLayout* navigationLayout_;
+  QHBoxLayout* layout_;
 
   QSignalMapper* glyphNavigationMapper_;
 

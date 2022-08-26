@@ -82,6 +82,22 @@ GlyphIndexSelector::setNumberRenderer(std::function<QString(int)> renderer)
 
 
 void
+GlyphIndexSelector::resizeEvent(QResizeEvent* event)
+{
+  QWidget::resizeEvent(event);
+  auto minimumWidth = minimumSizeHint().width();
+  if (toEndButton_->isVisible())
+  {
+    if (width() < minimumWidth)
+      navigationWidget_->setVisible(false);
+  }
+  else if (navigationWidget_->minimumSizeHint().width() + minimumWidth 
+           <= width())
+    navigationWidget_->setVisible(true);
+}
+
+
+void
 GlyphIndexSelector::adjustIndex(int delta)
 {
   {
@@ -123,6 +139,7 @@ GlyphIndexSelector::updateLabel()
 void
 GlyphIndexSelector::createLayout()
 {
+  navigationWidget_ = new QWidget(this);
   toStartButton_ = new QPushButton("|<", this);
   toM1000Button_ = new QPushButton("-1000", this);
   toM100Button_ = new QPushButton("-100", this);
@@ -162,7 +179,6 @@ GlyphIndexSelector::createLayout()
   // Layouting
   navigationLayout_ = new QHBoxLayout;
   navigationLayout_->setSpacing(0);
-  navigationLayout_->addStretch(3);
   navigationLayout_->addWidget(toStartButton_);
   navigationLayout_->addWidget(toM1000Button_);
   navigationLayout_->addWidget(toM100Button_);
@@ -173,14 +189,20 @@ GlyphIndexSelector::createLayout()
   navigationLayout_->addWidget(toP100Button_);
   navigationLayout_->addWidget(toP1000Button_);
   navigationLayout_->addWidget(toEndButton_);
-  navigationLayout_->addStretch(1);
-  navigationLayout_->addWidget(indexSpinBox_);
-  navigationLayout_->addStretch(1);
-  navigationLayout_->addWidget(indexLabel_);
-  navigationLayout_->addStretch(3);
+  navigationWidget_->setLayout(navigationLayout_);
+
+  layout_ = new QHBoxLayout;
+  layout_->setSpacing(0);
+  layout_->addStretch(3);
+  layout_->addWidget(navigationWidget_);
+  layout_->addStretch(1);
+  layout_->addWidget(indexSpinBox_);
+  layout_->addStretch(1);
+  layout_->addWidget(indexLabel_);
+  layout_->addStretch(3);
 
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-  setLayout(navigationLayout_);
+  setLayout(layout_);
 }
 
 void
