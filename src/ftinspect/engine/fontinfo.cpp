@@ -112,7 +112,7 @@ SFNTName::sfntNameToQString(unsigned short platformID,
     // All UTF-16BE.
     return utf16BEToQString(str, size);
   case TT_PLATFORM_MACINTOSH:
-    if (platformID == TT_MAC_ID_ROMAN)
+    if (encodingID == TT_MAC_ID_ROMAN)
       return QString::fromLatin1(str, static_cast<int>(size));
 
     if (outSuccess)
