@@ -114,6 +114,7 @@ private:
   ContinuousTab* continuousTab_;
   ComperatorTab* comparatorTab_;
   InfoTab* infoTab_;
+  QWidget* lastTab_ = NULL;
 
   QDockWidget* glyphDetailsDockWidget_;
   GlyphDetails* glyphDetails_;

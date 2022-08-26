@@ -475,6 +475,13 @@ SingularTab::setCurrentGlyphAndSize(int glyphIndex,
 }
 
 
+int
+SingularTab::currentGlyph()
+{
+  return indexSelector_->currentIndex();
+}
+
+
 void
 SingularTab::syncSettings()
 {

@@ -164,7 +164,8 @@ MainGUI::onTripletChanged()
 void
 MainGUI::switchTab()
 {
-  auto isComparator = tabWidget_->currentWidget() == comparatorTab_;
+  auto current = tabWidget_->currentWidget();
+  auto isComparator = current == comparatorTab_;
   if (!leftWidget_->isVisible() && !isComparator)
   {
     // Dirty approach here: When setting the left panel as visible, the main
@@ -183,6 +184,12 @@ MainGUI::switchTab()
     leftWidget_->setVisible(!isComparator);
 
   reloadCurrentTabFont();
+
+  if (current == continuousTab_ && lastTab_ == singularTab_
+      && singularTab_->currentGlyph() >= 0)
+    continuousTab_->highlightGlyph(singularTab_->currentGlyph());
+
+  lastTab_ = tabWidget_->currentWidget();
 }
 
 
@@ -263,6 +270,7 @@ MainGUI::createLayout()
   tabWidget_->addTab(comparatorTab_, tr("Comparator View"));
   tabs_.append(infoTab_);
   tabWidget_->addTab(infoTab_, tr("Font Info"));
+  lastTab_ = singularTab_;
   
   tabWidget_->setTabToolTip(0, tr("View single glyph in grid view.\n"
                                   "For pixelwise inspection of the glyphs."));

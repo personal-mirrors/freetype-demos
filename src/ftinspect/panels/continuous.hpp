@@ -38,6 +38,7 @@ public:
 
   void repaintGlyph() override;
   void reloadFont() override;
+  void highlightGlyph(int index);
   void syncSettings();
 
   // -1: Glyph order, otherwise the char map index in the original list

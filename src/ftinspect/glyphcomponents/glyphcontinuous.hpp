@@ -12,6 +12,7 @@
 
 #include <QWidget>
 #include <QImage>
+#include <QTimer>
 
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
@@ -90,7 +91,9 @@ public:
   {
     mouseOperationEnabled_ = enabled;
   }
-
+  
+  void flashOnGlyph(int glyphIndex);
+  void stopFlashing();
   void purgeCache();
   void resetPositionDelta();
 
@@ -113,6 +116,10 @@ protected:
 private:
   Engine* engine_;
   StringRenderer stringRenderer_;
+
+  QTimer* flashTimer_;
+  int flashRemainingCount_ = 0;
+  int flashGlyphIndex_ = -1;
 
   Source source_ = SRC_AllGlyphs;
   Mode mode_ = M_Normal;
@@ -172,10 +179,16 @@ private:
                                     double* outSizePoint);
   int calculateAverageLineCount();
 
+  void flashTimerFired();
+
   // Mouse constants
   constexpr static int ClickDragThreshold = 10;
   constexpr static int HorizontalUnitLength = 100;
   constexpr static int VerticalUnitLength = 150;
+
+  // Flash Timer constants
+  constexpr static int FlashIntervalMs = 250;
+  constexpr static int FlashDurationMs = 3000;
 };
 
 

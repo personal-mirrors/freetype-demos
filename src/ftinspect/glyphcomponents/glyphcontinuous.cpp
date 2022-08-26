@@ -50,6 +50,11 @@ GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
   setAcceptDrops(false);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+  flashTimer_ = new QTimer(this);
+  flashTimer_->setInterval(FlashIntervalMs);
+  connect(flashTimer_, &QTimer::timeout,
+          this, &GlyphContinuous::flashTimerFired);
+
   FT_Stroker_New(engine_->ftLibrary(), &stroker_);
 }
 
@@ -86,6 +91,25 @@ GlyphContinuous::setSourceText(QString text)
 {
   text_ = std::move(text);
   updateRendererText();
+}
+
+
+void
+GlyphContinuous::flashOnGlyph(int glyphIndex)
+{
+  flashTimer_->stop();
+
+  flashGlyphIndex_ = glyphIndex;
+  flashRemainingCount_ = FlashDurationMs / FlashIntervalMs;
+  flashTimer_->start();
+}
+
+
+void
+GlyphContinuous::stopFlashing()
+{
+  flashGlyphIndex_ = -1;
+  flashTimer_->stop();
 }
 
 
@@ -300,6 +324,24 @@ GlyphContinuous::transformGlyphStroked(FT_Glyph glyph)
 void
 GlyphContinuous::paintCache(QPainter* painter)
 {
+  bool flashFlipFlop = false;
+  if (flashRemainingCount_ >= 0)
+  {
+    if (flashGlyphIndex_ >= 0) // only flash when the glyph index valid
+      flashFlipFlop = flashRemainingCount_ % 2 == 1;
+    else
+    {
+      flashTimer_->stop();
+      flashRemainingCount_ = 0;
+    }
+    flashRemainingCount_--;
+  }
+  else if (flashGlyphIndex_ >= 0)
+  {
+    flashGlyphIndex_ = -1;
+    flashTimer_->stop();
+  }
+
   if (stringRenderer_.isWaterfall())
     positionDelta_.setY(0);
   for (auto& line : glyphCache_)
@@ -307,6 +349,8 @@ GlyphContinuous::paintCache(QPainter* painter)
     beginDrawCacheLine(painter, line);
     for (auto& glyph : line.entries)
     {
+      if (glyph.glyphIndex == flashGlyphIndex_ && flashFlipFlop)
+        continue; // flash
       drawCacheGlyph(painter, glyph);
     }
   }
@@ -541,6 +585,13 @@ GlyphContinuous::calculateAverageLineCount()
   if (!glyphCache_.empty())
     averageLineCount /= static_cast<int>(glyphCache_.size());
   return averageLineCount;
+}
+
+
+void
+GlyphContinuous::flashTimerFired()
+{
+  repaint();
 }
 
 

@@ -39,6 +39,7 @@ ContinuousTab::repaintGlyph()
   sizeSelector_->applyToEngine(engine_);
   
   syncSettings();
+  canvas_->stopFlashing();
   canvas_->purgeCache();
   canvas_->repaint();
 }
@@ -56,9 +57,17 @@ ContinuousTab::reloadFont()
   checkModeSource();
 
   charMapSelector_->repopulate();
+  canvas_->stopFlashing();
   canvas_->stringRenderer().reloadAll();
   canvas_->purgeCache();
   repaintGlyph();
+}
+
+
+void
+ContinuousTab::highlightGlyph(int index)
+{
+  canvas_->flashOnGlyph(index);
 }
 
 
