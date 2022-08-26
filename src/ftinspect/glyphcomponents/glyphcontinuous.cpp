@@ -139,7 +139,6 @@ GlyphContinuous::resizeEvent(QResizeEvent* event)
 void
 GlyphContinuous::mousePressEvent(QMouseEvent* event)
 {
-  QWidget::mousePressEvent(event);
   if (!mouseOperationEnabled_)
     return;
   if (event->button() == Qt::LeftButton)
@@ -160,7 +159,6 @@ GlyphContinuous::mousePressEvent(QMouseEvent* event)
 void
 GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
 {
-  QWidget::mouseMoveEvent(event);
   if (!mouseOperationEnabled_)
     return;
   if (event->buttons() != Qt::LeftButton)
@@ -193,7 +191,6 @@ GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
 void
 GlyphContinuous::mouseReleaseEvent(QMouseEvent* event)
 {
-  QWidget::mouseReleaseEvent(event);
   if (!mouseOperationEnabled_)
     return;
   if (event->button() == Qt::LeftButton)
