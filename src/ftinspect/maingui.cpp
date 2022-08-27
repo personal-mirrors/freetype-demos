@@ -28,9 +28,11 @@ MainGUI::MainGUI(Engine* engine)
   setupDragDrop();
 
   readSettings();
-  loadCommandLine();
-
   setUnifiedTitleAndToolBarOnMac(true);
+
+  show(); // place this before `loadCommandLine` so alerts from loading
+          // won't be covered.
+  loadCommandLine();
 }
 
 

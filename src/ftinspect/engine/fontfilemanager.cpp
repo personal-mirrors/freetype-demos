@@ -6,6 +6,7 @@
 #include "fontfilemanager.hpp"
 
 #include <QCoreApplication>
+#include <QMessageBox>
 
 
 FontFileManager::FontFileManager()
@@ -30,8 +31,9 @@ FontFileManager::size()
 
 
 void
-FontFileManager::append(QStringList newFileNames)
+FontFileManager::append(QStringList newFileNames, bool alertNotExist)
 {
+  QStringList failedFiles;
   for (auto& name : newFileNames)
   {
     auto info = QFileInfo(name);
@@ -39,7 +41,14 @@ FontFileManager::append(QStringList newFileNames)
 
     // Filter non-file elements
     if (!info.isFile())
+    {
+      if (alertNotExist)
+        failedFiles.append(name);
       continue;
+    }
+
+    if (!info.exists() && alertNotExist)
+      failedFiles.append(name);
 
     // Uniquify elements
     auto absPath = info.absoluteFilePath();
@@ -56,6 +65,18 @@ FontFileManager::append(QStringList newFileNames)
     if (info.size() >= INT_MAX)
       return; // Prevent overflowing
     fontFileNameList_.append(info);
+  }
+
+  if (alertNotExist && !failedFiles.empty())
+  {
+    auto msg = new QMessageBox;
+    msg->setAttribute(Qt::WA_DeleteOnClose);
+    msg->setStandardButtons(QMessageBox::Ok);
+    msg->setWindowTitle(tr("Failed to load some files"));
+    msg->setText(tr("Files failed to load:\n%1").arg(failedFiles.join("\n")));
+    msg->setIcon(QMessageBox::Warning);
+    msg->setModal(false);
+    msg->open();
   }
 }
 
@@ -111,7 +132,7 @@ FontFileManager::loadFromCommandLine()
   auto args = QCoreApplication::arguments();
   if (!args.empty())
     args.removeFirst();
-  append(args);
+  append(args, true);
 }
 
 

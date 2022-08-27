@@ -23,7 +23,7 @@ public:
   ~FontFileManager() override = default;
 
   int size();
-  void append(QStringList newFileNames);
+  void append(QStringList newFileNames, bool alertNotExist = false);
   void remove(int index);
 
   QFileInfo& operator[](int index);
