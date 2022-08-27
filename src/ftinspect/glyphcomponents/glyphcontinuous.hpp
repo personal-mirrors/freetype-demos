@@ -173,7 +173,8 @@ private:
   void beginDrawCacheLine(QPainter* painter,
                           GlyphCacheLine& line);
   void drawCacheGlyph(QPainter* painter,
-                      const GlyphCacheEntry& entry);
+                      const GlyphCacheEntry& entry,
+                      bool colorInverted = false);
 
   GlyphCacheEntry* findGlyphByMouse(QPoint position,
                                     double* outSizePoint);

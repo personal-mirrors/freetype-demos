@@ -350,8 +350,9 @@ GlyphContinuous::paintCache(QPainter* painter)
     for (auto& glyph : line.entries)
     {
       if (glyph.glyphIndex == flashGlyphIndex_ && flashFlipFlop)
-        continue; // flash
-      drawCacheGlyph(painter, glyph);
+        drawCacheGlyph(painter, glyph, true);
+      else
+        drawCacheGlyph(painter, glyph);
     }
   }
 }
@@ -528,7 +529,8 @@ GlyphContinuous::beginDrawCacheLine(QPainter* painter,
 
 void
 GlyphContinuous::drawCacheGlyph(QPainter* painter,
-                                const GlyphCacheEntry& entry)
+                                const GlyphCacheEntry& entry,
+                                bool colorInverted)
 {
   // ftview.c:557
   // Well, metrics is also part of the cache...
@@ -547,7 +549,14 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
   rect.moveLeft(rect.x() + sizeIndicatorOffset_);
   rect.translate(positionDelta_);
 
-  painter->drawImage(rect.topLeft(), *entry.image);
+  if (colorInverted)
+  {
+    auto inverted = entry.image->copy();
+    inverted.invertPixels();
+    painter->drawImage(rect.topLeft(), inverted);
+  }
+  else
+    painter->drawImage(rect.topLeft(), *entry.image);
 }
 
 
