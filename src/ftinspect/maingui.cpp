@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QScrollBar>
+#include <QDesktopWidget>
 #include <QMimeData>
 
 #include <freetype/ftdriver.h>
@@ -319,8 +320,7 @@ MainGUI::createLayout()
 
   ftinspectLayout_->setSizeConstraint(QLayout::SetNoConstraint);
   layout()->setSizeConstraint(QLayout::SetNoConstraint);
-  ftinspectWidget_->resize(1400, 900);
-  resize(1400, 900);
+  resize(1400 * logicalDpiX() / 96, 700 * logicalDpiY() / 96);
 
   statusBar()->hide(); // remove the extra space
   setCentralWidget(ftinspectWidget_);
