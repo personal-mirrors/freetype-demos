@@ -303,11 +303,13 @@ MainGUI::createLayout()
   ftinspectLayout_->addLayout(mainPartLayout_);
   ftinspectLayout_->addWidget(tripletSelector_);
   ftinspectLayout_->setContentsMargins(0, 0, 0, 0);
-  ftinspectLayout_->setSizeConstraint(QLayout::SetNoConstraint);
 
   ftinspectWidget_ = new QWidget(this);
   ftinspectWidget_->setLayout(ftinspectLayout_);
+
+  ftinspectLayout_->setSizeConstraint(QLayout::SetNoConstraint);
   layout()->setSizeConstraint(QLayout::SetNoConstraint);
+  ftinspectWidget_->resize(1400, 900);
 
   statusBar()->hide(); // remove the extra space
   setCentralWidget(ftinspectWidget_);
