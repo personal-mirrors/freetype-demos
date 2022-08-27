@@ -125,13 +125,10 @@ ComperatorTab::createLayout()
   // Layouting
   layout_ = new QGridLayout;
 
-  charMapLayout_ = new QHBoxLayout;
-  charMapLayout_->addWidget(charMapLabel_);
-  charMapLayout_->addWidget(charMapSelector_);
-
   sourceLayout_ = new QVBoxLayout;
   sourceLayout_->addWidget(sizeSelector_);
-  sourceLayout_->addLayout(charMapLayout_);
+  sourceLayout_->addWidget(charMapLabel_);
+  sourceLayout_->addWidget(charMapSelector_);
   sourceLayout_->addWidget(sourceTextEdit_, 1);
   sourceWidget_->setLayout(sourceLayout_);
 

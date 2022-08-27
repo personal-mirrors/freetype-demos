@@ -53,7 +53,6 @@ private:
   QWidget* sourceWidget_;
 
   QVBoxLayout* sourceLayout_;
-  QHBoxLayout* charMapLayout_;
   QGridLayout* layout_;
 
   void createLayout();
