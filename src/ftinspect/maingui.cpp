@@ -318,6 +318,7 @@ MainGUI::createLayout()
   ftinspectLayout_->setSizeConstraint(QLayout::SetNoConstraint);
   layout()->setSizeConstraint(QLayout::SetNoConstraint);
   ftinspectWidget_->resize(1400, 900);
+  resize(1400, 900);
 
   statusBar()->hide(); // remove the extra space
   setCentralWidget(ftinspectWidget_);

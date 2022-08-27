@@ -270,12 +270,13 @@ SingularTab::resizeEvent(QResizeEvent* event)
   {
     sizeSelector_->applyToEngine(engine_);
     auto dpi = engine_->dpi();
-    auto val = size * dpi / 72.0 / 2;
-    glyphView_->centerOn(val, -val);
+    size = size * dpi / 72.0;
   }
-  else
-    glyphView_->centerOn(size / 2, -size / 2);
+  glyphView_->centerOn(size / 2, -size / 2);
 
+  auto viewSize = glyphView_->size();
+  auto minViewSide = std::min(viewSize.height(), viewSize.width());
+  zoomSpinBox_->setValue(static_cast<int>(minViewSide / size * 0.9));
 }
 
 
