@@ -166,6 +166,14 @@ MainGUI::switchTab()
 {
   auto current = tabWidget_->currentWidget();
   auto isComparator = current == comparatorTab_;
+
+  if (isComparator)
+    tabWidget_->setStyleSheet(QString("QTabWidget::tab-bar {left: %1 px;}")
+                              .arg(leftWidget_->width()));
+  else
+    tabWidget_->setStyleSheet("");
+  
+
   if (!leftWidget_->isVisible() && !isComparator)
   {
     // Dirty approach here: When setting the left panel as visible, the main
