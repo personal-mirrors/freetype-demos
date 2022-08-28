@@ -276,7 +276,7 @@ SingularTab::resizeEvent(QResizeEvent* event)
 
   auto viewSize = glyphView_->size();
   auto minViewSide = std::min(viewSize.height(), viewSize.width());
-  zoomSpinBox_->setValue(static_cast<int>(minViewSide / size * 0.9));
+  zoomSpinBox_->setValue(static_cast<int>(minViewSide / size * 0.7));
 }
 
 
