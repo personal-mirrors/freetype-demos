@@ -171,8 +171,9 @@ MainGUI::switchTab()
   auto isComparator = current == comparatorTab_;
 
   if (isComparator)
-    tabWidget_->setStyleSheet(QString("QTabWidget::tab-bar {left: %1 px;}")
-                              .arg(leftWidget_->width()));
+    tabWidget_->setStyleSheet(
+      QString("QTabWidget#mainTab::tab-bar {left: %1 px;}")
+      .arg(leftWidget_->width()));
   else
     tabWidget_->setStyleSheet("");
   
@@ -271,6 +272,7 @@ MainGUI::createLayout()
   infoTab_ = new InfoTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
+  tabWidget_->setObjectName("mainTab"); // for stylesheet
 
   // Note those two list must be in sync
   tabs_.append(singularTab_);
