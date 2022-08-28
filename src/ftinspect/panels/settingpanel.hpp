@@ -38,6 +38,7 @@ public:
   int antiAliasingModeIndex();
   bool kerningEnabled();
   bool lsbRsbDeltaEnabled();
+  void setDefaultsPreset(int preset);
 
 signals:
   void fontReloadNeeded();

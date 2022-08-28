@@ -98,6 +98,7 @@ ComperatorTab::createLayout()
     auto frame = new QFrame(this);
     auto canvas = new GlyphContinuous(frame, engine_);
     auto settingPanel = new SettingPanel(this, engine_, true);
+    settingPanel->setDefaultsPreset(i);
 
     sizeSelector_->installEventFilterForWidget(canvas);
 

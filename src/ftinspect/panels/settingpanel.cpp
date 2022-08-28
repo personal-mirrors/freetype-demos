@@ -50,6 +50,30 @@ SettingPanel::lsbRsbDeltaEnabled()
 
 
 void
+SettingPanel::setDefaultsPreset(int preset)
+{
+  if (preset < 0)
+    preset = 0;
+  preset %= 3;
+  switch (preset)
+  {
+  case 0:
+    hintingCheckBox_->setChecked(true);
+    autoHintingCheckBox_->setChecked(false);
+    break;
+  case 1:
+    hintingCheckBox_->setChecked(true);
+    autoHintingCheckBox_->setChecked(true);
+    break;
+  case 2:
+    hintingCheckBox_->setChecked(false);
+    autoHintingCheckBox_->setChecked(false);
+    break;
+  }
+}
+
+
+void
 SettingPanel::checkAllSettings()
 {
   onFontChanged();
