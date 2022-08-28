@@ -198,6 +198,7 @@ SettingPanel::openBackgroundPicker()
   if (result.isValid())
   {
     backgroundColor_ = result;
+    resetColorBlocks();
     emit repaintNeeded();
   }
 }
@@ -213,6 +214,7 @@ SettingPanel::openForegroundPicker()
   if (result.isValid())
   {
     foregroundColor_ = result;
+    resetColorBlocks();
     emit repaintNeeded();
   }
 }
@@ -225,6 +227,24 @@ SettingPanel::updateGamma()
                            'f',
                            1));
   emit repaintNeeded();
+}
+
+
+void
+SettingPanel::resetColorBlocks()
+{
+  foregroundBlock_->setStyleSheet(
+    QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
+      .arg(foregroundColor_.red())
+      .arg(foregroundColor_.blue())
+      .arg(foregroundColor_.green())
+      .arg(foregroundColor_.alpha()));
+  backgroundBlock_->setStyleSheet(
+    QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
+      .arg(backgroundColor_.red())
+      .arg(backgroundColor_.blue())
+      .arg(backgroundColor_.green())
+      .arg(backgroundColor_.alpha()));
 }
 
 
@@ -451,13 +471,10 @@ SettingPanel::createConnections()
             this, &SettingPanel::repaintNeeded);
   }
 
-  if (!comparatorMode_)
-  {
-    connect(backgroundButton_, &QPushButton::clicked,
-            this, &SettingPanel::openBackgroundPicker);
-    connect(foregroundButton_, &QPushButton::clicked,
-            this, &SettingPanel::openForegroundPicker);
-  }
+  connect(backgroundButton_, &QPushButton::clicked,
+          this, &SettingPanel::openBackgroundPicker);
+  connect(foregroundButton_, &QPushButton::clicked,
+          this, &SettingPanel::openForegroundPicker);
 
   connect(mmgxPanel_, &SettingPanelMMGX::mmgxCoordsChanged,
           this, &SettingPanel::fontReloadNeeded);
@@ -549,11 +566,18 @@ SettingPanel::createLayout()
 
   mmgxPanel_ = new SettingPanelMMGX(this, engine_);
 
-  if (!comparatorMode_)
-  {
-    backgroundButton_ = new QPushButton(tr("Background"), this);
-    foregroundButton_ = new QPushButton(tr("Foreground"), this);
-  }
+  backgroundButton_ = new QPushButton(tr("Background"), this);
+  foregroundButton_ = new QPushButton(tr("Foreground"), this);
+
+  backgroundBlock_ = new QFrame(this);
+  backgroundBlock_->setFrameStyle(QFrame::Box);
+  backgroundBlock_->setLineWidth(1);
+  backgroundBlock_->setFixedWidth(18);
+
+  foregroundBlock_ = new QFrame(this);
+  foregroundBlock_->setFrameStyle(QFrame::Box);
+  foregroundBlock_->setLineWidth(1);
+  foregroundBlock_->setFixedWidth(18);
 
   generalTab_ = new QWidget(this);
 
@@ -597,11 +621,8 @@ SettingPanel::createLayout()
       tr("Enable LSB/RSB delta positioning (only valid when hinting is "
          "enabled)."));
   }
-  if (!comparatorMode_)
-  {
-    backgroundButton_->setToolTip(tr("Set canvas background color."));
-    foregroundButton_->setToolTip(tr("Set text color."));
-  }
+  backgroundButton_->setToolTip(tr("Set canvas background color."));
+  foregroundButton_->setToolTip(tr("Set text color."));
 
   // Layouting
   if (debugMode_)
@@ -618,6 +639,12 @@ SettingPanel::createLayout()
   gammaLayout_->addWidget(gammaLabel_);
   gammaLayout_->addWidget(gammaSlider_);
   gammaLayout_->addWidget(gammaValueLabel_);
+
+  colorPickerLayout_ = new QHBoxLayout;
+  colorPickerLayout_->addWidget(backgroundBlock_);
+  colorPickerLayout_->addWidget(backgroundButton_, 1);
+  colorPickerLayout_->addWidget(foregroundButton_, 1);
+  colorPickerLayout_->addWidget(foregroundBlock_);
 
   if (comparatorMode_)
     createLayoutComperator();
@@ -658,12 +685,7 @@ SettingPanel::createLayoutNormal()
                         new QSpacerItem(0, 20, QSizePolicy::Minimum,
                                         QSizePolicy::MinimumExpanding));
 
-  colorPickerLayout_ = new QHBoxLayout;
-  colorPickerLayout_->addWidget(backgroundButton_, 1);
-  colorPickerLayout_->addWidget(foregroundButton_, 1);
-  generalTabLayout_->addLayout(colorPickerLayout_,
-                               generalTabLayout_->rowCount(), 0, 1, 2);
-
+  gridLayout2ColAddLayout(generalTabLayout_, colorPickerLayout_);
   gridLayout2ColAddLayout(generalTabLayout_, gammaLayout_);
   gridLayout2ColAddWidget(generalTabLayout_, stemDarkeningCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
@@ -712,6 +734,7 @@ SettingPanel::createLayoutComperator()
   gridLayout2ColAddWidget(hintingRenderingTabLayout_, stemDarkeningCheckBox_);
 
   // General
+  gridLayout2ColAddLayout(generalTabLayout_, colorPickerLayout_);
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, 
@@ -781,6 +804,7 @@ SettingPanel::setDefaults()
   // These need to be set even in Comperator mode.
   backgroundColor_ = Qt::white;
   foregroundColor_ = Qt::black;
+  resetColorBlocks();
 
   gammaSlider_->setValue(18); // 1.8
   updateGamma();

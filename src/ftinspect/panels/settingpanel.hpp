@@ -112,6 +112,8 @@ private:
 
   QPushButton* backgroundButton_;
   QPushButton* foregroundButton_;
+  QFrame* backgroundBlock_;
+  QFrame* foregroundBlock_;
 
   QVBoxLayout* mainLayout_;
   QGridLayout* generalTabLayout_;
@@ -136,6 +138,7 @@ private:
   void openBackgroundPicker();
   void openForegroundPicker();
   void updateGamma();
+  void resetColorBlocks();
 };
 
 
