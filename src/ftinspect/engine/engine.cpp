@@ -555,7 +555,7 @@ Engine::currentFontFixedSizes()
   std::vector<int> result;
   result.resize(ftFallbackFace_->num_fixed_sizes);
   for (int i = 0; i < ftFallbackFace_->num_fixed_sizes; i++)
-    result[i] = ftFallbackFace_->available_sizes[i].size >> 6; // XXX: ????
+    result[i] = ftFallbackFace_->available_sizes[i].x_ppem >> 6; // XXX: ????
   return result;
 }
 
