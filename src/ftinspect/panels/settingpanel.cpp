@@ -518,6 +518,8 @@ SettingPanel::createLayout()
   gammaSlider_->setRange(0, 30); // in 1/10th
   gammaSlider_->setTickPosition(QSlider::TicksBelow);
   gammaSlider_->setTickInterval(5);
+  gammaSlider_->setPageStep(1);
+  gammaSlider_->setSingleStep(1);
   gammaLabel_->setBuddy(gammaSlider_);
   gammaValueLabel_ = new QLabel(this);
 
