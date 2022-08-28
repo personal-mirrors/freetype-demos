@@ -548,7 +548,12 @@ ContinuousTab::createConnections()
   sizeSelector_->installEventFilterForWidget(this);
 
   connect(glyphDetails_, &GlyphDetails::switchToSingular,
-          [&] (int index) { switchToSingular(index, -1); });
+          [&] (int index)
+          {
+            switchToSingular(index, -1);
+            if (glyphDetailsWidget_->isFloating())
+              glyphDetailsWidget_->hide();
+          });
 }
 
 
