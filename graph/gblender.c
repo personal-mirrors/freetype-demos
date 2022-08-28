@@ -274,7 +274,7 @@ gblender_lookup( GBlender       blender,
   blender->stat_lookups++;
 #endif
 
-  idx = ( background ^ foreground * 7 ) % (GBLENDER_KEY_COUNT-1);
+  idx = ( background ^ foreground ^ 0x55555555 ) % (GBLENDER_KEY_COUNT-1);
 
   key = blender->keys + idx;
 
