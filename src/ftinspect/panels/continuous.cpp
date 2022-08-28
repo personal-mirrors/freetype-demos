@@ -161,6 +161,14 @@ ContinuousTab::checkModeSource()
   indexSelector_->setEnabled(src == GlyphContinuous::SRC_AllGlyphs);
   sourceTextEdit_->setEnabled(isText);
   sampleStringSelector_->setEnabled(isText);
+
+  {
+    QSignalBlocker blocker(kerningCheckBox_);
+    kerningCheckBox_->setEnabled(isText);
+    if (!isText)
+      kerningCheckBox_->setChecked(false);
+  }
+  
   canvas_->setSource(src);
 
   {
