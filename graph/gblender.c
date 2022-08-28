@@ -129,15 +129,15 @@ gblender_clear( GBlender  blender )
     for ( nn = 0; nn < GBLENDER_KEY_COUNT; nn++ )
       chan_keys[nn].index = -1;
 
-    blender->cache_r_back  = ~0U;
+    blender->cache_r_back  = 0;
     blender->cache_r_fore  = ~0U;
     blender->cache_r_cells = NULL;
 
-    blender->cache_g_back  = ~0U;
+    blender->cache_g_back  = 0;
     blender->cache_g_fore  = ~0U;
     blender->cache_g_cells = NULL;
 
-    blender->cache_b_back  = ~0U;
+    blender->cache_b_back  = 0;
     blender->cache_b_fore  = ~0U;
     blender->cache_b_cells = NULL;
   }
@@ -146,7 +146,7 @@ gblender_clear( GBlender  blender )
     for ( nn = 0; nn < GBLENDER_KEY_COUNT; nn++ )
       keys[nn].cells = NULL;
 
-    blender->cache_back  = ~0U;
+    blender->cache_back  = 0;
     blender->cache_fore  = ~0U;
     blender->cache_cells = NULL;
   }
@@ -352,7 +352,8 @@ gblender_lookup_channel( GBlender      blender,
   blender->stat_lookups++;
 #endif
 
-  idx = ( background ^ foreground * 7 ) % (GBLENDER_KEY_COUNT-1);
+  idx = ( background ^ foreground * 7 ) %
+        ( GBLENDER_KEY_COUNT*GBLENDER_CELL_SIZE*sizeof(GBlenderCell) - 1);
 
   key = (GBlenderChanKey)blender->keys + idx;
 
