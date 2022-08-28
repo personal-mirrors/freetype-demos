@@ -571,4 +571,126 @@ SFNTTableInfo::getForAll(Engine* engine,
 }
 
 
+void
+CompositeGlyphInfo::get(Engine* engine, 
+                        std::vector<CompositeGlyphInfo>& list)
+{
+  list.clear();
+  engine->reloadFont();
+  auto face = engine->currentFallbackFtFace();
+  if (!face || !FT_IS_SFNT(face))
+  {
+    if (list.empty())
+      return;
+  }
+
+  // We're not using the FreeType's subglyph APIs, but directly reading from
+  // the `glyf` table since it's faster
+  auto head = static_cast<TT_Header*>(FT_Get_Sfnt_Table(face, FT_SFNT_HEAD));
+  auto maxp
+    = static_cast<TT_MaxProfile*>(FT_Get_Sfnt_Table(face, FT_SFNT_MAXP));
+  if (!head || !maxp)
+    return;
+
+  FT_ULong locaLength = head->Index_To_Loc_Format ? 4 * maxp->numGlyphs + 4
+                                                  : 2 * maxp->numGlyphs + 2;
+  std::unique_ptr<unsigned char[]> locaBufferGuard(
+    new unsigned char[locaLength]);
+  auto offset = locaBufferGuard.get();
+  auto error = FT_Load_Sfnt_Table(face, TTAG_loca, 0, offset, &locaLength);
+  if (error)
+    return;
+
+  FT_ULong glyfLength = 0;
+  error = FT_Load_Sfnt_Table(face, TTAG_glyf, 0, NULL, &glyfLength);
+  if (error || !glyfLength)
+    return;
+
+  std::unique_ptr<unsigned char[]> glyfBufferGuard(
+    new unsigned char[glyfLength]);
+  auto buffer = glyfBufferGuard.get();
+  error = FT_Load_Sfnt_Table(face, TTAG_glyf, 0, buffer, &glyfLength);
+  if (error)
+    return;
+
+  for (size_t i = 0; i < maxp->numGlyphs; i++)
+  {
+    FT_UInt32  loc, end;
+    if (head->Index_To_Loc_Format)
+    {
+      loc = static_cast<FT_UInt32>(offset[4 * i    ]) << 24 |
+            static_cast<FT_UInt32>(offset[4 * i + 1]) << 16 |
+            static_cast<FT_UInt32>(offset[4 * i + 2]) << 8  |
+            static_cast<FT_UInt32>(offset[4 * i + 3])       ;
+      end = static_cast<FT_UInt32>(offset[4 * i + 4]) << 24 |
+            static_cast<FT_UInt32>(offset[4 * i + 5]) << 16 |
+            static_cast<FT_UInt32>(offset[4 * i + 6]) << 8  |
+            static_cast<FT_UInt32>(offset[4 * i + 7])       ;
+    }
+    else
+    {
+      loc = static_cast<FT_UInt32>(offset[2 * i    ]) << 9 |
+            static_cast<FT_UInt32>(offset[2 * i + 1]) << 1 ;
+      end = static_cast<FT_UInt32>(offset[2 * i + 2]) << 9 |
+            static_cast<FT_UInt32>(offset[2 * i + 3]) << 1 ;
+    }
+
+    if (end > glyfLength)
+      end = glyfLength;
+
+    if (loc + 16 > end)
+      continue;
+
+    auto len = static_cast<FT_Int16>(buffer[loc] << 8 | buffer[loc + 1]);
+    loc += 10;  // skip header
+    if (len >= 0) // not a composite one
+      continue;
+
+    std::vector<SubGlyph> subglyphs;
+
+    while (true)
+    {
+      if (loc + 6 > end)
+        break;
+      auto flags = static_cast<FT_UInt16>(buffer[loc] << 8 | buffer[loc + 1]);
+      loc += 2;
+      auto index = static_cast<FT_UInt16>(buffer[loc] << 8 | buffer[loc + 1]);
+      loc += 2;
+      FT_Int16 arg1, arg2;
+
+      // https://docs.microsoft.com/en-us/typography/opentype/spec/glyf#composite-glyph-description
+      if (flags & 0x0001)
+      {
+        arg1 = static_cast<FT_Int16>(buffer[loc] << 8 | buffer[loc + 1]);
+        loc += 2;
+        arg2 = static_cast<FT_Int16>(buffer[loc] << 8 | buffer[loc + 1]);
+        loc += 2;
+      }
+      else
+      {
+        arg1 = buffer[loc];
+        arg2 = buffer[loc + 1];
+        loc += 2;
+      }
+      if (flags & 0x0008)
+        loc += 2;
+      else if (flags & 0x0040)
+        loc += 4;
+      else if (flags & 0x0080)
+        loc += 8;
+
+      subglyphs.emplace_back(index, flags,
+                             flags & 0x0002 ? SubGlyph::PT_Offset
+                                            : SubGlyph::PT_Align,
+                             std::pair<short, short>(arg1, arg2));
+
+      if (!(flags & 0x0020))
+        break;
+    }
+
+    list.emplace_back(static_cast<int>(i), std::move(subglyphs));
+  }
+}
+
+
 // end of fontinfo.cpp

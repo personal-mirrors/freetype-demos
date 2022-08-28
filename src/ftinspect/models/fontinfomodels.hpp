@@ -9,6 +9,7 @@
 #include "../engine/mmgx.hpp"
 
 #include <vector>
+#include <unordered_map>
 #include <QAbstractTableModel>
 
 class FixedSizeInfoModel
@@ -200,6 +201,84 @@ public:
 private:
   // Don't let the item count exceed INT_MAX!
   std::vector<MMGXAxisInfo> storage_;
+};
+
+
+struct LookupPairHash
+{
+public:
+  std::size_t
+  operator()(const std::pair<int, long long>& p) const
+  {
+    std::size_t seed = 0x291FEEA8;
+    seed ^= (seed << 6) + (seed >> 2) + 0x25F3E86D
+            + static_cast<std::size_t>(p.first);
+    seed ^= (seed << 6) + (seed >> 2) + 0x436E6B92
+            + static_cast<std::size_t>(p.second);
+    return seed;
+  }
+};
+
+
+// A tree model, so much more complicated.
+class CompositeGlyphsInfoModel : public QAbstractItemModel
+{
+  Q_OBJECT
+public:
+  // A lazily created info node.
+  struct InfoNode
+  {
+    long long parentNodeIndex;
+    int indexInParent;
+    int glyphIndex;
+    CompositeGlyphInfo::SubGlyph const* subGlyphInfo;
+  };
+
+  explicit CompositeGlyphsInfoModel(QObject* parent, Engine* engine)
+      : QAbstractItemModel(parent), engine_(engine)
+  {
+  }
+
+  ~CompositeGlyphsInfoModel() override = default;
+
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
+  QModelIndex index(int row, int column,
+                    const QModelIndex& parent) const override;
+  QModelIndex parent(const QModelIndex& child) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+  QVariant headerData(int section, Qt::Orientation orientation,
+                      int role) const override;
+  int glyphIndexFromIndex(const QModelIndex& idx);
+
+  void beginModelUpdate();
+  void endModelUpdate();
+  std::vector<CompositeGlyphInfo>& storage() { return glyphs_; }
+
+  enum Columns : int
+  {
+    CGIM_Glyph = 0, // TODO: transformation, scale? consider more flags?
+    CGIM_Flag = 1,
+    CGIM_Position = 2,
+    CGIM_Max
+  };
+
+private:
+  Engine* engine_;
+  /*
+   * Take care of 3 types of index:
+   * 1. Glyph Index in Font File
+   * 2. Glyph Index in `glyphs_` - often called as "glyph info index"
+   * 3. Node Index
+   */
+  std::vector<CompositeGlyphInfo> glyphs_;
+  std::unordered_map<int, size_t> glyphMapper_;
+  // map <row, parentId> to node
+  // the internal id of `QModelIndex` is the node's index
+  mutable std::unordered_map<std::pair<int, long long>,
+                             long long, LookupPairHash>
+          nodeLookup_;
+  mutable std::vector<InfoNode> nodes_;
 };
 
 

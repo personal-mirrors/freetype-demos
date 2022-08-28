@@ -560,6 +560,15 @@ Engine::currentFontFixedSizes()
 }
 
 
+bool
+Engine::currentFontHasGlyphName()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_GLYPH_NAMES(ftFallbackFace_);
+}
+
+
 QString
 Engine::glyphName(int index)
 {

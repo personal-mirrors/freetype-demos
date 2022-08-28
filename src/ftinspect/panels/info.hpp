@@ -20,13 +20,14 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QTableView>
-#include <QStackedLayout>
+#include <QTreeView>
 
 class Engine;
 class GeneralInfoTab;
 class SFNTInfoTab;
 class PostScriptInfoTab;
 class MMGXInfoTab;
+class CompositeGlyphsTab;
 
 class InfoTab
 : public QWidget, public AbstractTab
@@ -39,19 +40,24 @@ public:
   void repaintGlyph() override {}
   void reloadFont() override;
 
+signals:
+  void switchToSingular(int glyphIndex);
+
 private:
   Engine* engine_;
 
   QVector<AbstractTab*> tabs_;
-  GeneralInfoTab*    generalTab_;
-  SFNTInfoTab*       sfntTab_;
-  PostScriptInfoTab* postScriptTab_;
-  MMGXInfoTab*       mmgxTab_;
+  GeneralInfoTab*     generalTab_;
+  SFNTInfoTab*        sfntTab_;
+  PostScriptInfoTab*  postScriptTab_;
+  MMGXInfoTab*        mmgxTab_;
+  CompositeGlyphsTab* compositeGlyphsTab_;
 
   QTabWidget* tab_;
   QHBoxLayout* layout_;
 
   void createLayout();
+  void createConnections();
 };
 
 
@@ -282,6 +288,39 @@ private:
   MMGXAxisInfoModel* axesModel_;
 
   void createLayout();
+};
+
+
+class CompositeGlyphsTab
+: public QWidget, public AbstractTab
+{
+  Q_OBJECT
+public:
+  CompositeGlyphsTab(QWidget* parent, Engine* engine);
+  ~CompositeGlyphsTab() override = default;
+
+  void repaintGlyph() override {}
+  void reloadFont() override;
+
+signals:
+  void switchToSingular(int glyphIndex);
+
+private:
+  Engine* engine_;
+
+  LabelPair(compositeGlyphCount)
+  QPushButton* forceRefreshButton_;
+  QTreeView* compositeTreeView_;
+  CompositeGlyphsInfoModel* compositeModel_;
+
+  QHBoxLayout* countLayout_;
+  QVBoxLayout* mainLayout_;
+
+  void createLayout();
+  void createConnections();
+
+  void forceReloadFont();
+  void treeRowDoubleClicked(const QModelIndex& idx);
 };
 
 

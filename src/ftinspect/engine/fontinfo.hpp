@@ -244,6 +244,86 @@ struct FontFixedSize
 };
 
 
+struct CompositeGlyphInfo
+{
+  struct SubGlyph
+  {
+    enum PositionType
+    {
+      PT_Offset, // Child's points are added with a xy-offset
+      PT_Align // One point of the child is aligned with one point of the parent
+    };
+    unsigned short index;
+    unsigned short flag;
+    PositionType positionType;
+    // For PT_Offset: <deltaX, deltaY>
+    // For PT_Align:  <childPoint, parentPoint>
+    std::pair<short, short> position;
+
+    SubGlyph(unsigned short index,
+             unsigned short flag,
+             PositionType positionType,
+             std::pair<short, short> position)
+    : index(index),
+      flag(flag),
+      positionType(positionType),
+      position(std::move(position))
+    { }
+
+
+    friend bool
+    operator==(const SubGlyph& lhs,
+               const SubGlyph& rhs)
+    {
+      return lhs.index == rhs.index
+        && lhs.flag == rhs.flag
+        && lhs.positionType == rhs.positionType
+        && lhs.position == rhs.position;
+    }
+
+
+    friend bool
+    operator!=(const SubGlyph& lhs,
+               const SubGlyph& rhs)
+    {
+      return !(lhs == rhs);
+    }
+  };
+
+
+  int index;
+  std::vector<SubGlyph> subglyphs;
+
+
+  CompositeGlyphInfo(short index,
+                     std::vector<SubGlyph> subglyphs)
+  : index(index),
+    subglyphs(std::move(subglyphs))
+  { }
+
+
+  friend bool
+  operator==(const CompositeGlyphInfo& lhs,
+             const CompositeGlyphInfo& rhs)
+  {
+    return lhs.index == rhs.index
+      && lhs.subglyphs == rhs.subglyphs;
+  }
+
+
+  friend bool
+  operator!=(const CompositeGlyphInfo& lhs,
+             const CompositeGlyphInfo& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+
+  // expensive
+  static void get(Engine* engine, std::vector<CompositeGlyphInfo>& list);
+};
+
+
 QString* mapSFNTNameIDToName(unsigned short nameID);
 QString* mapTTPlatformIDToName(unsigned short platformID);
 QString* mapTTEncodingIDToName(unsigned short platformID,

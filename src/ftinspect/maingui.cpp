@@ -344,6 +344,8 @@ MainGUI::createConnections()
 
   connect(continuousTab_, &ContinuousTab::switchToSingular,
           this, &MainGUI::switchToSingular);
+  connect(infoTab_, &InfoTab::switchToSingular,
+          [&](int index) { switchToSingular(index, -1); });
 }
 
 

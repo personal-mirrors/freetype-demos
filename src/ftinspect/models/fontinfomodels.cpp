@@ -3,6 +3,7 @@
 // Copyright (C) 2022 by Charlie Jiang.
 
 #include "fontinfomodels.hpp"
+#include "../engine/engine.hpp"
 
 int
 FixedSizeInfoModel::rowCount(const QModelIndex& parent) const
@@ -460,6 +461,221 @@ MMGXAxisInfoModel::headerData(int section,
   }
 
   return {};
+}
+
+
+int
+CompositeGlyphsInfoModel::rowCount(const QModelIndex& parent) const
+{
+  if (!parent.isValid())
+    return static_cast<int>(glyphs_.size());
+  auto id = parent.internalId();
+  if (id < 0 || id >= nodes_.size())
+    return 0;
+  auto gid = nodes_[id].glyphIndex;
+  auto iter = glyphMapper_.find(gid);
+  if (iter == glyphMapper_.end())
+    return 0;
+  if (iter->second > glyphs_.size())
+    return 0;
+  return static_cast<int>(glyphs_[iter->second]. subglyphs.size());
+}
+
+
+int
+CompositeGlyphsInfoModel::columnCount(const QModelIndex& parent) const
+{
+  return CGIM_Max;
+}
+
+
+QModelIndex
+CompositeGlyphsInfoModel::index(int row,
+                                int column,
+                                const QModelIndex& parent) const
+{
+  long long parentIdx = -1;
+  if (parent.isValid()) // Not top-level
+    parentIdx = static_cast<long long>(parent.internalId());
+  if (parentIdx < 0)
+    parentIdx = -1;
+  // find existing node by row and parent index, -1 for top-level
+  auto lookupPair = std::pair<int, long long>(row, parentIdx);
+
+  auto iter = nodeLookup_.find(lookupPair);
+  if (iter != nodeLookup_.end())
+  {
+    if (iter->second < 0 || static_cast<size_t>(iter->second) >= nodes_.size())
+      return {};
+    return createIndex(row, column, iter->second);
+  }
+
+  int id = -1;
+  CompositeGlyphInfo::SubGlyph const* sgInfo = nullptr;
+  if (!parent.isValid()) // top-level nodes
+    id = glyphs_[row].index;
+  else if (parent.internalId() < glyphs_.size())
+  {
+    auto& sg = glyphs_[parent.internalId()].subglyphs;
+    if (row < 0 || static_cast<size_t>(row) >= sg.size())
+      return {};
+    id = sg[row].index;
+    sgInfo = &sg[row];
+  }
+
+  if (id < 0)
+    return {};
+  
+  InfoNode node = {
+    parentIdx,
+    row, id,
+    sgInfo
+  };
+  nodes_.push_back(node);
+  nodeLookup_.emplace(std::pair<int, long long>(row, parentIdx),
+                      nodes_.size() - 1);
+
+  return createIndex(row, column, nodes_.size() - 1);
+}
+
+
+QModelIndex
+CompositeGlyphsInfoModel::parent(const QModelIndex& child) const
+{
+  if (!child.isValid())
+    return {};
+
+  auto id = static_cast<long long>(child.internalId());
+  if (id < 0 || static_cast<size_t>(id) >= nodes_.size())
+    return {};
+
+  auto pid = nodes_[id].parentNodeIndex;
+  if (pid < 0 || static_cast<size_t>(pid) >= nodes_.size())
+    return {};
+
+  auto& p = nodes_[pid];
+  return createIndex(p.indexInParent, 0, pid);
+}
+
+
+QVariant
+CompositeGlyphsInfoModel::data(const QModelIndex& index,
+                               int role) const
+{
+  if (!index.isValid())
+    return {};
+
+  auto id = index.internalId();
+  if (id >= nodes_.size())
+    return {};
+  auto& n = nodes_[id];
+  auto glyphIdx = n.glyphIndex;
+
+  if (role == Qt::ToolTipRole && index.column() == CGIM_Position)
+  {
+    if (!n.subGlyphInfo)
+      return {};
+    auto pos = n.subGlyphInfo->position;
+    switch (n.subGlyphInfo->positionType)
+    {
+    case CompositeGlyphInfo::SubGlyph::PT_Offset:
+      return QString("Add a offset (%1, %2) to the subglyph's points")
+          .arg(pos.first)
+          .arg(pos.second);
+    case CompositeGlyphInfo::SubGlyph::PT_Align:
+      return QString("Align parent's point %1 to subglyph's point %2")
+          .arg(pos.first)
+          .arg(pos.second);
+    }
+    return {};
+  }
+
+  if (role != Qt::DisplayRole)
+    return {};
+
+  switch (static_cast<Columns>(index.column()))
+  {
+  case CGIM_Glyph:
+    if (engine_->currentFontHasGlyphName())
+      return QString("%1 <%2>").arg(glyphIdx).arg(engine_->glyphName(glyphIdx));
+    return QString::number(glyphIdx);
+  case CGIM_Flag:
+    if (!n.subGlyphInfo)
+      return {};
+    return QString::number(n.subGlyphInfo->flag, 16).rightJustified(4, '0');
+  case CGIM_Position:
+  {
+    if (!n.subGlyphInfo)
+      return {};
+    auto pos = n.subGlyphInfo->position;
+    switch (n.subGlyphInfo->positionType)
+    {
+    case CompositeGlyphInfo::SubGlyph::PT_Offset:
+      return QString("Offset (%1, %2)").arg(pos.first).arg(pos.second);
+    case CompositeGlyphInfo::SubGlyph::PT_Align:
+      return QString("Align %1 -> %2").arg(pos.first).arg(pos.second);
+    }
+  }
+  }
+
+  return {};
+}
+
+
+QVariant
+CompositeGlyphsInfoModel::headerData(int section,
+                                     Qt::Orientation orientation,
+                                     int role) const
+{
+  if (role != Qt::DisplayRole)
+    return {};
+  if (orientation != Qt::Horizontal)
+    return {};
+
+  switch (static_cast<Columns>(section))
+  {
+  case CGIM_Glyph:
+    return tr("Glyph");
+  case CGIM_Flag:
+    return tr("Flags");
+  case CGIM_Position:
+    return tr("Position");
+  }
+  return {};
+}
+
+
+int
+CompositeGlyphsInfoModel::glyphIndexFromIndex(const QModelIndex& idx)
+{
+  if (!idx.isValid())
+    return -1;
+
+  auto id = idx.internalId();
+  if (id >= nodes_.size())
+    return -1;
+  auto& n = nodes_[id];
+  return n.glyphIndex;
+}
+
+
+void
+CompositeGlyphsInfoModel::beginModelUpdate()
+{
+  beginResetModel();
+  glyphs_.clear();
+  nodeLookup_.clear();
+  nodes_.clear();
+}
+
+
+void
+CompositeGlyphsInfoModel::endModelUpdate()
+{
+  glyphMapper_.clear();
+  for (size_t i = 0; i < glyphs_.size(); i++)
+    glyphMapper_.emplace(glyphs_[i].index, i);
+  endResetModel();
 }
 
 

@@ -31,16 +31,21 @@ public:
   void timerStart();
   void loadFromCommandLine();
 
+  bool currentReloadDueToPeriodicUpdate() { return periodicUpdating_; }
+
 signals:
   void currentFileChanged();
 
 private slots:
-  void onTimerOrWatcherFire();
+  void onTimerFire();
+  void onWatcherFire();
 
 private:
   QList<QFileInfo> fontFileNameList_;
   QFileSystemWatcher* fontWatcher_;
   QTimer* watchTimer_;
+
+  bool periodicUpdating_ = false;
 };
 
 

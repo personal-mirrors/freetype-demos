@@ -22,6 +22,7 @@ InfoTab::InfoTab(QWidget* parent,
 : QWidget(parent), engine_(engine)
 {
   createLayout();
+  createConnections();
 }
 
 
@@ -40,22 +41,32 @@ InfoTab::createLayout()
   sfntTab_ = new SFNTInfoTab(this, engine_);
   postScriptTab_ = new PostScriptInfoTab(this, engine_);
   mmgxTab_ = new MMGXInfoTab(this, engine_);
+  compositeGlyphsTab_ = new CompositeGlyphsTab(this, engine_);
 
   tab_ = new QTabWidget(this);
   tab_->addTab(generalTab_, tr("General"));
   tab_->addTab(sfntTab_, tr("SFNT"));
   tab_->addTab(postScriptTab_, tr("PostScript"));
   tab_->addTab(mmgxTab_, tr("MM/GX"));
+  tab_->addTab(compositeGlyphsTab_, tr("Composite Glyphs"));
 
   tabs_.append(generalTab_);
   tabs_.append(sfntTab_);
   tabs_.append(postScriptTab_);
-  tabs_.append(mmgxTab_);
+  tabs_.append(compositeGlyphsTab_);
 
   layout_ = new QHBoxLayout;
   layout_->addWidget(tab_);
 
   setLayout(layout_);
+}
+
+
+void
+InfoTab::createConnections()
+{
+  connect(compositeGlyphsTab_, &CompositeGlyphsTab::switchToSingular,
+          this, &InfoTab::switchToSingular);
 }
 
 
@@ -916,6 +927,91 @@ MMGXInfoTab::createLayout()
   mainLayout_->addWidget(axesGroupBox_, 1);
 
   setLayout(mainLayout_);
+}
+
+
+CompositeGlyphsTab::CompositeGlyphsTab(QWidget* parent,
+                                       Engine* engine)
+: QWidget(parent), engine_(engine)
+{
+  createLayout();
+  createConnections();
+}
+
+
+void
+CompositeGlyphsTab::reloadFont()
+{
+  if (engine_->fontFileManager().currentReloadDueToPeriodicUpdate())
+    return;
+  forceReloadFont();
+}
+
+
+void
+CompositeGlyphsTab::createLayout()
+{
+  compositeGlyphCountPromptLabel_ = new QLabel(tr("Composite Glyphs Count:"));
+  compositeGlyphCountLabel_ = new QLabel(this);
+  forceRefreshButton_ = new QPushButton(tr("Force Refresh"), this);
+  compositeTreeView_ = new QTreeView(this);
+
+  compositeModel_ = new CompositeGlyphsInfoModel(this, engine_);
+  compositeTreeView_->setModel(compositeModel_);
+
+  forceRefreshButton_->setToolTip(tr(
+    "Force refresh the tree view.\n"
+    "Note that periodic reloading of fonts loaded from symbolic links won't\n"
+    "trigger automatically refreshing, so you need to manually reload."));
+
+  // Layouting
+  countLayout_ = new QHBoxLayout;
+  countLayout_->addWidget(compositeGlyphCountPromptLabel_);
+  countLayout_->addWidget(compositeGlyphCountLabel_);
+  countLayout_->addWidget(forceRefreshButton_);
+  countLayout_->addStretch(1);
+
+  mainLayout_ = new QVBoxLayout;
+  mainLayout_->addLayout(countLayout_);
+  mainLayout_->addWidget(compositeTreeView_);
+
+  setLayout(mainLayout_);
+}
+
+
+void
+CompositeGlyphsTab::createConnections()
+{
+  connect(forceRefreshButton_, &QPushButton::clicked,
+          this, &CompositeGlyphsTab::forceReloadFont);
+  connect(compositeTreeView_, &QTreeView::doubleClicked,
+          this, &CompositeGlyphsTab::treeRowDoubleClicked);
+}
+
+
+void
+CompositeGlyphsTab::forceReloadFont()
+{
+  std::vector<CompositeGlyphInfo> list;
+  CompositeGlyphInfo::get(engine_, list);
+  if (list == compositeModel_->storage())
+    return;
+  compositeModel_->beginModelUpdate();
+  compositeModel_->storage() = list;
+  compositeModel_->endModelUpdate();
+
+  compositeGlyphCountLabel_->setText(
+    QString::number(compositeModel_->storage().size()));
+}
+
+
+void
+CompositeGlyphsTab::treeRowDoubleClicked(const QModelIndex& idx)
+{
+  auto gidx = compositeModel_->glyphIndexFromIndex(idx);
+  if (gidx < 0)
+    return;
+  emit switchToSingular(gidx);
 }
 
 

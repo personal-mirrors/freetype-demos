@@ -17,9 +17,9 @@ FontFileManager::FontFileManager()
   watchTimer_->setInterval(1000);
 
   connect(fontWatcher_, &QFileSystemWatcher::fileChanged,
-          this, &FontFileManager::onTimerOrWatcherFire);
+          this, &FontFileManager::onWatcherFire);
   connect(watchTimer_, &QTimer::timeout,
-          this, &FontFileManager::onTimerOrWatcherFire);
+          this, &FontFileManager::onTimerFire);
 }
 
 
@@ -137,10 +137,19 @@ FontFileManager::loadFromCommandLine()
 
 
 void
-FontFileManager::onTimerOrWatcherFire()
+FontFileManager::onWatcherFire()
 {
   watchTimer_->stop();
   emit currentFileChanged();
+}
+
+
+void
+FontFileManager::onTimerFire()
+{
+  periodicUpdating_ = true;
+  onWatcherFire();
+  periodicUpdating_ = false;
 }
 
 

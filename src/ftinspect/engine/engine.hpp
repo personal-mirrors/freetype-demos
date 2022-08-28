@@ -122,6 +122,7 @@ public:
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
   int currentFontNumberOfGlyphs() { return curNumGlyphs_; }
+  bool currentFontHasGlyphName();
 
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
