@@ -26,13 +26,13 @@
     int        width  = bit->width;
     int        height = bit->rows;
     int        color_type;
-
-    int   code = 1;
-    FILE *fp   = NULL;
+    FILE*      fp     = NULL;
 
     png_structp  png_ptr  = NULL;
     png_infop    info_ptr = NULL;
     png_bytep    row      = NULL;
+
+    volatile int  code = 1;
 
 
     /* Set color_type */
