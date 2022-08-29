@@ -8,8 +8,11 @@
 #include <QCoreApplication>
 #include <QMessageBox>
 
+#include "engine.hpp"
 
-FontFileManager::FontFileManager()
+
+FontFileManager::FontFileManager(Engine* engine)
+: engine_(engine)
 {
   fontWatcher_ = new QFileSystemWatcher(this);
   // if the current input file is invalid we retry once a second to load it
@@ -31,7 +34,7 @@ FontFileManager::size()
 
 
 void
-FontFileManager::append(QStringList newFileNames, bool alertNotExist)
+FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
 {
   QStringList failedFiles;
   for (auto& name : newFileNames)
@@ -47,8 +50,13 @@ FontFileManager::append(QStringList newFileNames, bool alertNotExist)
       continue;
     }
 
-    if (!info.exists() && alertNotExist)
-      failedFiles.append(name);
+    auto err = validateFontFile(name);
+    if (err)
+    {
+      if (alertNotExist)
+        failedFiles.append(QString("- %1: %2").arg(name).arg(err));
+      continue;
+    }
 
     // Uniquify elements
     auto absPath = info.absoluteFilePath();
@@ -141,6 +149,13 @@ FontFileManager::onWatcherFire()
 {
   watchTimer_->stop();
   emit currentFileChanged();
+}
+
+
+FT_Error
+FontFileManager::validateFontFile(QString const& fileName)
+{
+  return FT_New_Face(engine_->ftLibrary(), fileName.toUtf8(), -1, NULL);
 }
 
 

@@ -97,7 +97,7 @@ public:
   void reloadFont();
   void loadPalette();
 
-  void openFonts(QStringList fontFileNames);
+  void openFonts(QStringList const& fontFileNames);
   void removeFont(int fontIndex, bool closeFile = true);
   
   void update();

@@ -123,6 +123,7 @@ faceRequester(FTC_FaceID ftcFaceID,
 /////////////////////////////////////////////////////////////////////////////
 
 Engine::Engine()
+: fontFileManager_(this)
 {
   ftSize_ = NULL;
   ftFallbackFace_ = NULL;
@@ -679,9 +680,9 @@ Engine::numberOfOpenedFonts()
 
 
 void
-Engine::openFonts(QStringList fontFileNames)
+Engine::openFonts(QStringList const& fontFileNames)
 {
-  fontFileManager_.append(fontFileNames);
+  fontFileManager_.append(fontFileNames, true);
 }
 
 
