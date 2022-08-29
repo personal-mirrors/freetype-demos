@@ -7,6 +7,8 @@
 #include "engine.hpp"
 
 #include <cmath>
+#include <QTextCodec>
+
 
 StringRenderer::StringRenderer(Engine* engine)
 : engine_(engine)
@@ -105,7 +107,7 @@ StringRenderer::setUseString(QString const& string)
   {
     activeGlyphs_.emplace_back();
     auto& it = activeGlyphs_.back();
-    it.charCode = static_cast<int>(ch);
+    it.charCodeUcs4 = it.charCode = static_cast<int>(ch);
     it.glyphIndex = 0;
     ++totalCount;
     if (totalCount >= INT_MAX) // Prevent overflow
@@ -131,15 +133,23 @@ StringRenderer::reloadGlyphIndices()
     return;
   int charMapIndex = charMapIndex_;
   auto& charMaps = engine_->currentFontCharMaps();
+  if (charMaps.empty())
+    return;
   if (charMapIndex < 0
-      || static_cast<unsigned>(charMapIndex) >= charMaps.size()
-      || charMaps[charMapIndex].encoding != FT_ENCODING_UNICODE)
+      || static_cast<unsigned>(charMapIndex) >= charMaps.size())
     charMapIndex = engine_->currentFontFirstUnicodeCharMap();
+  if (charMapIndex < 0
+      || static_cast<unsigned>(charMapIndex) >= charMaps.size())
+    charMapIndex = 0;
+  auto encoding = charMaps[charMapIndex].encoding;
 
   if (charMapIndex < 0)
     return;
   for (auto& ctx : activeGlyphs_)
   {
+    if (encoding != FT_ENCODING_UNICODE)
+      ctx.charCode = convertCharEncoding(ctx.charCodeUcs4, encoding);
+
     auto index = engine_->glyphIndexFromCharCode(ctx.charCode, charMapIndex);
     ctx.glyphIndex = static_cast<int>(index);
   }
@@ -647,6 +657,60 @@ StringRenderer::clearActive(bool glyphOnly)
     activeGlyphs_.clear();
 
   glyphCacheValid_ = false;
+}
+
+
+int
+StringRenderer::convertCharEncoding(int charUcs4, FT_Encoding encoding)
+{
+  switch (encoding)
+  {
+  case FT_ENCODING_MS_SYMBOL:
+  case FT_ENCODING_UNICODE:
+  case FT_ENCODING_ADOBE_STANDARD: // These may be problematic...
+  case FT_ENCODING_ADOBE_EXPERT:
+  case FT_ENCODING_ADOBE_CUSTOM:
+  case FT_ENCODING_ADOBE_LATIN_1:
+    return charUcs4;
+  }
+
+  auto mib = -1;
+  switch (encoding)
+  {
+  case FT_ENCODING_SJIS:
+    mib = 17; // Shift_JIS
+    break;
+  case FT_ENCODING_PRC:
+    mib = 114; // GB 18030
+    break;
+  case FT_ENCODING_BIG5:
+    mib = 2026; // Big5
+    break;
+  case FT_ENCODING_WANSUNG:
+    mib = -949; // KS C 5601:1987, this is a fake mib value
+    break;
+  case FT_ENCODING_JOHAB:
+    mib = 38; //  KS C 5601:1992 / EUC-KR
+    break;
+  case FT_ENCODING_APPLE_ROMAN:
+    mib = 2027;
+    break;
+  }
+
+  if (mib == -1)
+    return charUcs4; // unsupported charmap
+  auto codec = QTextCodec::codecForMib(mib);
+  if (!codec)
+    return charUcs4; // unsupported
+
+  auto res = codec->fromUnicode(
+      QString::fromUcs4(reinterpret_cast<uint*>(&charUcs4), 1));
+  if (res.size() == 0)
+    return charUcs4;
+  if (res.size() == 1)
+    return res[0];
+  return ((static_cast<int>(res[0]) & 0xFF) << 8)
+         | (static_cast<int>(res[1]) & 0xFF);
 }
 
 

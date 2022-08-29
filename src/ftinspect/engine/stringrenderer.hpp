@@ -21,6 +21,7 @@ class Engine;
 struct GlyphContext
 {
   int charCode = 0;
+  int charCodeUcs4 = 0;
   int glyphIndex = 0;
   FT_Glyph glyph = NULL;
   FTC_Node cacheNode = NULL;
@@ -217,4 +218,6 @@ private:
                   FT_Vector& outActualLineWidth,
                   bool handleMultiLine = false);
   void clearActive(bool glyphOnly = false);
+
+  int convertCharEncoding(int charUcs4, FT_Encoding encoding);
 };
