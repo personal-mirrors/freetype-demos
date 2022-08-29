@@ -126,9 +126,7 @@ gblender_clear( GBlender  blender )
   {
     GBlenderChanKey  chan_keys = (GBlenderChanKey) blender->keys;
 
-    for ( nn = 0;
-          nn < GBLENDER_KEY_COUNT*GBLENDER_CELL_SIZE*sizeof(GBlenderCell);
-          nn++ )
+    for ( nn = 0; nn < GBLENDER_KEY_COUNT * 3; nn++ )
       chan_keys[nn].index = -1;
 
     blender->cache_r_back  = 0;
@@ -215,14 +213,13 @@ gblender_reset_key( GBlender     blender,
   b2 = ( fore )       & 255;
 
 #ifdef GBLENDER_STORE_BYTES
-  gr[0] = (unsigned char)r1;
-  gr[1] = (unsigned char)g1;
-  gr[2] = (unsigned char)b1;
-  gr   += 3;
+  (*gr)[0] = (unsigned char)r1;
+  (*gr)[1] = (unsigned char)g1;
+  (*gr)[2] = (unsigned char)b1;
 #else
   gr[0] = back;
-  gr   += 1;
 #endif
+  gr++;
 
   r1 = gamma_ramp[r1] << 10;
   g1 = gamma_ramp[g1] << 10;
@@ -250,14 +247,13 @@ gblender_reset_key( GBlender     blender,
     b = gamma_ramp_inv[b1 >> 10];
 
 #ifdef GBLENDER_STORE_BYTES
-    gr[0] = r;
-    gr[1] = g;
-    gr[2] = b;
-    gr   += 3;
+    (*gr)[0] = r;
+    (*gr)[1] = g;
+    (*gr)[2] = b;
 #else
     gr[0] = ( r << 16 ) | ( g << 8 ) | b;
-    gr   += 1;
 #endif
+    gr++;
   }
 }
 
@@ -294,8 +290,7 @@ gblender_lookup( GBlender       blender,
 NewNode:
   key->background = background;
   key->foreground = foreground;
-  key->cells      = blender->cells +
-                    idx*(GBLENDER_SHADE_COUNT*GBLENDER_CELL_SIZE);
+  key->cells      = blender->cells + idx * GBLENDER_SHADE_COUNT;
 
   gblender_reset_key( blender, key );
 
@@ -354,8 +349,7 @@ gblender_lookup_channel( GBlender      blender,
   blender->stat_lookups++;
 #endif
 
-  idx = ( background ^ foreground * 59 ) %
-        ( GBLENDER_KEY_COUNT*GBLENDER_CELL_SIZE*sizeof(GBlenderCell) - 1);
+  idx = ( background ^ foreground * 59 ) % ( GBLENDER_KEY_COUNT * 3 - 1 );
 
   key = (GBlenderChanKey)blender->keys + idx;
 
@@ -390,7 +384,7 @@ Exit:
 GBLENDER_APIDEF( void )
 gblender_dump_stats( GBlender  blender )
 {
-  printf( "GBlender cache statistics:\n" );
+  printf( "GBlender cache (%zu bytes) statistics:\n", sizeof blender->cells );
   printf( "  Hit rate:    %.2f%% ( %ld out of %ld )\n",
           100.0f * blender->stat_hits /
                    ( blender->stat_hits + blender->stat_lookups ),

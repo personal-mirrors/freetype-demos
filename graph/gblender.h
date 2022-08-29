@@ -38,11 +38,9 @@
   typedef unsigned int    GBlenderPixel;  /* needs 32-bits here !! */
 
 #ifdef GBLENDER_STORE_BYTES
-  typedef unsigned char   GBlenderCell;
-# define  GBLENDER_CELL_SIZE    3
+  typedef unsigned char   GBlenderCell[3];
 #else
   typedef GBlenderPixel   GBlenderCell;
-# define GBLENDER_CELL_SIZE     1
 #endif
 
 
@@ -70,10 +68,12 @@
   } GBlenderChanKeyRec, *GBlenderChanKey;
 
 
+  /* sizeof GBlenderKeyRec is at least 3x sizeof GBlenderChanKeyRec */
+  /* Therefore, we can safely use 3x as many channel keys           */
   typedef struct GBlenderRec_
   {
     GBlenderKeyRec        keys [ GBLENDER_KEY_COUNT ];
-    GBlenderCell          cells[ GBLENDER_KEY_COUNT*GBLENDER_SHADE_COUNT*GBLENDER_CELL_SIZE ];
+    GBlenderCell          cells[ GBLENDER_KEY_COUNT*GBLENDER_SHADE_COUNT ];
 
    /* a small cache for normal modes
     */

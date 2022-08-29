@@ -106,11 +106,11 @@
 #define  GDST_PIX(p,d)            unsigned int  p = *(GBlenderPixel*)(d) & 0xFFFFFF
 #define  GDST_COPY(d)             *(GBlenderPixel*)(d) = color.value
 #define  GDST_STOREP(d,cells,a)   *(GBlenderPixel*)(d) = (cells)[(a)]
-#define  GDST_STOREB(d,cells,a)              \
-  {                                          \
-    GBlenderCell*  _g = (cells) + (a)*3;     \
-                                             \
-    GDST_STOREC(d,_g[0],_g[1],_g[2]);        \
+#define  GDST_STOREB(d,cells,a)                 \
+  {                                             \
+    GBlenderCell*  _g = (cells) + (a);          \
+                                                \
+    GDST_STOREC(d,(*_g)[0],(*_g)[1],(*_g)[2]);  \
   }
 #define  GDST_STOREC(d,r,g,b)     *(GBlenderPixel*)(d) = GRGB_PACK(r,g,b)
 
@@ -128,13 +128,13 @@
 #define  GDST_COPY(d)              GDST_STORE3(d,color.chroma[0],color.chroma[1],color.chroma[2])
 #define  GDST_STOREC(d,r,g,b)      GDST_STORE3(d,r,g,b)
 
-#define  GDST_STOREB(d,cells,a)                \
-    {                                          \
-      GBlenderCell*  _g = (cells) + (a)*3;     \
-                                               \
-      (d)[0] = _g[0];                          \
-      (d)[1] = _g[1];                          \
-      (d)[2] = _g[2];                          \
+#define  GDST_STOREB(d,cells,a)           \
+    {                                     \
+      GBlenderCell*  _g = (cells) + (a);  \
+                                          \
+      (d)[0] = (*_g)[0];                  \
+      (d)[1] = (*_g)[1];                  \
+      (d)[2] = (*_g)[2];                  \
     }
 
 #define  GDST_STOREP(d,cells,a)                 \
@@ -158,11 +158,11 @@
 #define  GDST_PIX(p,d)           unsigned int  p = GRGB565_TO_RGB24(*(unsigned short*)(d))
 #define  GDST_COPY(d)            *(unsigned short*)(d) = (unsigned short)color.value
 
-#define  GDST_STOREB(d,cells,a)                                   \
-    {                                                             \
-      GBlenderCell*  _g = (cells) + (a)*3;                        \
-                                                                  \
-      *(unsigned short*)(d) = GRGB_TO_RGB565(_g[0],_g[1],_g[2]);  \
+#define  GDST_STOREB(d,cells,a)                                            \
+    {                                                                      \
+      GBlenderCell*  _g = (cells) + (a);                                   \
+                                                                           \
+      *(unsigned short*)(d) = GRGB_TO_RGB565((*_g)[0],(*_g)[1],(*_g)[2]);  \
     }
 
 #define  GDST_STOREP(d,cells,a)                         \
@@ -187,11 +187,11 @@
 #define  GDST_PIX(p,d)           unsigned int  p = GRGB555_TO_RGB24(*(unsigned short*)(d))
 #define  GDST_COPY(d)            *(unsigned short*)(d) = (unsigned short)color.value
 
-#define  GDST_STOREB(d,cells,a)                                   \
-    {                                                             \
-      GBlenderCell*  _g = (cells) + (a)*3;                        \
-                                                                  \
-      *(unsigned short*)(d) = GRGB_TO_RGB555(_g[0],_g[1],_g[2]);  \
+#define  GDST_STOREB(d,cells,a)                                            \
+    {                                                                      \
+      GBlenderCell*  _g = (cells) + (a);                                   \
+                                                                           \
+      *(unsigned short*)(d) = GRGB_TO_RGB555((*_g)[0],(*_g)[1],(*_g)[2]);  \
     }
 
 #define  GDST_STOREP(d,cells,a)                         \
@@ -216,11 +216,11 @@
 #define  GDST_PIX(p,d)           unsigned int  p = GGRAY8_TO_RGB24(*(unsigned char*)(d))
 #define  GDST_COPY(d)            *(d) = (unsigned char)color.value
 
-#define  GDST_STOREB(d,cells,a)                 \
-    {                                           \
-      GBlenderCell*  _g = (cells) + (a)*3;      \
-                                                \
-      *(d) = GRGB_TO_GRAY8(_g[0],_g[1],_g[2]);  \
+#define  GDST_STOREB(d,cells,a)                          \
+    {                                                    \
+      GBlenderCell*  _g = (cells) + (a);                 \
+                                                         \
+      *(d) = GRGB_TO_GRAY8((*_g)[0],(*_g)[1],(*_g)[2]);  \
     }
 
 #define  GDST_STOREP(d,cells,a)           \
