@@ -137,6 +137,7 @@ private:
   FT_Stroker stroker_;
 
   std::vector<GlyphCacheLine> glyphCache_;
+  QColor backgroundColorCache_;
   GlyphCacheLine* currentWritingLine_ = NULL;
 
   QPoint positionDelta_;

@@ -117,6 +117,7 @@ void
 GlyphContinuous::purgeCache()
 {
   glyphCache_.clear();
+  backgroundColorCache_ = engine_->renderingEngine()->background();
   currentWritingLine_ = NULL;
 }
 
@@ -133,7 +134,7 @@ void
 GlyphContinuous::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
-  painter.fillRect(rect(), engine_->renderingEngine()->background());
+  painter.fillRect(rect(), backgroundColorCache_);
 
   if (glyphCache_.empty())
     fillCache();
