@@ -407,8 +407,9 @@ StringRenderer::render(int width,
     }
 
     int y = 0;
-    // no position param in "All Glyphs" mode
-    int x = static_cast<int>(usingString_ ? (width * position_) : 0);
+    // no position param in "All Glyphs" or repeated mode
+    int x = static_cast<int>((usingString_ && !repeated_) ? (width * position_)
+                                                          : 0);
     int count = 0;
 
     while (true)
