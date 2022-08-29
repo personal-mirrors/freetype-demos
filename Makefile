@@ -374,24 +374,9 @@ else
   $(OBJ_DIR_2)/mlgetopt.$(SO): $(SRC_DIR)/mlgetopt.c
   COMMON_OBJ := $(OBJ_DIR_2)/common.$(SO) \
                 $(OBJ_DIR_2)/strbuf.$(SO) \
-                $(OBJ_DIR_2)/rsvg-port.$(SO) \
                 $(OBJ_DIR_2)/output.$(SO) \
                 $(OBJ_DIR_2)/md5.$(SO) \
                 $(OBJ_DIR_2)/mlgetopt.$(SO)
-
-  $(OBJ_DIR_2)/ftcommon.$(SO): $(SRC_DIR)/ftcommon.c $(SRC_DIR)/ftcommon.h
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<)
-
-  $(OBJ_DIR_2)/ftpngout.$(SO): $(SRC_DIR)/ftpngout.c $(SRC_DIR)/ftcommon.h
-	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
-                     $T$(subst /,$(COMPILER_SEP),$@ $<)
-
-  $(OBJ_DIR_2)/rsvg-port.$(SO): $(SRC_DIR)/rsvg-port.c $(SRC_DIR)/rsvg-port.h
-	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
-
-  FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
-                  $(OBJ_DIR_2)/ftpngout.$(SO)
 
   $(OBJ_DIR_2)/ftdump.$(SO): $(SRC_DIR)/ftdump.c
 	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
@@ -470,6 +455,23 @@ else
                               $(GRAPH_LIB)
 	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
                      $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+  $(OBJ_DIR_2)/ftcommon.$(SO): $(SRC_DIR)/ftcommon.c \
+                               $(SRC_DIR)/ftcommon.h \
+                               $(GRAPH_LIB)
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+  $(OBJ_DIR_2)/ftpngout.$(SO): $(SRC_DIR)/ftpngout.c $(SRC_DIR)/ftcommon.h
+	  $(COMPILE) $(GRAPH_INCLUDES:%=$I%) \
+                     $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+  $(OBJ_DIR_2)/rsvg-port.$(SO): $(SRC_DIR)/rsvg-port.c $(SRC_DIR)/rsvg-port.h
+	  $(COMPILE) $T$(subst /,$(COMPILER_SEP),$@ $<)
+
+  FTCOMMON_OBJ := $(OBJ_DIR_2)/ftcommon.$(SO) \
+                  $(OBJ_DIR_2)/ftpngout.$(SO) \
+                  $(OBJ_DIR_2)/rsvg-port.$(SO)
 
 
   ####################################################################
