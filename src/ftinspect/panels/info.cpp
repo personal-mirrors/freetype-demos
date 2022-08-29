@@ -992,16 +992,34 @@ CompositeGlyphsTab::createConnections()
 void
 CompositeGlyphsTab::forceReloadFont()
 {
+  engine_->reloadFont();
+  auto face = engine_->currentFallbackFtFace();
+  if (!face || !FT_IS_SFNT(face))
+  {
+    compositeGlyphCountPromptLabel_->setVisible(false);
+    compositeGlyphCountLabel_->setText(tr("Not a SFNT font."));
+  }
+
   std::vector<CompositeGlyphInfo> list;
   CompositeGlyphInfo::get(engine_, list);
   if (list == compositeModel_->storage())
     return;
   compositeModel_->beginModelUpdate();
-  compositeModel_->storage() = list;
+  compositeModel_->storage() = std::move(list);
   compositeModel_->endModelUpdate();
 
-  compositeGlyphCountLabel_->setText(
-    QString::number(compositeModel_->storage().size()));
+  if (compositeModel_->storage().empty())
+  {
+    compositeGlyphCountPromptLabel_->setVisible(false);
+    compositeGlyphCountLabel_->setText(
+      tr("No composite glyphs in the 'glyf' table."));
+  }
+  else
+  {
+    compositeGlyphCountPromptLabel_->setVisible(true);
+    compositeGlyphCountLabel_->setText(
+      QString::number(compositeModel_->storage().size()));
+  }
 }
 
 
