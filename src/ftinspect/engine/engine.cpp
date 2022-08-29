@@ -547,6 +547,24 @@ Engine::currentFontBitmapOnly()
 }
 
 
+bool
+Engine::currentFontHasEmbeddedBitmap()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_FIXED_SIZES(ftFallbackFace_);
+}
+
+
+bool
+Engine::currentFontHasColorLayers()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_COLOR(ftFallbackFace_);
+}
+
+
 std::vector<int>
 Engine::currentFontFixedSizes()
 {

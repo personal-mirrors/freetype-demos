@@ -134,14 +134,20 @@ SettingPanel::onFontChanged()
     emit repaintNeeded();
   }
 
+  engine_->reloadFont();
+  auto hasColor = engine_->currentFontHasColorLayers();
+  colorLayerCheckBox_->setEnabled(hasColor);
+  if (!hasColor)
+    colorLayerCheckBox_->setChecked(false);
   populatePalettes();
   mmgxPanel_->reloadFont();
   blockSignals(blockState);
 
   // Place this after `blockSignals` to let the signals emitted normally
-  engine_->reloadFont();
-  embeddedBitmapCheckBox_->setEnabled(!engine_->currentFontBitmapOnly());
-  if (engine_->currentFontBitmapOnly())
+  auto bmapOnly = engine_->currentFontBitmapOnly();
+  embeddedBitmapCheckBox_->setEnabled(
+    !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
+  if (bmapOnly)
     embeddedBitmapCheckBox_->setChecked(true);
 }
 
@@ -343,6 +349,7 @@ void
 SettingPanel::checkAntiAliasing()
 {
   int index = antiAliasingComboBox_->currentIndex();
+  auto isMono = index == AntiAliasingComboBoxModel::AntiAliasing_None;
   auto isLight
     = index == AntiAliasingComboBoxModel::AntiAliasing_Light
       || index == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel;
@@ -354,6 +361,7 @@ SettingPanel::checkAntiAliasing()
   lcdFilterLabel_->setEnabled(!disableLCD);
   lcdFilterComboBox_->setEnabled(!disableLCD);
   stemDarkeningCheckBox_->setEnabled(isLight);
+  gammaSlider_->setEnabled(!isMono);
 
   emit repaintNeeded();
 }

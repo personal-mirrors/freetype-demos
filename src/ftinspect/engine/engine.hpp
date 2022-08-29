@@ -148,6 +148,8 @@ public:
   std::vector<MMGXAxisInfo>& currentFontMMGXAxes() { return curMMGXAxes_; }
   std::vector<SFNTTableInfo>& currentFontSFNTTableInfo();
   bool currentFontBitmapOnly();
+  bool currentFontHasEmbeddedBitmap();
+  bool currentFontHasColorLayers();
   std::vector<int> currentFontFixedSizes();
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
