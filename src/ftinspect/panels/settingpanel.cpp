@@ -236,14 +236,14 @@ SettingPanel::resetColorBlocks()
   foregroundBlock_->setStyleSheet(
     QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
       .arg(foregroundColor_.red())
-      .arg(foregroundColor_.blue())
       .arg(foregroundColor_.green())
+      .arg(foregroundColor_.blue())
       .arg(foregroundColor_.alpha()));
   backgroundBlock_->setStyleSheet(
     QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
       .arg(backgroundColor_.red())
-      .arg(backgroundColor_.blue())
       .arg(backgroundColor_.green())
+      .arg(backgroundColor_.blue())
       .arg(backgroundColor_.alpha()));
 }
 
