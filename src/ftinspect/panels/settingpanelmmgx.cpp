@@ -38,7 +38,7 @@ SettingPanelMMGX::reloadFont()
 
   if (newSize < oldSize)
   {
-    for (size_t i = oldSize; i < newSize; ++i)
+    for (size_t i = newSize; i < oldSize; ++i)
     {
       auto w = itemWidgets_[i];
       disconnect(w);
