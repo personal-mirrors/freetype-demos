@@ -49,6 +49,7 @@ signals:
 public slots:
   void checkAllSettings();
   void onFontChanged();
+  void checkHinting();
   void checkHintingMode();
   void checkAutoHinting();
   void checkAntiAliasing();

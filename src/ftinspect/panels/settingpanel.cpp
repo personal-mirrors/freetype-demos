@@ -77,7 +77,6 @@ void
 SettingPanel::checkAllSettings()
 {
   onFontChanged();
-  checkAutoHinting();
   checkAntiAliasing();
 }
 
@@ -86,26 +85,50 @@ void
 SettingPanel::onFontChanged()
 {
   auto blockState = blockSignals(signalsBlocked() || comparatorMode_);
+
+  if (engine_->currentFontType() == Engine::FontType_CFF)
+  {
+    hintingModeComboBoxModel_->setCurrentEngineType(
+      HintingModeComboBoxModel::HintingEngineType_CFF);
+    hintingModeComboBox_->setCurrentIndex(currentCFFHintingMode_);
+  }
+  else if (engine_->currentFontType() == Engine::FontType_TrueType)
+  {
+    hintingModeComboBoxModel_->setCurrentEngineType(
+      HintingModeComboBoxModel::HintingEngineType_TrueType);
+    hintingModeComboBox_->setCurrentIndex(currentTTInterpreterVersion_);
+  }
+  else
+  {
+    hintingModeLabel_->setEnabled(false);
+    hintingModeComboBox_->setEnabled(false);
+  }
+
+  checkHinting();
+
+  engine_->reloadFont();
+  auto hasColor = engine_->currentFontHasColorLayers();
+  colorLayerCheckBox_->setEnabled(hasColor);
+  if (!hasColor)
+    colorLayerCheckBox_->setChecked(false);
+  populatePalettes();
+  mmgxPanel_->reloadFont();
+  blockSignals(blockState);
+
+  // Place this after `blockSignals` to let the signals emitted normally
+  auto bmapOnly = engine_->currentFontBitmapOnly();
+  embeddedBitmapCheckBox_->setEnabled(
+    !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
+  if (bmapOnly)
+    embeddedBitmapCheckBox_->setChecked(true);
+}
+
+
+void
+SettingPanel::checkHinting()
+{
   if (hintingCheckBox_->isChecked())
   {
-    if (engine_->currentFontType() == Engine::FontType_CFF)
-    {
-      hintingModeComboBoxModel_->setCurrentEngineType(
-        HintingModeComboBoxModel::HintingEngineType_CFF);
-      hintingModeComboBox_->setCurrentIndex(currentCFFHintingMode_);
-    }
-    else if (engine_->currentFontType() == Engine::FontType_TrueType)
-    {
-      hintingModeComboBoxModel_->setCurrentEngineType(
-        HintingModeComboBoxModel::HintingEngineType_TrueType);
-      hintingModeComboBox_->setCurrentIndex(currentTTInterpreterVersion_);
-    }
-    else
-    {
-      hintingModeLabel_->setEnabled(false);
-      hintingModeComboBox_->setEnabled(false);
-    }
-
     autoHintingCheckBox_->setEnabled(true);
     checkAutoHinting(); // this will emit repaint
   }
@@ -133,22 +156,6 @@ SettingPanel::onFontChanged()
     
     emit repaintNeeded();
   }
-
-  engine_->reloadFont();
-  auto hasColor = engine_->currentFontHasColorLayers();
-  colorLayerCheckBox_->setEnabled(hasColor);
-  if (!hasColor)
-    colorLayerCheckBox_->setChecked(false);
-  populatePalettes();
-  mmgxPanel_->reloadFont();
-  blockSignals(blockState);
-
-  // Place this after `blockSignals` to let the signals emitted normally
-  auto bmapOnly = engine_->currentFontBitmapOnly();
-  embeddedBitmapCheckBox_->setEnabled(
-    !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
-  if (bmapOnly)
-    embeddedBitmapCheckBox_->setChecked(true);
 }
 
 
@@ -448,7 +455,7 @@ SettingPanel::createConnections()
           this, &SettingPanel::updateGamma);
   
   connect(hintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
+          this, &SettingPanel::checkHinting);
 
   if (debugMode_)
   {
@@ -616,7 +623,7 @@ SettingPanel::createLayout()
     "Enable embedded bitmap strikes (force enabled for bitmap-only fonts)."));
   stemDarkeningCheckBox_->setToolTip(
     tr("Enable stem darkening (only valid for auto-hinter with gamma "
-       "correction enabled)."));
+       "correction enabled and with Light AA modes)."));
   gammaSlider_->setToolTip("Gamma correction value.");
   colorLayerCheckBox_->setToolTip(tr("Enable color layer rendering."));
   paletteComboBox_->setToolTip(tr("Select color layer palette (only valid when "
