@@ -86,17 +86,21 @@ SettingPanel::onFontChanged()
 {
   auto blockState = blockSignals(signalsBlocked() || comparatorMode_);
 
+  engine_->reloadFont();
   if (engine_->currentFontType() == Engine::FontType_CFF)
   {
     hintingModeComboBoxModel_->setCurrentEngineType(
-      HintingModeComboBoxModel::HintingEngineType_CFF);
+      HintingModeComboBoxModel::HintingEngineType_CFF, false);
     hintingModeComboBox_->setCurrentIndex(currentCFFHintingMode_);
   }
   else if (engine_->currentFontType() == Engine::FontType_TrueType)
   {
+    auto tricky = engine_->currentFontTricky();
     hintingModeComboBoxModel_->setCurrentEngineType(
-      HintingModeComboBoxModel::HintingEngineType_TrueType);
-    hintingModeComboBox_->setCurrentIndex(currentTTInterpreterVersion_);
+      HintingModeComboBoxModel::HintingEngineType_TrueType, tricky);
+    hintingModeComboBox_->setCurrentIndex(
+      tricky ? HintingModeComboBoxModel::HintingMode::HintingMode_TrueType_v35
+             : currentTTInterpreterVersion_);
   }
   else
   {
@@ -129,7 +133,14 @@ SettingPanel::checkHinting()
 {
   if (hintingCheckBox_->isChecked())
   {
-    autoHintingCheckBox_->setEnabled(true);
+    engine_->reloadFont();
+    auto tricky = engine_->currentFontTricky();
+    {
+      QSignalBlocker blocker(autoHintingCheckBox_);
+      autoHintingCheckBox_->setEnabled(!tricky);
+      if (tricky)
+        autoHintingCheckBox_->setChecked(false);
+    }
     checkAutoHinting(); // this will emit repaint
   }
   else

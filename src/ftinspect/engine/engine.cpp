@@ -463,6 +463,15 @@ Engine::currentFaceSlot()
 }
 
 
+bool
+Engine::currentFontTricky()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_IS_TRICKY(ftFallbackFace_);
+}
+
+
 FT_Pos
 Engine::currentFontTrackingKerning(int degree)
 {
@@ -804,8 +813,6 @@ void
 Engine::update()
 {
   loadFlags_ = FT_LOAD_DEFAULT;
-  if (doAutoHinting_)
-    loadFlags_ |= FT_LOAD_FORCE_AUTOHINT;
 
   if (!embeddedBitmap_)
     loadFlags_ |= FT_LOAD_NO_BITMAP;
@@ -813,10 +820,14 @@ Engine::update()
   if (doHinting_)
   {
     loadFlags_ |= antiAliasingTarget_;
+    if (doAutoHinting_)
+      loadFlags_ |= FT_LOAD_FORCE_AUTOHINT;
   }
   else
   {
     loadFlags_ |= FT_LOAD_NO_HINTING;
+    if (currentFontTricky())
+      loadFlags_ |= FT_LOAD_NO_AUTOHINT;
 
     if (!antiAliasingEnabled_)
       loadFlags_ |= FT_LOAD_MONOCHROME;

@@ -40,7 +40,7 @@ public:
 
   void setSupportedModes(QList<int> supportedTTIVersions,
                          QList<int> supportedCFFModes);
-  void setCurrentEngineType(HintingEngineType type);
+  void setCurrentEngineType(HintingEngineType type, bool tricky);
 
 private:
   QHash<int, HintingModeItem> items_;

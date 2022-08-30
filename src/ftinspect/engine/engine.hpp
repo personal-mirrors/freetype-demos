@@ -118,7 +118,10 @@ public:
   int currentFontIndex() { return curFontIndex_; }
   FT_Face currentFallbackFtFace() { return ftFallbackFace_; }
   FT_Size currentFtSize() { return ftSize_; }
+  FT_Size_Metrics const& currentFontMetrics();
+  FT_GlyphSlot currentFaceSlot();
   int currentFontType() const { return fontType_; }
+  bool currentFontTricky();
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
   int currentFontNumberOfGlyphs() { return curNumGlyphs_; }
@@ -133,8 +136,6 @@ public:
   int currentFontFirstUnicodeCharMap();
   // Note: the current font face must be properly set
   unsigned glyphIndexFromCharCode(int code, int charMapIndex);
-  FT_Size_Metrics const& currentFontMetrics();
-  FT_GlyphSlot currentFaceSlot();
   FT_Pos currentFontTrackingKerning(int degree);
   FT_Vector currentFontKerning(int glyphIndex, int prevIndex);
   std::pair<int, int> currentSizeAscDescPx();

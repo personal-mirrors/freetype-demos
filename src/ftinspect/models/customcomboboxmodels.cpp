@@ -177,10 +177,14 @@ HintingModeComboBoxModel::setSupportedModes(QList<int> supportedTTIVersions,
 
 
 void
-HintingModeComboBoxModel::setCurrentEngineType(HintingEngineType type)
+HintingModeComboBoxModel::setCurrentEngineType(HintingEngineType type, 
+                                               bool tricky)
 {
   for (auto& item : items_)
-    item.enabled = item.supported && item.type == type;
+    if (!tricky)
+      item.enabled = item.supported && item.type == type;
+    else
+      item.enabled = item.supported && item.key == HintingMode_TrueType_v35;
 }
 
 
