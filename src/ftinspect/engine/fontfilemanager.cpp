@@ -6,6 +6,7 @@
 #include "fontfilemanager.hpp"
 
 #include <QCoreApplication>
+#include <QGridLayout>
 #include <QMessageBox>
 
 #include "engine.hpp"
@@ -54,7 +55,18 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
     if (err)
     {
       if (alertNotExist)
-        failedFiles.append(QString("- %1: %2").arg(name).arg(err));
+      {
+        auto errString = FT_Error_String(err);
+        if (!errString)
+          failedFiles.append(QString("- %1: %2")
+                             .arg(name)
+                             .arg(err));
+        else
+          failedFiles.append(QString("- %1: %2 (%3)")
+                             .arg(name)
+                             .arg(errString)
+                             .arg(err));
+      }
       continue;
     }
 
@@ -80,8 +92,17 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
     auto msg = new QMessageBox;
     msg->setAttribute(Qt::WA_DeleteOnClose);
     msg->setStandardButtons(QMessageBox::Ok);
-    msg->setWindowTitle(tr("Failed to load some files"));
-    msg->setText(tr("Files failed to load:\n%1").arg(failedFiles.join("\n")));
+    if (failedFiles.size() == 1)
+    {
+      msg->setWindowTitle(tr("Failed to load file"));
+      msg->setText(tr("File failed to load:\n%1").arg(failedFiles.join("\n")));
+    }
+    else
+    {
+      msg->setWindowTitle(tr("Failed to load some files"));
+      msg->setText(tr("Files failed to load:\n%1").arg(failedFiles.join("\n")));
+    }
+    
     msg->setIcon(QMessageBox::Warning);
     msg->setModal(false);
     msg->open();
