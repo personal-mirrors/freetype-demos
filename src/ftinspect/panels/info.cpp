@@ -435,8 +435,7 @@ SFNTInfoTab::reloadFont()
 {
   engine_->reloadFont();
   auto face = engine_->currentFallbackFtFace();
-  if (!face || !FT_IS_SFNT(face))
-    setEnabled(false);
+  setEnabled(face && FT_IS_SFNT(face));
 
   if (engine_->currentFontSFNTNames() != sfntNamesModel_->storage())
   {
@@ -1002,11 +1001,12 @@ CompositeGlyphsTab::forceReloadFont()
 
   std::vector<CompositeGlyphInfo> list;
   CompositeGlyphInfo::get(engine_, list);
-  if (list == compositeModel_->storage())
-    return;
-  compositeModel_->beginModelUpdate();
-  compositeModel_->storage() = std::move(list);
-  compositeModel_->endModelUpdate();
+  if (list != compositeModel_->storage())
+  {
+    compositeModel_->beginModelUpdate();
+    compositeModel_->storage() = std::move(list);
+    compositeModel_->endModelUpdate();
+  }
 
   if (compositeModel_->storage().empty())
   {
