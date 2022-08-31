@@ -268,7 +268,7 @@ MainGUI::createLayout()
   singularTab_ = new SingularTab(this, engine_);
   continuousTab_ = new ContinuousTab(this, engine_,
                                      glyphDetailsDockWidget_, glyphDetails_);
-  comparatorTab_ = new ComperatorTab(this, engine_);
+  comparatorTab_ = new ComparatorTab(this, engine_);
   infoTab_ = new InfoTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);

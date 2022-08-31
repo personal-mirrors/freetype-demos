@@ -673,7 +673,7 @@ SettingPanel::createLayout()
   colorPickerLayout_->addWidget(foregroundBlock_);
 
   if (comparatorMode_)
-    createLayoutComperator();
+    createLayoutComparator();
   else
     createLayoutNormal();
 
@@ -735,7 +735,7 @@ SettingPanel::createLayoutNormal()
 
 
 void
-SettingPanel::createLayoutComperator()
+SettingPanel::createLayoutComparator()
 {
   hintingRenderingTab_ = new QWidget(this);
 

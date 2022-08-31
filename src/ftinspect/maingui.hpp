@@ -112,7 +112,7 @@ private:
   QVector<AbstractTab*> tabs_;
   SingularTab* singularTab_;
   ContinuousTab* continuousTab_;
-  ComperatorTab* comparatorTab_;
+  ComparatorTab* comparatorTab_;
   InfoTab* infoTab_;
   QWidget* lastTab_ = NULL;
 

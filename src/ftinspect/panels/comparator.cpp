@@ -12,7 +12,7 @@ namespace
 extern const char* ComparatorDefaultText;
 }
 
-ComperatorTab::ComperatorTab(QWidget* parent, Engine* engine)
+ComparatorTab::ComparatorTab(QWidget* parent, Engine* engine)
 : QWidget(parent),
   engine_(engine)
 {
@@ -22,13 +22,13 @@ ComperatorTab::ComperatorTab(QWidget* parent, Engine* engine)
 }
 
 
-ComperatorTab::~ComperatorTab()
+ComparatorTab::~ComparatorTab()
 {
 }
 
 
 void
-ComperatorTab::repaintGlyph()
+ComparatorTab::repaintGlyph()
 {
   sizeSelector_->applyToEngine(engine_);
 
@@ -47,7 +47,7 @@ ComperatorTab::repaintGlyph()
 
 
 void
-ComperatorTab::reloadFont()
+ComparatorTab::reloadFont()
 {
   {
     QSignalBlocker blocker(sizeSelector_);
@@ -64,7 +64,7 @@ ComperatorTab::reloadFont()
 
 
 bool
-ComperatorTab::eventFilter(QObject* watched,
+ComparatorTab::eventFilter(QObject* watched,
                            QEvent* event)
 {
   auto ptr = qobject_cast<GlyphContinuous*>(watched);
@@ -75,7 +75,7 @@ ComperatorTab::eventFilter(QObject* watched,
 
 
 void
-ComperatorTab::resizeEvent(QResizeEvent* event)
+ComparatorTab::resizeEvent(QResizeEvent* event)
 {
   QWidget::resizeEvent(event);
   forceEqualWidths();
@@ -84,7 +84,7 @@ ComperatorTab::resizeEvent(QResizeEvent* event)
 
 
 void
-ComperatorTab::createLayout()
+ComparatorTab::createLayout()
 {
   sizeSelector_ = new FontSizeSelector(this, true, true);
   charMapLabel_ = new QLabel(tr("Char Map:"), this);
@@ -149,38 +149,38 @@ ComperatorTab::createLayout()
 
 
 void
-ComperatorTab::createConnections()
+ComparatorTab::createConnections()
 {
   connect(sizeSelector_, &FontSizeSelector::valueChanged,
-          this, &ComperatorTab::reloadGlyphsAndRepaint);
+          this, &ComparatorTab::reloadGlyphsAndRepaint);
   connect(sourceTextEdit_, &QPlainTextEdit::textChanged,
-          this, &ComperatorTab::sourceTextChanged);
+          this, &ComparatorTab::sourceTextChanged);
   connect(charMapSelector_,
           QOverload<int>::of(&CharMapComboBox::currentIndexChanged),
-          this, &ComperatorTab::reloadStringAndRepaint);
+          this, &ComparatorTab::reloadStringAndRepaint);
 
   for (auto panel : settingPanels_)
   {
     // We're treating the two events identically, because we need to do a
     // complete flush anyway
     connect(panel, &SettingPanel::repaintNeeded,
-            this, &ComperatorTab::repaintGlyph);
+            this, &ComparatorTab::repaintGlyph);
     connect(panel, &SettingPanel::fontReloadNeeded,
-            this, &ComperatorTab::repaintGlyph);
+            this, &ComparatorTab::repaintGlyph);
   }
 
   for (auto canvas : canvas_)
   {
     connect(canvas, &GlyphContinuous::wheelZoom,
-            this, &ComperatorTab::wheelZoom);
+            this, &ComparatorTab::wheelZoom);
     connect(canvas, &GlyphContinuous::wheelResize,
-            this, &ComperatorTab::wheelResize);
+            this, &ComparatorTab::wheelResize);
   }
 }
 
 
 void
-ComperatorTab::setupCanvases()
+ComparatorTab::setupCanvases()
 {
   for (auto canvas : canvas_)
   {
@@ -196,7 +196,7 @@ ComperatorTab::setupCanvases()
 
 
 void
-ComperatorTab::forceEqualWidths()
+ComparatorTab::forceEqualWidths()
 {
   if (canvas_.empty())
     return;
@@ -213,7 +213,7 @@ ComperatorTab::forceEqualWidths()
 
 
 void
-ComperatorTab::reloadStringAndRepaint()
+ComparatorTab::reloadStringAndRepaint()
 {
   int i = 0;
   for (auto canvas : canvas_)
@@ -230,7 +230,7 @@ ComperatorTab::reloadStringAndRepaint()
 
 
 void
-ComperatorTab::reloadGlyphsAndRepaint()
+ComparatorTab::reloadGlyphsAndRepaint()
 {
   int i = 0;
   for (auto canvas : canvas_)
@@ -244,7 +244,7 @@ ComperatorTab::reloadGlyphsAndRepaint()
 
 
 void
-ComperatorTab::sourceTextChanged()
+ComparatorTab::sourceTextChanged()
 {
   for (auto canvas : canvas_)
     canvas->setSourceText(sourceTextEdit_->toPlainText());
@@ -253,7 +253,7 @@ ComperatorTab::sourceTextChanged()
 
 
 void
-ComperatorTab::syncSettings(int index)
+ComparatorTab::syncSettings(int index)
 {
   if (index < 0 || static_cast<unsigned>(index) >= settingPanels_.size())
     return;
@@ -273,14 +273,14 @@ ComperatorTab::syncSettings(int index)
 
 
 void
-ComperatorTab::wheelResize(int steps)
+ComparatorTab::wheelResize(int steps)
 {
   sizeSelector_->handleWheelResizeBySteps(steps);
 }
 
 
 void
-ComperatorTab::wheelZoom(int steps)
+ComparatorTab::wheelZoom(int steps)
 {
   sizeSelector_->handleWheelZoomBySteps(steps);
 }

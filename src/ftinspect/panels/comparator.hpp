@@ -21,13 +21,13 @@
 #include <QBoxLayout>
 #include <QPlainTextEdit>
 
-class ComperatorTab
+class ComparatorTab
 : public QWidget, public AbstractTab
 {
   Q_OBJECT
 public:
-  ComperatorTab(QWidget* parent, Engine* engine);
-  ~ComperatorTab() override;
+  ComparatorTab(QWidget* parent, Engine* engine);
+  ~ComparatorTab() override;
 
   void repaintGlyph() override;
   void reloadFont() override;

@@ -131,7 +131,7 @@ private:
   void createConnections();
   void createLayout();
   void createLayoutNormal();
-  void createLayoutComperator();
+  void createLayoutComparator();
   void setDefaults();
 
   void populatePalettes();
