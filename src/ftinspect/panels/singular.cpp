@@ -157,7 +157,7 @@ SingularTab::checkShowPoints()
 void
 SingularTab::zoom()
 {
-  int scale = zoomSpinBox_->value();
+  int scale = static_cast<int>(sizeSelector_->zoomFactor());
 
   QTransform transform;
   transform.scale(scale, scale);
@@ -198,10 +198,7 @@ void
 SingularTab::wheelZoom(QWheelEvent* event)
 {
   int numSteps = event->angleDelta().y() / 120;
-  int zoomAfter = zoomSpinBox_->value() + numSteps;
-  zoomAfter = std::max(zoomSpinBox_->minimum(),
-                       std::min(zoomAfter, zoomSpinBox_->maximum()));
-  zoomSpinBox_->setValue(zoomAfter);
+  sizeSelector_->handleWheelZoomBySteps(numSteps);
   // TODO: Zoom relative to viewport left-bottom?
 }
 
@@ -276,7 +273,7 @@ SingularTab::resizeEvent(QResizeEvent* event)
 
   auto viewSize = glyphView_->size();
   auto minViewSide = std::min(viewSize.height(), viewSize.width());
-  zoomSpinBox_->setValue(static_cast<int>(minViewSide / size * 0.7));
+  sizeSelector_->setZoomFactor(static_cast<int>(minViewSide / size * 0.7));
 }
 
 
@@ -323,15 +320,7 @@ SingularTab::createLayout()
   indexSelector_ = new GlyphIndexSelector(this);
   indexSelector_->setSingleMode(true);
 
-  sizeSelector_ = new FontSizeSelector(this);
-
-  zoomLabel_ = new QLabel(tr("Zoom Factor"), this);
-  zoomLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-  zoomSpinBox_ = new ZoomSpinBox(this);
-  zoomSpinBox_->setAlignment(Qt::AlignRight);
-  zoomSpinBox_->setRange(1, 1000 - 1000 % 64);
-  zoomSpinBox_->setKeyboardTracking(false);
-  zoomLabel_->setBuddy(zoomSpinBox_);
+  sizeSelector_ = new FontSizeSelector(this, false, false);
 
   centerGridButton_ = new QPushButton("Go Back to Grid Center", this);
   helpButton_ = new QPushButton("?", this);
@@ -345,7 +334,6 @@ SingularTab::createLayout()
   showAuxLinesCheckBox_ = new QCheckBox(tr("Show Aux. Lines"), this);
 
   // Tooltips
-  zoomSpinBox_->setToolTip(tr("Adjust grid zoom."));
   centerGridButton_->setToolTip(tr(
     "Move the viewport so the origin point is at the center of the view."));
   showBitmapCheckBox_->setToolTip(tr("Show glyph bitmap."));
@@ -367,10 +355,7 @@ SingularTab::createLayout()
 
   sizeLayout_ = new QHBoxLayout;
   sizeLayout_->addStretch(2);
-  sizeLayout_->addWidget(sizeSelector_, 3);
-  sizeLayout_->addStretch(1);
-  sizeLayout_->addWidget(zoomLabel_);
-  sizeLayout_->addWidget(zoomSpinBox_);
+  sizeLayout_->addWidget(sizeSelector_, 4);
   sizeLayout_->addStretch(1);
   sizeLayout_->addWidget(centerGridButton_);
   sizeLayout_->addStretch(2);
@@ -411,9 +396,7 @@ SingularTab::createConnections()
           this, &SingularTab::repaintGlyph);
   connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged, 
           this, &SingularTab::setGlyphIndex);
-
-  connect(zoomSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged),
-          this, &SingularTab::zoom);
+  
   connect(glyphView_, &QGraphicsViewx::shiftWheelEvent, 
           this, &SingularTab::wheelResize);
   connect(glyphView_, &QGraphicsViewx::ctrlWheelEvent, 
@@ -449,6 +432,7 @@ SingularTab::createConnections()
 void
 SingularTab::repaintGlyph()
 {
+  zoom();
   drawGlyph();
 }
 
@@ -495,7 +479,6 @@ SingularTab::setDefaults()
 {
   currentGlyphIndex_ = 0;
 
-  zoomSpinBox_->setValue(20);
   showBitmapCheckBox_->setChecked(true);
   showOutlinesCheckBox_->setChecked(true);
   showGridCheckBox_->setChecked(true);

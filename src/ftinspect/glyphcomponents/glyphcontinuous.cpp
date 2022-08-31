@@ -135,6 +135,7 @@ GlyphContinuous::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
   painter.fillRect(rect(), backgroundColorCache_);
+  painter.scale(scale_, scale_);
 
   if (glyphCache_.empty())
     fillCache();
@@ -148,6 +149,8 @@ GlyphContinuous::wheelEvent(QWheelEvent* event)
   int numSteps = event->angleDelta().y() / 120;
   if (event->modifiers() & Qt::ShiftModifier)
     emit wheelResize(numSteps);
+  else if (event->modifiers() & Qt::ControlModifier)
+    emit wheelZoom(numSteps);
   else if (event->modifiers() == 0)
     emit wheelNavigate(-numSteps);
 }
@@ -189,6 +192,7 @@ GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
   if (event->buttons() != Qt::LeftButton)
     return;
   auto delta = event->pos() - mouseDownPostition_;
+  delta /= scale_;
   if (source_ == SRC_AllGlyphs)
   {
     auto deltaIndex = -delta.x() / HorizontalUnitLength
@@ -202,7 +206,9 @@ GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
     positionDelta_.setX(0); // Don't move horizontally
 
     // but use the renderer
-    auto horiPos = delta.x() / static_cast<double>(width());
+    // purpose for two scale_: one for undoing the `delta /= scale_`
+    // the other for effectively dividing width by the scale
+    auto horiPos = delta.x() * scale_ * scale_ / static_cast<double>(width());
     horiPos += prevHoriPosition_;
     horiPos = qBound(0.0, horiPos, 1.0);
     stringRenderer_.setPosition(horiPos);
@@ -267,7 +273,9 @@ GlyphContinuous::paintByRenderer()
     {
       beginSaveLine(pos, size);
     });
-  displayingCount_ = stringRenderer_.render(width(), height(), beginIndex_);
+  displayingCount_ = stringRenderer_.render(static_cast<int>(width() / scale_), 
+                                            static_cast<int>(height() / scale_),
+                                            beginIndex_);
 }
 
 
@@ -566,6 +574,7 @@ GlyphContinuous::findGlyphByMouse(QPoint position,
                                   double* outSizePoint)
 {
   position -= positionDelta_;
+  position /= scale_;
   for (auto& line : glyphCache_)
     for (auto& entry : line.entries)
     {

@@ -80,6 +80,7 @@ ContinuousTab::syncSettings()
   canvas_->setMode(mode);
   canvas_->setSource(src);
   canvas_->setBeginIndex(indexSelector_->currentIndex());
+  canvas_->setScale(sizeSelector_->zoomFactor());
   auto& sr = canvas_->stringRenderer();
   sr.setWaterfall(waterfallCheckBox_->isChecked());
   sr.setVertical(verticalCheckBox_->isChecked());
@@ -280,6 +281,7 @@ ContinuousTab::showToolTip()
   QToolTip::showText(mapToGlobal(helpButton_->pos()),
                      tr(
 R"(Shift + Scroll: Adjust Font Size
+Ctrl + Scroll: Adjust Zoom Factor
 Shift + Plus/Minus: Adjust Font Size
 Shift + 0: Reset Font Size to Default
 Left Click: Show Glyph Details Info
@@ -316,6 +318,13 @@ ContinuousTab::wheelNavigate(int steps)
 
 
 void
+ContinuousTab::wheelZoom(int steps)
+{
+  sizeSelector_->handleWheelZoomBySteps(steps);
+}
+
+
+void
 ContinuousTab::wheelResize(int steps)
 {
   sizeSelector_->handleWheelResizeBySteps(steps);
@@ -329,7 +338,7 @@ ContinuousTab::createLayout()
   canvasFrame_->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
 
   canvas_ = new GlyphContinuous(canvasFrame_, engine_);
-  sizeSelector_ = new FontSizeSelector(this);
+  sizeSelector_ = new FontSizeSelector(this, false, true);
 
   indexSelector_ = new GlyphIndexSelector(this);
   indexSelector_->setSingleMode(false);
@@ -494,6 +503,8 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::wheelResize);
   connect(canvas_, &GlyphContinuous::wheelNavigate, 
           this, &ContinuousTab::wheelNavigate);
+  connect(canvas_, &GlyphContinuous::wheelZoom, 
+          this, &ContinuousTab::wheelZoom);
   connect(canvas_, &GlyphContinuous::displayingCountUpdated, 
           this, &ContinuousTab::setDisplayingCount);
   connect(canvas_, &GlyphContinuous::rightClickGlyph, 

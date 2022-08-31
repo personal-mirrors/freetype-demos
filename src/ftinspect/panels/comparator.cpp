@@ -86,7 +86,7 @@ ComperatorTab::resizeEvent(QResizeEvent* event)
 void
 ComperatorTab::createLayout()
 {
-  sizeSelector_ = new FontSizeSelector(this);
+  sizeSelector_ = new FontSizeSelector(this, true, true);
   charMapLabel_ = new QLabel(tr("Char Map:"), this);
   charMapSelector_ = new CharMapComboBox(this, engine_, false);
   sourceTextEdit_ = new QPlainTextEdit(QString(ComparatorDefaultText), this);
@@ -167,6 +167,14 @@ ComperatorTab::createConnections()
             this, &ComperatorTab::repaintGlyph);
     connect(panel, &SettingPanel::fontReloadNeeded,
             this, &ComperatorTab::repaintGlyph);
+  }
+
+  for (auto canvas : canvas_)
+  {
+    connect(canvas, &GlyphContinuous::wheelZoom,
+            this, &ComperatorTab::wheelZoom);
+    connect(canvas, &GlyphContinuous::wheelResize,
+            this, &ComperatorTab::wheelResize);
   }
 }
 
@@ -258,8 +266,23 @@ ComperatorTab::syncSettings(int index)
     return;
 
   auto canvas = canvas_[index];
+  canvas->setScale(sizeSelector_->zoomFactor());
   canvas->stringRenderer().setKerning(settingPanel->kerningEnabled());
   canvas->stringRenderer().setLsbRsbDelta(settingPanel->lsbRsbDeltaEnabled());
+}
+
+
+void
+ComperatorTab::wheelResize(int steps)
+{
+  sizeSelector_->handleWheelResizeBySteps(steps);
+}
+
+
+void
+ComperatorTab::wheelZoom(int steps)
+{
+  sizeSelector_->handleWheelZoomBySteps(steps);
 }
 
 

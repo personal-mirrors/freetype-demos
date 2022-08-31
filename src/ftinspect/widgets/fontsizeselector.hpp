@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "customwidgets.hpp"
+
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
@@ -17,7 +19,7 @@ class FontSizeSelector : public QWidget
   Q_OBJECT
 
 public:
-  FontSizeSelector(QWidget* parent);
+  FontSizeSelector(QWidget* parent, bool zoomNewLine, bool continuousView);
   ~FontSizeSelector() override = default;
 
   enum Units : int
@@ -28,12 +30,15 @@ public:
 
   double selectedSize();
   Units selectedUnit();
+  double zoomFactor();
   void setSizePixel(int sizePixel);
   void setSizePoint(double sizePoint);
+  void setZoomFactor(double zoomFactor);
 
   void reloadFromFont(Engine* engine);
   void applyToEngine(Engine* engine);
   void handleWheelResizeBySteps(int steps);
+  void handleWheelZoomBySteps(int steps);
   void handleWheelResizeFromGrid(QWheelEvent* event);
   bool handleKeyEvent(QKeyEvent const* keyEvent);
   void installEventFilterForWidget(QWidget* widget);
@@ -50,18 +55,24 @@ private slots:
 private:
   QLabel* sizeLabel_;
   QLabel* dpiLabel_;
+  QLabel* zoomLabel_;
 
   QDoubleSpinBox* sizeDoubleSpinBox_;
   QComboBox* unitsComboBox_;
   QSpinBox* dpiSpinBox_;
+  ZoomSpinBox* zoomSpinBox_;
 
-  QHBoxLayout* layout_;
+  // Sometimes we need to split 2 lines
+  QHBoxLayout* upLayout_;
+  QHBoxLayout* downLayout_;
+  QVBoxLayout* mainLayout_;
 
+  bool continuousView_;
   double lastValue_;
   bool bitmapOnly_ = false;
   std::vector<int> fixedSizes_;
 
-  void createLayout();
+  void createLayout(bool zoomNewLine);
   void createConnections();
   void setDefaults(bool sizeOnly = false);
 

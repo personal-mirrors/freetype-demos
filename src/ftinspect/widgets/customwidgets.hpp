@@ -45,14 +45,17 @@ private:
 
 // we want to have our own `stepBy' function for the zoom spin box
 class ZoomSpinBox
-: public QSpinBox
+: public QDoubleSpinBox
 {
   Q_OBJECT
 
 public:
-  ZoomSpinBox(QWidget* parent);
+  ZoomSpinBox(QWidget* parent, bool continuousView);
   void stepBy(int val) override;
-  int valueFromText(const QString& text) const override;
+  double valueFromText(const QString& text) const override;
+
+private:
+  bool continuousView_;
 };
 
 

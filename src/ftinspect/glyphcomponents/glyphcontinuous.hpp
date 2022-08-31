@@ -79,6 +79,7 @@ public:
   void setBeginIndex(int index) { beginIndex_ = index; }
   void setSource(Source source);
   void setMode(Mode mode) { mode_ = mode; }
+  void setScale(double scale) { scale_ = scale; }
   void setFancyParams(double boldX, double boldY, double slant)
   {
     boldX_ = boldX;
@@ -100,6 +101,7 @@ public:
 signals:
   void wheelNavigate(int steps);
   void wheelResize(int steps);
+  void wheelZoom(int steps);
   void beginIndexChangeRequest(int newIndex);
   void displayingCountUpdated(int newCount);
   void rightClickGlyph(int glyphIndex, double sizePoint);
@@ -132,6 +134,7 @@ private:
   bool mouseOperationEnabled_ = true;
   int displayingCount_ = 0;
   FT_Fixed strokeRadiusForSize_ = 0;
+  double scale_ = 1.0;
   FT_Matrix shearMatrix_;
 
   FT_Stroker stroker_;

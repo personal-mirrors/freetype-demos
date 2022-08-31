@@ -8,10 +8,12 @@
 
 #include <algorithm>
 
-FontSizeSelector::FontSizeSelector(QWidget* parent)
-: QWidget(parent)
+FontSizeSelector::FontSizeSelector(QWidget* parent, 
+                                   bool zoomNewLine,
+                                   bool continuousView)
+: QWidget(parent), continuousView_(continuousView)
 {
-  createLayout();
+  createLayout(zoomNewLine);
   createConnections();
   setDefaults();
 }
@@ -31,6 +33,15 @@ FontSizeSelector::selectedUnit()
 }
 
 
+double
+FontSizeSelector::zoomFactor()
+{
+  if (continuousView_)
+    return zoomSpinBox_->value();
+  return static_cast<int>(zoomSpinBox_->value());
+}
+
+
 void
 FontSizeSelector::setSizePixel(int sizePixel)
 {
@@ -44,6 +55,15 @@ FontSizeSelector::setSizePoint(double sizePoint)
 {
   sizeDoubleSpinBox_->setValue(sizePoint);
   unitsComboBox_->setCurrentIndex(Units_pt);
+}
+
+
+void
+FontSizeSelector::setZoomFactor(double zoomFactor)
+{
+  if (continuousView_)
+    zoomSpinBox_->setValue(zoomFactor);
+  zoomSpinBox_->setValue(static_cast<int>(zoomFactor));
 }
 
 
@@ -87,6 +107,17 @@ FontSizeSelector::handleWheelResizeBySteps(int steps)
   sizeAfter = std::max(sizeDoubleSpinBox_->minimum(),
                        std::min(sizeAfter, sizeDoubleSpinBox_->maximum()));
   sizeDoubleSpinBox_->setValue(sizeAfter);
+}
+
+
+void
+FontSizeSelector::handleWheelZoomBySteps(int steps)
+{
+  double zoomAfter = zoomSpinBox_->value()
+                     + steps * zoomSpinBox_->singleStep();
+  zoomAfter = std::max(zoomSpinBox_->minimum(),
+                       std::min(zoomAfter, zoomSpinBox_->maximum()));
+  zoomSpinBox_->setValue(zoomAfter);
 }
 
 
@@ -173,11 +204,11 @@ FontSizeSelector::checkUnits()
 
 
 void
-FontSizeSelector::createLayout()
+FontSizeSelector::createLayout(bool zoomNewLine)
 {
   sizeLabel_ = new QLabel(tr("Size "), this);
   sizeLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-  sizeDoubleSpinBox_ = new QDoubleSpinBox;
+  sizeDoubleSpinBox_ = new QDoubleSpinBox(this);
   sizeDoubleSpinBox_->setAlignment(Qt::AlignRight);
   sizeDoubleSpinBox_->setDecimals(1);
   sizeDoubleSpinBox_->setRange(1, 500);
@@ -194,6 +225,12 @@ FontSizeSelector::createLayout()
   dpiSpinBox_->setRange(10, 600);
   dpiLabel_->setBuddy(dpiSpinBox_);
 
+  zoomLabel_ = new QLabel(tr("Zoom Factor "), this);
+  zoomLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+  zoomSpinBox_ = new ZoomSpinBox(this, continuousView_);
+  zoomSpinBox_->setAlignment(Qt::AlignRight);
+  zoomLabel_->setBuddy(zoomSpinBox_);
+
   // Tooltips
   sizeDoubleSpinBox_->setToolTip(
     tr("Size value (will be limited to available sizes if\nthe current font "
@@ -202,20 +239,36 @@ FontSizeSelector::createLayout()
                                 "the current font is not scalable)."));
   dpiSpinBox_->setToolTip(
     tr("DPI for the point size value (only valid when the unit is point)."));
+  zoomSpinBox_->setToolTip(tr("Adjust zoom."));
 
   // Layouting
-  layout_ = new QHBoxLayout;
+  mainLayout_ = new QVBoxLayout;
+  upLayout_ = new QHBoxLayout;
+  upLayout_->addStretch(1);
+  upLayout_->addWidget(sizeLabel_);
+  upLayout_->addWidget(sizeDoubleSpinBox_);
+  upLayout_->addWidget(unitsComboBox_);
+  upLayout_->addStretch(1);
+  upLayout_->addWidget(dpiLabel_);
+  upLayout_->addWidget(dpiSpinBox_);
+  upLayout_->addStretch(1);
+  if (!zoomNewLine)
+  {
+    upLayout_->addWidget(zoomLabel_);
+    upLayout_->addWidget(zoomSpinBox_);
+    upLayout_->addStretch(1);
+    mainLayout_->addLayout(upLayout_);
+  }
+  else
+  {
+    downLayout_ = new QHBoxLayout;
+    downLayout_->addWidget(zoomLabel_);
+    downLayout_->addWidget(zoomSpinBox_, 1);
+    mainLayout_->addLayout(upLayout_);
+    mainLayout_->addLayout(downLayout_);
+  }
 
-  layout_->addStretch(1);
-  layout_->addWidget(sizeLabel_);
-  layout_->addWidget(sizeDoubleSpinBox_);
-  layout_->addWidget(unitsComboBox_);
-  layout_->addStretch(1);
-  layout_->addWidget(dpiLabel_);
-  layout_->addWidget(dpiSpinBox_);
-  layout_->addStretch(1);
-
-  setLayout(layout_);
+  setLayout(mainLayout_);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 }
 
@@ -229,6 +282,8 @@ FontSizeSelector::createConnections()
           this, &FontSizeSelector::checkUnits);
   connect(dpiSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged),
           this, &FontSizeSelector::checkFixedSizeAndEmit);
+  connect(zoomSpinBox_, QOverload<double>::of(&ZoomSpinBox::valueChanged),
+          this, &FontSizeSelector::valueChanged);
 }
 
 

@@ -63,18 +63,42 @@ QGraphicsViewx::resizeEvent(QResizeEvent* event)
 }
 
 // ---------------------------
-// >>>>>>>> QSpinBoxx <<<<<<<<
+// >>>>>>>> ZoomSpinBox <<<<<<<<
 // ---------------------------
 
 // we want to mark the center of a pixel square with a single dot or a small
 // cross; starting with a certain magnification we thus only use even values
 // so that we can do that symmetrically
+// This behaviour is only for the singular view grid.
 
-int
+
+ZoomSpinBox::ZoomSpinBox(QWidget* parent, bool continuousView)
+: QDoubleSpinBox(parent), continuousView_(continuousView)
+{
+  setKeyboardTracking(false);
+  if (continuousView)
+  {
+    setDecimals(2);
+    setRange(0.25, 50.0);
+    setSingleStep(0.25);
+    setValue(1);
+  }
+  else
+  {
+    setDecimals(0);
+    setRange(1, 1000 - 1000 % 64);
+    setSingleStep(1);
+    setValue(20);
+  }
+}
+
+
+double
 ZoomSpinBox::valueFromText(const QString& text) const
 {
-  int val = QSpinBox::valueFromText(text);
-
+  if (continuousView_)
+    return QDoubleSpinBox::valueFromText(text);
+  int val = static_cast<int>(QDoubleSpinBox::valueFromText(text));
   if (val > 640)
     val = val - (val % 64);
   else if (val > 320)
@@ -92,16 +116,16 @@ ZoomSpinBox::valueFromText(const QString& text) const
 }
 
 
-ZoomSpinBox::ZoomSpinBox(QWidget* parent)
-: QSpinBox(parent)
-{
-}
-
-
 void
 ZoomSpinBox::stepBy(int steps)
 {
-  int val = value();
+  if (continuousView_)
+  {
+    QDoubleSpinBox::stepBy(steps);
+    return;
+  }
+
+  int val = static_cast<int>(value());
 
   if (steps > 0)
   {

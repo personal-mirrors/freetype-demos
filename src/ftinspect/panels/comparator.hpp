@@ -64,6 +64,9 @@ private:
   void reloadGlyphsAndRepaint();
   void sourceTextChanged();
   void syncSettings(int index);
+
+  void wheelResize(int steps);
+  void wheelZoom(int steps);
 };
 
 

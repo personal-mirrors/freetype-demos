@@ -79,8 +79,6 @@ private:
 
   GlyphIndexSelector* indexSelector_;
   FontSizeSelector* sizeSelector_;
-  QLabel* zoomLabel_;
-  ZoomSpinBox* zoomSpinBox_;
   QPushButton* centerGridButton_;
   QPushButton* helpButton_;
 

@@ -75,6 +75,7 @@ protected:
 
 private slots:
   void wheelNavigate(int steps);
+  void wheelZoom(int steps);
   void wheelResize(int steps);
 
 private:
