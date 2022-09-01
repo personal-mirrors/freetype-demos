@@ -282,6 +282,7 @@ Engine::loadFont(int fontIndex,
 {
   int numGlyphs = -1;
   fontType_ = FontType_Other;
+  palette_ = NULL;
 
   update();
   curSFNTTablesValid_ = false;
@@ -378,6 +379,7 @@ void
 Engine::reloadFont()
 {
   update();
+  palette_ = NULL;
   if (!scaler_.face_id)
     return;
   imageType_.face_id = scaler_.face_id;
@@ -865,6 +867,40 @@ Engine::resetCache()
   FTC_Manager_Reset(cacheManager_);
   ftFallbackFace_ = NULL;
   ftSize_ = NULL;
+  palette_ = NULL;
+}
+
+
+void
+Engine::loadDefaults()
+{
+  if (fontType_ == FontType_CFF)
+    setCFFHintingMode(engineDefaults_.cffHintingEngineDefault);
+  else if (fontType_ == FontType_TrueType)
+  {
+    if (currentFontTricky())
+      setTTInterpreterVersion(TT_INTERPRETER_VERSION_35);
+    else
+      setTTInterpreterVersion(engineDefaults_.ttInterpreterVersionDefault);
+  }
+  setStemDarkening(false);
+  applyMMGXDesignCoords(NULL, 0);
+
+  setAntiAliasingEnabled(true);
+  setAntiAliasingTarget(FT_LOAD_TARGET_NORMAL);
+  setHinting(true);
+  setAutoHinting(false);
+  setGamma(1.8);
+  setEmbeddedBitmap(true);
+  setPaletteIndex(0);
+  setUseColorLayer(true);
+
+  renderingEngine()->setBackground(qRgba(255, 255, 255, 255));
+  renderingEngine()->setForeground(qRgba(0, 0, 0, 255));
+
+  resetCache();
+  reloadFont();
+  loadPalette();
 }
 
 

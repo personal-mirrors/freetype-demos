@@ -991,7 +991,7 @@ CompositeGlyphsTab::createConnections()
 void
 CompositeGlyphsTab::forceReloadFont()
 {
-  engine_->reloadFont();
+  engine_->loadDefaults(); // this would reload the font
   auto face = engine_->currentFallbackFtFace();
   if (!face || !FT_IS_SFNT(face))
   {

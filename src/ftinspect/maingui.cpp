@@ -235,7 +235,10 @@ void
 MainGUI::syncSettings()
 {
   if (tabWidget_->currentWidget() != comparatorTab_)
+  {
     settingPanel_->syncSettings();
+    settingPanel_->applyDelayedSettings();
+  }
 }
 
 

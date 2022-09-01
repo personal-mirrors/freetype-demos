@@ -11,6 +11,7 @@
 #include <vector>
 #include <unordered_map>
 #include <QAbstractTableModel>
+#include <QPixmap>
 
 class FixedSizeInfoModel
 : public QAbstractTableModel
@@ -231,6 +232,7 @@ public:
     long long parentNodeIndex;
     int indexInParent;
     int glyphIndex;
+    ptrdiff_t glyphInfoIndex;
     CompositeGlyphInfo::SubGlyph const* subGlyphInfo;
   };
 
@@ -272,6 +274,8 @@ private:
    * 3. Node Index
    */
   std::vector<CompositeGlyphInfo> glyphs_;
+
+  // glyph index -> glyph info index
   std::unordered_map<int, size_t> glyphMapper_;
   // map <row, parentId> to node
   // the internal id of `QModelIndex` is the node's index
@@ -279,6 +283,11 @@ private:
                              long long, LookupPairHash>
           nodeLookup_;
   mutable std::vector<InfoNode> nodes_;
+
+  mutable std::unordered_map<int, QPixmap> glyphIcons_;
+
+  // has to be const
+  QPixmap renderIcon(int glyphIndex) const;
 };
 
 

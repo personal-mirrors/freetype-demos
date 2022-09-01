@@ -494,7 +494,7 @@ CompositeGlyphsInfoModel::index(int row,
                                 int column,
                                 const QModelIndex& parent) const
 {
-  long long parentIdx = -1;
+  long long parentIdx = -1; // node index.
   if (parent.isValid()) // Not top-level
     parentIdx = static_cast<long long>(parent.internalId());
   if (parentIdx < 0)
@@ -510,25 +510,33 @@ CompositeGlyphsInfoModel::index(int row,
     return createIndex(row, column, iter->second);
   }
 
-  int id = -1;
+  int glyphIndex = -1;
   CompositeGlyphInfo::SubGlyph const* sgInfo = nullptr;
   if (!parent.isValid()) // top-level nodes
-    id = glyphs_[row].index;
-  else if (parent.internalId() < glyphs_.size())
+    glyphIndex = glyphs_[row].index;
+  else if (parent.internalId() < nodes_.size())
   {
-    auto& sg = glyphs_[parent.internalId()].subglyphs;
-    if (row < 0 || static_cast<size_t>(row) >= sg.size())
+    auto& parentInfoIndex = nodes_[parent.internalId()].glyphInfoIndex;
+    if (parentInfoIndex < 0
+        || static_cast<size_t>(parentInfoIndex) > glyphs_.size())
       return {};
-    id = sg[row].index;
+
+    auto& sg = glyphs_[parentInfoIndex].subglyphs;
+    glyphIndex = sg[row].index;
     sgInfo = &sg[row];
   }
 
-  if (id < 0)
+  if (glyphIndex < 0)
     return {};
+
+  ptrdiff_t glyphInfoIndex = -1;
+  auto iterGlyphInfoIter = glyphMapper_.find(glyphIndex);
+  if (iterGlyphInfoIter != glyphMapper_.end())
+    glyphInfoIndex = static_cast<ptrdiff_t>(iterGlyphInfoIter->second);
   
   InfoNode node = {
     parentIdx,
-    row, id,
+    row, glyphIndex, glyphInfoIndex,
     sgInfo
   };
   nodes_.push_back(node);
@@ -588,6 +596,19 @@ CompositeGlyphsInfoModel::data(const QModelIndex& index,
           .arg(pos.second);
     }
     return {};
+  }
+
+  if (role == Qt::DecorationRole && index.column() == CGIM_Glyph)
+  {
+    auto glyphIndex = n.glyphIndex;
+    auto iter = glyphIcons_.find(glyphIndex);
+    if (iter == glyphIcons_.end())
+      iter = glyphIcons_.emplace(glyphIndex, renderIcon(glyphIndex)).first;
+
+    auto& pixmap = iter->second;
+    if (pixmap.isNull())
+      return {};
+    return pixmap;
   }
 
   if (role != Qt::DisplayRole)
@@ -675,7 +696,35 @@ CompositeGlyphsInfoModel::endModelUpdate()
   glyphMapper_.clear();
   for (size_t i = 0; i < glyphs_.size(); i++)
     glyphMapper_.emplace(glyphs_[i].index, i);
+
+  glyphIcons_.clear();
   endResetModel();
+}
+
+
+QPixmap
+CompositeGlyphsInfoModel::renderIcon(int glyphIndex) const
+{
+  engine_->setSizeByPixel(20); // This size is arbitrary
+  if (!engine_->currentPalette())
+    engine_->loadPalette();
+  auto image = engine_->renderingEngine()
+                      ->tryDirectRenderColorLayers(glyphIndex, NULL, false);
+  if (!image)
+  {
+    auto glyph = engine_->loadGlyph(glyphIndex);
+    if (!glyph)
+      return {};
+    image = engine_->renderingEngine()
+                   ->convertGlyphToQImage(glyph, NULL, false);
+  }
+
+  if (!image)
+    return {};
+
+  auto result = QPixmap::fromImage(*image);
+  delete image;
+  return result;
 }
 
 

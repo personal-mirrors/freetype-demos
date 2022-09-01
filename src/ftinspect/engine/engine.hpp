@@ -102,6 +102,7 @@ public:
   
   void update();
   void resetCache();
+  void loadDefaults();
 
   //////// Getters
 
