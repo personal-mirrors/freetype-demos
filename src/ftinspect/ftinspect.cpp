@@ -21,10 +21,8 @@ main(int argc,
   app.setOrganizationName("FreeType");
   app.setOrganizationDomain("freetype.org");
 
-  MainGUI gui;
-  Engine engine(&gui);
-
-  gui.update(&engine);
+  Engine engine;
+  MainGUI gui(&engine);
   gui.setDefaults();
 
   gui.show();
