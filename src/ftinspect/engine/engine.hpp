@@ -81,16 +81,16 @@ public:
 
   //////// Getters
 
-  FT_Library ftLibrary() const { return library; }
-  FontFileManager& fontFileManager() { return fileManager; }
-  EngineDefaultValues& engineDefaults() { return defaults; }
+  FT_Library ftLibrary() const { return library_; }
+  FontFileManager& fontFileManager() { return fontFileManager_; }
+  EngineDefaultValues& engineDefaults() { return engineDefaults_; }
 
   int numberOfOpenedFonts();
 
   // (for current fonts)
-  int currentFontType() const { return fontType; }
-  const QString& currentFamilyName() { return curFamilyName; }
-  const QString& currentStyleName() { return curStyleName; }
+  int currentFontType() const { return fontType_; }
+  const QString& currentFamilyName() { return curFamilyName_; }
+  const QString& currentStyleName() { return curStyleName_; }
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
   int numberOfNamedInstances(int fontIndex,
@@ -98,26 +98,26 @@ public:
 
   //////// Setters (direct or indirect)
 
-  void setDPI(int d) { dpi = d; }
+  void setDPI(int d) { dpi_ = d; }
   void setSizeByPixel(double pixelSize);
   void setSizeByPoint(double pointSize);
-  void setHinting(bool hinting) { doHinting = hinting; }
-  void setAutoHinting(bool autoHinting) { doAutoHinting = autoHinting; }
+  void setHinting(bool hinting) { doHinting_ = hinting; }
+  void setAutoHinting(bool autoHinting) { doAutoHinting_ = autoHinting; }
   void setHorizontalHinting(bool horHinting)
   {
-    doHorizontalHinting = horHinting;
+    doHorizontalHinting_ = horHinting;
   }
   void setVerticalHinting(bool verticalHinting)
   {
-    doVerticalHinting = verticalHinting;
+    doVerticalHinting_ = verticalHinting;
   }
   void setBlueZoneHinting(bool blueZoneHinting)
   {
-    doBlueZoneHinting = blueZoneHinting;
+    doBlueZoneHinting_ = blueZoneHinting;
   }
-  void setShowSegments(bool showSegments) { this->showSegments = showSegments; }
-  void setGamma(double gamma) { this->gamma = gamma; }
-  void setAntiAliasingMode(AntiAliasing mode) { antiAliasingMode = mode; }
+  void setShowSegments(bool showSegments) { showSegments_ = showSegments; }
+  void setGamma(double gamma) { gamma_ = gamma; }
+  void setAntiAliasingMode(AntiAliasing mode) { antiAliasingMode_ = mode; }
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
@@ -134,42 +134,42 @@ public:
 
 private:
   using FTC_IDType = uintptr_t;
-  FTC_IDType faceCounter; // a running number used to initialize `faceIDMap'
-  QMap<FaceID, FTC_IDType> faceIDMap;
+  FTC_IDType faceCounter_; // a running number used to initialize `faceIDMap'
+  QMap<FaceID, FTC_IDType> faceIDMap_;
 
-  FontFileManager fileManager;
+  FontFileManager fontFileManager_;
 
-  QString curFamilyName;
-  QString curStyleName;
+  QString curFamilyName_;
+  QString curStyleName_;
 
-  FT_Library library;
-  FTC_Manager cacheManager;
-  FTC_ImageCache imageCache;
-  FTC_SBitCache sbitsCache;
+  FT_Library library_;
+  FTC_Manager cacheManager_;
+  FTC_ImageCache imageCache_;
+  FTC_SBitCache sbitsCache_;
 
-  FTC_ScalerRec scaler;
-  FT_Size ftSize;
+  FTC_ScalerRec scaler_;
+  FT_Size ftSize_;
 
-  EngineDefaultValues defaults;
+  EngineDefaultValues engineDefaults_;
 
-  int fontType;
+  int fontType_;
 
-  bool usingPixelSize = false;
-  double pointSize;
-  double pixelSize;
-  unsigned int dpi;
+  bool usingPixelSize_ = false;
+  double pointSize_;
+  double pixelSize_;
+  unsigned int dpi_;
 
-  bool doHinting;
-  bool doAutoHinting;
-  bool doHorizontalHinting;
-  bool doVerticalHinting;
-  bool doBlueZoneHinting;
-  bool showSegments;
-  AntiAliasing antiAliasingMode;
+  bool doHinting_;
+  bool doAutoHinting_;
+  bool doHorizontalHinting_;
+  bool doVerticalHinting_;
+  bool doBlueZoneHinting_;
+  bool showSegments_;
+  AntiAliasing antiAliasingMode_;
 
-  double gamma;
+  double gamma_;
 
-  unsigned long loadFlags;
+  unsigned long loadFlags_;
 
   void queryEngine();
 

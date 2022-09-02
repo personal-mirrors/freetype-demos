@@ -21,8 +21,8 @@ public:
              QWidget* widget);
 
 private:
-  QPen gridPen;
-  QPen axisPen;
+  QPen gridPen_;
+  QPen axisPen_;
 };
 
 

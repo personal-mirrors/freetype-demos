@@ -25,9 +25,9 @@ public:
              QWidget* widget);
 
 private:
-  QPen outlinePen;
-  FT_Outline* outline;
-  QRectF bRect;
+  QPen outlinePen_;
+  FT_Outline* outline_;
+  QRectF boundingRect_;
 };
 
 

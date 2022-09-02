@@ -13,16 +13,16 @@
 GlyphPointNumbers::GlyphPointNumbers(const QPen& onP,
                                      const QPen& offP,
                                      FT_Outline* outln)
-: onPen(onP),
-  offPen(offP),
-  outline(outln)
+: onPen_(onP),
+  offPen_(offP),
+  outline_(outln)
 {
   FT_BBox cbox;
 
-  FT_Outline_Get_CBox(outline, &cbox);
+  FT_Outline_Get_CBox(outline_, &cbox);
 
   // XXX fix bRect size
-  bRect.setCoords(qreal(cbox.xMin) / 64,
+  boundingRect_.setCoords(qreal(cbox.xMin) / 64,
                   -qreal(cbox.yMax) / 64,
                   qreal(cbox.xMax) / 64,
                   -qreal(cbox.yMin) / 64);
@@ -32,7 +32,7 @@ GlyphPointNumbers::GlyphPointNumbers(const QPen& onP,
 QRectF
 GlyphPointNumbers::boundingRect() const
 {
-  return bRect;
+  return boundingRect_;
 }
 
 
@@ -60,15 +60,15 @@ GlyphPointNumbers::paint(QPainter* painter,
     font.setPointSizeF(font.pointSizeF() * 3 / 4);
     painter->setFont(font);
 
-    QBrush onBrush(onPen.color());
-    QBrush offBrush(offPen.color());
+    QBrush onBrush(onPen_.color());
+    QBrush offBrush(offPen_.color());
 
     painter->scale(1 / lod, 1 / lod);
 #endif
 
-    FT_Vector* points = outline->points;
-    FT_Short* contours = outline->contours;
-    char* tags = outline->tags;
+    FT_Vector* points = outline_->points;
+    FT_Short* contours = outline_->contours;
+    char* tags = outline_->tags;
 
     QVector2D octants[8] = { QVector2D(1, 0),
                              QVector2D(0.707f, -0.707f),
@@ -81,7 +81,7 @@ GlyphPointNumbers::paint(QPainter* painter,
 
 
     short ptIdx = 0;
-    for (int contIdx = 0; contIdx < outline->n_contours; contIdx++ )
+    for (int contIdx = 0; contIdx < outline_->n_contours; contIdx++ )
     {
       for (;;)
       {

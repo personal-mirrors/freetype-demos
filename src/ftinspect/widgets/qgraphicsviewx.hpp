@@ -24,8 +24,8 @@ protected:
                         int dy);
 
 private:
-  QPointF lastBottomLeftPoint;
-  bool lastBottomLeftPointInitialized;
+  QPointF lastBottomLeftPoint_;
+  bool lastBottomLeftPointInitialized_;
 };
 
 

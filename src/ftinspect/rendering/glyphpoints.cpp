@@ -12,17 +12,17 @@
 GlyphPoints::GlyphPoints(const QPen& onP,
                          const QPen& offP,
                          FT_Outline* outln)
-: onPen(onP),
-  offPen(offP),
-  outline(outln)
+: onPen_(onP),
+  offPen_(offP),
+  outline_(outln)
 {
   FT_BBox cbox;
 
-  qreal halfPenWidth = qMax(onPen.widthF(), offPen.widthF()) / 2;
+  qreal halfPenWidth = qMax(onPen_.widthF(), offPen_.widthF()) / 2;
 
-  FT_Outline_Get_CBox(outline, &cbox);
+  FT_Outline_Get_CBox(outline_, &cbox);
 
-  bRect.setCoords(qreal(cbox.xMin) / 64 - halfPenWidth,
+  boundingRect_.setCoords(qreal(cbox.xMin) / 64 - halfPenWidth,
                   -qreal(cbox.yMax) / 64 - halfPenWidth,
                   qreal(cbox.xMax) / 64 + halfPenWidth,
                   -qreal(cbox.yMin) / 64 + halfPenWidth);
@@ -32,7 +32,7 @@ GlyphPoints::GlyphPoints(const QPen& onP,
 QRectF
 GlyphPoints::boundingRect() const
 {
-  return bRect;
+  return boundingRect_;
 }
 
 
@@ -73,29 +73,29 @@ GlyphPoints::paint(QPainter* painter,
     onPen.setWidthF(origOnPenWidth);
     offPen.setWidthF(origOffPenWidth);
 #else
-    QBrush onBrush(onPen.color());
-    QBrush offBrush(offPen.color());
+    QBrush onBrush(onPen_.color());
+    QBrush offBrush(offPen_.color());
 
     painter->setPen(Qt::NoPen);
 
-    qreal onRadius = onPen.widthF() / lod;
-    qreal offRadius = offPen.widthF() / lod;
+    qreal onRadius = onPen_.widthF() / lod;
+    qreal offRadius = offPen_.widthF() / lod;
 
-    for (int i = 0; i < outline->n_points; i++)
+    for (int i = 0; i < outline_->n_points; i++)
     {
-      if (outline->tags[i] & FT_CURVE_TAG_ON)
+      if (outline_->tags[i] & FT_CURVE_TAG_ON)
       {
         painter->setBrush(onBrush);
-        painter->drawEllipse(QPointF(qreal(outline->points[i].x) / 64,
-                                     -qreal(outline->points[i].y) / 64),
+        painter->drawEllipse(QPointF(qreal(outline_->points[i].x) / 64,
+                                     -qreal(outline_->points[i].y) / 64),
                              onRadius,
                              onRadius);
       }
       else
       {
         painter->setBrush(offBrush);
-        painter->drawEllipse(QPointF(qreal(outline->points[i].x) / 64,
-                                     -qreal(outline->points[i].y) / 64),
+        painter->drawEllipse(QPointF(qreal(outline_->points[i].x) / 64,
+                                     -qreal(outline_->points[i].y) / 64),
                              offRadius,
                              offRadius);
       }

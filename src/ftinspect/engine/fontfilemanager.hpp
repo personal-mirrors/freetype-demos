@@ -41,10 +41,10 @@ private slots:
   void onWatcherFire();
 
 private:
-  Engine* engine;
-  QList<QFileInfo> fontFileNameList;
-  QFileSystemWatcher* fontWatcher;
-  QTimer* watchTimer;
+  Engine* engine_;
+  QList<QFileInfo> fontFileNameList_;
+  QFileSystemWatcher* fontWatcher_;
+  QTimer* watchTimer_;
 
   FT_Error validateFontFile(QString const& fileName);
 };

@@ -13,16 +13,16 @@
 
 
 FontFileManager::FontFileManager(Engine* engine)
-: engine(engine)
+: engine_(engine)
 {
-  fontWatcher = new QFileSystemWatcher(this);
+  fontWatcher_ = new QFileSystemWatcher(this);
   // if the current input file is invalid we retry once a second to load it
-  watchTimer = new QTimer;
-  watchTimer->setInterval(1000);
+  watchTimer_ = new QTimer;
+  watchTimer_->setInterval(1000);
 
-  connect(fontWatcher, &QFileSystemWatcher::fileChanged,
+  connect(fontWatcher_, &QFileSystemWatcher::fileChanged,
           this, &FontFileManager::onWatcherFire);
-  connect(watchTimer, &QTimer::timeout,
+  connect(watchTimer_, &QTimer::timeout,
           this, &FontFileManager::onTimerFire);
 }
 
@@ -30,7 +30,7 @@ FontFileManager::FontFileManager(Engine* engine)
 int
 FontFileManager::size()
 {
-  return fontFileNameList.size();
+  return fontFileNameList_.size();
 }
 
 
@@ -73,7 +73,7 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
     // Uniquify elements
     auto absPath = info.absoluteFilePath();
     auto existing = false;
-    for (auto& existingName : fontFileNameList)
+    for (auto& existingName : fontFileNameList_)
       if (existingName.absoluteFilePath() == absPath)
       {
         existing = true;
@@ -84,7 +84,7 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
 
     if (info.size() >= INT_MAX)
       return; // Prevent overflowing
-    fontFileNameList.append(info);
+    fontFileNameList_.append(info);
   }
 
   if (alertNotExist && !failedFiles.empty())
@@ -116,47 +116,47 @@ FontFileManager::remove(int index)
   if (index < 0 || index >= size())
     return;
 
-  fontWatcher->removePath(fontFileNameList[index].filePath());
-  fontFileNameList.removeAt(index);
+  fontWatcher_->removePath(fontFileNameList_[index].filePath());
+  fontFileNameList_.removeAt(index);
 }
 
 
 QFileInfo&
 FontFileManager::operator[](int index)
 {
-  return fontFileNameList[index];
+  return fontFileNameList_[index];
 }
 
 
 void
 FontFileManager::updateWatching(int index)
 {
-  QFileInfo& fileInfo = fontFileNameList[index];
+  QFileInfo& fileInfo = fontFileNameList_[index];
 
-  auto watching = fontWatcher->files();
+  auto watching = fontWatcher_->files();
   if (!watching.empty())
-    fontWatcher->removePaths(watching);
+    fontWatcher_->removePaths(watching);
 
   // Qt's file watcher doesn't handle symlinks;
   // we thus fall back to polling
   if (fileInfo.isSymLink() || !fileInfo.exists())
-    watchTimer->start();
+    watchTimer_->start();
   else
-    fontWatcher->addPath(fileInfo.filePath());
+    fontWatcher_->addPath(fileInfo.filePath());
 }
 
 
 void
 FontFileManager::timerStart()
 {
-  watchTimer->start();
+  watchTimer_->start();
 }
 
 
 void
 FontFileManager::onWatcherFire()
 {
-  watchTimer->stop();
+  watchTimer_->stop();
   emit currentFileChanged();
 }
 
@@ -164,7 +164,7 @@ FontFileManager::onWatcherFire()
 FT_Error
 FontFileManager::validateFontFile(QString const& fileName)
 {
-  return FT_New_Face(engine->ftLibrary(), fileName.toUtf8(), -1, NULL);
+  return FT_New_Face(engine_->ftLibrary(), fileName.toUtf8(), -1, NULL);
 }
 
 
