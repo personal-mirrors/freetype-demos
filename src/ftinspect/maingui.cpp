@@ -5,6 +5,7 @@
 
 #include "maingui.hpp"
 #include "rendering/grid.hpp"
+#include "uihelper.hpp"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -586,7 +587,7 @@ MainGUI::nextNamedInstance()
 void
 MainGUI::zoom()
 {
-  int scale = zoomSpinBox_->value();
+  int scale = static_cast<int>(zoomSpinBox_->value());
 
   QTransform transform;
   transform.scale(scale, scale);
@@ -886,7 +887,7 @@ MainGUI::createLayout()
   currentGlyphPointsItem_ = NULL;
   currentGlyphPointNumbersItem_ = NULL;
 
-  glyphView_ = new QGraphicsViewx;
+  glyphView_ = new QGraphicsViewx(this);
   glyphView_->setRenderHint(QPainter::Antialiasing, true);
   glyphView_->setDragMode(QGraphicsView::ScrollHandDrag);
   glyphView_->setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -913,20 +914,31 @@ MainGUI::createLayout()
   dpiSpinBox_->setRange(10, 600);
   dpiLabel_->setBuddy(dpiSpinBox_);
 
-  toStartButtonx_ = new QPushButtonx("|<");
-  toM1000Buttonx_ = new QPushButtonx("-1000");
-  toM100Buttonx_ = new QPushButtonx("-100");
-  toM10Buttonx_ = new QPushButtonx("-10");
-  toM1Buttonx_ = new QPushButtonx("-1");
-  toP1Buttonx_ = new QPushButtonx("+1");
-  toP10Buttonx_ = new QPushButtonx("+10");
-  toP100Buttonx_ = new QPushButtonx("+100");
-  toP1000Buttonx_ = new QPushButtonx("+1000");
-  toEndButtonx_ = new QPushButtonx(">|");
+  toStartButtonx_ = new QPushButton("|<");
+  toM1000Buttonx_ = new QPushButton("-1000");
+  toM100Buttonx_ = new QPushButton("-100");
+  toM10Buttonx_ = new QPushButton("-10");
+  toM1Buttonx_ = new QPushButton("-1");
+  toP1Buttonx_ = new QPushButton("+1");
+  toP10Buttonx_ = new QPushButton("+10");
+  toP100Buttonx_ = new QPushButton("+100");
+  toP1000Buttonx_ = new QPushButton("+1000");
+  toEndButtonx_ = new QPushButton(">|");
+
+  setButtonNarrowest(toStartButtonx_);
+  setButtonNarrowest(toM1000Buttonx_);
+  setButtonNarrowest(toM100Buttonx_ );
+  setButtonNarrowest(toM10Buttonx_  );
+  setButtonNarrowest(toM1Buttonx_   );
+  setButtonNarrowest(toP1Buttonx_   );
+  setButtonNarrowest(toP10Buttonx_  );
+  setButtonNarrowest(toP100Buttonx_ );
+  setButtonNarrowest(toP1000Buttonx_);
+  setButtonNarrowest(toEndButtonx_  );
 
   zoomLabel_ = new QLabel(tr("Zoom Factor"));
   zoomLabel_->setAlignment(Qt::AlignRight);
-  zoomSpinBox_ = new QSpinBoxx;
+  zoomSpinBox_ = new ZoomSpinBox(this, false);
   zoomSpinBox_->setAlignment(Qt::AlignRight);
   zoomSpinBox_->setRange(1, 1000 - 1000 % 64);
   zoomSpinBox_->setKeyboardTracking(false);
@@ -1040,7 +1052,7 @@ MainGUI::createConnections()
   connect(dpiSpinBox_, SIGNAL(valueChanged(int)),
           SLOT(drawGlyph()));
 
-  connect(zoomSpinBox_, SIGNAL(valueChanged(int)),
+  connect(zoomSpinBox_, SIGNAL(valueChanged(double)),
           SLOT(zoom()));
 
   connect(previousFontButton_, SIGNAL(clicked()),

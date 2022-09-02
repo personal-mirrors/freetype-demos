@@ -10,10 +10,7 @@
 #include "rendering/glyphoutline.hpp"
 #include "rendering/glyphpointnumbers.hpp"
 #include "rendering/glyphpoints.hpp"
-#include "widgets/qcomboboxx.hpp"
-#include "widgets/qgraphicsviewx.hpp"
-#include "widgets/qpushbuttonx.hpp"
-#include "widgets/qspinboxx.hpp"
+#include "widgets/customwidgets.hpp"
 #include "models/customcomboboxmodels.hpp"
 
 #include <QAction>
@@ -196,23 +193,23 @@ private:
   QPushButton *previousFontButton_;
   QPushButton *previousNamedInstanceButton_;
 
-  QPushButtonx *toEndButtonx_;
-  QPushButtonx *toM1000Buttonx_;
-  QPushButtonx *toM100Buttonx_;
-  QPushButtonx *toM10Buttonx_;
-  QPushButtonx *toM1Buttonx_;
-  QPushButtonx *toP1000Buttonx_;
-  QPushButtonx *toP100Buttonx_;
-  QPushButtonx *toP10Buttonx_;
-  QPushButtonx *toP1Buttonx_;
-  QPushButtonx *toStartButtonx_;
+  QPushButton *toEndButtonx_;
+  QPushButton *toM1000Buttonx_;
+  QPushButton *toM100Buttonx_;
+  QPushButton *toM10Buttonx_;
+  QPushButton *toM1Buttonx_;
+  QPushButton *toP1000Buttonx_;
+  QPushButton *toP100Buttonx_;
+  QPushButton *toP10Buttonx_;
+  QPushButton *toP1Buttonx_;
+  QPushButton *toStartButtonx_;
 
   QSignalMapper *glyphNavigationMapper_;
 
   QSlider *gammaSlider_;
 
   QSpinBox *dpiSpinBox_;
-  QSpinBoxx *zoomSpinBox_;
+  ZoomSpinBox *zoomSpinBox_;
 
   QTabWidget *tabWidget_;
 
