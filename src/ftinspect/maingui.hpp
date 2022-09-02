@@ -95,8 +95,7 @@ private slots:
 
 private:
   Engine* engine;
-
-  QStringList fontList;
+  
   int currentFontIndex;
 
   long currentNumberOfFaces;
@@ -140,8 +139,6 @@ private:
   QComboBox *unitsComboBox;
 
   QDoubleSpinBox *sizeDoubleSpinBox;
-
-  QFileSystemWatcher *fontWatcher;
 
   QGraphicsScene *glyphScene;
   QGraphicsViewx *glyphView;
@@ -220,8 +217,6 @@ private:
   QSpinBoxx *zoomSpinBox;
 
   QTabWidget *tabWidget;
-
-  QTimer *timer;
 
   QVBoxLayout *generalTabLayout;
   QVBoxLayout *leftLayout;

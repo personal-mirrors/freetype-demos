@@ -20,6 +20,7 @@ add_executable(ftinspect
   "maingui.cpp"
   
   "engine/engine.cpp"
+  "engine/fontfilemanager.cpp"
 
   "rendering/glyphbitmap.cpp"
   "rendering/glyphoutline.cpp"

@@ -1,0 +1,178 @@
+// fontfilemanager.cpp
+
+// Copyright (C) 2022 by Charlie Jiang.
+
+
+#include "fontfilemanager.hpp"
+
+#include <QCoreApplication>
+#include <QGridLayout>
+#include <QMessageBox>
+
+#include "engine.hpp"
+
+
+FontFileManager::FontFileManager(Engine* engine)
+: engine(engine)
+{
+  fontWatcher = new QFileSystemWatcher(this);
+  // if the current input file is invalid we retry once a second to load it
+  watchTimer = new QTimer;
+  watchTimer->setInterval(1000);
+
+  connect(fontWatcher, &QFileSystemWatcher::fileChanged,
+          this, &FontFileManager::onWatcherFire);
+  connect(watchTimer, &QTimer::timeout,
+          this, &FontFileManager::onTimerFire);
+}
+
+
+int
+FontFileManager::size()
+{
+  return fontFileNameList.size();
+}
+
+
+void
+FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
+{
+  QStringList failedFiles;
+  for (auto& name : newFileNames)
+  {
+    auto info = QFileInfo(name);
+    info.setCaching(false);
+
+    // Filter non-file elements
+    if (!info.isFile())
+    {
+      if (alertNotExist)
+        failedFiles.append(name);
+      continue;
+    }
+
+    auto err = validateFontFile(name);
+    if (err)
+    {
+      if (alertNotExist)
+      {
+        auto errString = FT_Error_String(err);
+        if (!errString)
+          failedFiles.append(QString("- %1: %2")
+                             .arg(name)
+                             .arg(err));
+        else
+          failedFiles.append(QString("- %1: %2 (%3)")
+                             .arg(name)
+                             .arg(errString)
+                             .arg(err));
+      }
+      continue;
+    }
+
+    // Uniquify elements
+    auto absPath = info.absoluteFilePath();
+    auto existing = false;
+    for (auto& existingName : fontFileNameList)
+      if (existingName.absoluteFilePath() == absPath)
+      {
+        existing = true;
+        break;
+      }
+    if (existing)
+      continue;
+
+    if (info.size() >= INT_MAX)
+      return; // Prevent overflowing
+    fontFileNameList.append(info);
+  }
+
+  if (alertNotExist && !failedFiles.empty())
+  {
+    auto msg = new QMessageBox;
+    msg->setAttribute(Qt::WA_DeleteOnClose);
+    msg->setStandardButtons(QMessageBox::Ok);
+    if (failedFiles.size() == 1)
+    {
+      msg->setWindowTitle(tr("Failed to load file"));
+      msg->setText(tr("File failed to load:\n%1").arg(failedFiles.join("\n")));
+    }
+    else
+    {
+      msg->setWindowTitle(tr("Failed to load some files"));
+      msg->setText(tr("Files failed to load:\n%1").arg(failedFiles.join("\n")));
+    }
+    
+    msg->setIcon(QMessageBox::Warning);
+    msg->setModal(false);
+    msg->open();
+  }
+}
+
+
+void
+FontFileManager::remove(int index)
+{
+  if (index < 0 || index >= size())
+    return;
+
+  fontWatcher->removePath(fontFileNameList[index].filePath());
+  fontFileNameList.removeAt(index);
+}
+
+
+QFileInfo&
+FontFileManager::operator[](int index)
+{
+  return fontFileNameList[index];
+}
+
+
+void
+FontFileManager::updateWatching(int index)
+{
+  QFileInfo& fileInfo = fontFileNameList[index];
+
+  auto watching = fontWatcher->files();
+  if (!watching.empty())
+    fontWatcher->removePaths(watching);
+
+  // Qt's file watcher doesn't handle symlinks;
+  // we thus fall back to polling
+  if (fileInfo.isSymLink() || !fileInfo.exists())
+    watchTimer->start();
+  else
+    fontWatcher->addPath(fileInfo.filePath());
+}
+
+
+void
+FontFileManager::timerStart()
+{
+  watchTimer->start();
+}
+
+
+void
+FontFileManager::onWatcherFire()
+{
+  watchTimer->stop();
+  emit currentFileChanged();
+}
+
+
+FT_Error
+FontFileManager::validateFontFile(QString const& fileName)
+{
+  return FT_New_Face(engine->ftLibrary(), fileName.toUtf8(), -1, NULL);
+}
+
+
+void
+FontFileManager::onTimerFire()
+{
+  onWatcherFire();
+}
+
+
+// end of fontfilemanager.hpp
