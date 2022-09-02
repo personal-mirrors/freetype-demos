@@ -6,10 +6,10 @@
 #pragma once
 
 #include "engine/engine.hpp"
-#include "rendering/glyphbitmap.hpp"
-#include "rendering/glyphoutline.hpp"
-#include "rendering/glyphpointnumbers.hpp"
-#include "rendering/glyphpoints.hpp"
+#include "glyphcomponents/glyphbitmap.hpp"
+#include "glyphcomponents/glyphoutline.hpp"
+#include "glyphcomponents/glyphpointnumbers.hpp"
+#include "glyphcomponents/glyphpoints.hpp"
 #include "widgets/customwidgets.hpp"
 #include "models/customcomboboxmodels.hpp"
 
