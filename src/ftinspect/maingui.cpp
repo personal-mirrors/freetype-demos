@@ -4,7 +4,7 @@
 
 
 #include "maingui.hpp"
-#include "rendering/grid.hpp"
+#include "glyphcomponents/grid.hpp"
 #include "uihelper.hpp"
 
 #include <QApplication>
