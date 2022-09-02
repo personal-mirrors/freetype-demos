@@ -30,24 +30,19 @@ if qt5_dep.found()
     'rendering/glyphpoints.cpp',
     'rendering/grid.cpp',
 
-    'widgets/qcomboboxx.cpp',
-    'widgets/qgraphicsviewx.cpp',
-    'widgets/qpushbuttonx.cpp',
-    'widgets/qspinboxx.cpp',
+    'widgets/customwidgets.cpp',
 
     'models/customcomboboxmodels.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
+    'uihelper.cpp',
 ])
 
   moc_files = qt5.preprocess(
     moc_headers: [
       'engine/fontfilemanager.hpp',
-      'widgets/qcomboboxx.hpp',
-      'widgets/qgraphicsviewx.hpp',
-      'widgets/qpushbuttonx.hpp',
-      'widgets/qspinboxx.hpp',
+      'widgets/customwidgets.hpp',
       'maingui.hpp',
       'models/customcomboboxmodels.hpp',
     ],
