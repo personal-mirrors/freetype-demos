@@ -15,17 +15,17 @@ GlyphBitmap::GlyphBitmap(FT_Outline* outline,
                          FT_Pixel_Mode pxlMode,
                          const QVector<QRgb>& monoColorTbl,
                          const QVector<QRgb>& grayColorTbl)
-: library(lib),
-  pixelMode(pxlMode),
-  monoColorTable(monoColorTbl),
-  grayColorTable(grayColorTbl)
+: library_(lib),
+  pixelMode_(pxlMode),
+  monoColorTable_(monoColorTbl),
+  grayColorTable_(grayColorTbl)
 {
   // make a copy of the outline since we are going to manipulate it
-  FT_Outline_New(library,
+  FT_Outline_New(library_,
                  static_cast<unsigned int>(outline->n_points),
                  outline->n_contours,
-                 &transformed);
-  FT_Outline_Copy(outline, &transformed);
+                 &transformed_);
+  FT_Outline_Copy(outline, &transformed_);
 
   FT_BBox cbox;
   FT_Outline_Get_CBox(outline, &cbox);
@@ -36,22 +36,22 @@ GlyphBitmap::GlyphBitmap(FT_Outline* outline,
   cbox.yMax = (cbox.yMax + 63) & ~63;
 
   // we shift the outline to the origin for rendering later on
-  FT_Outline_Translate(&transformed, -cbox.xMin, -cbox.yMin);
+  FT_Outline_Translate(&transformed_, -cbox.xMin, -cbox.yMin);
 
-  bRect.setCoords(cbox.xMin / 64, -cbox.yMax / 64,
+  boundingRect_.setCoords(cbox.xMin / 64, -cbox.yMax / 64,
                   cbox.xMax / 64, -cbox.yMin / 64);
 }
 
 
 GlyphBitmap::~GlyphBitmap()
 {
-  FT_Outline_Done(library, &transformed);
+  FT_Outline_Done(library_, &transformed_);
 }
 
 QRectF
 GlyphBitmap::boundingRect() const
 {
-  return bRect;
+  return boundingRect_;
 }
 
 
@@ -62,20 +62,20 @@ GlyphBitmap::paint(QPainter* painter,
 {
   FT_Bitmap bitmap;
 
-  int height = static_cast<int>(ceil(bRect.height()));
-  int width = static_cast<int>(ceil(bRect.width()));
+  int height = static_cast<int>(ceil(boundingRect_.height()));
+  int width = static_cast<int>(ceil(boundingRect_.width()));
   QImage::Format format = QImage::Format_Indexed8;
 
   // XXX cover LCD and color
-  if (pixelMode == FT_PIXEL_MODE_MONO)
+  if (pixelMode_ == FT_PIXEL_MODE_MONO)
     format = QImage::Format_Mono;
 
   QImage image(QSize(width, height), format);
 
-  if (pixelMode == FT_PIXEL_MODE_MONO)
-    image.setColorTable(monoColorTable);
+  if (pixelMode_ == FT_PIXEL_MODE_MONO)
+    image.setColorTable(monoColorTable_);
   else
-    image.setColorTable(grayColorTable);
+    image.setColorTable(grayColorTable_);
 
   image.fill(0);
 
@@ -83,10 +83,10 @@ GlyphBitmap::paint(QPainter* painter,
   bitmap.width = static_cast<unsigned int>(width);
   bitmap.buffer = image.bits();
   bitmap.pitch = image.bytesPerLine();
-  bitmap.pixel_mode = pixelMode;
+  bitmap.pixel_mode = pixelMode_;
 
-  FT_Error error = FT_Outline_Get_Bitmap(library,
-                                         &transformed,
+  FT_Error error = FT_Outline_Get_Bitmap(library_,
+                                         &transformed_,
                                          &bitmap);
   if (error)
   {
@@ -112,8 +112,8 @@ GlyphBitmap::paint(QPainter* painter,
     {
       // be careful not to lose the alpha channel
       QRgb p = image.pixel(x, y);
-      painter->fillRect(QRectF(x + bRect.left() - 1 / lod / 2,
-                               y + bRect.top() - 1 / lod / 2,
+      painter->fillRect(QRectF(x + boundingRect_.left() - 1 / lod / 2,
+                               y + boundingRect_.top() - 1 / lod / 2,
                                1 + 1 / lod,
                                1 + 1 / lod),
                         QColor(qRed(p),

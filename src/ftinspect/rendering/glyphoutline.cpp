@@ -89,16 +89,16 @@ static FT_Outline_Funcs outlineFuncs =
 
 GlyphOutline::GlyphOutline(const QPen& outlineP,
                            FT_Outline* outln)
-: outlinePen(outlineP),
-  outline(outln)
+: outlinePen_(outlineP),
+  outline_(outln)
 {
   FT_BBox cbox;
 
-  qreal halfPenWidth = outlinePen.widthF();
+  qreal halfPenWidth = outlinePen_.widthF();
 
-  FT_Outline_Get_CBox(outline, &cbox);
+  FT_Outline_Get_CBox(outline_, &cbox);
 
-  bRect.setCoords(qreal(cbox.xMin) / 64 - halfPenWidth,
+  boundingRect_.setCoords(qreal(cbox.xMin) / 64 - halfPenWidth,
                   -qreal(cbox.yMax) / 64 - halfPenWidth,
                   qreal(cbox.xMax) / 64 + halfPenWidth,
                   -qreal(cbox.yMin) / 64 + halfPenWidth);
@@ -108,7 +108,7 @@ GlyphOutline::GlyphOutline(const QPen& outlineP,
 QRectF
 GlyphOutline::boundingRect() const
 {
-  return bRect;
+  return boundingRect_;
 }
 
 
@@ -117,10 +117,10 @@ GlyphOutline::paint(QPainter* painter,
                     const QStyleOptionGraphicsItem*,
                     QWidget*)
 {
-  painter->setPen(outlinePen);
+  painter->setPen(outlinePen_);
 
   QPainterPath path;
-  FT_Outline_Decompose(outline, &outlineFuncs, &path);
+  FT_Outline_Decompose(outline_, &outlineFuncs, &path);
 
   painter->drawPath(path);
 }

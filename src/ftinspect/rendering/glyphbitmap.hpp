@@ -29,12 +29,12 @@ public:
              QWidget* widget);
 
 private:
-  FT_Outline transformed;
-  FT_Library library;
-  unsigned char pixelMode;
-  const QVector<QRgb>& monoColorTable;
-  const QVector<QRgb>& grayColorTable;
-  QRectF bRect;
+  FT_Outline transformed_;
+  FT_Library library_;
+  unsigned char pixelMode_;
+  const QVector<QRgb>& monoColorTable_;
+  const QVector<QRgb>& grayColorTable_;
+  QRectF boundingRect_;
 };
 
 
