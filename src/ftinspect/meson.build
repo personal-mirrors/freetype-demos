@@ -29,13 +29,17 @@ if qt5_dep.found()
     'glyphcomponents/glyphpointnumbers.cpp',
     'glyphcomponents/glyphpoints.cpp',
     'glyphcomponents/grid.cpp',
+    'glyphcomponents/graphicsdefault.cpp',
 
     'widgets/customwidgets.cpp',
     'widgets/tripletselector.cpp',
+    'widgets/glyphindexselector.cpp',
+    'widgets/fontsizeselector.cpp',
 
     'models/customcomboboxmodels.cpp',
 
     'panels/settingpanel.cpp',
+    'panels/singular.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
@@ -47,9 +51,12 @@ if qt5_dep.found()
       'engine/fontfilemanager.hpp',
       'widgets/customwidgets.hpp',
       'widgets/tripletselector.hpp',
+      'widgets/glyphindexselector.hpp',
+      'widgets/fontsizeselector.hpp',
       'maingui.hpp',
       'models/customcomboboxmodels.hpp',
       'panels/settingpanel.hpp',
+      'panels/singular.hpp',
     ],
     dependencies: qt5_dep)
 

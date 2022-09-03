@@ -28,13 +28,17 @@ add_executable(ftinspect
   "glyphcomponents/glyphpointnumbers.cpp"
   "glyphcomponents/glyphpoints.cpp"
   "glyphcomponents/grid.cpp"
+  "glyphcomponents/graphicsdefault.cpp"
 
   "widgets/customwidgets.cpp"
   "widgets/tripletselector.cpp"
+  "widgets/glyphindexselector.cpp"
+  "widgets/fontsizeselector.cpp"
 
   "models/customcomboboxmodels.cpp"
 
   "panels/settingpanel.cpp"
+  "panels/singular.cpp"
 )
 target_link_libraries(ftinspect
   Qt5::Core Qt5::Widgets

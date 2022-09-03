@@ -11,11 +11,17 @@
 
 GlyphPoints::GlyphPoints(const QPen& onP,
                          const QPen& offP,
-                         FT_Outline* outln)
+                         FT_Glyph glyph)
 : onPen_(onP),
-  offPen_(offP),
-  outline_(outln)
+  offPen_(offP)
 {
+  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+  {
+    outline_ = NULL;
+    return;
+  }
+  outline_ = &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
+
   FT_BBox cbox;
 
   qreal halfPenWidth = qMax(onPen_.widthF(), offPen_.widthF()) / 2;
@@ -41,6 +47,9 @@ GlyphPoints::paint(QPainter* painter,
                    const QStyleOptionGraphicsItem* option,
                    QWidget*)
 {
+  if (!outline_)
+    return;
+
   const qreal lod = option->levelOfDetailFromTransform(
                               painter->worldTransform());
 

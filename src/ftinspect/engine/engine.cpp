@@ -343,6 +343,7 @@ Engine::loadFont(int fontIndex,
       fontType_ = FontType_TrueType;
   }
 
+  curNumGlyphs_ = numGlyphs;
   return numGlyphs;
 }
 

@@ -10,6 +10,7 @@
 
 #include <ft2build.h>
 #include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
 #include <freetype/ftoutln.h>
 
 
@@ -18,11 +19,11 @@ class GlyphOutline
 {
 public:
   GlyphOutline(const QPen& pen,
-               FT_Outline* outline);
-  QRectF boundingRect() const;
+               FT_Glyph glyph);
+  QRectF boundingRect() const override;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
-             QWidget* widget);
+             QWidget* widget) override;
 
 private:
   QPen outlinePen_;

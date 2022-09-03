@@ -170,14 +170,18 @@ MainGUI::createLayout()
   leftWidget_->setMaximumWidth(400);
 
   // right side
-  // TODO: create tabs here
+  singularTab_ = new SingularTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
   tabWidget_->setObjectName("mainTab"); // for stylesheet
 
   // Note those two list must be in sync
-  // TODO: add tabs and tooltips here
+  tabs_.push_back(singularTab_);
+  tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
+  lastTab_ = singularTab_;
   
+  tabWidget_->setTabToolTip(0, tr("View single glyph in grid view.\n"
+                                  "For pixelwise inspection of the glyphs."));
   tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;
