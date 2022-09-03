@@ -30,8 +30,11 @@ add_executable(ftinspect
   "glyphcomponents/grid.cpp"
 
   "widgets/customwidgets.cpp"
+  "widgets/tripletselector.cpp"
 
   "models/customcomboboxmodels.cpp"
+
+  "panels/settingpanel.cpp"
 )
 target_link_libraries(ftinspect
   Qt5::Core Qt5::Widgets
