@@ -5,47 +5,44 @@
 
 #include "glyphbitmap.hpp"
 
+#include "../engine/engine.hpp"
+
 #include <cmath>
+#include <utility>
+#include <qevent.h>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
+#include <freetype/ftbitmap.h>
 
 
-GlyphBitmap::GlyphBitmap(FT_Outline* outline,
-                         FT_Library lib,
-                         FT_Pixel_Mode pxlMode,
-                         const QVector<QRgb>& monoColorTbl,
-                         const QVector<QRgb>& grayColorTbl)
-: library_(lib),
-  pixelMode_(pxlMode),
-  monoColorTable_(monoColorTbl),
-  grayColorTable_(grayColorTbl)
+GlyphBitmap::GlyphBitmap(QImage* image,
+                         QRect rect)
+: image_(image),
+  boundingRect_(rect)
 {
-  // make a copy of the outline since we are going to manipulate it
-  FT_Outline_New(library_,
-                 static_cast<unsigned int>(outline->n_points),
-                 outline->n_contours,
-                 &transformed_);
-  FT_Outline_Copy(outline, &transformed_);
 
-  FT_BBox cbox;
-  FT_Outline_Get_CBox(outline, &cbox);
+}
 
-  cbox.xMin &= ~63;
-  cbox.yMin &= ~63;
-  cbox.xMax = (cbox.xMax + 63) & ~63;
-  cbox.yMax = (cbox.yMax + 63) & ~63;
 
-  // we shift the outline to the origin for rendering later on
-  FT_Outline_Translate(&transformed_, -cbox.xMin, -cbox.yMin);
+GlyphBitmap::GlyphBitmap(int glyphIndex, 
+                         FT_Glyph glyph,
+                         Engine* engine)
+{
+  QRect bRect;
+  image_ = NULL; // TODO: refactr Engine
+  //image_ = engine->renderingEngine()->tryDirectRenderColorLayers(glyphIndex,
+  //                                                               &bRect, true);
 
-  boundingRect_.setCoords(cbox.xMin / 64, -cbox.yMax / 64,
-                  cbox.xMax / 64, -cbox.yMin / 64);
+  //if (!image_)
+  //  image_ = engine->renderingEngine()->convertGlyphToQImage(glyph, &bRect, 
+  //                                                           true);
+  boundingRect_ = bRect; // QRect to QRectF
 }
 
 
 GlyphBitmap::~GlyphBitmap()
 {
-  FT_Outline_Done(library_, &transformed_);
+  delete image_;
 }
 
 QRectF
@@ -60,40 +57,9 @@ GlyphBitmap::paint(QPainter* painter,
                    const QStyleOptionGraphicsItem* option,
                    QWidget*)
 {
-  FT_Bitmap bitmap;
-
-  int height = static_cast<int>(ceil(boundingRect_.height()));
-  int width = static_cast<int>(ceil(boundingRect_.width()));
-  QImage::Format format = QImage::Format_Indexed8;
-
-  // XXX cover LCD and color
-  if (pixelMode_ == FT_PIXEL_MODE_MONO)
-    format = QImage::Format_Mono;
-
-  QImage image(QSize(width, height), format);
-
-  if (pixelMode_ == FT_PIXEL_MODE_MONO)
-    image.setColorTable(monoColorTable_);
-  else
-    image.setColorTable(grayColorTable_);
-
-  image.fill(0);
-
-  bitmap.rows = static_cast<unsigned int>(height);
-  bitmap.width = static_cast<unsigned int>(width);
-  bitmap.buffer = image.bits();
-  bitmap.pitch = image.bytesPerLine();
-  bitmap.pixel_mode = pixelMode_;
-
-  FT_Error error = FT_Outline_Get_Bitmap(library_,
-                                         &transformed_,
-                                         &bitmap);
-  if (error)
-  {
-    // XXX error handling
+  if (!image_)
     return;
-  }
-
+  
   // `drawImage' doesn't work as expected:
   // the larger the zoom, the more the pixel rectangle positions
   // deviate from the grid lines
@@ -102,16 +68,16 @@ GlyphBitmap::paint(QPainter* painter,
                      image.convertToFormat(
                        QImage::Format_ARGB32_Premultiplied));
 #else
-  const qreal lod = option->levelOfDetailFromTransform(
-                              painter->worldTransform());
+  const qreal lod = QStyleOptionGraphicsItem::levelOfDetailFromTransform(
+    painter->worldTransform());
 
   painter->setPen(Qt::NoPen);
 
-  for (int x = 0; x < image.width(); x++)
-    for (int y = 0; y < image.height(); y++)
+  for (int x = 0; x < image_->width(); x++)
+    for (int y = 0; y < image_->height(); y++)
     {
       // be careful not to lose the alpha channel
-      QRgb p = image.pixel(x, y);
+      QRgb p = image_->pixel(x, y);
       painter->fillRect(QRectF(x + boundingRect_.left() - 1 / lod / 2,
                                y + boundingRect_.top() - 1 / lod / 2,
                                1 + 1 / lod,

@@ -89,11 +89,16 @@ public:
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
+  int currentFontNumberOfGlyphs() { return curNumGlyphs_; }
+
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
   int numberOfNamedInstances(int fontIndex,
                              long faceIndex);
   QString namedInstanceName(int fontIndex, long faceIndex, int index);
+
+  // (settings)
+  int dpi() { return dpi_; }
 
   //////// Setters (direct or indirect)
 
@@ -140,6 +145,7 @@ private:
 
   QString curFamilyName_;
   QString curStyleName_;
+  int curNumGlyphs_ = -1;
 
   FT_Library library_;
   FTC_Manager cacheManager_;

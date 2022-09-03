@@ -6,23 +6,30 @@
 #pragma once
 
 #include <QGraphicsItem>
+#include <QGraphicsView>
 #include <QPen>
-
 
 class Grid
 : public QGraphicsItem
 {
 public:
-  Grid(const QPen& gridPen,
-       const QPen& axisPen);
-  QRectF boundingRect() const;
+  Grid(QGraphicsView* parentView);
+  QRectF boundingRect() const override;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
-             QWidget* widget);
+             QWidget* widget) override;
+
+  void setShowGrid(bool showGrid, bool showAuxLines);
+
+  void updateRect(); // there's no signal/slots for QGraphicsItem.
 
 private:
-  QPen gridPen_;
-  QPen axisPen_;
+  QGraphicsView* parentView_;
+  QRectF rect_;
+  QRectF sceneRect_;
+
+  bool showGrid_ = true;
+  bool showAuxLines_ = false;
 };
 
 

@@ -9,6 +9,7 @@
 #include "widgets/tripletselector.hpp"
 #include "panels/settingpanel.hpp"
 #include "panels/abstracttab.hpp"
+#include "panels/singular.hpp"
 
 #include <vector>
 #include <QAction>
@@ -84,6 +85,7 @@ private:
 
   QTabWidget* tabWidget_;
   std::vector<AbstractTab*> tabs_;
+  SingularTab* singularTab_;
   QWidget* lastTab_ = NULL;
 
   void openFonts(QStringList const& fileNames);
