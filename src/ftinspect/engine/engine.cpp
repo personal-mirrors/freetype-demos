@@ -237,6 +237,50 @@ Engine::numberOfNamedInstances(int fontIndex,
 }
 
 
+QString
+Engine::namedInstanceName(int fontIndex, long faceIndex, int index)
+{
+  if (fontIndex < 0)
+    return {};
+
+  FT_Face face;
+  QString name;
+
+  // search triplet (fontIndex, faceIndex, index)
+  FTC_FaceID ftcFaceID = reinterpret_cast<FTC_FaceID>
+                           (faceIDMap_.value(FaceID(fontIndex,
+                                                    faceIndex,
+                                                    index)));
+  if (ftcFaceID)
+  {
+    // found
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
+      name = QString("%1 %2")
+               .arg(face->family_name)
+               .arg(face->style_name);
+  }
+  else
+  {
+    // not found; try to load triplet (fontIndex, faceIndex, index)
+    ftcFaceID = reinterpret_cast<FTC_FaceID>(faceCounter_);
+    faceIDMap_.insert(FaceID(fontIndex, faceIndex, index),
+                      faceCounter_++);
+
+    if (!FTC_Manager_LookupFace(cacheManager_, ftcFaceID, &face))
+      name = QString("%1 %2")
+               .arg(face->family_name)
+               .arg(face->style_name);
+    else
+    {
+      faceIDMap_.remove(FaceID(fontIndex, faceIndex, 0));
+      faceCounter_--;
+    }
+  }
+
+  return name;
+}
+
+
 int
 Engine::loadFont(int fontIndex,
                  long faceIndex,
@@ -391,6 +435,14 @@ int
 Engine::numberOfOpenedFonts()
 {
   return fontFileManager_.size();
+}
+
+
+bool
+Engine::fontValid()
+{
+  // TODO: use fallback font
+  return ftSize_ != NULL;
 }
 
 

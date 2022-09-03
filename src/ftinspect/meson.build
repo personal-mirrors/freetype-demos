@@ -31,8 +31,11 @@ if qt5_dep.found()
     'glyphcomponents/grid.cpp',
 
     'widgets/customwidgets.cpp',
+    'widgets/tripletselector.cpp',
 
     'models/customcomboboxmodels.cpp',
+
+    'panels/settingpanel.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
@@ -43,8 +46,10 @@ if qt5_dep.found()
     moc_headers: [
       'engine/fontfilemanager.hpp',
       'widgets/customwidgets.hpp',
+      'widgets/tripletselector.hpp',
       'maingui.hpp',
       'models/customcomboboxmodels.hpp',
+      'panels/settingpanel.hpp',
     ],
     dependencies: qt5_dep)
 

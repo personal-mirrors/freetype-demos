@@ -23,7 +23,6 @@ main(int argc,
 
   Engine engine;
   MainGUI gui(&engine);
-  gui.setDefaults();
 
   gui.show();
 

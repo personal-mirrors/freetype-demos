@@ -85,6 +85,7 @@ public:
   int numberOfOpenedFonts();
 
   // (for current fonts)
+  bool fontValid();
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
@@ -92,6 +93,7 @@ public:
   long numberOfFaces(int fontIndex);
   int numberOfNamedInstances(int fontIndex,
                              long faceIndex);
+  QString namedInstanceName(int fontIndex, long faceIndex, int index);
 
   //////// Setters (direct or indirect)
 
