@@ -115,6 +115,7 @@ public:
                              long faceIndex);
   QString namedInstanceName(int fontIndex, long faceIndex, int index);
 
+  bool currentFontTricky();
   bool currentFontBitmapOnly();
   bool currentFontHasEmbeddedBitmap();
   std::vector<int> currentFontFixedSizes();
