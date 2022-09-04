@@ -11,6 +11,7 @@
 #include <freetype/ftmodapi.h>
 #include <freetype/ftdriver.h>
 #include <freetype/ftlcdfil.h>
+#include <freetype/ftmm.h>
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -344,6 +345,7 @@ Engine::loadFont(int fontIndex,
     else
       fontType_ = FontType_Other;
     loadPaletteInfos();
+    curMMGXState_ = MMGXAxisInfo::get(this, curMMGXAxes_);
   }
 
   curNumGlyphs_ = numGlyphs;
@@ -655,6 +657,19 @@ Engine::setStemDarkening(bool darkening)
                   "no-stem-darkening",
                   &noDarkening);
   resetCache();
+}
+
+
+void
+Engine::applyMMGXDesignCoords(FT_Fixed* coords,
+                              size_t count)
+{
+  if (!ftSize_)
+    return;
+  if (count >= UINT_MAX)
+    count = UINT_MAX - 1;
+  FT_Set_Var_Design_Coordinates(ftSize_->face,
+                                static_cast<unsigned>(count), coords);
 }
 
 

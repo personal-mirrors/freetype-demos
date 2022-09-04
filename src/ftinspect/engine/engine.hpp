@@ -8,6 +8,7 @@
 #include "fontfilemanager.hpp"
 
 #include "paletteinfo.hpp"
+#include "mmgx.hpp"
 #include "rendering.hpp"
 
 #include <memory>
@@ -119,6 +120,8 @@ public:
   std::vector<PaletteInfo>& currentFontPalettes() { return curPaletteInfos_; }
   FT_Color* currentPalette() { return palette_; }
   FT_Palette_Data& currentFontPaletteData() { return paletteData_; }
+  MMGXState currentFontMMGXState() { return curMMGXState_; }
+  std::vector<MMGXAxisInfo>& currentFontMMGXAxes() { return curMMGXAxes_; }
 
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
@@ -183,7 +186,8 @@ public:
   void setTTInterpreterVersion(int version);
 
   void setStemDarkening(bool darkening);
-  
+  void applyMMGXDesignCoords(FT_Fixed* coords, size_t count);
+
   //////// Misc
 
   friend FT_Error faceRequester(FTC_FaceID,
@@ -200,11 +204,13 @@ private:
 
   // font info
   int curFontIndex_ = -1;
+  int fontType_;
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
   std::vector<PaletteInfo> curPaletteInfos_;
-  int fontType_;
+  MMGXState curMMGXState_ = MMGXState::NoMMGX;
+  std::vector<MMGXAxisInfo> curMMGXAxes_;
 
   // basic objects
   FT_Library library_;

@@ -180,7 +180,7 @@ MainGUI::repaintCurrentTab()
 void
 MainGUI::reloadCurrentTabFont()
 {
-  engine_->resetCache();
+  settingPanel_->applyDelayedSettings(); // This will reset the cache.
   applySettings();
   auto index = tabWidget_->currentIndex();
   if (index >= 0 && static_cast<size_t>(index) < tabs_.size())
@@ -192,7 +192,6 @@ void
 MainGUI::applySettings()
 {
   settingPanel_->applySettings();
-  settingPanel_->applyDelayedSettings();
 }
 
 
