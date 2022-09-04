@@ -39,7 +39,7 @@ MMGXAxisInfo::get(Engine* engine,
 
   infos.resize(mm->num_axis);
 
-  //auto& sfnt = engine->currentFontSFNTNames();
+  auto& sfnt = engine->currentFontSFNTNames();
   for (unsigned int i = 0; i < mm->num_axis; ++i)
   {
     auto& axis = mm->axis[i];
@@ -58,15 +58,15 @@ MMGXAxisInfo::get(Engine* engine,
     if (state == MMGXState::GX_OVF)
     {
       auto strid = mm->axis[i].strid;
-      //for (auto& obj : sfnt)
-      //{
-      //  if (obj.nameID == strid && obj.strValid)
-      //  {
-      //    info.name = obj.str;
-      //    nameSet = true;
-      //    break;
-      //  }
-      //}
+      for (auto& obj : sfnt)
+      {
+        if (obj.nameID == strid && obj.strValid)
+        {
+          info.name = obj.str;
+          nameSet = true;
+          break;
+        }
+      }
     }
 
     // XXX security flaw
