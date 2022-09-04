@@ -99,6 +99,8 @@ private:
 
   void readSettings();
   void writeSettings();
+
+  void loadCommandLine();
 };
 
 
