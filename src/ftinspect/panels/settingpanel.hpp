@@ -6,6 +6,7 @@
 
 #include "../engine/engine.hpp"
 #include "../models/customcomboboxmodels.hpp"
+#include "settingpanelmmgx.hpp"
 
 #include <QWidget>
 #include <QTabWidget>
@@ -54,8 +55,7 @@ private:
 
   QWidget* generalTab_;
   QWidget* hintingRenderingTab_;
-  //SettingPanelMMGX* mmgxPanel_;
-  QWidget* mmgxPanel_;
+  SettingPanelMMGX* mmgxPanel_;
 
   QLabel* gammaLabel_;
   QLabel* gammaValueLabel_;
@@ -113,11 +113,9 @@ private:
 
   void checkAllSettings();
   void checkHinting();
-  void checkHintingMode();
   void checkAutoHinting();
   void checkAntiAliasing();
   void checkPalette();
-  void checkStemDarkening();
 
   void openBackgroundPicker();
   void openForegroundPicker();

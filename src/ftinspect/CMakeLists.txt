@@ -24,6 +24,7 @@ add_executable(ftinspect
   "engine/fontfilemanager.cpp"
   "engine/rendering.cpp"
   "engine/paletteinfo.cpp"
+  "engine/mmgx.cpp"
 
   "glyphcomponents/glyphbitmap.cpp"
   "glyphcomponents/glyphoutline.cpp"
@@ -40,6 +41,7 @@ add_executable(ftinspect
   "models/customcomboboxmodels.cpp"
 
   "panels/settingpanel.cpp"
+  "panels/settingpanelmmgx.cpp"
   "panels/singular.cpp"
 )
 target_link_libraries(ftinspect

@@ -100,16 +100,6 @@ SettingPanel::checkHinting()
 
 
 void
-SettingPanel::checkHintingMode()
-{
-  //if (!comparatorMode_)
-  applyDelayedSettings();
-
-  emit fontReloadNeeded();
-}
-
-
-void
 SettingPanel::checkAutoHinting()
 {
   if (autoHintingCheckBox_->isChecked())
@@ -189,16 +179,6 @@ SettingPanel::checkPalette()
   paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked()
                                && paletteComboBox_->count() > 0);
   engine_->resetCache();
-  emit fontReloadNeeded();
-}
-
-
-void
-SettingPanel::checkStemDarkening()
-{
-  //if (!comparatorMode_)
-  applyDelayedSettings();
-
   emit fontReloadNeeded();
 }
 
@@ -339,7 +319,7 @@ SettingPanel::onFontChanged()
   paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked()
                                && paletteComboBox_->count() > 0);
   populatePalettes();
-  //mmgxPanel_->reloadFont();
+  mmgxPanel_->reloadFont();
   blockSignals(blockState);
 
   // Place this after `blockSignals` to let the signals emitted normally
@@ -389,7 +369,7 @@ SettingPanel::applySettings()
 
   engine_->renderingEngine()->setForeground(foregroundColor_.rgba());
   engine_->renderingEngine()->setBackground(backgroundColor_.rgba());
-  //mmgxPanel_->applySettings();
+  mmgxPanel_->applySettings();
 }
 
 
@@ -481,8 +461,7 @@ SettingPanel::createLayout()
   gammaLabel_->setBuddy(gammaSlider_);
   gammaValueLabel_ = new QLabel(this);
 
-  // TODO: MM/GX
-  mmgxPanel_ = new QWidget(this);
+  mmgxPanel_ = new SettingPanelMMGX(this, engine_);
 
   backgroundButton_ = new QPushButton(tr("Background"), this);
   foregroundButton_ = new QPushButton(tr("Foreground"), this);
@@ -622,7 +601,7 @@ SettingPanel::createConnections()
   // use `qOverload` here to prevent ambiguity.
   connect(hintingModeComboBox_, 
           QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &SettingPanel::checkHintingMode);
+          this, &SettingPanel::fontReloadNeeded);
   connect(antiAliasingComboBox_,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::checkAntiAliasing);
@@ -656,7 +635,7 @@ SettingPanel::createConnections()
   connect(embeddedBitmapCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::fontReloadNeeded);
   connect(stemDarkeningCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::checkStemDarkening);
+          this, &SettingPanel::fontReloadNeeded);
   connect(colorLayerCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkPalette);
 
@@ -664,6 +643,9 @@ SettingPanel::createConnections()
           this, &SettingPanel::openBackgroundPicker);
   connect(foregroundButton_, &QPushButton::clicked,
           this, &SettingPanel::openForegroundPicker);
+
+  connect(mmgxPanel_, &SettingPanelMMGX::mmgxCoordsChanged,
+          this, &SettingPanel::fontReloadNeeded);
 }
 
 

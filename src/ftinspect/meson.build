@@ -25,6 +25,7 @@ if qt5_dep.found()
     'engine/fontfilemanager.cpp',
     'engine/rendering.cpp',
     'engine/paletteinfo.cpp',
+    'engine/mmgx.cpp',
 
     'glyphcomponents/glyphbitmap.cpp',
     'glyphcomponents/glyphoutline.cpp',
@@ -41,6 +42,7 @@ if qt5_dep.found()
     'models/customcomboboxmodels.cpp',
 
     'panels/settingpanel.cpp',
+    'panels/settingpanelmmgx.cpp',
     'panels/singular.cpp',
 
     'ftinspect.cpp',
@@ -58,6 +60,7 @@ if qt5_dep.found()
       'maingui.hpp',
       'models/customcomboboxmodels.hpp',
       'panels/settingpanel.hpp',
+      'panels/settingpanelmmgx.hpp',
       'panels/singular.hpp',
     ],
     dependencies: qt5_dep)
