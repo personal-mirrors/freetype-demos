@@ -20,6 +20,7 @@ public:
              QWidget* widget) override;
 
   void setShowGrid(bool showGrid, bool showAuxLines);
+  void updateParameters(int ascenderPx, int descenderPx, int advancePx);
 
   void updateRect(); // there's no signal/slots for QGraphicsItem.
 
@@ -30,6 +31,9 @@ private:
 
   bool showGrid_ = true;
   bool showAuxLines_ = false;
+
+  int ascender_ = 0, descender_ = 0;
+  int advance_ = 0;
 };
 
 

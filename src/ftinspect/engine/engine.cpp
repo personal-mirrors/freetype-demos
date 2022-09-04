@@ -459,6 +459,14 @@ Engine::currentFontFixedSizes()
 }
 
 
+std::pair<int, int>
+Engine::currentSizeAscDescPx()
+{
+  return { ftSize_->metrics.ascender >> 6,
+           ftSize_->metrics.descender >> 6 };
+}
+
+
 QString
 Engine::glyphName(int index)
 {

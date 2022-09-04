@@ -131,7 +131,14 @@ SingularTab::drawGlyph()
         glyphScene_->addItem(currentGlyphPointNumbersItem_);
       }
     }
+
+    engine_->reloadFont();
+    auto ascDesc = engine_->currentSizeAscDescPx();
+    gridItem_->updateParameters(ascDesc.first, ascDesc.second,
+                                glyph->advance.x >> 16);
   }
+  else
+    gridItem_->updateParameters(0, 0, 0);
 
   glyphScene_->update();
 }
