@@ -380,7 +380,7 @@ SettingPanel::applyDelayedSettings()
       currentTTInterpreterVersion_ = index;
   }
 
-  //engine_->setStemDarkening(stemDarkeningCheckBox_->isChecked());
+  engine_->setStemDarkening(stemDarkeningCheckBox_->isChecked());
 }
 
 

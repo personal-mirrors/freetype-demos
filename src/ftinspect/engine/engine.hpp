@@ -155,12 +155,16 @@ public:
   void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
   void setEmbeddedBitmapEnabled(bool enabled) { embeddedBitmap_ = enabled; }
 
+  // (settings without backing fields)
+
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
   void setLcdFilter(FT_LcdFilter filter);
   void setCFFHintingMode(int mode);
   void setTTInterpreterVersion(int version);
 
+  void setStemDarkening(bool darkening);
+  
   //////// Misc
 
   friend FT_Error faceRequester(FTC_FaceID,

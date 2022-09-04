@@ -595,6 +595,30 @@ Engine::setTTInterpreterVersion(int version)
 
 
 void
+Engine::setStemDarkening(bool darkening)
+{
+  FT_Bool noDarkening = !darkening;
+  FT_Property_Set(library_,
+                  "cff",
+                  "no-stem-darkening",
+                  &noDarkening);
+  FT_Property_Set(library_,
+                  "autofitter",
+                  "no-stem-darkening",
+                  &noDarkening);
+  FT_Property_Set(library_,
+                  "type1",
+                  "no-stem-darkening",
+                  &noDarkening);
+  FT_Property_Set(library_,
+                  "t1cid",
+                  "no-stem-darkening",
+                  &noDarkening);
+  resetCache();
+}
+
+
+void
 Engine::update()
 {
   loadFlags_ = FT_LOAD_DEFAULT;
