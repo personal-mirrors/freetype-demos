@@ -19,6 +19,7 @@ public:
   void setBackground(QRgb background);
   void setGamma(double gamma);
   void calculateForegroundTable();
+  void setLCDUsesBGR(bool isBGR) { lcdUsesBGR_ = isBGR; }
 
   QRgb foreground() { return foregroundColor_; }
   QRgb background() { return backgroundColor_; }
@@ -54,6 +55,8 @@ private:
   QRgb foregroundColor_;
   double gamma_;
   QVector<QRgb> foregroundTable_;
+
+  bool lcdUsesBGR_;
 };
 
 

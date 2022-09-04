@@ -382,8 +382,8 @@ SettingPanel::applySettings()
   engine_->setPaletteIndex(paletteComboBox_->currentIndex());
 
   engine_->setUseColorLayer(colorLayerCheckBox_->isChecked());
-  //engine_->setLCDUsesBGR(aaSettings.isBGR);
-  //engine_->setLCDSubPixelPositioning(
+  engine_->renderingEngine()->setLCDUsesBGR(aaSettings.isBGR);
+  //engine_->renderingEngine()->setLCDSubPixelPositioning(
   //  antiAliasingComboBox_->currentIndex()
   //    == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
 
