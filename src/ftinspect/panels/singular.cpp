@@ -90,8 +90,8 @@ SingularTab::drawGlyph()
   glyphView_->setBackgroundBrush(
     QColor(engine_->renderingEngine()->background()));
 
-
   applySettings();
+  engine_->loadPalette();
   FT_Glyph glyph = engine_->loadGlyph(currentGlyphIndex_);
   if (glyph)
   {
