@@ -7,6 +7,10 @@
 
 #include "fontfilemanager.hpp"
 
+#include "rendering.hpp"
+
+#include <memory>
+#include <utility>
 #include <QString>
 #include <QMap>
 
@@ -68,9 +72,20 @@ public:
   int loadFont(int fontIndex,
                long faceIndex,
                int namedInstanceIndex); // return number of glyphs
-  FT_Outline* loadOutline(int glyphIndex);
+  FT_Glyph loadGlyph(int glyphIndex);
+  int loadGlyphIntoSlotWithoutCache(int glyphIndex, bool noScale = false);
 
-  void openFonts(QStringList fontFileNames);
+  // Sometimes the engine is already updated, and we want to be faster
+  FT_Glyph loadGlyphWithoutUpdate(int glyphIndex,
+                                  FTC_Node* outNode = NULL,
+                                  bool forceRender = false);
+
+  // reload current triplet, but with updated settings, useful for updating
+  // `ftSize_` and `ftFallbackFace_` only - more convenient than `loadFont`
+  void reloadFont();
+  void loadPalette();
+
+  void openFonts(QStringList const& fontFileNames);
   void removeFont(int fontIndex, bool closeFile = true);
   
   void update();
@@ -81,11 +96,14 @@ public:
   FT_Library ftLibrary() const { return library_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
+  RenderingEngine* renderingEngine() { return renderingEngine_.get(); }
 
   int numberOfOpenedFonts();
 
   // (for current fonts)
-  bool fontValid();
+  bool renderReady(); // Can we render bitmaps? (implys `fontValid`)
+  bool fontValid(); // Is the current font valid (valid font may be unavailable
+                    // to render, such as non-scalable font with invalid sizes)
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
@@ -99,6 +117,12 @@ public:
 
   // (settings)
   int dpi() { return dpi_; }
+  bool antiAliasingEnabled() { return antiAliasingEnabled_; }
+  FT_Render_Mode
+  renderMode()
+  {
+    return static_cast<FT_Render_Mode>(renderMode_);
+  }
 
   //////// Setters (direct or indirect)
 
@@ -120,8 +144,9 @@ public:
     doBlueZoneHinting_ = blueZoneHinting;
   }
   void setShowSegments(bool showSegments) { showSegments_ = showSegments; }
-  void setGamma(double gamma) { gamma_ = gamma; }
   void setAntiAliasingTarget(int target) { antiAliasingTarget_ = target; }
+  void setRenderMode(int mode) { renderMode_ = mode; }
+  void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
@@ -143,6 +168,7 @@ private:
 
   FontFileManager fontFileManager_;
 
+  int curFontIndex_ = -1;
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
@@ -152,13 +178,19 @@ private:
   FTC_ImageCache imageCache_;
   FTC_SBitCache sbitsCache_;
 
-  FTC_ScalerRec scaler_;
+  FTC_ScalerRec scaler_ = {};
+  FTC_ImageTypeRec imageType_; // for `loadGlyphWithoutUpdate`
+  // Sometimes the font may be valid (i.e. a face object can be retrieved), but
+  // the size may be invalid (e.g. non-scalable fonts).
+  // Therefore, we use a fallback face for all non-rendering work.
+  FT_Face ftFallbackFace_; // Never perform rendering or write to this!
   FT_Size ftSize_;
 
   EngineDefaultValues engineDefaults_;
 
   int fontType_;
 
+  bool antiAliasingEnabled_ = true;
   bool usingPixelSize_ = false;
   double pointSize_;
   double pixelSize_;
@@ -171,12 +203,16 @@ private:
   bool doBlueZoneHinting_;
   bool showSegments_;
   int antiAliasingTarget_;
-
-  double gamma_;
+  int renderMode_;
 
   unsigned long loadFlags_;
 
+  std::unique_ptr<RenderingEngine> renderingEngine_;
+
   void queryEngine();
+  // Safe to put the impl to the cpp.
+  template <class Func>
+  void withFace(FaceID id, Func func);
 
 public:
 
