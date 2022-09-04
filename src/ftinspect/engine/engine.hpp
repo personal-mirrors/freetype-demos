@@ -8,6 +8,7 @@
 #include "fontfilemanager.hpp"
 
 #include "paletteinfo.hpp"
+#include "fontinfo.hpp"
 #include "mmgx.hpp"
 #include "rendering.hpp"
 
@@ -122,6 +123,7 @@ public:
   FT_Palette_Data& currentFontPaletteData() { return paletteData_; }
   MMGXState currentFontMMGXState() { return curMMGXState_; }
   std::vector<MMGXAxisInfo>& currentFontMMGXAxes() { return curMMGXAxes_; }
+  std::vector<SFNTName>& currentFontSFNTNames() { return curSFNTNames_; }
 
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
@@ -211,6 +213,7 @@ private:
   std::vector<PaletteInfo> curPaletteInfos_;
   MMGXState curMMGXState_ = MMGXState::NoMMGX;
   std::vector<MMGXAxisInfo> curMMGXAxes_;
+  std::vector<SFNTName> curSFNTNames_;
 
   // basic objects
   FT_Library library_;

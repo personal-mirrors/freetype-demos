@@ -328,7 +328,9 @@ Engine::loadFont(int fontIndex,
     ftSize_ = NULL;
     curFamilyName_ = QString();
     curStyleName_ = QString();
+
     curPaletteInfos_.clear();
+    curSFNTNames_.clear();
   }
   else
   {
@@ -344,6 +346,8 @@ Engine::loadFont(int fontIndex,
       fontType_ = FontType_TrueType;
     else
       fontType_ = FontType_Other;
+
+    SFNTName::get(this, curSFNTNames_);
     loadPaletteInfos();
     curMMGXState_ = MMGXAxisInfo::get(this, curMMGXAxes_);
   }
@@ -850,8 +854,8 @@ Engine::loadPaletteInfos()
   // size never exceeds max val of ushort.
   curPaletteInfos_.reserve(paletteData_.num_palettes);
   for (int i = 0; i < paletteData_.num_palettes; ++i)
-    curPaletteInfos_.emplace_back(ftFallbackFace_, paletteData_, i, nullptr);
-    // no `NULL` here - we need `std::nullptr_t`
+    curPaletteInfos_.emplace_back(ftFallbackFace_, paletteData_, i,
+                                  &curSFNTNames_);
 }
 
 
