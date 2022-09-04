@@ -115,9 +115,14 @@ public:
                              long faceIndex);
   QString namedInstanceName(int fontIndex, long faceIndex, int index);
 
+  bool currentFontBitmapOnly();
+  bool currentFontHasEmbeddedBitmap();
+  std::vector<int> currentFontFixedSizes();
+
   // (settings)
   int dpi() { return dpi_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
+  bool embeddedBitmapEnabled() { return embeddedBitmap_; }
   FT_Render_Mode
   renderMode()
   {
@@ -147,6 +152,7 @@ public:
   void setAntiAliasingTarget(int target) { antiAliasingTarget_ = target; }
   void setRenderMode(int mode) { renderMode_ = mode; }
   void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
+  void setEmbeddedBitmapEnabled(bool enabled) { embeddedBitmap_ = enabled; }
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
@@ -202,6 +208,7 @@ private:
   bool doVerticalHinting_;
   bool doBlueZoneHinting_;
   bool showSegments_;
+  bool embeddedBitmap_;
   int antiAliasingTarget_;
   int renderMode_;
 

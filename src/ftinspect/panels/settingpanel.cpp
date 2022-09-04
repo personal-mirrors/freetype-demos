@@ -286,7 +286,7 @@ SettingPanel::onFontChanged()
 
   checkHinting();
 
-  //engine_->reloadFont();
+  engine_->reloadFont();
   //auto hasColor = engine_->currentFontHasColorLayers();
   //colorLayerCheckBox_->setEnabled(hasColor);
   //if (!hasColor)
@@ -296,11 +296,11 @@ SettingPanel::onFontChanged()
   blockSignals(blockState);
 
   // Place this after `blockSignals` to let the signals emitted normally
-  //auto bmapOnly = engine_->currentFontBitmapOnly();
-  //embeddedBitmapCheckBox_->setEnabled(
-  //  !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
-  //if (bmapOnly)
-  //  embeddedBitmapCheckBox_->setChecked(true);
+  auto bmapOnly = engine_->currentFontBitmapOnly();
+  embeddedBitmapCheckBox_->setEnabled(
+    !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
+  if (bmapOnly)
+    embeddedBitmapCheckBox_->setChecked(true);
 }
 
 
@@ -331,7 +331,7 @@ SettingPanel::applySettings()
 
   engine_->renderingEngine()->setGamma(gammaSlider_->value() / 10.0);
 
-  //engine_->setEmbeddedBitmap(embeddedBitmapCheckBox_->isChecked());
+  engine_->setEmbeddedBitmapEnabled(embeddedBitmapCheckBox_->isChecked());
   //engine_->setPaletteIndex(paletteComboBox_->currentIndex());
 
   //engine_->setUseColorLayer(colorLayerCheckBox_->isChecked());
