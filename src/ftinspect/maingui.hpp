@@ -41,6 +41,8 @@ public:
 
 protected:
   void closeEvent(QCloseEvent*) override;
+  void dragEnterEvent(QDragEnterEvent* event) override;
+  void dropEvent(QDropEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
@@ -96,6 +98,7 @@ private:
   void createConnections();
   void createLayout();
   void createMenus();
+  void setupDragDrop();
 
   void readSettings();
   void writeSettings();

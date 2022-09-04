@@ -11,6 +11,9 @@
 #include <QSettings>
 #include <QScrollBar>
 #include <QStatusBar>
+#include <QMimeData>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 
 MainGUI::MainGUI(Engine* engine)
@@ -20,6 +23,7 @@ MainGUI::MainGUI(Engine* engine)
   createConnections();
   createActions();
   createMenus();
+  setupDragDrop();
 
   readSettings();
   setUnifiedTitleAndToolBarOnMac(true);
@@ -43,6 +47,37 @@ MainGUI::closeEvent(QCloseEvent* event)
 {
   writeSettings();
   event->accept();
+}
+
+
+void
+MainGUI::dragEnterEvent(QDragEnterEvent* event)
+{
+  if (event->mimeData()->hasUrls())
+    event->acceptProposedAction();
+}
+
+
+void
+MainGUI::dropEvent(QDropEvent* event)
+{
+  auto mime = event->mimeData();
+  if (!mime->hasUrls())
+    return;
+
+  QStringList fileNames;
+  for (auto& url : mime->urls())
+  {
+    if (!url.isLocalFile())
+      continue;
+    fileNames.append(url.toLocalFile());
+  }
+
+  if (fileNames.empty())
+    return;
+
+  event->acceptProposedAction();
+  openFonts(fileNames);
 }
 
 
@@ -279,6 +314,13 @@ MainGUI::createMenus()
   menuHelp_ = menuBar()->addMenu(tr("&Help"));
   menuHelp_->addAction(aboutAct_);
   menuHelp_->addAction(aboutQtAct_);
+}
+
+
+void
+MainGUI::setupDragDrop()
+{
+  setAcceptDrops(true);
 }
 
 
