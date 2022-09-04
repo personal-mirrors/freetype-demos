@@ -69,7 +69,14 @@ SettingPanel::checkHinting()
 {
   if (hintingCheckBox_->isChecked())
   {
-    // TODO: tricky: disable auto-hinting
+    engine_->reloadFont();
+    auto tricky = engine_->currentFontTricky();
+    {
+      QSignalBlocker blocker(autoHintingCheckBox_);
+      autoHintingCheckBox_->setEnabled(!tricky);
+      if (tricky)
+        autoHintingCheckBox_->setChecked(false);
+    }
     checkAutoHinting(); // this will emit repaint
   }
   else
@@ -273,10 +280,12 @@ SettingPanel::onFontChanged()
   }
   else if (engine_->currentFontType() == Engine::FontType_TrueType)
   {
-    // TODO: tricky
+    auto tricky = engine_->currentFontTricky();
     hintingModeComboBoxModel_->setCurrentEngineType(
-      HintingModeComboBoxModel::HintingEngineType_TrueType, false);
-    hintingModeComboBox_->setCurrentIndex(currentTTInterpreterVersion_);
+      HintingModeComboBoxModel::HintingEngineType_TrueType, tricky);
+    hintingModeComboBox_->setCurrentIndex(
+      tricky ? HintingModeComboBoxModel::HintingMode::HintingMode_TrueType_v35
+             : currentTTInterpreterVersion_);
   }
   else
   {

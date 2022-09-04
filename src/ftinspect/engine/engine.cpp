@@ -252,6 +252,15 @@ Engine::namedInstanceName(int fontIndex, long faceIndex, int index)
 }
 
 
+bool
+Engine::currentFontTricky()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_IS_TRICKY(ftFallbackFace_);
+}
+
+
 int
 Engine::loadFont(int fontIndex,
                  long faceIndex,
@@ -602,6 +611,10 @@ Engine::update()
   else
   {
     loadFlags_ |= FT_LOAD_NO_HINTING;
+    // When the user disables hinting for tricky fonts,
+    // we assume that they *really* want to disable it.
+    if (currentFontTricky())
+      loadFlags_ |= FT_LOAD_NO_AUTOHINT;
 
     if (!antiAliasingEnabled_)
       loadFlags_ |= FT_LOAD_MONOCHROME;
