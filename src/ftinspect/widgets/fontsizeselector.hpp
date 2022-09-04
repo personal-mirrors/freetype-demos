@@ -6,6 +6,7 @@
 
 #include "customwidgets.hpp"
 
+#include <vector>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
@@ -69,6 +70,8 @@ private:
 
   bool continuousView_;
   double lastValue_;
+  bool bitmapOnly_ = false;
+  std::vector<int> fixedSizes_;
 
   void createLayout(bool zoomNewLine);
   void createConnections();

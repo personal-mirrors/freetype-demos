@@ -386,6 +386,38 @@ Engine::removeFont(int fontIndex, bool closeFile)
 }
 
 
+bool
+Engine::currentFontBitmapOnly()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return !FT_IS_SCALABLE(ftFallbackFace_);
+}
+
+
+bool
+Engine::currentFontHasEmbeddedBitmap()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_FIXED_SIZES(ftFallbackFace_);
+}
+
+
+std::vector<int>
+Engine::currentFontFixedSizes()
+{
+  if (!ftFallbackFace_ || !FT_HAS_FIXED_SIZES(ftFallbackFace_)
+      || !ftFallbackFace_->available_sizes)
+    return {};
+  std::vector<int> result;
+  result.resize(ftFallbackFace_->num_fixed_sizes);
+  for (int i = 0; i < ftFallbackFace_->num_fixed_sizes; i++)
+    result[i] = ftFallbackFace_->available_sizes[i].x_ppem >> 6; // XXX: ????
+  return result;
+}
+
+
 QString
 Engine::glyphName(int index)
 {
@@ -557,15 +589,15 @@ void
 Engine::update()
 {
   loadFlags_ = FT_LOAD_DEFAULT;
-  if (doAutoHinting_)
-    loadFlags_ |= FT_LOAD_FORCE_AUTOHINT;
-  loadFlags_ |= FT_LOAD_NO_BITMAP; // XXX handle bitmap fonts also
+
+  if (!embeddedBitmap_)
+    loadFlags_ |= FT_LOAD_NO_BITMAP;
 
   if (doHinting_)
   {
-    // TODO Differentiate RGB/BGR here?
-    unsigned long target = antiAliasingTarget_;
-    loadFlags_ |= target;
+    loadFlags_ |= antiAliasingTarget_;
+    if (doAutoHinting_)
+      loadFlags_ |= FT_LOAD_FORCE_AUTOHINT;
   }
   else
   {

@@ -70,7 +70,21 @@ FontSizeSelector::setZoomFactor(double zoomFactor)
 void
 FontSizeSelector::reloadFromFont(Engine* engine)
 {
-  // TODO: update available sizes.
+  engine->reloadFont();
+  bitmapOnly_ = engine->currentFontBitmapOnly();
+  fixedSizes_ = engine->currentFontFixedSizes();
+  std::sort(fixedSizes_.begin(), fixedSizes_.end());
+  if (fixedSizes_.empty())
+    bitmapOnly_ = false; // Well this won't work...
+
+  unitsComboBox_->setEnabled(!bitmapOnly_);
+  sizeDoubleSpinBox_->setKeyboardTracking(!bitmapOnly_);
+
+  if (bitmapOnly_) 
+  {
+    QSignalBlocker blocker(this);
+    unitsComboBox_->setCurrentIndex(Units_px);
+  }
   checkFixedSizeAndEmit();
 }
 
@@ -291,7 +305,46 @@ FontSizeSelector::setDefaults(bool sizeOnly)
 void
 FontSizeSelector::checkFixedSizeAndEmit()
 {
-  // TODO: check fixed sizes, coerce to available sizes.
+  if (bitmapOnly_ && !fixedSizes_.empty())
+  {
+    auto newValue = sizeDoubleSpinBox_->value();
+    auto intNewValue = static_cast<int>(newValue);
+    if (newValue != static_cast<double>(intNewValue))
+    {
+      sizeDoubleSpinBox_->setValue(intNewValue);
+      return; // Don't emit.
+    }
+
+    if (!std::binary_search(fixedSizes_.begin(), fixedSizes_.end(), newValue))
+    {
+      // Value not available, find next value.
+      if (intNewValue > lastValue_)
+      {
+        // find next larger value...
+        auto it = std::upper_bound(fixedSizes_.begin(), fixedSizes_.end(),
+                                   lastValue_);
+        if (it == fixedSizes_.end())
+          sizeDoubleSpinBox_->setValue(lastValue_);
+        else
+          sizeDoubleSpinBox_->setValue(*it);
+      }
+      else
+      {
+        // find next smaller value...
+        auto it = std::lower_bound(fixedSizes_.begin(), fixedSizes_.end(),
+                                   lastValue_);
+
+        // there's no element >= lastValue => all elements < last value
+        if (it == fixedSizes_.begin())
+          sizeDoubleSpinBox_->setValue(fixedSizes_.front());
+        else
+          sizeDoubleSpinBox_->setValue(*(it - 1));
+      }
+      return;
+    }
+  }
+
+  lastValue_ = sizeDoubleSpinBox_->value();
   emit valueChanged();
 }
 
