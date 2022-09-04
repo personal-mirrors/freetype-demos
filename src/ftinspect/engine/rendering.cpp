@@ -142,6 +142,20 @@ RenderingEngine::convertBitmapTo8Bpp(FT_Bitmap* bitmap)
 }
 
 
+void
+convertLCDToARGB(FT_Bitmap& bitmap,
+                 QImage& image,
+                 bool isBGR,
+                 QVector<QRgb>& colorTable);
+
+
+void
+convertLCDVToARGB(FT_Bitmap& bitmap,
+                  QImage& image,
+                  bool isBGR,
+                  QVector<QRgb>& colorTable);
+
+
 QImage*
 RenderingEngine::convertBitmapToQImage(FT_Bitmap* src)
 {
@@ -216,11 +230,11 @@ RenderingEngine::convertBitmapToQImage(FT_Bitmap* src)
     break;
   case FT_PIXEL_MODE_LCD:;
     result = new QImage(width, height, format);
-    //convertLCDToARGB(bmap, *result, engine_->lcdUsesBGR(), foregroundTable_);
+    convertLCDToARGB(bmap, *result, lcdUsesBGR_, foregroundTable_);
     break;
   case FT_PIXEL_MODE_LCD_V:;
     result = new QImage(width, height, format);
-    //convertLCDVToARGB(bmap, *result, engine_->lcdUsesBGR(), foregroundTable_);
+    convertLCDVToARGB(bmap, *result, lcdUsesBGR_, foregroundTable_);
     break;
   }
 
@@ -429,6 +443,76 @@ RenderingEngine::tryDirectRenderColorLayers(int glyphIndex,
   FT_Bitmap_Done(engine_->ftLibrary(), &bitmap);
 
   return img;
+}
+
+
+void
+convertLCDToARGB(FT_Bitmap& bitmap,
+                 QImage& image,
+                 bool isBGR,
+                 QVector<QRgb>& colorTable)
+{
+  int height = bitmap.rows;
+  int width = bitmap.width / 3;
+  int width3 = bitmap.width;
+
+  unsigned char* srcPtr = bitmap.buffer;
+  unsigned* dstPtr = reinterpret_cast<unsigned*>(image.bits());
+
+  int offR = !isBGR ? 0 : 2;
+  int offG = 1;
+  int offB = isBGR ? 0 : 2;
+  for (int i = 0; i < height; i++)
+  {
+    for (int j = 0; j < width3; j += 3)
+    {
+      unsigned char ar = srcPtr[j + offR];
+      unsigned char ag = srcPtr[j + offG];
+      unsigned char ab = srcPtr[j + offB];
+      unsigned dr = colorTable[ar] & 0xFF;
+      unsigned dg = colorTable[ag] & 0xFF;
+      unsigned db = colorTable[ab] & 0xFF;
+      *dstPtr = (0xFFu << 24) | (dr << 16) | (dg << 8) | db;
+      dstPtr++;
+    }
+    srcPtr += bitmap.pitch;
+    dstPtr += image.bytesPerLine() / 4 - width; // skip blank area
+  }
+}
+
+
+void
+convertLCDVToARGB(FT_Bitmap& bitmap,
+                  QImage& image,
+                  bool isBGR,
+                  QVector<QRgb>& colorTable)
+{
+  int height = bitmap.rows / 3;
+  int width = bitmap.width;
+  int srcPitch = bitmap.pitch;
+
+  unsigned char* srcPtr = bitmap.buffer;
+  unsigned* dstPtr = reinterpret_cast<unsigned*>(image.bits());
+
+  int offR = !isBGR ? 0 : 2 * srcPitch;
+  int offG = srcPitch;
+  int offB = isBGR ? 0 : 2 * srcPitch;
+  for (int i = 0; i < height; i++)
+  {
+    for (int j = 0; j < width; j++)
+    {
+      unsigned char ar = srcPtr[j + offR];
+      unsigned char ag = srcPtr[j + offG];
+      unsigned char ab = srcPtr[j + offB];
+      unsigned dr = colorTable[ar] & 0xFF;
+      unsigned dg = colorTable[ag] & 0xFF;
+      unsigned db = colorTable[ab] & 0xFF;
+      *dstPtr = (0xFFu << 24) | (dr << 16) | (dg << 8) | db;
+      dstPtr++;
+    }
+    srcPtr += 3ull * srcPitch;                  // move 3 lines
+    dstPtr += image.bytesPerLine() / 4 - width; // skip blank area
+  }
 }
 
 
