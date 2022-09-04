@@ -132,6 +132,8 @@ public:
   bool currentFontHasColorLayers();
   std::vector<int> currentFontFixedSizes();
 
+  std::pair<int, int> currentSizeAscDescPx();
+
   // (settings)
   int dpi() { return dpi_; }
   FTC_ImageType imageType() { return &imageType_; }

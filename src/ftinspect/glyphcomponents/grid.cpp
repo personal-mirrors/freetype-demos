@@ -119,7 +119,15 @@ Grid::paint(QPainter* painter,
 
   if (showAuxLines_)
   {
-    // TODO: impl
+    painter->setPen(gb->ascDescAuxPen);
+    painter->drawLine(minX, ascender_,
+                      maxX, ascender_);
+    painter->drawLine(minX, descender_,
+                      maxX, descender_);
+
+    painter->setPen(gb->advanceAuxPen);
+    painter->drawLine(advance_, minY,
+                      advance_, maxY);
   }
 }
 
@@ -130,6 +138,21 @@ Grid::setShowGrid(bool showGrid, bool showAuxLines)
   showGrid_ = showGrid;
   showAuxLines_ = showAuxLines;
   update();
+}
+
+
+void
+Grid::updateParameters(int ascenderPx,
+                       int descenderPx,
+                       int advancePx)
+{
+  // Need to flip the Y coord (originally Cartesian)
+  ascender_ = -ascenderPx;
+  descender_ = -descenderPx;
+  advance_ = advancePx;
+
+  if (showAuxLines_)
+    update();
 }
 
 
