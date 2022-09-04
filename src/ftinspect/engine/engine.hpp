@@ -7,6 +7,7 @@
 
 #include "fontfilemanager.hpp"
 
+#include "paletteinfo.hpp"
 #include "rendering.hpp"
 
 #include <memory>
@@ -19,6 +20,7 @@
 #include <freetype/ftoutln.h>
 #include <freetype/ftcache.h>
 #include <freetype/ftlcdfil.h>
+#include <freetype/ftcolor.h>
 
 
 // This structure maps the (font, face, instance) index triplet to abstract
@@ -94,6 +96,8 @@ public:
   //////// Getters
 
   FT_Library ftLibrary() const { return library_; }
+  FTC_Manager cacheManager() { return cacheManager_; }
+  FTC_ImageCache imageCacheManager() { return imageCache_; }
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   RenderingEngine* renderingEngine() { return renderingEngine_.get(); }
@@ -101,13 +105,20 @@ public:
   int numberOfOpenedFonts();
 
   // (for current fonts)
+  FT_Face currentFallbackFtFace() { return ftFallbackFace_; }
+  FT_Size currentFtSize() { return ftSize_; }
   bool renderReady(); // Can we render bitmaps? (implys `fontValid`)
   bool fontValid(); // Is the current font valid (valid font may be unavailable
                     // to render, such as non-scalable font with invalid sizes)
+
   int currentFontType() const { return fontType_; }
   const QString& currentFamilyName() { return curFamilyName_; }
   const QString& currentStyleName() { return curStyleName_; }
   int currentFontNumberOfGlyphs() { return curNumGlyphs_; }
+  
+  std::vector<PaletteInfo>& currentFontPalettes() { return curPaletteInfos_; }
+  FT_Color* currentPalette() { return palette_; }
+  FT_Palette_Data& currentFontPaletteData() { return paletteData_; }
 
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
@@ -118,17 +129,22 @@ public:
   bool currentFontTricky();
   bool currentFontBitmapOnly();
   bool currentFontHasEmbeddedBitmap();
+  bool currentFontHasColorLayers();
   std::vector<int> currentFontFixedSizes();
 
   // (settings)
   int dpi() { return dpi_; }
+  FTC_ImageType imageType() { return &imageType_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
   bool embeddedBitmapEnabled() { return embeddedBitmap_; }
+  bool useColorLayer() { return useColorLayer_; }
+  int paletteIndex() { return paletteIndex_; }
   FT_Render_Mode
   renderMode()
   {
     return static_cast<FT_Render_Mode>(renderMode_);
   }
+
 
   //////// Setters (direct or indirect)
 
@@ -154,7 +170,8 @@ public:
   void setRenderMode(int mode) { renderMode_ = mode; }
   void setAntiAliasingEnabled(bool enabled) { antiAliasingEnabled_ = enabled; }
   void setEmbeddedBitmapEnabled(bool enabled) { embeddedBitmap_ = enabled; }
-
+  void setUseColorLayer(bool colorLayer) { useColorLayer_ = colorLayer; }
+  void setPaletteIndex(int index) { paletteIndex_ = index; }
   // (settings without backing fields)
 
   // Note: These 3 functions now takes actual mode/version from FreeType,
@@ -179,16 +196,22 @@ private:
 
   FontFileManager fontFileManager_;
 
+  // font info
   int curFontIndex_ = -1;
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
+  std::vector<PaletteInfo> curPaletteInfos_;
+  int fontType_;
 
+  // basic objects
   FT_Library library_;
   FTC_Manager cacheManager_;
   FTC_ImageCache imageCache_;
   FTC_SBitCache sbitsCache_;
+  EngineDefaultValues engineDefaults_;
 
+  // settings
   FTC_ScalerRec scaler_ = {};
   FTC_ImageTypeRec imageType_; // for `loadGlyphWithoutUpdate`
   // Sometimes the font may be valid (i.e. a face object can be retrieved), but
@@ -196,10 +219,8 @@ private:
   // Therefore, we use a fallback face for all non-rendering work.
   FT_Face ftFallbackFace_; // Never perform rendering or write to this!
   FT_Size ftSize_;
-
-  EngineDefaultValues engineDefaults_;
-
-  int fontType_;
+  FT_Palette_Data paletteData_ = {};
+  FT_Color* palette_ = NULL;
 
   bool antiAliasingEnabled_ = true;
   bool usingPixelSize_ = false;
@@ -214,6 +235,8 @@ private:
   bool doBlueZoneHinting_;
   bool showSegments_;
   bool embeddedBitmap_;
+  bool useColorLayer_;
+  int paletteIndex_ = -1;
   int antiAliasingTarget_;
   int renderMode_;
 
@@ -222,6 +245,8 @@ private:
   std::unique_ptr<RenderingEngine> renderingEngine_;
 
   void queryEngine();
+  void loadPaletteInfos();
+
   // Safe to put the impl to the cpp.
   template <class Func>
   void withFace(FaceID id, Func func);

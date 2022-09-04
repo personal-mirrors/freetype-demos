@@ -111,8 +111,6 @@ private:
 
   //////// Other funcs
 
-  void populatePalettes();
-
   void checkAllSettings();
   void checkHinting();
   void checkHintingMode();
@@ -125,6 +123,7 @@ private:
   void openForegroundPicker();
   void updateGamma();
   void resetColorBlocks();
+  void populatePalettes();
 };
 
 

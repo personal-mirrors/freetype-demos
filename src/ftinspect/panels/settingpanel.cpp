@@ -50,13 +50,6 @@ SettingPanel::lsbRsbDeltaEnabled()
 
 
 void
-SettingPanel::populatePalettes()
-{
-  // TODO: Impl
-}
-
-
-void
 SettingPanel::checkAllSettings()
 {
   onFontChanged();
@@ -193,8 +186,10 @@ SettingPanel::checkAntiAliasing()
 void
 SettingPanel::checkPalette()
 {
-  paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked());
-  emit repaintNeeded();
+  paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked()
+                               && paletteComboBox_->count() > 0);
+  engine_->resetCache();
+  emit fontReloadNeeded();
 }
 
 
@@ -268,6 +263,47 @@ SettingPanel::resetColorBlocks()
 
 
 void
+SettingPanel::populatePalettes()
+{
+  auto needToReload = false;
+  auto& newPalettes = engine_->currentFontPalettes();
+  auto newSize = static_cast<int>(newPalettes.size()); // this never exceeds!
+  if (newSize != paletteComboBox_->count())
+    needToReload = true;
+  else
+    for (int i = 0; i < newSize; ++i)
+    {
+      auto oldNameVariant = paletteComboBox_->itemData(i);
+      if (!oldNameVariant.canConvert<QString>())
+      {
+        needToReload = true;
+        break;
+      }
+      if (oldNameVariant.toString() != newPalettes[i].name)
+      {
+        needToReload = true;
+        break;
+      }
+    }
+  if (!needToReload)
+    return;
+
+  {
+    QSignalBlocker blocker(paletteComboBox_);
+    paletteComboBox_->clear();
+    for (int i = 0; i < newSize; ++i)
+      paletteComboBox_->addItem(
+        QString("%1: %2")
+          .arg(i)
+          .arg(newPalettes[i].name),
+        newPalettes[i].name);
+  }
+
+  emit fontReloadNeeded();
+}
+
+
+void
 SettingPanel::onFontChanged()
 {
   auto blockState = blockSignals(signalsBlocked());
@@ -296,10 +332,12 @@ SettingPanel::onFontChanged()
   checkHinting();
 
   engine_->reloadFont();
-  //auto hasColor = engine_->currentFontHasColorLayers();
-  //colorLayerCheckBox_->setEnabled(hasColor);
-  //if (!hasColor)
-  //  colorLayerCheckBox_->setChecked(false);
+  auto hasColor = engine_->currentFontHasColorLayers();
+  colorLayerCheckBox_->setEnabled(hasColor);
+  if (!hasColor)
+    colorLayerCheckBox_->setChecked(false);
+  paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked()
+                               && paletteComboBox_->count() > 0);
   populatePalettes();
   //mmgxPanel_->reloadFont();
   blockSignals(blockState);
@@ -341,9 +379,9 @@ SettingPanel::applySettings()
   engine_->renderingEngine()->setGamma(gammaSlider_->value() / 10.0);
 
   engine_->setEmbeddedBitmapEnabled(embeddedBitmapCheckBox_->isChecked());
-  //engine_->setPaletteIndex(paletteComboBox_->currentIndex());
+  engine_->setPaletteIndex(paletteComboBox_->currentIndex());
 
-  //engine_->setUseColorLayer(colorLayerCheckBox_->isChecked());
+  engine_->setUseColorLayer(colorLayerCheckBox_->isChecked());
   //engine_->setLCDUsesBGR(aaSettings.isBGR);
   //engine_->setLCDSubPixelPositioning(
   //  antiAliasingComboBox_->currentIndex()
@@ -593,7 +631,7 @@ SettingPanel::createConnections()
           this, &SettingPanel::repaintNeeded);
   connect(paletteComboBox_,
           QOverload<int>::of(&QComboBox::currentIndexChanged), 
-          this, &SettingPanel::repaintNeeded);
+          this, &SettingPanel::checkPalette);
 
   connect(gammaSlider_, &QSlider::valueChanged,
           this, &SettingPanel::updateGamma);

@@ -268,6 +268,7 @@ Engine::loadFont(int fontIndex,
 {
   int numGlyphs = -1;
   fontType_ = FontType_Other;
+  palette_ = NULL;
 
   update();
 
@@ -326,6 +327,7 @@ Engine::loadFont(int fontIndex,
     ftSize_ = NULL;
     curFamilyName_ = QString();
     curStyleName_ = QString();
+    curPaletteInfos_.clear();
   }
   else
   {
@@ -341,6 +343,7 @@ Engine::loadFont(int fontIndex,
       fontType_ = FontType_TrueType;
     else
       fontType_ = FontType_Other;
+    loadPaletteInfos();
   }
 
   curNumGlyphs_ = numGlyphs;
@@ -352,6 +355,7 @@ void
 Engine::reloadFont()
 {
   update();
+  palette_ = NULL;
   if (!scaler_.face_id)
     return;
   imageType_.face_id = scaler_.face_id;
@@ -364,6 +368,25 @@ Engine::reloadFont()
   }
   if (FTC_Manager_LookupSize(cacheManager_, &scaler_, &ftSize_))
     ftSize_ = NULL; // Good font, bad size.
+}
+
+
+void
+Engine::loadPalette()
+{
+  palette_ = NULL;
+  if (paletteData_.num_palettes == 0
+      || paletteIndex_ < 0
+      || paletteData_.num_palettes <= paletteIndex_)
+    return;
+
+  if (!ftSize_)
+    return;
+
+  FT_Palette_Select(ftSize_->face, 
+                    static_cast<FT_UShort>(paletteIndex_),
+                    &palette_);
+  // XXX error handling
 }
 
 
@@ -410,6 +433,15 @@ Engine::currentFontHasEmbeddedBitmap()
   if (!ftFallbackFace_)
     return false;
   return FT_HAS_FIXED_SIZES(ftFallbackFace_);
+}
+
+
+bool
+Engine::currentFontHasColorLayers()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_COLOR(ftFallbackFace_);
 }
 
 
@@ -676,6 +708,7 @@ Engine::resetCache()
   FTC_Manager_Reset(cacheManager_);
   ftFallbackFace_ = NULL;
   ftSize_ = NULL;
+  palette_ = NULL;
 }
 
 
@@ -777,5 +810,26 @@ Engine::queryEngine()
                     &engineDefaults_.ttInterpreterVersionDefault);
   }
 }
+
+
+void
+Engine::loadPaletteInfos()
+{
+  curPaletteInfos_.clear();
+
+  if (FT_Palette_Data_Get(ftFallbackFace_, &paletteData_))
+  {
+    // XXX Error handling
+    paletteData_.num_palettes = 0;
+    return;
+  }
+
+  // size never exceeds max val of ushort.
+  curPaletteInfos_.reserve(paletteData_.num_palettes);
+  for (int i = 0; i < paletteData_.num_palettes; ++i)
+    curPaletteInfos_.emplace_back(ftFallbackFace_, paletteData_, i, nullptr);
+    // no `NULL` here - we need `std::nullptr_t`
+}
+
 
 // end of engine.cpp
