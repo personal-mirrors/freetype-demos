@@ -103,7 +103,7 @@ void
 SettingPanel::checkHintingMode()
 {
   //if (!comparatorMode_)
-  //  applyDelayedSettings();
+  applyDelayedSettings();
 
   emit fontReloadNeeded();
 }
@@ -195,7 +195,7 @@ void
 SettingPanel::checkStemDarkening()
 {
   //if (!comparatorMode_)
-  //  applyDelayedSettings();
+  applyDelayedSettings();
 
   emit fontReloadNeeded();
 }
@@ -314,10 +314,10 @@ SettingPanel::applySettings()
   auto aaSettings = antiAliasingComboBoxModel_->indexToValue(
     antiAliasingComboBox_->currentIndex());
   engine_->setAntiAliasingTarget(aaSettings.loadFlag);
-  //engine_->setRenderMode(aaSettings.renderMode);
+  engine_->setRenderMode(aaSettings.renderMode);
 
-  //engine_->setAntiAliasingEnabled(antiAliasingComboBox_->currentIndex()
-  //  != AntiAliasingComboBoxModel::AntiAliasing_None);
+  engine_->setAntiAliasingEnabled(antiAliasingComboBox_->currentIndex()
+    != AntiAliasingComboBoxModel::AntiAliasing_None);
   engine_->setHinting(hintingCheckBox_->isChecked());
   engine_->setAutoHinting(autoHintingCheckBox_->isChecked());
 
@@ -329,7 +329,7 @@ SettingPanel::applySettings()
     engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
   }
 
-  engine_->setGamma(gammaSlider_->value() / 10.0);
+  engine_->renderingEngine()->setGamma(gammaSlider_->value() / 10.0);
 
   //engine_->setEmbeddedBitmap(embeddedBitmapCheckBox_->isChecked());
   //engine_->setPaletteIndex(paletteComboBox_->currentIndex());
@@ -340,8 +340,8 @@ SettingPanel::applySettings()
   //  antiAliasingComboBox_->currentIndex()
   //    == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
 
-  //engine_->renderingEngine()->setForeground(foregroundColor_.rgba());
-  //engine_->renderingEngine()->setBackground(backgroundColor_.rgba());
+  engine_->renderingEngine()->setForeground(foregroundColor_.rgba());
+  engine_->renderingEngine()->setBackground(backgroundColor_.rgba());
   //mmgxPanel_->applySettings();
 }
 

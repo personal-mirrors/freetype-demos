@@ -87,13 +87,12 @@ SingularTab::drawGlyph()
     currentGlyphPointNumbersItem_ = NULL;
   }
 
-  // TODO refactor engine.
-  //glyphView_->setBackgroundBrush(
-  //  QColor(engine_->renderingEngine()->background()));
+  glyphView_->setBackgroundBrush(
+    QColor(engine_->renderingEngine()->background()));
+
 
   applySettings();
-  FT_Glyph glyph = NULL; // TODO: refactor engine!
-  //FT_Glyph glyph = engine_->loadGlyph(currentGlyphIndex_);
+  FT_Glyph glyph = engine_->loadGlyph(currentGlyphIndex_);
   if (glyph)
   {
     if (showBitmapCheckBox_->isChecked())
