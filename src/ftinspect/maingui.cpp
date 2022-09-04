@@ -24,7 +24,9 @@ MainGUI::MainGUI(Engine* engine)
   readSettings();
   setUnifiedTitleAndToolBarOnMac(true);
 
-  show();
+  show(); // place this before `loadCommandLine` so alerts from loading
+          // won't be covered.
+  loadCommandLine();
 }
 
 
@@ -102,6 +104,14 @@ void
 MainGUI::openFonts(QStringList const& fileNames)
 {
   engine_->openFonts(fileNames);
+  tripletSelector_->repopulateFonts();
+}
+
+
+void
+MainGUI::loadCommandLine()
+{
+  engine_->fontFileManager().loadFromCommandLine();
   tripletSelector_->repopulateFonts();
 }
 

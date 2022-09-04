@@ -154,6 +154,18 @@ FontFileManager::timerStart()
 
 
 void
+FontFileManager::loadFromCommandLine()
+{
+  // TODO: To support more complicated command line, we need to move this away
+  // and use `QCommandLineParser`
+  auto args = QCoreApplication::arguments();
+  if (!args.empty())
+    args.removeFirst();
+  append(args, true);
+}
+
+
+void
 FontFileManager::onWatcherFire()
 {
   watchTimer_->stop();
