@@ -6,12 +6,13 @@
 #pragma once
 
 #include "fontfilemanager.hpp"
-
 #include "paletteinfo.hpp"
 #include "fontinfo.hpp"
 #include "mmgx.hpp"
 #include "rendering.hpp"
+#include "charmap.hpp"
 
+#include <vector>
 #include <memory>
 #include <utility>
 #include <QString>
@@ -109,6 +110,9 @@ public:
   // (for current fonts)
   FT_Face currentFallbackFtFace() { return ftFallbackFace_; }
   FT_Size currentFtSize() { return ftSize_; }
+  FT_Size_Metrics const& currentFontMetrics();
+  FT_GlyphSlot currentFaceSlot();
+
   bool renderReady(); // Can we render bitmaps? (implys `fontValid`)
   bool fontValid(); // Is the current font valid (valid font may be unavailable
                     // to render, such as non-scalable font with invalid sizes)
@@ -124,6 +128,7 @@ public:
   MMGXState currentFontMMGXState() { return curMMGXState_; }
   std::vector<MMGXAxisInfo>& currentFontMMGXAxes() { return curMMGXAxes_; }
   std::vector<SFNTName>& currentFontSFNTNames() { return curSFNTNames_; }
+  std::vector<CharMapInfo>& currentFontCharMaps() { return curCharMaps_; }
 
   QString glyphName(int glyphIndex);
   long numberOfFaces(int fontIndex);
@@ -137,13 +142,21 @@ public:
   bool currentFontHasColorLayers();
   std::vector<int> currentFontFixedSizes();
 
+  int currentFontFirstUnicodeCharMap();
+  // Note: the current font face must be properly set
+  unsigned glyphIndexFromCharCode(int code, int charMapIndex);
+  FT_Pos currentFontTrackingKerning(int degree);
+  FT_Vector currentFontKerning(int glyphIndex, int prevIndex);
   std::pair<int, int> currentSizeAscDescPx();
 
   // (settings)
   int dpi() { return dpi_; }
+  double pointSize() { return pointSize_; }
   FTC_ImageType imageType() { return &imageType_; }
   bool antiAliasingEnabled() { return antiAliasingEnabled_; }
+  bool doHinting() { return doHinting_; }
   bool embeddedBitmapEnabled() { return embeddedBitmap_; }
+  bool lcdUsingSubPixelPositioning() { return lcdSubPixelPositioning_; }
   bool useColorLayer() { return useColorLayer_; }
   int paletteIndex() { return paletteIndex_; }
   FT_Render_Mode
@@ -179,8 +192,9 @@ public:
   void setEmbeddedBitmapEnabled(bool enabled) { embeddedBitmap_ = enabled; }
   void setUseColorLayer(bool colorLayer) { useColorLayer_ = colorLayer; }
   void setPaletteIndex(int index) { paletteIndex_ = index; }
+  void setLCDSubPixelPositioning(bool sp) { lcdSubPixelPositioning_ = sp; }
+  
   // (settings without backing fields)
-
   // Note: These 3 functions now takes actual mode/version from FreeType,
   // instead of values from enum in MainGUI!
   void setLcdFilter(FT_LcdFilter filter);
@@ -210,6 +224,7 @@ private:
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
+  std::vector<CharMapInfo> curCharMaps_;
   std::vector<PaletteInfo> curPaletteInfos_;
   MMGXState curMMGXState_ = MMGXState::NoMMGX;
   std::vector<MMGXAxisInfo> curMMGXAxes_;
@@ -220,6 +235,7 @@ private:
   FTC_Manager cacheManager_;
   FTC_ImageCache imageCache_;
   FTC_SBitCache sbitsCache_;
+  FTC_CMapCache cmapCache_;
   EngineDefaultValues engineDefaults_;
 
   // settings
@@ -249,6 +265,7 @@ private:
   bool useColorLayer_;
   int paletteIndex_ = -1;
   int antiAliasingTarget_;
+  bool lcdSubPixelPositioning_;
   int renderMode_;
 
   unsigned long loadFlags_;

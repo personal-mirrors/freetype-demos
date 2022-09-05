@@ -152,6 +152,12 @@ Engine::Engine()
     // XXX error handling
   }
 
+  error = FTC_CMapCache_New(cacheManager_, &cmapCache_);
+  if (error)
+  {
+    // XXX error handling
+  }
+  
   queryEngine();
   renderingEngine_
     = std::unique_ptr<RenderingEngine>(new RenderingEngine(this));
@@ -329,6 +335,7 @@ Engine::loadFont(int fontIndex,
     curFamilyName_ = QString();
     curStyleName_ = QString();
 
+    curCharMaps_.clear();
     curPaletteInfos_.clear();
     curSFNTNames_.clear();
   }
@@ -346,6 +353,11 @@ Engine::loadFont(int fontIndex,
       fontType_ = FontType_TrueType;
     else
       fontType_ = FontType_Other;
+
+    curCharMaps_.clear();
+    curCharMaps_.reserve(ftFallbackFace_->num_charmaps);
+    for (int i = 0; i < ftFallbackFace_->num_charmaps; i++)
+      curCharMaps_.emplace_back(i, ftFallbackFace_->charmaps[i]);
 
     SFNTName::get(this, curSFNTNames_);
     loadPaletteInfos();
@@ -465,6 +477,58 @@ Engine::currentFontFixedSizes()
 }
 
 
+int
+Engine::currentFontFirstUnicodeCharMap()
+{
+  auto& charmaps = currentFontCharMaps();
+  for (auto& cmap : charmaps)
+    if (cmap.encoding == FT_ENCODING_UNICODE)
+      return cmap.index;
+  return -1;
+}
+
+
+unsigned
+Engine::glyphIndexFromCharCode(int code, int charMapIndex)
+{
+  if (charMapIndex < 0)
+    return code;
+  return FTC_CMapCache_Lookup(cmapCache_, scaler_.face_id, charMapIndex, code);
+}
+
+
+FT_Pos
+Engine::currentFontTrackingKerning(int degree)
+{
+  if (!ftSize_)
+    return 0;
+
+  FT_Pos result;
+  // this function needs and returns points, not pixels
+  if (!FT_Get_Track_Kerning(ftSize_->face,
+                            static_cast<FT_Fixed>(scaler_.width) << 10, 
+                            -degree,
+                            &result))
+  {
+    result = static_cast<FT_Pos>((result / 1024.0 * scaler_.x_res) / 72.0);
+    return result;
+  }
+  return 0;
+}
+
+
+FT_Vector
+Engine::currentFontKerning(int glyphIndex,
+                           int prevIndex)
+{
+  FT_Vector kern = {0, 0};
+  FT_Get_Kerning(ftSize_->face, 
+                 prevIndex, glyphIndex, 
+                 FT_KERNING_UNFITTED, &kern);
+  return kern;
+}
+
+
 std::pair<int, int>
 Engine::currentSizeAscDescPx()
 {
@@ -568,6 +632,19 @@ Engine::loadGlyphWithoutUpdate(int glyphIndex,
 
   imageType_.flags = oldFlags;
   return glyph;
+}
+
+
+FT_Size_Metrics const&
+Engine::currentFontMetrics()
+{
+  return ftSize_->metrics;
+}
+
+FT_GlyphSlot
+Engine::currentFaceSlot()
+{
+  return ftSize_->face->glyph;
 }
 
 

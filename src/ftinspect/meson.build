@@ -27,8 +27,11 @@ if qt5_dep.found()
     'engine/paletteinfo.cpp',
     'engine/mmgx.cpp',
     'engine/fontinfo.cpp',
+    'engine/stringrenderer.cpp',
+    'engine/charmap.cpp',
 
     'glyphcomponents/glyphbitmap.cpp',
+    'glyphcomponents/glyphcontinuous.cpp',
     'glyphcomponents/glyphoutline.cpp',
     'glyphcomponents/glyphpointnumbers.cpp',
     'glyphcomponents/glyphpoints.cpp',
@@ -39,12 +42,14 @@ if qt5_dep.found()
     'widgets/tripletselector.cpp',
     'widgets/glyphindexselector.cpp',
     'widgets/fontsizeselector.cpp',
+    'widgets/charmapcombobox.cpp',
 
     'models/customcomboboxmodels.cpp',
 
     'panels/settingpanel.cpp',
     'panels/settingpanelmmgx.cpp',
     'panels/singular.cpp',
+    'panels/continuous.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
@@ -54,15 +59,18 @@ if qt5_dep.found()
   moc_files = qt5.preprocess(
     moc_headers: [
       'engine/fontfilemanager.hpp',
+      'glyphcomponents/glyphcontinuous.hpp',
       'widgets/customwidgets.hpp',
       'widgets/tripletselector.hpp',
       'widgets/glyphindexselector.hpp',
       'widgets/fontsizeselector.hpp',
+      'widgets/charmapcombobox.hpp',
       'maingui.hpp',
       'models/customcomboboxmodels.hpp',
       'panels/settingpanel.hpp',
       'panels/settingpanelmmgx.hpp',
       'panels/singular.hpp',
+      'panels/continuous.hpp',
     ],
     dependencies: qt5_dep)
 

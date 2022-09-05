@@ -26,8 +26,11 @@ add_executable(ftinspect
   "engine/paletteinfo.cpp"
   "engine/mmgx.cpp"
   "engine/fontinfo.cpp"
+  "engine/stringrenderer.cpp"
+  "engine/charmap.cpp"
 
   "glyphcomponents/glyphbitmap.cpp"
+  "glyphcomponents/glyphcontinuous.cpp"
   "glyphcomponents/glyphoutline.cpp"
   "glyphcomponents/glyphpointnumbers.cpp"
   "glyphcomponents/glyphpoints.cpp"
@@ -38,12 +41,14 @@ add_executable(ftinspect
   "widgets/tripletselector.cpp"
   "widgets/glyphindexselector.cpp"
   "widgets/fontsizeselector.cpp"
+  "widgets/charmapcombobox.cpp"
 
   "models/customcomboboxmodels.cpp"
 
   "panels/settingpanel.cpp"
   "panels/settingpanelmmgx.cpp"
   "panels/singular.cpp"
+  "panels/continuous.cpp"
 )
 target_link_libraries(ftinspect
   Qt5::Core Qt5::Widgets

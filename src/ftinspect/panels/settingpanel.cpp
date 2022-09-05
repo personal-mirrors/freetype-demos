@@ -363,9 +363,9 @@ SettingPanel::applySettings()
 
   engine_->setUseColorLayer(colorLayerCheckBox_->isChecked());
   engine_->renderingEngine()->setLCDUsesBGR(aaSettings.isBGR);
-  //engine_->renderingEngine()->setLCDSubPixelPositioning(
-  //  antiAliasingComboBox_->currentIndex()
-  //    == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
+  engine_->setLCDSubPixelPositioning(
+    antiAliasingComboBox_->currentIndex()
+      == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
 
   engine_->renderingEngine()->setForeground(foregroundColor_.rgba());
   engine_->renderingEngine()->setBackground(backgroundColor_.rgba());
