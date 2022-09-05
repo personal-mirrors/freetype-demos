@@ -35,14 +35,15 @@ struct GlyphContext
 };
 
 // Class to populate chars to render, to load and properly position glyphs.
-// Use callbacks to receive characters.
+// Use callbacks to receive characters and lines. You should save the result
+// from the callbacks to a cache.
 class StringRenderer
 {
 public:
   StringRenderer(Engine* engine);
   ~StringRenderer();
 
-  enum KerningDegree
+  enum KerningDegree // XXX: Not honored actually
   {
     KD_None = 0,
     KD_Light,
@@ -58,24 +59,34 @@ public:
   };
 
   /*
+   * Called when outputting a glyph. The receiver is reponsible for rendering
+   * the glyph to bitmap.
+   *
    * Need to pass the pen position because sometimes the outline vector
    * contains no points, and thus can't be translated to the desired pen
    * position.
    */
-  using RenderCallback = std::function<void(FT_Glyph, 
-                                            FT_Vector, 
+  using RenderCallback = std::function<void(FT_Glyph,        // glyph
+                                            FT_Vector,       // penPos
                                             GlyphContext&)>;
   /*
-   * For color layered fonts, this will direct render the QImage for you.
+   * Called when outputtng a glyph with bitmap pre-rendered.
+   * The receiver can simply use the bitmap, mainly for color layered fonts.
+   * 
    * TODO: Remove `RenderCallback` and do QImage creation in this class?
-   * The receiver is responsible for deleteing the QImage.
+   * The receiver is responsible for deleteing the `QImage`
+   * (ownership transfered).
    */
-  using RenderImageCallback = std::function<void(QImage*, 
-                                                 QRect,
+  using RenderImageCallback = std::function<void(QImage*,   // bitmap
+                                                 QRect,     // bbox
                                                  FT_Vector, // penPos
                                                  FT_Vector, // advance
                                                  GlyphContext&)>;
   /*
+   * Called right after the glyph is obtained from the font, before any other
+   * operation is done. The receiver can do pre-processing like slanting and
+   * emboldening in this function.
+   *
    * The glyph pointer may be replaced. In that case, ownership is transfered
    * to the renderer, and the new glyph will be eventually freed by
    * the renderer. The callback is responsible to free the old glyph.
@@ -90,15 +101,16 @@ public:
   using PreprocessCallback = std::function<void(FT_Glyph*)>;
   /*
    * Called when a new line begins.
-   * The 1st parameter is the initial pen position;
-   * The 2nd parameter is the current size in points.
    */
-  using LineBeginCallback = std::function<void(FT_Vector, double)>;
+  using LineBeginCallback = std::function<void(FT_Vector, // initial penPos
+                                               double)>;  // size (points)
 
+  //////// Getters
   bool isWaterfall() { return waterfall_; }
   double position(){ return position_; }
   int charMapIndex() { return charMapIndex_; }
 
+  //////// Callbacks
   void
   setCallback(RenderCallback cb)
   {
@@ -120,6 +132,7 @@ public:
     lineBeginCallback_ = std::move(cb);
   }
 
+  //////// Setters for options
   void setCharMapIndex(int charMapIndex, int limitIndex);
   void setRepeated(bool repeated) { repeated_ = repeated; }
   void setVertical(bool vertical) { vertical_ = vertical; }
@@ -137,7 +150,8 @@ public:
   // Need to be called when font or charMap changes
   void setUseString(QString const& string);
   void setUseAllGlyphs();
-  
+
+  //////// Actions
   int render(int width,
              int height,
              int offset);
@@ -207,7 +221,7 @@ private:
   PreprocessCallback glyphPreprocessCallback_;
   LineBeginCallback lineBeginCallback_;
 
-  void reloadGlyphIndices();
+  void reloadGlyphIndices(); // for string rendering
   void prepareRendering();
   void loadSingleContext(GlyphContext* ctx, GlyphContext* prev);
   // Need to be called when font, charMap or size changes;
@@ -216,8 +230,12 @@ private:
   int prepareLine(int offset, 
                   int lineWidth,
                   FT_Vector& outActualLineWidth,
+                  int nonSpacingPlaceholder,
                   bool handleMultiLine = false);
   void clearActive(bool glyphOnly = false);
 
   int convertCharEncoding(int charUcs4, FT_Encoding encoding);
 };
+
+
+// end of stringrenderer.hpp

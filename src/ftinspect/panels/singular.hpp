@@ -107,7 +107,7 @@ private:
   void createConnections();
   
   void updateGrid();
-  void syncSettings();
+  void applySettings();
   void setDefaults();
 };
 

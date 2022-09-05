@@ -4,19 +4,16 @@
 
 
 #include "maingui.hpp"
-#include "glyphcomponents/grid.hpp"
 
 #include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
 #include <QScrollBar>
-#include <QDesktopWidget>
+#include <QStatusBar>
 #include <QMimeData>
-
-#include <freetype/ftdriver.h>
-
-#include "panels/continuous.hpp"
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 
 MainGUI::MainGUI(Engine* engine)
@@ -201,7 +198,7 @@ MainGUI::switchTab()
       && singularTab_->currentGlyph() >= 0)
     continuousTab_->highlightGlyph(singularTab_->currentGlyph());
 
-  lastTab_ = tabWidget_->currentWidget();
+  lastTab_ = current;
 }
 
 
@@ -215,9 +212,16 @@ MainGUI::switchToSingular(int glyphIndex,
 
 
 void
+MainGUI::closeDockWidget()
+{
+  glyphDetailsDockWidget_->hide();
+}
+
+
+void
 MainGUI::repaintCurrentTab()
 {
-  syncSettings();
+  applySettings();
   tabs_[tabWidget_->currentIndex()]->repaintGlyph();
 }
 
@@ -225,20 +229,20 @@ MainGUI::repaintCurrentTab()
 void
 MainGUI::reloadCurrentTabFont()
 {
-  engine_->resetCache();
-  syncSettings();
-  tabs_[tabWidget_->currentIndex()]->reloadFont();
+  if (tabWidget_->currentWidget() != comparatorTab_)
+    settingPanel_->applyDelayedSettings(); // This will reset the cache.
+  applySettings();
+  auto index = tabWidget_->currentIndex();
+  if (index >= 0 && static_cast<size_t>(index) < tabs_.size())
+    tabs_[index]->reloadFont();
 }
 
 
 void
-MainGUI::syncSettings()
+MainGUI::applySettings()
 {
   if (tabWidget_->currentWidget() != comparatorTab_)
-  {
-    settingPanel_->syncSettings();
-    settingPanel_->applyDelayedSettings();
-  }
+    settingPanel_->applySettings();
 }
 
 
@@ -248,8 +252,8 @@ void
 MainGUI::createLayout()
 {
   // floating
-  glyphDetails_ = new GlyphDetails(this, engine_);
   glyphDetailsDockWidget_ = new QDockWidget(tr("Glyph Details"), this);
+  glyphDetails_ = new GlyphDetails(glyphDetailsDockWidget_, engine_);
   glyphDetailsDockWidget_->setWidget(glyphDetails_);
   glyphDetailsDockWidget_->setFloating(true);
   glyphDetailsDockWidget_->hide();
@@ -278,13 +282,13 @@ MainGUI::createLayout()
   tabWidget_->setObjectName("mainTab"); // for stylesheet
 
   // Note those two list must be in sync
-  tabs_.append(singularTab_);
+  tabs_.push_back(singularTab_);
   tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
-  tabs_.append(continuousTab_);
+  tabs_.push_back(continuousTab_);
   tabWidget_->addTab(continuousTab_, tr("Continuous View"));
-  tabs_.append(comparatorTab_);
+  tabs_.push_back(comparatorTab_);
   tabWidget_->addTab(comparatorTab_, tr("Comparator View"));
-  tabs_.append(infoTab_);
+  tabs_.push_back(infoTab_);
   tabWidget_->addTab(infoTab_, tr("Font Info"));
   lastTab_ = singularTab_;
   
@@ -352,6 +356,16 @@ MainGUI::createConnections()
           this, &MainGUI::switchToSingular);
   connect(infoTab_, &InfoTab::switchToSingular,
           [&](int index) { switchToSingular(index, -1); });
+
+  connect(glyphDetails_, &GlyphDetails::closeDockWidget, 
+          this, &MainGUI::closeDockWidget);
+  connect(glyphDetails_, &GlyphDetails::switchToSingular,
+          [&] (int index)
+          {
+            switchToSingular(index, -1);
+            if (glyphDetailsDockWidget_->isFloating())
+              glyphDetailsDockWidget_->hide();
+          });
 }
 
 

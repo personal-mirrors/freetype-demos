@@ -267,11 +267,12 @@ int
 StringRenderer::prepareLine(int offset,
                             int lineWidth,
                             FT_Vector& outActualLineWidth,
+                            int nonSpacingPlaceholder,
                             bool handleMultiLine)
 {
   int totalCount = 0;
   outActualLineWidth = {0, 0};
-  if (!usingString_)
+  if (!usingString_) // All glyphs
   {
     // The thing gets a little complicated when we're using "All Glyphs" mode
     // The input sequence is actually infinite
@@ -299,15 +300,19 @@ StringRenderer::prepareLine(int offset,
       if (!ctx.glyph)
         loadSingleContext(&ctx, prev);
 
-      if (outActualLineWidth.x + ctx.hadvance.x > lineWidth)
+      // In All Glyphs mode, a red placeholder should be drawn for non-spacing
+      // glyphs (e.g. the stress mark)
+      auto actualAdvanceX = ctx.hadvance.x ? ctx.hadvance.x
+                                           : nonSpacingPlaceholder << 6;
+      if (outActualLineWidth.x + actualAdvanceX > lineWidth)
         break;
-      outActualLineWidth.x += ctx.hadvance.x;
+      outActualLineWidth.x += actualAdvanceX;
       outActualLineWidth.y += ctx.hadvance.y;
       ++n;
       ++totalCount;
     }
   }
-  else
+  else // strings
   {
     if (!glyphCacheValid_)
     {
@@ -366,6 +371,8 @@ StringRenderer::render(int width,
     return 0;
   if (!engine_->fontValid())
     return 0;
+
+  auto initialOffset = offset;
 
   // Separated into 3 modes:
   // Waterfall, fill the whole canvas and only single string.
@@ -435,21 +442,10 @@ StringRenderer::render(int width,
       clearActive(true);
       prepareRendering(); // set size/face for engine, so metrics are valid
       auto& metrics = engine_->currentFontMetrics();
-
-      if (ptSize == originalSize)
-      {
-        // TODO draw a blue line
-      }
       
       y += static_cast<int>(metrics.height >> 6) + 1;
-
       if (y >= height && !bitmapOnly)
         break;
-
-      if (ptSize == originalSize)
-      {
-        // TODO draw a blue line
-      }
 
       loadStringGlyphs();
       auto lcount = renderLine(x, y + static_cast<int>(metrics.descender >> 6),
@@ -470,10 +466,11 @@ StringRenderer::render(int width,
 
     return count;
   }
+  // end of waterfall
 
   if (repeated_ || !usingString_)
   {
-    // Fill the whole canvas
+    // Fill the whole canvas (string repeated or all glyphs)
 
     prepareRendering();
     if (!engine_->renderReady())
@@ -491,7 +488,9 @@ StringRenderer::render(int width,
       if (usingString_ && repeated_ && !activeGlyphs_.empty())
         offset %= static_cast<int>(activeGlyphs_.size());
     }
-    return offset;
+    if (!usingString_) // only return count for All Glyphs mode.
+      return offset - initialOffset;
+    return 0;
   }
 
   // Single string
@@ -511,7 +510,7 @@ StringRenderer::render(int width,
     offset = renderLine(x, y, width, height, offset, true);
     y += stepY;
   }
-  return offset;
+  return offset - initialOffset;
 }
 
 
@@ -530,6 +529,7 @@ StringRenderer::renderLine(int x,
 
   FT_Vector pen = { 0, 0 };
   FT_Vector advance;
+  auto nonSpacingPlaceholder = engine_->currentFontMetrics().y_ppem / 2 + 2;
 
   // When in "All Glyphs"  mode, no vertical support.
   if (repeated_ || !usingString_)
@@ -538,7 +538,8 @@ StringRenderer::renderLine(int x,
   int lineLength = 64 * (vertical_ ? height : width);
 
   // first prepare the line & determine the line length
-  int totalCount = prepareLine(offset, lineLength, pen, handleMultiLine);
+  int totalCount = prepareLine(offset, lineLength, pen, 
+                               nonSpacingPlaceholder, handleMultiLine);
 
   // round to control initial pen position and preserve hinting...
   // pen.x, y is the actual length now, and we multiple it by pos
@@ -635,6 +636,9 @@ StringRenderer::renderLine(int x,
     
     pen.x += advance.x;
     pen.y += advance.y;
+
+    if (!advance.x && !usingString_) // add placeholder
+      pen.x += nonSpacingPlaceholder << 6;
   }
 
   return offset + totalCount;
@@ -672,6 +676,7 @@ StringRenderer::convertCharEncoding(int charUcs4, FT_Encoding encoding)
   case FT_ENCODING_ADOBE_CUSTOM:
   case FT_ENCODING_ADOBE_LATIN_1:
     return charUcs4;
+  default:; // proceed
   }
 
   auto mib = -1;
@@ -695,6 +700,8 @@ StringRenderer::convertCharEncoding(int charUcs4, FT_Encoding encoding)
   case FT_ENCODING_APPLE_ROMAN:
     mib = 2027;
     break;
+  default:
+    return charUcs4; // Failed
   }
 
   if (mib == -1)

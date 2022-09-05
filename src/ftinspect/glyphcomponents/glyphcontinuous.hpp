@@ -20,6 +20,8 @@
 #include <freetype/ftstroke.h>
 
 
+// We store images in the cache so we don't need to render all glyphs every time
+// when repainting the widget.
 struct GlyphCacheEntry
 {
   QImage* image = NULL;
@@ -27,7 +29,7 @@ struct GlyphCacheEntry
   QPoint penPos = {};
   int charCode = -1;
   int glyphIndex = -1;
-  unsigned yPpem = 0;
+  unsigned nonSpacingPlaceholder = 0;
 
   FT_Vector advance = {};
 
@@ -45,6 +47,7 @@ struct GlyphCacheLine
   QPoint basePosition = {};
   double sizePoint = 0.0;
   int sizeIndicatorOffset;
+  unsigned short nonSpacingPlaceholder;
   std::vector<GlyphCacheEntry> entries;
 };
 
@@ -143,7 +146,8 @@ private:
   QColor backgroundColorCache_;
   GlyphCacheLine* currentWritingLine_ = NULL;
 
-  QPoint positionDelta_;
+  // Mouse operation related fields
+  QPoint positionDelta_; // For dragging on the text to move
   double prevHoriPosition_;
   QPoint prevPositionDelta_ = { 0, 0 };
   QPoint mouseDownPostition_ = { 0, 0 };
@@ -152,8 +156,7 @@ private:
 
   void paintByRenderer();
 
-  // These two are used indendpent of current glyph variables
-  // and assumes ownership of glyphs, but don't free them.
+  // These two assume ownership of glyphs, but don't free them.
   // However, remember to free the glyph returned from `transformGlyphStroked`
   void transformGlyphFancy(FT_Glyph glyph);
   FT_Glyph transformGlyphStroked(FT_Glyph glyph);
@@ -164,6 +167,7 @@ private:
   void updateStroke();
   void updateRendererText();
   void preprocessGlyph(FT_Glyph* glyphPtr);
+  // Callbacks
   void beginSaveLine(FT_Vector pos,
                      double sizePoint);
   void saveSingleGlyph(FT_Glyph glyph,
@@ -174,12 +178,15 @@ private:
                             FT_Vector penPos,
                             FT_Vector advance,
                             GlyphContext gctx);
+
+  // Funcs drawing from the cache
   void beginDrawCacheLine(QPainter* painter,
                           GlyphCacheLine& line);
   void drawCacheGlyph(QPainter* painter,
                       const GlyphCacheEntry& entry,
                       bool colorInverted = false);
 
+  // Mouse operations
   GlyphCacheEntry* findGlyphByMouse(QPoint position,
                                     double* outSizePoint);
   int calculateAverageLineCount();

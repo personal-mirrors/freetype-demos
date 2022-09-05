@@ -8,42 +8,24 @@
 #include "engine/engine.hpp"
 #include "widgets/tripletselector.hpp"
 #include "panels/settingpanel.hpp"
+#include "panels/abstracttab.hpp"
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"
 #include "panels/comparator.hpp"
 #include "panels/info.hpp"
 #include "panels/glyphdetails.hpp"
 
+#include <vector>
 #include <QAction>
-#include <QCheckBox>
 #include <QCloseEvent>
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QFileSystemWatcher>
 #include <QGridLayout>
-#include <QHash>
 #include <QDockWidget>
-#include <QHBoxLayout>
+#include <QBoxLayout>
 #include <QLabel>
-#include <QList>
 #include <QMainWindow>
-#include <QMap>
 #include <QMenu>
 #include <QMenuBar>
-#include <QPen>
-#include <QPushButton>
-#include <QScrollBar>
-#include <QSignalMapper>
-#include <QSlider>
-#include <QSpinBox>
-#include <QStatusBar>
 #include <QTabWidget>
-#include <QTimer>
-#include <QVariant>
-#include <QVBoxLayout>
-
-#include <ft2build.h>
-#include <freetype/ftlcdfil.h>
 
 
 class MainGUI
@@ -76,6 +58,7 @@ private slots:
   void onTripletChanged();
   void switchTab();
   void switchToSingular(int glyphIndex, double sizePoint);
+  void closeDockWidget();
 
 private:
   Engine* engine_;
@@ -109,7 +92,7 @@ private:
   SettingPanel* settingPanel_;
 
   QTabWidget* tabWidget_;
-  QVector<AbstractTab*> tabs_;
+  std::vector<AbstractTab*> tabs_;
   SingularTab* singularTab_;
   ContinuousTab* continuousTab_;
   ComparatorTab* comparatorTab_;
@@ -121,7 +104,7 @@ private:
 
   void openFonts(QStringList const& fileNames);
 
-  void syncSettings();
+  void applySettings();
 
   void createActions();
   void createConnections();

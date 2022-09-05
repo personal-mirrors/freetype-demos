@@ -6,6 +6,7 @@
 
 #include "customwidgets.hpp"
 
+#include <vector>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
@@ -19,6 +20,7 @@ class FontSizeSelector : public QWidget
   Q_OBJECT
 
 public:
+  // For the continuous view mode, see `ZoomSpinBox`'s documentation.
   FontSizeSelector(QWidget* parent, bool zoomNewLine, bool continuousView);
   ~FontSizeSelector() override = default;
 
@@ -28,9 +30,11 @@ public:
     Units_pt
   };
 
+  //////// Getters
   double selectedSize();
   Units selectedUnit();
   double zoomFactor();
+  //////// Setters
   void setSizePixel(int sizePixel);
   void setSizePoint(double sizePoint);
   void setZoomFactor(double zoomFactor);
@@ -48,9 +52,6 @@ protected:
 
 signals:
   void valueChanged();
-
-private slots:
-  void checkUnits();
 
 private:
   QLabel* sizeLabel_;
@@ -76,6 +77,7 @@ private:
   void createConnections();
   void setDefaults(bool sizeOnly = false);
 
+  void checkUnits();
   void checkFixedSizeAndEmit();
 };
 

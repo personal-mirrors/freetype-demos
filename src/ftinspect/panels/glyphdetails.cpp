@@ -75,6 +75,16 @@ GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
 
 
 void
+GlyphDetails::keyReleaseEvent(QKeyEvent* event)
+{
+  if (event->key() == Qt::Key_Escape)
+    emit closeDockWidget();
+  else
+    QWidget::keyReleaseEvent(event);
+}
+
+
+void
 GlyphDetails::createLayout()
 {
   unitButtonGroup_ = new QButtonGroup(this);

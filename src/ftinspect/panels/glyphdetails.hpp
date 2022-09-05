@@ -32,6 +32,10 @@ public:
 
 signals:
   void switchToSingular(int index);
+  void closeDockWidget();
+
+protected:
+  void keyReleaseEvent(QKeyEvent* event) override;
 
 private:
   Engine* engine_ = NULL;

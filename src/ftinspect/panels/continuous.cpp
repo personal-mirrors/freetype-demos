@@ -38,7 +38,7 @@ ContinuousTab::repaintGlyph()
 {
   sizeSelector_->applyToEngine(engine_);
   
-  syncSettings();
+  applySettings();
   canvas_->stopFlashing();
   canvas_->purgeCache();
   canvas_->repaint();
@@ -65,14 +65,7 @@ ContinuousTab::reloadFont()
 
 
 void
-ContinuousTab::highlightGlyph(int index)
-{
-  canvas_->flashOnGlyph(index);
-}
-
-
-void
-ContinuousTab::syncSettings()
+ContinuousTab::applySettings()
 {
   auto mode = static_cast<GlyphContinuous::Mode>(modeSelector_->currentIndex());
   auto src
@@ -87,14 +80,12 @@ ContinuousTab::syncSettings()
   sr.setKerning(kerningCheckBox_->isChecked());
   sr.setRotation(rotationSpinBox_->value());
 
-  // Not directly from the combo box
-  sr.setCharMapIndex(charMapIndex(), glyphLimitIndex_);
+  // -1: Glyph order, otherwise the char map index in the original list
+  sr.setCharMapIndex(charMapSelector_->currentCharMapIndex(), glyphLimitIndex_);
 
   if (sr.isWaterfall())
     sr.setWaterfallParameters(wfConfigDialog_->startSize(),
                               wfConfigDialog_->endSize());
-
-  //sr.setCentered(centered_->isChecked());
 
   canvas_->setFancyParams(xEmboldeningSpinBox_->value(),
                           yEmboldeningSpinBox_->value(),
@@ -103,10 +94,10 @@ ContinuousTab::syncSettings()
 }
 
 
-int
-ContinuousTab::charMapIndex()
+void
+ContinuousTab::highlightGlyph(int index)
 {
-  return charMapSelector_->currentCharMapIndex();
+  canvas_->flashOnGlyph(index);
 }
 
 
@@ -115,13 +106,6 @@ ContinuousTab::setGlyphCount(int count)
 {
   currentGlyphCount_ = count;
   updateLimitIndex();
-}
-
-
-void
-ContinuousTab::setDisplayingCount(int count)
-{
-  indexSelector_->setShowingCount(count);
 }
 
 
@@ -209,7 +193,7 @@ ContinuousTab::charMapChanged()
     setGlyphBeginindex(charMapSelector_->defaultFirstGlyphIndex());
   updateLimitIndex();
 
-  syncSettings();
+  applySettings();
   canvas_->stringRenderer().reloadAll();
   repaintGlyph();
   lastCharMapIndex_ = newIndex;
@@ -250,20 +234,16 @@ ContinuousTab::reloadGlyphsAndRepaint()
 
 
 void
-ContinuousTab::changeBeginIndexFromCanvas(int index)
-{
-  indexSelector_->setCurrentIndex(index);
-}
-
-
-void
 ContinuousTab::updateGlyphDetails(GlyphCacheEntry* ctxt,
                                   int charMapIndex,
                                   bool open)
 {
   glyphDetails_->updateGlyph(*ctxt, charMapIndex);
   if (open)
-    glyphDetailsWidget_->setVisible(true);
+  {
+    glyphDetailsWidget_->show();
+    glyphDetailsWidget_->activateWindow();
+  }
 }
 
 
@@ -277,7 +257,6 @@ ContinuousTab::openWaterfallConfig()
 void
 ContinuousTab::showToolTip()
 {
-  // TODO: tooltips
   QToolTip::showText(mapToGlobal(helpButton_->pos()),
                      tr(
 R"(Shift + Scroll: Adjust Font Size
@@ -506,11 +485,11 @@ ContinuousTab::createConnections()
   connect(canvas_, &GlyphContinuous::wheelZoom, 
           this, &ContinuousTab::wheelZoom);
   connect(canvas_, &GlyphContinuous::displayingCountUpdated, 
-          this, &ContinuousTab::setDisplayingCount);
+          indexSelector_, &GlyphIndexSelector::setShowingCount);
   connect(canvas_, &GlyphContinuous::rightClickGlyph, 
           this, &ContinuousTab::switchToSingular);
   connect(canvas_, &GlyphContinuous::beginIndexChangeRequest, 
-          this, &ContinuousTab::changeBeginIndexFromCanvas);
+          this, &ContinuousTab::setGlyphBeginindex);
   connect(canvas_, &GlyphContinuous::updateGlyphDetails, 
           this, &ContinuousTab::updateGlyphDetails);
 
@@ -565,14 +544,6 @@ ContinuousTab::createConnections()
 
   sizeSelector_->installEventFilterForWidget(canvas_);
   sizeSelector_->installEventFilterForWidget(this);
-
-  connect(glyphDetails_, &GlyphDetails::switchToSingular,
-          [&] (int index)
-          {
-            switchToSingular(index, -1);
-            if (glyphDetailsWidget_->isFloating())
-              glyphDetailsWidget_->hide();
-          });
 }
 
 

@@ -23,13 +23,7 @@ public:
   ~TripletSelector() override;
 
   void repopulateFonts();
-  void repopulateFaces(bool fontSwitched = true);
-  void repopulateNamedInstances(bool fontSwitched = true);
   void closeCurrentFont();
-  void updateFont();
-  void updateFace();
-  void updateNI();
-  void loadTriplet();
 
 signals:
   void tripletChanged();
@@ -57,6 +51,13 @@ private:
 
   void createLayout();
   void createConnections();
+
+  void repopulateFaces(bool fontSwitched = true);
+  void repopulateNamedInstances(bool fontSwitched = true);
+  void updateFont();
+  void updateFace();
+  void updateNI();
+  void loadTriplet();
 
   static void nextComboBoxItem(QComboBox* c);
   static void previousComboBoxItem(QComboBox* c);

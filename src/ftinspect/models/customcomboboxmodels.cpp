@@ -1,4 +1,4 @@
-// ttsettingscomboboxmodel.cpp
+// customcomboboxmodels.cpp
 
 // Copyright (C) 2022 by Charlie Jiang.
 
@@ -289,4 +289,4 @@ AntiAliasingComboBoxModel::flags(const QModelIndex& index) const
 }
 
 
-// end of ttsettingscomboboxmodel.cpp
+// end of customcomboboxmodels.cpp

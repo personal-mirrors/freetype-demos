@@ -62,12 +62,12 @@ SettingPanelMMGX::reloadFont()
   }
   checkHidden();
   retrieveValues();
-  syncSettings();
+  applySettings();
 }
 
 
 void
-SettingPanelMMGX::syncSettings()
+SettingPanelMMGX::applySettings()
 {
   engine_->reloadFont();
   engine_->applyMMGXDesignCoords(currentValues_.data(),

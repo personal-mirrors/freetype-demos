@@ -16,7 +16,7 @@ class CharMapComboBox
   Q_OBJECT
 public:
   CharMapComboBox(QWidget* parent, Engine* engine, bool haveGlyphOrder = true);
-  ~CharMapComboBox() override;
+  ~CharMapComboBox() override = default;
 
   bool haveGlyphOrder_;
 
@@ -32,6 +32,8 @@ signals:
 private:
   Engine* engine_;
   std::vector<CharMapInfo> charMaps_;
+
+  void updateToolTip();
 };
 
 

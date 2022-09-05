@@ -993,11 +993,6 @@ CompositeGlyphsTab::forceReloadFont()
 {
   engine_->loadDefaults(); // this would reload the font
   auto face = engine_->currentFallbackFtFace();
-  if (!face || !FT_IS_SFNT(face))
-  {
-    compositeGlyphCountPromptLabel_->setVisible(false);
-    compositeGlyphCountLabel_->setText(tr("Not a SFNT font."));
-  }
 
   std::vector<CompositeGlyphInfo> list;
   CompositeGlyphInfo::get(engine_, list);
@@ -1008,7 +1003,12 @@ CompositeGlyphsTab::forceReloadFont()
     compositeModel_->endModelUpdate();
   }
 
-  if (compositeModel_->storage().empty())
+  if (!face || !FT_IS_SFNT(face))
+  {
+    compositeGlyphCountPromptLabel_->setVisible(false);
+    compositeGlyphCountLabel_->setText(tr("Not a SFNT font."));
+  }
+  else if (compositeModel_->storage().empty())
   {
     compositeGlyphCountPromptLabel_->setVisible(false);
     compositeGlyphCountLabel_->setText(

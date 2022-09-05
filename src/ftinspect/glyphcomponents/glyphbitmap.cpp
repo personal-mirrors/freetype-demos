@@ -5,7 +5,6 @@
 
 #include "glyphbitmap.hpp"
 
-#include "../engine/renderutils.hpp"
 #include "../engine/engine.hpp"
 
 #include <cmath>
@@ -87,7 +86,6 @@ GlyphBitmap::paint(QPainter* painter,
                                qBlue(p),
                                qAlpha(p)));
     }
-    
 #endif
 
 }
@@ -102,7 +100,8 @@ GlyphBitmapWidget::GlyphBitmapWidget(QWidget* parent)
 
 GlyphBitmapWidget::~GlyphBitmapWidget()
 {
-  releaseImage();
+  delete bitmapItem_;
+  bitmapItem_ = NULL;
 }
 
 
@@ -110,7 +109,6 @@ void
 GlyphBitmapWidget::updateImage(QImage* image,
                                QRect rect)
 {
-  // XXX: really need to do this?
   rect.moveTop(0);
   rect.moveLeft(0);
 

@@ -6,6 +6,8 @@
 
 #include "../uihelper.hpp"
 
+#include <QColorDialog>
+
 // for `FT_DEBUG_AUTOFIT`
 #include <freetype/config/ftoption.h>
 
@@ -82,53 +84,6 @@ SettingPanel::checkAllSettings()
 
 
 void
-SettingPanel::onFontChanged()
-{
-  auto blockState = blockSignals(signalsBlocked() || comparatorMode_);
-
-  engine_->reloadFont();
-  if (engine_->currentFontType() == Engine::FontType_CFF)
-  {
-    hintingModeComboBoxModel_->setCurrentEngineType(
-      HintingModeComboBoxModel::HintingEngineType_CFF, false);
-    hintingModeComboBox_->setCurrentIndex(currentCFFHintingMode_);
-  }
-  else if (engine_->currentFontType() == Engine::FontType_TrueType)
-  {
-    auto tricky = engine_->currentFontTricky();
-    hintingModeComboBoxModel_->setCurrentEngineType(
-      HintingModeComboBoxModel::HintingEngineType_TrueType, tricky);
-    hintingModeComboBox_->setCurrentIndex(
-      tricky ? HintingModeComboBoxModel::HintingMode::HintingMode_TrueType_v35
-             : currentTTInterpreterVersion_);
-  }
-  else
-  {
-    hintingModeLabel_->setEnabled(false);
-    hintingModeComboBox_->setEnabled(false);
-  }
-
-  checkHinting();
-
-  engine_->reloadFont();
-  auto hasColor = engine_->currentFontHasColorLayers();
-  colorLayerCheckBox_->setEnabled(hasColor);
-  if (!hasColor)
-    colorLayerCheckBox_->setChecked(false);
-  populatePalettes();
-  mmgxPanel_->reloadFont();
-  blockSignals(blockState);
-
-  // Place this after `blockSignals` to let the signals emitted normally
-  auto bmapOnly = engine_->currentFontBitmapOnly();
-  embeddedBitmapCheckBox_->setEnabled(
-    !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
-  if (bmapOnly)
-    embeddedBitmapCheckBox_->setChecked(true);
-}
-
-
-void
 SettingPanel::checkHinting()
 {
   if (hintingCheckBox_->isChecked())
@@ -167,147 +122,6 @@ SettingPanel::checkHinting()
     
     emit repaintNeeded();
   }
-}
-
-
-void
-SettingPanel::populatePalettes()
-{
-  auto needToReload = false;
-  auto& newPalettes = engine_->currentFontPalettes();
-  auto newSize = static_cast<int>(newPalettes.size()); // this never exceeds!
-  if (newSize != paletteComboBox_->count())
-    needToReload = true;
-  else
-    for (int i = 0; i < newSize; ++i)
-    {
-      auto oldNameVariant = paletteComboBox_->itemData(i);
-      if (!oldNameVariant.canConvert<QString>())
-      {
-        needToReload = true;
-        break;
-      }
-      if (oldNameVariant.toString() != newPalettes[i].name)
-      {
-        needToReload = true;
-        break;
-      }
-    }
-  if (!needToReload)
-    return;
-
-  {
-    QSignalBlocker blocker(paletteComboBox_);
-    paletteComboBox_->clear();
-    for (int i = 0; i < newSize; ++i)
-      paletteComboBox_->addItem(
-        QString("%1: %2")
-          .arg(i)
-          .arg(newPalettes[i].name),
-        newPalettes[i].name);
-  }
-
-  paletteComboBox_->setEnabled(paletteComboBox_->count() > 0);
-
-  emit fontReloadNeeded();
-}
-
-
-void
-SettingPanel::openBackgroundPicker()
-{
-  auto result = QColorDialog::getColor(backgroundColor_, 
-                                       this,
-                                       tr("Background Color"));
-  if (result.isValid())
-  {
-    backgroundColor_ = result;
-    resetColorBlocks();
-    emit repaintNeeded();
-  }
-}
-
-
-void
-SettingPanel::openForegroundPicker()
-{
-  auto result = QColorDialog::getColor(foregroundColor_, 
-                                       this,
-                                       tr("Foreground Color"),
-                                       QColorDialog::ShowAlphaChannel);
-  if (result.isValid())
-  {
-    foregroundColor_ = result;
-    resetColorBlocks();
-    emit repaintNeeded();
-  }
-}
-
-
-void
-SettingPanel::updateGamma()
-{
-  gammaValueLabel_->setText(QString::number(gammaSlider_->value() / 10.0,
-                           'f',
-                           1));
-  emit repaintNeeded();
-}
-
-
-void
-SettingPanel::resetColorBlocks()
-{
-  foregroundBlock_->setStyleSheet(
-    QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
-      .arg(foregroundColor_.red())
-      .arg(foregroundColor_.green())
-      .arg(foregroundColor_.blue())
-      .arg(foregroundColor_.alpha()));
-  backgroundBlock_->setStyleSheet(
-    QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
-      .arg(backgroundColor_.red())
-      .arg(backgroundColor_.green())
-      .arg(backgroundColor_.blue())
-      .arg(backgroundColor_.alpha()));
-}
-
-
-void
-SettingPanel::checkHintingMode()
-{
-  if (!comparatorMode_)
-    applyDelayedSettings();
-
-  emit fontReloadNeeded();
-}
-
-
-void
-SettingPanel::applyDelayedSettings()
-{
-  // This must not be combined into `syncSettings`:
-  // those engine manipulations will reset the whole cache!!
-  // Therefore must only be called when the selection of the combo box actually
-  // changes a.k.a. QComboBox::activate.
-
-  int index = hintingModeComboBox_->currentIndex();
-
-  if (engine_->currentFontType() == Engine::FontType_CFF)
-  {
-    engine_->setCFFHintingMode(
-      hintingModeComboBoxModel_->indexToCFFMode(index));
-    if (index >= 0)
-      currentCFFHintingMode_ = index;
-  }
-  else if (engine_->currentFontType() == Engine::FontType_TrueType)
-  {
-    engine_->setTTInterpreterVersion(
-      hintingModeComboBoxModel_->indexToTTInterpreterVersion(index));
-    if (index >= 0)
-      currentTTInterpreterVersion_ = index;
-  }
-
-  engine_->setStemDarkening(stemDarkeningCheckBox_->isChecked());
 }
 
 
@@ -388,23 +202,164 @@ SettingPanel::checkAntiAliasing()
 void
 SettingPanel::checkPalette()
 {
-  paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked());
+  paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked()
+                               && paletteComboBox_->count() > 0);
+  engine_->resetCache();
+  emit fontReloadNeeded();
+}
+
+
+void
+SettingPanel::openBackgroundPicker()
+{
+  auto result = QColorDialog::getColor(backgroundColor_, 
+                                       this,
+                                       tr("Background Color"));
+  if (result.isValid())
+  {
+    backgroundColor_ = result;
+    resetColorBlocks();
+    emit repaintNeeded();
+  }
+}
+
+
+void
+SettingPanel::openForegroundPicker()
+{
+  auto result = QColorDialog::getColor(foregroundColor_, 
+                                       this,
+                                       tr("Foreground Color"),
+                                       QColorDialog::ShowAlphaChannel);
+  if (result.isValid())
+  {
+    foregroundColor_ = result;
+    resetColorBlocks();
+    emit repaintNeeded();
+  }
+}
+
+
+void
+SettingPanel::updateGamma()
+{
+  gammaValueLabel_->setText(QString::number(gammaSlider_->value() / 10.0,
+                           'f',
+                           1));
   emit repaintNeeded();
 }
 
 
 void
-SettingPanel::checkStemDarkening()
+SettingPanel::resetColorBlocks()
 {
-  if (!comparatorMode_)
-    applyDelayedSettings();
+  foregroundBlock_->setStyleSheet(
+    QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
+      .arg(foregroundColor_.red())
+      .arg(foregroundColor_.green())
+      .arg(foregroundColor_.blue())
+      .arg(foregroundColor_.alpha()));
+  backgroundBlock_->setStyleSheet(
+    QString("QWidget {background-color: rgba(%1, %2, %3, %4);}")
+      .arg(backgroundColor_.red())
+      .arg(backgroundColor_.green())
+      .arg(backgroundColor_.blue())
+      .arg(backgroundColor_.alpha()));
+}
+
+
+void
+SettingPanel::populatePalettes()
+{
+  auto needToReload = false;
+  auto& newPalettes = engine_->currentFontPalettes();
+  auto newSize = static_cast<int>(newPalettes.size()); // this never exceeds!
+  if (newSize != paletteComboBox_->count())
+    needToReload = true;
+  else
+    for (int i = 0; i < newSize; ++i)
+    {
+      auto oldNameVariant = paletteComboBox_->itemData(i);
+      if (!oldNameVariant.canConvert<QString>())
+      {
+        needToReload = true;
+        break;
+      }
+      if (oldNameVariant.toString() != newPalettes[i].name)
+      {
+        needToReload = true;
+        break;
+      }
+    }
+  if (!needToReload)
+    return;
+
+  {
+    QSignalBlocker blocker(paletteComboBox_);
+    paletteComboBox_->clear();
+    for (int i = 0; i < newSize; ++i)
+      paletteComboBox_->addItem(
+        QString("%1: %2")
+          .arg(i)
+          .arg(newPalettes[i].name),
+        newPalettes[i].name);
+  }
 
   emit fontReloadNeeded();
 }
 
 
 void
-SettingPanel::syncSettings()
+SettingPanel::onFontChanged()
+{
+  auto blockState = blockSignals(signalsBlocked() || comparatorMode_);
+
+  engine_->reloadFont();
+  if (engine_->currentFontType() == Engine::FontType_CFF)
+  {
+    hintingModeComboBoxModel_->setCurrentEngineType(
+      HintingModeComboBoxModel::HintingEngineType_CFF, false);
+    hintingModeComboBox_->setCurrentIndex(currentCFFHintingMode_);
+  }
+  else if (engine_->currentFontType() == Engine::FontType_TrueType)
+  {
+    auto tricky = engine_->currentFontTricky();
+    hintingModeComboBoxModel_->setCurrentEngineType(
+      HintingModeComboBoxModel::HintingEngineType_TrueType, tricky);
+    hintingModeComboBox_->setCurrentIndex(
+      tricky ? HintingModeComboBoxModel::HintingMode::HintingMode_TrueType_v35
+             : currentTTInterpreterVersion_);
+  }
+  else
+  {
+    hintingModeLabel_->setEnabled(false);
+    hintingModeComboBox_->setEnabled(false);
+  }
+
+  checkHinting();
+
+  engine_->reloadFont();
+  auto hasColor = engine_->currentFontHasColorLayers();
+  colorLayerCheckBox_->setEnabled(hasColor);
+  if (!hasColor)
+    colorLayerCheckBox_->setChecked(false);
+  paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked()
+                               && paletteComboBox_->count() > 0);
+  populatePalettes();
+  mmgxPanel_->reloadFont();
+  blockSignals(blockState);
+
+  // Place this after `blockSignals` to let the signals emitted normally
+  auto bmapOnly = engine_->currentFontBitmapOnly();
+  embeddedBitmapCheckBox_->setEnabled(
+    !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
+  if (bmapOnly)
+    embeddedBitmapCheckBox_->setChecked(true);
+}
+
+
+void
+SettingPanel::applySettings()
 {
   engine_->setLcdFilter(
     static_cast<FT_LcdFilter>(lcdFilterComboboxModel_->indexToValue(
@@ -428,82 +383,49 @@ SettingPanel::syncSettings()
     engine_->setShowSegments(segmentDrawingCheckBox_->isChecked());
   }
 
-  engine_->setGamma(gammaSlider_->value() / 10.0);
+  engine_->renderingEngine()->setGamma(gammaSlider_->value() / 10.0);
 
-  engine_->setEmbeddedBitmap(embeddedBitmapCheckBox_->isChecked());
+  engine_->setEmbeddedBitmapEnabled(embeddedBitmapCheckBox_->isChecked());
   engine_->setPaletteIndex(paletteComboBox_->currentIndex());
 
   engine_->setUseColorLayer(colorLayerCheckBox_->isChecked());
-  engine_->setLCDUsesBGR(aaSettings.isBGR);
+  engine_->renderingEngine()->setLCDUsesBGR(aaSettings.isBGR);
   engine_->setLCDSubPixelPositioning(
     antiAliasingComboBox_->currentIndex()
       == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel);
 
   engine_->renderingEngine()->setForeground(foregroundColor_.rgba());
   engine_->renderingEngine()->setBackground(backgroundColor_.rgba());
-  mmgxPanel_->syncSettings();
+  mmgxPanel_->applySettings();
 }
 
 
 void
-SettingPanel::createConnections()
+SettingPanel::applyDelayedSettings()
 {
-  // use `qOverload` here to prevent ambiguity.
-  connect(hintingModeComboBox_, 
-          QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &SettingPanel::checkHintingMode);
-  connect(antiAliasingComboBox_,
-          QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &SettingPanel::checkAntiAliasing);
-  connect(lcdFilterComboBox_, 
-          QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &SettingPanel::repaintNeeded);
-  connect(paletteComboBox_,
-          QOverload<int>::of(&QComboBox::currentIndexChanged), 
-          this, &SettingPanel::repaintNeeded);
+  // This must not be combined into `applySettings`:
+  // those engine manipulations will reset the whole cache!!
+  // Therefore must only be called when the selection of the combo box actually
+  // changes a.k.a. QComboBox::activate.
 
-  connect(gammaSlider_, &QSlider::valueChanged,
-          this, &SettingPanel::updateGamma);
-  
-  connect(hintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::checkHinting);
+  int index = hintingModeComboBox_->currentIndex();
 
-  if (debugMode_)
+  if (engine_->currentFontType() == Engine::FontType_CFF)
   {
-    connect(horizontalHintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
-    connect(verticalHintingCheckBox_, &QCheckBox::clicked,
-            this, &SettingPanel::repaintNeeded);
-    connect(blueZoneHintingCheckBox_, &QCheckBox::clicked,
-            this, &SettingPanel::repaintNeeded);
-    connect(segmentDrawingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::repaintNeeded);
+    engine_->setCFFHintingMode(
+      hintingModeComboBoxModel_->indexToCFFMode(index));
+    if (index >= 0)
+      currentCFFHintingMode_ = index;
+  }
+  else if (engine_->currentFontType() == Engine::FontType_TrueType)
+  {
+    engine_->setTTInterpreterVersion(
+      hintingModeComboBoxModel_->indexToTTInterpreterVersion(index));
+    if (index >= 0)
+      currentTTInterpreterVersion_ = index;
   }
 
-  connect(autoHintingCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::checkAutoHinting);
-  connect(embeddedBitmapCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::fontReloadNeeded);
-  connect(stemDarkeningCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::checkStemDarkening);
-  connect(colorLayerCheckBox_, &QCheckBox::clicked,
-          this, &SettingPanel::checkPalette);
-
-  if (comparatorMode_)
-  {
-    connect(kerningCheckBox_, &QCheckBox::clicked,
-            this, &SettingPanel::repaintNeeded);
-    connect(lsbRsbDeltaCheckBox_, &QCheckBox::clicked,
-            this, &SettingPanel::repaintNeeded);
-  }
-
-  connect(backgroundButton_, &QPushButton::clicked,
-          this, &SettingPanel::openBackgroundPicker);
-  connect(foregroundButton_, &QPushButton::clicked,
-          this, &SettingPanel::openForegroundPicker);
-
-  connect(mmgxPanel_, &SettingPanelMMGX::mmgxCoordsChanged,
-          this, &SettingPanel::fontReloadNeeded);
+  engine_->setStemDarkening(stemDarkeningCheckBox_->isChecked());
 }
 
 
@@ -560,24 +482,6 @@ SettingPanel::createLayout()
 
   paletteComboBox_ = new QComboBox(this);
   paletteLabel_->setBuddy(paletteComboBox_);
-
-  int width;
-  // make all labels have the same width
-  width = hintingModeLabel_->minimumSizeHint().width();
-  width = qMax(antiAliasingLabel_->minimumSizeHint().width(), width);
-  width = qMax(lcdFilterLabel_->minimumSizeHint().width(), width);
-  hintingModeLabel_->setMinimumWidth(width);
-  antiAliasingLabel_->setMinimumWidth(width);
-  lcdFilterLabel_->setMinimumWidth(width);
-
-  // ensure that all items in combo boxes fit completely;
-  // also make all combo boxes have the same width
-  width = hintingModeComboBox_->minimumSizeHint().width();
-  width = qMax(antiAliasingComboBox_->minimumSizeHint().width(), width);
-  width = qMax(lcdFilterComboBox_->minimumSizeHint().width(), width);
-  hintingModeComboBox_->setMinimumWidth(width);
-  antiAliasingComboBox_->setMinimumWidth(width);
-  lcdFilterComboBox_->setMinimumWidth(width);
 
   gammaLabel_ = new QLabel(tr("Gamma"), this);
   gammaLabel_->setAlignment(Qt::AlignRight);
@@ -781,6 +685,68 @@ SettingPanel::createLayoutComparator()
   tab_->setTabToolTip(1, tr("General settings."));
   tab_->setTabToolTip(2, tr("MM/GX axis parameters."));
   setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+}
+
+
+void
+SettingPanel::createConnections()
+{
+  // use `qOverload` here to prevent ambiguity.
+  connect(hintingModeComboBox_, 
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this, &SettingPanel::fontReloadNeeded);
+  connect(antiAliasingComboBox_,
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this, &SettingPanel::checkAntiAliasing);
+  connect(lcdFilterComboBox_, 
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this, &SettingPanel::repaintNeeded);
+  connect(paletteComboBox_,
+          QOverload<int>::of(&QComboBox::currentIndexChanged), 
+          this, &SettingPanel::checkPalette);
+
+  connect(gammaSlider_, &QSlider::valueChanged,
+          this, &SettingPanel::updateGamma);
+  
+  connect(hintingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::checkHinting);
+
+  if (debugMode_)
+  {
+    connect(horizontalHintingCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(verticalHintingCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(blueZoneHintingCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(segmentDrawingCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+  }
+
+  connect(autoHintingCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::checkAutoHinting);
+  connect(embeddedBitmapCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::fontReloadNeeded);
+  connect(stemDarkeningCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::fontReloadNeeded);
+  connect(colorLayerCheckBox_, &QCheckBox::clicked,
+          this, &SettingPanel::checkPalette);
+
+  if (comparatorMode_)
+  {
+    connect(kerningCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(lsbRsbDeltaCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+  }
+
+  connect(backgroundButton_, &QPushButton::clicked,
+          this, &SettingPanel::openBackgroundPicker);
+  connect(foregroundButton_, &QPushButton::clicked,
+          this, &SettingPanel::openForegroundPicker);
+
+  connect(mmgxPanel_, &SettingPanelMMGX::mmgxCoordsChanged,
+          this, &SettingPanel::fontReloadNeeded);
 }
 
 

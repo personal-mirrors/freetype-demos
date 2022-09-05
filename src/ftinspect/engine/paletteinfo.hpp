@@ -9,7 +9,6 @@
 
 #include <freetype/freetype.h>
 #include <freetype/ftcolor.h>
-#include <freetype/ftsnames.h>
 
 struct SFNTName;
 struct PaletteInfo

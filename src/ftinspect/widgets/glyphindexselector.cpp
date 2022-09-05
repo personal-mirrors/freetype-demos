@@ -157,6 +157,7 @@ GlyphIndexSelector::createLayout()
   indexSpinBox_->setRange(0, 0);
   indexSpinBox_->setFixedWidth(80);
   indexSpinBox_->setWrapping(false);
+  indexSpinBox_->setKeyboardTracking(false);
 
   indexLabel_ = new QLabel("0\nLimit: 0");
   indexLabel_->setMinimumWidth(200);
@@ -212,7 +213,8 @@ GlyphIndexSelector::createConnections()
           this, &GlyphIndexSelector::emitValueChanged);
 
   glyphNavigationMapper_ = new QSignalMapper(this);
-  connect(glyphNavigationMapper_, SIGNAL(mapped(int)), SLOT(adjustIndex(int)));
+  connect(glyphNavigationMapper_, &QSignalMapper::mappedInt,
+          this, &GlyphIndexSelector::adjustIndex);
 
   connect(toStartButton_, &QPushButton::clicked,
           glyphNavigationMapper_, QOverload<>::of(&QSignalMapper::map));

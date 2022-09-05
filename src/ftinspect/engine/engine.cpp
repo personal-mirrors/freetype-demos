@@ -5,17 +5,12 @@
 
 #include "engine.hpp"
 
-#include "renderutils.hpp"
-#include "../glyphcomponents/graphicsdefault.hpp"
-
 #include <stdexcept>
-#include <cmath>
 #include <stdint.h>
 
 #include <freetype/ftmodapi.h>
 #include <freetype/ftdriver.h>
 #include <freetype/ftlcdfil.h>
-#include <freetype/ftbitmap.h>
 #include <freetype/ftmm.h>
 
 
@@ -101,7 +96,7 @@ faceRequester(FTC_FaceID ftcFaceID,
   if (faceID.fontIndex < 0
       || faceID.fontIndex >= engine->numberOfOpenedFonts())
     return FT_Err_Invalid_Argument;
-  
+
   QString font = engine->fontFileManager_[faceID.fontIndex].filePath();
   long faceIndex = faceID.faceIndex;
 
@@ -264,14 +259,12 @@ Engine::namedInstanceName(int fontIndex, long faceIndex, int index)
 }
 
 
-int
-Engine::currentFontFirstUnicodeCharMap()
+bool
+Engine::currentFontTricky()
 {
-  auto& charmaps = currentFontCharMaps();
-  for (auto& cmap : charmaps)
-    if (cmap.encoding == FT_ENCODING_UNICODE)
-      return cmap.index;
-  return -1;
+  if (!ftFallbackFace_)
+    return false;
+  return FT_IS_TRICKY(ftFallbackFace_);
 }
 
 
@@ -285,7 +278,6 @@ Engine::loadFont(int fontIndex,
   palette_ = NULL;
 
   update();
-  curSFNTTablesValid_ = false;
 
   curFontIndex_ = fontIndex;
   auto id = FaceID(fontIndex, faceIndex, namedInstanceIndex);
@@ -359,6 +351,8 @@ Engine::loadFont(int fontIndex,
       fontType_ = FontType_CFF;
     else if (!strcmp(moduleName, "truetype"))
       fontType_ = FontType_TrueType;
+    else
+      fontType_ = FontType_Other;
 
     curCharMaps_.clear();
     curCharMaps_.reserve(ftFallbackFace_->num_charmaps);
@@ -442,35 +436,108 @@ Engine::removeFont(int fontIndex, bool closeFile)
 }
 
 
+bool
+Engine::currentFontBitmapOnly()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return !FT_IS_SCALABLE(ftFallbackFace_);
+}
+
+
+bool
+Engine::currentFontHasEmbeddedBitmap()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_FIXED_SIZES(ftFallbackFace_);
+}
+
+
+bool
+Engine::currentFontHasColorLayers()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_COLOR(ftFallbackFace_);
+}
+
+
+bool
+Engine::currentFontHasGlyphName()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_GLYPH_NAMES(ftFallbackFace_);
+}
+
+
+std::vector<int>
+Engine::currentFontFixedSizes()
+{
+  if (!ftFallbackFace_ || !FT_HAS_FIXED_SIZES(ftFallbackFace_)
+      || !ftFallbackFace_->available_sizes)
+    return {};
+  std::vector<int> result;
+  result.resize(ftFallbackFace_->num_fixed_sizes);
+  for (int i = 0; i < ftFallbackFace_->num_fixed_sizes; i++)
+    result[i] = ftFallbackFace_->available_sizes[i].x_ppem >> 6; // XXX: ????
+  return result;
+}
+
+
+bool
+Engine::currentFontPSInfo(PS_FontInfoRec& outInfo)
+{
+  if (!ftSize_)
+    return false;
+  if (FT_Get_PS_Font_Info(ftSize_->face, &outInfo) == FT_Err_Ok)
+    return true;
+  return false;
+}
+
+
+bool
+Engine::currentFontPSPrivateInfo(PS_PrivateRec& outInfo)
+{
+  if (!ftSize_)
+    return false;
+  if (FT_Get_PS_Font_Private(ftSize_->face, &outInfo) == FT_Err_Ok)
+    return true;
+  return false;
+}
+
+
+std::vector<SFNTTableInfo>&
+Engine::currentFontSFNTTableInfo()
+{
+  if (!curSFNTTablesValid_)
+  {
+    SFNTTableInfo::getForAll(this, curSFNTTables_);
+    curSFNTTablesValid_ = true;
+  }
+
+  return curSFNTTables_;
+}
+
+
+int
+Engine::currentFontFirstUnicodeCharMap()
+{
+  auto& charmaps = currentFontCharMaps();
+  for (auto& cmap : charmaps)
+    if (cmap.encoding == FT_ENCODING_UNICODE)
+      return cmap.index;
+  return -1;
+}
+
+
 unsigned
 Engine::glyphIndexFromCharCode(int code, int charMapIndex)
 {
   if (charMapIndex < 0)
     return code;
   return FTC_CMapCache_Lookup(cmapCache_, scaler_.face_id, charMapIndex, code);
-}
-
-
-FT_Size_Metrics const&
-Engine::currentFontMetrics()
-{
-  return ftSize_->metrics;
-}
-
-
-FT_GlyphSlot
-Engine::currentFaceSlot()
-{
-  return ftSize_->face->glyph;
-}
-
-
-bool
-Engine::currentFontTricky()
-{
-  if (!ftFallbackFace_)
-    return false;
-  return FT_IS_TRICKY(ftFallbackFace_);
 }
 
 
@@ -510,92 +577,7 @@ std::pair<int, int>
 Engine::currentSizeAscDescPx()
 {
   return { ftSize_->metrics.ascender >> 6,
-             ftSize_->metrics.descender >> 6 };
-}
-
-
-bool
-Engine::currentFontPSInfo(PS_FontInfoRec& outInfo)
-{
-  if (!ftSize_)
-    return false;
-  if (FT_Get_PS_Font_Info(ftSize_->face, &outInfo) == FT_Err_Ok)
-    return true;
-  return false;
-}
-
-
-bool
-Engine::currentFontPSPrivateInfo(PS_PrivateRec& outInfo)
-{
-  if (!ftSize_)
-    return false;
-  if (FT_Get_PS_Font_Private(ftSize_->face, &outInfo) == FT_Err_Ok)
-    return true;
-  return false;
-}
-
-
-std::vector<SFNTTableInfo>&
-Engine::currentFontSFNTTableInfo()
-{
-  if (!curSFNTTablesValid_)
-  {
-    SFNTTableInfo::getForAll(this, curSFNTTables_);
-    curSFNTTablesValid_ = true;
-  }
-
-  return curSFNTTables_;
-}
-
-
-bool
-Engine::currentFontBitmapOnly()
-{
-  if (!ftFallbackFace_)
-    return false;
-  return !FT_IS_SCALABLE(ftFallbackFace_);
-}
-
-
-bool
-Engine::currentFontHasEmbeddedBitmap()
-{
-  if (!ftFallbackFace_)
-    return false;
-  return FT_HAS_FIXED_SIZES(ftFallbackFace_);
-}
-
-
-bool
-Engine::currentFontHasColorLayers()
-{
-  if (!ftFallbackFace_)
-    return false;
-  return FT_HAS_COLOR(ftFallbackFace_);
-}
-
-
-std::vector<int>
-Engine::currentFontFixedSizes()
-{
-  if (!ftFallbackFace_ || !FT_HAS_FIXED_SIZES(ftFallbackFace_)
-      || !ftFallbackFace_->available_sizes)
-    return {};
-  std::vector<int> result;
-  result.resize(ftFallbackFace_->num_fixed_sizes);
-  for (int i = 0; i < ftFallbackFace_->num_fixed_sizes; i++)
-    result[i] = ftFallbackFace_->available_sizes[i].x_ppem >> 6; // XXX: ????
-  return result;
-}
-
-
-bool
-Engine::currentFontHasGlyphName()
-{
-  if (!ftFallbackFace_)
-    return false;
-  return FT_HAS_GLYPH_NAMES(ftFallbackFace_);
+           ftSize_->metrics.descender >> 6 };
 }
 
 
@@ -619,6 +601,13 @@ Engine::glyphName(int index)
   }
 
   return name;
+}
+
+
+int
+Engine::numberOfOpenedFonts()
+{
+  return fontFileManager_.size();
 }
 
 
@@ -663,6 +652,9 @@ Engine::loadGlyphIntoSlotWithoutCache(int glyphIndex,
 }
 
 
+// When continuous rendering, we don't need to call `update`
+// This is currently unused since the cache API don't support obtaining glyph
+// metrics. See `StringRenderer::loadSingleContext`
 FT_Glyph
 Engine::loadGlyphWithoutUpdate(int glyphIndex, 
                                FTC_Node* outNode,
@@ -687,6 +679,20 @@ Engine::loadGlyphWithoutUpdate(int glyphIndex,
 }
 
 
+FT_Size_Metrics const&
+Engine::currentFontMetrics()
+{
+  return ftSize_->metrics;
+}
+
+
+FT_GlyphSlot
+Engine::currentFaceSlot()
+{
+  return ftSize_->face->glyph;
+}
+
+
 bool
 Engine::renderReady()
 {
@@ -698,13 +704,6 @@ bool
 Engine::fontValid()
 {
   return ftFallbackFace_ != NULL;
-}
-
-
-int
-Engine::numberOfOpenedFonts()
-{
-  return fontFileManager_.size();
 }
 
 
@@ -729,17 +728,6 @@ Engine::setSizeByPoint(double pointSize)
   this->pointSize_ = pointSize;
   pixelSize_ = pointSize * dpi_ / 72.0;
   usingPixelSize_ = false;
-}
-
-
-void
-Engine::setGamma(double gamma)
-{
-  if (gamma_ != gamma)
-  {
-    gamma_ = gamma;
-    renderingEngine_->calculateForegroundTable();
-  }
 }
 
 
@@ -828,6 +816,8 @@ Engine::update()
   else
   {
     loadFlags_ |= FT_LOAD_NO_HINTING;
+    // When the user disables hinting for tricky fonts,
+    // we assume that they *really* want to disable it.
     if (currentFontTricky())
       loadFlags_ |= FT_LOAD_NO_AUTOHINT;
 
@@ -890,13 +880,13 @@ Engine::loadDefaults()
   setAntiAliasingTarget(FT_LOAD_TARGET_NORMAL);
   setHinting(true);
   setAutoHinting(false);
-  setGamma(1.8);
-  setEmbeddedBitmap(true);
+  setEmbeddedBitmapEnabled(true);
   setPaletteIndex(0);
   setUseColorLayer(true);
 
   renderingEngine()->setBackground(qRgba(255, 255, 255, 255));
   renderingEngine()->setForeground(qRgba(0, 0, 0, 255));
+  renderingEngine()->setGamma(1.8);
 
   resetCache();
   reloadFont();
@@ -1021,35 +1011,6 @@ Engine::loadPaletteInfos()
   for (int i = 0; i < paletteData_.num_palettes; ++i)
     curPaletteInfos_.emplace_back(ftFallbackFace_, paletteData_, i,
                                   &curSFNTNames_);
-}
-
-
-QHash<FT_Glyph_Format, QString> glyphFormatNamesCache;
-QHash<FT_Glyph_Format, QString>&
-glyphFormatNames()
-{
-  if (glyphFormatNamesCache.empty())
-  {
-    glyphFormatNamesCache[FT_GLYPH_FORMAT_NONE] = "None/Unknown";
-    glyphFormatNamesCache[FT_GLYPH_FORMAT_COMPOSITE] = "Composite";
-    glyphFormatNamesCache[FT_GLYPH_FORMAT_BITMAP] = "Bitmap";
-    glyphFormatNamesCache[FT_GLYPH_FORMAT_OUTLINE] = "Outline";
-    glyphFormatNamesCache[FT_GLYPH_FORMAT_PLOTTER] = "Plotter";
-#if FREETYPE_MINOR >= 12
-    glyphFormatNamesCache[FT_GLYPH_FORMAT_SVG] = "SVG";
-#endif
-  }
-  return glyphFormatNamesCache;
-}
-
-QString*
-glyphFormatToName(FT_Glyph_Format format)
-{
-  auto& names = glyphFormatNames();
-  auto it = names.find(format);
-  if (it == names.end())
-    return &names[FT_GLYPH_FORMAT_NONE];
-  return &it.value();
 }
 
 

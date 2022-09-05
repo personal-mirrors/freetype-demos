@@ -637,6 +637,7 @@ CompositeGlyphsInfoModel::data(const QModelIndex& index,
       return QString("Align %1 -> %2").arg(pos.first).arg(pos.second);
     }
   }
+  default:;
   }
 
   return {};
@@ -661,6 +662,7 @@ CompositeGlyphsInfoModel::headerData(int section,
     return tr("Flags");
   case CGIM_Position:
     return tr("Position");
+  default:;
   }
   return {};
 }

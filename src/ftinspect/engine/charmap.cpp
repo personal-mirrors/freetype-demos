@@ -8,34 +8,10 @@
 #include <freetype/freetype.h>
 #include <freetype/tttables.h>
 
-// Mapping for `FT_Encoding` is placed here since it's only for the charmap.
-QHash<FT_Encoding, QString> encodingNamesCache;
-QHash<FT_Encoding, QString>&
-encodingNames()
+namespace
 {
-  if (encodingNamesCache.empty())
-  {
-    encodingNamesCache[static_cast<FT_Encoding>(FT_ENCODING_OTHER)]
-     = "Unknown Encoding";
-    encodingNamesCache[FT_ENCODING_NONE] = "No Encoding";
-    encodingNamesCache[FT_ENCODING_MS_SYMBOL] = "MS Symbol (symb)";
-    encodingNamesCache[FT_ENCODING_UNICODE] = "Unicode (unic)";
-    encodingNamesCache[FT_ENCODING_SJIS] = "Shift JIS (sjis)";
-    encodingNamesCache[FT_ENCODING_PRC] = "PRC/GB 18030 (gb)";
-    encodingNamesCache[FT_ENCODING_BIG5] = "Big5 (big5)";
-    encodingNamesCache[FT_ENCODING_WANSUNG] = "Wansung (wans)";
-    encodingNamesCache[FT_ENCODING_JOHAB] = "Johab (joha)";
-    encodingNamesCache[FT_ENCODING_ADOBE_STANDARD] = "Adobe Standard (ADOB)";
-    encodingNamesCache[FT_ENCODING_ADOBE_EXPERT] = "Adobe Expert (ADBE)";
-    encodingNamesCache[FT_ENCODING_ADOBE_CUSTOM] = "Adobe Custom (ADBC)";
-    encodingNamesCache[FT_ENCODING_ADOBE_LATIN_1] = "Latin 1 (lat1)";
-    encodingNamesCache[FT_ENCODING_OLD_LATIN_2] = "Latin 2 (lat2)";
-    encodingNamesCache[FT_ENCODING_APPLE_ROMAN] = "Apple Roman (armn)";
-  }
-
-  return encodingNamesCache;
+QHash<FT_Encoding, QString>& encodingNames();
 }
-
 
 CharMapInfo::CharMapInfo(int index, FT_CharMap cmap)
 : index(index), ptr(cmap),
@@ -144,6 +120,38 @@ CharMapInfo::maxIndexForFaceAndCharMap(FT_CharMap charMap,
   } while (max > min);
 
   return static_cast<int>(max);
+}
+
+
+namespace
+{
+// Mapping for `FT_Encoding` is placed here since it's only for the charmap.
+QHash<FT_Encoding, QString> encodingNamesCache;
+QHash<FT_Encoding, QString>&
+encodingNames()
+{
+  if (encodingNamesCache.empty())
+  {
+    encodingNamesCache[static_cast<FT_Encoding>(FT_ENCODING_OTHER)]
+     = "Unknown Encoding";
+    encodingNamesCache[FT_ENCODING_NONE] = "No Encoding";
+    encodingNamesCache[FT_ENCODING_MS_SYMBOL] = "MS Symbol (symb)";
+    encodingNamesCache[FT_ENCODING_UNICODE] = "Unicode (unic)";
+    encodingNamesCache[FT_ENCODING_SJIS] = "Shift JIS (sjis)";
+    encodingNamesCache[FT_ENCODING_PRC] = "PRC/GB 18030 (gb)";
+    encodingNamesCache[FT_ENCODING_BIG5] = "Big5 (big5)";
+    encodingNamesCache[FT_ENCODING_WANSUNG] = "Wansung (wans)";
+    encodingNamesCache[FT_ENCODING_JOHAB] = "Johab (joha)";
+    encodingNamesCache[FT_ENCODING_ADOBE_STANDARD] = "Adobe Standard (ADOB)";
+    encodingNamesCache[FT_ENCODING_ADOBE_EXPERT] = "Adobe Expert (ADBE)";
+    encodingNamesCache[FT_ENCODING_ADOBE_CUSTOM] = "Adobe Custom (ADBC)";
+    encodingNamesCache[FT_ENCODING_ADOBE_LATIN_1] = "Latin 1 (lat1)";
+    encodingNamesCache[FT_ENCODING_OLD_LATIN_2] = "Latin 2 (lat2)";
+    encodingNamesCache[FT_ENCODING_APPLE_ROMAN] = "Apple Roman (armn)";
+  }
+
+  return encodingNamesCache;
+}
 }
 
 

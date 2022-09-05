@@ -1,4 +1,4 @@
-// ttsettingscomboboxmodel.hpp
+// customcomboboxmodels.hpp
 
 // Copyright (C) 2022 by Charlie Jiang.
 
@@ -133,7 +133,7 @@ public:
 
 
   explicit LCDFilterComboBoxModel(QObject* parent);
-  virtual ~LCDFilterComboBoxModel() = default;
+  ~LCDFilterComboBoxModel() override = default;
 
 
   int rowCount(const QModelIndex& parent) const override
@@ -178,7 +178,7 @@ public:
   enum AntiAliasing : int;
 
   explicit AntiAliasingComboBoxModel(QObject* parent);
-  virtual ~AntiAliasingComboBoxModel() = default;
+  ~AntiAliasingComboBoxModel() override = default;
   
   QVariant data(const QModelIndex& index,
                 int role) const;
@@ -214,4 +214,4 @@ public:
 };
 
 
-// end of ttsettingscomboboxmodel.hpp
+// end of customcomboboxmodels.hpp

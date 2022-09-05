@@ -36,6 +36,7 @@ GlyphCacheEntry::operator=(GlyphCacheEntry&& other) noexcept
   penPos = other.penPos;
   charCode = other.charCode;
   glyphIndex = other.glyphIndex;
+  nonSpacingPlaceholder = other.nonSpacingPlaceholder;
   advance = other.advance;
   other.image = oldImage;
   return *this;
@@ -273,9 +274,13 @@ GlyphContinuous::paintByRenderer()
     {
       beginSaveLine(pos, size);
     });
-  displayingCount_ = stringRenderer_.render(static_cast<int>(width() / scale_), 
-                                            static_cast<int>(height() / scale_),
-                                            beginIndex_);
+  auto count = stringRenderer_.render(static_cast<int>(width() / scale_), 
+                                      static_cast<int>(height() / scale_),
+                                      beginIndex_);
+  if (source_ == SRC_AllGlyphs)
+    displayingCount_ = count;
+  else
+    displayingCount_ = 0;
 }
 
 
@@ -459,6 +464,8 @@ GlyphContinuous::beginSaveLine(FT_Vector pos,
 {
   glyphCache_.emplace_back();
   currentWritingLine_ = &glyphCache_.back();
+  currentWritingLine_->nonSpacingPlaceholder
+    = engine_->currentFontMetrics().y_ppem / 2;
   currentWritingLine_->sizePoint = sizePoint;
   currentWritingLine_->basePosition = { static_cast<int>(pos.x),
                                         static_cast<int>(pos.y) };
@@ -505,7 +512,7 @@ GlyphContinuous::saveSingleGlyphImage(QImage* image,
   entry.glyphIndex = gctx.glyphIndex;
   entry.advance = advance;
   entry.penPos = penPosPoint;
-  entry.yPpem = engine_->currentFontMetrics().y_ppem;
+  entry.nonSpacingPlaceholder = currentWritingLine_->nonSpacingPlaceholder;
 }
 
 
@@ -544,14 +551,17 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
   // ftview.c:557
   // Well, metrics is also part of the cache...
   int width = entry.advance.x ? entry.advance.x >> 16
-                              : entry.yPpem / 2;
+                              : entry.nonSpacingPlaceholder;
 
-  if (entry.advance.x == 0 && !stringRenderer_.isWaterfall())
+  if (entry.advance.x == 0 
+      && !stringRenderer_.isWaterfall()
+      && source_ == SRC_AllGlyphs)
   {
-    // Draw a red square to indicate
+    // Draw a red square to indicate non-spacing glyphs
     auto squarePoint = entry.penPos;
     squarePoint.setY(squarePoint.y() - width);
-    painter->fillRect(QRect(squarePoint, QSize(width, width)), Qt::red);
+    auto rect = QRect(squarePoint, QSize(width, width));
+    painter->fillRect(rect, Qt::red);
   }
 
   QRect rect = entry.basePosition;

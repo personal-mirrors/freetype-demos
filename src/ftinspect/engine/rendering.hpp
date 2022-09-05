@@ -17,10 +17,13 @@ public:
 
   void setForeground(QRgb foreground);
   void setBackground(QRgb background);
+  void setGamma(double gamma);
   void calculateForegroundTable();
+  void setLCDUsesBGR(bool isBGR) { lcdUsesBGR_ = isBGR; }
 
   QRgb foreground() { return foregroundColor_; }
   QRgb background() { return backgroundColor_; }
+  double gamma() { return gamma_; }
 
   // Return `true` if you need to free `out`
   // `out` will be set to NULL in cases of error
@@ -50,7 +53,11 @@ private:
 
   QRgb backgroundColor_;
   QRgb foregroundColor_;
+  double gamma_;
   QVector<QRgb> foregroundTable_;
+
+  bool lcdUsesBGR_;
 };
+
 
 // end of rendering.hpp

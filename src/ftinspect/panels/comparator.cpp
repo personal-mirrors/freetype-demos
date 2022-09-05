@@ -8,7 +8,6 @@
 
 namespace
 {
-// No C++17 :-(
 extern const char* ComparatorDefaultText;
 }
 
@@ -35,8 +34,8 @@ ComparatorTab::repaintGlyph()
   int i = 0;
   for (auto canvas : canvas_)
   {
-    syncSettings(i);
-    // No cache here, sry, because when switching between columns, the hinting
+    applySettings(i);
+    // No cache here, because when switching between columns, the hinting
     // mode or enabling of embedded bitmaps may differ
     canvas->stringRenderer().reloadGlyphs();
     canvas->purgeCache();
@@ -218,7 +217,7 @@ ComparatorTab::reloadStringAndRepaint()
   int i = 0;
   for (auto canvas : canvas_)
   {
-    syncSettings(i);
+    applySettings(i);
 
     auto& sr = canvas->stringRenderer();
     sr.setCharMapIndex(charMapSelector_->currentCharMapIndex(), -1);
@@ -235,7 +234,7 @@ ComparatorTab::reloadGlyphsAndRepaint()
   int i = 0;
   for (auto canvas : canvas_)
   {
-    syncSettings(i);
+    applySettings(i);
     canvas->stringRenderer().reloadGlyphs();
     i++;
   }
@@ -253,14 +252,14 @@ ComparatorTab::sourceTextChanged()
 
 
 void
-ComparatorTab::syncSettings(int index)
+ComparatorTab::applySettings(int index)
 {
   if (index < 0 || static_cast<unsigned>(index) >= settingPanels_.size())
     return;
 
   auto settingPanel = settingPanels_[index];
   settingPanel->applyDelayedSettings();
-  settingPanel->syncSettings();
+  settingPanel->applySettings();
 
   if (static_cast<unsigned>(index) >= canvas_.size())
     return;

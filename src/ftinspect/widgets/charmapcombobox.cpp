@@ -15,12 +15,8 @@ CharMapComboBox::CharMapComboBox(QWidget* parent,
   engine_(engine)
 {
   setToolTip("Set current charmap.");
-}
-
-
-CharMapComboBox::~CharMapComboBox()
-{
-  
+  connect(this, QOverload<int>::of(&CharMapComboBox::currentIndexChanged),
+          this, &CharMapComboBox::updateToolTip);
 }
 
 
@@ -71,7 +67,7 @@ CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
   if (oldEncodingV.isValid() && oldEncodingV.canConvert<unsigned>())
     oldEncoding = oldEncodingV.value<unsigned>();
 
-  {
+  { // This brace isn't for the `if` statement!
     // suppress events during updating
     QSignalBlocker selectorBlocker(this);
 
@@ -103,9 +99,19 @@ CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
     // this shouldn't emit any event either, because force repainting
     // will happen later, so embrace it into blocker block
     setCurrentIndex(newIndex);
+    updateToolTip();
   }
 
   emit forceUpdateLimitIndex();
+}
+
+
+void
+CharMapComboBox::updateToolTip()
+{
+  auto index = currentIndex();
+  if (index >= 0 && index < count())
+    setToolTip(this->currentText());
 }
 
 

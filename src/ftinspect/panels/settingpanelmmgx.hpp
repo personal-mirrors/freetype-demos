@@ -34,7 +34,7 @@ public:
   ~SettingPanelMMGX() override = default;
 
   void reloadFont();
-  void syncSettings();
+  void applySettings();
   void checkHidden();
   std::vector<FT_Fixed>& mmgxCoords() { return currentValues_; }
 

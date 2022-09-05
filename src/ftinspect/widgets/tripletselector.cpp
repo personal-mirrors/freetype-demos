@@ -62,6 +62,8 @@ TripletSelector::repopulateFonts()
         oldIndex = -1;
       fontComboBox_->setCurrentIndex(oldIndex);
     }
+    else // failed to open, retain
+      fontComboBox_->setCurrentIndex(oldIndex);
 
     // Note no signal will be emitted from any combobox until this block ends
   }
@@ -85,6 +87,7 @@ TripletSelector::repopulateFaces(bool fontSwitched)
   {
     // Clear and go
     faceComboBox_->clear();
+    // This will check buttons & reload the triplet
     repopulateNamedInstances(fontSwitched);
     return;
   }
@@ -104,6 +107,7 @@ TripletSelector::repopulateFaces(bool fontSwitched)
   if (!needToRecreate)
   {
     // no need to refersh the combobox
+    // This will check buttons & reload the triplet
     repopulateNamedInstances(fontSwitched);
     return;
   }
@@ -143,7 +147,7 @@ TripletSelector::repopulateNamedInstances(bool fontSwitched)
 
   if (fontIndex < 0 || faceIndex < 0 || newSize < 0)
   {
-    // Clear and go
+    // Clear and go, don't forget checking buttons and loading triplet
     niComboBox_->clear();
     checkButtons();
     loadTriplet();
@@ -423,7 +427,6 @@ TripletSelector::createConnections()
 }
 
 
-
 void
 TripletSelector::loadTriplet()
 {
@@ -448,6 +451,11 @@ TripletSelector::loadTriplet()
       engine_->removeFont(fontIndex, false);
     }
   }
+
+  if (faceIndex < 0)
+    faceIndex = 0;
+  if (instanceIndex < 0)
+    instanceIndex = 0;
 
   engine_->loadFont(fontIndex, faceIndex, instanceIndex);
   

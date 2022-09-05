@@ -39,32 +39,7 @@ public:
   void repaintGlyph() override;
   void reloadFont() override;
   void highlightGlyph(int index);
-  void syncSettings();
-
-  // -1: Glyph order, otherwise the char map index in the original list
-  int charMapIndex();
-
-  // This doesn't trigger immediate repaint
-  void setGlyphCount(int count);
-  void setDisplayingCount(int count);
-  void setGlyphBeginindex(int index);
-
-  // This doesn't trigger either.
-  void updateLimitIndex();
-  void checkModeSource();
-
-  // But they do
-  void checkModeSourceAndRepaint();
-  void charMapChanged();
-  void sourceTextChanged();
-  void presetStringSelected();
-  void reloadGlyphsAndRepaint();
-  void changeBeginIndexFromCanvas(int index);
-  void updateGlyphDetails(GlyphCacheEntry* ctxt, 
-                          int charMapIndex, 
-                          bool open);
-  void openWaterfallConfig();
-  void showToolTip();
+  void applySettings();
 
 signals:
   // if sizePoint <= 0, then don't change size.
@@ -72,12 +47,7 @@ signals:
 
 protected:
   bool eventFilter(QObject* watched, QEvent* event) override;
-
-private slots:
-  void wheelNavigate(int steps);
-  void wheelZoom(int steps);
-  void wheelResize(int steps);
-
+  
 private:
   Engine* engine_;
 
@@ -133,9 +103,31 @@ private:
   void createLayout();
   void createConnections();
 
-  QString formatIndex(int index);
+  void updateLimitIndex();
+  void checkModeSource();
+
+  // This doesn't trigger immediate repaint
+  void setGlyphCount(int count);
+
+  // But they do
+  void setGlyphBeginindex(int index);
+  void checkModeSourceAndRepaint();
+  void charMapChanged();
+  void sourceTextChanged();
+  void presetStringSelected();
+  void reloadGlyphsAndRepaint();
+  void updateGlyphDetails(GlyphCacheEntry* ctxt, 
+                          int charMapIndex, 
+                          bool open);
+  void openWaterfallConfig();
+  void showToolTip();
+
+  void wheelNavigate(int steps);
+  void wheelZoom(int steps);
+  void wheelResize(int steps);
 
   void setDefaults();
+  QString formatIndex(int index);
 };
 
 

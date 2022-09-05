@@ -50,6 +50,10 @@ class ZoomSpinBox
   Q_OBJECT
 
 public:
+  /*
+   * The ContinuousView mode for `ZoomSpinBox` will change the range to
+   * 0.25~50, and the single step to 0.25.
+   */
   ZoomSpinBox(QWidget* parent, bool continuousView);
   void stepBy(int val) override;
   double valueFromText(const QString& text) const override;

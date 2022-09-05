@@ -23,6 +23,8 @@ public:
   // Will never trigger repaint!
   void setMinMax(int min, int max);
   void setShowingCount(int showingCount);
+
+  // Single mode will display single glyph index instead of a range.
   void setSingleMode(bool singleMode);
 
   void setCurrentIndex(int index, bool forceUpdate = false);
@@ -35,12 +37,7 @@ signals:
 
 protected:
   void resizeEvent(QResizeEvent* event) override;
-
-private slots:
-  void adjustIndex(int delta);
-  void emitValueChanged();
-  void updateLabel();
-
+  
 private:
   bool singleMode_ = true;
   int showingCount_;
@@ -69,6 +66,10 @@ private:
 
   void createLayout();
   void createConnections();
+
+  void adjustIndex(int delta);
+  void emitValueChanged();
+  void updateLabel();
 
   static QString renderNumberDefault(int i);
 };

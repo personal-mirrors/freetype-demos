@@ -90,7 +90,8 @@ SingularTab::drawGlyph()
   glyphView_->setBackgroundBrush(
     QColor(engine_->renderingEngine()->background()));
 
-  syncSettings();
+  applySettings();
+  engine_->loadPalette();
   FT_Glyph glyph = engine_->loadGlyph(currentGlyphIndex_);
   if (glyph)
   {
@@ -260,6 +261,9 @@ SingularTab::resizeEvent(QResizeEvent* event)
     return;
   initialPositionSetCount_--;
 
+  // The code below mainly:
+  // 1. Center the grid on the the center point of the ppem x ppem bbox.
+  // 2. Adjust the viewport zoom to fit the ppem x ppem bbox
   updateGeometry();
   auto size = sizeSelector_->selectedSize();
   auto unit = sizeSelector_->selectedUnit();
@@ -372,7 +376,7 @@ SingularTab::createLayout()
   glyphOverlayIndexLayout_ = new QHBoxLayout;
   glyphOverlayIndexLayout_->addWidget(glyphIndexLabel_);
   glyphOverlayIndexLayout_->addWidget(glyphNameLabel_);
-  glyphOverlayLayout_ = new QGridLayout;
+  glyphOverlayLayout_ = new QGridLayout; // use a grid layout to align
   glyphOverlayLayout_->addLayout(glyphOverlayIndexLayout_, 0, 1,
                                  Qt::AlignTop | Qt::AlignRight);
   glyphView_->setLayout(glyphOverlayLayout_);
@@ -380,10 +384,10 @@ SingularTab::createLayout()
   mainLayout_ = new QVBoxLayout;
   mainLayout_->addWidget(glyphView_);
   mainLayout_->addLayout(indexHelpLayout_);
-  mainLayout_->addSpacing(10); // XXX px
+  mainLayout_->addSpacing(10);
   mainLayout_->addLayout(sizeLayout_);
   mainLayout_->addLayout(checkBoxesLayout_);
-  mainLayout_->addSpacing(10); // XXX px
+  mainLayout_->addSpacing(10);
 
   setLayout(mainLayout_);
 }
@@ -401,6 +405,7 @@ SingularTab::createConnections()
           this, &SingularTab::wheelResize);
   connect(glyphView_, &QGraphicsViewx::ctrlWheelEvent, 
           this, &SingularTab::wheelZoom);
+  // Use `updateGrid` to support infinite panning.
   connect(glyphView_->horizontalScrollBar(), &QScrollBar::valueChanged,
           this, &SingularTab::updateGrid);
   connect(glyphView_->verticalScrollBar(), &QScrollBar::valueChanged, 
@@ -468,7 +473,7 @@ SingularTab::currentGlyph()
 
 
 void
-SingularTab::syncSettings()
+SingularTab::applySettings()
 {
   sizeSelector_->applyToEngine(engine_);
 }
@@ -485,7 +490,6 @@ SingularTab::setDefaults()
   showAuxLinesCheckBox_->setChecked(true);
   gridItem_->setShowGrid(true, true);
 
-  
   indexSelector_->setCurrentIndex(indexSelector_->currentIndex(), true);
   zoom();
 }

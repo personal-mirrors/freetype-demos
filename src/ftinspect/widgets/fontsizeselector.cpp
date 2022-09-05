@@ -70,6 +70,7 @@ FontSizeSelector::setZoomFactor(double zoomFactor)
 void
 FontSizeSelector::reloadFromFont(Engine* engine)
 {
+  engine->reloadFont();
   bitmapOnly_ = engine->currentFontBitmapOnly();
   fixedSizes_ = engine->currentFontFixedSizes();
   std::sort(fixedSizes_.begin(), fixedSizes_.end());
@@ -77,7 +78,9 @@ FontSizeSelector::reloadFromFont(Engine* engine)
     bitmapOnly_ = false; // Well this won't work...
 
   unitsComboBox_->setEnabled(!bitmapOnly_);
+  sizeDoubleSpinBox_->setKeyboardTracking(!bitmapOnly_);
 
+  if (bitmapOnly_) 
   {
     QSignalBlocker blocker(this);
     unitsComboBox_->setCurrentIndex(Units_px);

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "settingpanelmmgx.hpp"
 #include "../engine/engine.hpp"
 #include "../models/customcomboboxmodels.hpp"
+#include "settingpanelmmgx.hpp"
 
 #include <QWidget>
 #include <QTabWidget>
@@ -16,7 +16,6 @@
 #include <QGridLayout>
 #include <QBoxLayout>
 #include <QPushButton>
-#include <QColorDialog>
 
 class SettingPanel
 : public QWidget
@@ -26,7 +25,8 @@ public:
   SettingPanel(QWidget* parent, Engine* engine, bool comparatorMode = false);
   ~SettingPanel() override = default;
 
-  void syncSettings();
+  void onFontChanged();
+  void applySettings();
   /*
    * When in comparator mode, this is needed to sync the hinting modes when
    * reloading the font.
@@ -43,18 +43,6 @@ public:
 signals:
   void fontReloadNeeded();
   void repaintNeeded();
-
-  //////// `checkXXX` funcs
-
-public slots:
-  void checkAllSettings();
-  void onFontChanged();
-  void checkHinting();
-  void checkHintingMode();
-  void checkAutoHinting();
-  void checkAntiAliasing();
-  void checkPalette();
-  void checkStemDarkening();
 
 private:
   Engine* engine_;
@@ -134,12 +122,19 @@ private:
   void createLayoutComparator();
   void setDefaults();
 
-  void populatePalettes();
+  //////// Other funcs
+
+  void checkAllSettings();
+  void checkHinting();
+  void checkAutoHinting();
+  void checkAntiAliasing();
+  void checkPalette();
 
   void openBackgroundPicker();
   void openForegroundPicker();
   void updateGamma();
   void resetColorBlocks();
+  void populatePalettes();
 };
 
 

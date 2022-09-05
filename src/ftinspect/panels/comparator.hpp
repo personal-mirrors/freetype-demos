@@ -63,7 +63,7 @@ private:
   void reloadStringAndRepaint();
   void reloadGlyphsAndRepaint();
   void sourceTextChanged();
-  void syncSettings(int index);
+  void applySettings(int index);
 
   void wheelResize(int steps);
   void wheelZoom(int steps);
