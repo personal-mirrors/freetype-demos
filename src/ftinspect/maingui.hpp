@@ -10,6 +10,7 @@
 #include "panels/settingpanel.hpp"
 #include "panels/abstracttab.hpp"
 #include "panels/singular.hpp"
+#include "panels/continuous.hpp"
 
 #include <vector>
 #include <QAction>
@@ -88,6 +89,7 @@ private:
   QTabWidget* tabWidget_;
   std::vector<AbstractTab*> tabs_;
   SingularTab* singularTab_;
+  ContinuousTab* continuousTab_;
   QWidget* lastTab_ = NULL;
 
   void openFonts(QStringList const& fileNames);

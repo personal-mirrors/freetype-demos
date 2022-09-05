@@ -164,8 +164,14 @@ MainGUI::onTripletChanged()
 void
 MainGUI::switchTab()
 {
+  auto current = tabWidget_->currentWidget();
   reloadCurrentTabFont();
-  lastTab_ = tabWidget_->currentWidget();
+
+  if (current == continuousTab_ && lastTab_ == singularTab_
+      && singularTab_->currentGlyph() >= 0)
+    continuousTab_->highlightGlyph(singularTab_->currentGlyph());
+
+  lastTab_ = current;
 }
 
 
@@ -215,6 +221,7 @@ MainGUI::createLayout()
 
   // right side
   singularTab_ = new SingularTab(this, engine_);
+  continuousTab_ = new ContinuousTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
   tabWidget_->setObjectName("mainTab"); // for stylesheet
@@ -222,10 +229,15 @@ MainGUI::createLayout()
   // Note those two list must be in sync
   tabs_.push_back(singularTab_);
   tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
+  tabs_.push_back(continuousTab_);
+  tabWidget_->addTab(continuousTab_, tr("Continuous View"));
   lastTab_ = singularTab_;
   
   tabWidget_->setTabToolTip(0, tr("View single glyph in grid view.\n"
                                   "For pixelwise inspection of the glyphs."));
+  tabWidget_->setTabToolTip(1, tr("View a string of glyphs continuously.\n"
+                                  "Show all glyphs in the font or render "
+                                  "strings."));
   tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;
