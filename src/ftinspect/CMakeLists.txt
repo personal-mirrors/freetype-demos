@@ -49,6 +49,7 @@ add_executable(ftinspect
   "panels/settingpanelmmgx.cpp"
   "panels/singular.cpp"
   "panels/continuous.cpp"
+  "panels/comparator.cpp"
   "panels/glyphdetails.cpp"
 )
 target_link_libraries(ftinspect

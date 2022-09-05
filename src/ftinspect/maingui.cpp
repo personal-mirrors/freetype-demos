@@ -165,6 +165,33 @@ void
 MainGUI::switchTab()
 {
   auto current = tabWidget_->currentWidget();
+  auto isComparator = current == comparatorTab_;
+
+  if (isComparator)
+    tabWidget_->setStyleSheet(
+      QString("QTabWidget#mainTab::tab-bar {left: %1 px;}")
+      .arg(leftWidget_->width()));
+  else
+    tabWidget_->setStyleSheet("");
+  
+
+  if (!leftWidget_->isVisible() && !isComparator)
+  {
+    // Dirty approach here: When setting the left panel as visible, the main
+    // window will auto-expand. However, we don't want this behaviour.
+    // Doing `resize` right after the `setVisible` is useless since the
+    // layout updating is delayed, so we have to temporarily fix the main window
+    // size, and recover the original min/max size when finished.
+    auto minSize = minimumSize();
+    auto maxSize = maximumSize();
+    setFixedSize(size());
+    leftWidget_->setVisible(true);
+    setMinimumSize(minSize);
+    setMaximumSize(maxSize);
+  }
+  else
+    leftWidget_->setVisible(!isComparator);
+
   reloadCurrentTabFont();
 
   if (current == continuousTab_ && lastTab_ == singularTab_
@@ -202,7 +229,8 @@ MainGUI::repaintCurrentTab()
 void
 MainGUI::reloadCurrentTabFont()
 {
-  settingPanel_->applyDelayedSettings(); // This will reset the cache.
+  if (tabWidget_->currentWidget() != comparatorTab_)
+    settingPanel_->applyDelayedSettings(); // This will reset the cache.
   applySettings();
   auto index = tabWidget_->currentIndex();
   if (index >= 0 && static_cast<size_t>(index) < tabs_.size())
@@ -213,7 +241,8 @@ MainGUI::reloadCurrentTabFont()
 void
 MainGUI::applySettings()
 {
-  settingPanel_->applySettings();
+  if (tabWidget_->currentWidget() != comparatorTab_)
+    settingPanel_->applySettings();
 }
 
 
@@ -246,6 +275,7 @@ MainGUI::createLayout()
   singularTab_ = new SingularTab(this, engine_);
   continuousTab_ = new ContinuousTab(this, engine_,
                                      glyphDetailsDockWidget_, glyphDetails_);
+  comparatorTab_ = new ComparatorTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
   tabWidget_->setObjectName("mainTab"); // for stylesheet
@@ -255,6 +285,8 @@ MainGUI::createLayout()
   tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
   tabs_.push_back(continuousTab_);
   tabWidget_->addTab(continuousTab_, tr("Continuous View"));
+  tabs_.push_back(comparatorTab_);
+  tabWidget_->addTab(comparatorTab_, tr("Comparator View"));
   lastTab_ = singularTab_;
   
   tabWidget_->setTabToolTip(0, tr("View single glyph in grid view.\n"
@@ -262,6 +294,9 @@ MainGUI::createLayout()
   tabWidget_->setTabToolTip(1, tr("View a string of glyphs continuously.\n"
                                   "Show all glyphs in the font or render "
                                   "strings."));
+  tabWidget_->setTabToolTip(2, tr("Compare the output of the font "
+                                  "in different rendering settings "
+                                  "(e.g. hintings)."));
   tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;
