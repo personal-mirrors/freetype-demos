@@ -4,6 +4,7 @@
 
 #include "continuous.hpp"
 
+#include "glyphdetails.hpp"
 #include "../uihelper.hpp"
 
 #include <climits>
@@ -12,9 +13,13 @@
 
 
 ContinuousTab::ContinuousTab(QWidget* parent,
-                             Engine* engine)
+                             Engine* engine,
+                             QDockWidget* gdWidget,
+                             GlyphDetails* glyphDetails)
 : QWidget(parent),
-  engine_(engine)
+  engine_(engine),
+  glyphDetailsWidget_(gdWidget),
+  glyphDetails_(glyphDetails)
 {
   createLayout();
 
@@ -225,6 +230,20 @@ ContinuousTab::reloadGlyphsAndRepaint()
 {
   canvas_->stringRenderer().reloadGlyphs();
   repaintGlyph();
+}
+
+
+void
+ContinuousTab::updateGlyphDetails(GlyphCacheEntry* ctxt,
+                                  int charMapIndex,
+                                  bool open)
+{
+  glyphDetails_->updateGlyph(*ctxt, charMapIndex);
+  if (open)
+  {
+    glyphDetailsWidget_->show();
+    glyphDetailsWidget_->activateWindow();
+  }
 }
 
 
@@ -467,8 +486,12 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::wheelZoom);
   connect(canvas_, &GlyphContinuous::displayingCountUpdated, 
           indexSelector_, &GlyphIndexSelector::setShowingCount);
+  connect(canvas_, &GlyphContinuous::rightClickGlyph, 
+          this, &ContinuousTab::switchToSingular);
   connect(canvas_, &GlyphContinuous::beginIndexChangeRequest, 
           this, &ContinuousTab::setGlyphBeginindex);
+  connect(canvas_, &GlyphContinuous::updateGlyphDetails, 
+          this, &ContinuousTab::updateGlyphDetails);
 
   connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
           this, &ContinuousTab::repaintGlyph);

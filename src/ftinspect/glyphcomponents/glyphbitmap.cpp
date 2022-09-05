@@ -87,6 +87,88 @@ GlyphBitmap::paint(QPainter* painter,
                                qAlpha(p)));
     }
 #endif
+
+}
+
+
+GlyphBitmapWidget::GlyphBitmapWidget(QWidget* parent)
+: QWidget(parent)
+{
+  setToolTip(tr("Click to inspect in Singular Grid View."));
+}
+
+
+GlyphBitmapWidget::~GlyphBitmapWidget()
+{
+  delete bitmapItem_;
+  bitmapItem_ = NULL;
+}
+
+
+void
+GlyphBitmapWidget::updateImage(QImage* image,
+                               QRect rect)
+{
+  rect.moveTop(0);
+  rect.moveLeft(0);
+
+  delete bitmapItem_;
+  auto* copied = new QImage(image->copy());
+  bitmapItem_ = new GlyphBitmap(copied, rect);
+
+  repaint();
+}
+
+
+void
+GlyphBitmapWidget::releaseImage()
+{
+  delete bitmapItem_;
+  bitmapItem_ = NULL;
+  repaint();
+}
+
+
+void
+GlyphBitmapWidget::paintEvent(QPaintEvent* event)
+{
+  if (!bitmapItem_)
+    return;
+  auto s = size();
+  auto br = bitmapItem_->boundingRect();
+  double xScale = s.width() / br.width();
+  double yScale = s.height() / br.height();
+  auto scale = std::min(xScale, yScale);
+
+  QPainter painter(this);
+  painter.fillRect(rect(), Qt::white);
+  painter.scale(scale, scale);
+
+  QStyleOptionGraphicsItem ogi;
+  ogi.exposedRect = br;
+  bitmapItem_->paint(&painter, &ogi, this);
+
+  double scaledLineWidth = 4 / scale;
+  painter.setPen(QPen(Qt::black, scaledLineWidth));
+  scaledLineWidth /= 2;
+  painter.drawRect(br.adjusted(scaledLineWidth, scaledLineWidth,
+                               -scaledLineWidth, -scaledLineWidth));
+}
+
+
+QSize
+GlyphBitmapWidget::sizeHint() const
+{
+  return { 300, 300 };
+}
+
+
+void
+GlyphBitmapWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  QWidget::mouseReleaseEvent(event);
+  if (event->button() == Qt::LeftButton)
+    emit clicked();
 }
 
 

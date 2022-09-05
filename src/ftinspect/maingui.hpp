@@ -11,6 +11,7 @@
 #include "panels/abstracttab.hpp"
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"
+#include "panels/glyphdetails.hpp"
 
 #include <vector>
 #include <QAction>
@@ -54,6 +55,8 @@ private slots:
   void loadFonts();
   void onTripletChanged();
   void switchTab();
+  void switchToSingular(int glyphIndex, double sizePoint);
+  void closeDockWidget();
 
 private:
   Engine* engine_;
@@ -91,6 +94,9 @@ private:
   SingularTab* singularTab_;
   ContinuousTab* continuousTab_;
   QWidget* lastTab_ = NULL;
+
+  QDockWidget* glyphDetailsDockWidget_;
+  GlyphDetails* glyphDetails_;
 
   void openFonts(QStringList const& fileNames);
 

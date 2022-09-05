@@ -22,21 +22,28 @@
 #include <QGridLayout>
 #include <QBoxLayout>
 #include <QPlainTextEdit>
+#include <QDockWidget>
 #include <QCheckBox>
 
+class GlyphDetails;
 class WaterfallConfigDialog;
 class ContinuousTab
 : public QWidget, public AbstractTab
 {
   Q_OBJECT
 public:
-  ContinuousTab(QWidget* parent, Engine* engine);
+  ContinuousTab(QWidget* parent, Engine* engine,
+                QDockWidget* gdWidget, GlyphDetails* glyphDetails);
   ~ContinuousTab() override = default;
 
   void repaintGlyph() override;
   void reloadFont() override;
   void highlightGlyph(int index);
   void applySettings();
+
+signals:
+  // if sizePoint <= 0, then don't change size.
+  void switchToSingular(int glyphIndex, double sizePoint);
 
 protected:
   bool eventFilter(QObject* watched, QEvent* event) override;
@@ -88,6 +95,9 @@ private:
   QGridLayout* bottomLayout_;
   QVBoxLayout* mainLayout_;
 
+  QDockWidget* glyphDetailsWidget_;
+  GlyphDetails* glyphDetails_;
+
   WaterfallConfigDialog* wfConfigDialog_;
 
   void createLayout();
@@ -106,6 +116,9 @@ private:
   void sourceTextChanged();
   void presetStringSelected();
   void reloadGlyphsAndRepaint();
+  void updateGlyphDetails(GlyphCacheEntry* ctxt, 
+                          int charMapIndex, 
+                          bool open);
   void openWaterfallConfig();
   void showToolTip();
 

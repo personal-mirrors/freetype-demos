@@ -221,6 +221,31 @@ GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
 
 
 void
+GlyphContinuous::mouseReleaseEvent(QMouseEvent* event)
+{
+  if (!mouseOperationEnabled_)
+    return;
+  if (event->button() == Qt::LeftButton)
+  {
+    auto dist = event->pos() - mouseDownPostition_;
+    if (dist.manhattanLength() < ClickDragThreshold)
+    {
+      auto gl = findGlyphByMouse(event->pos(), NULL);
+      if (gl)
+        emit updateGlyphDetails(gl, stringRenderer_.charMapIndex(), true);
+    }
+  }
+  else if (event->button() == Qt::RightButton)
+  {
+    double size;
+    auto gl = findGlyphByMouse(event->pos(), &size);
+    if (gl)
+      emit rightClickGlyph(gl->glyphIndex, size);
+  }
+}
+
+
+void
 GlyphContinuous::paintByRenderer()
 {
   purgeCache();
