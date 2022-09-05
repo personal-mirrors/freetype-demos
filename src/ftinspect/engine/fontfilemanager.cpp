@@ -183,7 +183,9 @@ FontFileManager::validateFontFile(QString const& fileName)
 void
 FontFileManager::onTimerFire()
 {
+  periodicUpdating_ = true;
   onWatcherFire();
+  periodicUpdating_ = false;
 }
 
 

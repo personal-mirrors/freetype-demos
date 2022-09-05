@@ -276,6 +276,7 @@ MainGUI::createLayout()
   continuousTab_ = new ContinuousTab(this, engine_,
                                      glyphDetailsDockWidget_, glyphDetails_);
   comparatorTab_ = new ComparatorTab(this, engine_);
+  infoTab_ = new InfoTab(this, engine_);
 
   tabWidget_ = new QTabWidget(this);
   tabWidget_->setObjectName("mainTab"); // for stylesheet
@@ -287,6 +288,8 @@ MainGUI::createLayout()
   tabWidget_->addTab(continuousTab_, tr("Continuous View"));
   tabs_.push_back(comparatorTab_);
   tabWidget_->addTab(comparatorTab_, tr("Comparator View"));
+  tabs_.push_back(infoTab_);
+  tabWidget_->addTab(infoTab_, tr("Font Info"));
   lastTab_ = singularTab_;
   
   tabWidget_->setTabToolTip(0, tr("View single glyph in grid view.\n"
@@ -297,6 +300,8 @@ MainGUI::createLayout()
   tabWidget_->setTabToolTip(2, tr("Compare the output of the font "
                                   "in different rendering settings "
                                   "(e.g. hintings)."));
+  tabWidget_->setTabToolTip(3, tr("View font info and metadata."));
+  
   tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;
@@ -349,6 +354,9 @@ MainGUI::createConnections()
 
   connect(continuousTab_, &ContinuousTab::switchToSingular,
           this, &MainGUI::switchToSingular);
+  connect(infoTab_, &InfoTab::switchToSingular,
+          [&](int index) { switchToSingular(index, -1); });
+
   connect(glyphDetails_, &GlyphDetails::closeDockWidget, 
           this, &MainGUI::closeDockWidget);
   connect(glyphDetails_, &GlyphDetails::switchToSingular,

@@ -27,6 +27,7 @@ if qt5_dep.found()
     'engine/paletteinfo.cpp',
     'engine/mmgx.cpp',
     'engine/fontinfo.cpp',
+    'engine/fontinfonamesmapping.cpp',
     'engine/stringrenderer.cpp',
     'engine/charmap.cpp',
 
@@ -45,12 +46,14 @@ if qt5_dep.found()
     'widgets/charmapcombobox.cpp',
 
     'models/customcomboboxmodels.cpp',
+    'models/fontinfomodels.cpp',
 
     'panels/settingpanel.cpp',
     'panels/settingpanelmmgx.cpp',
     'panels/singular.cpp',
     'panels/continuous.cpp',
     'panels/comparator.cpp',
+    'panels/info.cpp',
     'panels/glyphdetails.cpp',
 
     'ftinspect.cpp',
@@ -70,11 +73,13 @@ if qt5_dep.found()
       'widgets/charmapcombobox.hpp',
       'maingui.hpp',
       'models/customcomboboxmodels.hpp',
+      'models/fontinfomodels.hpp',
       'panels/settingpanel.hpp',
       'panels/settingpanelmmgx.hpp',
       'panels/singular.hpp',
       'panels/continuous.hpp',
       'panels/comparator.hpp',
+      'panels/info.hpp',
       'panels/glyphdetails.hpp',
     ],
     dependencies: qt5_dep)

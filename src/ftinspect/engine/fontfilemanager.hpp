@@ -34,6 +34,11 @@ public:
   void timerStart();
   void loadFromCommandLine();
 
+  // If this is true, then the current font reloading is due to a periodic
+  // reloading for symbolic font files. Use this if you want to omit some
+  // updating for periodic reloading.
+  bool currentReloadDueToPeriodicUpdate() { return periodicUpdating_; }
+
 signals:
   void currentFileChanged();
 
@@ -46,6 +51,8 @@ private:
   QList<QFileInfo> fontFileNameList_;
   QFileSystemWatcher* fontWatcher_;
   QTimer* watchTimer_;
+
+  bool periodicUpdating_ = false;
 
   FT_Error validateFontFile(QString const& fileName);
 };

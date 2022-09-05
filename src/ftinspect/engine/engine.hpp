@@ -95,6 +95,7 @@ public:
   
   void update();
   void resetCache();
+  void loadDefaults();
 
   //////// Getters
 
@@ -108,6 +109,7 @@ public:
   int numberOfOpenedFonts();
 
   // (for current fonts)
+  int currentFontIndex() { return curFontIndex_; }
   FT_Face currentFallbackFtFace() { return ftFallbackFace_; }
   FT_Size currentFtSize() { return ftSize_; }
   FT_Size_Metrics const& currentFontMetrics();
@@ -140,7 +142,12 @@ public:
   bool currentFontBitmapOnly();
   bool currentFontHasEmbeddedBitmap();
   bool currentFontHasColorLayers();
+  bool currentFontHasGlyphName();
+  
   std::vector<int> currentFontFixedSizes();
+  bool currentFontPSInfo(PS_FontInfoRec& outInfo);
+  bool currentFontPSPrivateInfo(PS_PrivateRec& outInfo);
+  std::vector<SFNTTableInfo>& currentFontSFNTTableInfo();
 
   int currentFontFirstUnicodeCharMap();
   // Note: the current font face must be properly set
@@ -226,6 +233,9 @@ private:
   int curNumGlyphs_ = -1;
   std::vector<CharMapInfo> curCharMaps_;
   std::vector<PaletteInfo> curPaletteInfos_;
+
+  bool curSFNTTablesValid_ = false;
+  std::vector<SFNTTableInfo> curSFNTTables_;
   MMGXState curMMGXState_ = MMGXState::NoMMGX;
   std::vector<MMGXAxisInfo> curMMGXAxes_;
   std::vector<SFNTName> curSFNTNames_;
