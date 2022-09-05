@@ -685,6 +685,7 @@ Engine::currentFontMetrics()
   return ftSize_->metrics;
 }
 
+
 FT_GlyphSlot
 Engine::currentFaceSlot()
 {
