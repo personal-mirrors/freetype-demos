@@ -22,7 +22,7 @@ class SettingPanel
 {
   Q_OBJECT
 public:
-  SettingPanel(QWidget* parent, Engine* engine);
+  SettingPanel(QWidget* parent, Engine* engine, bool comparatorMode = false);
   ~SettingPanel() override = default;
 
   void onFontChanged();
@@ -38,6 +38,7 @@ public:
   int antiAliasingModeIndex();
   bool kerningEnabled();
   bool lsbRsbDeltaEnabled();
+  void setDefaultsPreset(int preset);
 
 signals:
   void fontReloadNeeded();
@@ -48,7 +49,18 @@ private:
 
   int currentCFFHintingMode_;
   int currentTTInterpreterVersion_;
-  
+
+  /*
+   * There's two places where `SettingPanel` appears: On the left for most tabs,
+   * and on the bottom in the comparator for each column. Therefore,
+   * set `comparatorMode_` to `true` will change the panel for the Comparator
+   * View.
+   *
+   * In comparator view, some updating is suppressed during GUI events.
+   * Instead, updating was strictly passive called from the parent (comparator
+   * view).
+   */
+  bool comparatorMode_ = false;
   bool debugMode_ = false;
 
   QTabWidget* tab_;
@@ -107,6 +119,7 @@ private:
   void createConnections();
   void createLayout();
   void createLayoutNormal();
+  void createLayoutComparator();
   void setDefaults();
 
   //////// Other funcs

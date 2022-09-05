@@ -12,9 +12,11 @@
 #include <freetype/config/ftoption.h>
 
 SettingPanel::SettingPanel(QWidget* parent,
-                           Engine* engine)
+                           Engine* engine,
+                           bool comparatorMode)
 : QWidget(parent),
-  engine_(engine)
+  engine_(engine),
+  comparatorMode_(comparatorMode)
 {
 #ifdef FT_DEBUG_AUTOFIT
   debugMode_ = !comparatorMode_;
@@ -46,6 +48,30 @@ bool
 SettingPanel::lsbRsbDeltaEnabled()
 {
   return lsbRsbDeltaCheckBox_->isChecked();
+}
+
+
+void
+SettingPanel::setDefaultsPreset(int preset)
+{
+  if (preset < 0)
+    preset = 0;
+  preset %= 3;
+  switch (preset)
+  {
+  case 0:
+    hintingCheckBox_->setChecked(true);
+    autoHintingCheckBox_->setChecked(false);
+    break;
+  case 1:
+    hintingCheckBox_->setChecked(true);
+    autoHintingCheckBox_->setChecked(true);
+    break;
+  case 2:
+    hintingCheckBox_->setChecked(false);
+    autoHintingCheckBox_->setChecked(false);
+    break;
+  }
 }
 
 
@@ -286,8 +312,9 @@ SettingPanel::populatePalettes()
 void
 SettingPanel::onFontChanged()
 {
-  auto blockState = blockSignals(signalsBlocked());
-  
+  auto blockState = blockSignals(signalsBlocked() || comparatorMode_);
+
+  engine_->reloadFont();
   if (engine_->currentFontType() == Engine::FontType_CFF)
   {
     hintingModeComboBoxModel_->setCurrentEngineType(
@@ -429,6 +456,12 @@ SettingPanel::createLayout()
   embeddedBitmapCheckBox_ = new QCheckBox(tr("Enable Embedded Bitmap"), this);
   colorLayerCheckBox_ = new QCheckBox(tr("Enable Color Layer"), this);
 
+  if (comparatorMode_)
+  {
+    kerningCheckBox_ = new QCheckBox(tr("Kerning"), this);
+    lsbRsbDeltaCheckBox_ = new QCheckBox(tr("LSB/RSB Delta"), this);
+  }
+
   antiAliasingLabel_ = new QLabel(tr("Anti-Aliasing"), this);
   antiAliasingLabel_->setAlignment(Qt::AlignRight);
 
@@ -510,6 +543,14 @@ SettingPanel::createLayout()
   colorLayerCheckBox_->setToolTip(tr("Enable color layer rendering."));
   paletteComboBox_->setToolTip(tr("Select color layer palette (only valid when "
                                   "any palette exists in the font)."));
+  if (comparatorMode_)
+  {
+    kerningCheckBox_->setToolTip(
+      tr("Enable kerning (GPOS table not supported)."));
+    lsbRsbDeltaCheckBox_->setToolTip(
+      tr("Enable LSB/RSB delta positioning (only valid when hinting is "
+         "enabled)."));
+  }
   backgroundButton_->setToolTip(tr("Set canvas background color."));
   foregroundButton_->setToolTip(tr("Set text color."));
 
@@ -535,8 +576,10 @@ SettingPanel::createLayout()
   colorPickerLayout_->addWidget(foregroundButton_, 1);
   colorPickerLayout_->addWidget(foregroundBlock_);
 
-  createLayoutNormal();
-  // TODO: Comparator mode.
+  if (comparatorMode_)
+    createLayoutComparator();
+  else
+    createLayoutNormal();
 
   mainLayout_ = new QVBoxLayout;
   mainLayout_->addWidget(tab_);
@@ -596,6 +639,56 @@ SettingPanel::createLayoutNormal()
 
 
 void
+SettingPanel::createLayoutComparator()
+{
+  hintingRenderingTab_ = new QWidget(this);
+
+  generalTabLayout_ = new QGridLayout;
+  hintingRenderingTabLayout_ = new QGridLayout;
+
+  // Hinting & Rendering
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, hintingCheckBox_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+                          hintingModeLabel_, hintingModeComboBox_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, autoHintingCheckBox_);
+
+  if (debugMode_)
+    gridLayout2ColAddLayout(hintingRenderingTabLayout_, debugLayout_);
+
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+                          antiAliasingLabel_, antiAliasingComboBox_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+                          lcdFilterLabel_, lcdFilterComboBox_);
+
+  gridLayout2ColAddLayout(hintingRenderingTabLayout_, gammaLayout_);
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_, stemDarkeningCheckBox_);
+
+  // General
+  gridLayout2ColAddLayout(generalTabLayout_, colorPickerLayout_);
+  gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, 
+                          paletteLabel_, paletteComboBox_);
+
+  gridLayout2ColAddWidget(generalTabLayout_, kerningCheckBox_);
+  gridLayout2ColAddWidget(generalTabLayout_, lsbRsbDeltaCheckBox_);
+
+  generalTabLayout_->setColumnStretch(1, 1);
+  hintingRenderingTabLayout_->setColumnStretch(1, 1);
+  generalTab_->setLayout(generalTabLayout_);
+  hintingRenderingTab_->setLayout(hintingRenderingTabLayout_);
+
+  tab_->addTab(hintingRenderingTab_, tr("Hinting && Rendering"));
+  tab_->addTab(generalTab_, tr("General"));
+  tab_->addTab(mmgxPanel_, tr("MM/GX"));
+  tab_->setTabToolTip(0, tr("Settings about hinting and rendering."));
+  tab_->setTabToolTip(1, tr("General settings."));
+  tab_->setTabToolTip(2, tr("MM/GX axis parameters."));
+  setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+}
+
+
+void
 SettingPanel::createConnections()
 {
   // use `qOverload` here to prevent ambiguity.
@@ -638,6 +731,14 @@ SettingPanel::createConnections()
           this, &SettingPanel::fontReloadNeeded);
   connect(colorLayerCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkPalette);
+
+  if (comparatorMode_)
+  {
+    connect(kerningCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+    connect(lsbRsbDeltaCheckBox_, &QCheckBox::clicked,
+            this, &SettingPanel::repaintNeeded);
+  }
 
   connect(backgroundButton_, &QPushButton::clicked,
           this, &SettingPanel::openBackgroundPicker);
@@ -685,6 +786,12 @@ SettingPanel::setDefaults()
   
   colorLayerCheckBox_->setChecked(true);
   paletteComboBox_->setEnabled(false);
+
+  if (comparatorMode_)
+  {
+    kerningCheckBox_->setChecked(true);
+    lsbRsbDeltaCheckBox_->setChecked(true);
+  }
 
   // These need to be set even in Comperator mode.
   backgroundColor_ = Qt::white;

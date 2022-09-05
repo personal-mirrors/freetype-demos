@@ -11,6 +11,7 @@
 #include "panels/abstracttab.hpp"
 #include "panels/singular.hpp"
 #include "panels/continuous.hpp"
+#include "panels/comparator.hpp"
 #include "panels/glyphdetails.hpp"
 
 #include <vector>
@@ -93,6 +94,7 @@ private:
   std::vector<AbstractTab*> tabs_;
   SingularTab* singularTab_;
   ContinuousTab* continuousTab_;
+  ComparatorTab* comparatorTab_;
   QWidget* lastTab_ = NULL;
 
   QDockWidget* glyphDetailsDockWidget_;

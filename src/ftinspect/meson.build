@@ -50,6 +50,7 @@ if qt5_dep.found()
     'panels/settingpanelmmgx.cpp',
     'panels/singular.cpp',
     'panels/continuous.cpp',
+    'panels/comparator.cpp',
     'panels/glyphdetails.cpp',
 
     'ftinspect.cpp',
@@ -73,6 +74,7 @@ if qt5_dep.found()
       'panels/settingpanelmmgx.hpp',
       'panels/singular.hpp',
       'panels/continuous.hpp',
+      'panels/comparator.hpp',
       'panels/glyphdetails.hpp',
     ],
     dependencies: qt5_dep)
