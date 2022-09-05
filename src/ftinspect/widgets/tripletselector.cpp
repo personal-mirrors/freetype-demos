@@ -452,6 +452,11 @@ TripletSelector::loadTriplet()
     }
   }
 
+  if (faceIndex < 0)
+    faceIndex = 0;
+  if (instanceIndex < 0)
+    instanceIndex = 0;
+
   engine_->loadFont(fontIndex, faceIndex, instanceIndex);
   
   // TODO: This may messes up with bitmap-only fonts.
