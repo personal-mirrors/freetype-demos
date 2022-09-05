@@ -95,6 +95,7 @@ SettingPanelMMGX::createLayout()
   itemsListWidget_ = new QWidget(this);
   scrollArea_ = new UnboundScrollArea(this);
 
+  scrollArea_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
   scrollArea_->setWidget(itemsListWidget_);
   scrollArea_->setWidgetResizable(true);
   itemsListWidget_->setAutoFillBackground(false);

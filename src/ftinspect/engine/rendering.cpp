@@ -5,6 +5,9 @@
 #include "rendering.hpp"
 
 #include <cmath>
+#include <QPixmap>
+#include <QPainter>
+
 #include <freetype/ftbitmap.h>
 
 #include "engine.hpp"
@@ -443,6 +446,21 @@ RenderingEngine::tryDirectRenderColorLayers(int glyphIndex,
   FT_Bitmap_Done(engine_->ftLibrary(), &bitmap);
 
   return img;
+}
+
+
+QPixmap
+RenderingEngine::padToSize(QImage* image, int ppem)
+{
+  auto width = std::max(image->width(), ppem);
+  auto height = std::max(image->height(), ppem);
+  auto result = QPixmap(width, height);
+  result.fill(backgroundColor_);
+  QPainter painter(&result);
+  auto pos = QPoint { width / 2 - image->width() / 2,
+                      height / 2 - image->height() / 2};
+  painter.drawImage(pos, *image);
+  return result;
 }
 
 

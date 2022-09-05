@@ -463,6 +463,15 @@ Engine::currentFontHasColorLayers()
 }
 
 
+bool
+Engine::currentFontHasGlyphName()
+{
+  if (!ftFallbackFace_)
+    return false;
+  return FT_HAS_GLYPH_NAMES(ftFallbackFace_);
+}
+
+
 std::vector<int>
 Engine::currentFontFixedSizes()
 {
@@ -474,6 +483,41 @@ Engine::currentFontFixedSizes()
   for (int i = 0; i < ftFallbackFace_->num_fixed_sizes; i++)
     result[i] = ftFallbackFace_->available_sizes[i].x_ppem >> 6; // XXX: ????
   return result;
+}
+
+
+bool
+Engine::currentFontPSInfo(PS_FontInfoRec& outInfo)
+{
+  if (!ftSize_)
+    return false;
+  if (FT_Get_PS_Font_Info(ftSize_->face, &outInfo) == FT_Err_Ok)
+    return true;
+  return false;
+}
+
+
+bool
+Engine::currentFontPSPrivateInfo(PS_PrivateRec& outInfo)
+{
+  if (!ftSize_)
+    return false;
+  if (FT_Get_PS_Font_Private(ftSize_->face, &outInfo) == FT_Err_Ok)
+    return true;
+  return false;
+}
+
+
+std::vector<SFNTTableInfo>&
+Engine::currentFontSFNTTableInfo()
+{
+  if (!curSFNTTablesValid_)
+  {
+    SFNTTableInfo::getForAll(this, curSFNTTables_);
+    curSFNTTablesValid_ = true;
+  }
+
+  return curSFNTTables_;
 }
 
 
@@ -813,6 +857,39 @@ Engine::resetCache()
   ftFallbackFace_ = NULL;
   ftSize_ = NULL;
   palette_ = NULL;
+}
+
+
+void
+Engine::loadDefaults()
+{
+  if (fontType_ == FontType_CFF)
+    setCFFHintingMode(engineDefaults_.cffHintingEngineDefault);
+  else if (fontType_ == FontType_TrueType)
+  {
+    if (currentFontTricky())
+      setTTInterpreterVersion(TT_INTERPRETER_VERSION_35);
+    else
+      setTTInterpreterVersion(engineDefaults_.ttInterpreterVersionDefault);
+  }
+  setStemDarkening(false);
+  applyMMGXDesignCoords(NULL, 0);
+
+  setAntiAliasingEnabled(true);
+  setAntiAliasingTarget(FT_LOAD_TARGET_NORMAL);
+  setHinting(true);
+  setAutoHinting(false);
+  setEmbeddedBitmapEnabled(true);
+  setPaletteIndex(0);
+  setUseColorLayer(true);
+
+  renderingEngine()->setBackground(qRgba(255, 255, 255, 255));
+  renderingEngine()->setForeground(qRgba(0, 0, 0, 255));
+  renderingEngine()->setGamma(1.8);
+
+  resetCache();
+  reloadFont();
+  loadPalette();
 }
 
 
