@@ -50,6 +50,7 @@ if qt5_dep.found()
     'panels/settingpanelmmgx.cpp',
     'panels/singular.cpp',
     'panels/continuous.cpp',
+    'panels/glyphdetails.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
@@ -59,6 +60,7 @@ if qt5_dep.found()
   moc_files = qt5.preprocess(
     moc_headers: [
       'engine/fontfilemanager.hpp',
+      'glyphcomponents/glyphbitmap.hpp',
       'glyphcomponents/glyphcontinuous.hpp',
       'widgets/customwidgets.hpp',
       'widgets/tripletselector.hpp',
@@ -71,6 +73,7 @@ if qt5_dep.found()
       'panels/settingpanelmmgx.hpp',
       'panels/singular.hpp',
       'panels/continuous.hpp',
+      'panels/glyphdetails.hpp',
     ],
     dependencies: qt5_dep)
 

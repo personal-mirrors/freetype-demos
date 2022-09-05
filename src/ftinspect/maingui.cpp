@@ -176,6 +176,22 @@ MainGUI::switchTab()
 
 
 void
+MainGUI::switchToSingular(int glyphIndex,
+                          double sizePoint)
+{
+  tabWidget_->setCurrentWidget(singularTab_); // this would update the tab
+  singularTab_->setCurrentGlyphAndSize(glyphIndex, sizePoint);
+}
+
+
+void
+MainGUI::closeDockWidget()
+{
+  glyphDetailsDockWidget_->hide();
+}
+
+
+void
 MainGUI::repaintCurrentTab()
 {
   applySettings();
@@ -206,6 +222,13 @@ MainGUI::applySettings()
 void
 MainGUI::createLayout()
 {
+  // floating
+  glyphDetailsDockWidget_ = new QDockWidget(tr("Glyph Details"), this);
+  glyphDetails_ = new GlyphDetails(glyphDetailsDockWidget_, engine_);
+  glyphDetailsDockWidget_->setWidget(glyphDetails_);
+  glyphDetailsDockWidget_->setFloating(true);
+  glyphDetailsDockWidget_->hide();
+
   // left side
   settingPanel_ = new SettingPanel(this, engine_);
 
@@ -221,7 +244,8 @@ MainGUI::createLayout()
 
   // right side
   singularTab_ = new SingularTab(this, engine_);
-  continuousTab_ = new ContinuousTab(this, engine_);
+  continuousTab_ = new ContinuousTab(this, engine_,
+                                     glyphDetailsDockWidget_, glyphDetails_);
 
   tabWidget_ = new QTabWidget(this);
   tabWidget_->setObjectName("mainTab"); // for stylesheet
@@ -287,6 +311,18 @@ MainGUI::createConnections()
 
   connect(tripletSelector_, &TripletSelector::tripletChanged,
           this, &MainGUI::onTripletChanged);
+
+  connect(continuousTab_, &ContinuousTab::switchToSingular,
+          this, &MainGUI::switchToSingular);
+  connect(glyphDetails_, &GlyphDetails::closeDockWidget, 
+          this, &MainGUI::closeDockWidget);
+  connect(glyphDetails_, &GlyphDetails::switchToSingular,
+          [&] (int index)
+          {
+            switchToSingular(index, -1);
+            if (glyphDetailsDockWidget_->isFloating())
+              glyphDetailsDockWidget_->hide();
+          });
 }
 
 

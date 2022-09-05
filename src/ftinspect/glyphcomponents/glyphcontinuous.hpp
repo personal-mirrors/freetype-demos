@@ -107,6 +107,8 @@ signals:
   void wheelZoom(int steps);
   void beginIndexChangeRequest(int newIndex);
   void displayingCountUpdated(int newCount);
+  void rightClickGlyph(int glyphIndex, double sizePoint);
+  void updateGlyphDetails(GlyphCacheEntry* ctxt, int charMapIndex, bool open);
 
 protected:
   void paintEvent(QPaintEvent* event) override;
@@ -114,6 +116,7 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
   Engine* engine_;

@@ -39,4 +39,30 @@ private:
 };
 
 
+// Sometimes we don't want a complicated QGraphicsView
+// for this kind of work...
+class GlyphBitmapWidget
+: public QWidget
+{
+  Q_OBJECT
+public:
+  GlyphBitmapWidget(QWidget* parent);
+  ~GlyphBitmapWidget() override;
+
+  void updateImage(QImage* image, QRect rect);
+  void releaseImage();
+
+signals:
+  void clicked();
+
+protected:
+  void paintEvent(QPaintEvent* event) override;
+  QSize sizeHint() const override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
+
+private:
+  GlyphBitmap* bitmapItem_ = NULL;
+};
+
+
 // end of glyphbitmap.hpp
