@@ -522,9 +522,6 @@ StringRenderer::renderLine(int x,
                            int offset,
                            bool handleMultiLine)
 {
-  if (x < 0 || y < 0 || x > width || y > height)
-    return 0;
-
   y = height - y; // change to Cartesian coordinates
 
   FT_Vector pen = { 0, 0 };
