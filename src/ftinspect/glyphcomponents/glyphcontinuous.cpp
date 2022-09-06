@@ -552,6 +552,7 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
   // Well, metrics is also part of the cache...
   int width = entry.advance.x ? entry.advance.x >> 16
                               : entry.nonSpacingPlaceholder;
+  auto xOffset = 0;
 
   if (entry.advance.x == 0 
       && !stringRenderer_.isWaterfall()
@@ -562,10 +563,11 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
     squarePoint.setY(squarePoint.y() - width);
     auto rect = QRect(squarePoint, QSize(width, width));
     painter->fillRect(rect, Qt::red);
+    xOffset = width; // let the glyph be drawn on the red square
   }
 
   QRect rect = entry.basePosition;
-  rect.moveLeft(rect.x() + sizeIndicatorOffset_);
+  rect.moveLeft(rect.x() + sizeIndicatorOffset_ + xOffset);
   rect.translate(positionDelta_);
 
   if (colorInverted)
@@ -589,8 +591,26 @@ GlyphContinuous::findGlyphByMouse(QPoint position,
     for (auto& entry : line.entries)
     {
       auto rect = entry.basePosition;
+      auto rect2 = QRect();
       rect.moveLeft(rect.x() + line.sizeIndicatorOffset);
-      if (rect.contains(position))
+
+      if (entry.advance.x == 0 
+          && !stringRenderer_.isWaterfall()
+          && source_ == SRC_AllGlyphs)
+      {
+        // Consider the red square
+        int width = static_cast<int>(entry.nonSpacingPlaceholder);
+        if (width < 0)
+          continue;
+
+        auto squarePoint = entry.penPos;
+        squarePoint.setY(squarePoint.y() - width);
+
+        rect2 = QRect(squarePoint, QSize(width, width));
+        rect.moveLeft(rect.x() + width);
+      }
+      
+      if (rect.contains(position) || rect2.contains(position))
       {
         if (outSizePoint)
           *outSizePoint = line.sizePoint;
