@@ -53,6 +53,7 @@ InfoTab::createLayout()
   tabs_.append(generalTab_);
   tabs_.append(sfntTab_);
   tabs_.append(postScriptTab_);
+  tabs_.append(mmgxTab_);
   tabs_.append(compositeGlyphsTab_);
 
   layout_ = new QHBoxLayout;
@@ -885,6 +886,8 @@ MMGXInfoTab::reloadFont()
     axesModel_->storage() = engine_->currentFontMMGXAxes();
     axesModel_->endModelUpdate();
   }
+
+  setEnabled(state != MMGXState::NoMMGX);
 }
 
 
