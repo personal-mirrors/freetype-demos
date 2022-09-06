@@ -729,7 +729,7 @@ CompositeGlyphsInfoModel::renderIcon(int glyphIndex) const
   if (!image)
     return {};
 
-  auto result = QPixmap::fromImage(*image);
+  auto result = engine_->renderingEngine()->padToSize(image, 20);
   delete image;
   return result;
 }

@@ -48,6 +48,8 @@ public:
                                      QRect* outRect,
                                      bool inverseRectY = false);
 
+  QPixmap padToSize(QImage* image, int ppem);
+
 private:
   Engine* engine_;
 
