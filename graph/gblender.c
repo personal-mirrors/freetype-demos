@@ -119,8 +119,7 @@ gblender_set_gamma_table( double           gamma_value,
 static void
 gblender_clear( GBlender  blender )
 {
-  int          nn;
-  GBlenderKey  keys = blender->keys;
+  int  nn;
 
   if ( blender->channels )
   {
@@ -143,6 +142,8 @@ gblender_clear( GBlender  blender )
   }
   else
   {
+    GBlenderKey  keys = blender->keys;
+
     for ( nn = 0; nn < GBLENDER_KEY_COUNT; nn++ )
       keys[nn].cells = NULL;
 
@@ -290,7 +291,7 @@ gblender_lookup( GBlender       blender,
 NewNode:
   key->background = background;
   key->foreground = foreground;
-  key->cells      = blender->cells + idx * GBLENDER_SHADE_COUNT;
+  key->cells      = blender->cells[idx];
 
   gblender_reset_key( blender, key );
 

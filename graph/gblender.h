@@ -73,7 +73,7 @@
   typedef struct GBlenderRec_
   {
     GBlenderKeyRec        keys [ GBLENDER_KEY_COUNT ];
-    GBlenderCell          cells[ GBLENDER_KEY_COUNT*GBLENDER_SHADE_COUNT ];
+    GBlenderCell          cells[ GBLENDER_KEY_COUNT ][ GBLENDER_SHADE_COUNT ];
 
    /* a small cache for normal modes
     */
