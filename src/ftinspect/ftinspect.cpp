@@ -7,17 +7,21 @@
 #include "engine/engine.hpp"
 
 #include <QApplication>
-
-#define VERSION "X.Y.Z"
+#include <freetype/freetype.h>
 
 
 int
 main(int argc,
      char** argv)
 {
+  auto version = QString("%1.%2.%3")
+                   .arg(QString::number(FREETYPE_MAJOR),
+                        QString::number(FREETYPE_MINOR),
+                        QString::number(FREETYPE_PATCH));
+
   QApplication app(argc, argv);
   app.setApplicationName("ftinspect");
-  app.setApplicationVersion(VERSION);
+  app.setApplicationVersion(version);
   app.setOrganizationName("FreeType");
   app.setOrganizationDomain("freetype.org");
 

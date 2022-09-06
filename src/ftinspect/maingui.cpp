@@ -93,23 +93,28 @@ MainGUI::keyPressEvent(QKeyEvent* event)
 void
 MainGUI::about()
 {
+  auto version = QApplication::applicationVersion();
+  auto dynamicVersion = engine_->dynamicLibraryVersion();
+  if (version != dynamicVersion)
+    version = QString("%1 (library ver. %2)").arg(version, dynamicVersion);
   QMessageBox::about(
     this,
     tr("About ftinspect"),
-    tr("<p>This is <b>ftinspect</b> version %1<br>"
-       " Copyright %2 2016-2022<br>"
-       " by Werner Lemberg <tt>&lt;wl@gnu.org&gt;</tt></p>"
-       ""
-       "<p><b>ftinspect</b> shows how a font gets rendered"
-       " by FreeType, allowing control over virtually"
-       " all rendering parameters.</p>"
-       ""
-       "<p>License:"
-       " <a href='https://gitlab.freedesktop.org/freetype/freetype/-/blob/master/docs/FTL.TXT'>FreeType"
-       " License (FTL)</a> or"
-       " <a href='https://gitlab.freedesktop.org/freetype/freetype/-/blob/master/docs/GPLv2.TXT'>GNU"
-       " GPLv2</a></p>")
-       .arg(QApplication::applicationVersion())
+    tr(R"(<p>This is <b>ftinspect</b> version %1<br>
+Copyright %2 2016-2022<br>
+by Werner Lemberg <tt>&lt;wl@gnu.org&gt;</tt>
+ and Charlie Jiang <tt>&lt;w@chariri.moe&gt;</tt></p>
+
+<p><b>ftinspect</b> shows how a font gets rendered
+by FreeType, allowing control over virtually
+all rendering parameters.</p>
+
+<p>License:
+<a href='https://gitlab.freedesktop.org/freetype/freetype/-/blob/master/docs/FTL.TXT'>FreeType
+License (FTL)</a> or
+<a href='https://gitlab.freedesktop.org/freetype/freetype/-/blob/master/docs/GPLv2.TXT'>GNU
+GPLv2</a></p>)")
+          .arg(version)
        .arg(QChar(0xA9)));
 }
 

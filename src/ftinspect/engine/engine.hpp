@@ -105,6 +105,7 @@ public:
   FontFileManager& fontFileManager() { return fontFileManager_; }
   EngineDefaultValues& engineDefaults() { return engineDefaults_; }
   RenderingEngine* renderingEngine() { return renderingEngine_.get(); }
+  QString dynamicLibraryVersion();
 
   int numberOfOpenedFonts();
 
