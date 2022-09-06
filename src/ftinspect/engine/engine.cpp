@@ -604,6 +604,18 @@ Engine::glyphName(int index)
 }
 
 
+QString
+Engine::dynamicLibraryVersion()
+{
+  int major, minor, patch;
+  FT_Library_Version(library_, &major, &minor, &patch);
+  return QString("%1.%2.%3")
+           .arg(QString::number(major),
+                QString::number(minor),
+                QString::number(patch));
+}
+
+
 int
 Engine::numberOfOpenedFonts()
 {
