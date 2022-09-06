@@ -62,8 +62,8 @@
 
   typedef struct
   {
-    unsigned short  backfore;  /* (fore << 8) | back               */
-    signed short    index;     /* offset in (unsigned char*)cells  */
+    unsigned short  backfore;  /* (fore << 8) | back    */
+    unsigned short  index;     /* offset in cache units */
 
   } GBlenderChanKeyRec, *GBlenderChanKey;
 

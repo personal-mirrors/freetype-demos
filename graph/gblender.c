@@ -126,7 +126,7 @@ gblender_clear( GBlender  blender )
     GBlenderChanKey  chan_keys = (GBlenderChanKey) blender->keys;
 
     for ( nn = 0; nn < GBLENDER_KEY_COUNT * 3; nn++ )
-      chan_keys[nn].index = -1;
+      chan_keys[nn].index = 0xFFFF;
 
     blender->cache_r_back  = 0;
     blender->cache_r_fore  = ~0U;
@@ -310,7 +310,8 @@ gblender_reset_channel_key( GBlender         blender,
 {
   unsigned int    back = key->backfore & 255;
   unsigned int    fore = (key->backfore >> 8) & 255;
-  unsigned char*  gr   = (unsigned char*)blender->cells + key->index;
+  unsigned char*  gr   = (unsigned char*)blender->cells +
+                                         key->index * GBLENDER_SHADE_COUNT;
   unsigned int    nn;
 
   const unsigned char*   gamma_ramp_inv = blender->gamma_ramp_inv;
@@ -341,7 +342,7 @@ gblender_lookup_channel( GBlender      blender,
                          unsigned int  background,
                          unsigned int  foreground )
 {
-  unsigned         idx;
+  unsigned short   idx;
   unsigned short   backfore = (unsigned short)((foreground << 8) | background);
   GBlenderChanKey  key;
 
@@ -354,7 +355,7 @@ gblender_lookup_channel( GBlender      blender,
 
   key = (GBlenderChanKey)blender->keys + idx;
 
-  if ( key->index < 0 )
+  if ( key->index == 0xFFFF )
     goto NewNode;
 
   if ( key->backfore == backfore )
@@ -366,7 +367,7 @@ gblender_lookup_channel( GBlender      blender,
 
 NewNode:
   key->backfore   = backfore;
-  key->index      = (signed short)( idx * GBLENDER_SHADE_COUNT );
+  key->index      = idx;
 
   gblender_reset_channel_key( blender, key );
 
@@ -375,7 +376,7 @@ NewNode:
 #endif
 
 Exit:
-  return  (unsigned char*)blender->cells + key->index;
+  return  (unsigned char*)blender->cells + idx * GBLENDER_SHADE_COUNT;
 }
 
 
