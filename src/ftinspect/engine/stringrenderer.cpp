@@ -505,9 +505,13 @@ StringRenderer::render(int width,
   auto stepY = static_cast<int>(metrics.height >> 6) + 1;
   y += 4 + static_cast<int>(metrics.ascender >> 6);
 
+  auto lastOffset = 0;
   while (offset < static_cast<int>(activeGlyphs_.size()))
   {
     offset = renderLine(x, y, width, height, offset, true);
+    if (offset == lastOffset) // prevent inf loop.
+      break;
+    lastOffset = offset;
     y += stepY;
   }
   return offset - initialOffset;
@@ -522,6 +526,9 @@ StringRenderer::renderLine(int x,
                            int offset,
                            bool handleMultiLine)
 {
+  // Don't limit the x y to be within the canvas viewport: string can be moved
+  // by the mouse
+
   y = height - y; // change to Cartesian coordinates
 
   FT_Vector pen = { 0, 0 };
