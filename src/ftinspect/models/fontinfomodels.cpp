@@ -30,7 +30,8 @@ FixedSizeInfoModel::data(const QModelIndex& index,
   if (index.row() < 0 || index.column() < 0)
     return {};
   auto r = static_cast<size_t>(index.row());
-  if (role != Qt::DisplayRole || r > storage_.size())
+  if ((role != Qt::DisplayRole && role != Qt::ToolTipRole)
+      || r > storage_.size())
     return {};
 
   auto& obj = storage_[r];
@@ -112,18 +113,19 @@ CharMapInfoModel::data(const QModelIndex& index,
   if (index.row() < 0 || index.column() < 0)
     return {};
   auto r = static_cast<size_t>(index.row());
-  if (role != Qt::DisplayRole || r > storage_.size())
+  if ((role != Qt::DisplayRole && role != Qt::ToolTipRole)
+      || r > storage_.size())
     return {};
 
   auto& obj = storage_[r];
   switch (static_cast<Columns>(index.column()))
   {
   case CMIM_Platform: 
-    return QString("%1 <%2>")
+    return QString("%1 {%2}")
              .arg(obj.platformID)
              .arg(*mapTTPlatformIDToName(obj.platformID));
   case CMIM_Encoding:
-    return QString("%1 <%2>")
+    return QString("%1 {%2}")
              .arg(obj.encodingID)
              .arg(*obj.encodingName);
   case CMIM_FormatID: 
@@ -201,7 +203,8 @@ SFNTNameModel::data(const QModelIndex& index,
     return tr("Double click to view the string.");
 
   auto r = static_cast<size_t>(index.row());
-  if (role != Qt::DisplayRole || r > storage_.size())
+  if ((role != Qt::DisplayRole && role != Qt::ToolTipRole)
+      || r > storage_.size())
     return {};
 
   auto& obj = storage_[r];
@@ -210,25 +213,25 @@ SFNTNameModel::data(const QModelIndex& index,
   case SNM_Name:
     if (obj.nameID >= 256)
       return QString::number(obj.nameID);
-    return QString("%1 <%2>")
-             .arg(obj.nameID)
-             .arg(*mapSFNTNameIDToName(obj.nameID));
+    return QString("%1 {%2}").arg(QString::number(obj.nameID),
+                                  *mapSFNTNameIDToName(obj.nameID));
+    
   case SNM_Platform:
-    return QString("%1 <%2>")
+    return QString("%1 {%2}")
              .arg(obj.platformID)
              .arg(*mapTTPlatformIDToName(obj.platformID));
   case SNM_Encoding:
-    return QString("%1 <%2>")
+    return QString("%1 {%2}")
              .arg(obj.encodingID)
              .arg(*mapTTEncodingIDToName(obj.platformID, obj.encodingID));
   case SNM_Language:
     if (obj.languageID >= 0x8000)
       return obj.langTag + "(lang tag)";
     if (obj.platformID == 3)
-      return QString("0x%1 <%2>")
+      return QString("0x%1 {%2}")
                .arg(obj.languageID, 4, 16, QChar('0'))
                .arg(*mapTTLanguageIDToName(obj.platformID, obj.languageID));
-    return QString("%1 <%2>")
+    return QString("%1 {%2}")
              .arg(obj.languageID)
         .arg(*mapTTLanguageIDToName(obj.platformID, obj.languageID));
   case SNM_Content:
@@ -310,7 +313,8 @@ SFNTTableInfoModel::data(const QModelIndex& index,
   if (index.row() < 0 || index.column() < 0)
     return {};
   auto r = static_cast<size_t>(index.row());
-  if (role != Qt::DisplayRole || r > storage_.size())
+  if ((role != Qt::DisplayRole && role != Qt::ToolTipRole)
+      || r > storage_.size())
     return {};
 
   auto& obj = storage_[r];
@@ -405,7 +409,8 @@ MMGXAxisInfoModel::data(const QModelIndex& index,
   if (index.row() < 0 || index.column() < 0)
     return {};
   auto r = static_cast<size_t>(index.row());
-  if (role != Qt::DisplayRole || r > storage_.size())
+  if ((role != Qt::DisplayRole && role != Qt::ToolTipRole)
+      || r > storage_.size())
     return {};
 
   auto& obj = storage_[r];
@@ -618,7 +623,7 @@ CompositeGlyphsInfoModel::data(const QModelIndex& index,
   {
   case CGIM_Glyph:
     if (engine_->currentFontHasGlyphName())
-      return QString("%1 <%2>").arg(glyphIdx).arg(engine_->glyphName(glyphIdx));
+      return QString("%1 {%2}").arg(glyphIdx).arg(engine_->glyphName(glyphIdx));
     return QString::number(glyphIdx);
   case CGIM_Flag:
     if (!n.subGlyphInfo)

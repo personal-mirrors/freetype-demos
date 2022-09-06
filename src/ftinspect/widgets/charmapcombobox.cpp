@@ -77,23 +77,24 @@ CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
       addItem(tr("Glyph Order"));
       setItemData(0, 0u, EncodingRole);
     }
-
-    int i = 0;
+    
     int newIndex = 0;
     for (auto& map : charMaps)
     {
-      addItem(tr("%1: %2 (platform %3, encoding %4)")
-                .arg(i)
-                .arg(*map.encodingName)
-                .arg(map.platformID)
-                .arg(map.encodingID));
+      auto i = count();
+      auto str = tr("%1: %2 (platform %3, encoding %4)")
+                   .arg(i)
+                   .arg(*map.encodingName)
+                   .arg(map.platformID)
+                   .arg(map.encodingID);
+      addItem(str);
+      setItemData(i, str, Qt::ToolTipRole);
+
       auto encoding = static_cast<unsigned>(map.encoding);
-      setItemData(haveGlyphOrder_ ? i + 1 : i, encoding, EncodingRole);
+      setItemData(i, encoding, EncodingRole);
 
       if (encoding == oldEncoding && i == oldIndex)
         newIndex = i;
-    
-      i++;
     }
 
     // this shouldn't emit any event either, because force repainting

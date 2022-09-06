@@ -298,11 +298,11 @@ SettingPanel::populatePalettes()
     QSignalBlocker blocker(paletteComboBox_);
     paletteComboBox_->clear();
     for (int i = 0; i < newSize; ++i)
-      paletteComboBox_->addItem(
-        QString("%1: %2")
-          .arg(i)
-          .arg(newPalettes[i].name),
-        newPalettes[i].name);
+    {
+      auto str = QString("%1: %2").arg(i).arg(newPalettes[i].name);
+      paletteComboBox_->addItem(str, newPalettes[i].name);
+      paletteComboBox_->setItemData(i, str, Qt::ToolTipRole);
+    }
   }
 
   emit fontReloadNeeded();
