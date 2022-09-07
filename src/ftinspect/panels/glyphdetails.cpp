@@ -28,6 +28,7 @@ GlyphDetails::~GlyphDetails()
 void
 GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
 {
+  auto metrics = engine_->currentFontMetrics();
   auto& cMaps = engine_->currentFontCharMaps();
 
   glyphIndex_ = ctxt.glyphIndex;
@@ -49,10 +50,12 @@ GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
   if (glyphName.isEmpty())
     glyphName = "(none)";
   glyphNameLabel_->setText(glyphName);
-
+  
   auto rect = ctxt.basePosition.translated(-(ctxt.penPos.x()),
                                            -(ctxt.penPos.y()));
-  bitmapWidget_->updateImage(ctxt.image, rect);
+  bitmapWidget_->updateImage(
+      ctxt.image, rect,
+      QRect(0, -metrics.y_ppem, metrics.y_ppem, metrics.y_ppem));
 
   // load glyphs in all units
   dpi_ = engine_->dpi();
