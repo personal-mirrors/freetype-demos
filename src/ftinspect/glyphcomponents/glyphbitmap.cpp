@@ -107,14 +107,17 @@ GlyphBitmapWidget::~GlyphBitmapWidget()
 
 void
 GlyphBitmapWidget::updateImage(QImage* image,
-                               QRect rect)
+                               QRect rect,
+                               QRect placeholderRect)
 {
-  rect.moveTop(0);
-  rect.moveLeft(0);
-
   delete bitmapItem_;
   auto* copied = new QImage(image->copy());
-  bitmapItem_ = new GlyphBitmap(copied, rect);
+
+  rect_ = rect;
+  placeholderRect_ = placeholderRect;
+  auto zeroedRect = rect; // `GlyphBitmap` doesn't play well with offset
+  zeroedRect.moveTopLeft({ 0, 0 });
+  bitmapItem_ = new GlyphBitmap(copied, zeroedRect);
 
   repaint();
 }
@@ -135,24 +138,44 @@ GlyphBitmapWidget::paintEvent(QPaintEvent* event)
   if (!bitmapItem_)
     return;
   auto s = size();
-  auto br = bitmapItem_->boundingRect();
-  double xScale = s.width() / br.width();
-  double yScale = s.height() / br.height();
+
+  auto br = QRect(QPoint(std::min(rect_.left(), placeholderRect_.left()),
+                         std::min(rect_.top(), placeholderRect_.top())),
+                  QPoint(std::max(rect_.right(), placeholderRect_.right()),
+                         std::max(rect_.bottom(), placeholderRect_.bottom())));
+  
+  double xScale = 0.9 * s.width() / br.right();
+  double yScale = 0.9 * s.height() / br.bottom();
   auto scale = std::min(xScale, yScale);
 
   QPainter painter(this);
   painter.fillRect(rect(), Qt::white);
   painter.scale(scale, scale);
+  painter.save(); // push before translating
+  painter.translate(rect_.topLeft());
 
   QStyleOptionGraphicsItem ogi;
   ogi.exposedRect = br;
   bitmapItem_->paint(&painter, &ogi, this);
 
+  painter.restore(); // undo translating.
   double scaledLineWidth = 4 / scale;
+  double scaledLineWidthHalf = scaledLineWidth / 2;
   painter.setPen(QPen(Qt::black, scaledLineWidth));
-  scaledLineWidth /= 2;
-  painter.drawRect(br.adjusted(scaledLineWidth, scaledLineWidth,
-                               -scaledLineWidth, -scaledLineWidth));
+  painter.drawRect(QRectF(br).adjusted(scaledLineWidthHalf, 
+                                       scaledLineWidthHalf,
+                                       -scaledLineWidthHalf,
+                                       -scaledLineWidthHalf));
+  painter.setPen(QPen(Qt::red, scaledLineWidth));
+  painter.drawRect(QRectF(placeholderRect_).adjusted(scaledLineWidthHalf, 
+                                                     scaledLineWidthHalf,
+                                                     -scaledLineWidthHalf,
+                                                     -scaledLineWidthHalf));
+  painter.setPen(QPen(Qt::blue, scaledLineWidth));
+  painter.drawRect(QRectF(rect_).adjusted(scaledLineWidthHalf, 
+                                          scaledLineWidthHalf,
+                                          -scaledLineWidthHalf,
+                                          -scaledLineWidthHalf));
 }
 
 

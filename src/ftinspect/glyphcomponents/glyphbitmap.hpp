@@ -48,8 +48,8 @@ class GlyphBitmapWidget
 public:
   GlyphBitmapWidget(QWidget* parent);
   ~GlyphBitmapWidget() override;
-
-  void updateImage(QImage* image, QRect rect);
+  
+  void updateImage(QImage* image, QRect rect, QRect placeholderRect = {});
   void releaseImage();
 
 signals:
@@ -62,6 +62,8 @@ protected:
 
 private:
   GlyphBitmap* bitmapItem_ = NULL;
+  QRect rect_ = {};
+  QRect placeholderRect_ = {};
 };
 
 
