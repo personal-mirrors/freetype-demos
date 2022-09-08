@@ -76,16 +76,16 @@
   *   size  :: size in bytes of the requested block
   *
   * <Return>
-  *   the memory block address. 0 in case of error
+  *   the memory block address. NULL in case of error
   *
   ********************************************************************/
 
-  unsigned char*
+  void*
   grAlloc( size_t  size )
   {
-    unsigned char*  p;
+    void*  p;
 
-    p = (unsigned char*)malloc(size);
+    p = malloc(size);
     if (!p && size > 0)
     {
       grError = gr_err_memory;
