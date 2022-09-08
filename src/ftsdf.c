@@ -660,7 +660,7 @@
 
 
   static void
-  usage( char*  exec_name )
+  usage( const char*  exec_name )
   {
     fprintf( stderr,
       "\n"
@@ -684,13 +684,11 @@
   main( int     argc,
         char**  argv )
   {
-    FT_Error  err       = FT_Err_Ok;
-    char*     exec_name = NULL;
+    FT_Error     err       = FT_Err_Ok;
+    const char*  exec_name = ft_basename( argv[0] );
 
     int  flip_y = 1;
 
-
-    exec_name = ft_basename( argv[0] );
 
     if ( argc != 3 )
       usage( exec_name );

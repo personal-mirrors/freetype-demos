@@ -8,7 +8,7 @@
 #include <string.h>
 
 
-  char*
+  const char*
   ft_basename( const char*  name )
   {
     const char*  base;
@@ -33,7 +33,7 @@
       c = *current;
     }
 
-    return (char*)base;
+    return base;
   }
 
 

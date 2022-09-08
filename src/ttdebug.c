@@ -2854,7 +2854,7 @@
 
 
   static void
-  Usage( char*  execname )
+  Usage( const char*  execname )
   {
     char  versions[32];
 
@@ -2911,11 +2911,11 @@
   main( int     argc,
         char**  argv )
   {
-    char*  execname;
     int    option;
     char   version_string[64];
 
     int           i;
+    const char*   execname;
     unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
                                   TT_INTERPRETER_VERSION_38,
                                   TT_INTERPRETER_VERSION_40 };

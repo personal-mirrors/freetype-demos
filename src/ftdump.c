@@ -96,8 +96,8 @@
 
 
   static void
-  usage( FT_Library  library,
-         char*       execname )
+  usage( FT_Library   library,
+         const char*  execname )
   {
     FT_Done_FreeType( library );
 
@@ -1170,15 +1170,14 @@
   {
     int    i, file;
     char   filename[1024];
-    char*  execname;
     int    num_faces;
     int    option;
 
     FT_Library  library;      /* the FreeType library */
     FT_Face     face;         /* the font face        */
 
+    const char*  execname = ft_basename( argv[0] );
 
-    execname = ft_basename( argv[0] );
 
     /* Initialize engine */
     error = FT_Init_FreeType( &library );

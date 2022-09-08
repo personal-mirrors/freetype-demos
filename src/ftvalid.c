@@ -38,7 +38,7 @@
 #include <stdlib.h>
 
 
-  static char*  execname;
+  static const char*  execname;
 
   typedef enum
   {

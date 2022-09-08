@@ -889,7 +889,7 @@
 
 
   static void
-  usage( char*  execname )
+  usage( const char*  execname )
   {
     fprintf( stderr,
       "\n"
@@ -936,7 +936,6 @@
     int    old_ptsize, orig_ptsize, file;
     int    first_glyph = 0;
     int    XisSetup = 0;
-    char*  execname;
     int    option;
     int    file_loaded;
 
@@ -946,9 +945,8 @@
     unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
                                   TT_INTERPRETER_VERSION_38,
                                   TT_INTERPRETER_VERSION_40 };
+    const char*   execname = ft_basename( argv[0] );
 
-
-    execname = ft_basename( argv[0] );
 
     /* Initialize engine */
     error = FT_Init_FreeType( &library );

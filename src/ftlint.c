@@ -64,7 +64,7 @@
 
 
   static void
-  Usage( char*  name )
+  Usage( const char*  name )
   {
     printf( "ftlint: simple font tester -- part of the FreeType project\n" );
     printf( "----------------------------------------------------------\n" );
@@ -158,7 +158,7 @@
         char**  argv )
   {
     int           file_index, face_index;
-    char*         execname;
+    const char*   execname;
     char*         fname;
     int           opt;
     unsigned int  first_index = 0;

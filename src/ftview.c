@@ -1637,7 +1637,7 @@
 
 
   static void
-  usage( char*  execname )
+  usage( const char*  execname )
   {
     fprintf( stderr,
       "\n"
@@ -1688,11 +1688,9 @@
   parse_cmdline( int*    argc,
                  char**  argv[] )
   {
-    char*  execname;
-    int    option;
+    int          option;
+    const char*  execname = ft_basename( (*argv)[0] );
 
-
-    execname = ft_basename( (*argv)[0] );
 
     while ( 1 )
     {

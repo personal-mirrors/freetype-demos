@@ -7,7 +7,7 @@
 #endif
 
 
-  extern char*
+  extern const char*
   ft_basename( const char*  name );
 
   /* print a message and exit */
