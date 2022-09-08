@@ -53,13 +53,9 @@ GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
   
   auto rect = ctxt.basePosition.translated(-(ctxt.penPos.x()),
                                            -(ctxt.penPos.y()));
-  auto drawRect = rect;
-  drawRect.moveTop(drawRect.top() + (metrics.ascender >> 6));
-  if (!ctxt.advance.x)
-    drawRect.moveLeft(drawRect.left() + ctxt.nonSpacingPlaceholder);
   bitmapWidget_->updateImage(
-      ctxt.image, drawRect,
-      QRect(0, 0, metrics.y_ppem, metrics.y_ppem));
+      ctxt.image, rect,
+      QRect(0, -metrics.y_ppem, metrics.y_ppem, metrics.y_ppem));
 
   // load glyphs in all units
   dpi_ = engine_->dpi();

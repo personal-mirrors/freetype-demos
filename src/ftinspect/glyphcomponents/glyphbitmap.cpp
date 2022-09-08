@@ -144,13 +144,26 @@ GlyphBitmapWidget::paintEvent(QPaintEvent* event)
                   QPoint(std::max(rect_.right(), placeholderRect_.right()),
                          std::max(rect_.bottom(), placeholderRect_.bottom())));
   
-  double xScale = 0.9 * s.width() / br.right();
-  double yScale = 0.9 * s.height() / br.bottom();
+  double xScale = 0.9 * s.width() / br.width();
+  double yScale = 0.9 * s.height() / br.height();
+  auto margin = br.width() * 0.05;
   auto scale = std::min(xScale, yScale);
 
   QPainter painter(this);
   painter.fillRect(rect(), Qt::white);
+  painter.save(); // push before scaling
   painter.scale(scale, scale);
+  painter.translate(-br.topLeft() + QPointF(margin, margin));
+
+  double scaledLineWidth = 4 / scale;
+  double scaledLineWidthHalf = scaledLineWidth / 2;
+  painter.setPen(QPen(Qt::blue, scaledLineWidth));
+  // Blue line: Ink box
+  painter.drawRect(QRectF(rect_).adjusted(-scaledLineWidthHalf,
+                                          -scaledLineWidthHalf,
+                                          scaledLineWidthHalf,
+                                          scaledLineWidthHalf));
+
   painter.save(); // push before translating
   painter.translate(rect_.topLeft());
 
@@ -159,23 +172,29 @@ GlyphBitmapWidget::paintEvent(QPaintEvent* event)
   bitmapItem_->paint(&painter, &ogi, this);
 
   painter.restore(); // undo translating.
-  double scaledLineWidth = 4 / scale;
-  double scaledLineWidthHalf = scaledLineWidth / 2;
-  painter.setPen(QPen(Qt::black, scaledLineWidth));
-  painter.drawRect(QRectF(br).adjusted(scaledLineWidthHalf, 
-                                       scaledLineWidthHalf,
-                                       -scaledLineWidthHalf,
-                                       -scaledLineWidthHalf));
-  painter.setPen(QPen(Qt::red, scaledLineWidth));
-  painter.drawRect(QRectF(placeholderRect_).adjusted(scaledLineWidthHalf, 
-                                                     scaledLineWidthHalf,
+
+  scaledLineWidth /= 2;
+  scaledLineWidthHalf /= 2;
+  // Light gray line: EM box
+  painter.setPen(QPen(Qt::lightGray, scaledLineWidth));
+  painter.drawRect(QRectF(placeholderRect_).adjusted(-scaledLineWidthHalf, 
                                                      -scaledLineWidthHalf,
-                                                     -scaledLineWidthHalf));
-  painter.setPen(QPen(Qt::blue, scaledLineWidth));
-  painter.drawRect(QRectF(rect_).adjusted(scaledLineWidthHalf, 
-                                          scaledLineWidthHalf,
-                                          -scaledLineWidthHalf,
-                                          -scaledLineWidthHalf));
+                                                     scaledLineWidthHalf,
+                                                     scaledLineWidthHalf));
+
+  auto tfForAxis = painter.transform().inverted();
+  painter.setPen(QPen(Qt::black, scaledLineWidth / 2));
+  // Thin black line: xy-axis
+  painter.drawLine(QPointF(tfForAxis.map(QPointF(0, 0)).x(), 0),
+                   QPointF(tfForAxis.map(QPointF(s.width(), 0)).x(), 0));
+  painter.drawLine(QPointF(0, tfForAxis.map(QPointF(0, 0)).y()),
+                   QPointF(0, tfForAxis.map(QPointF(0, s.height())).y()));
+
+  painter.restore(); // undo scaling.
+
+  // main border
+  painter.setPen(QPen(Qt::black, 4));
+  painter.drawRect(rect().adjusted(2, 2, -2, -2));
 }
 
 
