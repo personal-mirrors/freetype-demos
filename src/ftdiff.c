@@ -509,20 +509,20 @@
         return -1;
 
       {
-        unsigned int  len = strlen( filepath );
+        unsigned int  len = strlen( filepath ) + 1;
         char*         p;
 
 
-        if ( len + 1 > sizeof ( state->filepath0 ) )
+        if ( len > sizeof ( state->filepath0 ) )
         {
-          state->filepath = (const char*)malloc( len + 1 );
+          state->filepath = (const char*)malloc( len );
           if ( state->filepath == NULL )
           {
             state->filepath = state->filepath0;
             return -1;
           }
         }
-        memcpy( (char*)state->filepath, filepath, len + 1 );
+        memcpy( (char*)state->filepath, filepath, len );
         p = (char*)strrchr( state->filepath, '\\' );
         if ( p == NULL )
           p = (char*)strrchr( state->filepath, '/' );

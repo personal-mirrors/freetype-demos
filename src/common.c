@@ -47,10 +47,10 @@
     if ( !str )
       return NULL;
 
-    len    = strlen( str );
-    result = (char *)malloc( len + 1 );
+    len    = strlen( str ) + 1;
+    result = (char *)malloc( len );
     if ( result )
-      memcpy( result, str, len + 1 );
+      memcpy( result, str, len );
 
     return result;
   }
