@@ -259,9 +259,9 @@ public:
 
   enum Columns : int
   {
-    CGIM_Glyph = 0, // TODO: transformation, scale? consider more flags?
+    CGIM_Glyph = 0,
     CGIM_Flag = 1,
-    CGIM_Position = 2,
+    CGIM_PositionTransformation = 2,
     CGIM_Max
   };
 

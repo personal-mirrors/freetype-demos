@@ -571,6 +571,21 @@ SFNTTableInfo::getForAll(Engine* engine,
 }
 
 
+
+FT_UInt16
+readUInt16(void* ptr)
+{
+  return bigEndianToNative(*static_cast<uint16_t*>(ptr));
+}
+
+
+double
+readF2Dot14(void* ptr)
+{
+  return static_cast<int16_t>(readUInt16(ptr)) / 16384.0;
+}
+
+
 void
 CompositeGlyphInfo::get(Engine* engine, 
                         std::vector<CompositeGlyphInfo>& list)
@@ -641,7 +656,7 @@ CompositeGlyphInfo::get(Engine* engine,
     if (loc + 16 > end)
       continue;
 
-    auto len = static_cast<FT_Int16>(buffer[loc] << 8 | buffer[loc + 1]);
+    auto len = static_cast<FT_Int16>(readUInt16(buffer + loc));
     loc += 10;  // skip header
     if (len >= 0) // not a composite one
       continue;
@@ -652,18 +667,18 @@ CompositeGlyphInfo::get(Engine* engine,
     {
       if (loc + 6 > end)
         break;
-      auto flags = static_cast<FT_UInt16>(buffer[loc] << 8 | buffer[loc + 1]);
+      auto flags = readUInt16(buffer + loc);
       loc += 2;
-      auto index = static_cast<FT_UInt16>(buffer[loc] << 8 | buffer[loc + 1]);
+      auto index = readUInt16(buffer + loc);
       loc += 2;
       FT_Int16 arg1, arg2;
 
       // https://docs.microsoft.com/en-us/typography/opentype/spec/glyf#composite-glyph-description
       if (flags & 0x0001)
       {
-        arg1 = static_cast<FT_Int16>(buffer[loc] << 8 | buffer[loc + 1]);
+        arg1 = static_cast<FT_Int16>(readUInt16(buffer + loc));
         loc += 2;
-        arg2 = static_cast<FT_Int16>(buffer[loc] << 8 | buffer[loc + 1]);
+        arg2 = static_cast<FT_Int16>(readUInt16(buffer + loc));
         loc += 2;
       }
       else
@@ -672,17 +687,43 @@ CompositeGlyphInfo::get(Engine* engine,
         arg2 = buffer[loc + 1];
         loc += 2;
       }
-      if (flags & 0x0008)
-        loc += 2;
-      else if (flags & 0x0040)
-        loc += 4;
-      else if (flags & 0x0080)
-        loc += 8;
 
       subglyphs.emplace_back(index, flags,
                              flags & 0x0002 ? SubGlyph::PT_Offset
                                             : SubGlyph::PT_Align,
-                             std::pair<short, short>(arg1, arg2));
+                             std::pair<short, short>(arg1, arg2),
+                             (flags & 0x0800) != 0);
+      // TODO: Use "Default behavior" when neither SCALED_COMPONENT_OFFSET
+      //       and UNSCALED_COMPONENT_OFFSET are set.
+
+      auto& glyph = subglyphs.back();
+      if (flags & 0x0008)
+      {
+        glyph.transformationType = SubGlyph::TT_UniformScale;
+        glyph.transformation[0] = readF2Dot14(buffer + loc);
+        loc += 2;
+      }
+      else if (flags & 0x0040)
+      {
+        glyph.transformationType = SubGlyph::TT_XYScale;
+        glyph.transformation[0] = readF2Dot14(buffer + loc);
+        glyph.transformation[1] = readF2Dot14(buffer + loc + 2);
+        loc += 4;
+      }
+      else if (flags & 0x0080)
+      {
+        glyph.transformationType = SubGlyph::TT_Matrix;
+        glyph.transformation[0] = readF2Dot14(buffer + loc);
+        glyph.transformation[1] = readF2Dot14(buffer + loc + 2);
+        glyph.transformation[2] = readF2Dot14(buffer + loc + 4);
+        glyph.transformation[3] = readF2Dot14(buffer + loc + 6);
+        loc += 8;
+      }
+      else
+      {
+        glyph.transformationType = SubGlyph::TT_UniformScale;
+        glyph.transformation[0] = 1.0;
+      }
 
       if (!(flags & 0x0020))
         break;
