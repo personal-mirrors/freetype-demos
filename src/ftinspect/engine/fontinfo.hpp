@@ -5,6 +5,7 @@
 #pragma once
 
 #include <set>
+#include <cstring>
 #include <QDateTime>
 #include <QByteArray>
 #include <QString>
@@ -248,10 +249,16 @@ struct CompositeGlyphInfo
 {
   struct SubGlyph
   {
-    enum PositionType
+    enum PositionType : uint8_t
     {
       PT_Offset, // Child's points are added with a xy-offset
       PT_Align // One point of the child is aligned with one point of the parent
+    };
+    enum TransformationType : uint8_t
+    {
+      TT_UniformScale, // uniform scale for x- and y-axis
+      TT_XYScale, // separate scale for x- and y-axis
+      TT_Matrix // 2x2 matrix
     };
     unsigned short index;
     unsigned short flag;
@@ -259,16 +266,27 @@ struct CompositeGlyphInfo
     // For PT_Offset: <deltaX, deltaY>
     // For PT_Align:  <childPoint, parentPoint>
     std::pair<short, short> position;
+    bool positionScaled;
+    TransformationType transformationType;
+    // For TT_UniformScale: transformation[0] is the scale
+    // For TT_XYScale: transformation[0]: x-scale; transformation[1]: y-scale
+    // For TT_Matrix: transformation is layouted as
+    //                [xscale, scale01, scale10, yscale]
+    double transformation[4];
+
 
     SubGlyph(unsigned short index,
              unsigned short flag,
              PositionType positionType,
-             std::pair<short, short> position)
+             std::pair<short, short> position,
+             bool positionScaled)
     : index(index),
       flag(flag),
       positionType(positionType),
-      position(std::move(position))
-    { }
+      position(std::move(position)),
+      positionScaled(positionScaled)
+    {
+    }
 
 
     friend bool
@@ -278,7 +296,11 @@ struct CompositeGlyphInfo
       return lhs.index == rhs.index
         && lhs.flag == rhs.flag
         && lhs.positionType == rhs.positionType
-        && lhs.position == rhs.position;
+        && lhs.position == rhs.position
+        && lhs.positionScaled == rhs.positionScaled
+        && lhs.transformationType == rhs.transformationType
+        && !std::memcmp(lhs.transformation, rhs.transformation,
+                        4 * sizeof(double));
     }
 
 
