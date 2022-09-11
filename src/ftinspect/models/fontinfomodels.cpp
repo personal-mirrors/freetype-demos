@@ -571,6 +571,53 @@ CompositeGlyphsInfoModel::parent(const QModelIndex& child) const
 }
 
 
+QString
+generatePositionTransformationText(CompositeGlyphInfo::SubGlyph const& info)
+{
+  QString result;
+  switch (info.transformationType)
+  {
+  case CompositeGlyphInfo::SubGlyph::TT_UniformScale:
+    result += QString("scale: %1, ")
+                .arg(QString::number(info.transformation[0]));
+    break;
+  case CompositeGlyphInfo::SubGlyph::TT_XYScale: 
+    result += QString("xy scale: (%1, %2), ")
+                .arg(QString::number(info.transformation[0]),
+                     QString::number(info.transformation[1]));
+    break;
+  case CompositeGlyphInfo::SubGlyph::TT_Matrix:
+    result += QString("2x2 scale: [%1, %2; %3, %4], ")
+                .arg(QString::number(info.transformation[0]),
+                     QString::number(info.transformation[1]),
+                     QString::number(info.transformation[2]),
+                     QString::number(info.transformation[3]));
+    break;
+  }
+
+  auto pos = info.position;
+  switch (info.positionType)
+  {
+  case CompositeGlyphInfo::SubGlyph::PT_Offset:
+    if (info.positionScaled)
+      result += QString("scaled offset: (%1, %2)")
+                  .arg(QString::number(info.position.first),
+                       QString::number(info.position.second));
+    else
+      result += QString("offset: (%1, %2)")
+                  .arg(QString::number(info.position.first),
+                       QString::number(info.position.second));
+    break;
+  case CompositeGlyphInfo::SubGlyph::PT_Align:
+      result += QString("anchor points: %1 (parent) <- %2 (this glyph)")
+                  .arg(QString::number(info.position.first),
+                       QString::number(info.position.second));
+    break;
+  }
+  return result;
+}
+
+
 QVariant
 CompositeGlyphsInfoModel::data(const QModelIndex& index,
                                int role) const
@@ -583,25 +630,6 @@ CompositeGlyphsInfoModel::data(const QModelIndex& index,
     return {};
   auto& n = nodes_[id];
   auto glyphIdx = n.glyphIndex;
-
-  if (role == Qt::ToolTipRole && index.column() == CGIM_Position)
-  {
-    if (!n.subGlyphInfo)
-      return {};
-    auto pos = n.subGlyphInfo->position;
-    switch (n.subGlyphInfo->positionType)
-    {
-    case CompositeGlyphInfo::SubGlyph::PT_Offset:
-      return QString("Add a offset (%1, %2) to the subglyph's points")
-          .arg(pos.first)
-          .arg(pos.second);
-    case CompositeGlyphInfo::SubGlyph::PT_Align:
-      return QString("Align parent's point %1 to subglyph's point %2")
-          .arg(pos.first)
-          .arg(pos.second);
-    }
-    return {};
-  }
 
   if (role == Qt::DecorationRole && index.column() == CGIM_Glyph)
   {
@@ -628,19 +656,12 @@ CompositeGlyphsInfoModel::data(const QModelIndex& index,
   case CGIM_Flag:
     if (!n.subGlyphInfo)
       return {};
-    return QString::number(n.subGlyphInfo->flag, 16).rightJustified(4, '0');
-  case CGIM_Position:
+    return QString("0x%1").arg(n.subGlyphInfo->flag, 4, 16, QLatin1Char('0'));
+  case CGIM_PositionTransformation:
   {
     if (!n.subGlyphInfo)
       return {};
-    auto pos = n.subGlyphInfo->position;
-    switch (n.subGlyphInfo->positionType)
-    {
-    case CompositeGlyphInfo::SubGlyph::PT_Offset:
-      return QString("Offset (%1, %2)").arg(pos.first).arg(pos.second);
-    case CompositeGlyphInfo::SubGlyph::PT_Align:
-      return QString("Align %1 -> %2").arg(pos.first).arg(pos.second);
-    }
+    return generatePositionTransformationText(*n.subGlyphInfo);
   }
   default:;
   }
@@ -665,8 +686,8 @@ CompositeGlyphsInfoModel::headerData(int section,
     return tr("Glyph");
   case CGIM_Flag:
     return tr("Flags");
-  case CGIM_Position:
-    return tr("Position");
+  case CGIM_PositionTransformation:
+    return tr("Position and Transformation");
   default:;
   }
   return {};
