@@ -10,35 +10,14 @@
 #include <QVector2D>
 
 
-GlyphPointNumbers::GlyphPointNumbers(const QPen& onP,
+GlyphPointNumbers::GlyphPointNumbers(FT_Library library,
+                                     const QPen& onP,
                                      const QPen& offP,
                                      FT_Glyph glyph)
-: onPen_(onP),
+: GlyphUsingOutline(library, glyph),
+  onPen_(onP),
   offPen_(offP)
 {
-  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
-  {
-    outline_ = NULL;
-    return;
-  }
-  outline_ = &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
-
-  FT_BBox cbox;
-
-  FT_Outline_Get_CBox(outline_, &cbox);
-
-  // XXX fix bRect size
-  boundingRect_.setCoords(qreal(cbox.xMin) / 64,
-                  -qreal(cbox.yMax) / 64,
-                  qreal(cbox.xMax) / 64,
-                  -qreal(cbox.yMin) / 64);
-}
-
-
-QRectF
-GlyphPointNumbers::boundingRect() const
-{
-  return boundingRect_;
 }
 
 
@@ -47,10 +26,10 @@ GlyphPointNumbers::paint(QPainter* painter,
                          const QStyleOptionGraphicsItem* option,
                          QWidget*)
 {
-  if (!outline_)
+  if (!outlineValid_)
     return;
-  const qreal lod = option->levelOfDetailFromTransform(
-                              painter->worldTransform());
+  auto lod = QStyleOptionGraphicsItem::levelOfDetailFromTransform(
+    painter->worldTransform());
 
   // don't draw point numbers if magnification is too small
   if (lod >= 10)
@@ -74,9 +53,9 @@ GlyphPointNumbers::paint(QPainter* painter,
     painter->scale(1 / lod, 1 / lod);
 #endif
 
-    FT_Vector* points = outline_->points;
-    FT_Short* contours = outline_->contours;
-    char* tags = outline_->tags;
+    FT_Vector* points = outline_.points;
+    FT_Short* contours = outline_.contours;
+    char* tags = outline_.tags;
 
     QVector2D octants[8] = { QVector2D(1, 0),
                              QVector2D(0.707f, -0.707f),
@@ -89,7 +68,7 @@ GlyphPointNumbers::paint(QPainter* painter,
 
 
     short ptIdx = 0;
-    for (int contIdx = 0; contIdx < outline_->n_contours; contIdx++ )
+    for (int contIdx = 0; contIdx < outline_.n_contours; contIdx++ )
     {
       for (;;)
       {

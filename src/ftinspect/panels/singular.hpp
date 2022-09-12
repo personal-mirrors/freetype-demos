@@ -63,8 +63,8 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
 
 private:
-  int currentGlyphIndex_;
-  int currentGlyphCount_;
+  int currentGlyphIndex_ = 0;
+  int currentGlyphCount_ = 0;
 
   Engine* engine_;
 

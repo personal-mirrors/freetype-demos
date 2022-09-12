@@ -115,7 +115,8 @@ SingularTab::drawGlyph()
 
     if (showPointsCheckBox_->isChecked())
     {
-      currentGlyphPointsItem_ = new GlyphPoints(graphicsDefault_->onPen,
+      currentGlyphPointsItem_ = new GlyphPoints(engine_->ftLibrary(),
+                                                graphicsDefault_->onPen,
                                                 graphicsDefault_->offPen,
                                                 glyph);
       currentGlyphPointsItem_->setZValue(1);
@@ -124,7 +125,8 @@ SingularTab::drawGlyph()
       if (showPointNumbersCheckBox_->isChecked())
       {
         currentGlyphPointNumbersItem_
-          = new GlyphPointNumbers(graphicsDefault_->onPen,
+          = new GlyphPointNumbers(engine_->ftLibrary(),
+                                  graphicsDefault_->onPen,
                                   graphicsDefault_->offPen,
                                   glyph);
         currentGlyphPointNumbersItem_->setZValue(1);
