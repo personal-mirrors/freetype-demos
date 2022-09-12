@@ -341,8 +341,6 @@ SettingPanel::onFontChanged()
   engine_->reloadFont();
   auto hasColor = engine_->currentFontHasColorLayers();
   colorLayerCheckBox_->setEnabled(hasColor);
-  if (!hasColor)
-    colorLayerCheckBox_->setChecked(false);
   paletteComboBox_->setEnabled(colorLayerCheckBox_->isChecked()
                                && paletteComboBox_->count() > 0);
   populatePalettes();
@@ -781,9 +779,10 @@ SettingPanel::setDefaults()
     horizontalHintingCheckBox_->setChecked(true);
     verticalHintingCheckBox_->setChecked(true);
     blueZoneHintingCheckBox_->setChecked(true);
-    embeddedBitmapCheckBox_->setChecked(false);
+    segmentDrawingCheckBox_->setChecked(false);
   }
-  
+
+  embeddedBitmapCheckBox_->setChecked(false);
   colorLayerCheckBox_->setChecked(true);
   paletteComboBox_->setEnabled(false);
 
