@@ -702,7 +702,8 @@
       goto Exit;
     }
 
-    display = FTDemo_Display_New( NULL, "800x600x24" );
+    display = FTDemo_Display_New( NULL, "800x600x24",
+                                  "Signed Distance Field Viewer" );
     if ( !display )
     {
       printf( "Failed to create FTDemo_Display\n" );
@@ -712,7 +713,6 @@
     FT_CALL( FT_Property_Set( handle->library, "sdf", "flip_y", &flip_y ) );
     FT_CALL( FT_Property_Set( handle->library, "bsdf", "flip_y", &flip_y ) );
 
-    grSetTitle( display->surface, "Signed Distance Field Viewer" );
     event_color_change();
 
     FT_CALL( FT_New_Face( handle->library, argv[2], 0, &status.face ) );

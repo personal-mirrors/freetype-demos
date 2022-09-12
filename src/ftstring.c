@@ -971,13 +971,11 @@
     if ( handle->num_fonts == 0 )
       PanicZ( "could not open any font file" );
 
-    display = FTDemo_Display_New( status.device, status.dims );
-
+    display = FTDemo_Display_New( status.device, status.dims,
+                        "FreeType String Viewer - press ? for help" );
     if ( !display )
       PanicZ( "could not allocate display surface" );
 
-    grSetTitle( display->surface,
-                "FreeType String Viewer - press ? for help" );
     FTDemo_Icon( handle, display );
 
     status.header = NULL;

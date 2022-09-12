@@ -1842,12 +1842,11 @@
     if ( handle->num_fonts == 0 )
       Fatal( "could not find/open any font file" );
 
-    display = FTDemo_Display_New( status.device, status.dims );
+    display = FTDemo_Display_New( status.device, status.dims,
+                        "FreeType Glyph Viewer - press ? for help" );
     if ( !display )
       Fatal( "could not allocate display surface" );
 
-    grSetTitle( display->surface,
-                "FreeType Glyph Viewer - press ? for help" );
     FTDemo_Icon( handle, display );
 
     status.num_fails = 0;

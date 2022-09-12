@@ -98,7 +98,8 @@
 
   FTDemo_Display*
   FTDemo_Display_New( const char*  device,
-                      const char*  dims )
+                      const char*  dims,
+                      const char*  title )
   {
     FTDemo_Display*  display;
     grPixelMode      mode;
@@ -164,6 +165,9 @@
     display->gamma = GAMMA;
 
     grSetTargetGamma( display->surface, display->gamma );
+
+    if ( title )
+      grSetTitle( display->surface, title );
 
     return display;
   }
