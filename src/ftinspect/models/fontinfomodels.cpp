@@ -5,6 +5,8 @@
 #include "fontinfomodels.hpp"
 #include "../engine/engine.hpp"
 
+#include <cstdint>
+
 int
 FixedSizeInfoModel::rowCount(const QModelIndex& parent) const
 {
@@ -474,8 +476,8 @@ CompositeGlyphsInfoModel::rowCount(const QModelIndex& parent) const
 {
   if (!parent.isValid())
     return static_cast<int>(glyphs_.size());
-  auto id = parent.internalId();
-  if (id < 0 || id >= nodes_.size())
+  uint64_t id = parent.internalId();
+  if (id >= nodes_.size())
     return 0;
   auto gid = nodes_[id].glyphIndex;
   auto iter = glyphMapper_.find(gid);
@@ -594,8 +596,7 @@ generatePositionTransformationText(CompositeGlyphInfo::SubGlyph const& info)
                      QString::number(info.transformation[3]));
     break;
   }
-
-  auto pos = info.position;
+  
   switch (info.positionType)
   {
   case CompositeGlyphInfo::SubGlyph::PT_Offset:

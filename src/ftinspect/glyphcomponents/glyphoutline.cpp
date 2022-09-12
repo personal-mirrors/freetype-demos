@@ -92,22 +92,20 @@ GlyphOutline::GlyphOutline(const QPen& pen,
 : outlinePen_(pen)
 {
   if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
-  {
-    outline_ = NULL;
     return;
-  }
-  outline_ = &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
+  auto outline = &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
+  FT_Outline_Decompose(outline, &outlineFuncs, &path_);
 
   FT_BBox cbox;
 
   qreal halfPenWidth = outlinePen_.widthF();
 
-  FT_Outline_Get_CBox(outline_, &cbox);
+  FT_Outline_Get_CBox(outline, &cbox);
 
   boundingRect_.setCoords(qreal(cbox.xMin) / 64 - halfPenWidth,
-                  -qreal(cbox.yMax) / 64 - halfPenWidth,
-                  qreal(cbox.xMax) / 64 + halfPenWidth,
-                  -qreal(cbox.yMin) / 64 + halfPenWidth);
+                          -qreal(cbox.yMax) / 64 - halfPenWidth,
+                          qreal(cbox.xMax) / 64 + halfPenWidth,
+                          -qreal(cbox.yMin) / 64 + halfPenWidth);
 }
 
 
@@ -123,14 +121,47 @@ GlyphOutline::paint(QPainter* painter,
                     const QStyleOptionGraphicsItem*,
                     QWidget*)
 {
-  if (!outline_)
-    return;
   painter->setPen(outlinePen_);
+  painter->drawPath(path_);
+}
 
-  QPainterPath path;
-  FT_Outline_Decompose(outline_, &outlineFuncs, &path);
 
-  painter->drawPath(path);
+GlyphUsingOutline::GlyphUsingOutline(FT_Library library,
+                                     FT_Glyph glyph)
+: library_(library)
+{
+  if (glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+  {
+    outlineValid_ = false;
+    return;
+  }
+
+  auto outline = &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
+
+  FT_BBox cbox;
+  FT_Outline_Get_CBox(outline, &cbox);
+  outlineValid_ = true;
+  FT_Outline_New(library, static_cast<unsigned int>(outline->n_points),
+                 outline->n_contours, &outline_);
+  FT_Outline_Copy(outline, &outline_);
+
+  // XXX fix bRect size
+  boundingRect_.setCoords(qreal(cbox.xMin) / 64, -qreal(cbox.yMax) / 64,
+                          qreal(cbox.xMax) / 64, -qreal(cbox.yMin) / 64);
+}
+
+
+GlyphUsingOutline::~GlyphUsingOutline()
+{
+  if (outlineValid_)
+    FT_Outline_Done(library_, &outline_);
+}
+
+
+QRectF
+GlyphUsingOutline::boundingRect() const
+{
+  return boundingRect_;
 }
 
 
