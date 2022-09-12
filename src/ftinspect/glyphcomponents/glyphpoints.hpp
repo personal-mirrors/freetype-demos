@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "glyphoutline.hpp"
+
 #include <QGraphicsItem>
 #include <QPen>
 
@@ -15,13 +17,13 @@
 
 
 class GlyphPoints
-: public QGraphicsItem
+: public GlyphUsingOutline
 {
 public:
-  GlyphPoints(const QPen& onPen,
+  GlyphPoints(FT_Library library,
+              const QPen& onPen,
               const QPen& offPen,
               FT_Glyph glyph);
-  QRectF boundingRect() const override;
   void paint(QPainter* painter,
              const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
@@ -29,8 +31,6 @@ public:
 private:
   QPen onPen_;
   QPen offPen_;
-  FT_Outline* outline_;
-  QRectF boundingRect_;
 };
 
 

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <QPainterPath>
 #include <QGraphicsItem>
 #include <QPen>
 
@@ -27,7 +28,29 @@ public:
 
 private:
   QPen outlinePen_;
-  FT_Outline* outline_;
+  QPainterPath path_;
+  QRectF boundingRect_;
+};
+
+
+/*
+ * This class is common for all classes holding an outline.
+ * But `GlyphOutline` class itself don't need to hold the outline...
+ */
+
+class GlyphUsingOutline
+: public QGraphicsItem
+{
+public:
+  GlyphUsingOutline(FT_Library library,
+                    FT_Glyph glyph);
+  ~GlyphUsingOutline() override;
+  QRectF boundingRect() const override;
+
+protected:
+  FT_Library library_;
+  FT_Outline outline_;
+  bool outlineValid_;
   QRectF boundingRect_;
 };
 

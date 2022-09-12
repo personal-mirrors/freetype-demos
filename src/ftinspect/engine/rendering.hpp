@@ -53,12 +53,12 @@ public:
 private:
   Engine* engine_;
 
-  QRgb backgroundColor_;
-  QRgb foregroundColor_;
-  double gamma_;
+  QRgb backgroundColor_ = 0;
+  QRgb foregroundColor_ = 0;
+  double gamma_ = 1.8;
   QVector<QRgb> foregroundTable_;
 
-  bool lcdUsesBGR_;
+  bool lcdUsesBGR_ = false;
 };
 
 

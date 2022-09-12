@@ -228,7 +228,7 @@ private:
 
   // font info
   int curFontIndex_ = -1;
-  int fontType_;
+  int fontType_ = FontType_Other;
   QString curFamilyName_;
   QString curStyleName_;
   int curNumGlyphs_ = -1;
@@ -242,11 +242,11 @@ private:
   std::vector<SFNTName> curSFNTNames_;
 
   // basic objects
-  FT_Library library_;
-  FTC_Manager cacheManager_;
-  FTC_ImageCache imageCache_;
-  FTC_SBitCache sbitsCache_;
-  FTC_CMapCache cmapCache_;
+  FT_Library library_ = NULL;
+  FTC_Manager cacheManager_ = NULL;
+  FTC_ImageCache imageCache_ = NULL;
+  FTC_SBitCache sbitsCache_ = NULL;
+  FTC_CMapCache cmapCache_ = NULL;
   EngineDefaultValues engineDefaults_;
 
   // settings
@@ -255,31 +255,31 @@ private:
   // Sometimes the font may be valid (i.e. a face object can be retrieved), but
   // the size may be invalid (e.g. non-scalable fonts).
   // Therefore, we use a fallback face for all non-rendering work.
-  FT_Face ftFallbackFace_; // Never perform rendering or write to this!
-  FT_Size ftSize_;
+  FT_Face ftFallbackFace_ = NULL; // Never perform rendering or write to this!
+  FT_Size ftSize_ = NULL;
   FT_Palette_Data paletteData_ = {};
   FT_Color* palette_ = NULL;
 
   bool antiAliasingEnabled_ = true;
   bool usingPixelSize_ = false;
-  double pointSize_;
-  double pixelSize_;
-  unsigned int dpi_;
+  double pointSize_ = 20;
+  double pixelSize_ = 20;
+  unsigned int dpi_ = 98;
 
-  bool doHinting_;
-  bool doAutoHinting_;
-  bool doHorizontalHinting_;
-  bool doVerticalHinting_;
-  bool doBlueZoneHinting_;
-  bool showSegments_;
-  bool embeddedBitmap_;
-  bool useColorLayer_;
+  bool doHinting_ = false;
+  bool doAutoHinting_ = false;
+  bool doHorizontalHinting_ = false;
+  bool doVerticalHinting_ = false;
+  bool doBlueZoneHinting_ = false;
+  bool showSegments_ = false;
+  bool embeddedBitmap_ = false;
+  bool useColorLayer_ = false;
   int paletteIndex_ = -1;
-  int antiAliasingTarget_;
-  bool lcdSubPixelPositioning_;
-  int renderMode_;
+  int antiAliasingTarget_ = 0;
+  bool lcdSubPixelPositioning_ = false;
+  int renderMode_ = 0; 
 
-  unsigned long loadFlags_;
+  unsigned long loadFlags_ = FT_LOAD_DEFAULT;
 
   std::unique_ptr<RenderingEngine> renderingEngine_;
 
