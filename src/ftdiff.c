@@ -29,7 +29,7 @@
 
 
   static void
-  usage( char*  execname )
+  usage( const char*  execname )
   {
     fprintf( stderr,
       "\n"
@@ -381,7 +381,7 @@
   static void
   render_state_set_files( RenderState  state,
                           char**       files,
-                          char*        execname )
+                          const char*  execname )
   {
     FontFace      faces     = NULL;
     unsigned int  num_faces = 0;
@@ -1454,8 +1454,8 @@
     const char*     textfile   = NULL;
     char*           text       = (char*)default_text;
 
-    char*  execname;
-    int    option;
+    const char*  execname;
+    int          option;
 
 
     execname  = ft_basename( argv[0] );
