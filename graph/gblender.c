@@ -116,49 +116,54 @@ gblender_set_gamma_table( double           gamma_value,
 
 /* clear the cache
  */
-static void
-gblender_clear( GBlender  blender )
+GBLENDER_APIDEF( void )
+gblender_clear_channels( GBlender  blender )
 {
+  GBlenderChanKey  chan_keys = (GBlenderChanKey)blender->keys;
   int  nn;
 
-  if ( blender->channels )
-  {
-    GBlenderChanKey  chan_keys = (GBlenderChanKey) blender->keys;
 
-    for ( nn = 0; nn < GBLENDER_KEY_COUNT * 3; nn++ )
-      chan_keys[nn].index = 0xFFFF;
+  for ( nn = 0; nn < GBLENDER_KEY_COUNT * 3; nn++ )
+    chan_keys[nn].index = 0xFFFF;
 
-    blender->cache_r_back  = 0;
-    blender->cache_r_fore  = ~0U;
-    blender->cache_r_cells = NULL;
+  blender->cache_r_back  = 0;
+  blender->cache_r_fore  = ~0U;
+  blender->cache_r_cells = NULL;
 
-    blender->cache_g_back  = 0;
-    blender->cache_g_fore  = ~0U;
-    blender->cache_g_cells = NULL;
+  blender->cache_g_back  = 0;
+  blender->cache_g_fore  = ~0U;
+  blender->cache_g_cells = NULL;
 
-    blender->cache_b_back  = 0;
-    blender->cache_b_fore  = ~0U;
-    blender->cache_b_cells = NULL;
-  }
-  else
-  {
-    GBlenderKey  keys = blender->keys;
+  blender->cache_b_back  = 0;
+  blender->cache_b_fore  = ~0U;
+  blender->cache_b_cells = NULL;
 
-    for ( nn = 0; nn < GBLENDER_KEY_COUNT; nn++ )
-      keys[nn].cells = NULL;
-
-    blender->cache_back  = 0;
-    blender->cache_fore  = ~0U;
-    blender->cache_cells = NULL;
-  }
+  blender->channels      = 1;
 }
+
+
+GBLENDER_APIDEF( void )
+gblender_clear( GBlender  blender )
+{
+  GBlenderKey  keys = blender->keys;
+  int  nn;
+
+
+  for ( nn = 0; nn < GBLENDER_KEY_COUNT; nn++ )
+    keys[nn].cells = NULL;
+
+  blender->cache_back  = 0;
+  blender->cache_fore  = ~0U;
+  blender->cache_cells = NULL;
+
+  blender->channels    = 0;
+}
+
 
 GBLENDER_APIDEF( void )
 gblender_init( GBlender   blender,
                double     gamma_value )
 {
-  blender->channels = 0;
-
   gblender_set_gamma_table( gamma_value,
                             blender->gamma_ramp,
                             blender->gamma_ramp_inv );
@@ -172,21 +177,6 @@ gblender_init( GBlender   blender,
   blender->stat_keys    = 0;
 #endif
 }
-
-
-GBLENDER_APIDEF( void )
-gblender_use_channels( GBlender  blender,
-                       int       channels )
-{
-  channels = (channels != 0);
-
-  if ( blender->channels != channels )
-  {
-    blender->channels = channels;
-    gblender_clear( blender );
-  }
-}
-
 
 
 /* recompute the grade levels of a given key

@@ -122,12 +122,11 @@
 
  /* clear blender, and reset stats */
   GBLENDER_API( void )
-  gblender_reset( GBlender  blender );
-
+  gblender_clear( GBlender  blender );
 
   GBLENDER_API( void )
-  gblender_use_channels( GBlender  blender,
-                         int       channels );
+  gblender_clear_channels( GBlender  blender );
+
 
  /* lookup a cell range for a given (background,foreground) pair
   */

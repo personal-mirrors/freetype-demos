@@ -244,54 +244,68 @@ gblender_blit_init( GBlenderBlit           blit,
                     grSurface*             surface,
                     grBitmap*              glyph )
 {
-  int               src_x = 0;
-  int               src_y = 0;
-  int               delta;
+  grBitmap*  target = &surface->bitmap;
+  GBlender   blender = surface->gblender;
 
-  grBitmap*  target = (grBitmap*)surface;
-
-  GBlenderSourceFormat   src_format;
-  const unsigned char*   src_buffer = glyph->buffer;
-  int                    src_pitch  = glyph->pitch;
-  int                    src_width  = glyph->width;
-  int                    src_height = glyph->rows;
-  unsigned char*         dst_buffer = target->buffer;
-  const int              dst_pitch  = target->pitch;
-  const int              dst_width  = target->width;
-  const int              dst_height = target->rows;
+  GBlenderSourceFormat  src_format;
+  int                   src_x = 0;
+  int                   src_y = 0;
+  int                   delta;
+  const unsigned char*  src_buffer = glyph->buffer;
+  int                   src_pitch  = glyph->pitch;
+  int                   src_width  = glyph->width;
+  int                   src_height = glyph->rows;
+  unsigned char*        dst_buffer = target->buffer;
+  const int             dst_pitch  = target->pitch;
+  const int             dst_width  = target->width;
+  const int             dst_height = target->rows;
 
 
   switch ( glyph->mode )
   {
-  case gr_pixel_mode_gray:  src_format = GBLENDER_SOURCE_GRAY8;
-    gblender_use_channels( surface->gblender, 0 );
+  case gr_pixel_mode_gray:
+    src_format = GBLENDER_SOURCE_GRAY8;
+    if ( blender->channels )
+      gblender_clear( blender );
     break;
-  case gr_pixel_mode_lcd:   src_format = GBLENDER_SOURCE_HRGB;
+  case gr_pixel_mode_lcd:
+    src_format = GBLENDER_SOURCE_HRGB;
     src_width /= 3;
-    gblender_use_channels( surface->gblender, 1 );
+    if ( !blender->channels )
+      gblender_clear_channels( blender );
     break;
-  case gr_pixel_mode_lcd2:  src_format = GBLENDER_SOURCE_HBGR;
+  case gr_pixel_mode_lcd2:
+    src_format = GBLENDER_SOURCE_HBGR;
     src_width /= 3;
-    gblender_use_channels( surface->gblender, 1 );
+    if ( !blender->channels )
+      gblender_clear_channels( blender );
     break;
-  case gr_pixel_mode_lcdv:  src_format = GBLENDER_SOURCE_VRGB;
+  case gr_pixel_mode_lcdv:
+    src_format  = GBLENDER_SOURCE_VRGB;
     src_height /= 3;
     src_pitch  *= 3;
-    gblender_use_channels( surface->gblender, 1 );
+    if ( !blender->channels )
+      gblender_clear_channels( blender );
     break;
-  case gr_pixel_mode_lcdv2: src_format = GBLENDER_SOURCE_VBGR;
+  case gr_pixel_mode_lcdv2:
+    src_format  = GBLENDER_SOURCE_VBGR;
     src_height /= 3;
     src_pitch  *= 3;
-    gblender_use_channels( surface->gblender, 1 );
+    if ( !blender->channels )
+      gblender_clear_channels( blender );
     break;
-  case gr_pixel_mode_bgra:  src_format = GBLENDER_SOURCE_BGRA;
+  case gr_pixel_mode_bgra:
+    src_format = GBLENDER_SOURCE_BGRA;
     break;
-  case gr_pixel_mode_mono:  src_format = GBLENDER_SOURCE_MONO;
+  case gr_pixel_mode_mono:
+    src_format = GBLENDER_SOURCE_MONO;
     break;
   default:
     grError = gr_err_bad_source_depth;
     return -2;
   }
+
+  blit->blender = blender;
 
   switch ( target->mode )
   {
@@ -314,8 +328,6 @@ gblender_blit_init( GBlenderBlit           blit,
     grError = gr_err_bad_target_depth;
     return -2;
   }
-
-  blit->blender   = surface->gblender;
 
   if ( dst_x < 0 )
   {
@@ -378,6 +390,7 @@ grSetTargetPenBrush( grSurface*  surface,
                      grColor     color )
 {
   grBitmap*  target = &surface->bitmap;
+  GBlender   blender = surface->gblender;
 
 
   surface->origin = target->buffer;
@@ -415,7 +428,8 @@ grSetTargetPenBrush( grSurface*  surface,
 
   surface->color = color;
 
-  gblender_use_channels( surface->gblender, 0 );
+  if ( blender->channels )
+    gblender_clear( blender );
 }
 
 
@@ -426,7 +440,7 @@ grBlitGlyphToSurface( grSurface*  surface,
                       grPos       y,
                       grColor     color )
 {
-  GBlenderBlitRec       gblit[1];
+  GBlenderBlitRec  gblit[1];
 
 
   /* check arguments */
