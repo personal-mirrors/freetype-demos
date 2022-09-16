@@ -329,6 +329,11 @@ gblender_blit_init( GBlenderBlit           blit,
     return -2;
   }
 
+  if ( src_pitch < 0 )
+    src_buffer -= src_pitch * ( src_height - 1 );
+  if ( dst_pitch < 0 )
+    dst_buffer -= dst_pitch * ( dst_height - 1 );
+
   if ( dst_x < 0 )
   {
     src_width += dst_x;
@@ -360,14 +365,10 @@ gblender_blit_init( GBlenderBlit           blit,
   blit->height    = src_height;
 
   blit->src_pitch = src_pitch;
-  if ( src_pitch < 0 )
-    src_y -= src_height - 1;
   blit->src_line  = src_buffer + src_pitch * src_y;
   blit->src_x     = src_x;
 
   blit->dst_pitch = dst_pitch;
-  if ( dst_pitch < 0 )
-    dst_y -= dst_height - 1;
   blit->dst_line  = dst_buffer + dst_pitch * dst_y;
   blit->dst_x     = dst_x;
 
