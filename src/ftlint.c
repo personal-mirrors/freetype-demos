@@ -134,7 +134,6 @@
   }
 
 
-  /* Calculate MD5 checksum; bitmap should have positive pitch */
   static void
   Checksum( FT_Bitmap* bitmap )
   {
@@ -144,8 +143,12 @@
 
     MD5_Init( &ctx );
     if ( bitmap->buffer )
-      MD5_Update( &ctx, bitmap->buffer,
-                  (unsigned long)bitmap->rows * (unsigned long)bitmap->pitch );
+    {
+      unsigned long  pitch = bitmap->pitch > 0 ?  bitmap->pitch
+                                               : -bitmap->pitch;
+
+      MD5_Update( &ctx, bitmap->buffer, pitch * bitmap->rows );
+    }
     MD5_Final( md5, &ctx );
 
     for ( i = 0; i < 16; i++ )
