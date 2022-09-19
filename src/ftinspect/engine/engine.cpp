@@ -837,7 +837,8 @@ Engine::update()
       loadFlags_ |= FT_LOAD_MONOCHROME;
   }
 
-  // XXX handle color fonts also
+  if (useColorLayer_ && embeddedBitmap_ && currentFontHasEmbeddedBitmap())
+    loadFlags_ |= FT_LOAD_COLOR; // XXX probably bug: undesired color rendering
 
   scaler_.pixel = 0; // use 26.6 format
 
