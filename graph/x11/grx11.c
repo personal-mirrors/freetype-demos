@@ -119,8 +119,8 @@
                         int            width,
                         int            height )
   {
-    long  pitch;
-    int   delta;
+    int  delta;
+    int  pitch;
 
 
     /* clip rectangle to source bitmap */
@@ -157,22 +157,20 @@
       return 1;
 
     /* now, setup the blitter */
-    pitch = blit->src_pitch = source->pitch;
-
-    blit->src_line  = source->buffer + y * pitch;
-    if ( pitch < 0 )
-      blit->src_line -= ( source->rows - 1 ) * pitch;
-
-    pitch = blit->dst_pitch = target->bytes_per_line;
-
-    blit->dst_line = (unsigned char*)target->data + y * pitch;
-    if ( pitch < 0 )
-      blit->dst_line -= ( target->height - 1 ) * pitch;
-
     blit->x      = x;
     blit->y      = y;
     blit->width  = width;
     blit->height = height;
+
+    pitch = blit->src_pitch = source->pitch;
+    if ( pitch < 0 )
+      y -= source->rows - 1;
+    blit->src_line  = source->buffer + y * pitch;
+
+    pitch = blit->dst_pitch = target->bytes_per_line;
+    if ( pitch < 0 )
+      y -= target->height - 1;
+    blit->dst_line = (unsigned char*)target->data + y * pitch;
 
     return 0;
   }
