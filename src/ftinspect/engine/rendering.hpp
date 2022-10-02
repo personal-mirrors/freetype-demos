@@ -6,10 +6,13 @@
 
 #include <QColor>
 #include <QImage>
+
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 
+
 class Engine;
+
 class RenderingEngine
 {
 public:
@@ -25,30 +28,29 @@ public:
   QRgb background() { return backgroundColor_; }
   double gamma() { return gamma_; }
 
-  // Return `true` if you need to free `out`
-  // `out` will be set to NULL in cases of error
-  bool convertGlyphToBitmapGlyph(FT_Glyph src, FT_Glyph* out);
+  // Return `true` if you need to free `out`.
+  // `out` will be set to NULL in case of error.
+  bool convertGlyphToBitmapGlyph(FT_Glyph src,
+                                 FT_Glyph* out);
   FT_Bitmap convertBitmapTo8Bpp(FT_Bitmap* bitmap);
   QImage* convertBitmapToQImage(FT_Bitmap* src);
-  QImage* convertGlyphToQImage(FT_Glyph src, 
+  QImage* convertGlyphToQImage(FT_Glyph src,
                                QRect* outRect,
                                bool inverseRectY);
-  QPoint computeGlyphOffset(FT_Glyph glyph, bool inverseY);
+  QPoint computeGlyphOffset(FT_Glyph glyph,
+                            bool inverseY);
 
-  /*
-   * Directly render the glyph at the specified index
-   * to a `QImage`. If you want to perform color-layer
-   * rendering, call this before trying to load the
-   * glyph and do normal rendering, If the returning
-   * value is non-NULL, then there's no need to
-   * load the glyph the normal way, just draw the `QImage`.
-   * Will return NULL if not enabled or color layers not available.
-   */
+  // Directly render the glyph at the specified index to a `QImage`.  If you
+  // want to perform color-layer rendering, call this before trying to load
+  // the glyph and do normal rendering.  If the return value is non-NULL
+  // there is no need to load the glyph the normal way, just draw the
+  // `QImage`.  Return NULL if not enabled or color layers not available.
   QImage* tryDirectRenderColorLayers(int glyphIndex,
                                      QRect* outRect,
                                      bool inverseRectY = false);
 
-  QPixmap padToSize(QImage* image, int ppem);
+  QPixmap padToSize(QImage* image,
+                    int ppem);
 
 private:
   Engine* engine_;

@@ -5,7 +5,9 @@
 #include "fontinfo.hpp"
 
 #include <unordered_map>
+
 #include <freetype/ttnameid.h>
+
 
 #define FTI_UnknownID 0xFFFE
 
@@ -22,6 +24,7 @@ TableType ttEncodingAdobeNames;
 
 TableType ttLanguageMacNames;
 TableType ttLanguageWindowsNames;
+
 
 QString*
 mapSFNTNameIDToName(unsigned short nameID)
@@ -62,13 +65,14 @@ mapSFNTNameIDToName(unsigned short nameID)
   return &it->second;
 }
 
+
 QString*
 mapTTPlatformIDToName(unsigned short platformID)
 {
   if (ttPlatformNames.empty())
   {
     ttPlatformNames[FTI_UnknownID] = "Unknown Platform";
-    // Unicode codepoints are encoded as UTF-16BE
+    // Unicode codepoints are encoded as UTF-16BE.
     ttPlatformNames[TT_PLATFORM_APPLE_UNICODE] = "Apple (Unicode)";
     ttPlatformNames[TT_PLATFORM_MACINTOSH] = "Macintosh";
     ttPlatformNames[TT_PLATFORM_ISO] = "ISO (deprecated)";
@@ -76,7 +80,7 @@ mapTTPlatformIDToName(unsigned short platformID)
     ttPlatformNames[TT_PLATFORM_CUSTOM] = "Custom";
     ttPlatformNames[TT_PLATFORM_ADOBE] = "Adobe";
   }
-  
+
   auto it = ttPlatformNames.find(platformID);
   if (it == ttPlatformNames.end())
     return &ttPlatformNames[FTI_UnknownID];
@@ -85,7 +89,7 @@ mapTTPlatformIDToName(unsigned short platformID)
 
 
 QString*
-mapTTEncodingIDToName(unsigned short platformID, 
+mapTTEncodingIDToName(unsigned short platformID,
                       unsigned short encodingID)
 {
   if (ttEncodingUnicodeNames.empty())

@@ -9,6 +9,7 @@
 #include <ft2build.h>
 #include <freetype/freetype.h>
 
+
 class Engine;
 
 #define FT_ENCODING_OTHER 0xFFFE
@@ -26,16 +27,18 @@ struct CharMapInfo
   // Actually this shouldn't go here, but for convenience...
   int maxIndex;
 
-  CharMapInfo(int index, FT_CharMap cmap);
+  CharMapInfo(int index,
+              FT_CharMap cmap);
 
-  QString stringifyIndex(int code, int idx);
+  QString stringifyIndex(int code,
+                         int idx);
   QString stringifyIndexShort(int code);
 
-
   friend bool
-  operator==(const CharMapInfo& lhs, const CharMapInfo& rhs)
+  operator==(const CharMapInfo& lhs,
+             const CharMapInfo& rhs)
   {
-    // omitting `ptr` by design!
+    // Omitting `ptr` by design!
     return lhs.index == rhs.index
            && lhs.encoding == rhs.encoding
            && lhs.platformID == rhs.platformID
@@ -44,17 +47,17 @@ struct CharMapInfo
            && lhs.languageID == rhs.languageID;
   }
 
-
   friend bool
-  operator!=(const CharMapInfo& lhs, const CharMapInfo& rhs)
+  operator!=(const CharMapInfo& lhs,
+             const CharMapInfo& rhs)
   {
     return !(lhs == rhs);
   }
 
-
 private:
   int computeMaxIndex();
-  static int maxIndexForFaceAndCharMap(FT_CharMap charMap, unsigned max);
+  static int maxIndexForFaceAndCharMap(FT_CharMap charMap,
+                                       unsigned max);
 };
 
 

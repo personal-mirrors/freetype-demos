@@ -2,29 +2,30 @@
 
 // Copyright (C) 2022 by Charlie Jiang.
 
+#include "engine.hpp"
 #include "fontinfo.hpp"
 
-#include "engine.hpp"
-
 #include <map>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 #include <utility>
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <QTextCodec>
+# include <QTextCodec>
 #else
-#include <QStringConverter>
-#include <QByteArrayView>
+# include <QByteArrayView>
+# include <QStringConverter>
 #endif
+
 #include <freetype/ftmodapi.h>
 #include <freetype/ttnameid.h>
 #include <freetype/tttables.h>
 #include <freetype/tttags.h>
 
-#ifdef _MSC_VER // To use intrin
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <intrin.h>
+#ifdef _MSC_VER // To use `intrin.h`.
+# define WIN32_LEAN_AND_MEAN
+# include <Windows.h>
+# include <intrin.h>
 #endif
 
 
@@ -38,7 +39,7 @@ SFNTName::get(Engine* engine,
     list.clear();
     return;
   }
-  
+
   auto newSize = FT_Get_Sfnt_Name_Count(face);
   if (list.size() != static_cast<size_t>(newSize))
     list.resize(newSize);
@@ -57,7 +58,7 @@ SFNTName::get(Engine* engine,
     auto len = sfntName.string_len >= INT_MAX
                  ? INT_MAX - 1
                  : sfntName.string_len;
-    obj.strBuf = QByteArray(reinterpret_cast<const char*>(sfntName.string), 
+    obj.strBuf = QByteArray(reinterpret_cast<const char*>(sfntName.string),
                             len);
     obj.str = sfntNameToQString(sfntName, &obj.strValid);
 
@@ -65,18 +66,20 @@ SFNTName::get(Engine* engine,
     {
       auto err = FT_Get_Sfnt_LangTag(face, obj.languageID, &langTag);
       if (!err)
-        obj.langTag = utf16BEToQString(reinterpret_cast<char*>(langTag.string),
-                                       langTag.string_len);
+        obj.langTag = utf16BEToQString(
+                        reinterpret_cast<char*>(langTag.string),
+                        langTag.string_len);
     }
   }
 }
 
 
 QString
-SFNTName::sfntNameToQString(FT_SfntName const& sfntName, 
+SFNTName::sfntNameToQString(FT_SfntName const& sfntName,
                             bool* outSuccess)
 {
-  return sfntNameToQString(sfntName.platform_id, sfntName.encoding_id,
+  return sfntNameToQString(sfntName.platform_id,
+                           sfntName.encoding_id,
                            reinterpret_cast<char const*>(sfntName.string),
                            sfntName.string_len,
                            outSuccess);
@@ -84,10 +87,13 @@ SFNTName::sfntNameToQString(FT_SfntName const& sfntName,
 
 
 QString
-SFNTName::sfntNameToQString(SFNTName const& sfntName, bool* outSuccess)
+SFNTName::sfntNameToQString(SFNTName const& sfntName,
+                            bool* outSuccess)
 {
-  return sfntNameToQString(sfntName.platformID, sfntName.encodingID,
-                           sfntName.strBuf.data(), sfntName.strBuf.size(),
+  return sfntNameToQString(sfntName.platformID,
+                           sfntName.encodingID,
+                           sfntName.strBuf.data(),
+                           sfntName.strBuf.size(),
                            outSuccess);
 }
 
@@ -111,6 +117,7 @@ SFNTName::sfntNameToQString(unsigned short platformID,
   case TT_PLATFORM_APPLE_UNICODE:
     // All UTF-16BE.
     return utf16BEToQString(str, size);
+
   case TT_PLATFORM_MACINTOSH:
     if (encodingID == TT_MAC_ID_ROMAN)
       return QString::fromLatin1(str, static_cast<int>(size));
@@ -118,6 +125,7 @@ SFNTName::sfntNameToQString(unsigned short platformID,
     if (outSuccess)
       *outSuccess = false;
     return "<encoding unsupported>";
+
   case TT_PLATFORM_ISO:
     switch (encodingID)
     {
@@ -131,13 +139,14 @@ SFNTName::sfntNameToQString(unsigned short platformID,
         *outSuccess = false;
       return "<encoding unsupported>";
     }
+
   case TT_PLATFORM_MICROSOFT:
     switch (encodingID)
     {
-      /* TT_MS_ID_SYMBOL_CS is Unicode, similar to PID/EID=3/1 */
+      // TT_MS_ID_SYMBOL_CS is Unicode, similar to PID/EID=3/1.
     case TT_MS_ID_SYMBOL_CS:
     case TT_MS_ID_UNICODE_CS:
-    case TT_MS_ID_UCS_4: // This is UTF-16LE as well, according to MS doc
+    case TT_MS_ID_UCS_4: // This is UTF-16LE as well, according to MS doc.
       return utf16BEToQString(str, size);
 
     default:
@@ -203,7 +212,7 @@ FontBasicInfo::get(Engine* engine)
       = head->Created[1] | static_cast<uint64_t>(head->Created[0]) << 32;
     uint64_t modifiedTimestamp
       = head->Modified[1] | static_cast<uint64_t>(head->Modified[0]) << 32;
-    
+
     result.createdTime
       = QDateTime::fromSecsSinceEpoch(createdTimestamp, Qt::OffsetFromUTC)
           .addSecs(-2082844800);
@@ -229,7 +238,7 @@ FontTypeEntries::get(Engine* engine)
   auto face = engine->currentFallbackFtFace();
   if (!face)
     return {};
-  
+
   FontTypeEntries result = {};
   result.driverName = QString(FT_FACE_DRIVER_NAME(face));
   result.sfnt = FT_IS_SFNT(face);
@@ -300,7 +309,7 @@ operator==(const PS_PrivateRec& lhs,
          && lhs.blue_scale == rhs.blue_scale
          && lhs.blue_shift == rhs.blue_shift
          && lhs.blue_fuzz == rhs.blue_fuzz
-         && std::equal(std::begin(lhs.standard_width), 
+         && std::equal(std::begin(lhs.standard_width),
                        std::end(lhs.standard_width),
                        std::begin(rhs.standard_width))
          && std::equal(std::begin(lhs.standard_height),
@@ -338,7 +347,7 @@ FontFixedSize::get(Engine* engine,
     list.clear();
     return true;
   }
-  
+
   auto changed = false;
   if (list.size() != static_cast<size_t>(face->num_fixed_sizes))
   {
@@ -352,19 +361,18 @@ FontFixedSize::get(Engine* engine,
     FontFixedSize ffs = {};
     auto bSize = face->available_sizes + i;
     ffs.height = bSize->height;
-    ffs.width  = bSize->width;
-    ffs.size   = bSize->size / 64.0;
-    ffs.xPpem  = bSize->x_ppem / 64.0;
-    ffs.yPpem  = bSize->y_ppem / 64.0;
+    ffs.width = bSize->width;
+    ffs.size = bSize->size / 64.0;
+    ffs.xPpem = bSize->x_ppem / 64.0;
+    ffs.yPpem = bSize->y_ppem / 64.0;
     if (ffs != list[i])
     {
-      
       if (!changed)
       {
         onUpdateNeeded();
         changed = true;
       }
-      
+
       list[i] = ffs;
     }
   }
@@ -386,7 +394,7 @@ struct SFNTHeaderRec
 {
   uint32_t formatTag;
   uint16_t numTables;
-  // There'll be some padding, but it doesn't matter.
+  // There will be some padding, but it doesn't matter.
 };
 
 
@@ -403,11 +411,11 @@ uint32_t
 bigEndianToNative(uint32_t n)
 {
 #ifdef _MSC_VER
-  #if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
-    return _byteswap_ulong(n);
-  #else
-    return n;
-  #endif
+# if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
+  return _byteswap_ulong(n);
+# else
+  return n;
+# endif
 #else
   auto np = reinterpret_cast<unsigned char*>(&n);
 
@@ -423,11 +431,11 @@ uint16_t
 bigEndianToNative(uint16_t n)
 {
 #ifdef _MSC_VER
-#if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
+# if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
   return _byteswap_ushort(n);
-#else
+# else
   return n;
-#endif
+# endif
 #else
   auto np = reinterpret_cast<unsigned char*>(&n);
 
@@ -441,13 +449,14 @@ void readSingleFace(QFile& file,
                     uint32_t offset,
                     unsigned faceIndex,
                     std::vector<TTTableRec>& tempTables,
-                    std::map<unsigned long, SFNTTableInfo>& result)
+                    std::map<unsigned long,
+                    SFNTTableInfo>& result)
 {
   if (!file.seek(offset))
     return;
 
   SFNTHeaderRec sfntHeader = {};
-  if (file.read(reinterpret_cast<char*>(&sfntHeader), 
+  if (file.read(reinterpret_cast<char*>(&sfntHeader),
                 sizeof(SFNTHeaderRec))
       != sizeof(SFNTHeaderRec))
     return;
@@ -455,7 +464,7 @@ void readSingleFace(QFile& file,
   sfntHeader.numTables = bigEndianToNative(sfntHeader.numTables);
 
   unsigned short validEntries = sfntHeader.numTables;
-  
+
   if (sfntHeader.formatTag != TTAG_OTTO)
   {
     // TODO check SFNT Header
@@ -467,7 +476,8 @@ void readSingleFace(QFile& file,
 
   tempTables.resize(validEntries);
   auto desiredLen = static_cast<long long>(validEntries * sizeof(TTTableRec));
-  auto readLen = file.read(reinterpret_cast<char*>(tempTables.data()), desiredLen);
+  auto readLen = file.read(reinterpret_cast<char*>(tempTables.data()),
+                           desiredLen);
   if (readLen != desiredLen)
     return;
 
@@ -541,17 +551,17 @@ SFNTTableInfo::getForAll(Engine* engine,
   if (ttcHeader.ttcTag == TTAG_ttcf
       && (ttcHeader.majorVersion == 2 || ttcHeader.majorVersion == 1))
   {
-    // Valid TTC file
+    // Valid TTC file.
     std::unique_ptr<unsigned> offsets(new unsigned[ttcHeader.numFonts]);
     auto desiredLen = static_cast<long long>(ttcHeader.numFonts
                                              * sizeof(unsigned));
     readLen = file.read(reinterpret_cast<char*>(offsets.get()), desiredLen);
     if (readLen != desiredLen)
       return;
-    
-    for (unsigned faceIndex = 0; 
-        faceIndex < ttcHeader.numFonts; 
-        faceIndex++)
+
+    for (unsigned faceIndex = 0;
+         faceIndex < ttcHeader.numFonts;
+         faceIndex++)
     {
       auto offset = bigEndianToNative(offsets.get()[faceIndex]);
       readSingleFace(file, offset, faceIndex, tables, result);
@@ -559,7 +569,7 @@ SFNTTableInfo::getForAll(Engine* engine,
   }
   else
   {
-    // Not TTC file, try single SFNT
+    // Not TTC file, try single SFNT.
     if (!file.seek(0))
       return;
     readSingleFace(file, 0, 0, tables, result);
@@ -569,7 +579,6 @@ SFNTTableInfo::getForAll(Engine* engine,
   for (auto& pr : result)
     infos.emplace_back(std::move(pr.second));
 }
-
 
 
 FT_UInt16
@@ -587,7 +596,7 @@ readF2Dot14(void* ptr)
 
 
 void
-CompositeGlyphInfo::get(Engine* engine, 
+CompositeGlyphInfo::get(Engine* engine,
                         std::vector<CompositeGlyphInfo>& list)
 {
   list.clear();
@@ -599,8 +608,8 @@ CompositeGlyphInfo::get(Engine* engine,
       return;
   }
 
-  // We're not using the FreeType's subglyph APIs, but directly reading from
-  // the `glyf` table since it's faster
+  // We are not using FreeType's subglyph APIs but directly reading from
+  // the 'glyf' table since it is faster.
   auto head = static_cast<TT_Header*>(FT_Get_Sfnt_Table(face, FT_SFNT_HEAD));
   auto maxp
     = static_cast<TT_MaxProfile*>(FT_Get_Sfnt_Table(face, FT_SFNT_MAXP));
@@ -630,24 +639,26 @@ CompositeGlyphInfo::get(Engine* engine,
 
   for (size_t i = 0; i < maxp->numGlyphs; i++)
   {
-    FT_UInt32  loc, end;
+    FT_UInt32 loc;
+    FT_UInt32 end;
+
     if (head->Index_To_Loc_Format)
     {
-      loc = static_cast<FT_UInt32>(offset[4 * i    ]) << 24 |
-            static_cast<FT_UInt32>(offset[4 * i + 1]) << 16 |
-            static_cast<FT_UInt32>(offset[4 * i + 2]) << 8  |
-            static_cast<FT_UInt32>(offset[4 * i + 3])       ;
-      end = static_cast<FT_UInt32>(offset[4 * i + 4]) << 24 |
-            static_cast<FT_UInt32>(offset[4 * i + 5]) << 16 |
-            static_cast<FT_UInt32>(offset[4 * i + 6]) << 8  |
-            static_cast<FT_UInt32>(offset[4 * i + 7])       ;
+      loc = static_cast<FT_UInt32>(offset[4 * i]) << 24
+            | static_cast<FT_UInt32>(offset[4 * i + 1]) << 16
+            | static_cast<FT_UInt32>(offset[4 * i + 2]) << 8
+            | static_cast<FT_UInt32>(offset[4 * i + 3]);
+      end = static_cast<FT_UInt32>(offset[4 * i + 4]) << 24
+            | static_cast<FT_UInt32>(offset[4 * i + 5]) << 16
+            | static_cast<FT_UInt32>(offset[4 * i + 6]) << 8
+            | static_cast<FT_UInt32>(offset[4 * i + 7]);
     }
     else
     {
-      loc = static_cast<FT_UInt32>(offset[2 * i    ]) << 9 |
-            static_cast<FT_UInt32>(offset[2 * i + 1]) << 1 ;
-      end = static_cast<FT_UInt32>(offset[2 * i + 2]) << 9 |
-            static_cast<FT_UInt32>(offset[2 * i + 3]) << 1 ;
+      loc = static_cast<FT_UInt32>(offset[2 * i]) << 9
+            | static_cast<FT_UInt32>(offset[2 * i + 1]) << 1;
+      end = static_cast<FT_UInt32>(offset[2 * i + 2]) << 9
+            | static_cast<FT_UInt32>(offset[2 * i + 3]) << 1;
     }
 
     if (end > glyfLength)
@@ -657,8 +668,8 @@ CompositeGlyphInfo::get(Engine* engine,
       continue;
 
     auto len = static_cast<FT_Int16>(readUInt16(buffer + loc));
-    loc += 10;  // skip header
-    if (len >= 0) // not a composite one
+    loc += 10;  // Skip header.
+    if (len >= 0) // Not a composite one.
       continue;
 
     std::vector<SubGlyph> subglyphs;
@@ -694,7 +705,7 @@ CompositeGlyphInfo::get(Engine* engine,
                              std::pair<short, short>(arg1, arg2),
                              (flags & 0x0800) != 0);
       // TODO: Use "Default behavior" when neither SCALED_COMPONENT_OFFSET
-      //       and UNSCALED_COMPONENT_OFFSET are set.
+      //       nor UNSCALED_COMPONENT_OFFSET are set.
 
       auto& glyph = subglyphs.back();
       if (flags & 0x0008)

@@ -5,16 +5,19 @@
 #pragma once
 
 #include <vector>
+
 #include <QString>
+
 
 class Engine;
 
 enum class MMGXState
 {
   NoMMGX,
-  MM,     // Adobe MM
+  MM, // Adobe MM
   GX_OVF, // GX or OpenType variable fonts
 };
+
 
 struct MMGXAxisInfo
 {
@@ -28,7 +31,8 @@ struct MMGXAxisInfo
   bool hidden;
   bool isMM;
 
-  static MMGXState get(Engine* engine, std::vector<MMGXAxisInfo>& infos);
+  static MMGXState get(Engine* engine,
+                       std::vector<MMGXAxisInfo>& infos);
 
 
   friend bool
@@ -36,12 +40,12 @@ struct MMGXAxisInfo
              const MMGXAxisInfo& rhs)
   {
     return lhs.name == rhs.name
-      && lhs.tag == rhs.tag
-      && lhs.minimum == rhs.minimum
-      && lhs.maximum == rhs.maximum
-      && lhs.def == rhs.def
-      && lhs.hidden == rhs.hidden
-      && lhs.isMM == rhs.isMM;
+           && lhs.tag == rhs.tag
+           && lhs.minimum == rhs.minimum
+           && lhs.maximum == rhs.maximum
+           && lhs.def == rhs.def
+           && lhs.hidden == rhs.hidden
+           && lhs.isMM == rhs.isMM;
   }
 
 

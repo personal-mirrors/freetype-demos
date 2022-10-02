@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 #include <QString>
+#include <qslider.h>
 
 #include <ft2build.h>
-#include <qslider.h>
 #include <freetype/freetype.h>
 #include <freetype/ftcache.h>
 #include <freetype/ftglyph.h>
@@ -18,6 +18,7 @@
 // adopted from `ftcommon.h`
 
 class Engine;
+
 struct GlyphContext
 {
   int charCode = 0;
@@ -26,17 +27,18 @@ struct GlyphContext
   FT_Glyph glyph = NULL;
   FTC_Node cacheNode = NULL;
 
-  FT_Pos lsbDelta = 0;    // delta caused by hinting
-  FT_Pos rsbDelta = 0;   // delta caused by hinting
-  FT_Vector hadvance = { 0, 0 }; // kerned horizontal advance
+  FT_Pos lsbDelta = 0; // Delta caused by hinting.
+  FT_Pos rsbDelta = 0; // Delta caused by hinting.
 
-  FT_Vector vvector = { 0, 0 };  // vert. origin => hori. origin
-  FT_Vector vadvance = { 0, 0 }; // vertical advance
+  FT_Vector hadvance = { 0, 0 }; // Kerned horizontal advance.
+  FT_Vector vvector = { 0, 0 };  // Vertical origin to horizontal origin.
+  FT_Vector vadvance = { 0, 0 }; // Vertical advance.
 };
 
-// Class to populate chars to render, to load and properly position glyphs.
-// Use callbacks to receive characters and lines. You should save the result
-// from the callbacks to a cache.
+
+// Class to populate characters to render, to load and properly position
+// glyphs.  Use callbacks to receive characters and lines.  You should save
+// the result from the callbacks to a cache.
 class StringRenderer
 {
 public:
@@ -58,52 +60,50 @@ public:
     KM_Smart
   };
 
-  /*
-   * Called when outputting a glyph. The receiver is reponsible for rendering
-   * the glyph to bitmap.
-   *
-   * Need to pass the pen position because sometimes the outline vector
-   * contains no points, and thus can't be translated to the desired pen
-   * position.
-   */
-  using RenderCallback = std::function<void(FT_Glyph,        // glyph
-                                            FT_Vector,       // penPos
+  // Called when outputting a glyph.  The receiver is reponsible for
+  // rendering the glyph to bitmap.
+  //
+  // We need to pass the pen position because sometimes the outline vector
+  // contains no points and thus can't be translated to the desired pen
+  // position.
+  using RenderCallback = std::function<void(FT_Glyph, // glyph
+                                            FT_Vector, // penPos
                                             GlyphContext&)>;
-  /*
-   * Called when outputtng a glyph with bitmap pre-rendered.
-   * The receiver can simply use the bitmap, mainly for color layered fonts.
-   * 
-   * TODO: Remove `RenderCallback` and do QImage creation in this class?
-   * The receiver is responsible for deleteing the `QImage`
-   * (ownership transfered).
-   */
-  using RenderImageCallback = std::function<void(QImage*,   // bitmap
-                                                 QRect,     // bbox
+
+  // Called when outputting a glyph with a pre-rendered bitmap.  The
+  // receiver can simply use the bitmap, mainly for color layered fonts.
+  //
+  // TODO: Remove `RenderCallback` and do QImage creation in this class?
+  //
+  // The receiver is responsible for deleteing the `QImage` (ownership
+  // transfered).
+  using RenderImageCallback = std::function<void(QImage*, // bitmap
+                                                 QRect, // bbox
                                                  FT_Vector, // penPos
                                                  FT_Vector, // advance
                                                  GlyphContext&)>;
-  /*
-   * Called right after the glyph is obtained from the font, before any other
-   * operation is done. The receiver can do pre-processing like slanting and
-   * emboldening in this function.
-   *
-   * The glyph pointer may be replaced. In that case, ownership is transfered
-   * to the renderer, and the new glyph will be eventually freed by
-   * the renderer. The callback is responsible to free the old glyph.
-   * This allows you to do the following:
-   * void callback(FT_Glyph* ptr) {
-   *     ....
-   *     auto oldPtr = *ptr;
-   *     *ptr = ....;
-   *     FT_Done_Glyph(olPtr);
-   * }
-   */
+
+  // Called right after the glyph is obtained from the font, before any
+  // other operation is done.  The receiver can do pre-processing like
+  // slanting and emboldening in this function.
+  //
+  // The glyph pointer may be replaced.  In that case, ownership is
+  // transfered to the renderer, and the new glyph will be eventually freed
+  // by the renderer.  The callback is responsible to free the old glyph.
+  // This allows you to do the following:
+  //
+  //   void callback(FT_Glyph* ptr)
+  //   {
+  //     ...
+  //     auto oldPtr = *ptr;
+  //     *ptr = ...;
+  //     FT_Done_Glyph(oldPtr);
+  //   }
   using PreprocessCallback = std::function<void(FT_Glyph*)>;
-  /*
-   * Called when a new line begins.
-   */
+
+  // Called when a new line begins.
   using LineBeginCallback = std::function<void(FT_Vector, // initial penPos
-                                               double)>;  // size (points)
+                                               double)>; // size (points)
 
   //////// Getters
   bool isWaterfall() { return waterfall_; }
@@ -111,34 +111,24 @@ public:
   int charMapIndex() { return charMapIndex_; }
 
   //////// Callbacks
-  void
-  setCallback(RenderCallback cb)
-  {
-    renderCallback_ = std::move(cb);
-  }
-  void
-  setImageCallback(RenderImageCallback cb)
-  {
-    renderImageCallback_ = std::move(cb);
-  }
-  void
-  setPreprocessCallback(PreprocessCallback cb)
-  {
-    glyphPreprocessCallback_ = std::move(cb);
-  }
-  void
-  setLineBeginCallback(LineBeginCallback cb)
-  {
-    lineBeginCallback_ = std::move(cb);
-  }
+  void setCallback(RenderCallback cb)
+         { renderCallback_ = std::move(cb); }
+  void setImageCallback(RenderImageCallback cb)
+         { renderImageCallback_ = std::move(cb); }
+  void setPreprocessCallback(PreprocessCallback cb)
+         { glyphPreprocessCallback_ = std::move(cb); }
+  void setLineBeginCallback(LineBeginCallback cb)
+         { lineBeginCallback_ = std::move(cb); }
 
   //////// Setters for options
-  void setCharMapIndex(int charMapIndex, int limitIndex);
+  void setCharMapIndex(int charMapIndex,
+                       int limitIndex);
   void setRepeated(bool repeated) { repeated_ = repeated; }
   void setVertical(bool vertical) { vertical_ = vertical; }
   void setRotation(double rotation);
   void setWaterfall(bool waterfall) { waterfall_ = waterfall; }
-  void setWaterfallParameters(double start, double end)
+  void setWaterfallParameters(double start,
+                              double end)
   {
     waterfallStart_ = start;
     waterfallEnd_ = end;
@@ -147,7 +137,7 @@ public:
   void setLsbRsbDelta(bool enabled) { lsbRsbDeltaEnabled_ = enabled; }
   void setKerning(bool kerning);
 
-  // Need to be called when font or charMap changes
+  // Need to be called when font or charMap changes.
   void setUseString(QString const& string);
   void setUseAllGlyphs();
 
@@ -155,46 +145,51 @@ public:
   int render(int width,
              int height,
              int offset);
-  int renderLine(int x, int y,
-                 int width, int height,
+  int renderLine(int x,
+                 int y,
+                 int width,
+                 int height,
                  int offset,
                  bool handleMultiLine = false);
 
-  void reloadAll();      // text/font/charmap changes, will call
-                         // `reloadGlyphs`
-  void reloadGlyphs();   // any other parameter changes
+  void reloadAll(); // Text/font/charmap changes, will call `reloadGlyphs`.
+  void reloadGlyphs(); // Any other parameter changes.
 
 private:
   Engine* engine_;
 
   // Generally, rendering has those steps:
+  //
   // 1. If in string mode, the string is load into `activeGlyphs_`
-  //    (in `updateString`)
-  // 2. The char codes in contexts are converted to glyph indices
-  //    (in `reloadGlyphIndices`)
-  // 3. If in string mode, glyphs are loaded into contexts.
-  //    (in `loadStringGlyphs`)
+  //    (in `updateString`).
+  // 2. The character codes in contexts are converted to glyph indices
+  //    (in `reloadGlyphIndices`).
+  // 3. If in string mode, glyphs are loaded into contexts
+  //    (in `loadStringGlyphs`).
   // 4. In `render` function, according to mode, `renderLine` is called line
   //    by line (as well as `prepareRendering`).
   // 5. In `renderLine`, if in all glyphs mode, glyphs from the begin index
-  //    are loaded until the line is full (if the glyph already exists, it will
-  //    be reused). If in string mode, it will directly use the prepared glyphs.
-  //    Preprocessing is done within this step, such as emboldening or stroking.
-  //    Eventually the `FT_Glyph` pointer is passed to the callback.
-  
+  //    are loaded until the line is full (if the glyph already exists, it
+  //    will be reused).  If in string mode, it will directly use the
+  //    prepared glyphs.  Preprocessing is done within this step, such as
+  //    emboldening or stroking.  Eventually the `FT_Glyph` pointer is
+  //    passed to the callback.
+
   GlyphContext tempGlyphContext_;
-  // This vector stores all active glyphs for rendering. When rendering strings,
-  // this is the container for chars, so DO NOT directly clear it to flush
-  // cache, you should clean glyph objects only. However when rendering all
-  // glyphs, it's generally to directly wipe the vector because it's dynamically
-  // generated in `render` function (see above).
+
+  // This vector stores all active glyphs for rendering.  When rendering
+  // strings, this is the container for characters, so DO NOT directly clear
+  // it to flush the cache!  You should clean glyph objects only.  However,
+  // when rendering all glyphs, it's generally better to directly wipe the
+  // vector because it is dynamically generated in `render` function (see
+  // above).
   //
   // Note: Because of kerning, this list must be ordered and allow duplicate
   //       characters.
   //
-  // Actually this means 3 parts of storage: string charcode, glyph indices and
-  // glyph (+ all related info). Different parameter changes will trigger
-  // different levels of flushing.
+  // Actually this means 3 parts of storage: string character code, glyph
+  // indices, and glyph (+ all related info).  Different parameter changes
+  // will trigger different levels of flushing.
   std::vector<GlyphContext> activeGlyphs_;
   bool glyphCacheValid_ = false;
 
@@ -221,20 +216,22 @@ private:
   PreprocessCallback glyphPreprocessCallback_;
   LineBeginCallback lineBeginCallback_;
 
-  void reloadGlyphIndices(); // for string rendering
+  void reloadGlyphIndices(); // For string rendering.
   void prepareRendering();
-  void loadSingleContext(GlyphContext* ctx, GlyphContext* prev);
-  // Need to be called when font, charMap or size changes;
+  void loadSingleContext(GlyphContext* ctx,
+                         GlyphContext* prev);
+  // Need to be called when font, charMap or size changes.
   void loadStringGlyphs();
-  // Returns total line count
-  int prepareLine(int offset, 
+  // Returns total line count.
+  int prepareLine(int offset,
                   int lineWidth,
                   FT_Vector& outActualLineWidth,
                   int nonSpacingPlaceholder,
                   bool handleMultiLine = false);
   void clearActive(bool glyphOnly = false);
 
-  int convertCharEncoding(int charUcs4, FT_Encoding encoding);
+  int convertCharEncoding(int charUcs4,
+                          FT_Encoding encoding);
 };
 
 

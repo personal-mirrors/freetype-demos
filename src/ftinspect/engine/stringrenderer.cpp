@@ -2,11 +2,11 @@
 
 // Copyright (C) 2022 by Charlie Jiang.
 
+#include "engine.hpp"
 #include "stringrenderer.hpp"
 
-#include "engine.hpp"
-
 #include <cmath>
+
 #include <QTextCodec>
 
 
@@ -83,7 +83,7 @@ StringRenderer::setKerning(bool kerning)
 void
 StringRenderer::reloadAll()
 {
-  clearActive(usingString_); // if "All Glyphs", then do a complete wipe
+  clearActive(usingString_); // If 'All Glyphs', do a complete wipe.
   if (usingString_)
     reloadGlyphIndices();
 }
@@ -99,7 +99,7 @@ StringRenderer::reloadGlyphs()
 void
 StringRenderer::setUseString(QString const& string)
 {
-  clearActive(); // clear existing
+  clearActive(); // Clear existing data.
   usingString_ = true;
 
   long long totalCount = 0;
@@ -110,7 +110,7 @@ StringRenderer::setUseString(QString const& string)
     it.charCodeUcs4 = it.charCode = static_cast<int>(ch);
     it.glyphIndex = 0;
     ++totalCount;
-    if (totalCount >= INT_MAX) // Prevent overflow
+    if (totalCount >= INT_MAX) // Prevent overflow.
       break;
   }
   reloadGlyphIndices();
@@ -180,11 +180,11 @@ StringRenderer::loadSingleContext(GlyphContext* ctx,
     ctx->cacheNode = NULL;
   }
   else if (ctx->glyph)
-    FT_Done_Glyph(ctx->glyph); // when caching isn't used
+    FT_Done_Glyph(ctx->glyph); // When caching isn't used.
 
   // TODO use FTC?
 
-  // After `prepareRendering`, current size/face is properly set
+  // After `prepareRendering`, current size/face is properly set.
   FT_GlyphSlot slot = engine_->currentFaceSlot();
   if (engine_->loadGlyphIntoSlotWithoutCache(ctx->glyphIndex) != 0)
   {
@@ -197,8 +197,8 @@ StringRenderer::loadSingleContext(GlyphContext* ctx,
     return;
   }
   auto& metrics = slot->metrics;
-  //ctx->glyph = engine_->loadGlyphWithoutUpdate(ctx->glyphIndex, 
-  //                                            &ctx->cacheNode);
+  //ctx->glyph = engine_->loadGlyphWithoutUpdate(ctx->glyphIndex,
+  //                                             &ctx->cacheNode);
 
   if (!ctx->glyph)
     return;
@@ -221,8 +221,8 @@ StringRenderer::loadSingleContext(GlyphContext* ctx,
 
   if (kerningMode_ != KM_None)
   {
-    FT_Vector kern = engine_->currentFontKerning(ctx->glyphIndex, 
-                                        prev->glyphIndex);
+    FT_Vector kern = engine_->currentFontKerning(ctx->glyphIndex,
+                                                 prev->glyphIndex);
 
     prev->hadvance.x += kern.x;
     prev->hadvance.y += kern.y;
@@ -274,15 +274,14 @@ StringRenderer::prepareLine(int offset,
   outActualLineWidth = {0, 0};
   if (!usingString_) // All glyphs
   {
-    // The thing gets a little complicated when we're using "All Glyphs" mode
-    // The input sequence is actually infinite
-    // so we have to combine loading glyph into rendering, and can't preload
-    // all glyphs
+    // The situation gets a little complicated when we are using the 'All
+    // Glyphs' mode: The input sequence is actually infinite so we have to
+    // combine loading glyph into rendering and can't preload all glyphs.
 
     // TODO: Low performance when the begin index is large.
     // TODO: Optimize: use a sparse vector...!
     // The problem is that when doing a `list::resize`, the ctor is called
-    // for unnecessarily many times.
+    // unnecessarily often.
     tempGlyphContext_ = {};
     for (unsigned n = offset; n < static_cast<unsigned>(limitIndex_);)
     {
@@ -294,14 +293,15 @@ StringRenderer::prepareLine(int offset,
       auto& ctx = activeGlyphs_[n];
       ctx.charCode = static_cast<int>(n);
       ctx.glyphIndex = static_cast<int>(
-          engine_->glyphIndexFromCharCode(static_cast<int>(n), charMapIndex_));
+                         engine_->glyphIndexFromCharCode(static_cast<int>(n),
+                                                         charMapIndex_));
 
       auto prev = n == 0 ? &tempGlyphContext_ : &activeGlyphs_[n - 1];
       if (!ctx.glyph)
         loadSingleContext(&ctx, prev);
 
-      // In All Glyphs mode, a red placeholder should be drawn for non-spacing
-      // glyphs (e.g. the stress mark)
+      // In 'All Glyphs' mode, a red placeholder should be drawn for
+      // non-spacing glyphs (e.g., the stress mark).
       auto actualAdvanceX = ctx.hadvance.x ? ctx.hadvance.x
                                            : nonSpacingPlaceholder << 6;
       if (outActualLineWidth.x + actualAdvanceX > lineWidth)
@@ -330,7 +330,8 @@ StringRenderer::prepareLine(int offset,
         break;
       }
 
-      if (repeated_) // if repeated, we must stop when we touch the end of line
+      if (repeated_) // If repeated, we must stop when we touch
+                     // the end of the line
       {
         if (outActualLineWidth.x + ctx.hadvance.x > lineWidth)
           break;
@@ -374,14 +375,14 @@ StringRenderer::render(int width,
 
   auto initialOffset = offset;
 
-  // Separated into 3 modes:
-  // Waterfall, fill the whole canvas and only single string.
+  // Separate into 3 modes: Waterfall, fill the whole canvas, and render a
+  // single string only.
   if (waterfall_)
   {
     // Waterfall
 
     vertical_ = false;
-    // They're only effective for non-bitmap-only (scalable) fonts!
+    // They are only effective for non-bitmap-only (scalable) fonts!
     auto originalSize = static_cast<int>(engine_->pointSize() * 64);
     auto ptSize = originalSize;
     auto ptHeight = 64 * 72 * height / engine_->dpi();
@@ -402,8 +403,8 @@ StringRenderer::render(int width,
     else if (!bitmapOnly)
     {
       ptSize = static_cast<int>(waterfallStart_ * 64.0) & ~31;
-      // we first get a ratio since height & ppem are near proportional...
-      // 64.0 is somewhat a magic reference number
+      // We first get a ratio since height & ppem are near proportional...
+      // Value 64.0 is somewhat a magic reference number.
       engine_->setSizeByPoint(64.0);
       engine_->reloadFont();
       if (!engine_->renderReady())
@@ -417,16 +418,17 @@ StringRenderer::render(int width,
 
       auto n = heightPt * 2 / (waterfallStart_ + waterfallEnd_);
       auto stepTemp = (waterfallEnd_ - waterfallStart_) / (n + 1);
-      // rounding to 0.25
+      // Rounding to 0.25.
       step = static_cast<int>(std::round(stepTemp * 4)) * 16 & ~15;
       if (step == 0)
-        step = 16; // 0.25 pt
+        step = 16; // 0.25pt
     }
 
     int y = 0;
-    // no position param in "All Glyphs" or repeated mode
-    int x = static_cast<int>((usingString_ && !repeated_) ? (width * position_)
-                                                          : 0);
+    // No position parameter in 'All Glyphs' or repeated mode.
+    int x = static_cast<int>((usingString_ && !repeated_)
+              ? (width * position_)
+              : 0);
     int count = 0;
 
     while (true)
@@ -440,16 +442,18 @@ StringRenderer::render(int width,
         engine_->setSizeByPixel(*fixedSizesIter);
       }
       clearActive(true);
-      prepareRendering(); // set size/face for engine, so metrics are valid
+      prepareRendering(); // Set size/face for engine to have valid metrics.
       auto& metrics = engine_->currentFontMetrics();
-      
+
       y += static_cast<int>(metrics.height >> 6) + 1;
       if (y >= height && !bitmapOnly)
         break;
 
       loadStringGlyphs();
-      auto lcount = renderLine(x, y + static_cast<int>(metrics.descender >> 6),
-                               width, height,
+      auto lcount = renderLine(x,
+                               y + static_cast<int>(metrics.descender >> 6),
+                               width,
+                               height,
                                offset);
       count = std::max(count, lcount);
 
@@ -470,7 +474,7 @@ StringRenderer::render(int width,
 
   if (repeated_ || !usingString_)
   {
-    // Fill the whole canvas (string repeated or all glyphs)
+    // Fill the whole canvas (string repeated or all glyphs).
 
     prepareRendering();
     if (!engine_->renderReady())
@@ -480,27 +484,27 @@ StringRenderer::render(int width,
     auto stepY = static_cast<int>(metrics.height >> 6) + 1;
     auto limitY = height + static_cast<int>(metrics.descender >> 6);
 
-    // Only care about multiline when in string mode
+    // Only care about multi-line rendering when in string mode.
     for (; y < limitY; y += stepY)
     {
       offset = renderLine(0, y, width, height, offset, usingString_);
-      // For repeating
+      // For repeating.
       if (usingString_ && repeated_ && !activeGlyphs_.empty())
         offset %= static_cast<int>(activeGlyphs_.size());
     }
-    if (!usingString_) // only return count for All Glyphs mode.
+    if (!usingString_) // Only return count for 'All Glyphs' mode.
       return offset - initialOffset;
     return 0;
   }
 
-  // Single string
+  // single string
   prepareRendering();
   if (!engine_->renderReady())
     return 0;
 
   auto& metrics = engine_->currentFontMetrics();
   auto x = static_cast<int>(width * position_);
-  // Anchor at top-left in vertical mode, at the center in horizontal mode
+  // Anchor at top-left in vertical mode, at the center in horizontal mode.
   auto y = vertical_ ? 0 : (height / 2);
   auto stepY = static_cast<int>(metrics.height >> 6) + 1;
   y += 4 + static_cast<int>(metrics.ascender >> 6);
@@ -509,7 +513,7 @@ StringRenderer::render(int width,
   while (offset < static_cast<int>(activeGlyphs_.size()))
   {
     offset = renderLine(x, y, width, height, offset, true);
-    if (offset == lastOffset) // prevent inf loop.
+    if (offset == lastOffset) // Prevent infinite loop.
       break;
     lastOffset = offset;
     y += stepY;
@@ -526,27 +530,27 @@ StringRenderer::renderLine(int x,
                            int offset,
                            bool handleMultiLine)
 {
-  // Don't limit the x y to be within the canvas viewport: string can be moved
-  // by the mouse
+  // Don't limit (x, y) to be within the canvas viewport: the string can be
+  // moved by the mouse.
 
-  y = height - y; // change to Cartesian coordinates
+  y = height - y; // Change to Cartesian coordinates.
 
   FT_Vector pen = { 0, 0 };
   FT_Vector advance;
   auto nonSpacingPlaceholder = engine_->currentFontMetrics().y_ppem / 2 + 2;
 
-  // When in "All Glyphs"  mode, no vertical support.
+  // When in 'All Glyphs' mode, no vertical support.
   if (repeated_ || !usingString_)
     vertical_ = false; // TODO: Support vertical + repeated
 
   int lineLength = 64 * (vertical_ ? height : width);
 
-  // first prepare the line & determine the line length
-  int totalCount = prepareLine(offset, lineLength, pen, 
+  // First prepare the line & determine the line length.
+  int totalCount = prepareLine(offset, lineLength, pen,
                                nonSpacingPlaceholder, handleMultiLine);
 
-  // round to control initial pen position and preserve hinting...
-  // pen.x, y is the actual length now, and we multiple it by pos
+  // Round to control initial pen position and preserve hinting...
+  // (pen.x, y) is the actual length now, and we multiple it by position.
   auto centerFixed = static_cast<int>(0x10000 * position_);
   if (!usingString_ || repeated_)
     centerFixed = 0;
@@ -561,8 +565,8 @@ StringRenderer::renderLine(int x,
   pen.x = (x << 6) - pen.x;
   pen.y = (y << 6) - pen.y;
 
-  // Need to transform the coord back to normal coord system
-  lineBeginCallback_({ (pen.x >> 6), 
+  // Need to transform the coordinates back to normal coordinate system.
+  lineBeginCallback_({ (pen.x >> 6),
                        height - (pen.y >> 6) },
                      engine_->pointSize());
 
@@ -570,8 +574,8 @@ StringRenderer::renderLine(int x,
   {
     auto& ctx = activeGlyphs_[i % activeGlyphs_.size()];
     if (handleMultiLine && ctx.charCode == '\n')
-      continue; // skip \n
-    FT_Glyph image = NULL; // Remember to clean up
+      continue; // Skip \n.
+    FT_Glyph image = NULL; // Remember to clean up.
     FT_BBox bbox;
 
     if (!ctx.glyph)
@@ -582,7 +586,8 @@ StringRenderer::renderLine(int x,
     QRect rect;
     QImage* colorLayerImage
       = engine_->renderingEngine()->tryDirectRenderColorLayers(ctx.glyphIndex,
-                                                               &rect, true);
+                                                               &rect,
+                                                               true);
 
     if (colorLayerImage)
     {
@@ -591,7 +596,7 @@ StringRenderer::renderLine(int x,
     }
     else
     {
-      // copy the glyph because we're doing manipulation
+      // Copy the glyph because we're doing manipulation.
       auto error = FT_Glyph_Copy(ctx.glyph, &image);
       if (error)
         continue;
@@ -619,7 +624,7 @@ StringRenderer::renderLine(int x,
       {
         auto bitmap = reinterpret_cast<FT_BitmapGlyph>(image);
 
-         if (vertical_)
+        if (vertical_)
         {
            bitmap->left += static_cast<int>(ctx.vvector.x) >> 6;
            bitmap->top += static_cast<int>(ctx.vvector.y) >> 6;
@@ -637,11 +642,11 @@ StringRenderer::renderLine(int x,
 
       FT_Done_Glyph(image);
     }
-    
+
     pen.x += advance.x;
     pen.y += advance.y;
 
-    if (!advance.x && !usingString_) // add placeholder
+    if (!advance.x && !usingString_) // Add placeholder.
       pen.x += nonSpacingPlaceholder << 6;
   }
 
@@ -657,7 +662,7 @@ StringRenderer::clearActive(bool glyphOnly)
     if (ctx.cacheNode)
       FTC_Node_Unref(ctx.cacheNode, engine_->cacheManager());
     else if (ctx.glyph)
-      FT_Done_Glyph(ctx.glyph); // when caching isn't used
+      FT_Done_Glyph(ctx.glyph); // When caching isn't used.
     ctx.cacheNode = NULL;
     ctx.glyph = NULL;
   }
@@ -669,7 +674,8 @@ StringRenderer::clearActive(bool glyphOnly)
 
 
 int
-StringRenderer::convertCharEncoding(int charUcs4, FT_Encoding encoding)
+StringRenderer::convertCharEncoding(int charUcs4,
+                                    FT_Encoding encoding)
 {
   switch (encoding)
   {
@@ -680,7 +686,8 @@ StringRenderer::convertCharEncoding(int charUcs4, FT_Encoding encoding)
   case FT_ENCODING_ADOBE_CUSTOM:
   case FT_ENCODING_ADOBE_LATIN_1:
     return charUcs4;
-  default:; // proceed
+  default:
+    ; // Proceed.
   }
 
   auto mib = -1;
@@ -696,7 +703,7 @@ StringRenderer::convertCharEncoding(int charUcs4, FT_Encoding encoding)
     mib = 2026; // Big5
     break;
   case FT_ENCODING_WANSUNG:
-    mib = -949; // KS C 5601:1987, this is a fake mib value
+    mib = -949; // KS C 5601:1987, this is a fake mib value.
     break;
   case FT_ENCODING_JOHAB:
     mib = 38; //  KS C 5601:1992 / EUC-KR
@@ -705,17 +712,17 @@ StringRenderer::convertCharEncoding(int charUcs4, FT_Encoding encoding)
     mib = 2027;
     break;
   default:
-    return charUcs4; // Failed
+    return charUcs4; // Failed.
   }
 
   if (mib == -1)
-    return charUcs4; // unsupported charmap
+    return charUcs4; // Unsupported charmap.
   auto codec = QTextCodec::codecForMib(mib);
   if (!codec)
-    return charUcs4; // unsupported
+    return charUcs4; // Unsupported.
 
   auto res = codec->fromUnicode(
-      QString::fromUcs4(reinterpret_cast<uint*>(&charUcs4), 1));
+               QString::fromUcs4(reinterpret_cast<uint*>(&charUcs4), 1));
   if (res.size() == 0)
     return charUcs4;
   if (res.size() == 1)

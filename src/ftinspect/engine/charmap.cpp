@@ -5,16 +5,21 @@
 #include "charmap.hpp"
 
 #include <QHash>
+
 #include <freetype/freetype.h>
 #include <freetype/tttables.h>
+
 
 namespace
 {
 QHash<FT_Encoding, QString>& encodingNames();
 }
 
-CharMapInfo::CharMapInfo(int index, FT_CharMap cmap)
-: index(index), ptr(cmap),
+
+CharMapInfo::CharMapInfo(int index,
+                         FT_CharMap cmap)
+: index(index),
+  ptr(cmap),
   encoding(cmap->encoding),
   platformID(cmap->platform_id),
   encodingID(cmap->encoding_id),
@@ -35,7 +40,8 @@ CharMapInfo::CharMapInfo(int index, FT_CharMap cmap)
 
 
 QString
-CharMapInfo::stringifyIndex(int code, int idx)
+CharMapInfo::stringifyIndex(int code,
+                            int idx)
 {
   return QString("CharCode: %1 (glyph idx %2)")
            .arg(stringifyIndexShort(code))
@@ -69,15 +75,16 @@ CharMapInfo::computeMaxIndex()
     result = 0x100;
     break;
 
-  /* some fonts use range 0x00-0x100, others have 0xF000-0xF0FF */
   case FT_ENCODING_MS_SYMBOL:
+    // Some fonts use range 0x00-0x100, others have 0xF000-0xF0FF.
     result = maxIndexForFaceAndCharMap(ptr, 0x10000) + 1;
     break;
 
   default:
-    // Some encodings can reach > 0x10000, e.g. GB 18030.
+    // Some encodings can reach > 0x10000, for example GB 18030.
     result = maxIndexForFaceAndCharMap(ptr, 0x110000) + 1;
   }
+
   return result;
 }
 
@@ -86,9 +93,10 @@ int
 CharMapInfo::maxIndexForFaceAndCharMap(FT_CharMap charMap,
                                        unsigned maxIn)
 {
-  // code adopted from `ftcommon.c`
+  // Code adopted from `ftcommon.c`.
   // This never overflows since no format here exceeds INT_MAX...
-  FT_ULong min = 0, max = maxIn;
+  FT_ULong min = 0;
+  FT_ULong max = maxIn;
   FT_UInt glyphIndex;
   FT_Face face = charMap->face;
 
@@ -106,7 +114,7 @@ CharMapInfo::maxIndexForFaceAndCharMap(FT_CharMap charMap,
     {
       max = mid;
 
-      // once moved, it helps to advance min through sparse regions
+      // Once moved, it helps to advance `min` through sparse regions.
       if (min)
       {
         res = FT_Get_Next_Char(face, min, &glyphIndex);
@@ -114,7 +122,7 @@ CharMapInfo::maxIndexForFaceAndCharMap(FT_CharMap charMap,
         if (glyphIndex)
           min = res;
         else
-          max = min; // found it
+          max = min; // Found it.
       }
     }
   } while (max > min);
@@ -127,6 +135,7 @@ namespace
 {
 // Mapping for `FT_Encoding` is placed here since it's only for the charmap.
 QHash<FT_Encoding, QString> encodingNamesCache;
+
 QHash<FT_Encoding, QString>&
 encodingNames()
 {

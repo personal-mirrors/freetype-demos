@@ -3,20 +3,19 @@
 // Copyright (C) 2022 by Charlie Jiang.
 
 
+#include "engine.hpp"
 #include "fontfilemanager.hpp"
 
 #include <QCoreApplication>
 #include <QGridLayout>
 #include <QMessageBox>
 
-#include "engine.hpp"
-
 
 FontFileManager::FontFileManager(Engine* engine)
 : engine_(engine)
 {
   fontWatcher_ = new QFileSystemWatcher(this);
-  // if the current input file is invalid we retry once a second to load it
+  // if the current input file is invalid we retry once a second to load it.
   watchTimer_ = new QTimer;
   watchTimer_->setInterval(1000);
 
@@ -35,7 +34,8 @@ FontFileManager::size()
 
 
 void
-FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
+FontFileManager::append(QStringList const& newFileNames,
+                        bool alertNotExist)
 {
   QStringList failedFiles;
   for (auto& name : newFileNames)
@@ -43,7 +43,7 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
     auto info = QFileInfo(name);
     info.setCaching(false);
 
-    // Filter non-file elements
+    // Filter out non-file elements.
     if (!info.isFile())
     {
       if (alertNotExist)
@@ -70,7 +70,7 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
       continue;
     }
 
-    // Uniquify elements
+    // Uniquify elements.
     auto absPath = info.absoluteFilePath();
     auto existing = false;
     for (auto& existingName : fontFileNameList_)
@@ -83,7 +83,7 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
       continue;
 
     if (info.size() >= INT_MAX)
-      return; // Prevent overflowing
+      return; // Prevent overflow.
     fontFileNameList_.append(info);
   }
 
@@ -95,14 +95,16 @@ FontFileManager::append(QStringList const& newFileNames, bool alertNotExist)
     if (failedFiles.size() == 1)
     {
       msg->setWindowTitle(tr("Failed to load file"));
-      msg->setText(tr("File failed to load:\n%1").arg(failedFiles.join("\n")));
+      msg->setText(tr("File failed to load:\n%1")
+                   .arg(failedFiles.join("\n")));
     }
     else
     {
       msg->setWindowTitle(tr("Failed to load some files"));
-      msg->setText(tr("Files failed to load:\n%1").arg(failedFiles.join("\n")));
+      msg->setText(tr("Files failed to load:\n%1")
+                   .arg(failedFiles.join("\n")));
     }
-    
+
     msg->setIcon(QMessageBox::Warning);
     msg->setModal(false);
     msg->open();
@@ -138,7 +140,7 @@ FontFileManager::updateWatching(int index)
     fontWatcher_->removePaths(watching);
 
   // Qt's file watcher doesn't handle symlinks;
-  // we thus fall back to polling
+  // we thus fall back to polling.
   if (fileInfo.isSymLink() || !fileInfo.exists())
     watchTimer_->start();
   else
@@ -156,8 +158,8 @@ FontFileManager::timerStart()
 void
 FontFileManager::loadFromCommandLine()
 {
-  // TODO: To support more complicated command line, we need to move this away
-  // and use `QCommandLineParser`
+  // TODO: To support more complicated command line, we need to move this
+  //       away and use `QCommandLineParser`
   auto args = QCoreApplication::arguments();
   if (!args.empty())
     args.removeFirst();

@@ -2,15 +2,16 @@
 
 // Copyright (C) 2022 by Charlie Jiang.
 
+#include "engine.hpp"
 #include "rendering.hpp"
 
 #include <cmath>
-#include <QPixmap>
+
 #include <QPainter>
+#include <QPixmap>
 
 #include <freetype/ftbitmap.h>
 
-#include "engine.hpp"
 
 RenderingEngine::RenderingEngine(Engine* engine)
 : engine_(engine)
@@ -58,8 +59,9 @@ RenderingEngine::calculateForegroundTable()
   foregroundTable_.resize(256);
   auto gamma = gamma_;
 
-  // Yes I know this is horribly slow, but we're only calculating the table once
-  // and can use it for all rendering if the color and gamma isn't changing.
+  // Yes, I know this is horribly slow, but we are only calculating the table
+  // once and can use it for all rendering if color and gamma aren't
+  // changing.
 
   double br = std::pow(qRed(backgroundColor_) / 255.0, gamma);
   double bg = std::pow(qGreen(backgroundColor_) / 255.0, gamma);
@@ -82,18 +84,17 @@ RenderingEngine::calculateForegroundTable()
     g = std::pow(g, invGamma);
     b = std::pow(b, invGamma);
 
-    foregroundTable_[i]
-        = qRgba(static_cast<int>(r * 255), 
-                static_cast<int>(g * 255),
-                static_cast<int>(b * 255), 
-                255);
+    foregroundTable_[i] = qRgba(static_cast<int>(r * 255),
+                                static_cast<int>(g * 255),
+                                static_cast<int>(b * 255),
+                                255);
   }
 }
 
 
 bool
 RenderingEngine::convertGlyphToBitmapGlyph(FT_Glyph src,
-                      FT_Glyph* out)
+                                           FT_Glyph* out)
 {
   if (src->format == FT_GLYPH_FORMAT_BITMAP)
   {
@@ -101,6 +102,7 @@ RenderingEngine::convertGlyphToBitmapGlyph(FT_Glyph src,
     *out = src;
     return false;
   }
+
   if (src->format != FT_GLYPH_FORMAT_OUTLINE)
   {
     *out = NULL;
@@ -112,7 +114,7 @@ RenderingEngine::convertGlyphToBitmapGlyph(FT_Glyph src,
   {
     FT_Glyph out2 = src;
     // This will create a new glyph object.
-    auto error = FT_Glyph_To_Bitmap(&out2, 
+    auto error = FT_Glyph_To_Bitmap(&out2,
                                     engine_->renderMode(),
                                     nullptr,
                                     false);
@@ -135,7 +137,7 @@ RenderingEngine::convertBitmapTo8Bpp(FT_Bitmap* bitmap)
 {
   FT_Bitmap out;
   out.buffer = NULL;
-  // This will create a new bitmap object
+  // This will create a new bitmap object.
   auto error = FT_Bitmap_Convert(engine_->ftLibrary(), bitmap, &out, 1);
   if (error)
   {
@@ -163,16 +165,17 @@ QImage*
 RenderingEngine::convertBitmapToQImage(FT_Bitmap* src)
 {
   QImage* result = NULL;
-  
-  auto& bmap = *src;
-  bool ownBitmap = false; // if true, we need to cleanup `bmap`
 
-  int width = INT_MAX, height = INT_MAX;
+  auto& bmap = *src;
+  bool ownBitmap = false; // If true, we need to clean up `bmap`.
+
+  int width = INT_MAX;
+  int height = INT_MAX;
   if (bmap.width < INT_MAX)
     width = static_cast<int>(bmap.width);
   if (bmap.rows < INT_MAX)
     height = static_cast<int>(bmap.rows);
-  auto format = QImage::Format_Indexed8; // goto crossing init
+  auto format = QImage::Format_Indexed8; // Go to crossing init.
 
   if (bmap.pixel_mode == FT_PIXEL_MODE_GRAY2
       || bmap.pixel_mode == FT_PIXEL_MODE_GRAY4)
@@ -198,7 +201,7 @@ RenderingEngine::convertBitmapToQImage(FT_Bitmap* src)
     break;
   case FT_PIXEL_MODE_BGRA:
     // XXX "ARGB" here means BGRA due to endianness - may be problematic
-    // on big-endian machines
+    //     on big-endian machines
     format = QImage::Format_ARGB32_Premultiplied;
     break;
   case FT_PIXEL_MODE_LCD:
@@ -209,15 +212,15 @@ RenderingEngine::convertBitmapToQImage(FT_Bitmap* src)
     goto cleanup;
   }
 
-  switch (bmap.pixel_mode) 
+  switch (bmap.pixel_mode)
   {
   case FT_PIXEL_MODE_MONO:
   case FT_PIXEL_MODE_GRAY:
   case FT_PIXEL_MODE_BGRA:
     {
-      QImage image(bmap.buffer, 
-                   width, height, 
-                   bmap.pitch, 
+      QImage image(bmap.buffer,
+                   width, height,
+                   bmap.pitch,
                    format);
       if (bmap.pixel_mode == FT_PIXEL_MODE_GRAY)
         image.setColorTable(foregroundTable_);
@@ -228,7 +231,7 @@ RenderingEngine::convertBitmapToQImage(FT_Bitmap* src)
         image.setColor(1, foregroundTable_[0xFF]);
       }
       result = new QImage(image.copy());
-      // Don't directly use `image` since we're destroying the `bmap`
+      // Don't directly use `image` since we are destroying `bmap`.
     }
     break;
   case FT_PIXEL_MODE_LCD:;
@@ -251,12 +254,13 @@ cleanup:
 
 QImage*
 RenderingEngine::convertGlyphToQImage(FT_Glyph src,
-                             QRect* outRect,
-                             bool inverseRectY)
+                                      QRect* outRect,
+                                      bool inverseRectY)
 {
   FT_BitmapGlyph bitmapGlyph;
   bool ownBitmapGlyph
-    = convertGlyphToBitmapGlyph(src, reinterpret_cast<FT_Glyph*>(&bitmapGlyph));
+    = convertGlyphToBitmapGlyph(src,
+                                reinterpret_cast<FT_Glyph*>(&bitmapGlyph));
   if (!bitmapGlyph)
     return NULL;
 
@@ -288,12 +292,13 @@ RenderingEngine::convertGlyphToQImage(FT_Glyph src,
 
 
 QPoint
-RenderingEngine::computeGlyphOffset(FT_Glyph glyph, bool inverseY)
+RenderingEngine::computeGlyphOffset(FT_Glyph glyph,
+                                    bool inverseY)
 {
   if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
   {
     FT_BBox cbox;
-    FT_Outline_Get_CBox(&reinterpret_cast<FT_OutlineGlyph>(glyph)->outline, 
+    FT_Outline_Get_CBox(&reinterpret_cast<FT_OutlineGlyph>(glyph)->outline,
                         &cbox);
     cbox.xMin &= ~63;
     cbox.yMin &= ~63;
@@ -318,19 +323,19 @@ RenderingEngine::computeGlyphOffset(FT_Glyph glyph, bool inverseY)
 
 QImage*
 RenderingEngine::tryDirectRenderColorLayers(int glyphIndex,
-                                   QRect* outRect,
-                                   bool inverseRectY)
+                                            QRect* outRect,
+                                            bool inverseRectY)
 {
   auto& paletteData = engine_->currentFontPaletteData();
   auto paletteIndex = engine_->paletteIndex();
   auto palette = engine_->currentPalette();
-  if (palette == NULL 
-      || !engine_->useColorLayer() 
+  if (palette == NULL
+      || !engine_->useColorLayer()
       || paletteIndex >= paletteData.num_palettes)
     return NULL;
 
   FT_LayerIterator iter = {};
-  
+
   FT_UInt layerGlyphIdx = 0;
   FT_UInt layerColorIdx = 0;
 
@@ -342,7 +347,7 @@ RenderingEngine::tryDirectRenderColorLayers(int glyphIndex,
   if (!next)
     return NULL;
 
-  // temporarily change lf
+  // Temporarily change load flags.
   auto imageType = engine_->imageType();
   auto oldLoadFlags = imageType->flags;
   auto loadFlags = oldLoadFlags;
@@ -387,7 +392,7 @@ RenderingEngine::tryDirectRenderColorLayers(int glyphIndex,
     {
       // TODO: FT_Palette_Get_Foreground_Color: #1134
       if (paletteData.palette_flags
-          && (paletteData.palette_flags[paletteIndex] 
+          && (paletteData.palette_flags[paletteIndex]
               & FT_PALETTE_FOR_DARK_BACKGROUND))
       {
         /* white opaque */
@@ -450,7 +455,8 @@ RenderingEngine::tryDirectRenderColorLayers(int glyphIndex,
 
 
 QPixmap
-RenderingEngine::padToSize(QImage* image, int ppem)
+RenderingEngine::padToSize(QImage* image,
+                           int ppem)
 {
   auto width = std::max(image->width(), ppem);
   auto height = std::max(image->height(), ppem);
@@ -494,7 +500,7 @@ convertLCDToARGB(FT_Bitmap& bitmap,
       dstPtr++;
     }
     srcPtr += bitmap.pitch;
-    dstPtr += image.bytesPerLine() / 4 - width; // skip blank area
+    dstPtr += image.bytesPerLine() / 4 - width; // Skip blank area.
   }
 }
 
@@ -528,8 +534,8 @@ convertLCDVToARGB(FT_Bitmap& bitmap,
       *dstPtr = (0xFFu << 24) | (dr << 16) | (dg << 8) | db;
       dstPtr++;
     }
-    srcPtr += 3ull * srcPitch;                  // move 3 lines
-    dstPtr += image.bytesPerLine() / 4 - width; // skip blank area
+    srcPtr += 3ull * srcPitch; // Move 3 lines.
+    dstPtr += image.bytesPerLine() / 4 - width; // Skip blank area.
   }
 }
 

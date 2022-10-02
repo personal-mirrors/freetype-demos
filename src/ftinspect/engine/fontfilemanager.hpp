@@ -4,19 +4,20 @@
 
 #pragma once
 
-#include <QObject>
-#include <QList>
-#include <QFileSystemWatcher>
-#include <QTimer>
 #include <QFileInfo>
+#include <QFileSystemWatcher>
+#include <QList>
+#include <QObject>
+#include <QTimer>
 
 #include <freetype/freetype.h>
 
 
 // Class to manage all opened font files, as well as monitoring local file
-// change.
+// changes.
 
 class Engine;
+
 class FontFileManager
 : public QObject
 {
@@ -26,7 +27,8 @@ public:
   ~FontFileManager() override = default;
 
   int size();
-  void append(QStringList const& newFileNames, bool alertNotExist = false);
+  void append(QStringList const& newFileNames,
+              bool alertNotExist = false);
   void remove(int index);
 
   QFileInfo& operator[](int index);
@@ -34,8 +36,8 @@ public:
   void timerStart();
   void loadFromCommandLine();
 
-  // If this is true, then the current font reloading is due to a periodic
-  // reloading for symbolic font files. Use this if you want to omit some
+  // If this is true, the current font reloading is due to a periodic
+  // reloading for symbolic font files.  Use this if you want to omit some
   // updating for periodic reloading.
   bool currentReloadDueToPeriodicUpdate() { return periodicUpdating_; }
 

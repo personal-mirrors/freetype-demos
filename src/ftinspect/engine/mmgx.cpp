@@ -2,9 +2,8 @@
 
 // Copyright (C) 2022 by Charlie Jiang.
 
-#include "mmgx.hpp"
-
 #include "engine.hpp"
+#include "mmgx.hpp"
 
 #include <freetype/ftmm.h>
 
@@ -29,7 +28,7 @@ MMGXAxisInfo::get(Engine* engine,
   FT_Multi_Master dummy;
   auto error = FT_Get_Multi_Master(face, &dummy);
   auto state = error ? MMGXState::GX_OVF : MMGXState::MM;
-  
+
   FT_MM_Var* mm;
   if (FT_Get_MM_Var(face, &mm))
   {
