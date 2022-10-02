@@ -21,66 +21,71 @@ qt5_dep = dependency('qt5',
 # when cross-compiling to a different system.
 if qt5_dep.found()
   sources = files([
+    'engine/charmap.cpp',
     'engine/engine.cpp',
     'engine/fontfilemanager.cpp',
-    'engine/rendering.cpp',
-    'engine/paletteinfo.cpp',
-    'engine/mmgx.cpp',
     'engine/fontinfo.cpp',
     'engine/fontinfonamesmapping.cpp',
+    'engine/mmgx.cpp',
+    'engine/paletteinfo.cpp',
+    'engine/rendering.cpp',
     'engine/stringrenderer.cpp',
-    'engine/charmap.cpp',
 
     'glyphcomponents/glyphbitmap.cpp',
     'glyphcomponents/glyphcontinuous.cpp',
     'glyphcomponents/glyphoutline.cpp',
     'glyphcomponents/glyphpointnumbers.cpp',
     'glyphcomponents/glyphpoints.cpp',
-    'glyphcomponents/grid.cpp',
     'glyphcomponents/graphicsdefault.cpp',
-
-    'widgets/customwidgets.cpp',
-    'widgets/tripletselector.cpp',
-    'widgets/glyphindexselector.cpp',
-    'widgets/fontsizeselector.cpp',
-    'widgets/charmapcombobox.cpp',
+    'glyphcomponents/grid.cpp',
 
     'models/customcomboboxmodels.cpp',
     'models/fontinfomodels.cpp',
 
+    'panels/comparator.cpp',
+    'panels/continuous.cpp',
+    'panels/glyphdetails.cpp',
+    'panels/info.cpp',
     'panels/settingpanel.cpp',
     'panels/settingpanelmmgx.cpp',
     'panels/singular.cpp',
-    'panels/continuous.cpp',
-    'panels/comparator.cpp',
-    'panels/info.cpp',
-    'panels/glyphdetails.cpp',
+
+    'widgets/charmapcombobox.cpp',
+    'widgets/customwidgets.cpp',
+    'widgets/fontsizeselector.cpp',
+    'widgets/glyphindexselector.cpp',
+    'widgets/tripletselector.cpp',
 
     'ftinspect.cpp',
     'maingui.cpp',
     'uihelper.cpp',
-])
+  ])
 
   moc_files = qt5.preprocess(
     moc_headers: [
       'engine/fontfilemanager.hpp',
+
       'glyphcomponents/glyphbitmap.hpp',
       'glyphcomponents/glyphcontinuous.hpp',
-      'widgets/customwidgets.hpp',
-      'widgets/tripletselector.hpp',
-      'widgets/glyphindexselector.hpp',
-      'widgets/fontsizeselector.hpp',
-      'widgets/charmapcombobox.hpp',
-      'maingui.hpp',
+
       'models/customcomboboxmodels.hpp',
       'models/fontinfomodels.hpp',
+
+      'panels/comparator.hpp',
+      'panels/continuous.hpp',
+      'panels/glyphdetails.hpp',
+      'panels/info.hpp',
       'panels/settingpanel.hpp',
       'panels/settingpanelmmgx.hpp',
       'panels/singular.hpp',
-      'panels/continuous.hpp',
-      'panels/comparator.hpp',
-      'panels/info.hpp',
-      'panels/glyphdetails.hpp',
+
+      'widgets/charmapcombobox.hpp',
+      'widgets/customwidgets.hpp',
+      'widgets/fontsizeselector.hpp',
+      'widgets/glyphindexselector.hpp',
+      'widgets/tripletselector.hpp',
+
+      'maingui.hpp',
     ],
     dependencies: qt5_dep)
 
@@ -88,7 +93,7 @@ if qt5_dep.found()
     sources,
     moc_files,
     dependencies: [qt5_dep, libfreetype2_dep],
-    override_options : ['cpp_std=c++11'],
+    override_options: ['cpp_std=c++11'],
     install: true)
 endif
 
