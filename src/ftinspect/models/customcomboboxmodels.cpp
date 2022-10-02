@@ -7,6 +7,7 @@
 
 #include <QApplication>
 #include <QPalette>
+
 #include <freetype/ftdriver.h>
 #include <freetype/ftlcdfil.h>
 
@@ -68,7 +69,7 @@ HintingModeComboBoxModel::rowCount(const QModelIndex& parent) const
 
 QVariant
 HintingModeComboBoxModel::data(const QModelIndex& index,
-  int role) const
+                               int role) const
 {
   int r = index.row();
   if (r < 0 || r >= items_.size())
@@ -83,7 +84,7 @@ HintingModeComboBoxModel::data(const QModelIndex& index,
     if (item.enabled && item.supported)
       return QVariant {};
     else
-      return QApplication::palette().color(QPalette::Disabled, 
+      return QApplication::palette().color(QPalette::Disabled,
                                            QPalette::Text);
   default:
     return QVariant {};
@@ -96,7 +97,7 @@ HintingModeComboBoxModel::flags(const QModelIndex& index) const
 {
   int r = index.row();
   if (r < 0 || r >= items_.size())
-    return Qt::ItemFlags {}; // not selectable, not enabled
+    return Qt::ItemFlags {}; // Not selectable, not enabled.
   HintingModeItem const& item = items_[r];
 
   if (item.enabled && item.supported)
@@ -177,7 +178,7 @@ HintingModeComboBoxModel::setSupportedModes(QList<int> supportedTTIVersions,
 
 
 void
-HintingModeComboBoxModel::setCurrentEngineType(HintingEngineType type, 
+HintingModeComboBoxModel::setCurrentEngineType(HintingEngineType type,
                                                bool tricky)
 {
   for (auto& item : items_)
@@ -272,7 +273,7 @@ AntiAliasingComboBoxModel::data(const QModelIndex& index,
   if (role == Qt::ForegroundRole)
     if ((row == AntiAliasing_Light || row == AntiAliasing_Light_SubPixel)
         && !lightAntiAliasingEnabled_)
-      return QApplication::palette().color(QPalette::Disabled, 
+      return QApplication::palette().color(QPalette::Disabled,
                                            QPalette::Text);
   return SimpleComboBoxModelImpl::data(index, role);
 }

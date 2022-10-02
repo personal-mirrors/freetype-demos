@@ -2,10 +2,11 @@
 
 // Copyright (C) 2022 by Charlie Jiang.
 
-#include "fontinfomodels.hpp"
 #include "../engine/engine.hpp"
+#include "fontinfomodels.hpp"
 
 #include <cstdint>
+
 
 int
 FixedSizeInfoModel::rowCount(const QModelIndex& parent) const
@@ -27,7 +28,7 @@ FixedSizeInfoModel::columnCount(const QModelIndex& parent) const
 
 QVariant
 FixedSizeInfoModel::data(const QModelIndex& index,
-                          int role) const
+                         int role) const
 {
   if (index.row() < 0 || index.column() < 0)
     return {};
@@ -59,8 +60,8 @@ FixedSizeInfoModel::data(const QModelIndex& index,
 
 QVariant
 FixedSizeInfoModel::headerData(int section,
-                                Qt::Orientation orientation,
-                                int role) const
+                               Qt::Orientation orientation,
+                               int role) const
 {
   if (role != Qt::DisplayRole)
     return {};
@@ -122,7 +123,7 @@ CharMapInfoModel::data(const QModelIndex& index,
   auto& obj = storage_[r];
   switch (static_cast<Columns>(index.column()))
   {
-  case CMIM_Platform: 
+  case CMIM_Platform:
     return QString("%1 {%2}")
              .arg(obj.platformID)
              .arg(*mapTTPlatformIDToName(obj.platformID));
@@ -130,11 +131,11 @@ CharMapInfoModel::data(const QModelIndex& index,
     return QString("%1 {%2}")
              .arg(obj.encodingID)
              .arg(*obj.encodingName);
-  case CMIM_FormatID: 
+  case CMIM_FormatID:
     return static_cast<long long>(obj.formatID);
   case CMIM_Language:
     return static_cast<unsigned long long>(obj.languageID);
-  case CMIM_MaxIndex: 
+  case CMIM_MaxIndex:
     return obj.maxIndex;
   default:
     break;
@@ -217,7 +218,7 @@ SFNTNameModel::data(const QModelIndex& index,
       return QString::number(obj.nameID);
     return QString("%1 {%2}").arg(QString::number(obj.nameID),
                                   *mapSFNTNameIDToName(obj.nameID));
-    
+
   case SNM_Platform:
     return QString("%1 {%2}")
              .arg(obj.platformID)
@@ -235,7 +236,7 @@ SFNTNameModel::data(const QModelIndex& index,
                .arg(*mapTTLanguageIDToName(obj.platformID, obj.languageID));
     return QString("%1 {%2}")
              .arg(obj.languageID)
-        .arg(*mapTTLanguageIDToName(obj.platformID, obj.languageID));
+             .arg(*mapTTLanguageIDToName(obj.platformID, obj.languageID));
   case SNM_Content:
     return obj.str;
   default:
@@ -333,20 +334,20 @@ SFNTTableInfoModel::data(const QModelIndex& index,
   case STIM_SharedFaces:
     if (obj.sharedFaces.empty())
       return "[]";
-  {
-    auto result = QString('[') + QString::number(*obj.sharedFaces.begin());
-    for (auto it = std::next(obj.sharedFaces.begin());
-         it != obj.sharedFaces.end();
-         ++it)
     {
-      auto xStr = QString::number(*it);
-      result.reserve(result.length() + xStr.length() + 2);
-      result += ", ";
-      result += xStr;
+      auto result = QString('[') + QString::number(*obj.sharedFaces.begin());
+      for (auto it = std::next(obj.sharedFaces.begin());
+           it != obj.sharedFaces.end();
+           ++it)
+      {
+        auto xStr = QString::number(*it);
+        result.reserve(result.length() + xStr.length() + 2);
+        result += ", ";
+        result += xStr;
+      }
+      result += ']';
+      return result;
     }
-    result += ']';
-    return result;
-  }
   default:
     break;
   }
@@ -379,7 +380,8 @@ SFNTTableInfoModel::headerData(int section,
     return "Valid";
   case STIM_SharedFaces:
     return "Subfont Indices";
-  default:;
+  default:
+    ;
   }
 
   return {};
@@ -464,7 +466,8 @@ MMGXAxisInfoModel::headerData(int section,
     return "Hidden";
   case MAIM_Name:
     return "Name";
-  default: ;
+  default:
+    ;
   }
 
   return {};
@@ -501,25 +504,26 @@ CompositeGlyphsInfoModel::index(int row,
                                 int column,
                                 const QModelIndex& parent) const
 {
-  long long parentIdx = -1; // node index.
-  if (parent.isValid()) // Not top-level
+  long long parentIdx = -1; // Node index.
+  if (parent.isValid()) // Not top-level.
     parentIdx = static_cast<long long>(parent.internalId());
   if (parentIdx < 0)
     parentIdx = -1;
-  // find existing node by row and parent index, -1 for top-level
+  // Find existing node by row and parent index, -1 for top-level.
   auto lookupPair = std::pair<int, long long>(row, parentIdx);
 
   auto iter = nodeLookup_.find(lookupPair);
   if (iter != nodeLookup_.end())
   {
-    if (iter->second < 0 || static_cast<size_t>(iter->second) >= nodes_.size())
+    if (iter->second < 0
+        || static_cast<size_t>(iter->second) >= nodes_.size())
       return {};
     return createIndex(row, column, iter->second);
   }
 
   int glyphIndex = -1;
   CompositeGlyphInfo::SubGlyph const* sgInfo = nullptr;
-  if (!parent.isValid()) // top-level nodes
+  if (!parent.isValid()) // Top-level nodes.
     glyphIndex = glyphs_[row].index;
   else if (parent.internalId() < nodes_.size())
   {
@@ -540,10 +544,12 @@ CompositeGlyphsInfoModel::index(int row,
   auto iterGlyphInfoIter = glyphMapper_.find(glyphIndex);
   if (iterGlyphInfoIter != glyphMapper_.end())
     glyphInfoIndex = static_cast<ptrdiff_t>(iterGlyphInfoIter->second);
-  
+
   InfoNode node = {
     parentIdx,
-    row, glyphIndex, glyphInfoIndex,
+    row,
+    glyphIndex,
+    glyphInfoIndex,
     sgInfo
   };
   nodes_.push_back(node);
@@ -583,7 +589,7 @@ generatePositionTransformationText(CompositeGlyphInfo::SubGlyph const& info)
     result += QString("scale: %1, ")
                 .arg(QString::number(info.transformation[0]));
     break;
-  case CompositeGlyphInfo::SubGlyph::TT_XYScale: 
+  case CompositeGlyphInfo::SubGlyph::TT_XYScale:
     result += QString("xy scale: (%1, %2), ")
                 .arg(QString::number(info.transformation[0]),
                      QString::number(info.transformation[1]));
@@ -596,7 +602,7 @@ generatePositionTransformationText(CompositeGlyphInfo::SubGlyph const& info)
                      QString::number(info.transformation[3]));
     break;
   }
-  
+
   switch (info.positionType)
   {
   case CompositeGlyphInfo::SubGlyph::PT_Offset:
@@ -615,6 +621,7 @@ generatePositionTransformationText(CompositeGlyphInfo::SubGlyph const& info)
                        QString::number(info.position.second));
     break;
   }
+
   return result;
 }
 
@@ -652,19 +659,20 @@ CompositeGlyphsInfoModel::data(const QModelIndex& index,
   {
   case CGIM_Glyph:
     if (engine_->currentFontHasGlyphName())
-      return QString("%1 {%2}").arg(glyphIdx).arg(engine_->glyphName(glyphIdx));
+      return QString("%1 {%2}")
+               .arg(glyphIdx).arg(engine_->glyphName(glyphIdx));
     return QString::number(glyphIdx);
   case CGIM_Flag:
     if (!n.subGlyphInfo)
       return {};
-    return QString("0x%1").arg(n.subGlyphInfo->flag, 4, 16, QLatin1Char('0'));
+    return QString("0x%1")
+             .arg(n.subGlyphInfo->flag, 4, 16, QLatin1Char('0'));
   case CGIM_PositionTransformation:
-  {
     if (!n.subGlyphInfo)
       return {};
     return generatePositionTransformationText(*n.subGlyphInfo);
-  }
-  default:;
+  default:
+    ;
   }
 
   return {};
@@ -689,8 +697,10 @@ CompositeGlyphsInfoModel::headerData(int section,
     return tr("Flags");
   case CGIM_PositionTransformation:
     return tr("Position and Transformation");
-  default:;
+  default:
+    ;
   }
+
   return {};
 }
 

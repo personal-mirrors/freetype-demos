@@ -8,6 +8,7 @@
 #include <QAbstractListModel>
 #include <QHash>
 
+
 class HintingModeComboBoxModel
 : public QAbstractListModel
 {
@@ -51,8 +52,8 @@ private:
                           HintingEngineType type) const;
 
 public:
-  // Note: Ensure related funcs are also changed when
-  // these enums are changed!
+  // Note: Ensure related funcs are also updated when
+  //       these enums are changed!
   enum HintingEngineType : int
   {
     HintingEngineType_TrueType,
@@ -70,7 +71,7 @@ public:
 };
 
 
-// A simple key-displayName-value model for QComboBox.
+// A simple key-displayName-value model for `QComboBox`.
 template <class T>
 class SimpleComboBoxModelImpl
 {
@@ -93,7 +94,7 @@ public:
 
   virtual QVariant
   data(const QModelIndex& index,
-                int role) const
+       int role) const
   {
     if (role != Qt::DisplayRole)
       return QVariant{};
@@ -123,6 +124,7 @@ class LCDFilterComboBoxModel
   public SimpleComboBoxModelImpl<int>
 {
   Q_OBJECT
+
 public:
   enum LCDFilter : int;
   struct LCDFilterItem
@@ -131,23 +133,16 @@ public:
     QString displayName;
   };
 
-
   explicit LCDFilterComboBoxModel(QObject* parent);
   ~LCDFilterComboBoxModel() override = default;
 
-
   int rowCount(const QModelIndex& parent) const override
-  {
-    return SimpleComboBoxModelImpl::rowCount(parent);
-  }
+        { return SimpleComboBoxModelImpl::rowCount(parent); }
 
 
-  QVariant
-  data(const QModelIndex& index,
-       int role) const override
-  {
-    return SimpleComboBoxModelImpl::data(index, role);
-  }
+  QVariant data(const QModelIndex& index,
+                int role) const override
+             { return SimpleComboBoxModelImpl::data(index, role); }
 
 public:
   enum LCDFilter : int
@@ -174,27 +169,22 @@ class AntiAliasingComboBoxModel
   public SimpleComboBoxModelImpl<AASetting>
 {
   Q_OBJECT
+
 public:
   enum AntiAliasing : int;
 
   explicit AntiAliasingComboBoxModel(QObject* parent);
   ~AntiAliasingComboBoxModel() override = default;
-  
+
   QVariant data(const QModelIndex& index,
                 int role) const;
   Qt::ItemFlags flags(const QModelIndex& index) const;
 
-
   int rowCount(const QModelIndex& parent) const override
-  {
-    return SimpleComboBoxModelImpl::rowCount(parent);
-  }
-
+        { return SimpleComboBoxModelImpl::rowCount(parent); }
 
   void setLightAntiAliasingEnabled(bool enabled)
-  {
-    lightAntiAliasingEnabled_ = enabled;
-  }
+         { lightAntiAliasingEnabled_ = enabled; }
 
 private:
   bool lightAntiAliasingEnabled_;
