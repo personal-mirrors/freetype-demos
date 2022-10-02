@@ -6,8 +6,8 @@
 #pragma once
 
 #include <QGraphicsItem>
-#include <QPen>
 #include <QPaintEvent>
+#include <QPen>
 #include <QWidget>
 
 #include <ft2build.h>
@@ -39,7 +39,7 @@ private:
 };
 
 
-// Sometimes we don't want a complicated QGraphicsView
+// Sometimes we don't want a complicated `QGraphicsView`
 // for this kind of work...
 class GlyphBitmapWidget
 : public QWidget
@@ -48,8 +48,10 @@ class GlyphBitmapWidget
 public:
   GlyphBitmapWidget(QWidget* parent);
   ~GlyphBitmapWidget() override;
-  
-  void updateImage(QImage* image, QRect rect, QRect placeholderRect = {});
+
+  void updateImage(QImage* image,
+                   QRect rect,
+                   QRect placeholderRect = {});
   void releaseImage();
 
 signals:

@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include <QVector>
-#include <QRgb>
 #include <QPen>
+#include <QRgb>
+#include <QVector>
 
-// This is default graphics objects fed into render functions.
+
+// This is the default graphics object fed into render functions.
 struct GraphicsDefault
 {
   QPen axisPen;

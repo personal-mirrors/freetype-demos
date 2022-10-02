@@ -4,6 +4,7 @@
 
 #include "graphicsdefault.hpp"
 
+
 GraphicsDefault* GraphicsDefault::instance_ = NULL;
 
 GraphicsDefault::GraphicsDefault()
@@ -14,7 +15,7 @@ GraphicsDefault::GraphicsDefault()
   axisPen.setWidth(0);
   blueZonePen.setColor(QColor(64, 64, 255, 64)); // light blue
   blueZonePen.setWidth(0);
-  // Don't make this solid
+  // Don't make this solid.
   gridPen.setColor(QColor(0, 0, 0, 255 - QColor(Qt::lightGray).red()));
   gridPen.setWidth(0);
   offPen.setColor(Qt::darkGreen);

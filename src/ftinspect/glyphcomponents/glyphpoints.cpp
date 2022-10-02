@@ -31,14 +31,14 @@ GlyphPoints::paint(QPainter* painter,
   const qreal lod = option->levelOfDetailFromTransform(
                               painter->worldTransform());
 
-  // don't draw points if magnification is too small
+  // Don't draw points if magnification is too small.
   if (lod >= 5)
   {
-    // we want the same dot size regardless of the scaling;
-    // for good optical results, the pen widths should be uneven integers
+    // We want the same dot size regardless of the scaling;
+    // for good optical results, the pen widths should be uneven integers.
 
-    // interestingly, using `drawPoint' doesn't work as expected:
-    // the larger the zoom, the more horizontally stretched the dot appears
+    // Interestingly, using `drawPoint` doesn't work as expected:
+    // the larger the zoom, the more horizontally stretched the dot appears.
 #if 0
     qreal origOnPenWidth = onPen.widthF();
     qreal origOffPenWidth = offPen.widthF();

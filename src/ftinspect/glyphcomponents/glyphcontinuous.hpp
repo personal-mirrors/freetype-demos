@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include "graphicsdefault.hpp"
 #include "../engine/stringrenderer.hpp"
+#include "graphicsdefault.hpp"
 
 #include <utility>
 #include <vector>
 
-#include <QWidget>
 #include <QImage>
 #include <QTimer>
+#include <QWidget>
 
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
@@ -53,12 +53,14 @@ struct GlyphCacheLine
 
 
 class Engine;
+
 class GlyphContinuous
 : public QWidget
 {
   Q_OBJECT
 public:
-  GlyphContinuous(QWidget* parent, Engine* engine);
+  GlyphContinuous(QWidget* parent,
+                  Engine* engine);
   ~GlyphContinuous() override;
 
   enum Source : int
@@ -78,12 +80,14 @@ public:
   int displayingCount() { return displayingCount_; }
   StringRenderer& stringRenderer() { return stringRenderer_; }
 
-  // all those setters don't trigger repaint.
+  // All those setters don't trigger a repaint operation.
   void setBeginIndex(int index) { beginIndex_ = index; }
   void setSource(Source source);
   void setMode(Mode mode) { mode_ = mode; }
   void setScale(double scale) { scale_ = scale; }
-  void setFancyParams(double boldX, double boldY, double slant)
+  void setFancyParams(double boldX,
+                      double boldY,
+                      double slant)
   {
     boldX_ = boldX;
     boldY_ = boldY;
@@ -92,10 +96,8 @@ public:
   void setStrokeRadius(double radius) { strokeRadius_ = radius; }
   void setSourceText(QString text);
   void setMouseOperationEnabled(bool enabled)
-  {
-    mouseOperationEnabled_ = enabled;
-  }
-  
+         { mouseOperationEnabled_ = enabled; }
+
   void flashOnGlyph(int glyphIndex);
   void stopFlashing();
   void purgeCache();
@@ -107,8 +109,11 @@ signals:
   void wheelZoom(int steps);
   void beginIndexChangeRequest(int newIndex);
   void displayingCountUpdated(int newCount);
-  void rightClickGlyph(int glyphIndex, double sizePoint);
-  void updateGlyphDetails(GlyphCacheEntry* ctxt, int charMapIndex, bool open);
+  void rightClickGlyph(int glyphIndex,
+                       double sizePoint);
+  void updateGlyphDetails(GlyphCacheEntry* ctxt,
+                          int charMapIndex,
+                          bool open);
 
 protected:
   void paintEvent(QPaintEvent* event) override;
@@ -129,7 +134,9 @@ private:
   Source source_ = SRC_AllGlyphs;
   Mode mode_ = M_Normal;
   int beginIndex_;
-  double boldX_, boldY_, slant_;
+  double boldX_;
+  double boldY_;
+  double slant_;
   double strokeRadius_;
   QString text_;
   int sizeIndicatorOffset_ = 0; // For Waterfall Rendering...
@@ -146,8 +153,8 @@ private:
   QColor backgroundColorCache_;
   GlyphCacheLine* currentWritingLine_ = NULL;
 
-  // Mouse operation related fields
-  QPoint positionDelta_; // For dragging on the text to move
+  // Fields related to mouse operation.
+  QPoint positionDelta_; // For dragging on the text to move.
   double prevHoriPosition_;
   QPoint prevPositionDelta_ = { 0, 0 };
   QPoint mouseDownPostition_ = { 0, 0 };
@@ -156,8 +163,9 @@ private:
 
   void paintByRenderer();
 
-  // These two assume ownership of glyphs, but don't free them.
-  // However, remember to free the glyph returned from `transformGlyphStroked`
+  // These two assume functions ownership of glyphs, but don't free them.
+  // However, remember to free the glyph returned from
+  // `transformGlyphStroked`.
   void transformGlyphFancy(FT_Glyph glyph);
   FT_Glyph transformGlyphStroked(FT_Glyph glyph);
 
@@ -167,6 +175,7 @@ private:
   void updateStroke();
   void updateRendererText();
   void preprocessGlyph(FT_Glyph* glyphPtr);
+
   // Callbacks
   void beginSaveLine(FT_Vector pos,
                      double sizePoint);
@@ -179,26 +188,26 @@ private:
                             FT_Vector advance,
                             GlyphContext gctx);
 
-  // Funcs drawing from the cache
+  // Functions drawing from the cache.
   void beginDrawCacheLine(QPainter* painter,
                           GlyphCacheLine& line);
   void drawCacheGlyph(QPainter* painter,
                       const GlyphCacheEntry& entry,
                       bool colorInverted = false);
 
-  // Mouse operations
+  // Mouse operations.
   GlyphCacheEntry* findGlyphByMouse(QPoint position,
                                     double* outSizePoint);
   int calculateAverageLineCount();
 
   void flashTimerFired();
 
-  // Mouse constants
+  // Mouse constants.
   constexpr static int ClickDragThreshold = 10;
   constexpr static int HorizontalUnitLength = 100;
   constexpr static int VerticalUnitLength = 150;
 
-  // Flash Timer constants
+  // Flash timer constants.
   constexpr static int FlashIntervalMs = 250;
   constexpr static int FlashDurationMs = 3000;
 };

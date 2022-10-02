@@ -9,6 +9,7 @@
 #include <QGraphicsView>
 #include <QPen>
 
+
 class Grid
 : public QGraphicsItem
 {
@@ -19,10 +20,13 @@ public:
              const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  void setShowGrid(bool showGrid, bool showAuxLines);
-  void updateParameters(int ascenderPx, int descenderPx, int advancePx);
+  void setShowGrid(bool showGrid,
+                   bool showAuxLines);
+  void updateParameters(int ascenderPx,
+                        int descenderPx,
+                        int advancePx);
 
-  void updateRect(); // there's no signal/slots for QGraphicsItem.
+  void updateRect(); // There's no signal/slots for QGraphicsItem.
 
 private:
   QGraphicsView* parentView_;
@@ -32,7 +36,8 @@ private:
   bool showGrid_ = true;
   bool showAuxLines_ = false;
 
-  int ascender_ = 0, descender_ = 0;
+  int ascender_ = 0;
+  int descender_ = 0;
   int advance_ = 0;
 };
 

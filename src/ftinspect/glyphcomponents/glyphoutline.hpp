@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <QPainterPath>
 #include <QGraphicsItem>
+#include <QPainterPath>
 #include <QPen>
 
 #include <ft2build.h>
@@ -33,10 +33,8 @@ private:
 };
 
 
-/*
- * This class is common for all classes holding an outline.
- * But `GlyphOutline` class itself don't need to hold the outline...
- */
+// This class is common for all classes holding an outline.
+// However, clss `GlyphOutline` itself doesn't need to hold the outline...
 
 class GlyphUsingOutline
 : public QGraphicsItem

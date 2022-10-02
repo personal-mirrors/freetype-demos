@@ -3,20 +3,18 @@
 // Copyright (C) 2016-2022 by Werner Lemberg.
 
 
+#include "graphicsdefault.hpp"
 #include "grid.hpp"
 
-#include "graphicsdefault.hpp"
-
+#include <QGraphicsView>
+#include <QGraphicsWidget>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
-#include <QGraphicsWidget>
-#include <QGraphicsView>
 
 
 Grid::Grid(QGraphicsView* parentView)
-:  parentView_(parentView)
+: parentView_(parentView)
 {
- // empty
   updateRect();
 }
 
@@ -32,14 +30,14 @@ void
 Grid::updateRect()
 {
   auto viewport = parentView_->mapToScene(parentView_->viewport()->geometry())
-                         .boundingRect()
-                         .toRect();
+                    .boundingRect()
+                    .toRect();
   int minX = std::min(viewport.left() - 10, -100);
   int minY = std::min(viewport.top() - 10, -100);
   int maxX = std::max(viewport.right() + 10, 100);
   int maxY = std::max(viewport.bottom() + 10, 100);
 
-  auto newSceneRect = QRectF(QPointF(minX - 20, minY - 20), 
+  auto newSceneRect = QRectF(QPointF(minX - 20, minY - 20),
                              QPointF(maxX + 20, maxY + 20));
   if (sceneRect_ != newSceneRect && scene())
   {
@@ -47,9 +45,9 @@ Grid::updateRect()
     sceneRect_ = newSceneRect;
   }
 
-  // no need to take care of pen width
-  rect_ = QRectF(QPointF(minX, minY), 
-                QPointF(maxX, maxY));
+  // No need to take care of pen width.
+  rect_ = QRectF(QPointF(minX, minY),
+                 QPointF(maxX, maxY));
 }
 
 
@@ -70,13 +68,12 @@ Grid::paint(QPainter* painter,
   if (showGrid_)
   {
     painter->setPen(gb->gridPen);
-    
-    // don't mark pixel center with a cross if magnification is too small
+
+    // Don't mark pixel center with a cross if magnification is too small.
     if (lod > 20)
     {
       int halfLength = 1;
-    
-      // cf. QSpinBoxx
+
       if (lod > 640)
         halfLength = 6;
       else if (lod > 320)
@@ -87,7 +84,7 @@ Grid::paint(QPainter* painter,
         halfLength = 3;
       else if (lod > 40)
         halfLength = 2;
-    
+
       for (qreal x = minX; x < maxX; x++)
         for (qreal y = minY; y < maxY; y++)
         {
@@ -97,8 +94,8 @@ Grid::paint(QPainter* painter,
                                    x + 0.5 + halfLength / lod, y + 0.5));
         }
     }
-    
-    // don't draw grid if magnification is too small
+
+    // Don't draw grid if magnification is too small.
     if (lod >= 5)
     {
       for (int x = minX; x <= maxX; x++)
@@ -108,9 +105,9 @@ Grid::paint(QPainter* painter,
         painter->drawLine(minX, y,
                           maxX, y);
     }
-    
+
     painter->setPen(gb->axisPen);
-    
+
     painter->drawLine(0, minY,
                       0, maxY);
     painter->drawLine(minX, 0,
@@ -133,7 +130,8 @@ Grid::paint(QPainter* painter,
 
 
 void
-Grid::setShowGrid(bool showGrid, bool showAuxLines)
+Grid::setShowGrid(bool showGrid,
+                  bool showAuxLines)
 {
   showGrid_ = showGrid;
   showAuxLines_ = showAuxLines;
@@ -146,7 +144,7 @@ Grid::updateParameters(int ascenderPx,
                        int descenderPx,
                        int advancePx)
 {
-  // Need to flip the Y coord (originally Cartesian)
+  // Need to flip the Y coord (originally Cartesian).
   ascender_ = -ascenderPx;
   descender_ = -descenderPx;
   advance_ = advancePx;

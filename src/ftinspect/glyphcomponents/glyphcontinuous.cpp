@@ -2,9 +2,8 @@
 
 // Copyright (C) 2022 by Charlie Jiang.
 
-#include "glyphcontinuous.hpp"
-
 #include "../engine/engine.hpp"
+#include "glyphcontinuous.hpp"
 
 #include <QPainter>
 #include <QWheelEvent>
@@ -43,7 +42,8 @@ GlyphCacheEntry::operator=(GlyphCacheEntry&& other) noexcept
 }
 
 
-GlyphContinuous::GlyphContinuous(QWidget* parent, Engine* engine)
+GlyphContinuous::GlyphContinuous(QWidget* parent,
+                                 Engine* engine)
 : QWidget(parent),
   engine_(engine),
   stringRenderer_(engine)
@@ -177,9 +177,9 @@ GlyphContinuous::mousePressEvent(QMouseEvent* event)
     prevHoriPosition_ = stringRenderer_.position();
     prevIndex_ = beginIndex_;
     // We need to precalculate this value because after the first change of
-    // the begin index, the average line count would change. If we don't use the
-    // old value, then moving up/down for the same distance would not return
-    // to the original index which is confusing.
+    // the begin index, the average line count would change.  If we don't
+    // use the old value, then moving up/down for the same distance would
+    // not return to the original index, which is confusing.
     averageLineCount_ = calculateAverageLineCount();
   }
 }
@@ -197,19 +197,20 @@ GlyphContinuous::mouseMoveEvent(QMouseEvent* event)
   if (source_ == SRC_AllGlyphs)
   {
     auto deltaIndex = -delta.x() / HorizontalUnitLength
-                          - delta.y() / VerticalUnitLength * averageLineCount_;
+                      - delta.y() / VerticalUnitLength * averageLineCount_;
     if (prevIndex_ + deltaIndex != beginIndex_)
       emit beginIndexChangeRequest(beginIndex_ + deltaIndex);
   }
   else if (source_ == SRC_TextString)
   {
     positionDelta_ = prevPositionDelta_ + delta;
-    positionDelta_.setX(0); // Don't move horizontally
-
-    // but use the renderer
-    // purpose for two scale_: one for undoing the `delta /= scale_`
-    // the other for effectively dividing width by the scale
-    auto horiPos = delta.x() * scale_ * scale_ / static_cast<double>(width());
+    positionDelta_.setX(0); // Don't move horizontally.
+    // but use the renderer // WL: ???
+    // Note the double use of `scale_`: one for undoing `delta /= scale_`,
+    // the other one for effectively dividing the width by the scaling
+    // factor.
+    auto horiPos = delta.x() * scale_
+                   * scale_ / static_cast<double>(width());
     horiPos += prevHoriPosition_;
     horiPos = qBound(0.0, horiPos, 1.0);
     stringRenderer_.setPosition(horiPos);
@@ -252,14 +253,17 @@ GlyphContinuous::paintByRenderer()
 
   stringRenderer_.setRepeated(source_ == SRC_TextStringRepeated);
   stringRenderer_.setCallback(
-    [&](FT_Glyph glyph, FT_Vector penPos, GlyphContext& ctx)
+    [&](FT_Glyph glyph,
+        FT_Vector penPos,
+        GlyphContext& ctx)
     {
       saveSingleGlyph(glyph, penPos, ctx);
     });
   stringRenderer_.setImageCallback(
     [&](QImage* image,
-        QRect pos, 
-        FT_Vector penPos, FT_Vector advance,
+        QRect pos,
+        FT_Vector penPos,
+        FT_Vector advance,
         GlyphContext& ctx)
     {
       saveSingleGlyphImage(image, pos, penPos, advance, ctx);
@@ -270,11 +274,12 @@ GlyphContinuous::paintByRenderer()
       preprocessGlyph(ptr);
     });
   stringRenderer_.setLineBeginCallback(
-    [&](FT_Vector pos, double size)
+    [&](FT_Vector pos,
+        double size)
     {
       beginSaveLine(pos, size);
     });
-  auto count = stringRenderer_.render(static_cast<int>(width() / scale_), 
+  auto count = stringRenderer_.render(static_cast<int>(width() / scale_),
                                       static_cast<int>(height() / scale_),
                                       beginIndex_);
   if (source_ == SRC_AllGlyphs)
@@ -290,7 +295,7 @@ GlyphContinuous::transformGlyphFancy(FT_Glyph glyph)
   auto& metrics = engine_->currentFontMetrics();
   auto emboldeningX = (FT_Pos)(metrics.y_ppem * 64 * boldX_);
   auto emboldeningY = (FT_Pos)(metrics.y_ppem * 64 * boldY_);
-  // adopted from ftview.c:289
+  // Adopted from `ftview.c:289`.
   if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
   {
     auto outline = reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
@@ -313,8 +318,8 @@ GlyphContinuous::transformGlyphFancy(FT_Glyph glyph)
     auto ystr = emboldeningY & ~63;
 
     auto bitmap = &reinterpret_cast<FT_BitmapGlyph>(glyph)->bitmap;
-    // No shearing support for bitmap
-    FT_Bitmap_Embolden(engine_->ftLibrary(), bitmap, 
+    // No shearing support for bitmap.
+    FT_Bitmap_Embolden(engine_->ftLibrary(), bitmap,
                        xstr, ystr);
   }
   else
@@ -341,7 +346,7 @@ GlyphContinuous::paintCache(QPainter* painter)
   bool flashFlipFlop = false;
   if (flashRemainingCount_ >= 0)
   {
-    if (flashGlyphIndex_ >= 0) // only flash when the glyph index valid
+    if (flashGlyphIndex_ >= 0) // Only flash if the glyph index is valid.
       flashFlipFlop = flashRemainingCount_ % 2 == 1;
     else
     {
@@ -386,22 +391,17 @@ GlyphContinuous::prePaint()
 {
   displayingCount_ = 0;
 
-  // Used by fancy:
-  // adopted from ftview.c:289
-  /***************************************************************/
-  /*                                                             */
-  /*  2*2 affine transformation matrix, 16.16 fixed float format */
-  /*                                                             */
-  /*  Shear matrix:                                              */
-  /*                                                             */
-  /*         | x' |     | 1  k |   | x |          x' = x + ky    */
-  /*         |    |  =  |      | * |   |   <==>                  */
-  /*         | y' |     | 0  1 |   | y |          y' = y         */
-  /*                                                             */
-  /*        outline'     shear    outline                        */
-  /*                                                             */
-  /***************************************************************/
-  
+  // Used by 'fancy' mode; adopted from `ftview.c:289`.
+  //
+  // 2*2 affine transformation matrix, 16.16 fixed float format:
+  //
+  // Shear matrix:
+  //
+  //   | x' |     | 1  k |   | x |          x' = x + ky
+  //   |    |  =  |      | * |   |   <==>
+  //   | y' |     | 0  1 |   | y |          y' = y
+  //
+  //  outline'     shear    outline
 
   shearMatrix_.xx = 1 << 16;
   shearMatrix_.xy = static_cast<FT_Fixed>(slant_ * (1 << 16));
@@ -419,7 +419,8 @@ GlyphContinuous::updateStroke()
   auto& metrics = engine_->currentFontMetrics();
   auto radius = static_cast<FT_Fixed>(metrics.y_ppem * 64 * strokeRadius_);
   strokeRadiusForSize_ = radius;
-  FT_Stroker_Set(stroker_, radius,
+  FT_Stroker_Set(stroker_,
+                 radius,
                  FT_STROKER_LINECAP_ROUND,
                  FT_STROKER_LINEJOIN_ROUND,
                  0);
@@ -444,16 +445,17 @@ GlyphContinuous::preprocessGlyph(FT_Glyph* glyphPtr)
     transformGlyphFancy(glyph);
     break;
   case M_Stroked:
-  {
-    auto stroked = transformGlyphStroked(glyph);
-    if (stroked)
     {
-      FT_Done_Glyph(glyph);
-      *glyphPtr = stroked;
+      auto stroked = transformGlyphStroked(glyph);
+      if (stroked)
+      {
+        FT_Done_Glyph(glyph);
+        *glyphPtr = stroked;
+      }
     }
-  }
-  break;
-  default:; // Nothing for M_NORMAL.
+    break;
+  default:
+    ; // Nothing for M_NORMAL.
   }
 }
 
@@ -481,8 +483,8 @@ GlyphContinuous::saveSingleGlyph(FT_Glyph glyph,
     return;
 
   QRect rect;
-  QImage* image = engine_->renderingEngine()->convertGlyphToQImage(glyph, 
-                                                                   &rect, 
+  QImage* image = engine_->renderingEngine()->convertGlyphToQImage(glyph,
+                                                                   &rect,
                                                                    true);
   saveSingleGlyphImage(image, rect, penPos, glyph->advance, gctx);
 }
@@ -534,7 +536,7 @@ GlyphContinuous::beginDrawCacheLine(QPainter* painter,
 
   auto printSize = line.sizePoint;
   if (engine_->currentFontBitmapOnly())
-    printSize = printSize * engine_->dpi() / 72.0; // convert back
+    printSize = printSize * engine_->dpi() / 72.0; // Convert back.
   auto sizePrefix = QString("%1: ").arg(printSize);
   painter->drawText(line.basePosition, sizePrefix);
 
@@ -548,22 +550,22 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
                                 const GlyphCacheEntry& entry,
                                 bool colorInverted)
 {
-  // ftview.c:557
-  // Well, metrics is also part of the cache...
+  // From `ftview.c:557`.
+  // Well, metrics are also part of the cache...
   int width = entry.advance.x ? entry.advance.x >> 16
                               : entry.nonSpacingPlaceholder;
   auto xOffset = 0;
 
-  if (entry.advance.x == 0 
+  if (entry.advance.x == 0
       && !stringRenderer_.isWaterfall()
       && source_ == SRC_AllGlyphs)
   {
-    // Draw a red square to indicate non-spacing glyphs
+    // Draw a red square to indicate non-spacing glyphs.
     auto squarePoint = entry.penPos;
     squarePoint.setY(squarePoint.y() - width);
     auto rect = QRect(squarePoint, QSize(width, width));
     painter->fillRect(rect, Qt::red);
-    xOffset = width; // let the glyph be drawn on the red square
+    xOffset = width; // Let the glyph be drawn on the red square.
   }
 
   QRect rect = entry.basePosition;
@@ -594,11 +596,11 @@ GlyphContinuous::findGlyphByMouse(QPoint position,
       auto rect2 = QRect();
       rect.moveLeft(rect.x() + line.sizeIndicatorOffset);
 
-      if (entry.advance.x == 0 
+      if (entry.advance.x == 0
           && !stringRenderer_.isWaterfall()
           && source_ == SRC_AllGlyphs)
       {
-        // Consider the red square
+        // Consider the red square.
         int width = static_cast<int>(entry.nonSpacingPlaceholder);
         if (width < 0)
           continue;
@@ -609,7 +611,7 @@ GlyphContinuous::findGlyphByMouse(QPoint position,
         rect2 = QRect(squarePoint, QSize(width, width));
         rect.moveLeft(rect.x() + width);
       }
-      
+
       if (rect.contains(position) || rect2.contains(position))
       {
         if (outSizePoint)
@@ -627,8 +629,8 @@ GlyphContinuous::calculateAverageLineCount()
   int averageLineCount = 0;
   for (auto& line : glyphCache_)
   {
-    // line.entries.size must < INT_MAX because the total glyph count in
-    // the renderer is below that
+    // `line.entries.size` must be smaller than `INT_MAX` because the total
+    // glyph count in the renderer is below that.
     averageLineCount += static_cast<int>(line.entries.size());
   }
   if (!glyphCache_.empty())
