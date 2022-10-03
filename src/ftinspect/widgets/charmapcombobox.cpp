@@ -3,7 +3,6 @@
 // Copyright (C) 2022 by Charlie Jiang.
 
 #include "charmapcombobox.hpp"
-
 #include "../engine/engine.hpp"
 
 
@@ -50,25 +49,26 @@ CharMapComboBox::repopulate()
 
 
 #define EncodingRole (Qt::UserRole + 10)
+
 void
 CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
 {
   if (charMaps_ == charMaps)
   {
-    charMaps_ = charMaps; // Still need to substitute because ptr may differ
+    charMaps_ = charMaps; // Still need to substitute because ptr may differ.
     return;
   }
   charMaps_ = charMaps;
   int oldIndex = currentIndex();
   unsigned oldEncoding = 0u;
 
-  // Using additional UserRole to store encoding id
+  // Using additional UserRole to store encoding ID.
   auto oldEncodingV = itemData(oldIndex, EncodingRole);
   if (oldEncodingV.isValid() && oldEncodingV.canConvert<unsigned>())
     oldEncoding = oldEncodingV.value<unsigned>();
 
   { // This brace isn't for the `if` statement!
-    // suppress events during updating
+    // Suppress events during updating.
     QSignalBlocker selectorBlocker(this);
 
     clear();
@@ -77,7 +77,7 @@ CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
       addItem(tr("Glyph Order"));
       setItemData(0, 0u, EncodingRole);
     }
-    
+
     int newIndex = 0;
     for (auto& map : charMaps)
     {
@@ -97,8 +97,8 @@ CharMapComboBox::repopulate(std::vector<CharMapInfo>& charMaps)
         newIndex = i;
     }
 
-    // this shouldn't emit any event either, because force repainting
-    // will happen later, so embrace it into blocker block
+    // This shouldn't emit any event either because force repainting
+    // will happen later, so embrace it into blocker block.
     setCurrentIndex(newIndex);
     updateToolTip();
   }

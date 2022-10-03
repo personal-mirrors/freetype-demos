@@ -5,16 +5,18 @@
 #include "customwidgets.hpp"
 
 #include <qevent.h>
-#include <QStandardItemModel>
 #include <QScrollBar>
+#include <QStandardItemModel>
 #include <QStyleOptionButton>
+
 
 // --------------------------------
 // >>>>>>>> QGraphicsViewx <<<<<<<<
 // --------------------------------
 
 QGraphicsViewx::QGraphicsViewx(QWidget* parent)
-: QGraphicsView(parent), lastBottomLeftPointInitialized_(false)
+: QGraphicsView(parent),
+  lastBottomLeftPointInitialized_(false)
 {
   // empty
 }
@@ -62,18 +64,20 @@ QGraphicsViewx::resizeEvent(QResizeEvent* event)
                                      - lastBottomLeftPoint_.y())));
 }
 
+
 // ---------------------------
 // >>>>>>>> ZoomSpinBox <<<<<<<<
 // ---------------------------
 
-// we want to mark the center of a pixel square with a single dot or a small
+// We want to mark the center of a pixel square with a single dot or a small
 // cross; starting with a certain magnification we thus only use even values
-// so that we can do that symmetrically
+// so that we can do that symmetrically.
 // This behaviour is only for the singular view grid.
 
-
-ZoomSpinBox::ZoomSpinBox(QWidget* parent, bool continuousView)
-: QDoubleSpinBox(parent), continuousView_(continuousView)
+ZoomSpinBox::ZoomSpinBox(QWidget* parent,
+                         bool continuousView)
+: QDoubleSpinBox(parent),
+  continuousView_(continuousView)
 {
   setKeyboardTracking(false);
   if (continuousView)

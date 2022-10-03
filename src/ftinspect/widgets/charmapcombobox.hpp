@@ -7,15 +7,21 @@
 #include "../engine/charmap.hpp"
 
 #include <vector>
+
 #include <QComboBox>
 
+
 class Engine;
+
 class CharMapComboBox
 : public QComboBox
 {
   Q_OBJECT
+
 public:
-  CharMapComboBox(QWidget* parent, Engine* engine, bool haveGlyphOrder = true);
+  CharMapComboBox(QWidget* parent,
+                  Engine* engine,
+                  bool haveGlyphOrder = true);
   ~CharMapComboBox() override = default;
 
   bool haveGlyphOrder_;

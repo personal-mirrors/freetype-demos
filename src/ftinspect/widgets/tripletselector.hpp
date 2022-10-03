@@ -5,13 +5,16 @@
 #pragma once
 
 #include <vector>
-#include <QWidget>
+
+#include <QBoxLayout>
 #include <QComboBox>
 #include <QPushButton>
 #include <QToolButton>
-#include <QBoxLayout>
+#include <QWidget>
+
 
 class Engine;
+
 class TripletSelector
 : public QWidget
 {

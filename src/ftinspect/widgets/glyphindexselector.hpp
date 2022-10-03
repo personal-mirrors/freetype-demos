@@ -5,29 +5,34 @@
 #pragma once
 
 #include <functional>
-#include <QWidget>
-#include <QPushButton>
-#include <QSpinBox>
-#include <QSignalMapper>
+
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPushButton>
+#include <QSignalMapper>
+#include <QSpinBox>
+#include <QWidget>
+
 
 class GlyphIndexSelector
 : public QWidget
 {
   Q_OBJECT
+
 public:
   GlyphIndexSelector(QWidget* parent);
   ~GlyphIndexSelector() override = default;
 
-  // Will never trigger repaint!
-  void setMinMax(int min, int max);
+  // Never triggers repaint!
+  void setMinMax(int min,
+                 int max);
   void setShowingCount(int showingCount);
 
-  // Single mode will display single glyph index instead of a range.
+  // Single mode displays single glyph index instead of a range.
   void setSingleMode(bool singleMode);
 
-  void setCurrentIndex(int index, bool forceUpdate = false);
+  void setCurrentIndex(int index,
+                       bool forceUpdate = false);
   int currentIndex();
 
   void setNumberRenderer(std::function<QString(int)> renderer);
@@ -37,13 +42,13 @@ signals:
 
 protected:
   void resizeEvent(QResizeEvent* event) override;
-  
+
 private:
   bool singleMode_ = true;
   int showingCount_;
   std::function<QString(int)> numberRenderer_;
 
-  // min, max and current status are held by `indexSpinBox_`
+  // Minimum, maximum, and current status are held by `indexSpinBox_`.
   QWidget* navigationWidget_;
   QPushButton* toEndButton_;
   QPushButton* toM1000Button_;

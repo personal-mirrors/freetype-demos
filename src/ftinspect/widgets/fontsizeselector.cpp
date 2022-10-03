@@ -3,15 +3,16 @@
 // Copyright (C) 2022 by Charlie Jiang.
 
 #include "fontsizeselector.hpp"
-
 #include "../engine/engine.hpp"
 
 #include <algorithm>
 
-FontSizeSelector::FontSizeSelector(QWidget* parent, 
+
+FontSizeSelector::FontSizeSelector(QWidget* parent,
                                    bool zoomNewLine,
                                    bool continuousView)
-: QWidget(parent), continuousView_(continuousView)
+: QWidget(parent),
+  continuousView_(continuousView)
 {
   createLayout(zoomNewLine);
   createConnections();
@@ -80,7 +81,7 @@ FontSizeSelector::reloadFromFont(Engine* engine)
   unitsComboBox_->setEnabled(!bitmapOnly_);
   sizeDoubleSpinBox_->setKeyboardTracking(!bitmapOnly_);
 
-  if (bitmapOnly_) 
+  if (bitmapOnly_)
   {
     QSignalBlocker blocker(this);
     unitsComboBox_->setCurrentIndex(Units_px);
@@ -92,7 +93,7 @@ FontSizeSelector::reloadFromFont(Engine* engine)
 void
 FontSizeSelector::applyToEngine(Engine* engine)
 {
-  // Spinbox value cannot become negative
+  // Spinbox value cannot become negative.
   engine->setDPI(dpiSpinBox_->value());
 
   if (unitsComboBox_->currentIndex() == Units_px)
@@ -141,7 +142,7 @@ FontSizeSelector::handleKeyEvent(QKeyEvent const* keyEvent)
   auto key = keyEvent->key();
   if ((modifiers == Qt::ShiftModifier
        || modifiers == (Qt::ShiftModifier | Qt::KeypadModifier))
-      && (key == Qt::Key_Plus 
+      && (key == Qt::Key_Plus
           || key == Qt::Key_Minus
           || key == Qt::Key_Underscore
           || key == Qt::Key_Equal
@@ -235,13 +236,14 @@ FontSizeSelector::createLayout(bool zoomNewLine)
   zoomLabel_->setBuddy(zoomSpinBox_);
 
   // Tooltips
-  sizeDoubleSpinBox_->setToolTip(
-    tr("Size value (will be limited to available sizes if\nthe current font "
-       "is not scalable)."));
-  unitsComboBox_->setToolTip(tr("Unit for the size value (force to pixel if\n"
-                                "the current font is not scalable)."));
-  dpiSpinBox_->setToolTip(
-    tr("DPI for the point size value (only valid when the unit is point)."));
+  sizeDoubleSpinBox_->setToolTip(tr(
+    "Size value (will be limited to available sizes if\n"
+    "the current font is not scalable)."));
+  unitsComboBox_->setToolTip(tr(
+    "Unit for the size value (force to pixel if\n"
+    "the current font is not scalable)."));
+  dpiSpinBox_->setToolTip(tr(
+    "DPI for the point size value (only valid when the unit is point)."));
   zoomSpinBox_->setToolTip(tr("Adjust zoom."));
 
   // Layouting
@@ -279,14 +281,22 @@ FontSizeSelector::createLayout(bool zoomNewLine)
 void
 FontSizeSelector::createConnections()
 {
-  connect(sizeDoubleSpinBox_, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-          this, &FontSizeSelector::checkFixedSizeAndEmit);
-  connect(unitsComboBox_, QOverload<int>::of(&QComboBox::currentIndexChanged),
-          this, &FontSizeSelector::checkUnits);
-  connect(dpiSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged),
-          this, &FontSizeSelector::checkFixedSizeAndEmit);
-  connect(zoomSpinBox_, QOverload<double>::of(&ZoomSpinBox::valueChanged),
-          this, &FontSizeSelector::valueChanged);
+  connect(sizeDoubleSpinBox_,
+          QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this,
+          &FontSizeSelector::checkFixedSizeAndEmit);
+  connect(unitsComboBox_,
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
+          this,
+          &FontSizeSelector::checkUnits);
+  connect(dpiSpinBox_,
+          QOverload<int>::of(&QSpinBox::valueChanged),
+          this,
+          &FontSizeSelector::checkFixedSizeAndEmit);
+  connect(zoomSpinBox_,
+          QOverload<double>::of(&ZoomSpinBox::valueChanged),
+          this,
+          &FontSizeSelector::valueChanged);
 }
 
 
@@ -320,7 +330,7 @@ FontSizeSelector::checkFixedSizeAndEmit()
       // Value not available, find next value.
       if (intNewValue > lastValue_)
       {
-        // find next larger value...
+        // Find next larger value...
         auto it = std::upper_bound(fixedSizes_.begin(), fixedSizes_.end(),
                                    lastValue_);
         if (it == fixedSizes_.end())
@@ -330,11 +340,11 @@ FontSizeSelector::checkFixedSizeAndEmit()
       }
       else
       {
-        // find next smaller value...
+        // Find next smaller value...
         auto it = std::lower_bound(fixedSizes_.begin(), fixedSizes_.end(),
                                    lastValue_);
 
-        // there's no element >= lastValue => all elements < last value
+        // There's no element >= lastValue => all elements < last value.
         if (it == fixedSizes_.begin())
           sizeDoubleSpinBox_->setValue(fixedSizes_.front());
         else

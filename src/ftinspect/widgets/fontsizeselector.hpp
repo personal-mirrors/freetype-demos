@@ -7,21 +7,26 @@
 #include "customwidgets.hpp"
 
 #include <vector>
+
+#include <QBoxLayout>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
-#include <QWidget>
-#include <QBoxLayout>
 #include <QWheelEvent>
+#include <QWidget>
+
 
 class Engine;
-class FontSizeSelector : public QWidget
+class FontSizeSelector
+: public QWidget
 {
   Q_OBJECT
 
 public:
   // For the continuous view mode, see `ZoomSpinBox`'s documentation.
-  FontSizeSelector(QWidget* parent, bool zoomNewLine, bool continuousView);
+  FontSizeSelector(QWidget* parent,
+                   bool zoomNewLine,
+                   bool continuousView);
   ~FontSizeSelector() override = default;
 
   enum Units : int
@@ -34,6 +39,7 @@ public:
   double selectedSize();
   Units selectedUnit();
   double zoomFactor();
+
   //////// Setters
   void setSizePixel(int sizePixel);
   void setSizePoint(double sizePoint);
@@ -48,7 +54,8 @@ public:
   void installEventFilterForWidget(QWidget* widget);
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event) override;
+  bool eventFilter(QObject* watched,
+                   QEvent* event) override;
 
 signals:
   void valueChanged();
@@ -63,7 +70,7 @@ private:
   QSpinBox* dpiSpinBox_;
   ZoomSpinBox* zoomSpinBox_;
 
-  // Sometimes we need to split 2 lines
+  // Sometimes we need to split 2 lines.
   QHBoxLayout* upLayout_;
   QHBoxLayout* downLayout_;
   QVBoxLayout* mainLayout_;

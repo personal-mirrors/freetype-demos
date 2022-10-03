@@ -7,18 +7,19 @@
 #include <QComboBox>
 #include <QGraphicsView>
 #include <QPushButton>
-#include <QSpinBox>
 #include <QScrollArea>
+#include <QSpinBox>
 #include <QString>
 
-// We need to define a series of custom Qt widgets to satisfy.
-// Basically those custom widgets are derived classes from Qt-provided components,
-// with minor changes.
-// Because all those derived classes are pretty tiny and not core logic, they're
-// organized into one single hpp/cpp pair.
 
-// we want to anchor the view at the bottom left corner
-// while the windows gets resized
+// We need to define a series of custom Qt widgets to satisfy our needs.
+// Basically, those custom widgets are derived classes from Qt-provided
+// components, with minor changes.  Because all those derived classes are
+// pretty tiny and not core logic, they are organized into one single
+// hpp/cpp file pair.
+
+// We want to anchor the view at the bottom left corner while the windows
+// gets resized.
 class QGraphicsViewx
 : public QGraphicsView
 {
@@ -43,18 +44,17 @@ private:
 };
 
 
-// we want to have our own `stepBy' function for the zoom spin box
+// We want to have our own `stepBy` function for the zoom spin box.
 class ZoomSpinBox
 : public QDoubleSpinBox
 {
   Q_OBJECT
 
 public:
-  /*
-   * The ContinuousView mode for `ZoomSpinBox` will change the range to
-   * 0.25~50, and the single step to 0.25.
-   */
-  ZoomSpinBox(QWidget* parent, bool continuousView);
+  // The ContinuousView mode for `ZoomSpinBox` will change the range to
+  // 0.25~50, and the single step to 0.25.
+  ZoomSpinBox(QWidget* parent,
+              bool continuousView);
   void stepBy(int val) override;
   double valueFromText(const QString& text) const override;
 
@@ -65,7 +65,8 @@ private:
 
 // https://bugreports.qt.io/browse/QTBUG-10459
 // https://phabricator.kde.org/D14692
-class UnboundScrollArea : public QScrollArea
+class UnboundScrollArea
+: public QScrollArea
 {
   Q_OBJECT
 

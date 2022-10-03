@@ -3,10 +3,10 @@
 // Copyright (C) 2022 Charlie Jiang.
 
 #include "glyphindexselector.hpp"
-
 #include "../uihelper.hpp"
 
 #include <climits>
+
 
 GlyphIndexSelector::GlyphIndexSelector(QWidget* parent)
 : QWidget(parent)
@@ -23,7 +23,7 @@ void
 GlyphIndexSelector::setMinMax(int min,
                               int max)
 {
-  // Don't emit events during setting
+  // Don't emit events during setting.
   auto eventState = blockSignals(true);
   indexSpinBox_->setMinimum(min);
   indexSpinBox_->setMaximum(qBound(0, max, INT_MAX));
@@ -53,15 +53,16 @@ GlyphIndexSelector::setSingleMode(bool singleMode)
 
 
 void
-GlyphIndexSelector::setCurrentIndex(int index, bool forceUpdate)
+GlyphIndexSelector::setCurrentIndex(int index,
+                                    bool forceUpdate)
 {
-  // to avoid unnecessary update, if force update is enabled
-  // then the `setValue` shouldn't trigger update signal from `this`
-  // but we still need `updateLabel`, so block `this` only
+  // To avoid unnecessary updates: if force-update is enabled,
+  // `setValue` shouldn't trigger the update signal from `this`.
+  // However, we still need `updateLabel`, so block `this` only.
   auto state = blockSignals(forceUpdate);
   indexSpinBox_->setValue(index);
   blockSignals(state);
-  
+
   if (forceUpdate)
     emit currentIndexChanged(indexSpinBox_->value());
 }
@@ -91,7 +92,7 @@ GlyphIndexSelector::resizeEvent(QResizeEvent* event)
     if (width() < minimumWidth)
       navigationWidget_->setVisible(false);
   }
-  else if (navigationWidget_->minimumSizeHint().width() + minimumWidth 
+  else if (navigationWidget_->minimumSizeHint().width() + minimumWidth
            <= width())
     navigationWidget_->setVisible(true);
 }
@@ -150,7 +151,7 @@ GlyphIndexSelector::createLayout()
   toP100Button_ = new QPushButton("+100", this);
   toP1000Button_ = new QPushButton("+1000", this);
   toEndButton_ = new QPushButton(">|", this);
-  
+
   indexSpinBox_ = new QSpinBox(this);
   indexSpinBox_->setCorrectionMode(QAbstractSpinBox::CorrectToNearestValue);
   indexSpinBox_->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -206,10 +207,11 @@ GlyphIndexSelector::createLayout()
   setLayout(layout_);
 }
 
+
 void
 GlyphIndexSelector::createConnections()
 {
-  connect(indexSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged), 
+  connect(indexSpinBox_, QOverload<int>::of(&QSpinBox::valueChanged),
           this, &GlyphIndexSelector::emitValueChanged);
 
   glyphNavigationMapper_ = new QSignalMapper(this);
