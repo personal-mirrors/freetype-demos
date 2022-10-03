@@ -4,12 +4,13 @@
 
 #include "uihelper.hpp"
 
-#include <QStyleOptionButton>
 #include <QFontMetrics>
 #include <QString>
+#include <QStyleOptionButton>
 
-// code derived from Qt 4.8.7, function `QPushButton::sizeHint',
-// file `src/gui/widgets/qpushbutton.cpp'
+
+// Code derived from Qt 4.8.7, function `QPushButton::sizeHint`,
+// file `src/gui/widgets/qpushbutton.cpp`.
 
 void
 setButtonNarrowest(QPushButton* btn)
@@ -29,7 +30,6 @@ setButtonNarrowest(QPushButton* btn)
 void
 setLabelSelectable(QLabel* label)
 {
-
   label->setTextInteractionFlags(Qt::TextSelectableByMouse
                                  | Qt::TextSelectableByKeyboard);
   label->setCursor(Qt::IBeamCursor);
@@ -58,7 +58,8 @@ gridLayout2ColAddWidget(QGridLayout* layout,
 
 int
 gridLayout2ColAddWidget(QGridLayout* layout,
-                        QWidget* widgetL, QWidget* widgetR)
+                        QWidget* widgetL,
+                        QWidget* widgetR)
 {
   auto r = layout->rowCount();
   layout->addWidget(widgetL, r, 0);

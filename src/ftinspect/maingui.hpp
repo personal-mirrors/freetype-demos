@@ -6,21 +6,22 @@
 #pragma once
 
 #include "engine/engine.hpp"
-#include "widgets/tripletselector.hpp"
-#include "panels/settingpanel.hpp"
 #include "panels/abstracttab.hpp"
-#include "panels/singular.hpp"
-#include "panels/continuous.hpp"
 #include "panels/comparator.hpp"
-#include "panels/info.hpp"
+#include "panels/continuous.hpp"
 #include "panels/glyphdetails.hpp"
+#include "panels/info.hpp"
+#include "panels/settingpanel.hpp"
+#include "panels/singular.hpp"
+#include "widgets/tripletselector.hpp"
 
 #include <vector>
+
 #include <QAction>
-#include <QCloseEvent>
-#include <QGridLayout>
-#include <QDockWidget>
 #include <QBoxLayout>
+#include <QCloseEvent>
+#include <QDockWidget>
+#include <QGridLayout>
 #include <QLabel>
 #include <QMainWindow>
 #include <QMenu>
@@ -57,15 +58,16 @@ private slots:
   void loadFonts();
   void onTripletChanged();
   void switchTab();
-  void switchToSingular(int glyphIndex, double sizePoint);
+  void switchToSingular(int glyphIndex,
+                        double sizePoint);
   void closeDockWidget();
 
 private:
   Engine* engine_;
-  
+
   int currentNumberOfGlyphs_;
 
-  // layout related stuff
+  // Layout-related stuff.
   QAction *aboutAct_;
   QAction *aboutQtAct_;
   QAction *closeFontAct_;
@@ -79,9 +81,9 @@ private:
 
   QMenu *menuFile_;
   QMenu *menuHelp_;
-  
+
   TripletSelector* tripletSelector_;
-  
+
   QVBoxLayout *leftLayout_;
   QVBoxLayout *rightLayout_;
 

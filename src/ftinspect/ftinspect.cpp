@@ -7,6 +7,7 @@
 #include "engine/engine.hpp"
 
 #include <QApplication>
+
 #include <freetype/freetype.h>
 
 

@@ -6,14 +6,14 @@
 #include "maingui.hpp"
 
 #include <QApplication>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QSettings>
-#include <QScrollBar>
-#include <QStatusBar>
-#include <QMimeData>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QMimeData>
+#include <QScrollBar>
+#include <QSettings>
+#include <QStatusBar>
 
 
 MainGUI::MainGUI(Engine* engine)
@@ -28,7 +28,7 @@ MainGUI::MainGUI(Engine* engine)
   readSettings();
   setUnifiedTitleAndToolBarOnMac(true);
 
-  show(); // place this before `loadCommandLine` so alerts from loading
+  show(); // Place this before `loadCommandLine` so alerts from loading
           // won't be covered.
   loadCommandLine();
 }
@@ -84,7 +84,7 @@ MainGUI::dropEvent(QDropEvent* event)
 void
 MainGUI::keyPressEvent(QKeyEvent* event)
 {
-  // Delegate key events to tabs
+  // Delegate key events to tabs.
   if (!tabWidget_->currentWidget()->eventFilter(this, event))
     QMainWindow::keyPressEvent(event);
 }
@@ -178,14 +178,14 @@ MainGUI::switchTab()
       .arg(leftWidget_->width()));
   else
     tabWidget_->setStyleSheet("");
-  
+
 
   if (!leftWidget_->isVisible() && !isComparator)
   {
     // Dirty approach here: When setting the left panel as visible, the main
-    // window will auto-expand. However, we don't want this behaviour.
-    // Doing `resize` right after the `setVisible` is useless since the
-    // layout updating is delayed, so we have to temporarily fix the main window
+    // window auto-expands.  However, we don't want this behaviour.  Doing
+    // `resize` right after `setVisible` is useless since the layout
+    // updating is delayed, so we have to temporarily fix the main window
     // size, and recover the original min/max size when finished.
     auto minSize = minimumSize();
     auto maxSize = maximumSize();
@@ -199,7 +199,8 @@ MainGUI::switchTab()
 
   reloadCurrentTabFont();
 
-  if (current == continuousTab_ && lastTab_ == singularTab_
+  if (current == continuousTab_
+      && lastTab_ == singularTab_
       && singularTab_->currentGlyph() >= 0)
     continuousTab_->highlightGlyph(singularTab_->currentGlyph());
 
@@ -211,7 +212,7 @@ void
 MainGUI::switchToSingular(int glyphIndex,
                           double sizePoint)
 {
-  tabWidget_->setCurrentWidget(singularTab_); // this would update the tab
+  tabWidget_->setCurrentWidget(singularTab_); // This updates the tab.
   singularTab_->setCurrentGlyphAndSize(glyphIndex, sizePoint);
 }
 
@@ -235,7 +236,7 @@ void
 MainGUI::reloadCurrentTabFont()
 {
   if (tabWidget_->currentWidget() != comparatorTab_)
-    settingPanel_->applyDelayedSettings(); // This will reset the cache.
+    settingPanel_->applyDelayedSettings(); // This resets the cache.
   applySettings();
   auto index = tabWidget_->currentIndex();
   if (index >= 0 && static_cast<size_t>(index) < tabs_.size())
@@ -266,12 +267,12 @@ MainGUI::createLayout()
   // left side
   settingPanel_ = new SettingPanel(this, engine_);
 
-  leftLayout_ = new QVBoxLayout; // The only point is to set a margin->remove?
+  leftLayout_ = new QVBoxLayout; // The only point is to set `margin->remove`?
   leftLayout_->addWidget(settingPanel_);
   leftLayout_->setContentsMargins(32, 32, 0, 16);
 
-  // we don't want to expand the left side horizontally;
-  // to change the policy we have to use a widget wrapper
+  // We don't want to expand the left side horizontally;
+  // to change the policy we have to use a widget wrapper.
   leftWidget_ = new QWidget(this);
   leftWidget_->setLayout(leftLayout_);
   leftWidget_->setMaximumWidth(400);
@@ -286,7 +287,7 @@ MainGUI::createLayout()
   tabWidget_ = new QTabWidget(this);
   tabWidget_->setObjectName("mainTab"); // for stylesheet
 
-  // Note those two list must be in sync
+  // Note that these two list must be in sync.
   tabs_.push_back(singularTab_);
   tabWidget_->addTab(singularTab_, tr("Singular Grid View"));
   tabs_.push_back(continuousTab_);
@@ -296,29 +297,31 @@ MainGUI::createLayout()
   tabs_.push_back(infoTab_);
   tabWidget_->addTab(infoTab_, tr("Font Info"));
   lastTab_ = singularTab_;
-  
-  tabWidget_->setTabToolTip(0, tr("View single glyph in grid view.\n"
-                                  "For pixelwise inspection of the glyphs."));
-  tabWidget_->setTabToolTip(1, tr("View a string of glyphs continuously.\n"
-                                  "Show all glyphs in the font or render "
-                                  "strings."));
-  tabWidget_->setTabToolTip(2, tr("Compare the output of the font "
-                                  "in different rendering settings "
-                                  "(e.g. hintings)."));
-  tabWidget_->setTabToolTip(3, tr("View font info and metadata."));
-  
+
+  tabWidget_->setTabToolTip(0, tr(
+    "View single glyph in grid view.\n"
+    "For pixel-wise inspection of glyphs."));
+  tabWidget_->setTabToolTip(1, tr(
+    "View a string of glyphs continuously.\n"
+    "Show all glyphs in the font or render strings."));
+  tabWidget_->setTabToolTip(2, tr(
+    "Compare the output of the font in different rendering settings"
+    " (e.g., hintings)."));
+  tabWidget_->setTabToolTip(3, tr(
+    "View font info and metadata."));
+
   tripletSelector_ = new TripletSelector(this, engine_);
 
   rightLayout_ = new QVBoxLayout;
-  //rightLayout_->addWidget(fontNameLabel_);
-  rightLayout_->addWidget(tabWidget_); // same for `leftLayout_`: Remove?
+  // rightLayout_->addWidget(fontNameLabel_);
+  rightLayout_->addWidget(tabWidget_); // Same for `leftLayout_`: Remove?
   rightLayout_->setContentsMargins(16, 32, 32, 16);
 
-  // for symmetry with the left side use a widget also
+  // For symmetry with the left side use a widget also.
   rightWidget_ = new QWidget(this);
   rightWidget_->setLayout(rightLayout_);
 
-  // the whole thing
+  // The whole thing.
   mainPartLayout_ = new QHBoxLayout;
   mainPartLayout_->addWidget(leftWidget_);
   mainPartLayout_->addWidget(rightWidget_);
@@ -337,7 +340,7 @@ MainGUI::createLayout()
   resize(ftinspectWidget_->minimumSizeHint().width(),
          700 * logicalDpiY() / 96);
 
-  statusBar()->hide(); // remove the extra space
+  statusBar()->hide(); // Remove the extra space.
   setCentralWidget(ftinspectWidget_);
   setWindowTitle("ftinspect");
 }
@@ -362,7 +365,7 @@ MainGUI::createConnections()
   connect(infoTab_, &InfoTab::switchToSingular,
           [&](int index) { switchToSingular(index, -1); });
 
-  connect(glyphDetails_, &GlyphDetails::closeDockWidget, 
+  connect(glyphDetails_, &GlyphDetails::closeDockWidget,
           this, &MainGUI::closeDockWidget);
   connect(glyphDetails_, &GlyphDetails::switchToSingular,
           [&] (int index)
@@ -423,10 +426,10 @@ void
 MainGUI::readSettings()
 {
   QSettings settings;
-//  QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-//  QSize size = settings.value("size", QSize(400, 400)).toSize();
-//  resize(size);
-//  move(pos);
+  // QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
+  // QSize size = settings.value("size", QSize(400, 400)).toSize();
+  // resize(size);
+  // move(pos);
 }
 
 
@@ -434,8 +437,8 @@ void
 MainGUI::writeSettings()
 {
   QSettings settings;
-//  settings.setValue("pos", pos());
-//  settings.setValue("size", size());
+  // settings.setValue("pos", pos());
+  // settings.setValue("size", size());
 }
 
 
