@@ -7,30 +7,33 @@
 #include "../engine/mmgx.hpp"
 #include "../widgets/customwidgets.hpp"
 
-#include <QWidget>
-#include <QGridLayout>
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QScrollArea>
-#include <QLineEdit>
-#include <QSlider>
-#include <QFrame>
-#include <QPushButton>
-#include <QToolButton>
-#include <QLabel>
 #include <QDoubleValidator>
+#include <QFrame>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QSlider>
+#include <QToolButton>
+#include <QWidget>
 
 #include <freetype/fttypes.h>
 
-class Engine;
 
+class Engine;
 class MMGXSettingItem;
+
 class SettingPanelMMGX
 : public QWidget
 {
   Q_OBJECT
+
 public:
-  SettingPanelMMGX(QWidget* parent, Engine* engine);
+  SettingPanelMMGX(QWidget* parent,
+                   Engine* engine);
   ~SettingPanelMMGX() override = default;
 
   void reloadFont();
@@ -72,6 +75,7 @@ class MMGXSettingItem
 : public QFrame
 {
   Q_OBJECT
+
 public:
   MMGXSettingItem(QWidget* parent);
   ~MMGXSettingItem() override = default;

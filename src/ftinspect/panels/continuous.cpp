@@ -3,11 +3,11 @@
 // Copyright (C) 2022 by Charlie Jiang.
 
 #include "continuous.hpp"
-
 #include "glyphdetails.hpp"
 #include "../uihelper.hpp"
 
 #include <climits>
+
 #include <QToolTip>
 #include <QVariant>
 
@@ -24,7 +24,7 @@ ContinuousTab::ContinuousTab(QWidget* parent,
   createLayout();
 
   std::vector<CharMapInfo> tempCharMaps;
-  charMapSelector_->repopulate(tempCharMaps); // pass in an empty one
+  charMapSelector_->repopulate(tempCharMaps); // Pass in an empty one.
 
   checkModeSource();
   setDefaults();
@@ -37,7 +37,7 @@ void
 ContinuousTab::repaintGlyph()
 {
   sizeSelector_->applyToEngine(engine_);
-  
+
   applySettings();
   canvas_->stopFlashing();
   canvas_->purgeCache();
@@ -67,7 +67,8 @@ ContinuousTab::reloadFont()
 void
 ContinuousTab::applySettings()
 {
-  auto mode = static_cast<GlyphContinuous::Mode>(modeSelector_->currentIndex());
+  auto mode
+    = static_cast<GlyphContinuous::Mode>(modeSelector_->currentIndex());
   auto src
     = static_cast<GlyphContinuous::Source>(sourceSelector_->currentIndex());
   canvas_->setMode(mode);
@@ -80,8 +81,9 @@ ContinuousTab::applySettings()
   sr.setKerning(kerningCheckBox_->isChecked());
   sr.setRotation(rotationSpinBox_->value());
 
-  // -1: Glyph order, otherwise the char map index in the original list
-  sr.setCharMapIndex(charMapSelector_->currentCharMapIndex(), glyphLimitIndex_);
+  // -1: Glyph order, otherwise the char map index in the original list.
+  sr.setCharMapIndex(charMapSelector_->currentCharMapIndex(),
+                     glyphLimitIndex_);
 
   if (sr.isWaterfall())
     sr.setWaterfallParameters(wfConfigDialog_->startSize(),
@@ -131,15 +133,17 @@ ContinuousTab::updateLimitIndex()
 void
 ContinuousTab::checkModeSource()
 {
-  auto isFancy = modeSelector_->currentIndex() == GlyphContinuous::M_Fancy;
-  auto isStroked = modeSelector_->currentIndex() == GlyphContinuous::M_Stroked;
+  auto isFancy
+    = modeSelector_->currentIndex() == GlyphContinuous::M_Fancy;
+  auto isStroked
+    = modeSelector_->currentIndex() == GlyphContinuous::M_Stroked;
   xEmboldeningSpinBox_->setEnabled(isFancy);
   yEmboldeningSpinBox_->setEnabled(isFancy);
   slantSpinBox_->setEnabled(isFancy);
   strokeRadiusSpinBox_->setEnabled(isStroked);
 
   auto src
-      = static_cast<GlyphContinuous::Source>(sourceSelector_->currentIndex());
+    = static_cast<GlyphContinuous::Source>(sourceSelector_->currentIndex());
   auto isTextStrict = src == GlyphContinuous::SRC_TextString;
   auto isText = src == GlyphContinuous::SRC_TextString
                 || src == GlyphContinuous::SRC_TextStringRepeated;
@@ -153,7 +157,7 @@ ContinuousTab::checkModeSource()
     if (!isText)
       kerningCheckBox_->setChecked(false);
   }
-  
+
   canvas_->setSource(src);
 
   {
@@ -250,7 +254,7 @@ ContinuousTab::updateGlyphDetails(GlyphCacheEntry* ctxt,
 void
 ContinuousTab::openWaterfallConfig()
 {
-  wfConfigDialog_->setVisible(true); // no `exec`: modalless
+  wfConfigDialog_->setVisible(true); // No `exec`: not modal.
 }
 
 
@@ -324,7 +328,7 @@ ContinuousTab::createLayout()
   indexSelector_->setNumberRenderer([this](int index)
                                     { return formatIndex(index); });
   sourceTextEdit_ = new QPlainTextEdit(
-      tr("The quick brown fox jumps over the lazy dog."), this);
+    tr("The quick brown fox jumps over the lazy dog."), this);
 
   modeSelector_ = new QComboBox(this);
   charMapSelector_ = new CharMapComboBox(this, engine_);
@@ -333,16 +337,16 @@ ContinuousTab::createLayout()
 
   charMapSelector_->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-  // Note: in sync with the enum!!
+  // Note: must be in sync with the enum!
   modeSelector_->insertItem(GlyphContinuous::M_Normal, tr("Normal"));
   modeSelector_->insertItem(GlyphContinuous::M_Fancy, tr("Fancy"));
   modeSelector_->insertItem(GlyphContinuous::M_Stroked, tr("Stroked"));
   modeSelector_->setCurrentIndex(GlyphContinuous::M_Normal);
 
-  // Note: in sync with the enum!!
+  // Note: must be in sync with the enum!
   sourceSelector_->insertItem(GlyphContinuous::SRC_AllGlyphs,
                               tr("All Glyphs"));
-  sourceSelector_->insertItem(GlyphContinuous::SRC_TextString, 
+  sourceSelector_->insertItem(GlyphContinuous::SRC_TextString,
                               tr("Text String"));
   sourceSelector_->insertItem(GlyphContinuous::SRC_TextStringRepeated,
                               tr("Text String (Repeated)"));
@@ -390,35 +394,38 @@ ContinuousTab::createLayout()
   wfConfigDialog_ = new WaterfallConfigDialog(this);
 
   // Tooltips
-  sourceSelector_->setToolTip(tr("Choose what to display as the text source."));
-  modeSelector_->setToolTip(
-    tr("Choose the special effect in which the text is displayed."));
-  strokeRadiusSpinBox_->setToolTip(
-    tr("Stroke corner radius (only available when mode set to Stroked)"));
+  sourceSelector_->setToolTip(tr(
+    "Choose what to display as the text source."));
+  modeSelector_->setToolTip(tr(
+    "Choose the special effect in which the text is displayed."));
+  strokeRadiusSpinBox_->setToolTip(tr(
+    "Stroke corner radius (only available when mode set to Stroked)"));
   rotationSpinBox_->setToolTip(tr("Rotation, in degrees"));
-  xEmboldeningSpinBox_->setToolTip(
-    tr("Horizontal Emboldening (only available when mode set to Fancy)"));
-  yEmboldeningSpinBox_->setToolTip(
-    tr("Vertical Emboldening (only available when mode set to Fancy)"));
-  slantSpinBox_->setToolTip(
-    tr("Slanting (only available when mode set to Fancy)"));
-  sourceTextEdit_->setToolTip(
-    tr("Source string (only available when source set to Text String)"));
+  xEmboldeningSpinBox_->setToolTip(tr(
+    "Horizontal Emboldening (only available when mode set to Fancy)"));
+  yEmboldeningSpinBox_->setToolTip(tr(
+    "Vertical Emboldening (only available when mode set to Fancy)"));
+  slantSpinBox_->setToolTip(tr(
+    "Slanting (only available when mode set to Fancy)"));
+  sourceTextEdit_->setToolTip(tr(
+    "Source string (only available when source set to Text String)"));
   waterfallConfigButton_->setToolTip(tr(
     "Set waterfall start and end size. Not available when the font is not\n"
     "scalable because in such case all available sizes would be displayed."));
-  sampleStringSelector_->setToolTip(
-    tr("Select preset sample strings (only available when source set to\nText "
-       "String)"));
-  resetPositionButton_->setToolTip(tr("Reset the position to the center (only "
-                                      "available when source set to\nText "
-                                      "String)"));
+  sampleStringSelector_->setToolTip(tr(
+    "Select preset sample strings (only available when source set to\n"
+    "Text String)"));
+  resetPositionButton_->setToolTip(tr(
+    "Reset the position to the center (only available when source set to\n"
+    "Text String)"));
   waterfallCheckBox_->setToolTip(tr(
-    "Enable waterfall mode: show the font output in different sizes.\nWill "
-    "show all available sizes when the font is not scalable."));
-  verticalCheckBox_->setToolTip(tr("Enable vertical rendering (only available\n"
-                                "when source set to Text String)"));
-  kerningCheckBox_->setToolTip(tr("Enable kerning (GPOS table unsupported)"));
+    "Enable waterfall mode: show the font output in different sizes.\n"
+    "Will show all available sizes when the font is not scalable."));
+  verticalCheckBox_->setToolTip(tr(
+    "Enable vertical rendering (only available\n"
+    "when source set to Text String)"));
+  kerningCheckBox_->setToolTip(tr(
+    "Enable kerning (GPOS table unsupported)"));
   helpButton_->setToolTip(tr("Get mouse helps"));
 
   // Layouting
@@ -478,19 +485,19 @@ ContinuousTab::createConnections()
   connect(sizeSelector_, &FontSizeSelector::valueChanged,
           this, &ContinuousTab::reloadGlyphsAndRepaint);
 
-  connect(canvas_, &GlyphContinuous::wheelResize, 
+  connect(canvas_, &GlyphContinuous::wheelResize,
           this, &ContinuousTab::wheelResize);
-  connect(canvas_, &GlyphContinuous::wheelNavigate, 
+  connect(canvas_, &GlyphContinuous::wheelNavigate,
           this, &ContinuousTab::wheelNavigate);
-  connect(canvas_, &GlyphContinuous::wheelZoom, 
+  connect(canvas_, &GlyphContinuous::wheelZoom,
           this, &ContinuousTab::wheelZoom);
-  connect(canvas_, &GlyphContinuous::displayingCountUpdated, 
+  connect(canvas_, &GlyphContinuous::displayingCountUpdated,
           indexSelector_, &GlyphIndexSelector::setShowingCount);
-  connect(canvas_, &GlyphContinuous::rightClickGlyph, 
+  connect(canvas_, &GlyphContinuous::rightClickGlyph,
           this, &ContinuousTab::switchToSingular);
-  connect(canvas_, &GlyphContinuous::beginIndexChangeRequest, 
+  connect(canvas_, &GlyphContinuous::beginIndexChangeRequest,
           this, &ContinuousTab::setGlyphBeginindex);
-  connect(canvas_, &GlyphContinuous::updateGlyphDetails, 
+  connect(canvas_, &GlyphContinuous::updateGlyphDetails,
           this, &ContinuousTab::updateGlyphDetails);
 
   connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
@@ -514,19 +521,19 @@ ContinuousTab::createConnections()
   connect(wfConfigDialog_, &WaterfallConfigDialog::sizeUpdated,
           this, &ContinuousTab::repaintGlyph);
 
-  connect(xEmboldeningSpinBox_, 
+  connect(xEmboldeningSpinBox_,
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinuousTab::repaintGlyph);
-  connect(yEmboldeningSpinBox_, 
+  connect(yEmboldeningSpinBox_,
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinuousTab::repaintGlyph);
-  connect(slantSpinBox_, 
+  connect(slantSpinBox_,
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinuousTab::repaintGlyph);
-  connect(strokeRadiusSpinBox_, 
+  connect(strokeRadiusSpinBox_,
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinuousTab::repaintGlyph);
-  connect(rotationSpinBox_, 
+  connect(rotationSpinBox_,
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &ContinuousTab::repaintGlyph);
 
@@ -538,7 +545,7 @@ ContinuousTab::createConnections()
           this, &ContinuousTab::reloadGlyphsAndRepaint);
   connect(sourceTextEdit_, &QPlainTextEdit::textChanged,
           this, &ContinuousTab::sourceTextChanged);
-  connect(sampleStringSelector_, 
+  connect(sampleStringSelector_,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &ContinuousTab::presetStringSelected);
 
@@ -562,13 +569,20 @@ ContinuousTab::setDefaults()
   canvas_->setSource(GlyphContinuous::SRC_AllGlyphs);
 
   sampleStringSelector_->addItem(tr("<Sample>"));
-  sampleStringSelector_->addItem(tr("English"),  QString(StringSamples[0]));
-  sampleStringSelector_->addItem(tr("Latin"),    QString(StringSamples[1]));
-  sampleStringSelector_->addItem(tr("Greek"),    QString(StringSamples[2]));
-  sampleStringSelector_->addItem(tr("Cyrillic"), QString(StringSamples[3]));
-  sampleStringSelector_->addItem(tr("Chinese"),  QString(StringSamples[4]));
-  sampleStringSelector_->addItem(tr("Japanese"), QString(StringSamples[5]));
-  sampleStringSelector_->addItem(tr("Korean"),   QString(StringSamples[6]));
+  sampleStringSelector_->addItem(tr("English"),
+                                 QString(StringSamples[0]));
+  sampleStringSelector_->addItem(tr("Latin"),
+                                 QString(StringSamples[1]));
+  sampleStringSelector_->addItem(tr("Greek"),
+                                 QString(StringSamples[2]));
+  sampleStringSelector_->addItem(tr("Cyrillic"),
+                                 QString(StringSamples[3]));
+  sampleStringSelector_->addItem(tr("Chinese"),
+                                 QString(StringSamples[4]));
+  sampleStringSelector_->addItem(tr("Japanese"),
+                                 QString(StringSamples[5]));
+  sampleStringSelector_->addItem(tr("Korean"),
+                                 QString(StringSamples[6]));
 }
 
 
@@ -576,7 +590,7 @@ QString
 ContinuousTab::formatIndex(int index)
 {
   auto idx = charMapSelector_->currentCharMapIndex();
-  if (idx < 0) // glyph order
+  if (idx < 0) // Glyph order.
     return QString::number(index);
   return charMapSelector_->charMaps()[idx].stringifyIndexShort(index);
 }
@@ -635,8 +649,8 @@ WaterfallConfigDialog::createLayout()
 
   // Tooltips
   autoBox_->setToolTip(tr(
-    "Use the default value which will try to start from near zero and place "
-    "in the middle of the screen the size selected in the selector."));
+    "Use the default value which will try to start from near zero and place"
+    " in the middle of the screen the size selected in the selector."));
   startSpinBox_->setToolTip(tr("Start size, will be always guaranteed."));
   endSpinBox_->setToolTip(tr(
     "End size, may not be guaranteed due to rounding and precision issues."));
@@ -656,10 +670,10 @@ WaterfallConfigDialog::createConnections()
 {
   connect(autoBox_, &QCheckBox::clicked,
           this, &WaterfallConfigDialog::checkAutoStatus);
-  connect(startSpinBox_, 
+  connect(startSpinBox_,
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &WaterfallConfigDialog::sizeUpdated);
-  connect(endSpinBox_, 
+  connect(endSpinBox_,
           QOverload<double>::of(&QDoubleSpinBox::valueChanged),
           this, &WaterfallConfigDialog::sizeUpdated);
 }
@@ -680,15 +694,15 @@ const char* StringSamples[] = {
 
   /* Luís argüia à Júlia que «brações, fé, chá, óxido, pôr, zângão» */
   /* eram palavras do português */
-  "Lu\u00EDs arg\u00FCia \u00E0 J\u00FAlia que \u00ABbra\u00E7\u00F5es, "
-  "f\u00E9, ch\u00E1, \u00F3xido, p\u00F4r, z\u00E2ng\u00E3o\u00BB eram "
-  "palavras do portugu\u00EAs",
+  "Lu\u00EDs arg\u00FCia \u00E0 J\u00FAlia que \u00ABbra\u00E7\u00F5es,"
+  " f\u00E9, ch\u00E1, \u00F3xido, p\u00F4r, z\u00E2ng\u00E3o\u00BB eram"
+  " palavras do portugu\u00EAs",
 
   /* Ο καλύμνιος σφουγγαράς ψιθύρισε πως θα βουτήξει χωρίς να διστάζει */
   "\u039F \u03BA\u03B1\u03BB\u03CD\u03BC\u03BD\u03B9\u03BF\u03C2 \u03C3"
   "\u03C6\u03BF\u03C5\u03B3\u03B3\u03B1\u03C1\u03AC\u03C2 \u03C8\u03B9"
-  "\u03B8\u03CD\u03C1\u03B9\u03C3\u03B5 \u03C0\u03C9\u03C2 \u03B8\u03B1 "
-  "\u03B2\u03BF\u03C5\u03C4\u03AE\u03BE\u03B5\u03B9 \u03C7\u03C9\u03C1"
+  "\u03B8\u03CD\u03C1\u03B9\u03C3\u03B5 \u03C0\u03C9\u03C2 \u03B8\u03B1"
+  " \u03B2\u03BF\u03C5\u03C4\u03AE\u03BE\u03B5\u03B9 \u03C7\u03C9\u03C1"
   "\u03AF\u03C2 \u03BD\u03B1 \u03B4\u03B9\u03C3\u03C4\u03AC\u03B6\u03B5"
   "\u03B9",
 
@@ -696,8 +710,8 @@ const char* StringSamples[] = {
   "\u0421\u044A\u0435\u0448\u044C \u0435\u0449\u0451 \u044D\u0442\u0438"
   "\u0445 \u043C\u044F\u0433\u043A\u0438\u0445 \u0444\u0440\u0430\u043D"
   "\u0446\u0443\u0437\u0441\u043A\u0438\u0445 \u0431\u0443\u043B\u043E"
-  "\u043A \u0434\u0430 \u0432\u044B\u043F\u0435\u0439 \u0436\u0435 "
-  "\u0447\u0430\u044E",
+  "\u043A \u0434\u0430 \u0432\u044B\u043F\u0435\u0439 \u0436\u0435"
+  " \u0447\u0430\u044E",
 
   /* 天地玄黃，宇宙洪荒。日月盈昃，辰宿列張。寒來暑往，秋收冬藏。*/
   "\u5929\u5730\u7384\u9EC3\uFF0C\u5B87\u5B99\u6D2A\u8352\u3002\u65E5"

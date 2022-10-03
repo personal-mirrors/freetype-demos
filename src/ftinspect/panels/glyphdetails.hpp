@@ -6,25 +6,28 @@
 
 #include "../glyphcomponents/glyphbitmap.hpp"
 
-#include <QWidget>
-#include <QLabel>
-#include <QGridLayout>
 #include <QBoxLayout>
-#include <QImage>
-#include <QRadioButton>
 #include <QButtonGroup>
+#include <QGridLayout>
+#include <QImage>
+#include <QLabel>
+#include <QRadioButton>
+#include <QWidget>
 
 #include <freetype/freetype.h>
 
+
 struct GlyphCacheEntry;
 class Engine;
+
 class GlyphDetails
 : public QWidget
 {
   Q_OBJECT
 
 public:
-  GlyphDetails(QWidget* parent, Engine* engine);
+  GlyphDetails(QWidget* parent,
+               Engine* engine);
   ~GlyphDetails() override;
 
   void updateGlyph(GlyphCacheEntry& ctxt,
@@ -81,7 +84,8 @@ private:
   QGridLayout* layout_;
 
   int dpi_;
-  FT_Glyph_Metrics fontUnitMetrics_, pixelMetrics_;
+  FT_Glyph_Metrics fontUnitMetrics_;
+  FT_Glyph_Metrics pixelMetrics_;
 
   void createLayout();
   void createConnections();

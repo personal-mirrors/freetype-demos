@@ -10,17 +10,18 @@
 #include "../widgets/customwidgets.hpp"
 
 #include <vector>
-#include <QWidget>
-#include <QTabWidget>
+
 #include <QBoxLayout>
-#include <QTextEdit>
 #include <QDialog>
 #include <QGridLayout>
-#include <QVector>
-#include <QLabel>
 #include <QGroupBox>
+#include <QLabel>
 #include <QTableView>
+#include <QTabWidget>
+#include <QTextEdit>
 #include <QTreeView>
+#include <QVector>
+#include <QWidget>
 
 class Engine;
 class GeneralInfoTab;
@@ -30,11 +31,14 @@ class MMGXInfoTab;
 class CompositeGlyphsTab;
 
 class InfoTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  InfoTab(QWidget* parent, Engine* engine);
+  InfoTab(QWidget* parent,
+          Engine* engine);
   ~InfoTab() override = default;
 
   void repaintGlyph() override {}
@@ -47,10 +51,10 @@ private:
   Engine* engine_;
 
   QVector<AbstractTab*> tabs_;
-  GeneralInfoTab*     generalTab_;
-  SFNTInfoTab*        sfntTab_;
-  PostScriptInfoTab*  postScriptTab_;
-  MMGXInfoTab*        mmgxTab_;
+  GeneralInfoTab* generalTab_;
+  SFNTInfoTab* sfntTab_;
+  PostScriptInfoTab* postScriptTab_;
+  MMGXInfoTab* mmgxTab_;
   CompositeGlyphsTab* compositeGlyphsTab_;
 
   QTabWidget* tab_;
@@ -67,11 +71,14 @@ private:
 
 
 class GeneralInfoTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  GeneralInfoTab(QWidget* parent, Engine* engine);
+  GeneralInfoTab(QWidget* parent,
+                 Engine* engine);
   ~GeneralInfoTab() override = default;
 
   void repaintGlyph() override {}
@@ -80,39 +87,39 @@ public:
 private:
   Engine* engine_;
 
-  LabelPair(    numFaces)
-  LabelPair(      family)
-  LabelPair(       style)
-  LabelPair(  postscript)
-  LabelPair(     created)
-  LabelPair(    modified)
-  LabelPair(    revision)
-  LabelPair(   copyright)
-  LabelPair(   trademark)
+  LabelPair(numFaces)
+  LabelPair(family)
+  LabelPair(style)
+  LabelPair(postscript)
+  LabelPair(created)
+  LabelPair(modified)
+  LabelPair(revision)
+  LabelPair(copyright)
+  LabelPair(trademark)
   LabelPair(manufacturer)
 
   LabelPair(driverName)
-  LabelPair(      sfnt)
-  LabelPair(  fontType)
-  LabelPair( direction)
+  LabelPair(sfnt)
+  LabelPair(fontType)
+  LabelPair(direction)
   LabelPair(fixedWidth)
   LabelPair(glyphNames)
 
-  LabelPair(          emSize)
-  LabelPair(            bbox)
-  LabelPair(        ascender)
-  LabelPair(       descender)
-  LabelPair( maxAdvanceWidth)
+  LabelPair(emSize)
+  LabelPair(bbox)
+  LabelPair(ascender)
+  LabelPair(descender)
+  LabelPair(maxAdvanceWidth)
   LabelPair(maxAdvanceHeight)
-  LabelPair(           ulPos)
-  LabelPair(     ulThickness)
+  LabelPair(ulPos)
+  LabelPair(ulThickness)
 
-  QGroupBox*       basicGroupBox_;
+  QGroupBox* basicGroupBox_;
   QGroupBox* typeEntriesGroupBox_;
-  QGroupBox*     charMapGroupBox_;
-  QGroupBox*  fixedSizesGroupBox_;
+  QGroupBox* charMapGroupBox_;
+  QGroupBox* fixedSizesGroupBox_;
 
-  QTableView*   charMapsTable_;
+  QTableView* charMapsTable_;
   QTableView* fixedSizesTable_;
 
   FixedSizeInfoModel* fixedSizeInfoModel_;
@@ -142,11 +149,13 @@ class StringViewDialog
 : public QDialog
 {
   Q_OBJECT
+
 public:
   StringViewDialog(QWidget* parent);
   ~StringViewDialog() override = default;
 
-  void updateString(QByteArray const& rawArray, QString const& str);
+  void updateString(QByteArray const& rawArray,
+                    QString const& str);
 
 private:
   QLabel* textLabel_;
@@ -162,11 +171,14 @@ private:
 
 
 class SFNTInfoTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  SFNTInfoTab(QWidget* parent, Engine* engine);
+  SFNTInfoTab(QWidget* parent,
+              Engine* engine);
   ~SFNTInfoTab() override = default;
 
   void repaintGlyph() override {}
@@ -198,11 +210,14 @@ private:
 
 
 class PostScriptInfoTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  PostScriptInfoTab(QWidget* parent, Engine* engine);
+  PostScriptInfoTab(QWidget* parent,
+                    Engine* engine);
   ~PostScriptInfoTab() override = default;
 
   void repaintGlyph() override {}
@@ -211,35 +226,35 @@ public:
 private:
   Engine* engine_;
 
-  LabelPair(    version)
-  LabelPair(     notice)
-  LabelPair(   fullName)
-  LabelPair( familyName)
-  LabelPair(     weight)
+  LabelPair(version)
+  LabelPair(notice)
+  LabelPair(fullName)
+  LabelPair(familyName)
+  LabelPair(weight)
   LabelPair(italicAngle)
-  LabelPair( fixedPitch)
-  LabelPair(      ulPos)
+  LabelPair(fixedPitch)
+  LabelPair(ulPos)
   LabelPair(ulThickness)
 
-  LabelPair(        uniqueID)
-  LabelPair(      blueValues)
-  LabelPair(      otherBlues)
-  LabelPair(     familyBlues)
+  LabelPair(uniqueID)
+  LabelPair(blueValues)
+  LabelPair(otherBlues)
+  LabelPair(familyBlues)
   LabelPair(familyOtherBlues)
-  LabelPair(       blueScale)
-  LabelPair(       blueShift)
-  LabelPair(        blueFuzz)
-  LabelPair(       stdWidths)
-  LabelPair(      stdHeights)
-  LabelPair(      snapWidths)
-  LabelPair(     snapHeights)
-  LabelPair(       forceBold)
-  LabelPair(   languageGroup)
-  LabelPair(        password)
-  LabelPair(           lenIV)
-  LabelPair(      minFeature)
-  LabelPair(     roundStemUp)
-  LabelPair( expansionFactor)
+  LabelPair(blueScale)
+  LabelPair(blueShift)
+  LabelPair(blueFuzz)
+  LabelPair(stdWidths)
+  LabelPair(stdHeights)
+  LabelPair(snapWidths)
+  LabelPair(snapHeights)
+  LabelPair(forceBold)
+  LabelPair(languageGroup)
+  LabelPair(password)
+  LabelPair(lenIV)
+  LabelPair(minFeature)
+  LabelPair(roundStemUp)
+  LabelPair(expansionFactor)
 
   QGroupBox* infoGroupBox_;
   QGroupBox* privateGroupBox_;
@@ -263,11 +278,13 @@ private:
 
 
 class MMGXInfoTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
 public:
-  MMGXInfoTab(QWidget* parent, Engine* engine);
+  MMGXInfoTab(QWidget* parent,
+              Engine* engine);
   ~MMGXInfoTab() override = default;
 
   void repaintGlyph() override {}
@@ -292,11 +309,14 @@ private:
 
 
 class CompositeGlyphsTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  CompositeGlyphsTab(QWidget* parent, Engine* engine);
+  CompositeGlyphsTab(QWidget* parent,
+                     Engine* engine);
   ~CompositeGlyphsTab() override = default;
 
   void repaintGlyph() override {}

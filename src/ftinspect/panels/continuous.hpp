@@ -5,35 +5,42 @@
 #pragma once
 
 #include "abstracttab.hpp"
-#include "../widgets/customwidgets.hpp"
-#include "../widgets/glyphindexselector.hpp"
-#include "../widgets/fontsizeselector.hpp"
-#include "../widgets/charmapcombobox.hpp"
-#include "../glyphcomponents/graphicsdefault.hpp"
-#include "../glyphcomponents/glyphcontinuous.hpp"
 #include "../engine/engine.hpp"
+#include "../glyphcomponents/glyphcontinuous.hpp"
+#include "../glyphcomponents/graphicsdefault.hpp"
+#include "../widgets/charmapcombobox.hpp"
+#include "../widgets/customwidgets.hpp"
+#include "../widgets/fontsizeselector.hpp"
+#include "../widgets/glyphindexselector.hpp"
 
 #include <vector>
-#include <QWidget>
-#include <QDialog>
-#include <QFrame>
-#include <QLabel>
-#include <QComboBox>
-#include <QGridLayout>
+
 #include <QBoxLayout>
-#include <QPlainTextEdit>
-#include <QDockWidget>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QDialog>
+#include <QDockWidget>
+#include <QFrame>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPlainTextEdit>
+#include <QWidget>
+
 
 class GlyphDetails;
 class WaterfallConfigDialog;
+
 class ContinuousTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  ContinuousTab(QWidget* parent, Engine* engine,
-                QDockWidget* gdWidget, GlyphDetails* glyphDetails);
+  ContinuousTab(QWidget* parent,
+                Engine* engine,
+                QDockWidget* gdWidget,
+                GlyphDetails* glyphDetails);
   ~ContinuousTab() override = default;
 
   void repaintGlyph() override;
@@ -42,12 +49,14 @@ public:
   void applySettings();
 
 signals:
-  // if sizePoint <= 0, then don't change size.
-  void switchToSingular(int glyphIndex, double sizePoint);
+  // Don't change size if `sizePoint` <= 0.
+  void switchToSingular(int glyphIndex,
+                        double sizePoint);
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event) override;
-  
+  bool eventFilter(QObject* watched,
+                   QEvent* event) override;
+
 private:
   Engine* engine_;
 
@@ -89,7 +98,7 @@ private:
 
   GlyphIndexSelector* indexSelector_;
   QPlainTextEdit* sourceTextEdit_;
-  
+
   QHBoxLayout* canvasFrameLayout_;
   QHBoxLayout* sizeHelpLayout_;
   QGridLayout* bottomLayout_;
@@ -106,18 +115,18 @@ private:
   void updateLimitIndex();
   void checkModeSource();
 
-  // This doesn't trigger immediate repaint
+  // This doesn't trigger immediate repaint...
   void setGlyphCount(int count);
 
-  // But they do
+  // ... but these do.
   void setGlyphBeginindex(int index);
   void checkModeSourceAndRepaint();
   void charMapChanged();
   void sourceTextChanged();
   void presetStringSelected();
   void reloadGlyphsAndRepaint();
-  void updateGlyphDetails(GlyphCacheEntry* ctxt, 
-                          int charMapIndex, 
+  void updateGlyphDetails(GlyphCacheEntry* ctxt,
+                          int charMapIndex,
                           bool open);
   void openWaterfallConfig();
   void showToolTip();

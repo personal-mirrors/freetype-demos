@@ -6,12 +6,15 @@
 
 #include <QScrollBar>
 
+
 namespace
 {
 extern const char* ComparatorDefaultText;
 }
 
-ComparatorTab::ComparatorTab(QWidget* parent, Engine* engine)
+
+ComparatorTab::ComparatorTab(QWidget* parent,
+                             Engine* engine)
 : QWidget(parent),
   engine_(engine)
 {
@@ -35,8 +38,8 @@ ComparatorTab::repaintGlyph()
   for (auto canvas : canvas_)
   {
     applySettings(i);
-    // No cache here, because when switching between columns, the hinting
-    // mode or enabling of embedded bitmaps may differ
+    // No cache here, because when switching between columns the hinting
+    // mode or enabling of embedded bitmaps may differ.
     canvas->stringRenderer().reloadGlyphs();
     canvas->purgeCache();
     canvas->repaint();
@@ -50,8 +53,9 @@ ComparatorTab::reloadFont()
 {
   {
     QSignalBlocker blocker(sizeSelector_);
-    sizeSelector_->reloadFromFont(engine_); 
+    sizeSelector_->reloadFromFont(engine_);
   }
+
   charMapSelector_->repopulate();
   for (auto panel : settingPanels_)
     panel->onFontChanged();
@@ -160,8 +164,8 @@ ComparatorTab::createConnections()
 
   for (auto panel : settingPanels_)
   {
-    // We're treating the two events identically, because we need to do a
-    // complete flush anyway
+    // We're treating the two events identically because we need to do a
+    // complete flush anyway.
     connect(panel, &SettingPanel::repaintNeeded,
             this, &ComparatorTab::repaintGlyph);
     connect(panel, &SettingPanel::fontReloadNeeded,
@@ -200,11 +204,11 @@ ComparatorTab::forceEqualWidths()
   if (canvas_.empty())
     return;
 
-  // We need to keep the columns strictly equally wide, so we need to compensate
-  // the remainders when the tab width can't be evenly divided.
-  // Since the canvases are contained within QFrames, we can safely set fixed
-  // widths to them without messying up with the QGridLayout layouting.
-  // Using the first canvas as the reference width.
+  // We need to keep the columns strictly equally wide, so we need to
+  // compensate the remainders when the tab width can't be evenly divided.
+  // Since the canvases are contained within `QFrame`s, we can safely set
+  // fixed widths to them without messing up with the `QGridLayout`
+  // layouting.  Using the first canvas as the reference width.
   auto w = canvas_[0]->size().width();
   for (int i = 1; static_cast<unsigned>(i) < canvas_.size(); ++i)
     canvas_[i]->setFixedWidth(w);
@@ -288,25 +292,25 @@ ComparatorTab::wheelZoom(int steps)
 namespace
 {
 const char* ComparatorDefaultText
-    = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras sit amet"
-      " dui.  Nam sapien. Fusce vestibulum ornare metus. Maecenas ligula orci,"
-      " consequat vitae, dictum nec, lacinia non, elit. Aliquam iaculis"
-      " molestie neque. Maecenas suscipit felis ut pede convallis malesuada."
-      " Aliquam erat volutpat. Nunc pulvinar condimentum nunc. Donec ac sem vel"
-      " leo bibendum aliquam. Pellentesque habitant morbi tristique senectus et"
-      " netus et malesuada fames ac turpis egestas.\n"
-      "\n"
-      "Sed commodo. Nulla ut libero sit amet justo varius blandit. Mauris vitae"
-      " nulla eget lorem pretium ornare. Proin vulputate erat porta risus."
-      " Vestibulum malesuada, odio at vehicula lobortis, nisi metus hendrerit"
-      " est, vitae feugiat quam massa a ligula. Aenean in tellus. Praesent"
-      " convallis. Nullam vel lacus.  Aliquam congue erat non urna mollis"
-      " faucibus. Morbi vitae mauris faucibus quam condimentum ornare. Quisque"
-      " sit amet augue. Morbi ullamcorper mattis enim. Aliquam erat volutpat."
-      " Morbi nec felis non enim pulvinar lobortis.  Ut libero. Nullam id orci"
-      " quis nisl dapibus rutrum. Suspendisse consequat vulputate leo. Aenean"
-      " non orci non tellus iaculis vestibulum. Sed neque.\n"
-      "\n";
+  = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Cras sit amet"
+    " dui.  Nam sapien. Fusce vestibulum ornare metus. Maecenas ligula orci,"
+    " consequat vitae, dictum nec, lacinia non, elit. Aliquam iaculis"
+    " molestie neque. Maecenas suscipit felis ut pede convallis malesuada."
+    " Aliquam erat volutpat. Nunc pulvinar condimentum nunc. Donec ac sem vel"
+    " leo bibendum aliquam. Pellentesque habitant morbi tristique senectus et"
+    " netus et malesuada fames ac turpis egestas.\n"
+    "\n"
+    "Sed commodo. Nulla ut libero sit amet justo varius blandit. Mauris vitae"
+    " nulla eget lorem pretium ornare. Proin vulputate erat porta risus."
+    " Vestibulum malesuada, odio at vehicula lobortis, nisi metus hendrerit"
+    " est, vitae feugiat quam massa a ligula. Aenean in tellus. Praesent"
+    " convallis. Nullam vel lacus.  Aliquam congue erat non urna mollis"
+    " faucibus. Morbi vitae mauris faucibus quam condimentum ornare. Quisque"
+    " sit amet augue. Morbi ullamcorper mattis enim. Aliquam erat volutpat."
+    " Morbi nec felis non enim pulvinar lobortis.  Ut libero. Nullam id orci"
+    " quis nisl dapibus rutrum. Suspendisse consequat vulputate leo. Aenean"
+    " non orci non tellus iaculis vestibulum. Sed neque.\n"
+    "\n";
 }
 
 

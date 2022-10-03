@@ -4,33 +4,35 @@
 
 #pragma once
 
+#include "settingpanelmmgx.hpp"
 #include "../engine/engine.hpp"
 #include "../models/customcomboboxmodels.hpp"
-#include "settingpanelmmgx.hpp"
 
-#include <QWidget>
-#include <QTabWidget>
-#include <QLabel>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QGridLayout>
 #include <QBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QLabel>
 #include <QPushButton>
+#include <QTabWidget>
+#include <QWidget>
+
 
 class SettingPanel
 : public QWidget
 {
   Q_OBJECT
+
 public:
-  SettingPanel(QWidget* parent, Engine* engine, bool comparatorMode = false);
+  SettingPanel(QWidget* parent,
+               Engine* engine,
+               bool comparatorMode = false);
   ~SettingPanel() override = default;
 
   void onFontChanged();
   void applySettings();
-  /*
-   * When in comparator mode, this is needed to sync the hinting modes when
-   * reloading the font.
-   */
+  // In comparator mode, this is needed to sync the hinting modes when
+  // reloading the font.
   void applyDelayedSettings();
 
   //////// Getters/Setters
@@ -50,16 +52,14 @@ private:
   int currentCFFHintingMode_;
   int currentTTInterpreterVersion_;
 
-  /*
-   * There's two places where `SettingPanel` appears: On the left for most tabs,
-   * and on the bottom in the comparator for each column. Therefore,
-   * set `comparatorMode_` to `true` will change the panel for the Comparator
-   * View.
-   *
-   * In comparator view, some updating is suppressed during GUI events.
-   * Instead, updating was strictly passive called from the parent (comparator
-   * view).
-   */
+  // There are two places where `SettingPanel` appears: On the left for most
+  // tabs, and on the bottom in the comparator for each column.  Therefore,
+  // setting `comparatorMode_` to `true` changes the panel for the
+  // Comparator View.
+  //
+  // In comparator view, some updating is suppressed during GUI events.
+  // Instead, updating is strictly passively called from the parent
+  // (comparator view).
   bool comparatorMode_ = false;
   bool debugMode_ = false;
 
@@ -114,7 +114,7 @@ private:
   QColor backgroundColor_;
   QColor foregroundColor_;
 
-  //////// Initializing funcs
+  //////// Initializing functions.
 
   void createConnections();
   void createLayout();
@@ -122,7 +122,7 @@ private:
   void createLayoutComparator();
   void setDefaults();
 
-  //////// Other funcs
+  //////// Other functions.
 
   void checkAllSettings();
   void checkHinting();

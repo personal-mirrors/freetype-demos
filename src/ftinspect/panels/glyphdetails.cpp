@@ -3,11 +3,10 @@
 // Copyright (C) 2022 by Charlie Jiang.
 
 #include "glyphdetails.hpp"
-
+#include "../engine/engine.hpp"
 #include "../engine/stringrenderer.hpp"
 #include "../glyphcomponents/glyphcontinuous.hpp"
 #include "../uihelper.hpp"
-#include "../engine/engine.hpp"
 
 
 GlyphDetails::GlyphDetails(QWidget* parent,
@@ -26,14 +25,16 @@ GlyphDetails::~GlyphDetails()
 
 
 void
-GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
+GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt,
+                          int charMapIndex)
 {
   auto metrics = engine_->currentFontMetrics();
   auto& cMaps = engine_->currentFontCharMaps();
 
   glyphIndex_ = ctxt.glyphIndex;
   glyphIndexLabel_->setText(QString::number(ctxt.glyphIndex));
-  if (charMapIndex < 0 || static_cast<unsigned>(charMapIndex) >= cMaps.size())
+  if (charMapIndex < 0
+      || static_cast<unsigned>(charMapIndex) >= cMaps.size())
   {
     charCodePromptLabel_->setVisible(false);
     charCodeLabel_->setVisible(false);
@@ -43,21 +44,24 @@ GlyphDetails::updateGlyph(GlyphCacheEntry& ctxt, int charMapIndex)
     charCodePromptLabel_->setVisible(true);
     charCodeLabel_->setVisible(true);
     charCodeLabel_->setText(
-        cMaps[charMapIndex].stringifyIndexShort(ctxt.charCode));
+      cMaps[charMapIndex].stringifyIndexShort(ctxt.charCode));
   }
 
   auto glyphName = engine_->glyphName(ctxt.glyphIndex);
   if (glyphName.isEmpty())
     glyphName = "(none)";
   glyphNameLabel_->setText(glyphName);
-  
+
   auto rect = ctxt.basePosition.translated(-(ctxt.penPos.x()),
                                            -(ctxt.penPos.y()));
-  bitmapWidget_->updateImage(
-      ctxt.image, rect,
-      QRect(0, -metrics.y_ppem, metrics.y_ppem, metrics.y_ppem));
+  bitmapWidget_->updateImage(ctxt.image,
+                             rect,
+                             QRect(0,
+                                   -metrics.y_ppem,
+                                   metrics.y_ppem,
+                                   metrics.y_ppem));
 
-  // load glyphs in all units
+  // Load glyphs in all units.
   dpi_ = engine_->dpi();
   engine_->reloadFont();
 
@@ -140,22 +144,22 @@ GlyphDetails::createLayout()
 
   // Tooltips
   fontUnitButton_->setToolTip(tr("Unit for most metrics entries below"));
-  pointButton_   ->setToolTip(tr("Unit for most metrics entries below"));
-  pixelButton_   ->setToolTip(tr("Unit for most metrics entries below"));
-  bboxSizeLabel_->setToolTip(
-    tr("Glyph bounding box (in unit specified above)"));
-  horiBearingLabel_->setToolTip(
-    tr("Bearing for horizontal layout (in unit specified above)"));
-  horiAdvanceLabel_->setToolTip(
-    tr("Advance for horizontal layout (in unit specified above)"));
-  vertBearingLabel_->setToolTip(
-    tr("Bearing for vertical layout (in unit specified above)"));
-  vertAdvanceLabel_->setToolTip(
-    tr("Advance for vertical layout (in unit specified above)"));
-  inkSizeLabel_->setToolTip(
-    tr("The tightest bounding box size (always in pixels)"));
-  bitmapOffsetLabel_->setToolTip(
-    tr("Offset from the most top-left point to the bitmap (always in pixels)"));
+  pointButton_->setToolTip(tr("Unit for most metrics entries below"));
+  pixelButton_->setToolTip(tr("Unit for most metrics entries below"));
+  bboxSizeLabel_->setToolTip(tr(
+    "Glyph bounding box (in unit specified above)"));
+  horiBearingLabel_->setToolTip(tr(
+    "Bearing for horizontal layout (in unit specified above)"));
+  horiAdvanceLabel_->setToolTip(tr(
+    "Advance for horizontal layout (in unit specified above)"));
+  vertBearingLabel_->setToolTip(tr(
+    "Bearing for vertical layout (in unit specified above)"));
+  vertAdvanceLabel_->setToolTip(tr(
+    "Advance for vertical layout (in unit specified above)"));
+  inkSizeLabel_->setToolTip(tr(
+    "The tightest bounding box size (always in pixels)"));
+  bitmapOffsetLabel_->setToolTip(tr(
+    "Offset from the most top-left point to the bitmap (always in pixels)"));
   bitmapWidget_->setToolTip(tr("Bitmap preview"));
 
   // Layouting
@@ -169,11 +173,11 @@ GlyphDetails::createLayout()
   gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
   gridLayout2ColAddWidget(layout_, glyphIndexPromptLabel_, glyphIndexLabel_);
-  gridLayout2ColAddWidget(layout_, charCodePromptLabel_  , charCodeLabel_  );
-  gridLayout2ColAddWidget(layout_, glyphNamePromptLabel_ , glyphNameLabel_ );
+  gridLayout2ColAddWidget(layout_, charCodePromptLabel_, charCodeLabel_);
+  gridLayout2ColAddWidget(layout_, glyphNamePromptLabel_, glyphNameLabel_);
   gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
-  gridLayout2ColAddWidget(layout_, bboxSizePromptLabel_,    bboxSizeLabel_  );
+  gridLayout2ColAddWidget(layout_, bboxSizePromptLabel_, bboxSizeLabel_ );
   gridLayout2ColAddWidget(layout_, horiBearingPromptLabel_, horiBearingLabel_);
   gridLayout2ColAddWidget(layout_, horiAdvancePromptLabel_, horiAdvanceLabel_);
   gridLayout2ColAddWidget(layout_, vertBearingPromptLabel_, vertBearingLabel_);
@@ -181,7 +185,7 @@ GlyphDetails::createLayout()
   gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
   gridLayout2ColAddWidget(layout_, inkSizePromptLabel_, inkSizeLabel_);
-  gridLayout2ColAddWidget(layout_, bitmapOffsetPromptLabel_, 
+  gridLayout2ColAddWidget(layout_, bitmapOffsetPromptLabel_,
                                    bitmapOffsetLabel_);
   gridLayout2ColAddItem(layout_, new QSpacerItem(0, 18));
 
@@ -242,7 +246,7 @@ GlyphDetails::changeUnit(int unitId)
     vertBearingY = pixelMetrics_.vertBearingY * 1.125 / dpi_;
     vertAdvance = pixelMetrics_.vertAdvance * 1.125 / dpi_;
     break;
-    
+
   case DU_Pixel:
     unitSuffix = " px";
     bboxW = pixelMetrics_.width/ 64.0;

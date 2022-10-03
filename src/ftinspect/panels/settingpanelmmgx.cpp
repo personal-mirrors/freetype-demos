@@ -9,6 +9,7 @@
 #include "../engine/engine.hpp"
 #include "../uihelper.hpp"
 
+
 SettingPanelMMGX::SettingPanelMMGX(QWidget* parent,
                                    Engine* engine)
 : QWidget(parent),
@@ -32,7 +33,7 @@ SettingPanelMMGX::reloadFont()
   auto oldSize = itemWidgets_.size();
   auto minSize = std::min(newSize, oldSize);
 
-  // This won't trigger unexpected updating since signals are blocked
+  // This won't trigger unexpected updating since signals are blocked.
   for (size_t i = 0; i < minSize; ++i)
     itemWidgets_[i]->updateInfo(currentAxes_[i]);
 
@@ -147,7 +148,8 @@ void
 SettingPanelMMGX::itemChanged(size_t index)
 {
   if (groupingCheckBox_->isChecked()
-      && index < currentAxes_.size() && index < itemWidgets_.size())
+      && index < currentAxes_.size()
+      && index < itemWidgets_.size())
   {
     auto tag = currentAxes_[index].tag;
     auto value = itemWidgets_[index]->value();
@@ -217,9 +219,8 @@ MMGXSettingItem::updateInfo(MMGXAxisInfo& info)
   else
     nameLabel_->setText(info.name);
 
-  // To keep things simple, we will use 1/1024 of the span between the min and
-  // max as one step on the slider.
-
+  // To keep things simple, we use 1/1024th of the span between the minimum
+  // and the maximum as one step on the slider.
   slider_->setMinimum(0);
   slider_->setTickInterval(1);
   slider_->setMaximum(1024);
@@ -264,8 +265,8 @@ MMGXSettingItem::createLayout()
   setButtonNarrowest(resetDefaultButton_);
 
   nameLabel_->setToolTip(tr("Axis name or tag"));
-  slider_->setToolTip(
-    tr("Axis value (max precision: 1/1024 of the value range)"));
+  slider_->setToolTip(tr(
+    "Axis value (max precision: 1/1024 of the value range)"));
   valueLineEdit_->setToolTip(tr("Axis value"));
   resetDefaultButton_->setToolTip(tr("Reset axis to default"));
 
@@ -300,7 +301,7 @@ void
 MMGXSettingItem::sliderValueChanged()
 {
   auto value = slider_->value() / 1024.0
-               * (axisInfo_.maximum - axisInfo_.minimum)
+                 * (axisInfo_.maximum - axisInfo_.minimum)
                + axisInfo_.minimum;
   actualValue_ = static_cast<FT_Fixed>(value * 65536.0);
 

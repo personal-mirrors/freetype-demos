@@ -6,34 +6,39 @@
 
 #include "abstracttab.hpp"
 #include "../engine/engine.hpp"
-#include "../widgets/customwidgets.hpp"
-#include "../widgets/charmapcombobox.hpp"
-#include "../widgets/fontsizeselector.hpp"
-#include "../panels/settingpanel.hpp"
 #include "../glyphcomponents/glyphcontinuous.hpp"
+#include "../panels/settingpanel.hpp"
+#include "../widgets/charmapcombobox.hpp"
+#include "../widgets/customwidgets.hpp"
+#include "../widgets/fontsizeselector.hpp"
 
 #include <vector>
 
-#include <QWidget>
-#include <QFrame>
-#include <QLabel>
-#include <QGridLayout>
 #include <QBoxLayout>
+#include <QFrame>
+#include <QGridLayout>
+#include <QLabel>
 #include <QPlainTextEdit>
+#include <QWidget>
+
 
 class ComparatorTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  ComparatorTab(QWidget* parent, Engine* engine);
+  ComparatorTab(QWidget* parent,
+                Engine* engine);
   ~ComparatorTab() override;
 
   void repaintGlyph() override;
   void reloadFont() override;
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event) override;
+  bool eventFilter(QObject* watched,
+                   QEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
 
 private:

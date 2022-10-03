@@ -5,50 +5,55 @@
 #pragma once
 
 #include "abstracttab.hpp"
-#include "../widgets/customwidgets.hpp"
-#include "../widgets/glyphindexselector.hpp"
-#include "../widgets/fontsizeselector.hpp"
+#include "../engine/engine.hpp"
 #include "../glyphcomponents/glyphbitmap.hpp"
 #include "../glyphcomponents/glyphoutline.hpp"
 #include "../glyphcomponents/glyphpointnumbers.hpp"
 #include "../glyphcomponents/glyphpoints.hpp"
-#include "../glyphcomponents/grid.hpp"
 #include "../glyphcomponents/graphicsdefault.hpp"
-#include "../engine/engine.hpp"
+#include "../glyphcomponents/grid.hpp"
 #include "../models/customcomboboxmodels.hpp"
+#include "../widgets/customwidgets.hpp"
+#include "../widgets/glyphindexselector.hpp"
+#include "../widgets/fontsizeselector.hpp"
 
-#include <QWidget>
-#include <QPushButton>
-#include <QSpinBox>
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QScrollBar>
-#include <QLabel>
-#include <QComboBox>
-#include <QPen>
-#include <QCheckBox>
-#include <QVector>
 #include <QGridLayout>
-#include <QBoxLayout>
+#include <QLabel>
+#include <QPen>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QSpinBox>
+#include <QVector>
+#include <QWidget>
+
 
 class SingularTab
-: public QWidget, public AbstractTab
+: public QWidget,
+  public AbstractTab
 {
   Q_OBJECT
+
 public:
-  SingularTab(QWidget* parent, Engine* engine);
+  SingularTab(QWidget* parent,
+              Engine* engine);
   ~SingularTab() override;
 
   void repaintGlyph() override;
   void reloadFont() override;
-  // when sizePoint <= 0, the size remains unchanged.
-  void setCurrentGlyphAndSize(int glyphIndex, double sizePoint);
+  // The size remains unchanged if `sizePoint` <= 0.
+  void setCurrentGlyphAndSize(int glyphIndex,
+                              double sizePoint);
   int currentGlyph();
 
 private slots:
   void setGlyphIndex(int);
   void drawGlyph();
-  
+
   void checkShowPoints();
 
   void zoom();
@@ -59,7 +64,8 @@ private slots:
   void showToolTip();
 
 protected:
-  bool eventFilter(QObject* watched, QEvent* event) override;
+  bool eventFilter(QObject* watched,
+                   QEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
 
 private:
@@ -101,14 +107,15 @@ private:
 
   GraphicsDefault* graphicsDefault_;
 
-  int initialPositionSetCount_ = 2; // see `resizeEvent`
+  int initialPositionSetCount_ = 2; // See `resizeEvent`.
 
   void createLayout();
   void createConnections();
-  
+
   void updateGrid();
   void applySettings();
   void setDefaults();
 };
+
 
 // end of singular.hpp

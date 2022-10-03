@@ -3,13 +3,13 @@
 // Copyright (C) 2022 by Charlie Jiang.
 
 #include "settingpanel.hpp"
-
 #include "../uihelper.hpp"
 
 #include <QColorDialog>
 
-// for `FT_DEBUG_AUTOFIT`
+// For `FT_DEBUG_AUTOFIT`.
 #include <freetype/config/ftoption.h>
+
 
 SettingPanel::SettingPanel(QWidget* parent,
                            Engine* engine,
@@ -96,7 +96,7 @@ SettingPanel::checkHinting()
       if (tricky)
         autoHintingCheckBox_->setChecked(false);
     }
-    checkAutoHinting(); // this will emit repaint
+    checkAutoHinting(); // This causes repainting.
   }
   else
   {
@@ -119,7 +119,7 @@ SettingPanel::checkHinting()
         || aaMode == AntiAliasingComboBoxModel::AntiAliasing_Light_SubPixel)
       antiAliasingComboBox_->setCurrentIndex(
         AntiAliasingComboBoxModel::AntiAliasing_Normal);
-    
+
     emit repaintNeeded();
   }
 }
@@ -212,7 +212,7 @@ SettingPanel::checkPalette()
 void
 SettingPanel::openBackgroundPicker()
 {
-  auto result = QColorDialog::getColor(backgroundColor_, 
+  auto result = QColorDialog::getColor(backgroundColor_,
                                        this,
                                        tr("Background Color"));
   if (result.isValid())
@@ -227,7 +227,7 @@ SettingPanel::openBackgroundPicker()
 void
 SettingPanel::openForegroundPicker()
 {
-  auto result = QColorDialog::getColor(foregroundColor_, 
+  auto result = QColorDialog::getColor(foregroundColor_,
                                        this,
                                        tr("Foreground Color"),
                                        QColorDialog::ShowAlphaChannel);
@@ -244,8 +244,8 @@ void
 SettingPanel::updateGamma()
 {
   gammaValueLabel_->setText(QString::number(gammaSlider_->value() / 10.0,
-                           'f',
-                           1));
+                            'f',
+                            1));
   emit repaintNeeded();
 }
 
@@ -273,7 +273,7 @@ SettingPanel::populatePalettes()
 {
   auto needToReload = false;
   auto& newPalettes = engine_->currentFontPalettes();
-  auto newSize = static_cast<int>(newPalettes.size()); // this never exceeds!
+  auto newSize = static_cast<int>(newPalettes.size()); // This never exceeds!
   if (newSize != paletteComboBox_->count())
     needToReload = true;
   else
@@ -291,6 +291,7 @@ SettingPanel::populatePalettes()
         break;
       }
     }
+
   if (!needToReload)
     return;
 
@@ -347,7 +348,7 @@ SettingPanel::onFontChanged()
   mmgxPanel_->reloadFont();
   blockSignals(blockState);
 
-  // Place this after `blockSignals` to let the signals emitted normally
+  // Place this after `blockSignals` to let the signals be emitted normally.
   auto bmapOnly = engine_->currentFontBitmapOnly();
   embeddedBitmapCheckBox_->setEnabled(
     !bmapOnly && engine_->currentFontHasEmbeddedBitmap());
@@ -401,10 +402,10 @@ SettingPanel::applySettings()
 void
 SettingPanel::applyDelayedSettings()
 {
-  // This must not be combined into `applySettings`:
-  // those engine manipulations will reset the whole cache!!
-  // Therefore must only be called when the selection of the combo box actually
-  // changes a.k.a. QComboBox::activate.
+  // This must not be combined with `applySettings` since those engine
+  // manipulations reset the whole cache!  Therefore, it must only be called
+  // when the selection of the combobox actually changes (a.k.a.
+  // `QComboBox::activate`).
 
   int index = hintingModeComboBox_->currentIndex();
 
@@ -450,7 +451,7 @@ SettingPanel::createLayout()
     blueZoneHintingCheckBox_ = new QCheckBox(tr("Blue-Zone Hinting"), this);
     segmentDrawingCheckBox_ = new QCheckBox(tr("Segment Drawing"), this);
   }
-  
+
   embeddedBitmapCheckBox_ = new QCheckBox(tr("Enable Embedded Bitmap"), this);
   colorLayerCheckBox_ = new QCheckBox(tr("Enable Color Layer"), this);
 
@@ -518,36 +519,37 @@ SettingPanel::createLayout()
 
   // Tooltips
   hintingCheckBox_->setToolTip(tr("Enable hinting a.k.a. grid-fitting."));
-  hintingModeComboBox_->setToolTip(
-    tr("Modes not available for current font type will be disabled. No "
-       "effect when auto-hinting is enabled"));
+  hintingModeComboBox_->setToolTip(tr(
+    "Modes not available for current font type will be disabled."
+    " No effect when auto-hinting is enabled"));
   autoHintingCheckBox_->setToolTip(tr("Enable FreeType Auto-Hinter."));
   if (debugMode_)
   {
     horizontalHintingCheckBox_->setToolTip(tr("(auto-hinter debug option)"));
-    verticalHintingCheckBox_  ->setToolTip(tr("(auto-hinter debug option)"));
-    blueZoneHintingCheckBox_  ->setToolTip(tr("(auto-hinter debug option)"));
-    segmentDrawingCheckBox_   ->setToolTip(tr("(auto-hinter debug option)"));
+    verticalHintingCheckBox_->setToolTip(tr("(auto-hinter debug option)"));
+    blueZoneHintingCheckBox_->setToolTip(tr("(auto-hinter debug option)"));
+    segmentDrawingCheckBox_->setToolTip(tr("(auto-hinter debug option)"));
   }
   antiAliasingComboBox_->setToolTip(tr("Select anti-aliasing mode."));
-  lcdFilterComboBox_->setToolTip(
-    tr("Select LCD filter (only valid when LCD AA is enabled)."));
+  lcdFilterComboBox_->setToolTip(tr(
+    "Select LCD filter (only valid when LCD AA is enabled)."));
   embeddedBitmapCheckBox_->setToolTip(tr(
-    "Enable embedded bitmap strikes (force enabled for bitmap-only fonts)."));
-  stemDarkeningCheckBox_->setToolTip(
-    tr("Enable stem darkening (only valid for auto-hinter with gamma "
-       "correction enabled and with Light AA modes)."));
+    "Enable embedded bitmap strikes (force-enabled for bitmap-only fonts)."));
+  stemDarkeningCheckBox_->setToolTip(tr(
+    "Enable stem darkening (only valid for auto-hinter with gamma"
+    " correction enabled and with Light AA modes)."));
   gammaSlider_->setToolTip("Gamma correction value.");
   colorLayerCheckBox_->setToolTip(tr("Enable color layer rendering."));
-  paletteComboBox_->setToolTip(tr("Select color layer palette (only valid when "
-                                  "any palette exists in the font)."));
+  paletteComboBox_->setToolTip(tr(
+    "Select color layer palette (only valid when"
+    " any palette exists in the font)."));
   if (comparatorMode_)
   {
-    kerningCheckBox_->setToolTip(
-      tr("Enable kerning (GPOS table not supported)."));
-    lsbRsbDeltaCheckBox_->setToolTip(
-      tr("Enable LSB/RSB delta positioning (only valid when hinting is "
-         "enabled)."));
+    kerningCheckBox_->setToolTip(tr(
+      "Enable kerning (GPOS table not supported)."));
+    lsbRsbDeltaCheckBox_->setToolTip(tr(
+      "Enable LSB/RSB delta positioning (only valid when hinting is"
+      " enabled)."));
   }
   backgroundButton_->setToolTip(tr("Set canvas background color."));
   foregroundButton_->setToolTip(tr("Set text color."));
@@ -593,22 +595,22 @@ SettingPanel::createLayoutNormal()
   generalTabLayout_ = new QGridLayout;
 
   gridLayout2ColAddWidget(generalTabLayout_, hintingCheckBox_);
-  gridLayout2ColAddWidget(generalTabLayout_, 
+  gridLayout2ColAddWidget(generalTabLayout_,
                           hintingModeLabel_, hintingModeComboBox_);
   gridLayout2ColAddWidget(generalTabLayout_, autoHintingCheckBox_);
 
   if (debugMode_)
     gridLayout2ColAddLayout(generalTabLayout_, debugLayout_);
-  
+
   gridLayout2ColAddItem(generalTabLayout_,
                         new QSpacerItem(0, 20, QSizePolicy::Minimum,
                                         QSizePolicy::MinimumExpanding));
 
-  gridLayout2ColAddWidget(generalTabLayout_, 
+  gridLayout2ColAddWidget(generalTabLayout_,
                           antiAliasingLabel_, antiAliasingComboBox_);
-  gridLayout2ColAddWidget(generalTabLayout_, 
+  gridLayout2ColAddWidget(generalTabLayout_,
                           lcdFilterLabel_, lcdFilterComboBox_);
-  
+
   gridLayout2ColAddItem(generalTabLayout_,
                         new QSpacerItem(0, 20, QSizePolicy::Minimum,
                                         QSizePolicy::MinimumExpanding));
@@ -618,9 +620,9 @@ SettingPanel::createLayoutNormal()
   gridLayout2ColAddWidget(generalTabLayout_, stemDarkeningCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
-  gridLayout2ColAddWidget(generalTabLayout_, 
+  gridLayout2ColAddWidget(generalTabLayout_,
                           paletteLabel_, paletteComboBox_);
-  
+
   gridLayout2ColAddItem(generalTabLayout_,
                         new QSpacerItem(0, 20, QSizePolicy::Minimum,
                                         QSizePolicy::MinimumExpanding));
@@ -646,16 +648,16 @@ SettingPanel::createLayoutComparator()
 
   // Hinting & Rendering
   gridLayout2ColAddWidget(hintingRenderingTabLayout_, hintingCheckBox_);
-  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_,
                           hintingModeLabel_, hintingModeComboBox_);
   gridLayout2ColAddWidget(hintingRenderingTabLayout_, autoHintingCheckBox_);
 
   if (debugMode_)
     gridLayout2ColAddLayout(hintingRenderingTabLayout_, debugLayout_);
 
-  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_,
                           antiAliasingLabel_, antiAliasingComboBox_);
-  gridLayout2ColAddWidget(hintingRenderingTabLayout_, 
+  gridLayout2ColAddWidget(hintingRenderingTabLayout_,
                           lcdFilterLabel_, lcdFilterComboBox_);
 
   gridLayout2ColAddLayout(hintingRenderingTabLayout_, gammaLayout_);
@@ -665,7 +667,7 @@ SettingPanel::createLayoutComparator()
   gridLayout2ColAddLayout(generalTabLayout_, colorPickerLayout_);
   gridLayout2ColAddWidget(generalTabLayout_, embeddedBitmapCheckBox_);
   gridLayout2ColAddWidget(generalTabLayout_, colorLayerCheckBox_);
-  gridLayout2ColAddWidget(generalTabLayout_, 
+  gridLayout2ColAddWidget(generalTabLayout_,
                           paletteLabel_, paletteComboBox_);
 
   gridLayout2ColAddWidget(generalTabLayout_, kerningCheckBox_);
@@ -689,23 +691,23 @@ SettingPanel::createLayoutComparator()
 void
 SettingPanel::createConnections()
 {
-  // use `qOverload` here to prevent ambiguity.
-  connect(hintingModeComboBox_, 
+  // Use `QOverload` here to prevent ambiguities.
+  connect(hintingModeComboBox_,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::fontReloadNeeded);
   connect(antiAliasingComboBox_,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::checkAntiAliasing);
-  connect(lcdFilterComboBox_, 
+  connect(lcdFilterComboBox_,
           QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::repaintNeeded);
   connect(paletteComboBox_,
-          QOverload<int>::of(&QComboBox::currentIndexChanged), 
+          QOverload<int>::of(&QComboBox::currentIndexChanged),
           this, &SettingPanel::checkPalette);
 
   connect(gammaSlider_, &QSlider::valueChanged,
           this, &SettingPanel::updateGamma);
-  
+
   connect(hintingCheckBox_, &QCheckBox::clicked,
           this, &SettingPanel::checkHinting);
 
@@ -757,15 +759,15 @@ SettingPanel::setDefaults()
     { defaults.ttInterpreterVersionDefault,
       defaults.ttInterpreterVersionOther,
       defaults.ttInterpreterVersionOther1 },
-    { defaults.cffHintingEngineDefault, 
+    { defaults.cffHintingEngineDefault,
       defaults.cffHintingEngineOther });
 
   currentCFFHintingMode_
     = hintingModeComboBoxModel_->cffModeToIndex(
-    defaults.cffHintingEngineDefault);
+                                   defaults.cffHintingEngineDefault);
   currentTTInterpreterVersion_
     = hintingModeComboBoxModel_->ttInterpreterVersionToIndex(
-        defaults.ttInterpreterVersionDefault);
+                                   defaults.ttInterpreterVersionDefault);
 
   hintingCheckBox_->setChecked(true);
 

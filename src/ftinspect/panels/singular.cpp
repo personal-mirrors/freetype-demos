@@ -9,8 +9,10 @@
 #include <QWheelEvent>
 
 
-SingularTab::SingularTab(QWidget* parent, Engine* engine)
-: QWidget(parent), engine_(engine),
+SingularTab::SingularTab(QWidget* parent,
+                         Engine* engine)
+: QWidget(parent),
+  engine_(engine),
   graphicsDefault_(GraphicsDefault::deafultInstance())
 {
   createLayout();
@@ -32,7 +34,7 @@ SingularTab::~SingularTab()
 void
 SingularTab::setGlyphIndex(int index)
 {
-  // only adjust current glyph index if we have a valid font
+  // Only adjust current glyph index if we have a valid font.
   if (currentGlyphCount_ <= 0)
     return;
 
@@ -40,7 +42,7 @@ SingularTab::setGlyphIndex(int index)
 
   QString upperHex = QString::number(currentGlyphIndex_, 16).toUpper();
   glyphIndexLabel_->setText(
-      QString("%1 (0x%2)").arg(currentGlyphIndex_).arg(upperHex));
+    QString("%1 (0x%2)").arg(currentGlyphIndex_).arg(upperHex));
   glyphNameLabel_->setText(engine_->glyphName(currentGlyphIndex_));
 
   drawGlyph();
@@ -50,7 +52,7 @@ SingularTab::setGlyphIndex(int index)
 void
 SingularTab::drawGlyph()
 {
-  // the call to `engine->loadOutline' updates FreeType's load flags
+  // The call to `engine->loadOutline' updates FreeType's load flags.
 
   if (!engine_)
     return;
@@ -97,18 +99,17 @@ SingularTab::drawGlyph()
   {
     if (showBitmapCheckBox_->isChecked())
     {
-      currentGlyphBitmapItem_
-        = new GlyphBitmap(currentGlyphIndex_, 
-                          glyph,
-                          engine_);
+      currentGlyphBitmapItem_ = new GlyphBitmap(currentGlyphIndex_,
+                                                glyph,
+                                                engine_);
       currentGlyphBitmapItem_->setZValue(-1);
       glyphScene_->addItem(currentGlyphBitmapItem_);
     }
 
     if (showOutlinesCheckBox_->isChecked())
     {
-      currentGlyphOutlineItem_ = new GlyphOutline(graphicsDefault_->outlinePen, 
-                                                  glyph);
+      currentGlyphOutlineItem_ =
+        new GlyphOutline(graphicsDefault_->outlinePen, glyph);
       currentGlyphOutlineItem_->setZValue(1);
       glyphScene_->addItem(currentGlyphOutlineItem_);
     }
@@ -165,9 +166,9 @@ SingularTab::zoom()
   QTransform transform;
   transform.scale(scale, scale);
 
-  // we want horizontal and vertical 1px lines displayed with full pixels;
+  // We want horizontal and vertical 1px lines displayed with full pixels;
   // we thus have to shift the coordinate system accordingly, using a value
-  // that represents 0.5px (i.e., half the 1px line width) after the scaling
+  // that represents 0.5px (i.e., half the 1px line width) after the scaling.
   qreal shift = 0.5 / scale;
   transform.translate(shift, shift);
 
@@ -254,7 +255,7 @@ SingularTab::resizeEvent(QResizeEvent* event)
 {
   QWidget::resizeEvent(event);
 
-  // Tricky part: when loading, this method will be called twice. Only at the
+  // Tricky part: when loading, this method will be called twice.  Only at the
   // second time the initial layouting is done, thus the result of `centerOn`
   // can be valid.
   // We want to only center the midpoint of the size when the program starts up
@@ -263,9 +264,9 @@ SingularTab::resizeEvent(QResizeEvent* event)
     return;
   initialPositionSetCount_--;
 
-  // The code below mainly:
-  // 1. Center the grid on the the center point of the ppem x ppem bbox.
-  // 2. Adjust the viewport zoom to fit the ppem x ppem bbox
+  // The code below does mainly the following:
+  // 1. Center the grid on the the center point of the x ppem bbox.
+  // 2. Adjust the viewport zoom to fit the x ppem bbox
   updateGeometry();
   auto size = sizeSelector_->selectedSize();
   auto unit = sizeSelector_->selectedUnit();
@@ -306,7 +307,7 @@ SingularTab::createLayout()
   gridItem_ = new Grid(glyphView_);
   glyphScene_->addItem(gridItem_);
 
-  // Don't use QGraphicsTextItem: We want this hint to be anchored at the
+  // Don't use `QGraphicsTextItem`: We want this hint to be anchored at the
   // top-left corner.
   auto overlayFont = font();
   overlayFont.setPixelSize(24);
@@ -343,15 +344,15 @@ SingularTab::createLayout()
   centerGridButton_->setToolTip(tr(
     "Move the viewport so the origin point is at the center of the view."));
   showBitmapCheckBox_->setToolTip(tr("Show glyph bitmap."));
-  showPointsCheckBox_->setToolTip(
-    tr("Show control points (only valid when the glyph is an outline glyph)."));
-  showPointNumbersCheckBox_->setToolTip(
-    tr("Show point numbers (only available when points are shown)."));
-  showOutlinesCheckBox_->setToolTip(tr("Show (vector) outline (only valid when "
-                                       "the glyph is an outline glyph)."));
+  showPointsCheckBox_->setToolTip(tr(
+    "Show control points (only valid when the glyph is an outline glyph)."));
+  showPointNumbersCheckBox_->setToolTip(tr(
+    "Show point numbers (only available when points are shown)."));
+  showOutlinesCheckBox_->setToolTip(tr(
+    "Show (vector) outline (only valid when the glyph is an outline glyph)."));
   showGridCheckBox_->setToolTip(tr("Show grid lines (x axis: baseline)."));
-  showBitmapCheckBox_->setToolTip(
-    tr("Show auxiliary lines (blue: y-advance; red: ascender/descender)."));
+  showBitmapCheckBox_->setToolTip(tr(
+    "Show auxiliary lines (blue: y-advance; red: ascender/descender)."));
   helpButton_->setToolTip(tr("View scroll help"));
 
   // Layouting
@@ -378,7 +379,7 @@ SingularTab::createLayout()
   glyphOverlayIndexLayout_ = new QHBoxLayout;
   glyphOverlayIndexLayout_->addWidget(glyphIndexLabel_);
   glyphOverlayIndexLayout_->addWidget(glyphNameLabel_);
-  glyphOverlayLayout_ = new QGridLayout; // use a grid layout to align
+  glyphOverlayLayout_ = new QGridLayout; // Use a grid layout to align.
   glyphOverlayLayout_->addLayout(glyphOverlayIndexLayout_, 0, 1,
                                  Qt::AlignTop | Qt::AlignRight);
   glyphView_->setLayout(glyphOverlayLayout_);
@@ -400,17 +401,17 @@ SingularTab::createConnections()
 {
   connect(sizeSelector_, &FontSizeSelector::valueChanged,
           this, &SingularTab::repaintGlyph);
-  connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged, 
+  connect(indexSelector_, &GlyphIndexSelector::currentIndexChanged,
           this, &SingularTab::setGlyphIndex);
-  
-  connect(glyphView_, &QGraphicsViewx::shiftWheelEvent, 
+
+  connect(glyphView_, &QGraphicsViewx::shiftWheelEvent,
           this, &SingularTab::wheelResize);
-  connect(glyphView_, &QGraphicsViewx::ctrlWheelEvent, 
+  connect(glyphView_, &QGraphicsViewx::ctrlWheelEvent,
           this, &SingularTab::wheelZoom);
   // Use `updateGrid` to support infinite panning.
   connect(glyphView_->horizontalScrollBar(), &QScrollBar::valueChanged,
           this, &SingularTab::updateGrid);
-  connect(glyphView_->verticalScrollBar(), &QScrollBar::valueChanged, 
+  connect(glyphView_->verticalScrollBar(), &QScrollBar::valueChanged,
           this, &SingularTab::updateGrid);
 
   connect(centerGridButton_, &QPushButton::clicked,
@@ -420,7 +421,7 @@ SingularTab::createConnections()
 
   connect(showBitmapCheckBox_, &QCheckBox::clicked,
           this, &SingularTab::drawGlyph);
-  connect(showPointsCheckBox_, &QCheckBox::clicked, 
+  connect(showPointsCheckBox_, &QCheckBox::clicked,
           this, &SingularTab::checkShowPoints);
   connect(showPointNumbersCheckBox_, &QCheckBox::clicked,
           this, &SingularTab::drawGlyph);
@@ -463,7 +464,7 @@ SingularTab::setCurrentGlyphAndSize(int glyphIndex,
 {
   if (sizePoint >= 0)
     sizeSelector_->setSizePoint(sizePoint);
-  indexSelector_->setCurrentIndex(glyphIndex); // this will auto trigger update
+  indexSelector_->setCurrentIndex(glyphIndex); // This auto-triggers update.
 }
 
 
