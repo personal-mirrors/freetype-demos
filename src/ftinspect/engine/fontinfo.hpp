@@ -223,7 +223,7 @@ struct FontFixedSize
   double xPpem;
   double yPpem;
 
-  // Returns that if the list is updated.  WL: ???
+  // Returns `true` when the list is actually updated.
   // We use a callback because Qt needs `beginResetModel` to be called
   // *before* the internal storage updates.
   static bool get(Engine* engine,

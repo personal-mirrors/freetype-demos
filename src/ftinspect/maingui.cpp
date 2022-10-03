@@ -267,7 +267,7 @@ MainGUI::createLayout()
   // left side
   settingPanel_ = new SettingPanel(this, engine_);
 
-  leftLayout_ = new QVBoxLayout; // The only point is to set `margin->remove`?
+  leftLayout_ = new QVBoxLayout;
   leftLayout_->addWidget(settingPanel_);
   leftLayout_->setContentsMargins(32, 32, 0, 16);
 
