@@ -950,7 +950,6 @@
     Display*            display;
     Window              win;
     Visual*             visual;
-    Colormap            colormap;
     GC                  gc;
     Atom                wm_delete_window;
 
@@ -1419,26 +1418,13 @@
       xswa.event_mask = ExposureMask | VisibilityChangeMask |
                         KeyPressMask | StructureNotifyMask ;
 
-      if ( surface->visual == DefaultVisual( display, screen ) )
-        surface->colormap     = DefaultColormap( display, screen );
-      else
-      {
-        xswa_mask            |= CWBorderPixel | CWColormap;
-        xswa.border_pixel     = BlackPixel( display, screen );
-        xswa.colormap         = XCreateColormap( display,
-                                                 RootWindow( display, screen ),
-                                                 surface->visual,
-                                                 AllocNone );
-        surface->colormap     = xswa.colormap;
-      }
-
       surface->win = XCreateWindow( display,
                                     RootWindow( display, screen ),
                                     0,
                                     0,
                                     (unsigned int)bitmap->width,
                                     (unsigned int)bitmap->rows,
-                                    10,
+                                    0,
                                     x11dev.format->x_depth,
                                     InputOutput,
                                     surface->visual,
