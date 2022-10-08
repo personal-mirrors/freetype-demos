@@ -972,8 +972,6 @@
 
     if ( display )
     {
-      XFreeGC( display, surface->gc );
-
       if ( surface->ximage )
       {
         if ( !surface->convert )
@@ -1433,8 +1431,7 @@
 
       XMapWindow( display, surface->win );
 
-      surface->gc = XCreateGC( display, surface->win,
-                               0L, NULL );
+      surface->gc = DefaultGC( display, screen );
 
       XSetWMProperties( display, surface->win, &xtp, &xtp,
                         NULL, 0, NULL, NULL, NULL );
