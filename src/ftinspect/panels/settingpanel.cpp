@@ -485,7 +485,7 @@ SettingPanel::createLayout()
   gammaLabel_ = new QLabel(tr("Gamma"), this);
   gammaLabel_->setAlignment(Qt::AlignRight);
   gammaSlider_ = new QSlider(Qt::Horizontal, this);
-  gammaSlider_->setRange(3, 30); // in 1/10th
+  gammaSlider_->setRange(3, 30); // in 1/10
   gammaSlider_->setTickPosition(QSlider::TicksBelow);
   gammaSlider_->setTickInterval(5);
   gammaSlider_->setPageStep(1);

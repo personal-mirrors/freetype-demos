@@ -883,7 +883,7 @@
     grWriteln( "G           toggle grid display         if Multiple Master or GX font:      " );
     grWriteln( "C           change color palette          F2        cycle through axes      " );
     grWriteln( "                                          F3, F4    adjust current axis by  " );
-    grWriteln( "F5, F6      cycle through                            1/50th of its range    " );
+    grWriteln( "F5, F6      cycle through                            1/50 of its range      " );
     grWriteln( "             anti-aliasing modes                                            " );
     grWriteln( "L           cycle through LCD           P           print PNG file          " );
     grWriteln( "             filters                    q, ESC      quit ftgrid             " );

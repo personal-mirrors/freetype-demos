@@ -219,7 +219,7 @@ MMGXSettingItem::updateInfo(MMGXAxisInfo& info)
   else
     nameLabel_->setText(info.name);
 
-  // To keep things simple, we use 1/1024th of the span between the minimum
+  // To keep things simple, we use 1/1024 of the span between the minimum
   // and the maximum as one step on the slider.
   slider_->setMinimum(0);
   slider_->setTickInterval(1);
