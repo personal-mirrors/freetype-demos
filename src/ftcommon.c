@@ -25,12 +25,6 @@
 #include <freetype/ftmodapi.h>
 
 
-  /* error messages */
-#undef FTERRORS_H_
-#define FT_ERROR_START_LIST     {
-#define FT_ERRORDEF( e, v, s )  case v: str = s; break;
-#define FT_ERROR_END_LIST       default: str = "unknown error"; }
-
 #include "common.h"
 #include "strbuf.h"
 #include "ftcommon.h"
@@ -72,17 +66,30 @@
 #endif /* NODEBUG */
 
 
+  /* error messages */
+#undef FTERRORS_H_
+#define FT_ERROR_START_LIST     {
+#define FT_ERRORDEF( e, v, s )  case v: str = s; break;
+#define FT_ERROR_END_LIST       default: str = "unknown error"; }
+
+  const FT_String*
+  FTDemo_Error_String( FT_Error  err )
+  {
+    const FT_String  *str;
+
+    switch ( err )
+    #include <freetype/fterrors.h>
+
+    return str;
+  }
+
+
   /* PanicZ */
   void
   PanicZ( const char*  message )
   {
-    const FT_String  *str;
-
-
-    switch( error )
-    #include <freetype/fterrors.h>
-
-    fprintf( stderr, "%s\n  error = 0x%04x, %s\n", message, error, str );
+    fprintf( stderr, "%s\n  error = 0x%04x, %s\n", message, error,
+                                            FTDemo_Error_String( error ) );
     exit( 1 );
   }
 

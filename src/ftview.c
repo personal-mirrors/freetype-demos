@@ -106,6 +106,7 @@
     int            offset;            /* as selected by the user */
     int            topleft;           /* as displayed by ftview  */
     int            num_fails;
+    int            err_fails;
     int            preload;
 
     int            lcd_filter;
@@ -115,7 +116,7 @@
   } status = { 1,
                "", DIM, NULL, RENDER_MODE_ALL,
                72, 48, 1, 0.04, 0.04, 0.02, 0.22,
-               0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0,
                FT_LCD_FILTER_DEFAULT, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
 
 
@@ -153,6 +154,18 @@
     FTDemo_Display_Done( display );
     FTDemo_Done( handle );
     PanicZ( message );
+  }
+
+
+  static void
+  Process_Error()
+  {
+     status.num_fails++;
+
+     if ( status.err_fails == 0 )
+       status.err_fails = error;
+     if ( status.err_fails != error )
+       status.err_fails = -1;
   }
 
 
@@ -256,7 +269,7 @@
       continue;
 
     Next:
-      status.num_fails++;
+      Process_Error();
     }
 
     return i - 1;
@@ -400,7 +413,7 @@
       continue;
 
     Next:
-      status.num_fails++;
+      Process_Error();
     }
 
     return i - 1;
@@ -591,7 +604,7 @@
       continue;
 
     Next:
-      status.num_fails++;
+      Process_Error();
     }
 
     return i - 1;
@@ -676,7 +689,7 @@
       continue;
 
     Next:
-      status.num_fails++;
+      Process_Error();
     }
 
     return -1;
@@ -786,7 +799,7 @@
         continue;
 
       Next:
-        status.num_fails++;
+        Process_Error();
       }
     }
 
@@ -1893,7 +1906,13 @@
     } while ( Process_Event() == 0 );
 
     printf( "Execution completed successfully.\n" );
-    printf( "Fails = %d\n", status.num_fails );
+    if ( status.num_fails )
+    {
+      printf( "Fail count = %d, ", status.num_fails );
+      printf( status.err_fails == -1 ? "various errors\n"
+                                     : "Error code = 0x%02X (%s)\n",
+              status.err_fails, FTDemo_Error_String( status.err_fails ) );
+    }
 
     FTDemo_Display_Done( display );
     FTDemo_Done( handle );
