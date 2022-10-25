@@ -191,68 +191,70 @@
 
     for ( i = offset; i < num_indices; i++ )
     {
-      FT_UInt  glyph_idx;
+      FT_UInt   glyph_idx;
+      FT_Glyph  glyph;
 
 
       glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)i );
 
       error = FT_Load_Glyph( face, glyph_idx,
                              handle->load_flags | FT_LOAD_NO_BITMAP );
+      if ( error )
+        goto Next;
 
-      if ( !error && slot->format == FT_GLYPH_FORMAT_OUTLINE )
+      error = FT_Get_Glyph( slot, &glyph );
+      if ( error )
+        goto Next;
+
+      if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
       {
-        FT_Glyph  glyph;
-
-
-        error = FT_Get_Glyph( slot, &glyph );
-        if ( error )
-          goto Next;
-
         error = FT_Glyph_Stroke( &glyph, handle->stroker, 1 );
         if ( error )
         {
           FT_Done_Glyph( glyph );
           goto Next;
         }
+      }
 
-        width = slot->advance.x ? slot->advance.x >> 6
-                                : size->metrics.y_ppem / 2;
+      width = slot->advance.x ? slot->advance.x >> 6
+                              : size->metrics.y_ppem / 2;
 
-        if ( X_TOO_LONG( x + width, display ) )
+      if ( X_TOO_LONG( x + width, display ) )
+      {
+        x  = start_x;
+        y += step_y;
+
+        if ( Y_TOO_LONG( y, display ) )
         {
-          x  = start_x;
-          y += step_y;
-
-          if ( Y_TOO_LONG( y, display ) )
-          {
-            FT_Done_Glyph( glyph );
-            break;
-          }
-        }
-
-        /* extra space between glyphs */
-        x++;
-        if ( slot->advance.x == 0 )
-        {
-          grFillRect( display->bitmap, x, y - width, width, width,
-                      display->warn_color );
-          x += width;
-        }
-
-        error = FTDemo_Draw_Glyph( handle, display, glyph, &x, &y );
-
-        if ( error )
-          goto Next;
-        else
           FT_Done_Glyph( glyph );
-
-        if ( !have_topleft )
-        {
-          have_topleft   = 1;
-          status.topleft = i;
+          break;
         }
       }
+
+      /* extra space between glyphs */
+      x++;
+      if ( slot->advance.x == 0 )
+      {
+        grFillRect( display->bitmap, x, y - width, width, width,
+                    display->warn_color );
+        x += width;
+      }
+
+      error = FTDemo_Draw_Glyph( handle, display, glyph, &x, &y );
+
+      if ( error )
+        goto Next;
       else
+        FT_Done_Glyph( glyph );
+
+      if ( !have_topleft )
+      {
+        have_topleft   = 1;
+        status.topleft = i;
+      }
+
+      continue;
+
     Next:
       status.num_fails++;
     }
