@@ -539,22 +539,16 @@
 
     FT_UNUSED( user_data );
 
+    /* rotate outlines by 30 degrees so that CBox and BBox are different */
+    FT_Set_Transform( face, &rot30, NULL );
 
     FOREACH( i )
     {
-      FT_Outline*  outline;
-
-
       if ( FT_Load_Glyph( face, (FT_UInt)i, load_flags ) )
         continue;
 
-      outline = &face->glyph->outline;
-
-      /* rotate outline by 30 degrees */
-      FT_Outline_Transform( outline, &rot30 );
-
       TIMER_START( timer );
-      FT_Outline_Get_BBox( outline, &bbox );
+      FT_Outline_Get_BBox( &face->glyph->outline, &bbox );
       TIMER_STOP( timer );
 
       done++;
