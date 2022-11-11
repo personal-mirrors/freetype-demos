@@ -149,6 +149,8 @@
   static int  last_index  = INT_MAX;
   static int  incr_index  = 1;
 
+  static int  cmap_index  = -1;
+
 #define FOREACH( i )  for ( i = first_index ;                          \
                             ( first_index <= i && i <= last_index ) || \
                             ( first_index >= i && i >= last_index ) ;  \
@@ -608,7 +610,7 @@
     {
       if ( FTC_CMapCache_Lookup( cmap_cache,
                                  font_type.face_id,
-                                 0,
+                                 cmap_index,
                                  charset->code[i] ) )
         done++;
     }
@@ -700,6 +702,7 @@
   {
     FT_UInt   idx;
     FT_ULong  charcode;
+    int       done;
 
     FT_UNUSED( user_data );
 
@@ -707,12 +710,14 @@
     TIMER_START( timer );
 
     charcode = FT_Get_First_Char( face, &idx );
+    done = ( idx != 0 );
+
     while ( idx != 0 )
       charcode = FT_Get_Next_Char( face, charcode, &idx );
 
     TIMER_STOP( timer );
 
-    return 1;
+    return done;
   }
 
 
@@ -889,12 +894,14 @@
             "driver: %s %s\n"
             "target: %s\n"
             " flags: 0x%X\n"
+            "  cmap: %d\n"
             "glyphs: %ld\n",
             face->family_name,
             face->style_name,
             module_name, hinting_engine,
             target,
             load_flags,
+            FT_Get_Charmap_Index( face->charmap ),
             face->num_glyphs );
   }
 
@@ -1004,6 +1011,7 @@
       "  -C        Compare with cached version (if available).\n"
       "  -c N      Use at most N iterations for each test\n"
       "            (0 means time limited).\n"
+      "  -e E      Set specific charmap index E.\n"
       "  -f L      Use hex number L as load flags (see `FT_LOAD_XXX').\n"
       "  -H NAME   Use PS hinting engine NAME.\n"
       "            Available versions are %s; default is `%s'.\n"
@@ -1141,7 +1149,7 @@
       int  opt;
 
 
-      opt = getopt( argc, argv, "b:Cc:f:H:I:i:l:m:pr:s:t:v" );
+      opt = getopt( argc, argv, "b:Cc:e:f:H:I:i:l:m:pr:s:t:v" );
 
       if ( opt == -1 )
         break;
@@ -1160,6 +1168,10 @@
         max_iter = atoi( optarg );
         if ( max_iter < 0 )
           max_iter = -max_iter;
+        break;
+
+      case 'e':
+        cmap_index = atoi( optarg );
         break;
 
       case 'f':
@@ -1322,6 +1334,11 @@
     while ( j-- )
       putchar( '-' );
     putchar( '\n' );
+
+    if ( cmap_index >= face->num_charmaps )
+      cmap_index = -1;
+    if ( cmap_index >= 0 )
+      face->charmap = face->charmaps[cmap_index];
 
     header( face );
 
