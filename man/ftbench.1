@@ -56,33 +56,31 @@ this is, all tests).
 .
 .IP
 The number of used glyphs per test (within a single iteration) is given by
-options
-.B \-i
-and
-.BR \-j .
+option
+.BR \-i .
 .
 .TP
 .B \-C
 Compare with cached version if available.
 .
 .TP
-.BI \-c \ n
+.BI \-c \ N
 Use at most
-.I n
+.I N
 iterations for each test (0 means time limited).
 .
 .TP
-.BI \-e \ e
+.BI \-e \ E
 Use charmap with index
-.I e
+.I E
 instead of the default unicode.
 .
 .TP
-.BI \-f \ l
+.BI \-f \ L
 Use
 .B hexadecimal
 (not decimal) number
-.I l
+.I L
 as load flags (see the
 .RB ` \%FT_\:LOAD_\:XXX '
 macros in the FreeType reference).
@@ -124,9 +122,9 @@ instead of
 .BR \%FT_\:New_\:Face ).
 .
 .TP
-.BI \-r \ n
+.BI \-r \ R
 Set render mode to
-.IR n :
+.IR R :
 .
 .RS
 .TS
@@ -147,9 +145,9 @@ This corresponds to the values of the
 flags.
 .
 .TP
-.BI \-s \ s
+.BI \-s \ S
 Use
-.I s
+.I S
 ppem as face size (default is 10ppem).
 If set to zero, don't call
 .BR \%FT_\:Set_\:Pixel_\:Sizes .
@@ -159,9 +157,9 @@ or something similar to load the glyphs unscaled,
 otherwise errors will show up.
 .
 .TP
-.BI \-t \ t
+.BI \-t \ T
 Use at most
-.I t
+.I T
 seconds per test (default is 2).
 .
 .TP
