@@ -533,14 +533,11 @@
                  void*      user_data )
   {
     FT_BBox    bbox;
-    FT_Matrix  rot30 = { 0xDDB4, -0x8000, 0x8000, 0xDDB4 };
 
     int  i, done = 0;
 
     FT_UNUSED( user_data );
 
-    /* rotate outlines by 30 degrees so that CBox and BBox are different */
-    FT_Set_Transform( face, &rot30, NULL );
 
     FOREACH( i )
     {
@@ -1477,7 +1474,15 @@
       case FT_BENCH_GET_BBOX:
         test.title = "Get_BBox";
         test.bench = test_get_bbox;
-        benchmark( face, &test, max_iter, max_time );
+        {
+          FT_Matrix  rot30 = { 0xDDB4, -0x8000, 0x8000, 0xDDB4 };
+
+
+          /* rotate outlines by 30 degrees so that CBox and BBox are different */
+          FT_Set_Transform( face, &rot30, NULL );
+          benchmark( face, &test, max_iter, max_time );
+          FT_Set_Transform( face, NULL, NULL );
+        }
         break;
 
       case FT_BENCH_CMAP:
