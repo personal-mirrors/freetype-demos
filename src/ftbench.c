@@ -1331,6 +1331,10 @@
     if ( cmap_index >= 0 )
       face->charmap = face->charmaps[cmap_index];
 
+    if ( load_flags & FT_LOAD_RENDER          &&
+         render_mode != FT_RENDER_MODE_NORMAL )
+      load_flags |= FT_LOAD_TARGET_( render_mode );
+
     header( face );
 
     if ( !face->num_glyphs )
