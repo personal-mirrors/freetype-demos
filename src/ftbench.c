@@ -1331,9 +1331,9 @@
     if ( cmap_index >= 0 )
       face->charmap = face->charmaps[cmap_index];
 
-    if ( load_flags & FT_LOAD_RENDER          &&
-         render_mode != FT_RENDER_MODE_NORMAL )
-      load_flags |= FT_LOAD_TARGET_( render_mode );
+    /* sync target and mode */
+    load_flags |= FT_LOAD_TARGET_( render_mode );
+    render_mode = ( load_flags & 0xF0000 ) >> 16;
 
     header( face );
 
