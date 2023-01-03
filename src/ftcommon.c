@@ -1186,9 +1186,14 @@
                        strbuf_value( buf ), display->fore_color );
 
     /* ppem, pt and dpi, instance */
-    ppem = FT_IS_SCALABLE( face ) ? FT_MulFix( face->units_per_EM,
-                                               face->size->metrics.y_scale )
-                                  : face->size->metrics.y_ppem * 64;
+    if ( face->size )
+    {
+      ppem = FT_IS_SCALABLE( face )
+             ? FT_MulFix( face->units_per_EM, face->size->metrics.y_scale )
+             : face->size->metrics.y_ppem * 64;
+    }
+    else
+      ppem = 0;
 
     strbuf_reset( buf );
     if ( res == 72 )
@@ -1205,8 +1210,13 @@
     grWriteCellString( display->bitmap, 0, line * HEADER_HEIGHT,
                        strbuf_value( buf ), display->fore_color );
 
-    if ( abs( ptsize * res / 64 - face->size->metrics.y_ppem * 72 ) > 36 ||
-         error_code                                                      )
+    /* The demo programs are mainly investigation tools.  Normal          */
+    /* applications don't need all the extra validity checks to display   */
+    /* something for invalid fonts; instead, they can simply reject them. */
+    if ( ( face->size                                      &&
+           abs( ptsize * res / 64
+                  - face->size->metrics.y_ppem * 72 ) > 36 ) ||
+         error_code                                          )
     {
       strbuf_reset( buf );
 
