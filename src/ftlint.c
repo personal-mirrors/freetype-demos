@@ -248,17 +248,17 @@
       error = FT_New_Face( library, fname, face_index, &face );
       if ( error )
       {
-        Error( "  " );
+        Error( "  opening " );
         continue;
       }
 
-      printf( quiet ? "  %s %s:" : "  %s %s\n\n",
+      printf( quiet ? "  %s %s:" : "  %s %s\n",
               face->family_name, face->style_name );
 
       error = FT_Set_Char_Size( face, ptsize << 6, ptsize << 6, 72, 72 );
       if ( error )
       {
-        Error( "  " );
+        Error( "  sizing " );
         goto Finalize;
       }
 
@@ -272,9 +272,9 @@
 
       if ( !quiet )
       {
-        /*      "NNNNN AAAxBBBB X.XXXX Y.YYYY MMDD55MMDD55MMDD55MMDD55MMDD55MM" */
-        printf( " GID  imgsize  Xacut  Yacut  MD5 hashsum\n" );
-        printf( "-------------------------------------------------------------\n" );
+        /*        "NNNNN AAAxBBBB X.XXXX Y.YYYY MMDD55MMDD55MMDD55MMDD55MMDD55MM" */
+        printf( "\n GID  imgsize  Xacut  Yacut  MD5 hashsum" );
+        printf( "\n-------------------------------------------------------------\n" );
       }
 
       Fail = 0;
