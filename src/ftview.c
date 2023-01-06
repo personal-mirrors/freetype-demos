@@ -158,7 +158,7 @@
 
 
   static void
-  Process_Error()
+  Process_Error( void )
   {
      status.num_fails++;
 
