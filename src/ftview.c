@@ -731,10 +731,7 @@
 
       error = FTDemo_Get_Size( handle, &size );
       if ( error )
-      {
-        /* probably a non-existent bitmap font size */
-        continue;
-      }
+        break;
 
       step_y = ( size->metrics.height >> 6 ) + 1;
 

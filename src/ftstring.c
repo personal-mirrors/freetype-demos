@@ -860,10 +860,7 @@
 
       error = FTDemo_Get_Size( handle, &size );
       if ( error )
-      {
-        /* probably a non-existent bitmap font size */
-        continue;
-      }
+        break;
 
       if ( pt_size == status.ptsize )
         grFillHLine( display->bitmap, x - 4, y, 8, display->warn_color );
