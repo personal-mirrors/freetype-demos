@@ -1213,11 +1213,10 @@
     /* The demo programs are mainly investigation tools.  Normal          */
     /* applications don't need all the extra validity checks to display   */
     /* something for invalid fonts; instead, they can simply reject them. */
-    if ( ( face->size                                      &&
-           abs( ptsize * res / 64
-                  - face->size->metrics.y_ppem * 72 ) > 36 ) ||
-         error_code                                          )
+    if ( abs( ptsize * res / 72 - ppem ) > 32 ||
+         error_code                           )
     {
+      x = strbuf_len( buf );
       strbuf_reset( buf );
 
       switch ( error_code )
