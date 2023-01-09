@@ -184,10 +184,7 @@
 
     error = FTDemo_Get_Size( handle, &size );
     if ( error )
-    {
-      /* probably a non-existent bitmap font size */
       return -1;
-    }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
     face = size->face;
@@ -292,10 +289,7 @@
 
     error = FTDemo_Get_Size( handle, &size );
     if ( error )
-    {
-      /* probably a non-existent bitmap font size */
       return -1;
-    }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
     face = size->face;
@@ -438,10 +432,7 @@
 
     error = FTDemo_Get_Size( handle, &size );
     if ( error )
-    {
-      /* probably a non-existent bitmap font size */
       return -1;
-    }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
     face = size->face;
@@ -626,10 +617,7 @@
 
     error = FTDemo_Get_Size( handle, &size );
     if ( error )
-    {
-      /* probably a non-existent bitmap font size */
       return -1;
-    }
 
     INIT_SIZE( size, start_x, start_y, step_y, x, y );
 
@@ -1079,10 +1067,7 @@
 
     error = FTDemo_Get_Size( handle, &size );
     if ( error )
-    {
-      /* probably a non-existent bitmap font size */
       return 0;
-    }
 
     face = size->face;
 
