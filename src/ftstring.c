@@ -648,8 +648,11 @@
                         -1, error_code );
 
     if ( status.header )
+    {
       grWriteCellString( display->bitmap, 0, 3 * HEADER_HEIGHT,
                          status.header, display->fore_color );
+      status.header = NULL;
+    }
 
     grRefreshSurface( display->surface );
   }
@@ -983,12 +986,8 @@
 
     FTDemo_Icon( handle, display );
 
-    status.header = NULL;
-
-    event_text_change();
-
     event_color_change();
-
+    event_text_change();
     event_font_change( 0 );
     FTDemo_String_Set( handle, status.text );
     FTDemo_Update_Current_Flags( handle );
@@ -1018,8 +1017,6 @@
       }
 
       write_header( error );
-
-      status.header = 0;
     } while ( !Process_Event() );
 
     printf( "Execution completed successfully.\n" );
