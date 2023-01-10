@@ -775,10 +775,11 @@
   }
 
 
-  static FT_Error
+  static void
   Render_String( void )
   {
-    int x, y = display->bitmap->rows - 4;
+    int      x, y = display->bitmap->rows - 4;
+    FT_Size  size;
 
 
     x = 4;
@@ -790,16 +791,21 @@
     x = display->bitmap->width / 2;
     FTDemo_Draw_Glyph( handle, display, dinkus, &x, &y );
 
+    /* check the sizing error */
+    error = FTDemo_Get_Size( handle, &size );
+    if ( error )
+      return;
+
     FTDemo_String_Draw( handle, display,
                         &status.sc,
                         FT_MulFix( display->bitmap->width, status.sc.center),
                         display->bitmap->rows / 2 );
 
-    return FT_Err_Ok;
+    return;
   }
 
 
-  static FT_Error
+  static void
   Render_Text( void )
   {
     int      x = FT_MulFix( display->bitmap->width, status.sc.center);
@@ -815,7 +821,7 @@
 
     error = FTDemo_Get_Size( handle, &size );
     if ( error )
-      return error;
+      return;
 
     step_y = ( size->metrics.height >> 6 ) + 1;
     y      = 40 + ( size->metrics.ascender >> 6 );
@@ -830,11 +836,11 @@
       offset %= handle->string_length;
     }
 
-    return FT_Err_Ok;
+    return;
   }
 
 
-  static FT_Error
+  static void
   Render_Waterfall( void )
   {
     int      pt_size = status.ptsize, step, pt_height;
@@ -880,11 +886,11 @@
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
     FTDemo_String_Load( handle, &status.sc );
 
-    return FT_Err_Ok;
+    return;
   }
 
 
-  static FT_Error
+  static void
   Render_KernCmp( void )
   {
     FT_Size                size;
@@ -895,7 +901,9 @@
 
     x = 55;
 
-    FTDemo_Get_Size( handle, &size );
+    error = FTDemo_Get_Size( handle, &size );
+    if ( error )
+      return;
     height = size->metrics.y_ppem;
     if ( height < CELLSTRING_HEIGHT )
       height = CELLSTRING_HEIGHT;
@@ -929,7 +937,7 @@
                        "both", display->fore_color );
     FTDemo_String_Draw( handle, display, &sc, x, y );
 
-    return FT_Err_Ok;
+    return;
   }
 
 
@@ -993,19 +1001,19 @@
       switch ( status.render_mode )
       {
       case RENDER_MODE_STRING:
-        error = Render_String();
+        Render_String();
         break;
 
       case RENDER_MODE_TEXT:
-        error = Render_Text();
+        Render_Text();
         break;
 
       case RENDER_MODE_WATERFALL:
-        error = Render_Waterfall();
+        Render_Waterfall();
         break;
 
       case RENDER_MODE_KERNCMP:
-        error = Render_KernCmp();
+        Render_KernCmp();
         break;
       }
 
