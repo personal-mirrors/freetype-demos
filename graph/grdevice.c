@@ -381,7 +381,7 @@
   *    event  :: the returned event
   *
   * <Note>
-  *    XXX : For now, only keypresses are supported.
+  *    Only keypresses and resizing events are supported.
   *
   **********************************************************************/
 
