@@ -327,6 +327,7 @@
     int      ret = 0;
 
 
+    grRefreshSurface( display->surface );
     grListenSurface( display->surface, 0, &event );
 
     if ( event.type == gr_event_resize )
@@ -426,8 +427,6 @@
 
       grWriteCellString( display->bitmap, x - 20, y + 170,
                          "Gamma", display->fore_color );
-
-      grRefreshSurface( display->surface );
     } while ( Process_Event() == 0 );
 
     FTDemo_Display_Done( display );

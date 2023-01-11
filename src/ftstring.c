@@ -490,6 +490,7 @@
       event.key = grKEY( *status.keys++ );
     else
     {
+      grRefreshSurface( display->surface );
       grListenSurface( display->surface, 0, &event );
 
       if ( event.type == gr_event_resize )
@@ -653,8 +654,6 @@
                          status.header, display->fore_color );
       status.header = NULL;
     }
-
-    grRefreshSurface( display->surface );
   }
 
 
@@ -1017,6 +1016,7 @@
       }
 
       write_header( error );
+
     } while ( !Process_Event() );
 
     printf( "Execution completed successfully.\n" );

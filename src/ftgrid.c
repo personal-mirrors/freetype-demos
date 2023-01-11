@@ -1349,6 +1349,7 @@
       event.key = grKEY( *status.keys++ );
     else
     {
+      grRefreshSurface( display->surface );
       grListenSurface( display->surface, 0, &event );
 
       if ( event.type == gr_event_resize )
@@ -1654,8 +1655,6 @@
       grWriteCellString( display->bitmap, 0, 4 * HEADER_HEIGHT,
                          status.header, display->fore_color );
     }
-
-    grRefreshSurface( display->surface );
   }
 
 

@@ -1627,9 +1627,10 @@
                          column_width, column_height );
 
       write_global_info( state );
-      grRefreshSurface( adisplay->surface );
 
+      grRefreshSurface( adisplay->surface );
       grListenSurface( adisplay->surface, 0, &event );
+
       if ( event.type == gr_event_resize )
       {
         width  = event.x;

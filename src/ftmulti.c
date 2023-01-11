@@ -611,6 +611,7 @@
     unsigned int  axis;
 
 
+    grRefreshSurface( surface );
     grListenSurface( surface, 0, &event );
 
     if ( event.type == gr_event_resize )
@@ -1289,7 +1290,6 @@
                        ft_basename( argv[file] ) );
 
       grWriteCellString( bit, 0, HEADER_HEIGHT, Header, fore_color );
-      grRefreshSurface( surface );
 
       if ( !( key = Process_Event() ) )
         goto End;

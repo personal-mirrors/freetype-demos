@@ -275,6 +275,7 @@
     int  speed = 10 * (int)status.scale;
 
 
+    grRefreshSurface( display->surface );
     grListenSurface( display->surface, 0, &event );
 
     switch ( event.key )
@@ -724,8 +725,6 @@
 
       draw();
       write_header();
-
-      grRefreshSurface( display->surface );
 
     } while ( !Process_Event() );
 

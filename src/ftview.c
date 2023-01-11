@@ -1099,6 +1099,7 @@
       event.key = grKEY( *status.keys++ );
     else
     {
+      grRefreshSurface( display->surface );
       grListenSurface( display->surface, 0, &event );
 
       if ( event.type == gr_event_resize )
@@ -1628,8 +1629,6 @@
                          0, display->bitmap->rows - GR_FONT_SIZE,
                          buf, display->fore_color );
     }
-
-    grRefreshSurface( display->surface );
   }
 
 
