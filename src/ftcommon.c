@@ -1216,7 +1216,7 @@
     if ( abs( ptsize * res / 72 - ppem ) > 32 ||
          error_code                           )
     {
-      x = strbuf_len( buf );
+      x = 8 * strbuf_len( buf ) + 16;
       strbuf_reset( buf );
 
       switch ( error_code )
@@ -1233,7 +1233,7 @@
       default:
         strbuf_format( buf, "Error 0x%04x", (FT_UShort)error_code );
       }
-      grWriteCellString( display->bitmap, 8 * x + 16, line * HEADER_HEIGHT,
+      grWriteCellString( display->bitmap, x, line * HEADER_HEIGHT,
                          strbuf_value( buf ), display->warn_color );
     }
 
