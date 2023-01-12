@@ -5,7 +5,7 @@
 /*  Copyright (C) 1996-2022 by                                              */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
-/*  ftlint: a simple TrueType instruction tester.                           */
+/*  fttry: a simple TrueType instruction tester.                            */
 /*                                                                          */
 /*  NOTE:  This is just a test program that is used to show off and         */
 /*         debug the current engine.                                        */

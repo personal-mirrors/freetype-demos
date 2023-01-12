@@ -5,6 +5,9 @@
 /*  Copyright (C) 1996-2022 by                                              */
 /*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
 /*                                                                          */
+/*                                                                          */
+/*  ftdump: a dumper of basic font information                              */
+/*                                                                          */
 /****************************************************************************/
 
 
