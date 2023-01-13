@@ -1111,18 +1111,21 @@
 
     status.update = 0;
 
-    if ( status.render_mode == (int)( event.key - '1' ) )
-      return ret;
     if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
-      status.render_mode = (int)( event.key - '1' );
+      int  render_mode = (int)( event.key - '1' );
+
+
+      if ( status.render_mode == render_mode )
+        return ret;
+
+      status.render_mode = render_mode;
       event_render_mode_change( 0 );
       status.update = 1;
       return ret;
     }
 
-    if ( event.key >= 'A'             &&
-         event.key < 'A' + N_LCD_IDXS )
+    if ( event.key >= 'A' && event.key < 'A' + N_LCD_IDXS )
     {
       int  lcd_idx = (int)( event.key - 'A' );
 
