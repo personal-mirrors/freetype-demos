@@ -1340,75 +1340,75 @@
       break;
     }
 
-    if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) ==
-                         FT_Err_Unimplemented_Feature    ||
-         handle->lcd_mode < LCD_MODE_RGB                 )
-      return ret;
-
-    switch ( event.key )
+    if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
+                         FT_Err_Unimplemented_Feature    &&
+         handle->lcd_mode >= LCD_MODE_RGB                 )
     {
-    case grKEY( 'L' ):
-      FTC_Manager_RemoveFaceID( handle->cache_manager,
-                                handle->scaler.face_id );
-
-      status.lcd_filter++;
-      switch ( status.lcd_filter )
+      switch ( event.key )
       {
-      case FT_LCD_FILTER_NONE:
-      case FT_LCD_FILTER_DEFAULT:
-      case FT_LCD_FILTER_LIGHT:
-      case FT_LCD_FILTER_LEGACY1:
-        FT_Library_SetLcdFilter( handle->library,
-                                 (FT_LcdFilter)status.lcd_filter );
+      case grKEY( 'L' ):
+        FTC_Manager_RemoveFaceID( handle->cache_manager,
+                                  handle->scaler.face_id );
+
+        status.lcd_filter++;
+        switch ( status.lcd_filter )
+        {
+        case FT_LCD_FILTER_NONE:
+        case FT_LCD_FILTER_DEFAULT:
+        case FT_LCD_FILTER_LIGHT:
+        case FT_LCD_FILTER_LEGACY1:
+          FT_Library_SetLcdFilter( handle->library,
+                                   (FT_LcdFilter)status.lcd_filter );
+          break;
+        default:
+          FT_Library_SetLcdFilterWeights( handle->library,
+                                          status.filter_weights );
+          status.lcd_filter = -1;
+        }
+
+        status.update = 1;
         break;
+
+      case grKEY( '[' ):
+        if ( status.lcd_filter < 0 )
+        {
+          status.fw_idx--;
+          if ( status.fw_idx < 0 )
+            status.fw_idx = 4;
+          status.update = 1;
+        }
+        break;
+
+      case grKEY( ']' ):
+        if ( status.lcd_filter < 0 )
+        {
+          status.fw_idx++;
+          if ( status.fw_idx > 4 )
+            status.fw_idx = 0;
+          status.update = 1;
+        }
+        break;
+
+      case grKEY( '-' ):
+        if ( status.lcd_filter < 0 )
+        {
+          event_fw_change( -1 );
+          status.update = 1;
+        }
+        break;
+
+      case grKEY( '+' ):
+      case grKEY( '=' ):
+        if ( status.lcd_filter < 0 )
+        {
+          event_fw_change( 1 );
+          status.update = 1;
+        }
+        break;
+
       default:
-        FT_Library_SetLcdFilterWeights( handle->library,
-                                        status.filter_weights );
-        status.lcd_filter = -1;
+        break;
       }
-
-      status.update = 1;
-      break;
-
-    case grKEY( '[' ):
-      if ( status.lcd_filter < 0 )
-      {
-        status.fw_idx--;
-        if ( status.fw_idx < 0 )
-          status.fw_idx = 4;
-        status.update = 1;
-      }
-      break;
-
-    case grKEY( ']' ):
-      if ( status.lcd_filter < 0 )
-      {
-        status.fw_idx++;
-        if ( status.fw_idx > 4 )
-          status.fw_idx = 0;
-        status.update = 1;
-      }
-      break;
-
-    case grKEY( '-' ):
-      if ( status.lcd_filter < 0 )
-      {
-        event_fw_change( -1 );
-        status.update = 1;
-      }
-      break;
-
-    case grKEY( '+' ):
-    case grKEY( '=' ):
-      if ( status.lcd_filter < 0 )
-      {
-        event_fw_change( 1 );
-        status.update = 1;
-      }
-      break;
-
-    default:
-      break;
     }
 
     return ret;
