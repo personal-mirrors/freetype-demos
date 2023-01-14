@@ -87,8 +87,6 @@
 
   static struct  status_
   {
-    int            update;
-
     const char*    keys;
     const char*    dims;
     const char*    device;
@@ -113,8 +111,7 @@
     unsigned char  filter_weights[5];
     int            fw_idx;
 
-  } status = { 1,
-               "", DIM, NULL, RENDER_MODE_ALL,
+  } status = { "", DIM, NULL, RENDER_MODE_ALL,
                72, 48, 1, 0.04, 0.04, 0.02, 0.22,
                0, 0, 0, 0, 0, 0,
                FT_LCD_FILTER_DEFAULT, { 0x08, 0x4D, 0x56, 0x4D, 0x08 }, 2 };
@@ -1092,9 +1089,10 @@
   Process_Event( void )
   {
     grEvent  event;
-    int      ret = 0;
+    int      update = 0;
 
 
+  Start:
     if ( *status.keys )
       event.key = grKEY( *status.keys++ );
     else
@@ -1103,13 +1101,8 @@
       grListenSurface( display->surface, 0, &event );
 
       if ( event.type == gr_event_resize )
-      {
-        status.update = 1;
-        return ret;
-      }
+        return 1;
     }
-
-    status.update = 0;
 
     if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
@@ -1117,12 +1110,11 @@
 
 
       if ( status.render_mode == render_mode )
-        return ret;
+        goto Start;
 
       status.render_mode = render_mode;
       event_render_mode_change( 0 );
-      status.update = 1;
-      return ret;
+      return 1;
     }
 
     if ( event.key >= 'A' && event.key < 'A' + N_LCD_IDXS )
@@ -1131,27 +1123,24 @@
 
 
       if ( status.lcd_idx == lcd_idx )
-        return ret;
+        goto Start;
 
       handle->lcd_mode = lcd_modes[lcd_idx];
       FTDemo_Update_Current_Flags( handle );
-      status.update  = 1;
       status.lcd_idx = lcd_idx;
-      return ret;
+      return 1;
     }
 
     switch ( event.key )
     {
     case grKeyEsc:
     case grKEY( 'q' ):
-      ret = 1;
-      break;
+      return 0;
 
     case grKeyF1:
     case grKEY( '?' ):
       event_help();
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'P' ):
       {
@@ -1161,57 +1150,51 @@
         FTDemo_Version( handle, str );
         FTDemo_Display_Print( display, "ftview.png", str );
       }
-      status.update = 0;
-      break;
+      goto Start;
 
     case grKEY( 'b' ):
       handle->use_sbits = !handle->use_sbits;
       FTDemo_Update_Current_Flags( handle );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'c' ):
       handle->use_color = !handle->use_color;
       FTDemo_Update_Current_Flags( handle );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'z' ):
       handle->use_layers = !handle->use_layers;
       FTDemo_Update_Current_Flags( handle );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'i' ):
-      status.update = event_palette_change( 1 );
+      update = event_palette_change( 1 );
       break;
 
     case grKEY( 'I' ):
-      status.update = event_palette_change( -1 );
+      update = event_palette_change( -1 );
       break;
 
     case grKEY( 'K' ):
       handle->use_sbits_cache = !handle->use_sbits_cache;
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'f' ):
       if ( handle->hinted )
       {
         handle->autohint = !handle->autohint;
         FTDemo_Update_Current_Flags( handle );
-        status.update = 1;
+        return 1;
       }
-      break;
+      goto Start;
 
     case grKEY( 'h' ):
       handle->hinted = !handle->hinted;
       FTDemo_Update_Current_Flags( handle );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'H' ):
-      status.update = FTDemo_Hinting_Engine_Change( handle );
+      update = FTDemo_Hinting_Engine_Change( handle );
       break;
 
     case grKEY( 'l' ):
@@ -1223,120 +1206,112 @@
 
       handle->lcd_mode = lcd_modes[status.lcd_idx];
       FTDemo_Update_Current_Flags( handle );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKeySpace:
       event_render_mode_change( 1 );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKeyBackSpace:
       event_render_mode_change( -1 );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKeyTab:
-      status.update = event_encoding_change();
+      update = event_encoding_change();
       break;
 
     case grKEY( 's' ):
       if ( status.render_mode == RENDER_MODE_FANCY )
-        status.update = event_slant_change( 0.02 );
+        update = event_slant_change( 0.02 );
       break;
 
     case grKEY( 'S' ):
       if ( status.render_mode == RENDER_MODE_FANCY )
-        status.update = event_slant_change( -0.02 );
+        update = event_slant_change( -0.02 );
       break;
 
     case grKEY( 'r' ):
       if ( status.render_mode == RENDER_MODE_STROKE )
-        status.update = event_radius_change( 0.005 );
+        update = event_radius_change( 0.005 );
       break;
 
     case grKEY( 'R' ):
       if ( status.render_mode == RENDER_MODE_STROKE )
-        status.update = event_radius_change( -0.005 );
+        update = event_radius_change( -0.005 );
       break;
 
     case grKEY( 'x' ):
       if ( status.render_mode == RENDER_MODE_FANCY )
-        status.update = event_bold_change( 0.005, 0.0 );
+        update = event_bold_change( 0.005, 0.0 );
       break;
 
     case grKEY( 'X' ):
       if ( status.render_mode == RENDER_MODE_FANCY )
-        status.update = event_bold_change( -0.005, 0.0 );
+        update = event_bold_change( -0.005, 0.0 );
       break;
 
     case grKEY( 'y' ):
       if ( status.render_mode == RENDER_MODE_FANCY )
-        status.update = event_bold_change( 0.0, 0.005 );
+        update = event_bold_change( 0.0, 0.005 );
       break;
 
     case grKEY( 'Y' ):
       if ( status.render_mode == RENDER_MODE_FANCY )
-        status.update = event_bold_change( 0.0, -0.005 );
+        update = event_bold_change( 0.0, -0.005 );
       break;
 
     case grKEY( 'g' ):
       FTDemo_Display_Gamma_Change( display,  1 );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'v' ):
       FTDemo_Display_Gamma_Change( display, -1 );
-      status.update = 1;
-      break;
+      return 1;
 
     case grKEY( 'n' ):
-      status.update = event_font_change( 1 );
+      update = event_font_change( 1 );
       break;
 
     case grKEY( 'p' ):
-      status.update = event_font_change( -1 );
+      update = event_font_change( -1 );
       break;
 
     case grKeyUp:
-      status.update = event_size_change( 64 );
+      update = event_size_change( 64 );
       break;
     case grKeyDown:
-      status.update = event_size_change( -64 );
+      update = event_size_change( -64 );
       break;
     case grKeyPageUp:
-      status.update = event_size_change( 640 );
+      update = event_size_change( 640 );
       break;
     case grKeyPageDown:
-      status.update = event_size_change( -640 );
+      update = event_size_change( -640 );
       break;
 
     case grKeyLeft:
-      status.update = event_index_change( -1 );
+      update = event_index_change( -1 );
       break;
     case grKeyRight:
-      status.update = event_index_change( 1 );
+      update = event_index_change( 1 );
       break;
     case grKeyF7:
-      status.update = event_index_change( -0x10 );
+      update = event_index_change( -0x10 );
       break;
     case grKeyF8:
-      status.update = event_index_change( 0x10 );
+      update = event_index_change( 0x10 );
       break;
     case grKeyF9:
-      status.update = event_index_change( -0x100 );
+      update = event_index_change( -0x100 );
       break;
     case grKeyF10:
-      status.update = event_index_change( 0x100 );
+      update = event_index_change( 0x100 );
       break;
     case grKeyF11:
-      status.update = event_index_change( -0x1000 );
+      update = event_index_change( -0x1000 );
       break;
     case grKeyF12:
-      status.update = event_index_change( 0x1000 );
-      break;
-
-    default:
+      update = event_index_change( 0x1000 );
       break;
     }
 
@@ -1366,8 +1341,7 @@
           status.lcd_filter = -1;
         }
 
-        status.update = 1;
-        break;
+        return 1;
 
       case grKEY( '[' ):
         if ( status.lcd_filter < 0 )
@@ -1375,9 +1349,9 @@
           status.fw_idx--;
           if ( status.fw_idx < 0 )
             status.fw_idx = 4;
-          status.update = 1;
+          return 1;
         }
-        break;
+        goto Start;
 
       case grKEY( ']' ):
         if ( status.lcd_filter < 0 )
@@ -1385,33 +1359,33 @@
           status.fw_idx++;
           if ( status.fw_idx > 4 )
             status.fw_idx = 0;
-          status.update = 1;
+          return 1;
         }
-        break;
+        goto Start;
 
       case grKEY( '-' ):
         if ( status.lcd_filter < 0 )
         {
           event_fw_change( -1 );
-          status.update = 1;
+          return 1;
         }
-        break;
+        goto Start;
 
       case grKEY( '+' ):
       case grKEY( '=' ):
         if ( status.lcd_filter < 0 )
         {
           event_fw_change( 1 );
-          status.update = 1;
+          return 1;
         }
-        break;
-
-      default:
-        break;
+        goto Start;
       }
     }
 
-    return ret;
+    if ( !update )
+      goto Start;
+
+    return 1;
   }
 
 
@@ -1854,9 +1828,6 @@
 
     do
     {
-      if ( !status.update )
-        continue;
-
       FTDemo_Display_Clear( display );
 
       switch ( status.render_mode )
@@ -1887,7 +1858,7 @@
 
       write_header( last );
 
-    } while ( Process_Event() == 0 );
+    } while ( Process_Event() );
 
     printf( "Execution completed successfully.\n" );
     if ( status.num_fails )
