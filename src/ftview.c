@@ -1315,9 +1315,9 @@
       break;
     }
 
-    if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
-                         FT_Err_Unimplemented_Feature    &&
-         handle->lcd_mode >= LCD_MODE_RGB                 )
+    if ( handle->lcd_mode >= LCD_MODE_RGB                &&
+         FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
+                         FT_Err_Unimplemented_Feature    )
     {
       switch ( event.key )
       {
@@ -1551,9 +1551,9 @@
     line++;
 
     /* LCD filtering */
-    if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
-                         FT_Err_Unimplemented_Feature    &&
-         handle->lcd_mode >= LCD_MODE_RGB                )
+    if ( handle->lcd_mode >= LCD_MODE_RGB                &&
+         FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
+                         FT_Err_Unimplemented_Feature    )
     {
       snprintf( buf, sizeof ( buf ), "filter: %s",
                 status.lcd_filter == 0 ? "none" :
@@ -1712,9 +1712,9 @@
 
           i = sscanf( optarg, "%d,%d,%d,%d,%d,%d",
                       buf, buf + 1, buf + 2, buf + 3, buf + 4, buf + 5 );
-          if ( FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
-                               FT_Err_Unimplemented_Feature    &&
-               i == 5                                          )
+          if ( i == 5                                          &&
+               FT_Library_SetLcdFilterWeights( NULL, NULL ) !=
+                               FT_Err_Unimplemented_Feature    )
           {
             status.filter_weights[0] = (unsigned char)buf[0];
             status.filter_weights[1] = (unsigned char)buf[1];
@@ -1727,9 +1727,9 @@
 
             status.lcd_filter = -1;
           }
-          else if ( FT_Library_SetLcdGeometry( NULL, NULL ) !=
-                               FT_Err_Unimplemented_Feature    &&
-                    i == 6                                     )
+          else if ( i == 6                                     &&
+                    FT_Library_SetLcdGeometry( NULL, NULL ) !=
+                               FT_Err_Unimplemented_Feature    )
           {
             FT_Vector  sub[3] = { { buf[0], buf[1] },
                                   { buf[2], buf[3] },
