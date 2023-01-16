@@ -1313,6 +1313,9 @@
     case grKeyF12:
       update = event_index_change( 0x1000 );
       break;
+
+    default:
+      break;
     }
 
     if ( handle->lcd_mode >= LCD_MODE_RGB                &&
@@ -1379,6 +1382,9 @@
           return 1;
         }
         goto Start;
+
+      default:
+        break;
       }
     }
 
