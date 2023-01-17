@@ -1,4 +1,4 @@
-// custom_widgets.cpp
+// customwidgets.cpp
 
 // Copyright (C) 2016-2022 by Werner Lemberg.
 
@@ -204,4 +204,4 @@ UnboundScrollArea::sizeHint() const
 }
 
 
-// end of custom_widgets.cpp
+// end of customwidgets.cpp

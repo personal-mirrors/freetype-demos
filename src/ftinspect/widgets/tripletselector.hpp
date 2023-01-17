@@ -1,4 +1,4 @@
-// QPushButton.hpp
+// tripletselector.hpp
 
 // Copyright (C) 2022 by Charlie Jiang.
 
@@ -67,4 +67,4 @@ private:
 };
 
 
-// end of QPushButton.hpp
+// end of tripletselector.hpp

@@ -1,4 +1,4 @@
-// custom_widgets.hpp
+// customwidgets.hpp
 
 // Copyright (C) 2016-2022 by Werner Lemberg.
 
@@ -76,4 +76,4 @@ public:
 };
 
 
-// end of custom_widgets.hpp
+// end of customwidgets.hpp
