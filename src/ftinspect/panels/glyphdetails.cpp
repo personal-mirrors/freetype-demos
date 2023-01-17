@@ -1,6 +1,7 @@
 // glyphdetails.cpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "glyphdetails.hpp"
 #include "../engine/engine.hpp"

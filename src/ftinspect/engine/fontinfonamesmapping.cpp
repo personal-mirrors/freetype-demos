@@ -1,6 +1,7 @@
 // fontinfonamesmapping.cpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "fontinfo.hpp"
 

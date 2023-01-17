@@ -1,6 +1,7 @@
 // glyphcontinuous.cpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "../engine/engine.hpp"
 #include "glyphcontinuous.hpp"

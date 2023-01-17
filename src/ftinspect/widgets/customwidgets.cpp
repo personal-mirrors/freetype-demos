@@ -1,6 +1,7 @@
 // customwidgets.cpp
 
-// Copyright (C) 2016-2022 by Werner Lemberg.
+// Copyright (C) 2016-2022 by
+// Werner Lemberg.
 
 #include "customwidgets.hpp"
 

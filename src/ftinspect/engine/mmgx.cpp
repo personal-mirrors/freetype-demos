@@ -1,6 +1,7 @@
 // mmgx.cpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "engine.hpp"
 #include "mmgx.hpp"

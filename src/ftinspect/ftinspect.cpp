@@ -1,6 +1,7 @@
 // ftinspect.cpp
 
-// Copyright (C) 2016-2022 by Werner Lemberg.
+// Copyright (C) 2016-2022 by
+// Werner Lemberg.
 
 
 #include "maingui.hpp"

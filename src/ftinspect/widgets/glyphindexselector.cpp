@@ -1,6 +1,7 @@
 // glyphindexselector.cpp
 
-// Copyright (C) 2022 Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "glyphindexselector.hpp"
 #include "../uihelper.hpp"

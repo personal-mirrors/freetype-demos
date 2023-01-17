@@ -1,6 +1,7 @@
 // tripletselector.cpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "tripletselector.hpp"
 #include "../engine/engine.hpp"

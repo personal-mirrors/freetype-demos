@@ -1,6 +1,7 @@
 // fontsizeselector.cpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "fontsizeselector.hpp"
 #include "../engine/engine.hpp"

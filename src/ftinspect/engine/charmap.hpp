@@ -1,6 +1,7 @@
 // charmap.hpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #pragma once
 

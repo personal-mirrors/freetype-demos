@@ -1,6 +1,7 @@
 // info.cpp
 
-// Copyright (C) 2022 by Charlie Jiang.
+// Copyright (C) 2022 by
+// Charlie Jiang.
 
 #include "info.hpp"
 #include "../engine/engine.hpp"
