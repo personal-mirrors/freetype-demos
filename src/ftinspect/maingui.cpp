@@ -1,6 +1,6 @@
 // maingui.cpp
 
-// Copyright (C) 2016-2022 by
+// Copyright (C) 2016-2023 by
 // Werner Lemberg.
 
 
@@ -102,7 +102,7 @@ MainGUI::about()
     this,
     tr("About ftinspect"),
     tr(R"(<p>This is <b>ftinspect</b> version %1<br>
-Copyright %2 2016-2022<br>
+Copyright %2 2016-2023<br>
 by Werner Lemberg <tt>&lt;wl@gnu.org&gt;</tt>
  and Charlie Jiang <tt>&lt;w@chariri.moe&gt;</tt></p>
 

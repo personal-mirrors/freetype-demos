@@ -2,7 +2,7 @@
  *
  *  Gamma-correct alpha blending of text
  *
- *  Copyright (C) 2004-2022 by
+ *  Copyright (C) 2004-2023 by
  *  David Turner
  *
  */

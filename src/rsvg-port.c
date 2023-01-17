@@ -5,7 +5,7 @@
  *   Librsvg-based hook functions for OT-SVG rendering in FreeType
  *   (implementation).
  *
- * Copyright (C) 2022 by
+ * Copyright (C) 2022-2023 by
  * David Turner, Robert Wilhelm, Werner Lemberg, and Moazin Khatti.
  *
  * This file is part of the FreeType project, and may only be used,

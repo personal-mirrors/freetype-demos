@@ -1,6 +1,6 @@
 // graphicsdefault.cpp
 
-// Copyright (C) 2022 by
+// Copyright (C) 2022-2023 by
 // Charlie Jiang.
 
 #include "graphicsdefault.hpp"

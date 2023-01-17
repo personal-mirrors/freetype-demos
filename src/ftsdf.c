@@ -2,7 +2,7 @@
 /*                                                                          */
 /*  The FreeType project -- a free and portable quality TrueType renderer.  */
 /*                                                                          */
-/*  Copyright (C) 2021-2022 by                                              */
+/*  Copyright (C) 2021-2023 by                                              */
 /*  D. Turner, R.Wilhelm, W. Lemberg, and Anuj Verma                        */
 /*                                                                          */
 /*                                                                          */

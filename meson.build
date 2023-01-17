@@ -2,7 +2,7 @@
 # Meson project file for FreeType 2 test programs
 #
 
-# Copyright (C) 2021-2022 by
+# Copyright (C) 2021-2023 by
 # David Turner, Robert Wilhelm, and Werner Lemberg.
 #
 # This file is part of the FreeType project, and may only be used, modified,

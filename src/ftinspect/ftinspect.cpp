@@ -1,6 +1,6 @@
 // ftinspect.cpp
 
-// Copyright (C) 2016-2022 by
+// Copyright (C) 2016-2023 by
 // Werner Lemberg.
 
 

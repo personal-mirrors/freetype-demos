@@ -6,7 +6,7 @@
  *  used by the graphics utility of the FreeType test suite.
  *
  *  Largely written by Just van Rossum, but derived from grwin32.c.
- *  Copyright (C) 1999-2022 by
+ *  Copyright (C) 1999-2023 by
  *  Just van Rossum, Antoine Leca,
  *  David Turner, Robert Wilhelm, and Werner Lemberg.
  *
