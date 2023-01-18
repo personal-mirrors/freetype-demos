@@ -26,9 +26,9 @@ methods *before* running `meson setup`:
     your chosen URL and/or revision.
 
   - Alternatively,  create or  replace `subprojects/freetype2`  with a
-    symlink to or a copy of the FreeType2 source tree of your chosing.
+    symlink to or a copy of the FreeType source tree of your choosing.
 
-In case meson  cloned FreeType already, and new commits were added  to
+In case meson cloned FreeType already,  and new commits were added  to
 its git repository, say
 
   meson subprojects update
@@ -98,7 +98,7 @@ was *not* already installed under `/opt`, one could do
   rm -rf /opt/include/freetype2
 
 The `x86_64-linux-gnu` part  varies depending on the host  OS and used
-architecure.
+architecture.
 
 Note  that  by default  all  binaries  are  statically linked  to  the
 FreeType library, which is useful for debugging.  It also ensures that

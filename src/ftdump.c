@@ -107,7 +107,7 @@
     fprintf( stderr,
       "\n"
       "ftdump: simple font dumper -- part of the FreeType project\n"
-      "-----------------------------------------------------------\n"
+      "----------------------------------------------------------\n"
       "\n"
       "Usage: %s [options] fontname\n"
       "\n",

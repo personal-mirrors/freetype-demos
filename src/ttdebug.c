@@ -2290,7 +2290,7 @@
           printf( "\n" );
           break;
 
-        /* Toggle between decimal and hexadimal integer format */
+        /* Toggle between decimal and hexadecimal integer format */
         case 'I':
           use_hex = !use_hex;
           printf( "Use %s format for displaying integers.\n",

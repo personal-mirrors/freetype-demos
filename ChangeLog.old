@@ -67,7 +67,7 @@
 	[ftlint] Improve error reporting.
 
 	* src/ftlint.c (main): Decorate error messages.
-	(Error): Take a prefix message argumemt.
+	(Error): Take a prefix message argument.
 
 2021-06-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
@@ -836,10 +836,10 @@
 
 	[ftgrid] Implement reversible floating zoom.
 
-	The floating zoom is neccessary to display extremely large sizes
+	The floating zoom is necessary to display extremely large sizes
 	after scaling them down, but it has to stay rounded to integers when
 	displaying grids and bitmaps for small sizes. All this can be
-	achievied by truncating and bit-adjusting numbers in IEEE 754 format.
+	achieved by truncating and bit-adjusting numbers in IEEE 754 format.
 	To make it portable too, we rely on C99 `frexpf' and `ldexpf'.
 
 	* src/ftgid.c (status): Change type of `scale'.
@@ -1161,7 +1161,7 @@
 	* graph/win32/grwin32.c (WM_RESIZE): New custom message.
 	(gr_win32_surface_listen_event): Simplify and handle keystroke events
 	and window resizing here.
-	(grWin32Surface): Remove no longer neccessary fields.
+	(grWin32Surface): Remove no longer necessary fields.
 	(Message_Process): Handle WM_PAINT and post WN_RESIZE as needed.
 
 2020-05-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
@@ -1174,7 +1174,7 @@
 
 	* graph/grblit.c, graph/grdevice.c, graph/grdevice.h,
 	graph/x11/grx11.c: s/unsigned long/size_t/
-	* graph/grobjs.h: Ditto and inclide <stdlib.h>
+	* graph/grobjs.h: Ditto and include <stdlib.h>
 	* graph/grobjs.c (grAlloc): Ditto.
 	(grNewBitmap): Handle zero height or width.
 
@@ -1187,7 +1187,7 @@
 	[graph] Implement resizable GDI windows.
 
 	* graph/win32/grwin32.c (gr_win32_surface_resize): Implement resizing.
-	(Nessage_Process): Add WM_SIZE handling.
+	(Message_Process): Add WM_SIZE handling.
 	(gr_win32_surface_init): Change window style and streamline.
 
 2020-05-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
@@ -1546,7 +1546,7 @@
 	useful for batch processing without GUI.
 
 	* graph/batch/grbatch.[hc]: New implenetation files.
-	* graph/batch/rules.mk: Makefile with unconditinal compilation.
+	* graph/batch/rules.mk: Makefile with unconditional compilation.
 	* graph/grinit.c (GR_INIT_DEVICE_CHAIN): Add the driver at the tail.
 
 2019-06-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
@@ -1568,7 +1568,7 @@
 
 	* Makefile: Compile with appropriate <ftoption.h> so that
 	FT_CONFIG_OPTION_USE_PNG status is inherited from the library build
-	and based on the libPNG avalability.
+	and based on the libPNG availability.
 
 2019-06-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
