@@ -9,12 +9,15 @@
 /*                                                                          */
 /****************************************************************************/
 
+/* The cached color gradients from the back- to foreground color are used
+ * to quickly look up the blended color for a given pixel coverage (alpha).
+ * They are calculated with gamma correction and stored with 8-bit depth
+ * per channel, in the range [0-255]. Other supported color representations
+ * require scaling to utilize the cache.
+ */
 
 #include "grobjs.h"
 #include "gblblit.h"
-
-/* blitting gray glyphs
- */
 
 /* generic macros
  */
@@ -206,7 +209,7 @@
 
 #include "gblany.h"
 
-/* Gray8 blitting routines
+/* Gray8 blitting routines, only 8-bit gray is supported
  */
 #define  GDST_TYPE               gray8
 #define  GDST_INCR               1

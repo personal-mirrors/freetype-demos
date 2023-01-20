@@ -1,3 +1,21 @@
+/****************************************************************************/
+/*                                                                          */
+/*  The FreeType project -- a free and portable quality TrueType renderer.  */
+/*                                                                          */
+/*  Copyright (C) 1996-2023 by                                              */
+/*  D. Turner, R.Wilhelm, and W. Lemberg                                    */
+/*                                                                          */
+/*  gblender.c: Alpha blending with gamma correction and caching.           */
+/*                                                                          */
+/****************************************************************************/
+
+/* The cached color gradients from the back- to foreground color are used
+ * to quickly look up the blended color for a given pixel coverage (alpha).
+ * They are calculated with gamma correction and stored with 8-bit depth
+ * per channel, in the range [0-255]. Other supported color representations
+ * require scaling to utilize the cache.
+ */
+
 #include "gblender.h"
 #include <stdlib.h>
 
