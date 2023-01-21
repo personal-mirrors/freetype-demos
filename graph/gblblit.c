@@ -9,11 +9,12 @@
 /*                                                                          */
 /****************************************************************************/
 
-/* The cached color gradients from the back- to foreground color are used
- * to quickly look up the blended color for a given pixel coverage (alpha).
+/* Color gradients between background and foreground are cached to quickly
+ * look up the blended color for a given glyph pixel coverage (alpha).
  * They are calculated with gamma correction and stored with 8-bit depth
  * per channel, in the range [0-255]. Other supported color representations
- * require scaling to utilize the cache.
+ * require scaling to utilize the cache. This file contains the color
+ * conversion and blending routines.
  */
 
 #include "grobjs.h"
