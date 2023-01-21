@@ -432,7 +432,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
 {
   MSG  msg;
 
-  surface->root.bitmap.grays = bitmap->grays;
 
   /* Set default mode */
   if ( bitmap->mode == gr_pixel_mode_none )
@@ -447,7 +446,8 @@ gr_win32_surface_init( grWin32Surface*  surface,
     switch ( bpp )
     {
     case 8:
-      surface->root.bitmap.mode = gr_pixel_mode_gray;
+      surface->root.bitmap.mode  = gr_pixel_mode_gray;
+      surface->root.bitmap.grays = 256;
       break;
     case 16:
       surface->root.bitmap.mode = gr_pixel_mode_rgb565;
@@ -461,7 +461,10 @@ gr_win32_surface_init( grWin32Surface*  surface,
     }
   }
   else
+  {
     surface->root.bitmap.mode  = bitmap->mode;
+    surface->root.bitmap.grays = bitmap->grays;
+  }
 
   if ( !gr_win32_surface_resize( surface, bitmap->width, bitmap->rows ) )
     return 0;
@@ -484,17 +487,16 @@ gr_win32_surface_init( grWin32Surface*  surface,
 
   case gr_pixel_mode_gray:
     surface->bmiHeader.biBitCount = 8;
-    surface->bmiHeader.biClrUsed  = bitmap->grays;
+    surface->bmiHeader.biClrUsed  = surface->root.bitmap.grays;
     {
-      int   count = bitmap->grays;
-      int   x;
+      int       x, count = surface->root.bitmap.grays - 1;
       RGBQUAD*  color = surface->bmiColors;
 
-      for ( x = 0; x < count; x++, color++ )
+      for ( x = 0; x <= count; x++, color++ )
       {
         color->rgbRed   =
         color->rgbGreen =
-        color->rgbBlue  = (unsigned char)(x*255/(count-1));
+        color->rgbBlue  = (BYTE)( x * 255 / count );
         color->rgbReserved = 0;
       }
     }
