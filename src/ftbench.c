@@ -1217,7 +1217,7 @@
         {
           int  fi, li;
 
-          if ( sscanf( optarg, "%d%*[,:-]%d", &fi, &li ) == 2 )
+          if ( sscanf( optarg, "%i%*[,:-]%i", &fi, &li ) == 2 )
           {
             first_index = fi < 0 ? 0 : fi;
             last_index  = li < 0 ? 0 : li;

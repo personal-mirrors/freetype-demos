@@ -1002,7 +1002,7 @@
         break;
 
       case 'f':
-        first_glyph = atoi( optarg );
+        sscanf( optarg, "%i", &first_glyph );
         break;
 
       case 'h':

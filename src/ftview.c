@@ -1689,7 +1689,7 @@
         break;
 
       case 'f':
-        status.offset = atoi( optarg );
+        sscanf( optarg, "%i", &status.offset );
         break;
 
       case 'k':

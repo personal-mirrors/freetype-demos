@@ -1752,8 +1752,7 @@
         break;
 
       case 'f':
-        status.Num = atoi( optarg );
-        have_index = 1;
+        have_index = sscanf( optarg, "%i", &status.Num );
         break;
 
       case 'k':
