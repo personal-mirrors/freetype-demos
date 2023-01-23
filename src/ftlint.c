@@ -66,16 +66,19 @@
   static void
   Usage( const char*  name )
   {
-    printf( "ftlint: simple font tester -- part of the FreeType project\n" );
-    printf( "----------------------------------------------------------\n" );
-    printf( "\n" );
-    printf( "Usage: %s [options] ppem fontname [fontname2..]\n",
-            name );
-    printf( "\n" );
-    printf( "  -f L    Use hex number L as load flags (see `FT_LOAD_XXX')\n" );
-    printf( "  -r N    Set render mode to N\n" );
-    printf( "  -i I-J  Range of glyph indices to use (default: all)\n" );
-    printf( "  -q      Quiet mode without the rendering analysis\n" );
+    fprintf( stderr,
+      "\n"
+      "ftlint: simple font tester -- part of the FreeType project\n"
+      "----------------------------------------------------------\n"
+      "\n"
+      "Usage: %s [options] ppem fontname [fontname2..]\n",
+             name );
+    fprintf( stderr,
+      "\n"
+      "  -f L    Use hex number L as load flags (see `FT_LOAD_XXX')\n"
+      "  -r N    Set render mode to N\n"
+      "  -i I-J  Range of glyph indices to use (default: all)\n"
+      "  -q      Quiet mode without the rendering analysis\n" );
 
     exit( 1 );
   }
