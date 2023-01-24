@@ -936,7 +936,7 @@
 
     /* 0x30 */
     "Interpolate untouched points between touched ones in the y direction.",
-    "Interpolate untouched points between toucned ones in the x direction.",
+    "Interpolate untouched points between touched ones in the x direction.",
     "Shift point P [FV] by distance (origin,current) [PV] of RP2 <L>:\n"
       "  p (%s) -",
     "Shift point P [FV] by distance (origin,current) [PV] of RP1 <L>:\n"

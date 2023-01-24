@@ -28,9 +28,9 @@ extern "C" {
    * Usage is as follows.
    *
    *   1) Initialize instance with `strbuf_init'.
-   *   2) Use `strbuff_add' to append a string to the target buffer,
-   *      `strbuff_addc' to append a single character, and
-   *      `strbuff_format' to append a formatted string.
+   *   2) Use `strbuf_add' to append a string to the target buffer,
+   *      `strbuf_addc' to append a single character, and
+   *      `strbuf_format' to append a formatted string.
    *   3) Call `strbuf_value' to retrieve the zero-terminated resulting
    *      string.
    */
