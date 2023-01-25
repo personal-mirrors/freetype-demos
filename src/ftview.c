@@ -1647,7 +1647,8 @@
       "  -f index  Specify first index to display (default: 0).\n"
       "  -e enc    Specify encoding tag (default: no encoding).\n"
       "            Common values: `unic' (Unicode), `symb' (symbol),\n"
-      "            `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
+      "            `ADOB' (Adobe standard), `ADBC' (Adobe custom),\n"
+      "            or a numeric charmap index.\n"
       "  -m text   Use `text' for rendering.\n" );
     fprintf( stderr,
       "  -l mode   Set start-up rendering mode (0 <= mode <= %d).\n",

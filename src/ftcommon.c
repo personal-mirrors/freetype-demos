@@ -598,9 +598,10 @@
 
         font->face_index = ( j << 16 ) + i;
 
-        if ( handle-> encoding != FT_ENCODING_ORDER                      &&
-             FT_Select_Charmap( face, (FT_Encoding)handle->encoding ) ==
-                                                               FT_Err_Ok )
+        if ( handle->encoding < face->num_charmaps )
+          font->cmap_index = handle->encoding;
+        else if ( handle->encoding != FT_ENCODING_ORDER                     &&
+                  !FT_Select_Charmap( face, (FT_Encoding)handle->encoding ) )
           font->cmap_index = FT_Get_Charmap_Index( face->charmap );
         else
           font->cmap_index = face->num_charmaps;  /* FT_ENCODING_ORDER */
@@ -2037,6 +2038,10 @@
 
     for ( i = 0; i < 4 && s[i]; i++ )
       l = ( l << 8 ) | s[i];
+
+    /* interpret numerically if too short for a tag */
+    if ( i < 4 && !sscanf( s, "%lu", &l ) )
+      l = FT_ENCODING_ORDER;
 
     return l;
   }
