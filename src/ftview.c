@@ -775,7 +775,7 @@
           status.topleft = ch;
         }
 
-        if ( X_TOO_LONG( x + ( size->metrics.max_advance >> 6 ), display ) )
+        if ( X_TOO_LONG( x, display ) )
           break;
 
         continue;
