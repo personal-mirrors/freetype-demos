@@ -862,10 +862,13 @@
 
     while ( 1 )
     {
-      pt_size += step;
+      pt_size  += step;
+      pt_height = handle->scaler.height;
 
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
-      FTDemo_String_Load( handle, &status.sc );
+      /* avoid reloading repetitive sizes with bitmap fonts */
+      if ( handle->scaler.height != pt_height )
+        FTDemo_String_Load( handle, &sc );
 
       error = FTDemo_Get_Size( handle, &size );
       if ( error )
@@ -886,6 +889,7 @@
                           x, y + ( size->metrics.descender >> 6 ) );
     }
 
+    /* restore the original size */
     FTDemo_Set_Current_Charsize( handle, status.ptsize, status.res );
     FTDemo_String_Load( handle, &status.sc );
 
