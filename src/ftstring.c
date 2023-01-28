@@ -81,7 +81,8 @@
     RENDER_MODE_TEXT,
     RENDER_MODE_WATERFALL,
     RENDER_MODE_KERNCMP,
-    N_RENDER_MODES
+    N_RENDER_MODES,
+    RENDER_FLAG_TTY = 8
   };
 
   static struct  status_
@@ -258,8 +259,7 @@
 
     grWriteln( buf );
     grLn();
-    grWriteln( "This program is used to display a string of text using" );
-    grWriteln( "the new convenience API of the FreeType 2 library." );
+    grWriteln( "This program is used to display a text string." );
     grLn();
     grWriteln( "Use the following keys :" );
     grLn();
@@ -269,6 +269,7 @@
     grWriteln( "  f         : toggle forced auto-hinting" );
     grWriteln( "  h         : toggle outline hinting" );
     grWriteln( "  H         : change hinting engine" );
+    grWriteln( "  V         : toggle vertical rendering" );
     grLn();
     grWriteln( "  1-4       : select rendering mode" );
     grWriteln( "  l         : cycle through anti-aliasing modes" );
@@ -276,7 +277,7 @@
     grWriteln( "  t         : cycle through kerning degrees" );
     grWriteln( "  Space     : cycle through color" );
     grWriteln( "  Tab       : cycle through sample strings" );
-    grWriteln( "  V         : toggle vertical rendering" );
+    grWriteln( "  Enter     : toggle simple string editor" );
     grLn();
     grWriteln( "  g, v      : adjust gamma by 0.1" );
     grLn();
@@ -468,6 +469,36 @@
 
 
   static int
+  Process_TTY( grKey  key )
+  {
+    static char  buffer[32] = "Edit this text";
+    static int   cursor     = 14;
+
+
+    if ( key == grKeyReturn )
+      status.render_mode ^= RENDER_FLAG_TTY;
+    else if ( key == grKeyBackSpace )
+    {
+      if ( cursor )
+        buffer[--cursor] = '\0';
+    }
+    else if ( 31 < key && key < 127 )
+    {
+      if ( cursor < 31)
+        buffer[cursor++] = key;
+    }
+    else if ( key != grKeyTab )
+      return 0;
+
+    snprintf( status.header_buffer, sizeof ( status.header_buffer ),
+              "TTY mode [%s%*c]", buffer, cursor - 32, '_' );
+
+    FTDemo_String_Set( handle, buffer );
+    return 1;
+  }
+
+
+  static int
   Process_Event( void )
   {
     grEvent                 event;
@@ -486,6 +517,10 @@
         return ret;
     }
 
+    if ( status.render_mode & RENDER_FLAG_TTY &&
+         Process_TTY( event.key ) )
+       goto String;
+
     if ( event.key >= '1' && event.key < '1' + N_RENDER_MODES )
     {
       status.render_mode = (int)( event.key - '1' );
@@ -500,6 +535,10 @@
     case grKEY( 'q' ):
       ret = 1;
       goto Exit;
+
+    case grKeyReturn:
+      Process_TTY( event.key );
+      goto String;
 
     case grKeyF1:
     case grKEY( '?' ):
@@ -768,6 +807,29 @@
 
 
   static void
+  Render_TTY( void )
+  {
+    FT_Size  size;
+
+
+    /* check the sizing error */
+    error = FTDemo_Get_Size( handle, &size );
+    if ( error )
+      return;
+
+    FTDemo_String_Draw( handle, display,
+                        &status.sc,
+                        FT_MulFix( display->bitmap->width, status.sc.center),
+                        display->bitmap->rows / 2 );
+
+    /* this was prepared in Process_TTY */
+    status.header = status.header_buffer;
+
+    return;
+  }
+
+
+  static void
   Render_String( void )
   {
     int      x, y = display->bitmap->rows - 4;
@@ -1006,6 +1068,10 @@
 
       case RENDER_MODE_KERNCMP:
         Render_KernCmp();
+        break;
+
+      default:
+        Render_TTY();
         break;
       }
 
