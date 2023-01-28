@@ -70,14 +70,14 @@
   static
   Translator  key_translators[] =
   {
+    { VK_PRIOR,     grKeyPageUp    },
+    { VK_NEXT,      grKeyPageDown  },
+    { VK_END,       grKeyEnd       },
     { VK_HOME,      grKeyHome      },
     { VK_LEFT,      grKeyLeft      },
     { VK_UP,        grKeyUp        },
     { VK_RIGHT,     grKeyRight     },
     { VK_DOWN,      grKeyDown      },
-    { VK_PRIOR,     grKeyPageUp    },
-    { VK_NEXT,      grKeyPageDown  },
-    { VK_END,       grKeyEnd       },
     { VK_F1,        grKeyF1        },
     { VK_F2,        grKeyF2        },
     { VK_F3,        grKeyF3        },
