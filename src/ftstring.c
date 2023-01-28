@@ -464,17 +464,6 @@
       if ( status.render_mode < 0 )
         status.render_mode += N_RENDER_MODES;
     }
-
-    switch ( status.render_mode )
-    {
-    case RENDER_MODE_KERNCMP:
-      status.header = "Kerning comparison";
-      break;
-
-    default:
-      status.header = NULL;
-      break;
-    }
   }
 
 
