@@ -586,24 +586,10 @@
 
     case grKEY( 'k' ):
       sc->kerning_mode = ( sc->kerning_mode + 1 ) % N_KERNING_MODES;
-      status.header =
-        sc->kerning_mode == KERNING_MODE_SMART
-        ? "pair kerning and side bearing correction is now active"
-        : sc->kerning_mode == KERNING_MODE_NORMAL
-          ? "pair kerning is now active"
-          : "pair kerning is now ignored";
       goto String;
 
     case grKEY( 't' ):
       sc->kerning_degree = ( sc->kerning_degree + 1 ) % N_KERNING_DEGREES;
-      status.header =
-        sc->kerning_degree == KERNING_DEGREE_NONE
-        ? "no track kerning"
-        : sc->kerning_degree == KERNING_DEGREE_LIGHT
-          ? "light track kerning active"
-          : sc->kerning_degree == KERNING_DEGREE_MEDIUM
-            ? "medium track kerning active"
-            : "tight track kerning active";
       goto String;
 
     case grKeySpace:
@@ -673,8 +659,26 @@
   static void
   write_header( FT_Error  error_code )
   {
+    FTDemo_String_Context*  sc = &status.sc;
+
+    char  kern[40];
+    int   x;
+
+
     FTDemo_Draw_Header( handle, display, status.ptsize, status.res,
                         -1, error_code );
+
+    /* describe kerning */
+    x = sprintf( kern, "%s pairs, %s track",
+             sc->kerning_mode == KERNING_MODE_SMART  ? "adjusted" :
+             sc->kerning_mode == KERNING_MODE_NORMAL ? "" : "no",
+             sc->kerning_degree == KERNING_DEGREE_TIGHT  ? "tight" :
+             sc->kerning_degree == KERNING_DEGREE_MEDIUM ? "medium" :
+             sc->kerning_degree == KERNING_DEGREE_LIGHT  ? "light" : "no" );
+
+    grWriteCellString( display->bitmap,
+                       display->bitmap->width - 8 * x, 3 * HEADER_HEIGHT,
+                       kern, display->fore_color );
 
     if ( status.header )
     {
