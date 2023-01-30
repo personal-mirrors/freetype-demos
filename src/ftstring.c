@@ -359,7 +359,7 @@
 
     status.sc.matrix = &status.trans_matrix;
 
-    radian  = status.angle * 3.14159265 / 180.0;
+    radian  = status.angle * ( 3.14159265 / 180.0 );
     cosinus = (FT_Fixed)( cos( radian ) * 65536.0 );
     sinus   = (FT_Fixed)( sin( radian ) * 65536.0 );
 

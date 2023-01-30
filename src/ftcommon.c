@@ -1784,9 +1784,7 @@
                                   (FT_Fixed)handle->scaler.width << 10,
                                   -sc->kerning_degree,
                                   &track_kern ) )
-        track_kern = (FT_Pos)(
-                       ( track_kern / 1024.0 * handle->scaler.x_res ) /
-                       72.0 );
+        track_kern = ( track_kern >> 10 ) * (FT_Long)handle->scaler.x_res / 72;
     }
 
     for ( prev = handle->string + length, glyph = handle->string, i = 0;
