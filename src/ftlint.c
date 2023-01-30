@@ -112,7 +112,10 @@
       s1 += (unsigned long)d1;
     }
 
-    printf( "%.4lf ", s1 ? (double)s2 / s1 : 2.0 );
+    if ( s1 )
+      printf( "%.4lf ", (double)s2 / s1 );
+    else
+      printf( "  void " );
 
     /* Y-acutance */
     for ( s1 = s2 = 0, j = 0; j < bitmap->width; j++ )
@@ -133,7 +136,10 @@
       s1 += (unsigned long)d1;
     }
 
-    printf( "%.4lf ", s1 ? (double)s2 / s1 : 2.0 );
+    if ( s1 )
+      printf( "%.4lf ", (double)s2 / s1 );
+    else
+      printf( "  void " );
   }
 
 
