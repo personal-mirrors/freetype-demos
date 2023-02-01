@@ -677,7 +677,7 @@
              sc->kerning_degree == KERNING_DEGREE_LIGHT  ? "light" : "no" );
 
     grWriteCellString( display->bitmap,
-                       display->bitmap->width - 8 * x, 3 * HEADER_HEIGHT,
+                       display->bitmap->width / 2 - 4 * x, 2 * HEADER_HEIGHT,
                        kern, display->fore_color );
 
     if ( status.header )
