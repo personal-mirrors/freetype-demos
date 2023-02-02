@@ -286,7 +286,7 @@ gr_win32_surface_set_icon( grWin32Surface*  surface,
  */
 
 
-static grWin32Surface*
+static int
 gr_win32_surface_resize( grWin32Surface*  surface,
                          int              width,
                          int              height )
@@ -327,7 +327,7 @@ gr_win32_surface_resize( grWin32Surface*  surface,
   surface->bmiHeader.biWidth  = width;
   surface->bmiHeader.biHeight = -height;
 
-  return surface;
+  return 1;
 }
 
 static void
@@ -426,7 +426,7 @@ DWORD WINAPI Window_ThreadProc( LPVOID lpParameter )
 }
 
 
-static grWin32Surface*
+static int
 gr_win32_surface_init( grWin32Surface*  surface,
                        grBitmap*        bitmap )
 {
@@ -465,9 +465,6 @@ gr_win32_surface_init( grWin32Surface*  surface,
     surface->root.bitmap.mode  = bitmap->mode;
     surface->root.bitmap.grays = bitmap->grays;
   }
-
-  if ( !gr_win32_surface_resize( surface, bitmap->width, bitmap->rows ) )
-    return 0;
 
   surface->bmiHeader.biSize   = sizeof( BITMAPINFOHEADER );
   surface->bmiHeader.biPlanes = 1;
@@ -533,6 +530,10 @@ gr_win32_surface_init( grWin32Surface*  surface,
     return 0;         /* Unknown mode */
   }
 
+  /* allocate buffers */
+  if ( !gr_win32_surface_resize( surface, bitmap->width, bitmap->rows ) )
+    goto Fail;
+
   /* set up the main message queue and spin off the window thread */
   PeekMessage( &msg, (HWND)-1, WM_USER, WM_USER, PM_NOREMOVE );
   surface->host = GetCurrentThreadId();
@@ -542,7 +543,7 @@ gr_win32_surface_init( grWin32Surface*  surface,
   /* listen if window is created */
   if ( GetMessage ( &msg, (HWND)-1, WM_STATUS, WM_STATUS ) < 0 ||
        !msg.wParam )
-    return 0;
+    goto Fail;
 
   /* wrap up */
   surface->root.done         = (grDoneSurfaceFunc) gr_win32_surface_done;
@@ -555,7 +556,11 @@ gr_win32_surface_init( grWin32Surface*  surface,
         surface->root.bitmap.width, surface->root.bitmap.rows,
         surface->bmiHeader.biBitCount ));
 
-  return surface;
+  return 1;
+
+Fail:
+  gr_win32_surface_done( surface );
+  return 0;
 }
 
 
