@@ -300,7 +300,8 @@
         size_t  path_len      = strlen( font->filepathname );
         char*   suffix        = (char *)strrchr( font->filepathname, '.' );
         int     has_extension = suffix                                 &&
-                                ( strcasecmp( suffix, ".pfa" ) == 0 ||
+                                ( strcasecmp( suffix, ".t1"  ) == 0 ||
+                                  strcasecmp( suffix, ".pfa" ) == 0 ||
                                   strcasecmp( suffix, ".pfb" ) == 0 );
 
         size_t  ext_path_len;
@@ -309,8 +310,8 @@
 
         if ( has_extension )
         {
-          /* Ignore `.pfa' or `.pfb' extension in the original font path. */
-          path_len -= 4;
+          /* Ignore `.t1' `.pfa',`.pfb' extension in the original path. */
+          path_len = suffix - font->filepathname;
         }
 
         ext_path_len = path_len + 5;       /* 4 bytes extension + '\0' */
