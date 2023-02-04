@@ -624,7 +624,7 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
         PostThreadMessage( surface->host, WM_RESIZE, SIZE_RESTORED,
                            MAKELPARAM( WndRect.right, WndRect.bottom ) );
       }
-      break;
+      return TRUE;  /* required */
 
     case WM_EXITSIZEMOVE:
       {
