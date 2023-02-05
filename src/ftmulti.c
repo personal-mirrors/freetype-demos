@@ -390,9 +390,8 @@
     unsigned int  i;
 
 
-    start_x = 4;
-    start_y = pt_size + HEADER_HEIGHT *
-                        ( num_shown_axes > MAX_MM_AXES / 2 ? 6 : 5 );
+    start_x = 20 * 8;
+    start_y = pt_size + HEADER_HEIGHT * 3;
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -455,8 +454,8 @@
     const unsigned char*  p;
 
 
-    start_x = 4;
-    start_y = pt_size + ( num_shown_axes > MAX_MM_AXES / 2 ? 52 : 44 );
+    start_x = 20 * 8;
+    start_y = pt_size + HEADER_HEIGHT * 3;
 
     step_y = size->metrics.y_ppem + 10;
 
@@ -1206,46 +1205,20 @@
 
         strbuf_reset( header );
         strbuf_add( header, "axes:" );
-
-        {
-          unsigned int  limit = num_shown_axes > MAX_MM_AXES / 2
-                                  ? MAX_MM_AXES / 2
-                                  : num_shown_axes;
-
-
-          for ( n = 0; n < limit; n++ )
-          {
-            int  axis = shown_axes[n];
-
-
-            strbuf_format( header, "  %.50s%s: %.02f",
-                           multimaster->axis[axis].name,
-                           hidden[axis] ? "*" : "",
-                           design_pos[axis] / 65536.0 );
-          }
-        }
         grWriteCellString( bit, 0, 3 * HEADER_HEIGHT, Header, fore_color );
-
-        if ( num_shown_axes > MAX_MM_AXES / 2 )
+        for ( n = 0; n < num_shown_axes; n++ )
         {
-          unsigned int  limit = num_shown_axes;
+          int  axis = shown_axes[n];
 
 
           strbuf_reset( header );
-          strbuf_add( header, "     " );
-
-          for ( n = MAX_MM_AXES / 2; n < limit; n++ )
-          {
-            int  axis = shown_axes[n];
-
-
-            strbuf_format( header, "  %.50s%s: %.02f",
-                           multimaster->axis[axis].name,
-                           hidden[axis] ? "*" : "",
-                           design_pos[axis] / 65536.0 );
-          }
-
-          grWriteCellString( bit, 0, 4 * HEADER_HEIGHT, Header, fore_color );
+          strbuf_format( header, "%2i %.50s%s: %.02f",
+                         n,
+                         multimaster->axis[axis].name,
+                         hidden[axis] ? "*" : "",
+                         design_pos[axis] / 65536.0 );
+          grWriteCellString( bit, 0, ( n + 4 ) * HEADER_HEIGHT,
+                             Header, fore_color );
         }
 
         {
