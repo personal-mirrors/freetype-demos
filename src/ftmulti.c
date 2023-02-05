@@ -38,7 +38,7 @@
 #define  HEADER_HEIGHT  12
 
 #define  MAXPTSIZE    500               /* dtp */
-#define  MAX_MM_AXES    6
+#define  MAX_MM_AXES   15
 
   /* definitions in ftcommon.c */
   unsigned int
@@ -570,12 +570,12 @@
     grWriteln( "F9, F10     adjust index by 100" );
     grWriteln( "F11, F12    adjust index by 1000" );
     grLn();
-    grWriteln( "F1, F2      adjust first axis" );
-    grWriteln( "F3, F4      adjust second axis" );
-    grWriteln( "F5, F6      adjust third axis" );
-    grWriteln( "1, 2        adjust fourth axis" );
-    grWriteln( "3, 4        adjust fifth axis" );
-    grWriteln( "5, 6        adjust sixth axis" );
+    grWriteln( "F1, F2  adjust axis 0    7, 8  adjust axis  6    &, *  adjust axis 12" );
+    grWriteln( "F3, F4  adjust axis 1    9, 0  adjust axis  7    (, )  adjust axis 13" );
+    grWriteln( "F5, F6  adjust axis 2    -, =  adjust axis  8    _, +  adjust axis 14" );
+    grWriteln( "1, 2    adjust axis 3    !, @  adjust axis  9" );
+    grWriteln( "3, 4    adjust axis 4    #, $  adjust axis 10" );
+    grWriteln( "5, 6    adjust axis 5    %, ^  adjust axis 11" );
     grLn();
     grWriteln( "i, I        adjust axis range increment" );
     grLn();
@@ -752,6 +752,96 @@
     case grKEY( '6' ):
       i = increment;
       axis = 5;
+      goto Do_Axis;
+
+    case grKEY( '7' ):
+      i = -increment;
+      axis = 6;
+      goto Do_Axis;
+
+    case grKEY( '8' ):
+      i = increment;
+      axis = 6;
+      goto Do_Axis;
+
+    case grKEY( '9' ):
+      i = -increment;
+      axis = 7;
+      goto Do_Axis;
+
+    case grKEY( '0' ):
+      i = increment;
+      axis = 7;
+      goto Do_Axis;
+
+    case grKEY( '-' ):
+      i = -increment;
+      axis = 8;
+      goto Do_Axis;
+
+    case grKEY( '=' ):
+      i = increment;
+      axis = 8;
+      goto Do_Axis;
+
+    case grKEY( '!' ):
+      i = -increment;
+      axis = 9;
+      goto Do_Axis;
+
+    case grKEY( '@' ):
+      i = increment;
+      axis = 9;
+      goto Do_Axis;
+
+    case grKEY( '#' ):
+      i = -increment;
+      axis = 10;
+      goto Do_Axis;
+
+    case grKEY( '$' ):
+      i = increment;
+      axis = 10;
+      goto Do_Axis;
+
+    case grKEY( '%' ):
+      i = -increment;
+      axis = 11;
+      goto Do_Axis;
+
+    case grKEY( '^' ):
+      i = increment;
+      axis = 11;
+      goto Do_Axis;
+
+    case grKEY( '&' ):
+      i = -increment;
+      axis = 12;
+      goto Do_Axis;
+
+    case grKEY( '*' ):
+      i = increment;
+      axis = 12;
+      goto Do_Axis;
+
+    case grKEY( '(' ):
+      i = -increment;
+      axis = 13;
+      goto Do_Axis;
+
+    case grKEY( ')' ):
+      i = increment;
+      axis = 13;
+      goto Do_Axis;
+
+    case grKEY( '_' ):
+      i = -increment;
+      axis = 14;
+      goto Do_Axis;
+
+    case grKEY( '+' ):
+      i = increment;
+      axis = 14;
       goto Do_Axis;
 
     /* scaling related keys */
