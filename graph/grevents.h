@@ -58,6 +58,8 @@
     grKeyDiv        = '/',
     grKeyExclam     = '!',
     grKeyPercent    = '%',
+    grKeyHash       = '#',
+    grKeyAmpersand  = '&',
     grKeyLeftParen  = '(',
     grKeyRightParen = ')',
     grKeyAt         = '@',
