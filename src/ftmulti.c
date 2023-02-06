@@ -695,163 +695,43 @@
       break;
 
     case grKEY( 'a' ):
+    case grKEY( 'b' ):
+    case grKEY( 'c' ):
+    case grKEY( 'd' ):
+    case grKEY( 'e' ):
+    case grKEY( 'f' ):
+    case grKEY( 'g' ):
+    case grKEY( 'h' ):
+    case grKEY( 'i' ):
+    case grKEY( 'j' ):
+    case grKEY( 'k' ):
+    case grKEY( 'l' ):
+    case grKEY( 'm' ):
+    case grKEY( 'n' ):
+    case grKEY( 'o' ):
+    case grKEY( 'p' ):
       i = -increment;
-      axis = 0;
+      axis = event.key - 'a';
       goto Do_Axis;
 
     case grKEY( 'A' ):
-      i = increment;
-      axis = 0;
-      goto Do_Axis;
-
-    case grKEY( 'b' ):
-      i = -increment;
-      axis = 1;
-      goto Do_Axis;
-
     case grKEY( 'B' ):
-      i = increment;
-      axis = 1;
-      goto Do_Axis;
-
-    case grKEY( 'c' ):
-      i = -increment;
-      axis = 2;
-      goto Do_Axis;
-
     case grKEY( 'C' ):
-      i = increment;
-      axis = 2;
-      goto Do_Axis;
-
-    case grKEY( 'd' ):
-      i = -increment;
-      axis = 3;
-      goto Do_Axis;
-
     case grKEY( 'D' ):
-      i = increment;
-      axis = 3;
-      goto Do_Axis;
-
-    case grKEY( 'e' ):
-      i = -increment;
-      axis = 4;
-      goto Do_Axis;
-
     case grKEY( 'E' ):
-      i = increment;
-      axis = 4;
-      goto Do_Axis;
-
-    case grKEY( 'f' ):
-      i = -increment;
-      axis = 5;
-      goto Do_Axis;
-
     case grKEY( 'F' ):
-      i = increment;
-      axis = 5;
-      goto Do_Axis;
-
-    case grKEY( 'g' ):
-      i = -increment;
-      axis = 6;
-      goto Do_Axis;
-
     case grKEY( 'G' ):
-      i = increment;
-      axis = 6;
-      goto Do_Axis;
-
-    case grKEY( 'h' ):
-      i = -increment;
-      axis = 7;
-      goto Do_Axis;
-
     case grKEY( 'H' ):
-      i = increment;
-      axis = 7;
-      goto Do_Axis;
-
-    case grKEY( 'i' ):
-      i = -increment;
-      axis = 8;
-      goto Do_Axis;
-
     case grKEY( 'I' ):
-      i = increment;
-      axis = 8;
-      goto Do_Axis;
-
-    case grKEY( 'j' ):
-      i = -increment;
-      axis = 9;
-      goto Do_Axis;
-
     case grKEY( 'J' ):
-      i = increment;
-      axis = 9;
-      goto Do_Axis;
-
-    case grKEY( 'k' ):
-      i = -increment;
-      axis = 10;
-      goto Do_Axis;
-
     case grKEY( 'K' ):
-      i = increment;
-      axis = 10;
-      goto Do_Axis;
-
-    case grKEY( 'l' ):
-      i = -increment;
-      axis = 11;
-      goto Do_Axis;
-
     case grKEY( 'L' ):
-      i = increment;
-      axis = 11;
-      goto Do_Axis;
-
-    case grKEY( 'm' ):
-      i = -increment;
-      axis = 12;
-      goto Do_Axis;
-
     case grKEY( 'M' ):
-      i = increment;
-      axis = 12;
-      goto Do_Axis;
-
-    case grKEY( 'n' ):
-      i = -increment;
-      axis = 13;
-      goto Do_Axis;
-
     case grKEY( 'N' ):
-      i = increment;
-      axis = 13;
-      goto Do_Axis;
-
-    case grKEY( 'o' ):
-      i = -increment;
-      axis = 14;
-      goto Do_Axis;
-
     case grKEY( 'O' ):
-      i = increment;
-      axis = 14;
-      goto Do_Axis;
-
-    case grKEY( 'p' ):
-      i = -increment;
-      axis = 15;
-      goto Do_Axis;
-
     case grKEY( 'P' ):
       i = increment;
-      axis = 15;
+      axis = event.key - 'A';
       goto Do_Axis;
 
     /* scaling related keys */
