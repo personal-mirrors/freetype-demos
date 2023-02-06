@@ -38,7 +38,7 @@
 #define  HEADER_HEIGHT  12
 
 #define  MAXPTSIZE    500               /* dtp */
-#define  MAX_MM_AXES   15
+#define  MAX_MM_AXES   16
 
   /* definitions in ftcommon.c */
   unsigned int
@@ -551,33 +551,32 @@
     grLn();
     grWriteln( "Use the following keys:");
     grLn();
-    grWriteln( "?           display this help screen" );
-    grWriteln( "A           toggle axis grouping" );
-    grWriteln( "a           toggle anti-aliasing" );
-    grWriteln( "h           toggle outline hinting" );
-    grWriteln( "b           toggle embedded bitmaps" );
+    grWriteln( "F1, ?       display this help screen" );
+    grWriteln( "q, ESC      quit ftmulti" );
+    grWriteln( "F2          toggle axis grouping" );
+    grWriteln( "F3          toggle outline hinting" );
+    grWriteln( "F4          toggle embedded bitmaps" );
+    grWriteln( "F5          toggle anti-aliasing" );
+    grWriteln( "F6          cycle through hinting engines (if available)" );
+    grLn();
     grWriteln( "space       toggle rendering mode" );
     grLn();
-    grWriteln( "p, n        previous/next font" );
-    grLn();
-    grWriteln( "H           cycle through hinting engines (if available)" );
+    grWriteln( ", .         previous/next font" );
     grLn();
     grWriteln( "Up, Down    change pointsize by 1 unit" );
     grWriteln( "PgUp, PgDn  change pointsize by 10 units" );
     grLn();
     grWriteln( "Left, Right adjust index by 1" );
-    grWriteln( "F7, F8      adjust index by 10" );
-    grWriteln( "F9, F10     adjust index by 100" );
-    grWriteln( "F11, F12    adjust index by 1000" );
+    grWriteln( "F7, F8      adjust index by 16" );
+    grWriteln( "F9, F10     adjust index by 256" );
+    grWriteln( "F11, F12    adjust index by 4096" );
     grLn();
-    grWriteln( "F1, F2  adjust axis 0    7, 8  adjust axis  6    &, *  adjust axis 12" );
-    grWriteln( "F3, F4  adjust axis 1    9, 0  adjust axis  7    (, )  adjust axis 13" );
-    grWriteln( "F5, F6  adjust axis 2    -, =  adjust axis  8    _, +  adjust axis 14" );
-    grWriteln( "1, 2    adjust axis 3    !, @  adjust axis  9" );
-    grWriteln( "3, 4    adjust axis 4    #, $  adjust axis 10" );
-    grWriteln( "5, 6    adjust axis 5    %, ^  adjust axis 11" );
+    grWriteln( "a, A        adjust axis 0" );
+    grWriteln( "b, B        adjust axis 1" );
+    grWriteln( "..." );
+    grWriteln( "p, P        adjust axis 16" );
     grLn();
-    grWriteln( "i, I        adjust axis range increment" );
+    grWriteln( "-, +        adjust axis range increment" );
     grLn();
     grWriteln( "Axes marked with an asterisk are hidden." );
     grLn();
@@ -622,37 +621,38 @@
     case grKEY( 'q' ):
       return 0;
 
+    case grKeyF1:
     case grKEY( '?' ):
       Help();
       break;
 
     /* mode keys */
 
-    case grKEY( 'A' ):
+    case grKeyF2:
       grouping = !grouping;
       new_header = grouping ? "axis grouping is now on"
                             : "axis grouping is now off";
       set_up_axes();
       break;
 
-    case grKEY( 'a' ):
+    case grKeyF5:
       antialias  = !antialias;
       new_header = antialias ? "anti-aliasing is now on"
                              : "anti-aliasing is now off";
       break;
 
-    case grKEY( 'b' ):
+    case grKeyF4:
       use_sbits  = !use_sbits;
       new_header = use_sbits
                      ? "embedded bitmaps are now used if available"
                      : "embedded bitmaps are now ignored";
       break;
 
-    case grKEY( 'n' ):
-    case grKEY( 'p' ):
+    case grKEY( ',' ):
+    case grKEY( '.' ):
       return (int)event.key;
 
-    case grKEY( 'h' ):
+    case grKeyF3:
       hinted     = !hinted;
       new_header = hinted ? "glyph hinting is now active"
                           : "glyph hinting is now ignored";
@@ -664,7 +664,7 @@
                                  : "rendering test text string";
       break;
 
-    case grKEY( 'H' ):
+    case grKeyF6:
       if ( !strcmp( font_format, "CFF" ) )
         FTDemo_Event_Cff_Hinting_Engine_Change( library,
                                                 &cff_hinting_engine,
@@ -681,167 +681,177 @@
         tt_interpreter_version_change();
       break;
 
-    /* MM related keys */
+    /* MM-related keys */
 
-    case 'i':
+    case grKEY( '+' ):
       /* value 100 is arbitrary */
       if ( increment < 100 )
         increment += 1;
       break;
 
-    case 'I':
+    case grKEY( '-' ):
       if ( increment > 1 )
         increment -= 1;
       break;
 
-    case grKeyF1:
+    case grKEY( 'a' ):
       i = -increment;
       axis = 0;
       goto Do_Axis;
 
-    case grKeyF2:
+    case grKEY( 'A' ):
       i = increment;
       axis = 0;
       goto Do_Axis;
 
-    case grKeyF3:
+    case grKEY( 'b' ):
       i = -increment;
       axis = 1;
       goto Do_Axis;
 
-    case grKeyF4:
+    case grKEY( 'B' ):
       i = increment;
       axis = 1;
       goto Do_Axis;
 
-    case grKeyF5:
+    case grKEY( 'c' ):
       i = -increment;
       axis = 2;
       goto Do_Axis;
 
-    case grKeyF6:
+    case grKEY( 'C' ):
       i = increment;
       axis = 2;
       goto Do_Axis;
 
-    case grKEY( '1' ):
+    case grKEY( 'd' ):
       i = -increment;
       axis = 3;
       goto Do_Axis;
 
-    case grKEY( '2' ):
+    case grKEY( 'D' ):
       i = increment;
       axis = 3;
       goto Do_Axis;
 
-    case grKEY( '3' ):
+    case grKEY( 'e' ):
       i = -increment;
       axis = 4;
       goto Do_Axis;
 
-    case grKEY( '4' ):
+    case grKEY( 'E' ):
       i = increment;
       axis = 4;
       goto Do_Axis;
 
-    case grKEY( '5' ):
+    case grKEY( 'f' ):
       i = -increment;
       axis = 5;
       goto Do_Axis;
 
-    case grKEY( '6' ):
+    case grKEY( 'F' ):
       i = increment;
       axis = 5;
       goto Do_Axis;
 
-    case grKEY( '7' ):
+    case grKEY( 'g' ):
       i = -increment;
       axis = 6;
       goto Do_Axis;
 
-    case grKEY( '8' ):
+    case grKEY( 'G' ):
       i = increment;
       axis = 6;
       goto Do_Axis;
 
-    case grKEY( '9' ):
+    case grKEY( 'h' ):
       i = -increment;
       axis = 7;
       goto Do_Axis;
 
-    case grKEY( '0' ):
+    case grKEY( 'H' ):
       i = increment;
       axis = 7;
       goto Do_Axis;
 
-    case grKEY( '-' ):
+    case grKEY( 'i' ):
       i = -increment;
       axis = 8;
       goto Do_Axis;
 
-    case grKEY( '=' ):
+    case grKEY( 'I' ):
       i = increment;
       axis = 8;
       goto Do_Axis;
 
-    case grKEY( '!' ):
+    case grKEY( 'j' ):
       i = -increment;
       axis = 9;
       goto Do_Axis;
 
-    case grKEY( '@' ):
+    case grKEY( 'J' ):
       i = increment;
       axis = 9;
       goto Do_Axis;
 
-    case grKEY( '#' ):
+    case grKEY( 'k' ):
       i = -increment;
       axis = 10;
       goto Do_Axis;
 
-    case grKEY( '$' ):
+    case grKEY( 'K' ):
       i = increment;
       axis = 10;
       goto Do_Axis;
 
-    case grKEY( '%' ):
+    case grKEY( 'l' ):
       i = -increment;
       axis = 11;
       goto Do_Axis;
 
-    case grKEY( '^' ):
+    case grKEY( 'L' ):
       i = increment;
       axis = 11;
       goto Do_Axis;
 
-    case grKEY( '&' ):
+    case grKEY( 'm' ):
       i = -increment;
       axis = 12;
       goto Do_Axis;
 
-    case grKEY( '*' ):
+    case grKEY( 'M' ):
       i = increment;
       axis = 12;
       goto Do_Axis;
 
-    case grKEY( '(' ):
+    case grKEY( 'n' ):
       i = -increment;
       axis = 13;
       goto Do_Axis;
 
-    case grKEY( ')' ):
+    case grKEY( 'N' ):
       i = increment;
       axis = 13;
       goto Do_Axis;
 
-    case grKEY( '_' ):
+    case grKEY( 'o' ):
       i = -increment;
       axis = 14;
       goto Do_Axis;
 
-    case grKEY( '+' ):
+    case grKEY( 'O' ):
       i = increment;
       axis = 14;
+      goto Do_Axis;
+
+    case grKEY( 'p' ):
+      i = -increment;
+      axis = 15;
+      goto Do_Axis;
+
+    case grKEY( 'P' ):
+      i = increment;
+      axis = 15;
       goto Do_Axis;
 
     /* scaling related keys */
@@ -873,27 +883,27 @@
       goto Do_Glyph;
 
     case grKeyF7:
-      i = -10;
+      i = -16;
       goto Do_Glyph;
 
     case grKeyF8:
-      i = 10;
+      i = 16;
       goto Do_Glyph;
 
     case grKeyF9:
-      i = -100;
+      i = -256;
       goto Do_Glyph;
 
     case grKeyF10:
-      i = 100;
+      i = 256;
       goto Do_Glyph;
 
     case grKeyF11:
-      i = -1000;
+      i = -4096;
       goto Do_Glyph;
 
     case grKeyF12:
-      i = 1000;
+      i = 4096;
       goto Do_Glyph;
 
     default:
@@ -1302,8 +1312,8 @@
 
 
           strbuf_reset( header );
-          strbuf_format( header, "%2i %.50s%s: %.02f",
-                         n,
+          strbuf_format( header, "%c %.50s%s: %.02f",
+                         n + 'A',
                          multimaster->axis[axis].name,
                          hidden[axis] ? "*" : "",
                          design_pos[axis] / 65536.0 );
@@ -1357,7 +1367,7 @@
       if ( !( key = Process_Event() ) )
         goto End;
 
-      if ( key == 'n' )
+      if ( key == grKEY( '.' ) )
       {
         if ( file_loaded >= 1 )
           FT_Done_Face( face );
@@ -1368,7 +1378,7 @@
         goto NewFile;
       }
 
-      if ( key == 'p' )
+      if ( key == grKEY( ',' ) )
       {
         if ( file_loaded >= 1 )
           FT_Done_Face( face );
@@ -1379,7 +1389,7 @@
         goto NewFile;
       }
 
-      if ( key == 'H' )
+      if ( key == grKeyF6 )
       {
         /* enforce reloading */
         if ( file_loaded >= 1 )
