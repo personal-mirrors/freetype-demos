@@ -44,10 +44,10 @@
   struct  AF_GlyphHintsRec_;
   typedef struct AF_GlyphHintsRec_*  AF_GlyphHints;
 
-  extern int            _af_debug_disable_horz_hints;
-  extern int            _af_debug_disable_vert_hints;
-  extern int            _af_debug_disable_blue_hints;
-  extern AF_GlyphHints  _af_debug_hints;
+  extern int            af_debug_disable_horz_hints_;
+  extern int            af_debug_disable_vert_hints_;
+  extern int            af_debug_disable_blue_hints_;
+  extern AF_GlyphHints  af_debug_hints_;
 
 #ifdef __cplusplus
   extern "C" {
@@ -546,9 +546,9 @@
     glyph_idx = FTDemo_Get_Index( handle, (FT_UInt32)st->Num );
 
 #ifdef FT_DEBUG_AUTOFIT
-    _af_debug_disable_horz_hints = !st->do_horz_hints;
-    _af_debug_disable_vert_hints = !st->do_vert_hints;
-    _af_debug_disable_blue_hints = !st->do_blue_hints;
+    af_debug_disable_horz_hints_ = !st->do_horz_hints;
+    af_debug_disable_vert_hints_ = !st->do_vert_hints;
+    af_debug_disable_blue_hints_ = !st->do_blue_hints;
 #endif
 
     if ( FT_Load_Glyph( size->face, glyph_idx, handle->load_flags ) )
@@ -622,7 +622,7 @@
 #ifdef FT_DEBUG_AUTOFIT
       /* Draw segment before drawing glyph. */
       if ( status.do_segment && handle->load_flags & FT_LOAD_FORCE_AUTOHINT )
-        grid_hint_draw_segment( &status, size, _af_debug_hints );
+        grid_hint_draw_segment( &status, size, af_debug_hints_ );
 #endif
 
       /* scale the outline */
@@ -1408,7 +1408,7 @@
              handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
         status.header = "dumping glyph edges to stdout";
-        af_glyph_hints_dump_edges( _af_debug_hints, 1 );
+        af_glyph_hints_dump_edges( af_debug_hints_, 1 );
       }
       break;
 
@@ -1419,7 +1419,7 @@
              handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
         status.header = "dumping glyph segments to stdout";
-        af_glyph_hints_dump_segments( _af_debug_hints, 1 );
+        af_glyph_hints_dump_segments( af_debug_hints_, 1 );
       }
       break;
 
@@ -1430,7 +1430,7 @@
              handle->lcd_mode == LCD_MODE_LIGHT_SUBPIXEL ) )
       {
         status.header = "dumping glyph points to stdout";
-        af_glyph_hints_dump_points( _af_debug_hints, 1 );
+        af_glyph_hints_dump_points( af_debug_hints_, 1 );
       }
       break;
 #endif /* FT_DEBUG_AUTOFIT */
