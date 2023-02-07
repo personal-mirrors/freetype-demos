@@ -282,6 +282,7 @@
   static void
   Clear_Display( void )
   {
+    /* fast black background */
     memset( bit->buffer, 0, (size_t)bit->rows *
                             (size_t)( bit->pitch < 0 ? -bit->pitch
                                                      : bit->pitch ) );
@@ -386,7 +387,7 @@
   Render_All( unsigned int  first_glyph,
               int           pt_size )
   {
-    FT_F26Dot6    start_x, start_y, step_y, x, y;
+    int           start_x, start_y, step_y, x, y, w;
     unsigned int  i;
 
 
@@ -421,11 +422,8 @@
         }
 #endif
 
-        Render_Glyph( x, y );
-
-        x += ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
-
-        if ( x + size->metrics.x_ppem > bit->width )
+        w = ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
+        if ( x + w > bit->width - 4 )
         {
           x  = start_x;
           y += step_y;
@@ -433,6 +431,9 @@
           if ( y >= bit->rows )
             return FT_Err_Ok;
         }
+
+        Render_Glyph( x, y );
+        x += w;
       }
       else
         Fail++;
