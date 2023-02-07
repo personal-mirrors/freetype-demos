@@ -665,11 +665,19 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
         PAINTSTRUCT  ps;
 
         hDC = BeginPaint ( handle, &ps );
-        SetDIBitsToDevice( hDC, 0, 0,
-                           surface->root.bitmap.width,
-                           surface->root.bitmap.rows,
-                           0, 0, 0,
-                           surface->root.bitmap.rows,
+
+        LOG(( "WM_PAINT : ( %d %d %d %d )\n",
+              ps.rcPaint.left,  ps.rcPaint.top,
+              ps.rcPaint.right, ps.rcPaint.bottom ));
+
+        SetDIBitsToDevice( hDC,
+                           ps.rcPaint.left,
+                           ps.rcPaint.top,
+                           ps.rcPaint.right - ps.rcPaint.left,
+                           ps.rcPaint.bottom - ps.rcPaint.top,
+                           ps.rcPaint.left,
+                           surface->root.bitmap.rows - ps.rcPaint.bottom,
+                           0, surface->root.bitmap.rows,
                            surface->shadow_bitmap.buffer,
                            (LPBITMAPINFO)&surface->bmiHeader,
                            DIB_RGB_COLORS );
@@ -692,9 +700,9 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
       /* int     cbClsExtra   */ 0,
       /* int     cbWndExtra   */ 0,
       /* HANDLE  hInstance    */ GetModuleHandle( NULL ),
-      /* HICON   hIcon        */ LoadIcon( NULL, IDI_APPLICATION),
+      /* HICON   hIcon        */ NULL,
       /* HCURSOR hCursor      */ LoadCursor( NULL, IDC_ARROW),
-      /* HBRUSH  hbrBackground*/ GetStockObject( LTGRAY_BRUSH ),
+      /* HBRUSH  hbrBackground*/ NULL,
       /* LPCTSTR lpszMenuName */ NULL,
       /* LPCTSTR lpszClassName*/ "FreeTypeTestGraphicDriver"
     };
