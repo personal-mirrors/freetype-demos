@@ -485,7 +485,7 @@
     else if ( 31 < key && key < 127 )
     {
       if ( cursor < 31)
-        buffer[cursor++] = key;
+        buffer[cursor++] = (char)key;
     }
     else if ( key != grKeyTab )
       return 0;
@@ -918,11 +918,11 @@
     while ( 1 )
     {
       pt_size  += step;
-      pt_height = handle->scaler.height;
+      pt_height = (int)handle->scaler.height;
 
       FTDemo_Set_Current_Charsize( handle, pt_size, status.res );
       /* avoid reloading repetitive sizes with bitmap fonts */
-      if ( handle->scaler.height != pt_height )
+      if ( (int)handle->scaler.height != pt_height )
         FTDemo_String_Load( handle, &sc );
 
       error = FTDemo_Get_Size( handle, &size );

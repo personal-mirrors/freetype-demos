@@ -1333,7 +1333,7 @@
 
     /* sync target and mode */
     load_flags |= FT_LOAD_TARGET_( render_mode );
-    render_mode = ( load_flags & 0xF0000 ) >> 16;
+    render_mode = (FT_Render_Mode)( ( load_flags & 0xF0000 ) >> 16 );
 
     header( face );
 

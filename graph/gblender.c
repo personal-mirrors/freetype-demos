@@ -261,7 +261,7 @@ gblender_reset_key( GBlender     blender,
     (*gr)[1] = g;
     (*gr)[2] = b;
 #else
-    gr[0] = ( r << 16 ) | ( g << 8 ) | b;
+    gr[0] = (GBlenderCell)( ( r << 16 ) | ( g << 8 ) | b );
 #endif
     gr++;
   }

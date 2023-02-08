@@ -398,11 +398,11 @@ static void
 GCONCAT( _gblender_blit_bgra_, GDST_TYPE )( GBlenderBlit  blit,
                                             grColor       color )
 {
-  (void)color; /* unused */
-
   int                   h        = blit->height;
   const unsigned char*  src_line = blit->src_line + blit->src_x*4;
   unsigned char*        dst_line = blit->dst_line + blit->dst_x*GDST_INCR;
+
+  (void)color; /* unused */
 
   do
   {

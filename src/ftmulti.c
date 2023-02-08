@@ -1198,7 +1198,7 @@
                          multimaster->axis[axis].name,
                          hidden[axis] ? "*" : "",
                          design_pos[axis] / 65536.0 );
-          grWriteCellString( bit, 0, ( n + 4 ) * HEADER_HEIGHT,
+          grWriteCellString( bit, 0, (int)( n + 4 ) * HEADER_HEIGHT,
                              Header, fore_color );
         }
 

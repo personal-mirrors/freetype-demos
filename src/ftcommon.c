@@ -311,7 +311,7 @@
         if ( has_extension )
         {
           /* Ignore `.t1' `.pfa',`.pfb' extension in the original path. */
-          path_len = suffix - font->filepathname;
+          path_len = (size_t)( suffix - font->filepathname );
         }
 
         ext_path_len = path_len + 5;       /* 4 bytes extension + '\0' */
@@ -502,7 +502,7 @@
     FT_Outline  FT  = { sizeof ( c ) / sizeof ( c[0] ),
                         sizeof ( p ) / sizeof ( p[0] ),
                         p, t, c, FT_OUTLINE_NONE };
-    grBitmap    icon = { 0 };
+    grBitmap    icon = { 0, 0, 0, gr_pixel_mode_none, 0, NULL };
     grBitmap*   picon = NULL;
     int         size, i;
 
@@ -599,7 +599,7 @@
 
         font->face_index = ( j << 16 ) + i;
 
-        if ( handle->encoding < face->num_charmaps )
+        if ( handle->encoding < (unsigned long)face->num_charmaps )
           font->cmap_index = handle->encoding;
         else if ( handle->encoding != FT_ENCODING_ORDER                     &&
                   !FT_Select_Charmap( face, (FT_Encoding)handle->encoding ) )
@@ -2036,7 +2036,7 @@
 
 
     for ( i = 0; i < 4 && s[i]; i++ )
-      l = ( l << 8 ) | s[i];
+      l = ( l << 8 ) | (unsigned char)s[i];
 
     /* interpret numerically if too short for a tag */
     if ( i < 4 && !sscanf( s, "%lu", &l ) )
