@@ -603,39 +603,6 @@ LRESULT CALLBACK Message_Process( HWND handle, UINT mess,
         PostThreadMessage( surface->host, WM_RESIZE, wParam, lParam );
       break;
 
-    case WM_SIZING:
-      {
-        PRECT  r = (PRECT)lParam;
-        RECT   WndRect;
-        int    x, y;
-
-        GetClientRect( handle, &WndRect );
-
-        y = wParam >= 6 ? wParam -= 6, 'B' :
-            wParam >= 3 ? wParam -= 3, 'T' : ' ';
-        x = wParam == 2 ? 'R' :
-            wParam == 1 ? 'L' : ' ';
-
-        LOG(( "WM_SIZING %c%c : ( %d %d %d %d )   "
-              "ClientArea : ( %d %d )\n",
-              y, x, r->left, r->top, r->right, r->bottom,
-              WndRect.right, WndRect.bottom ));
-
-        PostThreadMessage( surface->host, WM_RESIZE, SIZE_RESTORED,
-                           MAKELPARAM( WndRect.right, WndRect.bottom ) );
-      }
-      return TRUE;  /* required */
-
-    case WM_EXITSIZEMOVE:
-      {
-        RECT  WndRect;
-
-        GetClientRect( handle, &WndRect );
-        PostThreadMessage( surface->host, WM_RESIZE, SIZE_RESTORED,
-                           MAKELPARAM( WndRect.right, WndRect.bottom ) );
-      }
-      break;
-
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
       {
