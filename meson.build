@@ -17,7 +17,7 @@
 # possible since the subproject might not be cloned yet, so we have to
 # hard-code the string.
 project('freetype-demos', 'c', 'cpp',
-  version: '2.12.1')
+  version: '2.13.0')
 
 
 # Access to the FreeType 2 source tree is required, since some of the demo

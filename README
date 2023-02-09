@@ -11,8 +11,8 @@ WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
   of the stable  FreeType 2 source packages from our  server, you most
   probably have to rename its directory, for example:
 
-    mv freetype-2.12.1 freetype       on Unix
-    rename freetype-2.12.1 freetype   on Windows
+    mv freetype-2.13.0 freetype       on Unix
+    rename freetype-2.13.0 freetype   on Windows
 
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
 
