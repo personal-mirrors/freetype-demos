@@ -94,7 +94,7 @@
   static int  hinted    = 1;         /* is glyph hinting active?    */
   static int  grouping  = 1;         /* is axis grouping active?    */
   static int  antialias = 1;         /* is anti-aliasing active?    */
-  static int  use_sbits = 1;         /* do we use embedded bitmaps? */
+  static int  overlaps  = 0x0;       /* flip overlap flags or not?  */
   static int  Num;                   /* current first glyph index   */
 
   static int  res       = 72;
@@ -102,8 +102,6 @@
   static grColor  fore_color;
 
   static int  Fail;
-
-  static int  graph_init  = 0;
 
   static int  render_mode = 1;
 
@@ -305,8 +303,6 @@
     bit = (grBitmap*)surface;
 
     fore_color = grFindColor( bit, 255, 255, 255, 255 );  /* white */
-
-    graph_init = 1;
   }
 
 
@@ -322,6 +318,10 @@
     /* first, render the glyph image into a bitmap */
     if ( glyph->format != FT_GLYPH_FORMAT_BITMAP )
     {
+      /* overlap flags mitigate AA rendering artifacts in overlaps */
+      /* by oversampling, toggle the flag to test the effect       */
+      glyph->outline.flags ^= overlaps;
+
       error = FT_Render_Glyph( glyph, antialias ? FT_RENDER_MODE_NORMAL
                                                 : FT_RENDER_MODE_MONO );
       if ( error )
@@ -373,13 +373,10 @@
     int  flags;
 
 
-    flags = FT_LOAD_DEFAULT;
+    flags = FT_LOAD_NO_BITMAP;
 
     if ( !hint )
       flags |= FT_LOAD_NO_HINTING;
-
-    if ( !use_sbits )
-      flags |= FT_LOAD_NO_BITMAP;
 
     return FT_Load_Glyph( face, idx, flags );
   }
@@ -558,7 +555,7 @@
     grWriteln( "q, ESC      quit ftmulti" );
     grWriteln( "F2          toggle axis grouping" );
     grWriteln( "F3          toggle outline hinting" );
-    grWriteln( "F4          toggle embedded bitmaps" );
+    grWriteln( "F4          toggle overlap flags" );
     grWriteln( "F5          toggle anti-aliasing" );
     grWriteln( "F6          cycle through hinting engines (if available)" );
     grLn();
@@ -645,10 +642,10 @@
       break;
 
     case grKeyF4:
-      use_sbits  = !use_sbits;
-      new_header = use_sbits
-                     ? "embedded bitmaps are now used if available"
-                     : "embedded bitmaps are now ignored";
+      overlaps  ^= FT_OUTLINE_OVERLAP;
+      new_header = overlaps
+                     ? "overlap flags are flipped"
+                     : "overlap flags are unchanged";
       break;
 
     case grKEY( ',' ):
