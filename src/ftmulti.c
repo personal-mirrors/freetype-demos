@@ -889,9 +889,7 @@
       "  font         The font file(s) to display.\n"
       "\n" );
     fprintf( stderr,
-      "  -w W         Set window width to W pixels (default: %dpx).\n"
-      "  -h H         Set window height to H pixels (default: %dpx).\n"
-      "\n",
+      "  -d WxH       Set window dimentions (default: %ux%u).\n",
              DIM_X, DIM_Y );
     fprintf( stderr,
       "  -e encoding  Specify encoding tag (default: no encoding).\n"
@@ -899,7 +897,7 @@
       "               `ADOB' (Adobe standard), `ADBC' (Adobe custom).\n"
       "  -r R         Use resolution R dpi (default: 72dpi).\n"
       "  -f index     Specify first glyph index to display.\n"
-      "  -d \"axis1 axis2 ...\"\n"
+      "  -a \"axis1 axis2 ...\"\n"
       "               Specify the design coordinates for each\n"
       "               variation axis at start-up.\n"
       "\n"
@@ -973,8 +971,13 @@
 
       switch ( option )
       {
-      case 'd':
+      case 'a':
         parse_design_coords( optarg );
+        break;
+
+      case 'd':
+        if ( sscanf( optarg, "%ux%u", &width, &height ) != 2 )
+          usage( execname );
         break;
 
       case 'e':
@@ -983,12 +986,6 @@
 
       case 'f':
         sscanf( optarg, "%i", &first_glyph );
-        break;
-
-      case 'h':
-        height = atoi( optarg );
-        if ( height < 1 )
-          usage( execname );
         break;
 
       case 'r':
@@ -1011,12 +1008,6 @@
           exit( 0 );
         }
         /* break; */
-
-      case 'w':
-        width = atoi( optarg );
-        if ( width < 1 )
-          usage( execname );
-        break;
 
       default:
         usage( execname );
