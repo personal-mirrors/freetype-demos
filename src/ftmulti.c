@@ -99,7 +99,7 @@
 
   static int  res       = 72;
 
-  static grColor  fore_color = { 255 };
+  static grColor  fore_color;
 
   static int  Fail;
 
@@ -293,7 +293,7 @@
   static void
   Init_Display( void )
   {
-    grBitmap  bitmap = { height, width, 0, gr_pixel_mode_gray, 256, NULL };
+    grBitmap  bitmap = { height, width, 0, gr_pixel_mode_none, 256, NULL };
 
 
     grInitDevices();
@@ -303,6 +303,8 @@
       PanicZ( "could not allocate display surface\n" );
 
     bit = (grBitmap*)surface;
+
+    fore_color = grFindColor( bit, 255, 255, 255, 255 );  /* white */
 
     graph_init = 1;
   }
