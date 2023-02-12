@@ -85,8 +85,8 @@
   static grSurface*    surface;      /* current display surface     */
   static grBitmap*     bit;          /* current display bitmap      */
 
-  static int  width     = DIM_X;     /* window width                */
-  static int  height    = DIM_Y;     /* window height               */
+  static unsigned short  width  = DIM_X;     /* window width        */
+  static unsigned short  height = DIM_Y;     /* window height       */
 
   static int  num_glyphs;            /* number of glyphs            */
   static int  ptsize;                /* current point size          */
@@ -291,7 +291,8 @@
   static void
   Init_Display( void )
   {
-    grBitmap  bitmap = { height, width, 0, gr_pixel_mode_none, 256, NULL };
+    grBitmap  bitmap = { (int)height, (int)width, 0,
+                         gr_pixel_mode_none, 256, NULL };
 
 
     grInitDevices();
@@ -370,10 +371,8 @@
   LoadChar( unsigned int  idx,
             int           hint )
   {
-    int  flags;
+    int  flags = FT_LOAD_NO_BITMAP;
 
-
-    flags = FT_LOAD_NO_BITMAP;
 
     if ( !hint )
       flags |= FT_LOAD_NO_HINTING;
@@ -383,27 +382,20 @@
 
 
   static FT_Error
-  Render_All( unsigned int  first_glyph,
-              int           pt_size )
+  Render_All( int  first_glyph )
   {
-    int           start_x, start_y, step_y, x, y, w;
-    unsigned int  i;
+    int  start_x = 18 * 8;
+    int  start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
+    int  step_y  = size->metrics.y_ppem + 10;
+    int  x, y, w, i;
 
-
-    start_x = 18 * 8;
-    start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
-    step_y  = size->metrics.y_ppem + 10;
 
     x = start_x;
     y = start_y;
 
     i = first_glyph;
 
-#if 0
-    while ( i < first_glyph + 1 )
-#else
-    while ( i < (unsigned int)num_glyphs )
-#endif
+    while ( i < num_glyphs )
     {
       if ( !( error = LoadChar( i, hinted ) ) )
       {
@@ -444,18 +436,15 @@
 
 
   static FT_Error
-  Render_Text( unsigned int  first_glyph,
-               int           pt_size )
+  Render_Text( int  first_glyph )
   {
-    FT_F26Dot6    start_x, start_y, step_y, x, y;
-    unsigned int  i;
+    int  start_x = 18 * 8;
+    int  start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
+    int  step_y  = size->metrics.y_ppem + 10;
+    int  x, y, i;
 
     const unsigned char*  p;
 
-
-    start_x = 18 * 8;
-    start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
-    step_y  = size->metrics.y_ppem + 10;
 
     x = start_x;
     y = start_y;
@@ -974,7 +963,7 @@
         break;
 
       case 'd':
-        if ( sscanf( optarg, "%ux%u", &width, &height ) != 2 )
+        if ( sscanf( optarg, "%hux%hu", &width, &height ) != 2 )
           usage( execname );
         break;
 
@@ -1150,11 +1139,11 @@
         switch ( render_mode )
         {
         case 0:
-          Render_Text( (unsigned int)Num, ptsize );
+          Render_Text( Num );
           break;
 
         default:
-          Render_All( (unsigned int)Num, ptsize );
+          Render_All( Num );
         }
 
         strbuf_format( header, "%.50s %.50s (file %.100s)",
