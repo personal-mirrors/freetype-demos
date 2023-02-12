@@ -94,6 +94,7 @@
   static int  hinted    = 1;         /* is glyph hinting active?    */
   static int  grouping  = 1;         /* is axis grouping active?    */
   static int  antialias = 1;         /* is anti-aliasing active?    */
+  static int  fillrule  = 0x0;       /* flip fill flags or not?     */
   static int  overlaps  = 0x0;       /* flip overlap flags or not?  */
   static int  Num;                   /* current first glyph index   */
 
@@ -320,8 +321,9 @@
     if ( glyph->format != FT_GLYPH_FORMAT_BITMAP )
     {
       /* overlap flags mitigate AA rendering artifacts in overlaps */
-      /* by oversampling, toggle the flag to test the effect       */
-      glyph->outline.flags ^= overlaps;
+      /* by oversampling; even-odd fill rule reveals the overlaps; */
+      /* toggle these flag to test the effects                     */
+      glyph->outline.flags ^= overlaps | fillrule;
 
       error = FT_Render_Glyph( glyph, antialias ? FT_RENDER_MODE_NORMAL
                                                 : FT_RENDER_MODE_MONO );
@@ -540,13 +542,15 @@
     grLn();
     grWriteln( "F1, ?       display this help screen" );
     grWriteln( "q, ESC      quit ftmulti" );
+    grLn();
     grWriteln( "F2          toggle axis grouping" );
-    grWriteln( "F3          toggle outline hinting" );
+    grWriteln( "F3          toggle fill rule flags" );
     grWriteln( "F4          toggle overlap flags" );
-    grWriteln( "F5          toggle anti-aliasing" );
+    grWriteln( "F5          toggle outline hinting" );
     grWriteln( "F6          cycle through hinting engines (if available)" );
     grLn();
-    grWriteln( "space       toggle rendering mode" );
+    grWriteln( "Tab         toggle anti-aliasing" );
+    grWriteln( "Space       toggle rendering mode" );
     grLn();
     grWriteln( ", .         previous/next font" );
     grLn();
@@ -613,6 +617,10 @@
       Help();
       break;
 
+    case grKEY( ',' ):
+    case grKEY( '.' ):
+      return (int)event.key;
+
     /* mode keys */
 
     case grKeyF2:
@@ -622,10 +630,11 @@
       set_up_axes();
       break;
 
-    case grKeyF5:
-      antialias  = !antialias;
-      new_header = antialias ? "anti-aliasing is now on"
-                             : "anti-aliasing is now off";
+    case grKeyF3:
+      fillrule  ^= FT_OUTLINE_EVEN_ODD_FILL;
+      new_header = fillrule
+                     ? "fill rule flags are flipped"
+                     : "fill rule flags are unchanged";
       break;
 
     case grKeyF4:
@@ -635,20 +644,10 @@
                      : "overlap flags are unchanged";
       break;
 
-    case grKEY( ',' ):
-    case grKEY( '.' ):
-      return (int)event.key;
-
-    case grKeyF3:
+    case grKeyF5:
       hinted     = !hinted;
       new_header = hinted ? "glyph hinting is now active"
                           : "glyph hinting is now ignored";
-      break;
-
-    case grKEY( ' ' ):
-      render_mode ^= 1;
-      new_header   = render_mode ? "rendering all glyphs in font"
-                                 : "rendering test text string";
       break;
 
     case grKeyF6:
@@ -666,6 +665,18 @@
                                                   1);
       else if ( !strcmp( font_format, "TrueType" ) )
         tt_interpreter_version_change();
+      break;
+
+    case grKeyTab:
+      antialias  = !antialias;
+      new_header = antialias ? "anti-aliasing is now on"
+                             : "anti-aliasing is now off";
+      break;
+
+    case grKEY( ' ' ):
+      render_mode ^= 1;
+      new_header   = render_mode ? "rendering all glyphs in font"
+                                 : "rendering test text string";
       break;
 
     /* MM-related keys */
