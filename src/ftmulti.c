@@ -110,7 +110,7 @@
   static FT_Fixed      requested_pos[MAX_MM_AXES];
   static unsigned int  requested_cnt =  0;
   static unsigned int  used_num_axis =  0;
-  static int           increment     = 20;  /* for axes */
+  static double        increment     = 0.025;  /* for axes */
 
   /*
    * We use the following arrays to support both the display of all axes and
@@ -390,7 +390,7 @@
     unsigned int  i;
 
 
-    start_x = 20 * 8;
+    start_x = 18 * 8;
     start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
     step_y  = size->metrics.y_ppem + 10;
 
@@ -453,7 +453,7 @@
     const unsigned char*  p;
 
 
-    start_x = 20 * 8;
+    start_x = 18 * 8;
     start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
     step_y  = size->metrics.y_ppem + 10;
 
@@ -603,7 +603,7 @@
   Process_Event( void )
   {
     grEvent       event;
-    int           i;
+    double        i;
     unsigned int  axis;
 
 
@@ -682,14 +682,13 @@
     /* MM-related keys */
 
     case grKEY( '+' ):
-      /* value 100 is arbitrary */
-      if ( increment < 100 )
-        increment += 1;
+      if ( increment < 0.1 )
+        increment *= 2.0;
       break;
 
     case grKEY( '-' ):
-      if ( increment > 1 )
-        increment -= 1;
+      if ( increment > 0.01 )
+        increment *= 0.5;
       break;
 
     case grKEY( 'a' ):
@@ -793,7 +792,7 @@
     if ( axis < num_shown_axes )
     {
       FT_Var_Axis*  a;
-      FT_Fixed      pos;
+      FT_Fixed      pos, rng;
       unsigned int  n;
 
 
@@ -801,6 +800,7 @@
       axis = (unsigned int)shown_axes[axis];
 
       a   = multimaster->axis + axis;
+      rng = a->maximum - a->minimum;
       pos = design_pos[axis];
 
       /*
@@ -809,16 +809,17 @@
        * for mac fonts, which have a range of ~3.  And it's rather extreme
        * for optical size even in PS.
        */
-      pos += FT_MulDiv( i, a->maximum - a->minimum, 1000 );
+      pos += (FT_Fixed)( i * rng );
       if ( pos < a->minimum )
-        pos = a->minimum;
-      if ( pos > a->maximum )
         pos = a->maximum;
+      if ( pos > a->maximum )
+        pos = a->minimum;
 
-      /* for MM fonts, round the design coordinates to integers,         */
+      /* for MM fonts or large ranges, round the design coordinates      */
       /* otherwise round to two decimal digits to make the PS name short */
-      if ( !FT_IS_SFNT( face ) )
-        pos = FT_RoundFix( pos );
+      if ( !FT_IS_SFNT( face ) || rng > 0x200000 )
+        pos = i > 0 ? FT_CeilFix( pos )
+                    : FT_FloorFix( pos );
       else
       {
         double  x;
@@ -1173,7 +1174,7 @@
         grWriteCellString( bit, 0, 2 * HEADER_HEIGHT, Header, fore_color );
 
         strbuf_reset( header );
-        strbuf_format( header, "axes (\361 %.1f%%):", increment / 10.0 );
+        strbuf_format( header, "axes (\361 %.1f%%):", 100.0 * increment );
         grWriteCellString( bit, 0, 4 * HEADER_HEIGHT, Header, fore_color );
         for ( n = 0; n < num_shown_axes; n++ )
         {
@@ -1181,11 +1182,14 @@
 
 
           strbuf_reset( header );
-          strbuf_format( header, "%c %.50s%s: %.02f",
+          strbuf_format( header, "%c %.50s%s:",
                          n + 'A',
                          multimaster->axis[axis].name,
-                         hidden[axis] ? "*" : "",
-                         design_pos[axis] / 65536.0 );
+                         hidden[axis] ? "*" : "" );
+          if ( design_pos[axis] & 0xFFFF )
+            strbuf_format( header, "% .2f", design_pos[axis] / 65536.0 );
+          else
+            strbuf_format( header,   "% d", design_pos[axis] / 65536 );
           grWriteCellString( bit, 0, (int)( n + 5 ) * HEADER_HEIGHT,
                              Header, fore_color );
         }
