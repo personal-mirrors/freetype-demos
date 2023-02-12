@@ -391,9 +391,8 @@
 
 
     start_x = 20 * 8;
-    start_y = pt_size + HEADER_HEIGHT * 3;
-
-    step_y = size->metrics.y_ppem + 10;
+    start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
+    step_y  = size->metrics.y_ppem + 10;
 
     x = start_x;
     y = start_y;
@@ -427,7 +426,7 @@
           x  = start_x;
           y += step_y;
 
-          if ( y >= bit->rows )
+          if ( y >= bit->rows - size->metrics.y_ppem / 5 )
             return FT_Err_Ok;
         }
 
@@ -455,9 +454,8 @@
 
 
     start_x = 20 * 8;
-    start_y = pt_size + HEADER_HEIGHT * 3;
-
-    step_y = size->metrics.y_ppem + 10;
+    start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
+    step_y  = size->metrics.y_ppem + 10;
 
     x = start_x;
     y = start_y;
@@ -498,7 +496,7 @@
           x  = start_x;
           y += step_y;
 
-          if ( y >= bit->rows )
+          if ( y >= bit->rows - size->metrics.y_ppem / 5 )
             return FT_Err_Ok;
         }
       }
@@ -1175,8 +1173,8 @@
         grWriteCellString( bit, 0, 2 * HEADER_HEIGHT, Header, fore_color );
 
         strbuf_reset( header );
-        strbuf_add( header, "axes:" );
-        grWriteCellString( bit, 0, 3 * HEADER_HEIGHT, Header, fore_color );
+        strbuf_format( header, "axes (\361 %.1f%%):", increment / 10.0 );
+        grWriteCellString( bit, 0, 4 * HEADER_HEIGHT, Header, fore_color );
         for ( n = 0; n < num_shown_axes; n++ )
         {
           int  axis = shown_axes[n];
@@ -1188,7 +1186,7 @@
                          multimaster->axis[axis].name,
                          hidden[axis] ? "*" : "",
                          design_pos[axis] / 65536.0 );
-          grWriteCellString( bit, 0, (int)( n + 4 ) * HEADER_HEIGHT,
+          grWriteCellString( bit, 0, (int)( n + 5 ) * HEADER_HEIGHT,
                              Header, fore_color );
         }
 
@@ -1221,11 +1219,10 @@
           strbuf_reset( header );
           strbuf_format(
             header,
-            "size: %dpt, first glyph: %d, format: %s, axis incr.: %.1f%%",
+            "size: %dpt, first glyph: %d, format: %s",
             ptsize,
             Num,
-            format_str,
-            increment / 10.0 );
+            format_str );
         }
       }
       else
