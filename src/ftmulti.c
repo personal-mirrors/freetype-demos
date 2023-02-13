@@ -305,6 +305,8 @@
     bit = (grBitmap*)surface;
 
     fore_color = grFindColor( bit, 255, 255, 255, 255 );  /* white */
+
+    grSetTitle( surface, "FreeType Variations Viewer - press ? for help" );
   }
 
 
@@ -904,7 +906,6 @@
   {
     int    old_ptsize, orig_ptsize, file;
     int    first_glyph = 0;
-    int    XisSetup = 0;
     int    option;
     int    file_loaded;
 
@@ -1108,13 +1109,9 @@
 
   Display_Font:
     /* initialize graphics if needed */
-    if ( !XisSetup )
-    {
-      XisSetup = 1;
+    if ( !surface )
       Init_Display();
-    }
 
-    grSetTitle( surface, "FreeType Glyph Viewer - press ? for help" );
     old_ptsize = ptsize;
 
     if ( file_loaded >= 1 )
