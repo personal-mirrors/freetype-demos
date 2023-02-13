@@ -443,7 +443,7 @@
     int  start_x = 18 * 8;
     int  start_y = size->metrics.y_ppem * 4 / 5 + HEADER_HEIGHT * 3;
     int  step_y  = size->metrics.y_ppem + 10;
-    int  x, y, i;
+    int  x, y, w, i;
 
     const unsigned char*  p;
 
@@ -478,11 +478,8 @@
         }
 #endif
 
-        Render_Glyph( x, y );
-
-        x += ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
-
-        if ( x + size->metrics.x_ppem > bit->width )
+        w = ( ( glyph->metrics.horiAdvance + 32 ) >> 6 ) + 1;
+        if ( x + w > bit->width - 4 )
         {
           x  = start_x;
           y += step_y;
@@ -490,6 +487,9 @@
           if ( y >= bit->rows - size->metrics.y_ppem / 5 )
             return FT_Err_Ok;
         }
+
+        Render_Glyph( x, y );
+        x += w;
       }
       else
         Fail++;
@@ -734,53 +734,53 @@
     /* scaling related keys */
 
     case grKeyPageUp:
-      i = 10;
+      ptsize += 10;
       goto Do_Scale;
 
     case grKeyPageDown:
-      i = -10;
+      ptsize -= 10;
       goto Do_Scale;
 
     case grKeyUp:
-      i = 1;
+      ptsize++;
       goto Do_Scale;
 
     case grKeyDown:
-      i = -1;
+      ptsize--;
       goto Do_Scale;
 
     /* glyph index related keys */
 
     case grKeyLeft:
-      i = -1;
+      Num--;
       goto Do_Glyph;
 
     case grKeyRight:
-      i = 1;
+      Num++;
       goto Do_Glyph;
 
     case grKeyF7:
-      i = -16;
+      Num -= 16;
       goto Do_Glyph;
 
     case grKeyF8:
-      i = 16;
+      Num += 16;
       goto Do_Glyph;
 
     case grKeyF9:
-      i = -256;
+      Num -= 256;
       goto Do_Glyph;
 
     case grKeyF10:
-      i = 256;
+      Num += 256;
       goto Do_Glyph;
 
     case grKeyF11:
-      i = -4096;
+      Num -= 4096;
       goto Do_Glyph;
 
     case grKeyF12:
-      i = 4096;
+      Num += 4096;
       goto Do_Glyph;
 
     default:
@@ -798,17 +798,11 @@
 
       /* convert to real axis index */
       axis = (unsigned int)shown_axes[axis];
+      a    = multimaster->axis + axis;
 
-      a   = multimaster->axis + axis;
       rng = a->maximum - a->minimum;
       pos = design_pos[axis];
 
-      /*
-       * Normalize i.  Changing by 20 is all very well for PostScript fonts,
-       * which tend to have a range of ~1000 per axis, but it's not useful
-       * for mac fonts, which have a range of ~3.  And it's rather extreme
-       * for optical size even in PS.
-       */
       pos += (FT_Fixed)( i * rng );
       if ( pos < a->minimum )
         pos = a->maximum;
@@ -850,7 +844,6 @@
     return 1;
 
   Do_Scale:
-    ptsize += i;
     if ( ptsize < 1 )
       ptsize = 1;
     if ( ptsize > MAXPTSIZE )
@@ -858,7 +851,6 @@
     return 1;
 
   Do_Glyph:
-    Num += i;
     if ( Num < 0 )
       Num = 0;
     if ( Num >= num_glyphs )
@@ -1087,12 +1079,15 @@
 
     for ( n = 0; n < used_num_axis; n++ )
     {
+      FT_Var_Axis*  a = multimaster->axis + n;
+
+
       design_pos[n] = n < requested_cnt ? requested_pos[n]
-                                        : multimaster->axis[n].def;
-      if ( design_pos[n] < multimaster->axis[n].minimum )
-        design_pos[n] = multimaster->axis[n].minimum;
-      else if ( design_pos[n] > multimaster->axis[n].maximum )
-        design_pos[n] = multimaster->axis[n].maximum;
+                                        : a->def;
+      if ( design_pos[n] < a->minimum )
+        design_pos[n] = a->minimum;
+      else if ( design_pos[n] > a->maximum )
+        design_pos[n] = a->maximum;
 
       /* for MM fonts, round the design coordinates to integers */
       if ( !FT_IS_SFNT( face ) )
