@@ -82,27 +82,25 @@
 
   static FT_Error      error;        /* error returned by FreeType? */
 
-  static grSurface*    surface;      /* current display surface     */
-  static grBitmap*     bit;          /* current display bitmap      */
+  static grSurface*  surface;        /* current display surface     */
+  static grBitmap*   bit;            /* current display bitmap      */
+  static grColor     fore_color;     /* foreground on black back    */
 
   static unsigned short  width  = DIM_X;     /* window width        */
   static unsigned short  height = DIM_Y;     /* window height       */
 
-  static int  num_glyphs;            /* number of glyphs            */
   static int  ptsize;                /* current point size          */
+  static int  res       = 72;        /* resolution, dpi             */
 
   static int  hinted    = 1;         /* is glyph hinting active?    */
   static int  grouping  = 1;         /* is axis grouping active?    */
   static int  antialias = 1;         /* is anti-aliasing active?    */
   static int  fillrule  = 0x0;       /* flip fill flags or not?     */
   static int  overlaps  = 0x0;       /* flip overlap flags or not?  */
+
+  static int  num_glyphs;            /* number of glyphs            */
   static int  Num;                   /* current first glyph index   */
-
-  static int  res       = 72;
-
-  static grColor  fore_color;
-
-  static int  Fail;
+  static int  Fail;                  /* number of failed glyphs     */
 
   static int  render_mode = 1;
 
@@ -362,12 +360,12 @@
   }
 
 
-  static void
+  static FT_Error
   Reset_Scale( int  pointSize )
   {
-    (void)FT_Set_Char_Size( face,
-                            pointSize << 6, pointSize << 6,
-                            (FT_UInt)res, (FT_UInt)res );
+    return FT_Set_Char_Size( face,
+                             pointSize << 6, pointSize << 6,
+                             (FT_UInt)res, (FT_UInt)res );
   }
 
 
@@ -850,6 +848,7 @@
       ptsize = 1;
     if ( ptsize > MAXPTSIZE )
       ptsize = MAXPTSIZE;
+    Reset_Scale( ptsize );
     return 1;
 
   Do_Glyph:
@@ -904,7 +903,7 @@
   main( int    argc,
         char*  argv[] )
   {
-    int    old_ptsize, orig_ptsize, file;
+    int    orig_ptsize, file;
     int    first_glyph = 0;
     int    option;
     int    file_loaded;
@@ -1035,7 +1034,9 @@
       goto Display_Font;
     }
 
-    font_format = FT_Get_Font_Format( face );
+    error = Reset_Scale( ptsize );
+    if ( error )
+      goto Display_Font;
 
     if ( encoding != FT_ENCODING_NONE )
     {
@@ -1099,22 +1100,19 @@
     if ( error )
       goto Display_Font;
 
-    file_loaded++;
+    file_loaded = 1;
 
-    Reset_Scale( ptsize );
-
-    num_glyphs = face->num_glyphs;
-    glyph      = face->glyph;
-    size       = face->size;
+    font_format = FT_Get_Font_Format( face );
+    num_glyphs  = face->num_glyphs;
+    glyph       = face->glyph;
+    size        = face->size;
 
   Display_Font:
     /* initialize graphics if needed */
     if ( !surface )
       Init_Display();
 
-    old_ptsize = ptsize;
-
-    if ( file_loaded >= 1 )
+    if ( file_loaded )
     {
       Fail = 0;
       Num  = first_glyph;
@@ -1137,7 +1135,7 @@
       strbuf_init( header, Header, sizeof ( Header ) );
       strbuf_reset( header );
 
-      if ( file_loaded >= 1 )
+      if ( file_loaded )
       {
         switch ( render_mode )
         {
@@ -1233,7 +1231,7 @@
 
       if ( key == grKEY( '.' ) )
       {
-        if ( file_loaded >= 1 )
+        if ( file_loaded )
           FT_Done_Face( face );
 
         if ( file < argc - 1 )
@@ -1244,7 +1242,7 @@
 
       if ( key == grKEY( ',' ) )
       {
-        if ( file_loaded >= 1 )
+        if ( file_loaded )
           FT_Done_Face( face );
 
         if ( file > 0 )
@@ -1256,17 +1254,10 @@
       if ( key == grKeyF6 )
       {
         /* enforce reloading */
-        if ( file_loaded >= 1 )
+        if ( file_loaded )
           FT_Done_Face( face );
 
         goto NewFile;
-      }
-
-      if ( ptsize != old_ptsize )
-      {
-        Reset_Scale( ptsize );
-
-        old_ptsize = ptsize;
       }
     }
 
@@ -1280,6 +1271,7 @@
 
     printf( "Execution completed successfully.\n" );
     printf( "Fails = %d\n", Fail );
+    fflush( stdout );  /* clean mintty pipes */
 
     exit( 0 );      /* for safety reasons */
     /* return 0; */ /* never reached */
