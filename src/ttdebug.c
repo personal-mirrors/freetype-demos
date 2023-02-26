@@ -85,7 +85,7 @@
   static FT_Fixed*     requested_pos;
   static unsigned int  requested_cnt;
 
-  static unsigned int  tt_interpreter_versions[3];
+  static unsigned int  tt_interpreter_versions[2];
   static int           num_tt_interpreter_versions;
   static unsigned int  dflt_tt_interpreter_version;
 
@@ -2860,17 +2860,15 @@
 
 
     /* we expect that at least one interpreter version is available */
-    if ( num_tt_interpreter_versions == 2 )
+    if ( num_tt_interpreter_versions == 1 )
+      snprintf( versions, sizeof ( versions ),
+                "%d",
+                tt_interpreter_versions[0] );
+    else
       snprintf( versions, sizeof ( versions ),
                 "%d and %d",
                 tt_interpreter_versions[0],
                 tt_interpreter_versions[1] );
-    else
-      snprintf( versions, sizeof ( versions ),
-                "%d, %d, and %d",
-                tt_interpreter_versions[0],
-                tt_interpreter_versions[1],
-                tt_interpreter_versions[2] );
 
     fprintf( stderr,
       "\n"
@@ -2916,8 +2914,7 @@
 
     int           i;
     const char*   execname;
-    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
-                                  TT_INTERPRETER_VERSION_38,
+    unsigned int  versions[2] = { TT_INTERPRETER_VERSION_35,
                                   TT_INTERPRETER_VERSION_40 };
     int           version;
     int           face_index = 0;
@@ -2955,7 +2952,7 @@
     FT_Property_Get( library,
                      "truetype",
                      "interpreter-version", &dflt_tt_interpreter_version );
-    for ( i = 0; i < 3; i++ )
+    for ( i = 0; i < 2; i++ )
     {
       error = FT_Property_Set( library,
                                "truetype",

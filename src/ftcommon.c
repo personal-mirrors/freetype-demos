@@ -996,12 +996,6 @@
       {
       S1:
       case TT_INTERPRETER_VERSION_35:
-        prop = TT_INTERPRETER_VERSION_38;
-        if ( !FT_Property_Set( library, module_name,
-                                        "interpreter-version", &prop ) )
-          break;
-        /* fall through */
-      case TT_INTERPRETER_VERSION_38:
         prop = TT_INTERPRETER_VERSION_40;
         if ( !FT_Property_Set( library, module_name,
                                         "interpreter-version", &prop ) )
@@ -1083,9 +1077,6 @@
       {
       case TT_INTERPRETER_VERSION_35:
         hinting_engine = "\372v35";
-        break;
-      case TT_INTERPRETER_VERSION_38:
-        hinting_engine = "\372v38";
         break;
       case TT_INTERPRETER_VERSION_40:
         hinting_engine = "\372v40";

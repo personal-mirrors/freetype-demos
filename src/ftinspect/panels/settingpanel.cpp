@@ -758,8 +758,7 @@ SettingPanel::setDefaults()
 
   hintingModeComboBoxModel_->setSupportedModes(
     { defaults.ttInterpreterVersionDefault,
-      defaults.ttInterpreterVersionOther,
-      defaults.ttInterpreterVersionOther1 },
+      defaults.ttInterpreterVersionOther },
     { defaults.cffHintingEngineDefault,
       defaults.cffHintingEngineOther });
 

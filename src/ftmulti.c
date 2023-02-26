@@ -74,7 +74,7 @@
   static unsigned int  cff_hinting_engine;
   static unsigned int  type1_hinting_engine;
   static unsigned int  t1cid_hinting_engine;
-  static unsigned int  tt_interpreter_versions[3];
+  static unsigned int  tt_interpreter_versions[2];
   static unsigned int  num_tt_interpreter_versions;
   static unsigned int  tt_interpreter_version_idx;
 
@@ -911,8 +911,7 @@
     unsigned int  n;
 
     unsigned int  dflt_tt_interpreter_version;
-    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
-                                  TT_INTERPRETER_VERSION_38,
+    unsigned int  versions[2] = { TT_INTERPRETER_VERSION_35,
                                   TT_INTERPRETER_VERSION_40 };
     const char*   execname = ft_basename( argv[0] );
 
@@ -937,7 +936,7 @@
     FT_Property_Get( library,
                      "truetype",
                      "interpreter-version", &dflt_tt_interpreter_version );
-    for ( n = 0; n < 3; n++ )
+    for ( n = 0; n < 2; n++ )
     {
       error = FT_Property_Set( library,
                                "truetype",
@@ -1205,10 +1204,8 @@
                          : "CID Type 1 (Adobe)" );
           else if ( !strcmp( font_format, "TrueType" ) )
             format_str = ( tt_ver == TT_INTERPRETER_VERSION_35
-                                   ? "TrueType (v35)"
-                                   : ( tt_ver == TT_INTERPRETER_VERSION_38
-                                       ? "TrueType (v38)"
-                                       : "TrueType (v40)" ) );
+                         ? "TrueType (v35)"
+                         : "TrueType (v40)" );
 
           strbuf_reset( header );
           strbuf_format(

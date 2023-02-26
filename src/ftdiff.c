@@ -181,7 +181,7 @@
     unsigned int   cff_hinting_engine;
     unsigned int   type1_hinting_engine;
     unsigned int   t1cid_hinting_engine;
-    unsigned int   tt_interpreter_versions[3];
+    unsigned int   tt_interpreter_versions[2];
     int            num_tt_interpreter_versions;
     int            tt_interpreter_version_idx;
 
@@ -229,14 +229,13 @@
     FT_UInt  type1_hinting_engine;
     FT_UInt  t1cid_hinting_engine;
 
-    unsigned int  tt_interpreter_versions[3]  = { 0, 0, 0 };
+    unsigned int  tt_interpreter_versions[2]  = { 0, 0 };
     int           num_tt_interpreter_versions = 0;
     int           tt_interpreter_version_idx  = 0;
 
     unsigned int  dflt_tt_interpreter_version;
     int           i;
-    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
-                                  TT_INTERPRETER_VERSION_38,
+    unsigned int  versions[2] = { TT_INTERPRETER_VERSION_35,
                                   TT_INTERPRETER_VERSION_40 };
 
 
@@ -267,7 +266,7 @@
     FT_Property_Get( library,
                      "truetype",
                      "interpreter-version", &dflt_tt_interpreter_version );
-    for ( i = 0; i < 3; i++ )
+    for ( i = 0; i < 2; i++ )
     {
       error = FT_Property_Set( library,
                                "truetype",
@@ -295,8 +294,6 @@
       tt_interpreter_versions[0];
     state->columns[0].tt_interpreter_versions[1] =
       tt_interpreter_versions[1];
-    state->columns[0].tt_interpreter_versions[2] =
-      tt_interpreter_versions[2];
     state->columns[0].num_tt_interpreter_versions =
       num_tt_interpreter_versions;
     state->columns[0].tt_interpreter_version_idx =
@@ -844,9 +841,6 @@
           {
           case TT_INTERPRETER_VERSION_35:
             extra = " (TT v35)";
-            break;
-          case TT_INTERPRETER_VERSION_38:
-            extra = " (TT v38)";
             break;
           case TT_INTERPRETER_VERSION_40:
             extra = " (TT v40)";

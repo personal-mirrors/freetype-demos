@@ -159,7 +159,7 @@
   static FT_Render_Mode  render_mode = FT_RENDER_MODE_NORMAL;
   static FT_Int32        load_flags  = FT_LOAD_DEFAULT;
 
-  static unsigned int  tt_interpreter_versions[3];
+  static unsigned int  tt_interpreter_versions[2];
   static int           num_tt_interpreter_versions;
   static unsigned int  dflt_tt_interpreter_version;
 
@@ -856,9 +856,6 @@
       case TT_INTERPRETER_VERSION_35:
         hinting_engine = "v35";
         break;
-      case TT_INTERPRETER_VERSION_38:
-        hinting_engine = "v38";
-        break;
       case TT_INTERPRETER_VERSION_40:
         hinting_engine = "v40";
         break;
@@ -968,17 +965,15 @@
 
 
     /* we expect that at least one interpreter version is available */
-    if ( num_tt_interpreter_versions == 2 )
+    if ( num_tt_interpreter_versions == 1 )
+      snprintf( interpreter_versions, sizeof ( interpreter_versions ),
+                "%u",
+                tt_interpreter_versions[0]);
+    else
       snprintf( interpreter_versions, sizeof ( interpreter_versions ),
                 "%u and %u",
                 tt_interpreter_versions[0],
                 tt_interpreter_versions[1] );
-    else
-      snprintf( interpreter_versions, sizeof ( interpreter_versions ),
-                "%u, %u, and %u",
-                tt_interpreter_versions[0],
-                tt_interpreter_versions[1],
-                tt_interpreter_versions[2] );
 
     /* we expect that at least one hinting engine is available */
     if ( num_ps_hinting_engines == 1 )
@@ -1070,8 +1065,7 @@
     int            compare_cached = 0;
     int            j;
 
-    unsigned int  versions[3] = { TT_INTERPRETER_VERSION_35,
-                                  TT_INTERPRETER_VERSION_38,
+    unsigned int  versions[2] = { TT_INTERPRETER_VERSION_35,
                                   TT_INTERPRETER_VERSION_40 };
     unsigned int  engines[2]  = { FT_HINTING_FREETYPE,
                                   FT_HINTING_ADOBE };
@@ -1098,7 +1092,7 @@
     FT_Property_Get( lib,
                      "truetype",
                      "interpreter-version", &dflt_tt_interpreter_version );
-    for ( j = 0; j < 3; j++ )
+    for ( j = 0; j < 2; j++ )
     {
       error = FT_Property_Set( lib,
                                "truetype",

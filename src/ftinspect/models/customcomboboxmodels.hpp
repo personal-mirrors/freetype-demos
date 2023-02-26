@@ -64,7 +64,6 @@ public:
   enum HintingMode : int
   {
     HintingMode_TrueType_v35 = 0,
-    HintingMode_TrueType_v38,
     HintingMode_TrueType_v40,
     HintingMode_CFF_FreeType,
     HintingMode_CFF_Adobe

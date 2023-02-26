@@ -981,23 +981,21 @@ Engine::queryEngine()
     // No TrueType engine.
     engineDefaults_.ttInterpreterVersionDefault = -1;
     engineDefaults_.ttInterpreterVersionOther = -1;
-    engineDefaults_.ttInterpreterVersionOther1 = -1;
   }
   else
   {
     int interpreters[] =
     {
       TT_INTERPRETER_VERSION_35,
-      TT_INTERPRETER_VERSION_38,
       TT_INTERPRETER_VERSION_40
     };
 
     int i;
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < 2; i++)
       if (engineDefaults_.ttInterpreterVersionDefault == interpreters[i])
         break;
 
-    engineDefaults_.ttInterpreterVersionOther = interpreters[(i + 1) % 3];
+    engineDefaults_.ttInterpreterVersionOther = interpreters[(i + 1) % 2];
 
     error = FT_Property_Set(library_,
                             "truetype",
@@ -1005,15 +1003,6 @@ Engine::queryEngine()
                             &engineDefaults_.ttInterpreterVersionOther);
     if (error)
       engineDefaults_.ttInterpreterVersionOther = -1;
-
-    engineDefaults_.ttInterpreterVersionOther1 = interpreters[(i + 2) % 3];
-
-    error = FT_Property_Set(library_,
-                            "truetype",
-                            "interpreter-version",
-                            &engineDefaults_.ttInterpreterVersionOther1);
-    if (error)
-      engineDefaults_.ttInterpreterVersionOther1 = -1;
 
     // Reset.
     FT_Property_Set(library_,

@@ -29,13 +29,6 @@ HintingModeComboBoxModel::HintingModeComboBoxModel(QObject* parent)
     false, false,
     "TrueType v35"
   };
-  items_[HintingMode_TrueType_v38] = {
-    HintingEngineType_TrueType,
-    HintingMode_TrueType_v38,
-    TT_INTERPRETER_VERSION_38,
-    false, false,
-    "TrueType v38"
-  };
   items_[HintingMode_TrueType_v40] = {
     HintingEngineType_TrueType,
     HintingMode_TrueType_v40,

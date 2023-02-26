@@ -63,7 +63,6 @@ public:
 
     int ttInterpreterVersionDefault;
     int ttInterpreterVersionOther;
-    int ttInterpreterVersionOther1;
   };
 
   //////// Ctors & Dtors
