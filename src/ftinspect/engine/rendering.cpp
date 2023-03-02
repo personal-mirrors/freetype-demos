@@ -136,8 +136,7 @@ RenderingEngine::convertGlyphToBitmapGlyph(FT_Glyph src,
 FT_Bitmap
 RenderingEngine::convertBitmapTo8Bpp(FT_Bitmap* bitmap)
 {
-  FT_Bitmap out;
-  out.buffer = NULL;
+  FT_Bitmap out = {};
   // This will create a new bitmap object.
   auto error = FT_Bitmap_Convert(engine_->ftLibrary(), bitmap, &out, 1);
   if (error)
@@ -167,7 +166,7 @@ RenderingEngine::convertBitmapToQImage(FT_Bitmap* src)
 {
   QImage* result = NULL;
 
-  auto& bmap = *src;
+  auto bmap = *src;
   bool ownBitmap = false; // If true, we need to clean up `bmap`.
 
   int width = INT_MAX;

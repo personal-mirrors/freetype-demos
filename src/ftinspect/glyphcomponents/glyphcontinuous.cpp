@@ -552,6 +552,8 @@ GlyphContinuous::drawCacheGlyph(QPainter* painter,
                                 const GlyphCacheEntry& entry,
                                 bool colorInverted)
 {
+  if (!entry.image)
+    return;
   // From `ftview.c:557`.
   // Well, metrics are also part of the cache...
   int width = entry.advance.x ? entry.advance.x >> 16
