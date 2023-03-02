@@ -19,6 +19,7 @@
 
 #include "grobjs.h"
 #include "gblblit.h"
+#include <stdlib.h>
 
 /* generic macros
  */
