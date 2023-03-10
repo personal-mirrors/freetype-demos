@@ -121,7 +121,7 @@ GRAPHOBJ64 = $(OBJDIR)grobjs_64.obj,  \
 
 # C flags
 CFLAGS = $(CCOPT)$(INCLUDES)/obj=$(OBJDIR)/define=("FT2_BUILD_LIBRARY=1")\
-  	/warn=disable=("MACROREDEF")
+	/warn=disable=("MACROREDEF","MAYLOSEDATA3")
 
 .c.obj :
 	cc$(CFLAGS)/point=32/list=$(MMS$TARGET_NAME).lis/show=all $(MMS$SOURCE)
@@ -175,33 +175,37 @@ ftmemchk.exe  : $(OBJDIR)ftmemchk.obj
 ftmemchk_64.exe  : $(OBJDIR)ftmemchk.obj
         link $(LOPTS) $(OBJDIR)ftmemchk_64.obj,[]ft2demos.opt/opt
 ftmulti.exe   : $(OBJDIR)ftmulti.obj,$(OBJDIR)common.obj,$(OBJDIR)mlgetopt.obj\
-	,$(OBJDIR)ftcommon.obj,$(OBJDIR)strbuf.obj,$(GRAPHOBJ)
+	,$(OBJDIR)ftcommon.obj,$(OBJDIR)strbuf.obj,$(OBJDIR)rsvg-port.obj,\
+	$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftmulti.obj,common.obj,mlgetopt,ftcommon,\
-	strbuf,$(GRAPHOBJ),[]ft2demos.opt/opt
+	strbuf,rsvg-port,$(GRAPHOBJ),[]ft2demos.opt/opt
 ftmulti_64.exe   : $(OBJDIR)ftmulti.obj,$(OBJDIR)common.obj,\
 	$(OBJDIR)mlgetopt.obj,$(OBJDIR)ftcommon.obj,$(OBJDIR)strbuf.obj,\
-        $(GRAPHOBJ)
+        $(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftmulti_64.obj,common_64.obj,mlgetopt_64,ftcommon_64,\
-	strbuf_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
+	strbuf_64,rsvg-port_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
 ftview.exe    : $(OBJDIR)ftview.obj,$(OBJDIR)common.obj,$(OBJDIR)ftcommon.obj,\
 	,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,$(OBJDIR)ftpngout.obj,\
-        $(GRAPHOBJ)
+        $(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftview.obj,common.obj,ftcommon.obj,mlgetopt.obj\
-	,strbuf,ftpngout,$(GRAPHOBJ),[]ft2demos.opt/opt
+	,strbuf,ftpngout,rsvg-port.obj,$(GRAPHOBJ),[]ft2demos.opt/opt
 ftview_64.exe    : $(OBJDIR)ftview.obj,$(OBJDIR)common.obj,$(OBJDIR)ftcommon.obj,\
-	,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,$(OBJDIR)ftpngout.obj,$(GRAPHOBJ)
+	,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,$(OBJDIR)ftpngout.obj,\
+        $(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftview_64.obj,common_64.obj,ftcommon_64.obj,\
-	mlgetopt_64.obj,strbuf_64,ftpngout_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
+	mlgetopt_64.obj,strbuf_64,ftpngout_64,rsvg-port_64,$(GRAPHOBJ64),\
+	[]ft2demos.opt/opt
 ftstring.exe  : $(OBJDIR)ftstring.obj,$(OBJDIR)common.obj,\
 	$(OBJDIR)ftcommon.obj,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,\
-        $(OBJDIR)ftpngout.obj,$(GRAPHOBJ)
+        $(OBJDIR)ftpngout.obj,$(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftstring.obj,common.obj,ftcommon.obj,\
-	mlgetopt.obj,strbuf,ftpngout,$(GRAPHOBJ),[]ft2demos.opt/opt
+	mlgetopt.obj,strbuf,ftpngout,rsvg-port,$(GRAPHOBJ),[]ft2demos.opt/opt
 ftstring_64.exe  : $(OBJDIR)ftstring.obj,$(OBJDIR)common.obj,\
 	$(OBJDIR)ftcommon.obj,$(OBJDIR)mlgetopt.obj,$(OBJDIR)strbuf.obj,\
-        $(OBJDIR)ftpngout.obj,$(GRAPHOBJ)
+        $(OBJDIR)ftpngout.obj,$(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftstring_64.obj,common_64.obj,ftcommon_64.obj,\
-	mlgetopt_64.obj,strbuf_64,ftpngout_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
+	mlgetopt_64.obj,strbuf_64,ftpngout_64,rsvg-port_64,$(GRAPHOBJ64),\
+	[]ft2demos.opt/opt
 fttimer.exe   : $(OBJDIR)fttimer.obj
         link $(LOPTS) $(OBJDIR)fttimer.obj,[]ft2demos.opt/opt
 fttimer_64.exe   : $(OBJDIR)fttimer.obj
@@ -215,43 +219,47 @@ compos.exe  : $(OBJDIR)compos.obj
 compos_64.exe  : $(OBJDIR)compos.obj
         link $(LOPTS) $(OBJDIR)compos_64.obj,[]ft2demos.opt/opt
 ftdiff.exe  : $(OBJDIR)ftdiff.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
-	$(OBJDIR)mlgetopt.obj $(OBJDIR)strbuf.obj $(GRAPHOBJ)
+	$(OBJDIR)mlgetopt.obj $(OBJDIR)strbuf.obj,$(OBJDIR)rsvg-port.obj,\
+        $(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftdiff.obj,ftcommon.obj,common.obj,mlgetopt.obj\
-        ,strbuf.obj,$(GRAPHOBJ),[]ft2demos.opt/opt
+        ,strbuf.obj,rsvg-port,$(GRAPHOBJ),[]ft2demos.opt/opt
 ftdiff_64.exe  : $(OBJDIR)ftdiff.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
-	$(OBJDIR)mlgetopt.obj $(OBJDIR)strbuf.obj $(GRAPHOBJ)
+	$(OBJDIR)mlgetopt.obj $(OBJDIR)strbuf.obj,$(OBJDIR)rsvg-port.obj,\
+        $(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftdiff_64.obj,ftcommon_64.obj,common_64.obj,\
-	mlgetopt_64.obj,strbuf_64.obj,$(GRAPHOBJ64),[]ft2demos.opt/opt
+	mlgetopt_64.obj,strbuf_64.obj,rsvg-port_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
 ftgamma.exe  : $(OBJDIR)ftgamma.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
-	$(OBJDIR)strbuf.obj $(GRAPHOBJ)
-        link $(LOPTS) $(OBJDIR)ftgamma.obj,ftcommon,common,strbuf,$(GRAPHOBJ),\
-	[]ft2demos.opt/opt
+	$(OBJDIR)strbuf.obj,$(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftgamma.obj,ftcommon,common,strbuf,rsvg-port,\
+	$(GRAPHOBJ),[]ft2demos.opt/opt
 ftgamma_64.exe  : $(OBJDIR)ftgamma.obj $(OBJDIR)ftcommon.obj\
-	$(OBJDIR)common.obj $(OBJDIR)strbuf.obj $(GRAPHOBJ)
+	$(OBJDIR)common.obj $(OBJDIR)strbuf.obj,$(OBJDIR)rsvg-port.obj,\
+	$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftgamma_64.obj,ftcommon_64,common_64,strbuf_64,\
-        $(GRAPHOBJ64),[]ft2demos.opt/opt
+        rsvg-port_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
 ftgrid.exe  : $(OBJDIR)ftgrid.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
 	$(OBJDIR)strbuf.obj $(OBJDIR)output.obj $(OBJDIR)mlgetopt.obj\
-	$(OBJDIR)ftpngout.obj $(GRAPHOBJ)
+	$(OBJDIR)ftpngout.obj,$(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftgrid.obj,ftcommon,common,strbuf,output,\
-	mlgetopt,ftpngout,$(GRAPHOBJ),[]ft2demos.opt/opt
+	mlgetopt,ftpngout,rsvg-port,$(GRAPHOBJ),[]ft2demos.opt/opt
 ftgrid_64.exe  : $(OBJDIR)ftgrid.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
 	$(OBJDIR)strbuf.obj $(OBJDIR)output.obj $(OBJDIR)mlgetopt.obj\
-	$(OBJDIR)ftpngout.obj $(GRAPHOBJ)
+	$(OBJDIR)ftpngout.obj,$(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftgrid_64.obj,ftcommon_64,common_64,strbuf_64,\
-	output_64,mlgetopt_64,ftpngout_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
+	output_64,mlgetopt_64,ftpngout_64,rsvg-port_64,$(GRAPHOBJ64),\
+	[]ft2demos.opt/opt
 ftpatchk.exe  : $(OBJDIR)ftpatchk.obj
         link $(LOPTS) $(OBJDIR)ftpatchk.obj,[]ft2demos.opt/opt
 ftpatchk_64.exe  : $(OBJDIR)ftpatchk.obj
         link $(LOPTS) $(OBJDIR)ftpatchk_64.obj,[]ft2demos.opt/opt
 ftsdf.exe  : $(OBJDIR)ftsdf.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
-  	$(OBJDIR)strbuf.obj $(GRAPHOBJ)
-        link $(LOPTS) $(OBJDIR)ftsdf.obj,ftcommon,common,strbuf,$(GRAPHOBJ),\
-	[]ft2demos.opt/opt
+	$(OBJDIR)strbuf.obj,$(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
+        link $(LOPTS) $(OBJDIR)ftsdf.obj,ftcommon,common,strbuf,rsvg-port,\
+	$(GRAPHOBJ),[]ft2demos.opt/opt
 ftsdf_64.exe  : $(OBJDIR)ftsdf.obj $(OBJDIR)ftcommon.obj $(OBJDIR)common.obj\
-  	$(OBJDIR)strbuf.obj $(GRAPHOBJ)
+	$(OBJDIR)strbuf.obj,$(OBJDIR)rsvg-port.obj,$(GRAPHOBJ)
         link $(LOPTS) $(OBJDIR)ftsdf_64.obj,ftcommon_64,common_64,strbuf_64,\
-	$(GRAPHOBJ64),[]ft2demos.opt/opt
+	rsvg-port_64,$(GRAPHOBJ64),[]ft2demos.opt/opt
 fttry.exe  : $(OBJDIR)fttry.obj
         link $(LOPTS) $(OBJDIR)fttry.obj,[]ft2demos.opt/opt
 fttry_64.exe  : $(OBJDIR)fttry.obj
@@ -268,6 +276,7 @@ $(OBJDIR)ftchkwd.obj   : $(SRCDIR)ftchkwd.c
 $(OBJDIR)ftlint.obj    : $(SRCDIR)ftlint.c
 $(OBJDIR)ftmemchk.obj  : $(SRCDIR)ftmemchk.c
 $(OBJDIR)ftdump.obj    : $(SRCDIR)ftdump.c
+$(OBJDIR)rsvg-port.obj  : $(SRCDIR)rsvg-port.c
 $(OBJDIR)testname.obj  : $(SRCDIR)testname.c
 $(OBJDIR)ftview.obj    : $(SRCDIR)ftview.c
 $(OBJDIR)grobjs.obj    : $(GRAPHSRC)grobjs.c
