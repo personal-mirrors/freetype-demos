@@ -143,6 +143,26 @@ RenderingEngine::convertBitmapTo8Bpp(FT_Bitmap* bitmap)
   {
     // XXX handling?
   }
+
+  if (out.num_grays == 256)
+    return out;
+
+  // Also scale gray values.
+  auto buf = reinterpret_cast<uint32_t*>(out.buffer);
+  uint32_t scale = 255U / (out.num_grays - 1);
+
+  // Four bytes at a time.
+  unsigned i = 0;
+  unsigned size = std::abs(out.pitch) * out.rows;
+  for (; i <= size - 4; i += 4, buf++)
+    *buf *= scale;
+
+  // The remaining bytes.
+  for (; i < size; i++ )
+    out.buffer[i] *= scale;
+
+  out.num_grays = 256;
+
   return out;
 }
 
