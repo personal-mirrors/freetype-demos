@@ -1,0 +1,60 @@
+# CI setup for FreeType Demo Programs.
+
+stages:
+ - build
+
+# FIXME: Use --werror once warnings are fixed.
+variables:
+  MESON_ARGS: --fatal-meson-warnings
+
+.build macos common:
+  stage: 'build'
+  tags:
+    - 'gst-macos-11.1'
+
+.build linux common:
+  # See
+  # https://gitlab.freedesktop.org/freetype/docker-images/container_registry/20896
+  image: 'registry.freedesktop.org/freetype/docker-images/debian:latest'
+  stage: 'build'
+
+
+macos autotools:
+  extends: '.build macos common'
+  before_script:
+    - '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'
+  script:
+    - brew install autoconf automake libtool
+    - mkdir .freetype-demos
+    - cp -r * .freetype-demos
+    - mv .freetype-demos freetype-demos
+    - git clone https://gitlab.freedesktop.org/freetype/freetype.git
+    - cd freetype
+    - ./autogen.sh
+    - ./configure
+    - 'make -j$(sysctl -n hw.logicalcpu)'
+    - make install
+    - cd ..
+    - cd freetype-demos
+    - make
+
+
+linux autotools:
+  extends: '.build linux common'
+  script: |
+    mkdir .freetype-demos
+    cp -r * .freetype-demos
+    mv .freetype-demos freetype-demos
+    git clone https://gitlab.freedesktop.org/freetype/freetype.git
+    cd freetype
+    ./autogen.sh
+    ./configure --with-brotli=no \
+                --with-bzip2=no \
+                --with-harfbuzz=no \
+                --with-png=no \
+                --with-zlib=no \
+                CC=gcc
+    make -j$(nproc) && make install
+    cd ..
+    cd freetype-demos
+    make
