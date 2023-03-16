@@ -1291,9 +1291,9 @@
     if ( !err )
     {
       int  xmin = 0;
-      int  ymin = size->metrics.descender;
-      int  xmax = size->metrics.max_advance;
-      int  ymax = size->metrics.ascender;
+      int  ymin = size->metrics.y_ppem * -14;
+      int  xmax = size->metrics.x_ppem * 64;
+      int  ymax = size->metrics.y_ppem * 60;
 
       float  x_scale, y_scale;
 
